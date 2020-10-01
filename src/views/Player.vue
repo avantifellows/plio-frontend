@@ -43,20 +43,19 @@ export default {
 
     setPlayerProperties(player) {
       player.on("ready", () => {
-        console.log(this.video_data);
         var questions = this.video_data.ivideo_details.questions.questions;
         var progressBar = document.querySelectorAll(".plyr__progress")[0];
+        var left = progressBar.getBoundingClientRect().left;
+        var right = progressBar.getBoundingClientRect().right;
 
         questions.forEach(function (question) {
-          console.log(question.time);
           var marker = document.createElement("SPAN");
-          marker.className = "plyr__tooltip";
-          marker.style.setProperty("opacity", 1);
-          marker.style.setProperty("background-color", "#ff0");
-          marker.style.setProperty("bottom", "80%");
-          marker.style.setProperty("height", "80%");
-          var pos_percent = (question.time / player.duration) * 100;
-          marker.style.setProperty("left", `${pos_percent}%`);
+          
+          marker.classList.add('tooltip')
+          marker.classList.remove()
+          var pos_percent = (question.time / player.duration);
+          var left_pos = (right - left) * pos_percent;
+          marker.style.setProperty("left",  `${left_pos}px`);
           progressBar.appendChild(marker);
         });
       });
@@ -76,12 +75,6 @@ export default {
   },
   mounted() {
     // Store in data
-    console.log(
-      process.env.VUE_APP_BACKEND_URL +
-        process.env.VUE_APP_BACKEND_IVIDEO_DETAILS +
-        "?ivideo_id=" +
-        this.$route.params.id
-    );
   },
 };
 </script>
@@ -92,4 +85,18 @@ export default {
   width: 800px;
   margin: auto;
 }
+
+.tooltip {
+    background: #E69335;
+    border-radius: 3px;
+    bottom: 100%;
+    line-height: 1.3;
+    padding: calc(10px / 2) calc(calc(10px / 2) * 1.5);
+    pointer-events: none;
+    position: absolute;
+    transform: translate(-50%,14px) scale(1);
+    transform-origin: 50% 100%;
+    z-index: 2;
+}
+
 </style>
