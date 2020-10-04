@@ -5,11 +5,15 @@
   <div class="player_container" v-if="video_data">
 
     <div
-      id="player"
+      id="player" class="plyr"
       data-plyr-provider="youtube"
       :data-plyr-embed-id="video_data.ivideo_details.video_id"
-    ></div>
-    <slot>
+    >
+
+    </div>
+
+
+
     <IvideoQuestion ref="ivideo_question">
       <template v-slot:header>
         <h1>Modal title</h1>
@@ -36,6 +40,8 @@
         </div>
       </template>
     </IvideoQuestion>
+    <slot>
+    
     </slot>
   </div>
 </template>
@@ -89,7 +95,7 @@ export default {
         .catch((err) => console.log(err));
     },
 
-    setPlayerProperties(player) {
+    async setPlayerProperties(player) {
       player.on("ready", () => {
         this.questions = this.video_data.ivideo_details.questions.questions;
         var progressBar = document.querySelectorAll(".plyr__progress")[0];
@@ -110,20 +116,28 @@ export default {
         });
       });
 
-      player.on("timeupdate", () => {
+      player.on("timeupdate", async () => {
         
-        if (this.player.currentTime > 10 && this.player.currentTime < 11) {
+        if (this.player.currentTime > 1 && this.player.currentTime < 2) {
           this.player.pause();
-          if (this.player.fullscreen.active ) {
-            this.player.fullscreen.toggle()	
-            
-            
-            
-          }
+          // if (this.player.fullscreen.active ) {
+          //   this.player.fullscreen.toggle()	
+          // }
+
           this.$refs.ivideo_question.openModal();
-          var player = document.querySelectorAll(".plyr")[0]
-          var modalBackdrop = document.querySelectorAll(".modal")[0]
-          player.appendChild(modalBackdrop)
+
+          while(!document.querySelector(".modal")) {
+            await new Promise(r => setTimeout(r, 500));
+          }
+          var modal = document.getElementsByClassName('modal')[0];
+          if (modal != undefined) {
+            document.getElementsByClassName('plyr')[0].appendChild(document.getElementsByClassName('modal')[0])
+          }
+          // modal.onl
+
+          
+          
+          
 
           
         }
