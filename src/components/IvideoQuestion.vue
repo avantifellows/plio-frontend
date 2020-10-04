@@ -6,7 +6,7 @@
 
       <div class="modal__dialog">
         <div class="modal__header">
-          <slot name="header"/>
+          Question
           <button type="button" class="modal__close" @click="closeModal()">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512">
               <path
@@ -18,11 +18,17 @@
         </div>
 
         <div class="modal__body">
-          <slot name="body"/>
+          <slot name="body" />
+          {{ question_text }}
         </div>
 
         <div class="modal__footer">
-          <slot name="footer"/>
+          <div class="d-flex align-items-center justify-content-between">
+            <button class="btn btn--secondary" @click="closeModal()">
+              Cancel
+            </button>
+            <button class="btn btn--primary" @click="closeModal()">Save</button>
+          </div>
         </div>
       </div>
     </div>
@@ -32,9 +38,11 @@
 <script>
 export default {
   name: "IvideoQuestion",
+  props: ["question_text", "options"],
   data() {
     return {
-      show: false
+      show: false,
+      text: "Hello how are you",
     };
   },
   methods: {
@@ -43,10 +51,11 @@ export default {
       document.querySelector("body").classList.remove("overflow-hidden");
     },
     openModal() {
+      this.text = "What the hell";
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -61,7 +70,7 @@ export default {
   bottom: 0;
   left: 0;
   z-index: 9;
-&__backdrop {
+  &__backdrop {
     background-color: rgba(0, 0, 0, 0.3);
     position: fixed;
     top: 0;

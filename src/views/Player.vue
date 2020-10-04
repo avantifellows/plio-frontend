@@ -1,48 +1,25 @@
 <template>
   {{ $route.params.id }}
 
-    {{ video_data }}
+  {{ video_data }}
   <div class="player_container" v-if="video_data">
-
     <div
-      id="player" class="plyr"
+      id="player"
+      class="plyr"
       data-plyr-provider="youtube"
       :data-plyr-embed-id="video_data.ivideo_details.video_id"
-    >
+    ></div>
 
+    <div v-for="question in questions" :key="question.time">
+      <IvideoQuestion
+        :v-bind:question="question"
+        :ref="question.time.toString()"
+        :question_text="question.question.text"
+        :options="question.question.options"
+      >
+      </IvideoQuestion>
+      {{ question.time }}
     </div>
-
-
-
-    <IvideoQuestion ref="ivideo_question">
-      <template v-slot:header>
-        <h1>Modal title</h1>
-      </template>
-
-      <template v-slot:body>
-        {{ question_text }}
-      </template>
-
-      <template v-slot:footer>
-        <div class="d-flex align-items-center justify-content-between">
-          <button
-            class="btn btn--secondary"
-            @click="$refs.modalName.closeModal()"
-          >
-            Cancel
-          </button>
-          <button
-            class="btn btn--primary"
-            @click="$refs.modalName.closeModal()"
-          >
-            Save
-          </button>
-        </div>
-      </template>
-    </IvideoQuestion>
-    <slot>
-    
-    </slot>
   </div>
 </template>
 
@@ -59,6 +36,7 @@ export default {
       video_data: null,
       questions: null,
       question_text: null,
+      options: null,
     };
   },
   async created() {
@@ -112,35 +90,34 @@ export default {
           marker.style.setProperty("left", `${left_pos}px`);
           progressBar.appendChild(marker);
           question["marker"] = marker;
-          question["state"] = "unanswered";  
+          question["state"] = "notshown";
         });
       });
 
       player.on("timeupdate", async () => {
-        
-        if (this.player.currentTime > 1 && this.player.currentTime < 2) {
-          this.player.pause();
-          // if (this.player.fullscreen.active ) {
-          //   this.player.fullscreen.toggle()	
-          // }
-
-          this.$refs.ivideo_question.openModal();
-
-          while(!document.querySelector(".modal")) {
-            await new Promise(r => setTimeout(r, 500));
+        this.questions.forEach(async (question) => {
+          var t = question.time;
+          if (
+            this.player.currentTime > t &&
+            this.player.currentTime < t + 1 &&
+            question["state"] == "notshown"
+          ) {
+            this.$refs[t.toString()].openModal();
+            while (!document.querySelector(".modal")) {
+              await new Promise((r) => setTimeout(r, 500));
+            }
+            var modal = document.getElementsByClassName("modal")[0];
+            if (modal != undefined) {
+              document
+                .getElementsByClassName("plyr")[0]
+                .appendChild(document.getElementsByClassName("modal")[0]);
+              question["state"] = "unanswered";
+              var marker = question["marker"];
+              this.player.pause();
+              marker.remove();
+            }
           }
-          var modal = document.getElementsByClassName('modal')[0];
-          if (modal != undefined) {
-            document.getElementsByClassName('plyr')[0].appendChild(document.getElementsByClassName('modal')[0])
-          }
-          // modal.onl
-
-          
-          
-          
-
-          
-        }
+        });
       });
     },
   },
