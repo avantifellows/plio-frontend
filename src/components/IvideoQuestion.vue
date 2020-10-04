@@ -20,6 +20,7 @@
         <div class="modal__body">
           <slot name="body" />
           {{ question_text }}
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
         </div>
 
         <div class="modal__footer">
@@ -63,10 +64,12 @@ export default {
 <style lang="scss" scoped>
 .modal {
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
   position: absolute;
   top: 0;
   right: 0;
+  display: flex;
+  justify-content: center;
   bottom: 0;
   left: 0;
   z-index: 9;
@@ -83,8 +86,11 @@ export default {
     background-color: #ffffff;
     position: relative;
     width: 600px;
-    margin: 50px auto;
+    max-height: 100%;
+    margin: auto;
+    justify-content: center;
     display: flex;
+    overflow-y: scroll;
     flex-direction: column;
     border-radius: 5px;
     z-index: 2;
