@@ -10,7 +10,7 @@
     ></div>
 
       <div v-for="ivq in ivideo_questions" :key="ivq.id.toString()">
-        <IvideoQuestion :ivq="ivq.question.question.text" :ref="'position' + ivq.id.toString()">
+        <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()">
         </IvideoQuestion>
       </div>
   </div>
@@ -48,13 +48,14 @@ export default {
             this.$route.params.id
         )
         .then((res) => {
+          console.log(res.data)
           var questions = res.data.ivideo_details.questions.questions;
           this.video_id = res.data.ivideo_details.video_id;
           var i = 0;
           for (i = 0; i < questions.length; i++) {
             this.ivideo_questions.push({
               id: i.toString(),
-              question: questions[i],
+              item: questions[i],
               user_answer: [],
               state: "notshown",
             });
@@ -85,7 +86,7 @@ export default {
         // var left = progressBar.getBoundingClientRect().left;
         // var right = progressBar.getBoundingClientRect().right;
         this.ivideo_questions.forEach(function (ivq) {
-          var question = ivq.question;
+          var question = ivq.item;
           // Add marker to progress bar
           var marker = document.createElement("SPAN");
           marker.classList.add("tooltip");
@@ -100,7 +101,7 @@ export default {
 
       player.on("timeupdate", async () => {
         this.ivideo_questions.forEach(async (ivq) => {
-          var question = ivq.question;
+          var question = ivq.item;
           var t = question.time;
           if (
             this.player.currentTime > t &&
