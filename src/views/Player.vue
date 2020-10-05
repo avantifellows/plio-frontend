@@ -154,15 +154,13 @@ export default {
 }
 
 .tooltip {
-  background: #e69335;
+  background:yellow;
   border-radius: 3px;
   bottom: 100%;
-  line-height: 1.3;
-  padding: calc(10px / 2) calc(calc(10px / 2) * 1.5);
+  padding: 5px 3px;
   pointer-events: none;
   position: absolute;
-  transform: translate(-50%, 14px) scale(1);
-  transform-origin: 50% 100%;
+  transform: translate(-50%, 14px);
   z-index: 2;
 }
 </style>
