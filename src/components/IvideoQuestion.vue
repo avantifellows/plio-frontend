@@ -6,7 +6,7 @@
 
       <div class="modal__dialog">
         <div class="modal__header">
-          Question
+          <h3>Question</h3>
           <button type="button" class="modal__close" @click="closeModal()">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512">
               <path
@@ -18,18 +18,34 @@
         </div>
 
         <div class="modal__body">
-          <slot name="body" />
-          {{ ivq.item.question.text }}
-          {{ ivq.item.question.options }}
+          <div class="question_text">
+            {{ ivq.item.question.text }}
+          </div>
+          <div class="options">
+            <ul>
+              <li class="option">
+                <div
+                  v-for="option in ivq.item.question.options"
+                  :key="option"
+                  class="answer_option radio"
+                >
+                  <input
+                    type="radio"
+                    name="options"
+                    v-model="selectedOption"
+                    :value="option"
+                  />{{ option }}
+                </div>
+              </li>
+            </ul>
+
+            Selected: {{ selectedOption }}
+          </div>
         </div>
 
         <div class="modal__footer">
-          <div class="d-flex align-items-center justify-content-between">
-            <button class="btn btn--secondary" @click="closeModal()">
-              Cancel
-            </button>
-            <button class="btn btn--primary" @click="closeModal()">Save</button>
-          </div>
+          <button class="btn btn--secondary skip" @click="closeModal()">Skip</button>
+          <button class="btn btn--primary submit" @click="closeModal()">Submit</button>
         </div>
       </div>
     </div>
@@ -44,6 +60,7 @@ export default {
     return {
       show: false,
       text: "Hello how are you",
+      selectedOption: null,
     };
   },
   methods: {
@@ -62,12 +79,34 @@ export default {
 
 
 <style lang="scss" scoped>
+$color1: #f4f4;
+$color2: #3197ee;
+
+li {
+  list-style: none;
+}
+
+.answer_option {
+  text-align: left;
+  padding: 2px;
+  margin: 5px;
+}
+
+.question_text {
+  text-align: left;
+}
+
+input {
+  margin: 0.6rem;
+}
+
 .modal {
   overflow-x: hidden;
   overflow-y: hidden;
   position: absolute;
   top: 0;
   right: 0;
+  text-align: left;
   display: flex;
   justify-content: center;
   bottom: 0;
@@ -86,7 +125,7 @@ export default {
     background-color: #ffffff;
     position: relative;
     width: 600px;
-    max-height: 100%;
+    height: 90%;
     margin: auto;
     justify-content: center;
     display: flex;
@@ -98,25 +137,77 @@ export default {
       width: 90%;
     }
   }
+  
+  h3 {
+    padding: 0;
+    margin-top: 16px;
+    margin-bottom: 0;
+  }
   &__close {
     width: 30px;
     height: 30px;
+    margin: 16px;
   }
   &__header {
-    padding: 20px 20px 10px;
+    padding-left: 16px;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
   }
   &__body {
-    padding: 10px 20px 10px;
+    padding: 4px 4px 4px;
+    padding-left: 16px;
+    margin-bottom: 0;
     overflow: auto;
     display: flex;
     flex-direction: column;
     align-items: stretch;
   }
   &__footer {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 10px 20px 20px;
+  }
+
+  .btn {
+    background-color: #4caf50; /* Green */
+    border: none;
+    color: white;
+    padding: 2px 16px;
+    text-align: center;
+    text-decoration: none;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+  } 
+
+  .submit {
+    font-weight: 700;
+    font-size: 1rem;
+    background-color: white; 
+    color: green; 
+
+  }
+
+  .submit:hover {
+    background-color:green;
+    border-radius: 5px;
+    color: white;
+  }
+
+  .skip {
+    font-size: 1rem;
+    font-weight: 500;
+    background-color: white; 
+    color: red; 
+  }
+
+  .skip:hover {
+    background-color: #f44336;
+    border-radius: 5px;
+    color: white;
   }
 }
 .fade-enter-active,
