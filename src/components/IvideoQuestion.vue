@@ -5,17 +5,6 @@
       <!-- <div class="modal__backdrop" @click="closeModal()"/> -->
 
       <div class="modal__dialog">
-        <div class="modal__header">
-          <h3>Question</h3>
-          <button type="button" class="modal__close" @click="closeModal()">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512">
-              <path
-                fill="currentColor"
-                d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-              ></path>
-            </svg>
-          </button>
-        </div>
 
         <div class="modal__body">
           <div class="question_text">
@@ -44,8 +33,12 @@
         </div>
 
         <div class="modal__footer">
-          <button class="btn btn--secondary skip" @click="closeModal()">Skip</button>
-          <button class="btn btn--primary submit" @click="closeModal()">Submit</button>
+          <button class="btn btn--secondary skip" @click="closeModal()">
+            Skip
+          </button>
+          <button class="btn btn--primary submit" :disabled="isDisabled" @click="closeModal()">
+            Submit
+          </button>
         </div>
       </div>
     </div>
@@ -63,13 +56,19 @@ export default {
       selectedOption: null,
     };
   },
+  computed: {
+    isDisabled() {
+      return this.selectedOption == null;
+    }
+  },
   methods: {
     closeModal() {
       this.show = false;
+      this.$emit('answer-submitted', this.ivq, this.selectedOption)
       document.querySelector("body").classList.remove("overflow-hidden");
     },
     openModal() {
-      this.text = "What the hell";
+      this.text = "";
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
     },
@@ -137,7 +136,7 @@ input {
       width: 90%;
     }
   }
-  
+
   h3 {
     padding: 0;
     margin-top: 16px;
@@ -181,27 +180,38 @@ input {
     margin: 4px 2px;
     transition-duration: 0.4s;
     cursor: pointer;
-  } 
+  }
 
   .submit {
     font-weight: 700;
     font-size: 1rem;
-    background-color: white; 
-    color: green; 
-
+    background-color: white;
+    color: green;
   }
 
+  :disabled {
+    color: gray;
+  }
+
+
+
   .submit:hover {
-    background-color:green;
+    background-color: green;
     border-radius: 5px;
     color: white;
+  }
+
+  :disabled:hover {
+    background-color:white;
+    color: gray;
+    cursor:default;
   }
 
   .skip {
     font-size: 1rem;
     font-weight: 500;
-    background-color: white; 
-    color: red; 
+    background-color: white;
+    color: red;
   }
 
   .skip:hover {

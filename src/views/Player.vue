@@ -9,8 +9,8 @@
       :data-plyr-embed-id="video_id"
     ></div>
 
-      <div v-for="ivq in ivideo_questions" :key="ivq.id.toString()">
-        <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()">
+      <div v-for="ivq in ivideo_questions" :key="ivq.id.toString()" >
+        <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()" v-on:answer-submitted="submitAnswer">
         </IvideoQuestion>
       </div>
   </div>
@@ -80,6 +80,12 @@ export default {
         .catch((err) => console.log(err));
     },
 
+    submitAnswer(ivq, answer) {
+      console.log("Answer to be submitted here to Django");
+      console.log("Question: " + ivq.item.question.text)
+      console.log("Submitted answer: " + answer)
+    },
+
     async setPlayerProperties(player) {
       player.on("ready", () => {
         var progressBar = document.querySelectorAll(".plyr__progress")[0];
@@ -104,9 +110,9 @@ export default {
           var question = ivq.item;
           var t = question.time;
           if (
-            this.player.currentTime > t &&
-            this.player.currentTime < t + 1 &&
-            ivq["state"] == "notshown"
+            this.player.currentTime > t
+            && this.player.currentTime < t + 1 
+            && ivq["state"] == "notshown"
           ) {
             var id = ivq.id
             this.$refs['position' + id.toString()].openModal();
