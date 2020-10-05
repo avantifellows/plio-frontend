@@ -10,16 +10,13 @@
       :data-plyr-embed-id="video_data.ivideo_details.video_id"
     ></div>
 
-    <div v-for="question in questions" :key="question.time">
-      <IvideoQuestion
-        :v-bind:question="question"
-        :ref="question.time.toString()"
-        :question_text="question.question.text"
-        :options="question.question.options"
-      >
-      </IvideoQuestion>
-      {{ question.time }}
-    </div>
+      <div v-for="ivq in ivideo_questions" :key="ivq.id.toString()">
+        <IvideoQuestion :v-bind:ivq="ivq.question.question.text" :ref="'position' + ivq.id.toString()">
+        </IvideoQuestion>
+        {{ ivq.question.time }}
+        {{ivq.question.question.text}}
+        {{ dataLoaded }}
+      </div>
   </div>
 </template>
 
@@ -34,9 +31,12 @@ export default {
   data() {
     return {
       video_data: null,
+      ivideo_questions: [],
       questions: null,
       question_text: null,
       options: null,
+      dataLoaded: null,
+      markers: null
     };
   },
   async created() {
@@ -55,7 +55,23 @@ export default {
             "?ivideo_id=" +
             this.$route.params.id
         )
-        .then((res) => (this.video_data = res.data))
+        .then((res) => {
+          this.video_data = res.data;
+          this.questions = this.video_data.ivideo_details.questions.questions;
+          var i = 0;
+          for (i = 0; i < this.questions.length; i++) {
+            console.log(this.questions[i])
+            console.log("YO " + i);
+            this.ivideo_questions.push({
+              id: i.toString(),
+              question: this.questions[i],
+              user_answer: [],
+              state: "notshown",
+            });
+          }
+          console.log(this.ivideo_questions)
+        })
+        .then(() => this.dataLoaded = true)
         .then(
           () =>
             (this.player = new Plyr("#player", {
@@ -69,40 +85,45 @@ export default {
               ],
             }))
         )
+        
         .then(() => this.setPlayerProperties(this.player))
         .catch((err) => console.log(err));
     },
 
     async setPlayerProperties(player) {
       player.on("ready", () => {
-        this.questions = this.video_data.ivideo_details.questions.questions;
         var progressBar = document.querySelectorAll(".plyr__progress")[0];
         var left = progressBar.getBoundingClientRect().left;
         var right = progressBar.getBoundingClientRect().right;
-
-        this.questions.forEach(function (question) {
+        this.markers = {}
+        this.ivideo_questions.forEach(function (ivq) {
+          var question = ivq.question;
+          // Add marker to progress bar
           var marker = document.createElement("SPAN");
-
           marker.classList.add("tooltip");
           marker.classList.remove();
           var pos_percent = question.time / player.duration;
           var left_pos = (right - left) * pos_percent;
           marker.style.setProperty("left", `${left_pos}px`);
           progressBar.appendChild(marker);
-          question["marker"] = marker;
-          question["state"] = "notshown";
+          this.markers[question.time] = marker
         });
       });
 
       player.on("timeupdate", async () => {
-        this.questions.forEach(async (question) => {
+        this.ivideo_questions.forEach(async (ivq) => {
+          var question = ivq.question;
           var t = question.time;
           if (
             this.player.currentTime > t &&
             this.player.currentTime < t + 1 &&
-            question["state"] == "notshown"
+            ivq["state"] == "notshown"
           ) {
-            this.$refs[t.toString()].openModal();
+            console.log(this.$refs)
+            console.log(this.player.currentTime)
+            console.log(ivq.id)
+            var id = ivq.id
+            this.$refs['position' + id.toString()].openModal();
             while (!document.querySelector(".modal")) {
               await new Promise((r) => setTimeout(r, 500));
             }
@@ -111,8 +132,8 @@ export default {
               document
                 .getElementsByClassName("plyr")[0]
                 .appendChild(document.getElementsByClassName("modal")[0]);
-              question["state"] = "unanswered";
-              var marker = question["marker"];
+              ivq["state"] = "unanswered";
+              var marker = this.markers[t];
               this.player.pause();
               marker.remove();
             }
