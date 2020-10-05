@@ -33,12 +33,24 @@ export default {
     }
 
     .ivideo {
+        color:white;
         border: 1px solid #ccc;
-        background: #41b883;
-        padding: 1rem;
+        background: #CC593D;
+        padding: 2rem;
         border-radius: 5px;
         text-align: center;
         position: relative;
         cursor: pointer;
+        text-decoration: none;
+    }
+
+    .ivideo a {
+        text-decoration: none;
+        color: white;
+    }
+
+    .ivideo a:visited {
+        text-decoration: none;
+        color: white;
     }
 </style>

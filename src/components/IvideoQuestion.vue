@@ -5,7 +5,6 @@
       <!-- <div class="modal__backdrop" @click="closeModal()"/> -->
 
       <div class="modal__dialog">
-
         <div class="modal__body">
           <div class="question_text">
             {{ ivq.item.question.text }}
@@ -121,7 +120,7 @@ input {
     z-index: 1;
   }
   &__dialog {
-    background-color: #ffffff;
+    background-color: #eeeeee;
     position: relative;
     width: 600px;
     height: 90%;

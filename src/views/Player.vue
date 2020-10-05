@@ -8,7 +8,6 @@
       data-plyr-provider="youtube"
       :data-plyr-embed-id="video_id"
     ></div>
-
       <div v-for="ivq in ivideo_questions" :key="ivq.id.toString()" >
         <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()" v-on:answer-submitted="submitAnswer">
         </IvideoQuestion>
@@ -47,7 +46,7 @@ export default {
             "?ivideo_id=" +
             this.$route.params.id
         )
-        .then((res) => {
+        .then( (res) => {
           console.log(res.data)
           var questions = res.data.ivideo_details.questions.questions;
           this.video_id = res.data.ivideo_details.video_id;
@@ -60,8 +59,8 @@ export default {
               state: "notshown",
             });
           }
-        })
-        .then(() => this.dataLoaded = true)
+        } )
+        .then( this.dataLoaded = true )
         .then(
           () =>
             (this.player = new Plyr("#player", {
@@ -75,7 +74,6 @@ export default {
               ],
             }))
         )
-        
         .then(() => this.setPlayerProperties(this.player))
         .catch((err) => console.log(err));
     },
@@ -161,7 +159,7 @@ export default {
 }
 
 .tooltip {
-  background:yellow;
+  background:red;
   border-radius: 3px;
   bottom: 100%;
   padding: 5px 3px;
