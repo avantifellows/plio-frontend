@@ -79,6 +79,10 @@ export default {
     },
 
     submitAnswer(ivq, answer) {
+      // start playing whenever the user submits an answer
+      this.player.play()
+
+      // logging for testing
       console.log("Answer to be submitted here to Django");
       console.log("Question: " + ivq.item.question.text)
       console.log("Submitted answer: " + answer)
@@ -98,7 +102,7 @@ export default {
           var pos_percent = 100 * question.time / player.duration; 
           marker.style.setProperty("left", `${pos_percent}%`);
           progressBar.appendChild(marker);
-          ivq["marker"] = marker;
+          //ivq["marker"] = marker;
         });
       });
 
@@ -108,9 +112,10 @@ export default {
           var question = ivq.item;
           var t = question.time;
           if (
+            // 0.05 because the "timeupdate" event is called every 50 mili second
             this.player.currentTime > t
-            && this.player.currentTime < t + 1 
-            && ivq["state"] == "notshown"
+            && this.player.currentTime < t + 0.05
+            //&& ivq["state"] == "notshown"
           ) {
             var id = ivq.id
             this.$refs['position' + id.toString()].openModal();
@@ -122,10 +127,10 @@ export default {
               document
                 .getElementsByClassName("plyr")[0]
                 .appendChild(document.getElementsByClassName("modal")[0]);
-              ivq["state"] = "unanswered";
-              var marker = ivq["marker"];
+              //ivq["state"] = "unanswered";
+              //var marker = ivq["marker"];
               this.player.pause();
-              marker.remove();
+              //marker.remove();
             }
           }
         });
