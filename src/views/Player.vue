@@ -102,7 +102,6 @@ export default {
         });
       });
 
-
       player.on("timeupdate", async () => {
         this.ivideo_questions.forEach(async (ivq) => {
           var question = ivq.item;
