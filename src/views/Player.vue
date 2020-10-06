@@ -24,6 +24,9 @@ import IvideoQuestion from "../components/IvideoQuestion.vue";
 // in milliseconds
 var interval_time = 50
 
+// upload to s3 every 30,000 milliseconds
+var upload_interval = 30000
+
 // placeholder student ID -> to be replaced later with
 // actual student ID
 var student_id = 'dummy'
@@ -193,8 +196,12 @@ export default {
         // Update watch time if the video is playing
         if(this.is_playing) {
           this.watch_time += interval_time;
-        }
 
+          if(this.watch_time % upload_interval == 0) {
+            this.uploadJson()
+          }
+        }
+        
         this.ivideo_questions.forEach(async (ivq) => {
 
           var question = ivq.item;
