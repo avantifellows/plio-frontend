@@ -32,10 +32,10 @@
         </div>
 
         <div class="modal__footer">
-          <button class="btn btn--secondary skip" @click="closeModal()">
+          <button class="btn btn--secondary skip" @click="closeModal(true)">
             Skip
           </button>
-          <button class="btn btn--primary submit" :disabled="isDisabled" @click="closeModal()">
+          <button class="btn btn--primary submit" :disabled="isDisabled" @click="closeModal(false)">
             Submit
           </button>
         </div>
@@ -61,10 +61,12 @@ export default {
     }
   },
   methods: {
-    closeModal() {
+    closeModal(ignore_response) {
       this.show = false;
-      this.$emit('answer-submitted', this.ivq, this.selectedOption)
       document.querySelector("body").classList.remove("overflow-hidden");
+
+      if (!ignore_response) this.$emit('answer-submitted', this.ivq, this.selectedOption)
+      else this.$emit('answer-skipped')
     },
     openModal() {
       this.text = "";

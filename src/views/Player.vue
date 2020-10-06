@@ -9,7 +9,7 @@
       :data-plyr-embed-id="video_id"
     ></div>
       <div v-for="ivq in ivideo_questions" :key="ivq.id.toString()" >
-        <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()" v-on:answer-submitted="submitAnswer">
+        <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()" @answer-submitted="submitAnswer" @answer-skipped="skipAnswer">
         </IvideoQuestion>
       </div>
   </div>
@@ -94,6 +94,14 @@ export default {
       console.log("Submitted answer: " + answer)
     },
 
+    skipAnswer() {
+      // start playing if the user skips the answer
+      this.player.play()
+
+      // logging for testing
+      console.log("Answer skipped");
+    },
+
     async setPlayerProperties(player) {
       player.on("ready", () => {
         var progressBar = document.querySelectorAll(".plyr__progress")[0];
@@ -127,8 +135,6 @@ export default {
         // Update watch time if the video is playing
         if(this.is_playing) {
           this.watch_time += interval_time;
-          ///////////////////
-          console.log(this.watch_time)
         }
 
         this.ivideo_questions.forEach(async (ivq) => {
