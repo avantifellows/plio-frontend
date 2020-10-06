@@ -84,6 +84,7 @@ export default {
       console.log("Submitted answer: " + answer)
     },
 
+
     async setPlayerProperties(player) {
       player.on("ready", () => {
         var progressBar = document.querySelectorAll(".plyr__progress")[0];
@@ -103,7 +104,7 @@ export default {
       });
 
 
-      player.on("timeupdate", async () => {
+      player.on("timeupdate", async () => {        
         this.ivideo_questions.forEach(async (ivq) => {
           var question = ivq.item;
           var t = question.time;

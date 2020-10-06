@@ -1,5 +1,6 @@
 <template>
   <div id="app" class="container">
+    Welcome to Plio!
     <IvideoList />
   </div>  
 </template>
