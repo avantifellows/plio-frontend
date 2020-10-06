@@ -140,8 +140,8 @@ export default {
           this.watch_time += interval_time;
         }
 
-        this.ivideo_questions.forEach(async (ivq, index) => {
-          
+        this.ivideo_questions.forEach(async (ivq) => {
+
           var question = ivq.item;
           var t = question.time;
           if (
