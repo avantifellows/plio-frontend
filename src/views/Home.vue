@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="container">
-    Welcome to Plio!
+    Welcome to Plio! Have fun!
     <IvideoList />
   </div>  
 </template>
