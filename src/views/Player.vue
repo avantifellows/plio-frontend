@@ -88,6 +88,9 @@ export default {
       // start playing whenever the user submits an answer
       this.player.play()
 
+      // Update state to "answered"
+      ivq["state"] = "answered"
+
       // logging for testing
       console.log("Answer to be submitted here to Django");
       console.log("Question: " + ivq.item.question.text)
@@ -137,7 +140,8 @@ export default {
           this.watch_time += interval_time;
         }
 
-        this.ivideo_questions.forEach(async (ivq) => {
+        this.ivideo_questions.forEach(async (ivq, index) => {
+          
           var question = ivq.item;
           var t = question.time;
           if (
@@ -156,7 +160,8 @@ export default {
               document
                 .getElementsByClassName("plyr")[0]
                 .appendChild(document.getElementsByClassName("modal")[0]);
-              //ivq["state"] = "unanswered";
+
+              if (ivq["state"] == "notshown") ivq["state"] = "unanswered"; 
               //var marker = ivq["marker"];
               this.player.pause();
               //marker.remove();
