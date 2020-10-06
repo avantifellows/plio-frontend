@@ -20,6 +20,10 @@ import Plyr from "plyr";
 import axios from "axios";
 import IvideoQuestion from "../components/IvideoQuestion.vue";
 
+// The time period in which Plyr timeupdate event repeats
+// in milliseconds
+var interval_time = 50
+
 export default {
   name: "Player",
 
@@ -28,6 +32,8 @@ export default {
       ivideo_questions: [],
       dataLoaded: null,
       video_id: null,
+      watch_time: 0,
+      is_playing: false
     };
   },
   async created() {
@@ -106,14 +112,32 @@ export default {
         });
       });
 
+      // sets isPlaying = true if the video is playing
+      player.on("playing", async () => {
+          this.is_playing = true
+      });
+
+      // sets isPlaying = false if the video is NOT playing
+      player.on("pause", async () => {
+          this.is_playing = false
+      });
+
       player.on("timeupdate", async () => {
+
+        // Update watch time if the video is playing
+        if(this.is_playing) {
+          this.watch_time += interval_time;
+          ///////////////////
+          console.log(this.watch_time)
+        }
+
         this.ivideo_questions.forEach(async (ivq) => {
           var question = ivq.item;
           var t = question.time;
           if (
-            // 0.05 because the "timeupdate" event is called every 50 mili second
+            // "timeupdate" event is called every interval_time millisecond
             this.player.currentTime > t
-            && this.player.currentTime < t + 0.05
+            && this.player.currentTime < t + (interval_time/1000)
             //&& ivq["state"] == "notshown"
           ) {
             var id = ivq.id
