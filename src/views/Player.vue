@@ -24,6 +24,10 @@ import IvideoQuestion from "../components/IvideoQuestion.vue";
 // in milliseconds
 var interval_time = 50
 
+// placeholder student ID -> to be replaced later with
+// actual student ID
+var student_id = 'dummy'
+
 export default {
   name: "Player",
 
@@ -33,7 +37,10 @@ export default {
       dataLoaded: null,
       video_id: null,
       watch_time: 0,
-      is_playing: false
+      is_playing: false,
+      answers: [],
+      questions: [],
+      options: []
     };
   },
   async created() {
@@ -58,14 +65,23 @@ export default {
           this.video_id = res.data.ivideo_details.video_id;
           var i = 0;
           for (i = 0; i < questions.length; i++) {
-            this.ivideo_questions.push({
+            let ivq = {
               id: i.toString(),
               item: questions[i],
               user_answer: [],
               state: "notshown",
-            });
+            }
+            this.ivideo_questions.push(ivq);
+
+            // set empty answer for each question
+            this.answers.push(ivq.user_answer)
           }
-        } )
+
+          // set the global list of questions and 
+          // options (this.questions, this.options) 
+          this.questions = res.data.questions_list
+          this.options = res.data.set_of_options
+        })
         .then( this.dataLoaded = true )
         .then(
           () =>
@@ -84,12 +100,51 @@ export default {
         .catch((err) => console.log(err));
     },
 
+    // upload responses to S3
+    uploadJson() {
+      const student_response = {
+          'response': {
+              'answers': this.answers,
+              'questions': this.questions,
+              'options': this.options,
+              'watch-time': this.watch_time
+          },
+          'meta': {
+              'object_id': this.video_id,
+              'student_id': student_id
+          }
+      }
+      const json_response = JSON.stringify(student_response)
+      console.log(json_response)
+
+      fetch(process.env.VUE_APP_BACKEND_URL +
+            process.env.VUE_APP_BACKEND_UPDATE_RESPONSE, {method: 'POST', body: json_response,
+          headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+          }})
+          .then(response => response.json())
+          .then(data => console.log(data))
+          .catch(err => console.log(err))
+    },
+
     submitAnswer(ivq, answer) {
       // start playing whenever the user submits an answer
       this.player.play()
 
       // Update state to "answered"
       ivq["state"] = "answered"
+
+      // update answer for this question
+      ivq.user_answer = answer
+
+      // TODO: make this better -> not using the
+      // benefits of Vue here
+      var index = Number(ivq.id)
+      this.answers[index] = answer
+
+      // update response on S3
+      this.uploadJson()
 
       // logging for testing
       console.log("Answer to be submitted here to Django");
