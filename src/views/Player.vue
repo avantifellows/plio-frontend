@@ -60,7 +60,6 @@ export default {
   },
   methods: {
     logData() {
-      console.log("HELLO")
       if (this.ivideo_id != undefined) this.uploadJson()
       timeout = setTimeout(this.logData, upload_interval)
     },
