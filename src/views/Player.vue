@@ -26,6 +26,7 @@ var interval_time = 50
 
 // upload to s3 after a fixed interval of time 
 var upload_interval = 10000
+var timeout = null;
 
 export default {
 
@@ -59,8 +60,9 @@ export default {
   },
   methods: {
     logData() {
+      console.log("HELLO")
       if (this.ivideo_id != undefined) this.uploadJson()
-      setTimeout(this.logData, upload_interval)
+      timeout = setTimeout(this.logData, upload_interval)
     },
 
     fetchData() {
@@ -243,6 +245,9 @@ export default {
   mounted() {
     // Store in data
   },
+  beforeUnmount() {
+    clearTimeout(timeout)
+  }
 };
 </script>
 
