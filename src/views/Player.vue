@@ -48,7 +48,6 @@ export default {
   },
   async created() {
     await this.fetchData();
-    this.logData();
   },
 
   components: {
@@ -56,7 +55,7 @@ export default {
   },
   methods: {
     logData() {
-      this.uploadJson()
+      if (this.ivideo_id != undefined) this.uploadJson()
       setTimeout(this.logData, upload_interval)
     },
 
@@ -107,6 +106,7 @@ export default {
             }))
         )
         .then(() => this.setPlayerProperties(this.player))
+        .then(this.logData())
         .catch((err) => console.log(err));
     },
 
@@ -154,6 +154,9 @@ export default {
 
       // update response on S3
       this.uploadJson()
+
+      // logging for testing
+      console.log("Answer sent");
     },
 
     skipAnswer() {
