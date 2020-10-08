@@ -9,7 +9,7 @@
       :data-plyr-embed-id="video_id"
     ></div>
       <div v-for="ivq in ivideo_questions" :key="ivq.id.toString()" >
-        <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()" v-on:answer-submitted="submitAnswer">
+        <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()" @answer-submitted="submitAnswer" @answer-skipped="skipAnswer">
         </IvideoQuestion>
       </div>
   </div>
@@ -20,6 +20,17 @@ import Plyr from "plyr";
 import axios from "axios";
 import IvideoQuestion from "../components/IvideoQuestion.vue";
 
+// The time period in which Plyr timeupdate event repeats
+// in milliseconds
+var interval_time = 50
+
+// upload to s3 after a fixed interval of time 
+var upload_interval = 10000
+
+// placeholder student ID -> to be replaced later with
+// actual student ID
+var student_id = 'dummy'
+
 export default {
   name: "Player",
 
@@ -28,6 +39,11 @@ export default {
       ivideo_questions: [],
       dataLoaded: null,
       video_id: null,
+      watch_time: 0,
+      answers: [],
+      questions: [],
+      options: [],
+      ivideo_id: null
     };
   },
   async created() {
@@ -38,6 +54,11 @@ export default {
     IvideoQuestion,
   },
   methods: {
+    logData() {
+      if (this.ivideo_id != undefined) this.uploadJson()
+      setTimeout(this.logData, upload_interval)
+    },
+
     fetchData() {
       axios
         .get(
@@ -50,16 +71,26 @@ export default {
           console.log(res.data)
           var questions = res.data.ivideo_details.questions.questions;
           this.video_id = res.data.ivideo_details.video_id;
+          this.ivideo_id = res.data.ivideo_id
           var i = 0;
           for (i = 0; i < questions.length; i++) {
-            this.ivideo_questions.push({
+            let ivq = {
               id: i.toString(),
               item: questions[i],
               user_answer: [],
               state: "notshown",
-            });
+            }
+            this.ivideo_questions.push(ivq);
+
+            // set empty answer for each question
+            this.answers.push(ivq.user_answer)
           }
-        } )
+
+          // set the global list of questions and 
+          // options (this.questions, this.options) 
+          this.questions = res.data.questions_list
+          this.options = res.data.set_of_options
+        })
         .then( this.dataLoaded = true )
         .then(
           () =>
@@ -75,17 +106,65 @@ export default {
             }))
         )
         .then(() => this.setPlayerProperties(this.player))
+        .then(this.logData())
         .catch((err) => console.log(err));
+    },
+
+    // upload responses to S3
+    uploadJson() {
+      const student_response = {
+          'response': {
+              'answers': this.answers,
+              'questions': this.questions,
+              'options': this.options,
+              'watch-time': this.watch_time
+          },
+          'meta': {
+              'object_id': this.ivideo_id,
+              'student_id': student_id
+          }
+      }
+      const json_response = JSON.stringify(student_response)
+
+      fetch(process.env.VUE_APP_BACKEND_URL +
+            process.env.VUE_APP_BACKEND_UPDATE_RESPONSE, {method: 'POST', body: json_response,
+          headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+          }})
+          .then(response => response.json())
+          .then(data => console.log(data))
+          .catch(err => console.log(err))
     },
 
     submitAnswer(ivq, answer) {
       // start playing whenever the user submits an answer
       this.player.play()
 
+      // Update state to "answered"
+      ivq["state"] = "answered"
+
+      // update answer for this question
+      ivq.user_answer = answer
+
+      // TODO: make this better -> not using the
+      // benefits of Vue here
+      var index = Number(ivq.id)
+      this.answers[index] = answer
+
+      // update response on S3
+      this.uploadJson()
+
       // logging for testing
-      console.log("Answer to be submitted here to Django");
-      console.log("Question: " + ivq.item.question.text)
-      console.log("Submitted answer: " + answer)
+      console.log("Answer sent");
+    },
+
+    skipAnswer() {
+      // start playing if the user skips the answer
+      this.player.play()
+
+      // logging for testing
+      console.log("Answer skipped");
     },
 
     async setPlayerProperties(player) {
@@ -107,13 +186,20 @@ export default {
       });
 
       player.on("timeupdate", async () => {
+
+        // Update watch time if the video is playing
+        if(this.player.playing) {
+          this.watch_time += interval_time;
+        }
+        
         this.ivideo_questions.forEach(async (ivq) => {
+
           var question = ivq.item;
           var t = question.time;
           if (
-            // 0.05 because the "timeupdate" event is called every 50 mili second
+            // "timeupdate" event is called every interval_time millisecond
             this.player.currentTime > t
-            && this.player.currentTime < t + 0.05
+            && this.player.currentTime < t + (interval_time/1000)
             //&& ivq["state"] == "notshown"
           ) {
             var id = ivq.id
@@ -126,7 +212,8 @@ export default {
               document
                 .getElementsByClassName("plyr")[0]
                 .appendChild(document.getElementsByClassName("modal")[0]);
-              //ivq["state"] = "unanswered";
+
+              if (ivq["state"] == "notshown") ivq["state"] = "unanswered"; 
               //var marker = ivq["marker"];
               this.player.pause();
               //marker.remove();
