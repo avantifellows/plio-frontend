@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import Player from '../views/Player.vue'
+import PhoneSignIn from '../views/PhoneSignIn'
 
 const routes = [
   {
@@ -21,6 +22,11 @@ const routes = [
     name: 'Player',
     component: Player
   },
+  {
+    path: '/login/:id?',
+    name: 'Phone Sign In',
+    component: PhoneSignIn
+  }
 ]
 
 const router = createRouter({
