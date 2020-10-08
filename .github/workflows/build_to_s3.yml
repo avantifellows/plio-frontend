@@ -1,6 +1,5 @@
 name: Production Build (Deploy to S3)
 on:
-  pull_request:
   push:
     branches:
       - release
