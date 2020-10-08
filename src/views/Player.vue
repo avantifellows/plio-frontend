@@ -24,8 +24,8 @@ import IvideoQuestion from "../components/IvideoQuestion.vue";
 // in milliseconds
 var interval_time = 50
 
-// upload to s3 every 30,000 milliseconds
-var upload_interval = 30000
+// upload to s3 after a fixed interval of time 
+var upload_interval = 10000
 
 // placeholder student ID -> to be replaced later with
 // actual student ID
@@ -40,20 +40,26 @@ export default {
       dataLoaded: null,
       video_id: null,
       watch_time: 0,
-      is_playing: false,
       answers: [],
       questions: [],
-      options: []
+      options: [],
+      ivideo_id: null
     };
   },
   async created() {
     await this.fetchData();
+    this.logData();
   },
 
   components: {
     IvideoQuestion,
   },
   methods: {
+    logData() {
+      this.uploadJson()
+      setTimeout(this.logData, upload_interval)
+    },
+
     fetchData() {
       axios
         .get(
@@ -66,6 +72,7 @@ export default {
           console.log(res.data)
           var questions = res.data.ivideo_details.questions.questions;
           this.video_id = res.data.ivideo_details.video_id;
+          this.ivideo_id = res.data.ivideo_id
           var i = 0;
           for (i = 0; i < questions.length; i++) {
             let ivq = {
@@ -113,12 +120,11 @@ export default {
               'watch-time': this.watch_time
           },
           'meta': {
-              'object_id': this.video_id,
+              'object_id': this.ivideo_id,
               'student_id': student_id
           }
       }
       const json_response = JSON.stringify(student_response)
-      console.log(json_response)
 
       fetch(process.env.VUE_APP_BACKEND_URL +
             process.env.VUE_APP_BACKEND_UPDATE_RESPONSE, {method: 'POST', body: json_response,
@@ -148,11 +154,6 @@ export default {
 
       // update response on S3
       this.uploadJson()
-
-      // logging for testing
-      console.log("Answer to be submitted here to Django");
-      console.log("Question: " + ivq.item.question.text)
-      console.log("Submitted answer: " + answer)
     },
 
     skipAnswer() {
@@ -181,25 +182,11 @@ export default {
         });
       });
 
-      // sets isPlaying = true if the video is playing
-      player.on("playing", async () => {
-          this.is_playing = true
-      });
-
-      // sets isPlaying = false if the video is NOT playing
-      player.on("pause", async () => {
-          this.is_playing = false
-      });
-
       player.on("timeupdate", async () => {
 
         // Update watch time if the video is playing
-        if(this.is_playing) {
+        if(this.player.playing) {
           this.watch_time += interval_time;
-
-          if(this.watch_time % upload_interval == 0) {
-            this.uploadJson()
-          }
         }
         
         this.ivideo_questions.forEach(async (ivq) => {
