@@ -42,7 +42,7 @@ export default {
         })
         .then(() => {
           if (this.$route.params.id) {
-            console.log("id:" + this.$route.params.id);
+            this.$router.push( {path: "/play/" + this.$route.params.id})
           } else {
             this.$router.push({ path: "/" });
           }
