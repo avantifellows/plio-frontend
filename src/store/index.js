@@ -28,7 +28,6 @@ export default createStore({
   },
   actions: {
     login({ commit }, creds) {
-      console.log(creds)
       commit(LOGIN); // show spinner
       return new Promise(resolve => {
         setTimeout(() => {

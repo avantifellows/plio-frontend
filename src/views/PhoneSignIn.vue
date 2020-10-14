@@ -26,13 +26,22 @@ export default {
   watch: {
     phone_input: function () {
       let phone = PhoneNumber(this.phone_input.toString(), "IN");
-      console.log(phone.isValid());
       if (!phone.isValid()) {
         this.isSubmitDisabled = true;
       } else {
         this.isSubmitDisabled = false;
       }
     },
+  },
+  created() {
+      if (this.isLoggedIn) {
+        this.$router.push('/')
+    }
+  },
+  computed: {
+    isLoggedIn() {
+      return this.$store.getters.isLoggedIn;
+    }
   },
   methods: {
     storePhone() {

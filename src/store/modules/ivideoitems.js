@@ -13,7 +13,6 @@ const actions = {
     );
     
     var all_ivideos = response.data["all_ivideos"]
-    console.log(all_ivideos)
     commit('setIvideosList', all_ivideos);
   },
 };
