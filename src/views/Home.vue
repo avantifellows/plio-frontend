@@ -10,9 +10,21 @@
 import IvideoList from '../components/IvideoList.vue'
 
 export default {
+  created() {
+    if (!this.isLoggedIn) {
+      this.$router.push('/login/')
+    }
+  },
+
   name: "Home",
   components: {
     IvideoList
+  },
+
+  computed: {
+    isLoggedIn() {
+      return this.$store.getters.isLoggedIn;
+    }
   }
 };
 </script>

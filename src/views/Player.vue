@@ -26,16 +26,16 @@ var interval_time = 50
 
 // upload to s3 after a fixed interval of time 
 var upload_interval = 10000
-
-// placeholder student ID -> to be replaced later with
-// actual student ID
-var student_id = 'dummy'
+var timeout = null;
 
 export default {
+
+
   name: "Player",
 
   data() {
     return {
+      student_id: '',
       ivideo_questions: [],
       dataLoaded: null,
       video_id: null,
@@ -47,6 +47,11 @@ export default {
     };
   },
   async created() {
+    if (!localStorage.phone) {
+      this.$router.push({path: '/login/' + this.$route.params.id})
+    }
+    this.student_id = localStorage.phone,
+    console.log("Setting student id to: " + this.student_id)
     await this.fetchData();
   },
 
@@ -56,7 +61,7 @@ export default {
   methods: {
     logData() {
       if (this.ivideo_id != undefined) this.uploadJson()
-      setTimeout(this.logData, upload_interval)
+      timeout = setTimeout(this.logData, upload_interval)
     },
 
     fetchData() {
@@ -121,7 +126,7 @@ export default {
           },
           'meta': {
               'object_id': this.ivideo_id,
-              'student_id': student_id
+              'student_id': this.student_id
           }
       }
       const json_response = JSON.stringify(student_response)
@@ -239,6 +244,9 @@ export default {
   mounted() {
     // Store in data
   },
+  beforeUnmount() {
+    clearTimeout(timeout)
+  }
 };
 </script>
 
