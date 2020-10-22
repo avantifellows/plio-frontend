@@ -67,7 +67,7 @@ export default {
     fetchData() {
       axios
         .get(
-          process.env.VUE_APP_BACKEND_URL +
+          process.env.VUE_APP_BACKEND +
             process.env.VUE_APP_BACKEND_IVIDEO_DETAILS +
             "?ivideo_id=" +
             this.$route.params.id
@@ -131,7 +131,7 @@ export default {
       }
       const json_response = JSON.stringify(student_response)
 
-      fetch(process.env.VUE_APP_BACKEND_URL +
+      fetch(process.env.VUE_APP_BACKEND +
             process.env.VUE_APP_BACKEND_UPDATE_RESPONSE, {method: 'POST', body: json_response,
           headers: {
               'Accept': 'application/json',
