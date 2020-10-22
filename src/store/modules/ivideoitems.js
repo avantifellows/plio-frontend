@@ -9,7 +9,7 @@ const getters = {
 const actions = {
   async fetchIvideos({ commit }) {
     const response = await axios.get(
-      process.env.VUE_APP_BACKEND_URL + process.env.VUE_APP_BACKEND_IVIDEOS_LIST
+      process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_IVIDEOS_LIST
     );
     
     var all_ivideos = response.data["all_ivideos"]
