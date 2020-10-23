@@ -4,7 +4,7 @@
       <p>कृपया अपना मोबाइल नंबर डालें</p>
       <p>Please enter your mobile number (10 digits only)</p>
     </div>
-    <input id="phone" v-model="phone_input" type="phone" maxlength="10" />
+    <input id="phone" v-model="phone_input" type="number" maxlength="10" />
     <div class="watch_plio">
       <button id="submit" :disabled="isSubmitDisabled" @click="storePhone">
         Watch Plio!

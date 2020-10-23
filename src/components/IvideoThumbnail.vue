@@ -1,13 +1,11 @@
 <template>
-<div class="ivideo">
-      <router-link :to="'/play/' +  ivideo.object_id" >{{ ivideo.object_id }}</router-link>
-    <div class="title">
-      {{ ivideo.title }}
-    </div>
-    <div class="created_date"><i>Created: </i> {{ ivideo.created }}</div>
-    <div class="id">ID: {{ ivideo.object_id }}</div>
-  
+<router-link :to="'/play/' +  ivideo.object_id" tag="div" class="ivideo">
+  <div class="title">
+    {{ ivideo.title }}
   </div>
+  <div class="created_date"><i>Created: </i> {{ ivideo.created }}</div>
+  <div class="id">ID: {{ ivideo.object_id }}</div>
+</router-link>
 </template>
 
 <script>
