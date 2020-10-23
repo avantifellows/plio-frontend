@@ -20,6 +20,7 @@ export default createStore({
       state.pending = true;
     },
     [LOGIN_SUCCESS] (state) {
+      state.pending = false;
       state.isLoggedIn = true;
     },
     [LOGOUT] (state) {
