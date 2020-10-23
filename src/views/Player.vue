@@ -111,7 +111,7 @@ export default {
             }))
         )
         .then(() => this.setPlayerProperties(this.player))
-        .then(this.logData())
+        .then(() => this.logData())
         .catch((err) => console.log(err));
     },
 
