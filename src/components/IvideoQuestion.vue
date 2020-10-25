@@ -87,10 +87,13 @@ li {
   text-align: left;
   padding: 2px;
   margin: 5px;
+  font-size: 1.3rem;
 }
 
 .question_text {
   text-align: left;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
 input {
@@ -109,6 +112,7 @@ input {
   bottom: 0;
   left: 0;
   z-index: 9;
+  padding-top: 16px;
   &__backdrop {
     background-color: rgba(0, 0, 0, 0.3);
     position: fixed;
