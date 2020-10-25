@@ -108,6 +108,13 @@ export default {
                 "volume",
                 "fullscreen",
               ],
+
+              keyboard: {
+                    focused: false,
+                    global: false
+              },
+              
+              invertTime: false,
             }))
         )
         .then(() => this.setPlayerProperties(this.player))
