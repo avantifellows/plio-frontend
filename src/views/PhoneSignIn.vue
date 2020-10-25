@@ -4,7 +4,7 @@
       <p>कृपया अपना मोबाइल नंबर डालें</p>
       <p>Please enter your mobile number (10 digits only)</p>
     </div>
-    <input id="phone" v-model="phone_input" type="number" maxlength="10" />
+    <input id="phone" v-model="phone_input" type="tel" maxlength="10" />
     <div class="watch_plio">
       <button id="submit" :disabled="isSubmitDisabled" @click="storePhone">
         Watch Plio!
@@ -14,7 +14,6 @@
 </template>
 
 <script>
-import PhoneNumber from "awesome-phonenumber";
 
 export default {
   data() {
@@ -25,12 +24,12 @@ export default {
   },
   watch: {
     phone_input: function () {
-      let phone = PhoneNumber(this.phone_input.toString(), "IN");
-      if (!phone.isValid()) {
-        this.isSubmitDisabled = true;
-      } else {
+      let isPhoneValid = this.isPhoneValid();
+      
+      if (isPhoneValid) 
         this.isSubmitDisabled = false;
-      }
+      else 
+        this.isSubmitDisabled = true;
     },
   },
   created() {
@@ -57,6 +56,14 @@ export default {
           }
         });
     },
+
+    isPhoneValid(){
+      var num_match = this.phone_input.toString().match(
+        /^([0]|\+91)?[6-9]\d{9}$/g);
+
+      if (num_match != null) return true;
+      return false;
+    }
   },
 };
 </script>
