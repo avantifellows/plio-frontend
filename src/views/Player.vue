@@ -110,8 +110,8 @@ export default {
               ],
 
               keyboard: {
-                    focused: false,
-                    global: false
+                focused: false,
+                global: false
               },
               
               invertTime: false,
