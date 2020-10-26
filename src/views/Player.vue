@@ -1,18 +1,18 @@
 <template>
   {{ $route.params.id }}
 
-  <div class="player_container" v-if="dataLoaded">
-    <div
-      id="player"
-      class="plyr"
-      data-plyr-provider="youtube"
-      :data-plyr-embed-id="video_id"
-    ></div>
-      <div v-for="ivq in ivideo_questions" :key="ivq.id.toString()" >
-        <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()" @answer-submitted="submitAnswer" @answer-skipped="skipAnswer">
-        </IvideoQuestion>
-      </div>
-  </div>
+    <div class="player_container" v-if="dataLoaded">
+      <div
+        id="player"
+        class="plyr"
+        data-plyr-provider="youtube"
+        :data-plyr-embed-id="video_id"
+      ></div>
+        <div v-for="ivq in ivideo_questions" :key="ivq.id.toString()" >
+          <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()" @answer-submitted="submitAnswer" @answer-skipped="skipAnswer">
+          </IvideoQuestion>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -22,10 +22,10 @@ import IvideoQuestion from "../components/IvideoQuestion.vue";
 
 // The time period in which Plyr timeupdate event repeats
 // in milliseconds
-var interval_time = 50
+var interval_time = 50;
 
 // upload to s3 after a fixed interval of time 
-var upload_interval = 10000
+var upload_interval = 10000;
 var timeout = null;
 
 export default {
@@ -52,7 +52,7 @@ export default {
     }
     this.student_id = localStorage.phone,
     console.log("Setting student id to: " + this.student_id)
-    await this.fetchData();
+    await this.fetchData();    
   },
 
   components: {
@@ -102,6 +102,7 @@ export default {
             (this.player = new Plyr("#player", {
               controls: [
                 "play",
+                "play-large",
                 "progress",
                 "current-time",
                 "mute",
@@ -197,6 +198,20 @@ export default {
           //ivq["marker"] = marker;
         });
       });
+
+      player.on('play', event => {
+        const instance = event.detail.plyr;
+        instance.fullscreen.enter()
+      });
+
+      player.on('enterfullscreen', () => {
+          screen.orientation.lock('landscape');
+      });
+
+      player.on('exitfullscreen', event => {
+        const instance = event.detail.plyr;
+        instance.fullscreen.enter()
+      })
 
       player.on("timeupdate", async () => {
 
