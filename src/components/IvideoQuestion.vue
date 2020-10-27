@@ -27,7 +27,7 @@
               </li>
             </ul>
 
-            Selected: {{ selectedOption }}
+            <!-- Selected: {{ selectedOption }} -->
           </div>
         </div>
 
@@ -112,7 +112,7 @@ input {
   bottom: 0;
   left: 0;
   z-index: 9;
-  padding-top: 16px;
+  // padding-top: 16px;
   &__backdrop {
     background-color: rgba(0, 0, 0, 0.3);
     position: fixed;
@@ -125,8 +125,8 @@ input {
   &__dialog {
     background-color: #eeeeee;
     position: relative;
-    width: 600px;
-    height: 90%;
+    width: 100%;
+    height: 100%;
     margin: auto;
     justify-content: center;
     display: flex;
@@ -134,9 +134,9 @@ input {
     flex-direction: column;
     border-radius: 5px;
     z-index: 2;
-    @media screen and (max-width: 992px) {
-      width: 90%;
-    }
+    // @media screen and (max-width: 992px) {
+    //   width: 90%;
+    // }
   }
 
   h3 {
@@ -159,10 +159,31 @@ input {
     padding: 4px 4px 4px;
     padding-left: 16px;
     margin-bottom: 0;
-    overflow: auto;
+    overflow-y: scroll;
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    scrollbar-face-color: #367CD2;
+    scrollbar-shadow-color: #FFFFFF;
+    scrollbar-highlight-color: #FFFFFF;
+    scrollbar-3dlight-color: #FFFFFF;
+    scrollbar-darkshadow-color: #FFFFFF;
+    scrollbar-track-color: #FFFFFF;
+    scrollbar-arrow-color: #FFFFFF;
+  }
+  &__body::-webkit-scrollbar {
+      width: 12px;
+  }
+  &__body::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+  }
+  &__body::-webkit-scrollbar-thumb {
+      -webkit-border-radius: 10px;
+      border-radius: 10px;
+      background: rgba(238,205,73,0.8); 
+      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
   }
   &__footer {
     width: 100%;

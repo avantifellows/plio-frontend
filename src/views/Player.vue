@@ -1,6 +1,4 @@
 <template>
-  {{ $route.params.id }}
-
     <div class="player_container" v-if="dataLoaded">
       <div
         id="player"
@@ -25,7 +23,7 @@ import IvideoQuestion from "../components/IvideoQuestion.vue";
 var interval_time = 50;
 
 // upload to s3 after a fixed interval of time 
-var upload_interval = 10000;
+var upload_interval = 45000;
 var timeout = null;
 
 export default {
@@ -53,6 +51,8 @@ export default {
     this.student_id = localStorage.phone,
     console.log("Setting student id to: " + this.student_id)
     await this.fetchData();    
+
+    document.getElementById('nav').style.display = "none";
   },
 
   components: {

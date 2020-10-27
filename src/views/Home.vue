@@ -14,6 +14,7 @@ export default {
     if (!this.isLoggedIn) {
       this.$router.push('/login/')
     }
+    document.getElementById('nav').style.display = "inline";
   },
 
   name: "Home",
