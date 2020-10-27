@@ -7,8 +7,8 @@
     "build": "vue-cli-service build",
     "build-staging": "vue-cli-service build --mode staging",
     "lint": "vue-cli-service lint",
-    "deploy": "aws --profile deepansh --region ap-south-1 s3 sync ./dist s3://ivideo-frontend --delete",
-    "deploy-staging": "aws --profile deepansh --region ap-south-1 s3 sync ./dist s3://ivideo-frontend-staging --delete"
+    "deploy": "vue-cli-service build && aws --profile S3-BOT --region ap-south-1 s3 sync ./dist s3://ivideo-frontend --delete",
+    "deploy-staging": "vue-cli-service build --mode staging && aws --profile S3-BOT --region ap-south-1 s3 sync ./dist s3://ivideo-frontend-staging --delete"
   },
   "dependencies": {
     "axios": "^0.19.2",
