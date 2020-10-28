@@ -7,7 +7,7 @@
         :data-plyr-embed-id="video_id"
       ></div>
         <div v-for="ivq in ivideo_questions" :key="ivq.id.toString()" >
-          <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()" @answer-submitted="submitAnswer" @answer-skipped="skipAnswer" @revision-needed="revision">
+          <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()" @answer-submitted="submitAnswer" @answer-skipped="skipAnswer" @revision-needed="revise">
           </IvideoQuestion>
         </div>
     </div>
@@ -183,21 +183,15 @@ export default {
       console.log("Answer skipped");
     },
 
-    revision(ivq) {
+    revise(ivq) {
       // Extract where the current question lies in the list of all questions
       var currQuesIndex = Number(ivq.id)
 
       // If first question, go to the start of the video
-      if (currQuesIndex == 0) {
-        this.player.currentTime = 0;
-        this.player.play()
-      }
       // else go to the question which came just before the current ones
-      else {
-        this.player.currentTime = this.times[currQuesIndex-1]
-        this.player.play()
-      }
-      console.log("Section Revised")
+      
+      (this.player.currentTime = currQuesIndex == 0) ? 0 : this.times[currQuesIndex - 1];
+      this.player.play();
     },
 
     async setPlayerProperties(player) {
