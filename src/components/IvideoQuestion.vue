@@ -6,6 +6,11 @@
 
       <div class="modal__dialog">
         <div class="modal__body">
+          <!-- The cross button to close the modal -->
+          <div class="close-container" @click="closeModal(); this.$emit('answer-skipped')">
+            <div class="leftright"></div>
+            <div class="rightleft"></div>
+          </div>
           <div class="question_text">
             {{ ivq.item.question.text }}
           </div>
@@ -32,8 +37,8 @@
         </div>
 
         <div class="modal__footer">
-          <button class="btn btn--secondary skip" @click="closeModal(); this.$emit('answer-skipped')">
-            Skip
+          <button class="btn btn--primary revise" @click="closeModal(); this.$emit('revision-needed', this.ivq)">
+            Revise
           </button>
           <button class="btn btn--primary submit" :disabled="isDisabled" @click="closeModal(); this.$emit('answer-submitted', this.ivq, this.selectedOption)">
             Submit
@@ -78,6 +83,47 @@ export default {
 <style lang="scss" scoped>
 $color1: #f4f4;
 $color2: #3197ee;
+$softorange: #F4A259;
+$tomatored: #F25C66;
+$mediumblu: #1E272D;
+
+
+.close-container{
+  position: relative;
+  margin: auto;
+  width: 5px;
+  height: 5px;
+  margin-top: 1px;
+  cursor: pointer;
+  left: 40vw;
+}
+
+.leftright{
+  height: 4px;
+  width: 20px;
+  position: absolute;
+  margin-top: 24px;
+  background-color: $softorange;
+  border-radius: 2px;
+  transform: rotate(45deg);
+  transition: all .3s ease-in;
+}
+
+.rightleft{
+  height: 4px;
+  width: 20px;
+  position: absolute;
+  margin-top: 24px;
+  background-color: $softorange;
+  border-radius: 2px;
+  transform: rotate(-45deg);
+  transition: all .3s ease-in;
+}
+
+.close{
+  margin: 60px 0 0 5px;
+  position: absolute;
+}
 
 li {
   list-style: none;
