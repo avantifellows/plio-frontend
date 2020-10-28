@@ -189,8 +189,8 @@ export default {
 
       // If first question, go to the start of the video
       // else go to the question which came just before the current ones
-      
-      (this.player.currentTime = currQuesIndex == 0) ? 0 : this.times[currQuesIndex - 1];
+
+      this.player.currentTime = (currQuesIndex == 0) ? 0 : this.times[currQuesIndex - 1];
       this.player.play();
     },
 
