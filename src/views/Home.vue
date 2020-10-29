@@ -1,8 +1,10 @@
 <template>
   <div id="app" class="container">
-    Welcome to Plio! Have fun!
+    Welcome to Plio! <br>
+    <a href='http://dry-atoll-92279.herokuapp.com'>Create a new Plio</a> <br>
+    <a href='https://evening-inlet-95322.herokuapp.com'>Analyze Plios</a> <br>
     <IvideoList />
-  </div>  
+  </div>
 </template>
 
 <script>
