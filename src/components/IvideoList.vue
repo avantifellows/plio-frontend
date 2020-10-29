@@ -1,5 +1,5 @@
 <template>
-  <h3>IVideos</h3>
+  <h3>Plios</h3>
   <div class="ivideos">
       
     <div v-for="ivideo in allIvideos" :key="ivideo.object_id" class="ivideos">
