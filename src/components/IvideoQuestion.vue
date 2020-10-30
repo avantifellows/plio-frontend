@@ -7,13 +7,22 @@
       <div class="modal__dialog">
         <div class="modal__body">
           <!-- The cross button to close the modal -->
-          <div class="close-container" @click="closeModal(); this.$emit('answer-skipped')">
-            <div class="leftright"></div>
-            <div class="rightleft"></div>
+          <div class="question_text_row">
+            <div class="question_text">
+              {{ ivq.item.question.text }}
+            </div>
+            <div
+              class="close-container"
+              @click="
+                closeModal();
+                this.$emit('answer-skipped');
+              "
+            >
+              <div class="leftright"></div>
+              <div class="rightleft"></div>
+            </div>
           </div>
-          <div class="question_text">
-            {{ ivq.item.question.text }}
-          </div>
+
           <div class="options">
             <ul>
               <li class="option">
@@ -37,10 +46,23 @@
         </div>
 
         <div class="modal__footer">
-          <button class="btn btn--primary revise" @click="closeModal(); this.$emit('revision-needed', this.ivq)">
+          <button
+            class="btn btn--primary revise"
+            @click="
+              closeModal();
+              this.$emit('revision-needed', this.ivq);
+            "
+          >
             Revise
           </button>
-          <button class="btn btn--primary submit" :disabled="isDisabled" @click="closeModal(); this.$emit('answer-submitted', this.ivq, this.selectedOption)">
+          <button
+            class="btn btn--primary submit"
+            :disabled="isDisabled"
+            @click="
+              closeModal();
+              this.$emit('answer-submitted', this.ivq, this.selectedOption);
+            "
+          >
             Submit
           </button>
         </div>
@@ -63,7 +85,7 @@ export default {
   computed: {
     isDisabled() {
       return this.selectedOption == null;
-    }
+    },
   },
   methods: {
     closeModal() {
@@ -83,22 +105,21 @@ export default {
 <style lang="scss" scoped>
 $color1: #f4f4;
 $color2: #3197ee;
-$softorange: #F4A259;
-$tomatored: #F25C66;
-$mediumblu: #1E272D;
+$softorange: #f4a259;
+$tomatored: #f25c66;
+$mediumblu: #1e272d;
 
-
-.close-container{
-  position: relative;
-  margin: auto;
-  width: 5px;
-  height: 5px;
-  margin-top: 1px;
-  cursor: pointer;
-  left: 40vw;
+.question_text_row {
+  display: flex;
+  flex-direction: row;
 }
 
-.leftright{
+.close-container {
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+.leftright {
   height: 4px;
   width: 20px;
   position: absolute;
@@ -106,10 +127,10 @@ $mediumblu: #1E272D;
   background-color: $softorange;
   border-radius: 2px;
   transform: rotate(45deg);
-  transition: all .3s ease-in;
+  transition: all 0.3s ease-in;
 }
 
-.rightleft{
+.rightleft {
   height: 4px;
   width: 20px;
   position: absolute;
@@ -117,12 +138,7 @@ $mediumblu: #1E272D;
   background-color: $softorange;
   border-radius: 2px;
   transform: rotate(-45deg);
-  transition: all .3s ease-in;
-}
-
-.close{
-  margin: 60px 0 0 5px;
-  position: absolute;
+  transition: all 0.3s ease-in;
 }
 
 li {
@@ -147,8 +163,6 @@ input {
 }
 
 .modal {
-  overflow-x: hidden;
-  overflow-y: hidden;
   position: absolute;
   top: 0;
   right: 0;
@@ -209,27 +223,27 @@ input {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    scrollbar-face-color: #367CD2;
-    scrollbar-shadow-color: #FFFFFF;
-    scrollbar-highlight-color: #FFFFFF;
-    scrollbar-3dlight-color: #FFFFFF;
-    scrollbar-darkshadow-color: #FFFFFF;
-    scrollbar-track-color: #FFFFFF;
-    scrollbar-arrow-color: #FFFFFF;
+    scrollbar-face-color: #367cd2;
+    scrollbar-shadow-color: #ffffff;
+    scrollbar-highlight-color: #ffffff;
+    scrollbar-3dlight-color: #ffffff;
+    scrollbar-darkshadow-color: #ffffff;
+    scrollbar-track-color: #ffffff;
+    scrollbar-arrow-color: #ffffff;
   }
   &__body::-webkit-scrollbar {
-      width: 12px;
+    width: 12px;
   }
   &__body::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
     -webkit-border-radius: 10px;
     border-radius: 10px;
   }
   &__body::-webkit-scrollbar-thumb {
-      -webkit-border-radius: 10px;
-      border-radius: 10px;
-      background: rgba(238,205,73,0.8); 
-      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: rgba(238, 205, 73, 0.8);
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
   }
   &__footer {
     width: 100%;
@@ -262,8 +276,6 @@ input {
     color: gray;
   }
 
-
-
   .submit:hover {
     background-color: green;
     border-radius: 5px;
@@ -271,9 +283,9 @@ input {
   }
 
   :disabled:hover {
-    background-color:white;
+    background-color: white;
     color: gray;
-    cursor:default;
+    cursor: default;
   }
 
   .skip {
