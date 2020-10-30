@@ -61,7 +61,7 @@ export default {
   },
   methods: {
     logData() {
-      if (this.ivideo_id != undefined) this.uploadJson()
+      if (this.ivideo_id != undefined && this.player.playing) this.uploadJson()
       timeout = setTimeout(this.logData, upload_interval)
     },
 
@@ -122,6 +122,7 @@ export default {
             }))
         )
         .then(() => this.setPlayerProperties(this.player))
+        .then(() => this.uploadJson())
         .then(() => this.logData())
         .catch((err) => console.log(err));
     },
