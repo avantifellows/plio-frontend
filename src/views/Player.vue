@@ -61,7 +61,7 @@ export default {
   },
   methods: {
     logData() {
-      if (this.ivideo_id != undefined || this.player.playing) this.uploadJson()
+      if (this.ivideo_id != undefined && this.player.playing) this.uploadJson()
       timeout = setTimeout(this.logData, upload_interval)
     },
 
