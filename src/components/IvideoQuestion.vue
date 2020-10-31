@@ -117,7 +117,7 @@ $mediumblu: #1e272d;
 }
 
 .close-container {
-  margin:auto;
+  margin-top: 16px;
   margin-right: 20px;
   cursor: pointer;
 }
