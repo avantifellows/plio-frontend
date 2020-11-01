@@ -112,9 +112,12 @@ $mediumblu: #1e272d;
 .question_text_row {
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
+  align-content: center;
 }
 
 .close-container {
+  margin-top: 16px;
   margin-right: 20px;
   cursor: pointer;
 }
@@ -123,7 +126,6 @@ $mediumblu: #1e272d;
   height: 4px;
   width: 20px;
   position: absolute;
-  margin-top: 13vh;
   background-color: $softorange;
   border-radius: 2px;
   transform: rotate(45deg);
@@ -134,7 +136,6 @@ $mediumblu: #1e272d;
   height: 4px;
   width: 20px;
   position: absolute;
-  margin-top: 13vh;
   background-color: $softorange;
   border-radius: 2px;
   transform: rotate(-45deg);
