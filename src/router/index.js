@@ -10,9 +10,10 @@ const routes = [
     component: Home,
   },
   {
-    path: "/play/:id/:source?",
+    path: "/play/:id",
     name: "Player",
     component: Player,
+    query: {src: ''}
   },
   {
     path: "/login/:id?",

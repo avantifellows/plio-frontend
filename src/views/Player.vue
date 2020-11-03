@@ -130,9 +130,13 @@ export default {
     // upload responses to S3
     uploadJson() {
       var source = 'unknown';
-      if (this.$route.params.source) {
-          source = this.$route.params.source;
+      if (this.$route.query.src) {
+          source = this.$route.query.src;
       }
+
+      console.log('Source')
+      console.log(this.$route.query.src)
+      console.log('done')
 
       const student_response = {
           'response': {
