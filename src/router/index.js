@@ -10,7 +10,7 @@ const routes = [
     component: Home,
   },
   {
-    path: "/play/:id",
+    path: "/play/:id/:source?",
     name: "Player",
     component: Player,
   },

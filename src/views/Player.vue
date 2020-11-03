@@ -129,12 +129,18 @@ export default {
 
     // upload responses to S3
     uploadJson() {
+      var source = 'unknown';
+      if (this.$route.params.source) {
+          source = this.$route.params.source;
+      }
+
       const student_response = {
           'response': {
               'answers': this.answers,
               'questions': this.questions,
               'options': this.options,
-              'watch-time': this.watch_time
+              'watch-time': this.watch_time,
+              'source': source
           },
           'meta': {
               'object_id': this.ivideo_id,
