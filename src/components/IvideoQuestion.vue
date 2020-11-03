@@ -55,13 +55,17 @@
           >
             Revise
           </button>
+
+          <i class="fas fa-check-circle" ref="correct-icon" 
+            v-if="isAnswerSubmitted && isAnswerCorrect"></i>
+            
+          <i class="fas fa-times-circle" ref="wrong-icon"
+            v-if="isAnswerSubmitted && !isAnswerCorrect"></i>
+
           <button
             class="btn btn--primary submit"
             :disabled="isDisabled"
-            @click="
-              closeModal();
-              this.$emit('answer-submitted', this.ivq, this.selectedOption);
-            "
+            @click="clickSubmit"
           >
             Submit
           </button>
@@ -78,9 +82,18 @@ export default {
   data() {
     return {
       show: false,
-      text: "Hello how are you",
+      text: "",
       selectedOption: null,
+      isAnswerCorrect: false,
+      isAnswerSubmitted: false
     };
+  },
+  mounted(){
+    let faIconScript = document.createElement('script')
+    faIconScript.setAttribute('src', 'https://kit.fontawesome.com/48866ea76c.js')
+    faIconScript.setAttribute('crossorigin', 'anonymous')
+    faIconScript.async = true
+    document.head.appendChild(faIconScript)
   },
   computed: {
     isDisabled() {
@@ -97,7 +110,26 @@ export default {
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
     },
+    checkAnswer(){
+      this.isAnswerCorrect = false;
+
+      var correctAnswer = this.ivq.item.question.options[
+        this.ivq.item.question.answers-1]
+
+      this.isAnswerCorrect  = (
+        this.selectedOption == correctAnswer) ? true : false
+    },
+    clickSubmit(){
+      this.isAnswerSubmitted = true;
+      this.checkAnswer();
+      setTimeout(() => {
+        this.closeModal();
+        this.$emit('answer-submitted', this.ivq, this.selectedOption);
+        this.isAnswerSubmitted = false;
+      }, 3000);
+    }
   },
+  
 };
 </script>
 
@@ -108,6 +140,29 @@ $color2: #3197ee;
 $softorange: #f4a259;
 $tomatored: #f25c66;
 $mediumblu: #1e272d;
+
+i.fas{
+  animation: createBox .25s;
+} 
+
+.fa-check-circle {
+  color: green;
+  font-size: 3em;
+}
+
+.fa-times-circle{
+  color: red;
+  font-size: 3em;
+}
+
+@keyframes createBox {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
 
 .question_text_row {
   display: flex;
