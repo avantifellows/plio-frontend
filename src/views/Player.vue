@@ -42,7 +42,8 @@ export default {
       questions: [],
       options: [],
       times: [],
-      ivideo_id: null
+      ivideo_id: null,
+      source: 'unknown'
     };
   },
   async created() {
@@ -54,6 +55,10 @@ export default {
     await this.fetchData();    
 
     document.getElementById('nav').style.display = "none";
+
+    if (this.$route.query.src) {
+        this.source = this.$route.query.src;
+    }
   },
 
   components: {
@@ -129,18 +134,13 @@ export default {
 
     // upload responses to S3
     uploadJson() {
-      var source = 'unknown';
-      if (this.$route.query.src) {
-          source = this.$route.query.src;
-      }
-
       const student_response = {
           'response': {
               'answers': this.answers,
               'questions': this.questions,
               'options': this.options,
               'watch-time': this.watch_time,
-              'source': source
+              'source': this.source
           },
           'meta': {
               'object_id': this.ivideo_id,
