@@ -30,13 +30,18 @@
                   v-for="option in ivq.item.question.options"
                   :key="option"
                   class="answer_option radio"
+                  :ref="option"
                 >
+                <!-- adding <label> so that touch input is just
+                  not limited to the radio button -->
+                <label>
                   <input
                     type="radio"
                     name="options"
                     v-model="selectedOption"
                     :value="option"
                   />{{ option }}
+                </label>
                 </div>
               </li>
             </ul>
@@ -96,32 +101,59 @@ export default {
     document.head.appendChild(faIconScript)
   },
   computed: {
+    // Submit button disabled if no option selected
     isDisabled() {
       return this.selectedOption == null;
     },
+    // Returns index of the correct answer
+    correctAnswerIndex() {
+      return this.ivq.item.question.answers-1;
+    },
+    // Returns the text of the correct answer
+    correctAnswer() {
+      return this.ivq.item.question.options[this.correctAnswerIndex];
+    }
   },
   methods: {
+    // Closes the question window
     closeModal() {
       this.show = false;
       document.querySelector("body").classList.remove("overflow-hidden");
     },
+
+    // Opens the question window
     openModal() {
       this.text = "";
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
     },
+
+    // Checks if the selected option is correct or not
     checkAnswer(){
       this.isAnswerCorrect = false;
-
-      var correctAnswer = this.ivq.item.question.options[
-        this.ivq.item.question.answers-1]
-
       this.isAnswerCorrect  = (
-        this.selectedOption == correctAnswer) ? true : false
+        this.selectedOption == this.correctAnswer) ? true : false
     },
+    
+    // Highlights a given option as green or red
+    highlightOption(option, type){
+      if (type == "correct") this.$refs[option].setAttribute("style", "background-color:lightgreen")
+      else if (type == "wrong") this.$refs[option].setAttribute("style", "background-color:indianred")
+    },
+
+    // Calls the highlightOption() accordingly
+    showResult(){
+      if (!this.isAnswerCorrect) this.highlightOption(this.selectedOption, "wrong")
+      this.highlightOption(this.correctAnswer, "correct")
+    },
+
+    // Things to do after submit is clicked
     clickSubmit(){
       this.isAnswerSubmitted = true;
       this.checkAnswer();
+      this.showResult();
+
+      // Closes the question window after 3 seconds
       setTimeout(() => {
         this.closeModal();
         this.$emit('answer-submitted', this.ivq, this.selectedOption);
@@ -206,6 +238,8 @@ li {
   padding: 2px;
   margin: 5px;
   font-size: 1.3rem;
+  margin-right: 10vw;
+  border-radius: 5px;
 }
 
 .question_text {
