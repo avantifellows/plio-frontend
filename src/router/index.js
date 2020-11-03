@@ -13,6 +13,7 @@ const routes = [
     path: "/play/:id",
     name: "Player",
     component: Player,
+    query: {src: ''}
   },
   {
     path: "/login/:id?",
