@@ -134,10 +134,6 @@ export default {
           source = this.$route.query.src;
       }
 
-      console.log('Source')
-      console.log(this.$route.query.src)
-      console.log('done')
-
       const student_response = {
           'response': {
               'answers': this.answers,
