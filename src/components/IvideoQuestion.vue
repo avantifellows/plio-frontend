@@ -93,19 +93,13 @@ export default {
       isAnswerSubmitted: false
     };
   },
-  mounted(){
-    let faIconScript = document.createElement('script')
-    faIconScript.setAttribute('src', 'https://kit.fontawesome.com/48866ea76c.js')
-    faIconScript.setAttribute('crossorigin', 'anonymous')
-    faIconScript.async = true
-    document.head.appendChild(faIconScript)
-  },
+
   computed: {
     // Submit button disabled if no option selected
     isDisabled() {
       return this.selectedOption == null;
     },
-    // Returns index of the correct answer
+    // Returns index of the correct answer (1 indexed)
     correctAnswerIndex() {
       return this.ivq.item.question.answers-1;
     },
@@ -130,21 +124,15 @@ export default {
 
     // Checks if the selected option is correct or not
     checkAnswer(){
-      this.isAnswerCorrect = false;
-      this.isAnswerCorrect  = (
-        this.selectedOption == this.correctAnswer) ? true : false
+      this.isAnswerCorrect = this.selectedOption == this.correctAnswer
     },
     
-    // Highlights a given option as green or red
-    highlightOption(option, type){
-      if (type == "correct") this.$refs[option].setAttribute("style", "background-color:lightgreen")
-      else if (type == "wrong") this.$refs[option].setAttribute("style", "background-color:indianred")
-    },
-
-    // Calls the highlightOption() accordingly
+    // Highlights the correct option as green, wrong one as red
     showResult(){
-      if (!this.isAnswerCorrect) this.highlightOption(this.selectedOption, "wrong")
-      this.highlightOption(this.correctAnswer, "correct")
+      if (!this.isAnswerCorrect) 
+        this.$refs[this.selectedOption].className = "answer_option-wrongAnswer"
+      
+      this.$refs[this.correctAnswer].className = "answer_option-correctAnswer"
     },
 
     // Things to do after submit is clicked
@@ -166,7 +154,10 @@ export default {
 </script>
 
 
+
 <style lang="scss" scoped>
+@import "../../node_modules/@fortawesome/fontawesome-free/css/all.css"; 
+
 $color1: #f4f4;
 $color2: #3197ee;
 $softorange: #f4a259;
@@ -238,8 +229,28 @@ li {
   padding: 2px;
   margin: 5px;
   font-size: 1.3rem;
-  margin-right: 10vw;
+  margin-right: 57px;
   border-radius: 5px;
+}
+
+.answer_option-correctAnswer {
+  text-align: left;
+  padding: 2px;
+  margin: 5px;
+  font-size: 1.3rem;
+  margin-right: 57px;
+  border-radius: 5px;
+  background-color:lightgreen
+}
+
+.answer_option-wrongAnswer {
+  text-align: left;
+  padding: 2px;
+  margin: 5px;
+  font-size: 1.3rem;
+  margin-right: 57px;
+  border-radius: 5px;
+  background-color:indianred
 }
 
 .question_text {
