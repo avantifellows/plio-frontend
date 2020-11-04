@@ -140,7 +140,6 @@ export default {
       this.isAnswerSubmitted = true;
       this.checkAnswer();
       this.showResult();
-      this.selectedOption = null;
 
       // Closes the question window after 3 seconds
       setTimeout(() => {
