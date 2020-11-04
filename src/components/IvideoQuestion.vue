@@ -97,7 +97,7 @@ export default {
   computed: {
     // Submit button disabled if no option selected
     isDisabled() {
-      return this.selectedOption == null;
+      return (this.selectedOption == null || this.isAnswerSubmitted == true);
     },
     // Returns index of the correct answer (1 indexed)
     correctAnswerIndex() {
@@ -140,6 +140,7 @@ export default {
       this.isAnswerSubmitted = true;
       this.checkAnswer();
       this.showResult();
+      this.selectedOption = null;
 
       // Closes the question window after 3 seconds
       setTimeout(() => {
