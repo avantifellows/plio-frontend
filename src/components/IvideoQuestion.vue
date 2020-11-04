@@ -30,13 +30,18 @@
                   v-for="option in ivq.item.question.options"
                   :key="option"
                   class="answer_option radio"
+                  :ref="option"
                 >
+                <!-- adding <label> so that touch input is just
+                  not limited to the radio button -->
+                <label>
                   <input
                     type="radio"
                     name="options"
                     v-model="selectedOption"
                     :value="option"
                   />{{ option }}
+                </label>
                 </div>
               </li>
             </ul>
@@ -55,13 +60,17 @@
           >
             Revise
           </button>
+
+          <i class="fas fa-check-circle" ref="correct-icon" 
+            v-if="isAnswerSubmitted && isAnswerCorrect"></i>
+            
+          <i class="fas fa-times-circle" ref="wrong-icon"
+            v-if="isAnswerSubmitted && !isAnswerCorrect"></i>
+
           <button
             class="btn btn--primary submit"
             :disabled="isDisabled"
-            @click="
-              closeModal();
-              this.$emit('answer-submitted', this.ivq, this.selectedOption);
-            "
+            @click="clickSubmit"
           >
             Submit
           </button>
@@ -78,36 +87,105 @@ export default {
   data() {
     return {
       show: false,
-      text: "Hello how are you",
+      text: "",
       selectedOption: null,
+      isAnswerCorrect: false,
+      isAnswerSubmitted: false
     };
   },
+
   computed: {
+    // Submit button disabled if no option selected
     isDisabled() {
-      return this.selectedOption == null;
+      return (this.selectedOption == null || this.isAnswerSubmitted == true);
     },
+    // Returns index of the correct answer (1 indexed)
+    correctAnswerIndex() {
+      return this.ivq.item.question.answers-1;
+    },
+    // Returns the text of the correct answer
+    correctAnswer() {
+      return this.ivq.item.question.options[this.correctAnswerIndex];
+    }
   },
   methods: {
+    // Closes the question window
     closeModal() {
       this.show = false;
       document.querySelector("body").classList.remove("overflow-hidden");
     },
+
+    // Opens the question window
     openModal() {
       this.text = "";
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
     },
+
+    // Checks if the selected option is correct or not
+    checkAnswer(){
+      this.isAnswerCorrect = this.selectedOption == this.correctAnswer
+    },
+    
+    // Highlights the correct option as green, wrong one as red
+    showResult(){
+      if (!this.isAnswerCorrect) 
+        this.$refs[this.selectedOption].className = "answer_option-wrongAnswer"
+      
+      this.$refs[this.correctAnswer].className = "answer_option-correctAnswer"
+    },
+
+    // Things to do after submit is clicked
+    clickSubmit(){
+      this.isAnswerSubmitted = true;
+      this.checkAnswer();
+      this.showResult();
+
+      // Closes the question window after 3 seconds
+      setTimeout(() => {
+        this.closeModal();
+        this.$emit('answer-submitted', this.ivq, this.selectedOption);
+        this.isAnswerSubmitted = false;
+      }, 3000);
+    }
   },
+  
 };
 </script>
 
 
+
 <style lang="scss" scoped>
+@import "../../node_modules/@fortawesome/fontawesome-free/css/all.css"; 
+
 $color1: #f4f4;
 $color2: #3197ee;
 $softorange: #f4a259;
 $tomatored: #f25c66;
 $mediumblu: #1e272d;
+
+i.fas{
+  animation: createBox .25s;
+} 
+
+.fa-check-circle {
+  color: green;
+  font-size: 3em;
+}
+
+.fa-times-circle{
+  color: red;
+  font-size: 3em;
+}
+
+@keyframes createBox {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
 
 .question_text_row {
   display: flex;
@@ -151,6 +229,28 @@ li {
   padding: 2px;
   margin: 5px;
   font-size: 1.3rem;
+  margin-right: 57px;
+  border-radius: 5px;
+}
+
+.answer_option-correctAnswer {
+  text-align: left;
+  padding: 2px;
+  margin: 5px;
+  font-size: 1.3rem;
+  margin-right: 57px;
+  border-radius: 5px;
+  background-color:lightgreen
+}
+
+.answer_option-wrongAnswer {
+  text-align: left;
+  padding: 2px;
+  margin: 5px;
+  font-size: 1.3rem;
+  margin-right: 57px;
+  border-radius: 5px;
+  background-color:indianred
 }
 
 .question_text {

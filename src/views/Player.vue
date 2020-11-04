@@ -173,7 +173,11 @@ export default {
       // TODO: make this better -> not using the
       // benefits of Vue here
       var index = Number(ivq.id)
-      this.answers[index] = answer
+
+      // Checking if the object is empty or not.
+      // If empty, push the answer. Otherwise don't.
+      if(Object.keys(this.answers[index]).length === 0)
+        this.answers[index] = answer
 
       // update response on S3
       this.uploadJson()
