@@ -139,7 +139,7 @@ export default {
               'options': this.options,
               'watch-time': this.watch_time,
               'source': this.source,
-              'retention-array': this.retention_array
+              'retention': this.retention
           },
           'meta': {
               'object_id': this.ivideo_id,
@@ -222,7 +222,7 @@ export default {
         });
 
         // initializing the retention array with zeros
-        this.retention_array = Array(this.player.duration).fill(0);
+        this.retention = Array(this.player.duration).fill(0);
       });
 
       player.on('play', event => {
@@ -248,10 +248,10 @@ export default {
         }
 
         // Record how many times a particular second was visited
-        var currTime = this.player.currentTime;
-        if (Math.trunc(currTime*10) % 10 == 0 && Math.trunc(currTime) != prevTime){
-            this.retention_array[Math.trunc(currTime)] += 1;
-            prevTime = Math.trunc(currTime)
+        var currTime = Math.trunc(this.player.currentTime);
+        if (currTime != prevTime) {
+            this.retention[currTime] += 1;
+            prevTime = currTime
         }
         
         this.ivideo_questions.forEach(async (ivq) => {
