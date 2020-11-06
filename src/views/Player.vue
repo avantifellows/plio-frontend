@@ -42,8 +42,7 @@ export default {
       options: [],
       times: [],
       ivideo_id: null,
-      source: 'unknown',
-      retention_array: []
+      source: 'unknown'
     };
   },
   async created() {
