@@ -39,11 +39,11 @@ export default {
       video_id: null,
       watch_time: 0,
       answers: [],
-      questions: [],
       options: [],
       times: [],
       ivideo_id: null,
-      source: 'unknown'
+      source: 'unknown',
+      retention_array: []
     };
   },
   async created() {
@@ -97,10 +97,9 @@ export default {
             this.answers.push(ivq.user_answer)
           }
 
-          // set the global list of questions, 
+          // set the global list of
           // options and time values
-          // (this.questions, this.options, this.times) 
-          this.questions = res.data.questions_list
+          // (this.options, this.times) 
           this.options = res.data.set_of_options
           this.times = res.data.times
         })
@@ -137,10 +136,10 @@ export default {
       const student_response = {
           'response': {
               'answers': this.answers,
-              'questions': this.questions,
               'options': this.options,
               'watch-time': this.watch_time,
-              'source': this.source
+              'source': this.source,
+              'retention-array': this.retention_array
           },
           'meta': {
               'object_id': this.ivideo_id,
@@ -221,6 +220,9 @@ export default {
           progressBar.appendChild(marker);
           //ivq["marker"] = marker;
         });
+
+        // initializing the retention array with zeros
+        this.retention_array = Array(this.player.duration).fill(0);
       });
 
       player.on('play', event => {
@@ -237,11 +239,19 @@ export default {
         instance.fullscreen.enter()
       })
 
+      var prevTime = -1
       player.on("timeupdate", async () => {
 
         // Update watch time if the video is playing
         if(this.player.playing) {
           this.watch_time += interval_time;
+        }
+
+        // Record how many times a particular second was visited
+        var currTime = this.player.currentTime;
+        if (Math.trunc(currTime*10) % 10 == 0 && Math.trunc(currTime) != prevTime){
+            this.retention_array[Math.trunc(currTime)] += 1;
+            prevTime = Math.trunc(currTime)
         }
         
         this.ivideo_questions.forEach(async (ivq) => {
