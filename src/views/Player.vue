@@ -188,6 +188,9 @@ export default {
       // start playing if the user skips the answer
       this.player.play()
 
+      // update response on S3
+      this.uploadJson()
+
       // logging for testing
       console.log("Answer skipped");
     },
@@ -198,6 +201,9 @@ export default {
 
       // If first question, go to the start of the video
       // else go to the question which came just before the current ones
+
+      // update response on S3
+      this.uploadJson()
 
       this.player.currentTime = (currQuesIndex == 0) ? 0 : this.times[currQuesIndex - 1];
       this.player.play();
