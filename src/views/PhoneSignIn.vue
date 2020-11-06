@@ -35,7 +35,11 @@ export default {
   created() {
       if (this.isLoggedIn) {
         this.$router.push('/')
-    }
+      }
+
+      if (this.$route.params.id) {
+        document.getElementById('nav').style.display = "none";
+      }
   },
   computed: {
     isLoggedIn() {
