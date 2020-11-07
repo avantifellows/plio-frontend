@@ -68,35 +68,6 @@ export default {
     if (this.$route.query.src) {
         this.source = this.$route.query.src;
     }
-
-    // Set the name of the hidden property and the change event for visibility
-    var hidden, visibilityChange; 
-    if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
-      hidden = "hidden";
-      visibilityChange = "visibilitychange";
-    } else if (typeof document.msHidden !== "undefined") {
-      hidden = "msHidden";
-      visibilityChange = "msvisibilitychange";
-    } else if (typeof document.webkitHidden !== "undefined") {
-      hidden = "webkitHidden";
-      visibilityChange = "webkitvisibilitychange";
-    }
-
-    // Warn if the browser doesn't support addEventListener or the Page Visibility API
-    if (typeof document.addEventListener === "undefined" || hidden === undefined) {
-      console.log('addEventListener will not work')
-    } else {
-      // Handle page visibility change   
-      document.addEventListener(visibilityChange, () => {
-        if (document[hidden]) {
-          // this.player.pause()
-          // this.isFullscreen = false;
-          console.log('Hidden')
-        } else {
-          console.log('visible')
-        }
-      }, false);
-    }
   },
 
   components: {
@@ -269,6 +240,8 @@ export default {
         this.retention = Array(this.player.duration).fill(0);
       });
 
+      player.pip = false;
+
       player.on('play', event => {
         const instance = event.detail.plyr;
         instance.fullscreen.enter()
@@ -322,9 +295,9 @@ export default {
                 .appendChild(document.getElementsByClassName("modal")[0]);
 
               if (ivq["state"] == "notshown") ivq["state"] = "unanswered"; 
-              //var marker = ivq["marker"];
-              this.player.pause();
-              //marker.remove();
+                //var marker = ivq["marker"];
+                this.player.pause();
+                //marker.remove();
             }
           }
         });
