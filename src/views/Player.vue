@@ -88,8 +88,6 @@ export default {
         // Chrome 1 - 79
         var isChrome = (!!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime)) || (navigator.userAgent.indexOf("Chrome") != -1);
 
-        var isBrave, isDuckDuckGo;
-
         const detectBraveBrowser = () => {
             return new Promise((resolve, reject) => {
               if(!navigator.userAgent.includes('Chrome')) { return resolve(false); }
@@ -115,26 +113,19 @@ export default {
 
         detectBraveBrowser().then((browser_name) => {
           if (browser_name.includes('DuckDuckGo')) {
-              isDuckDuckGo = true
+            this.browser = 'DuckDuckGo'
+          } else if (browser_name.includes('Brave')) {
+            this.browser = 'Brave'
+          } else if (isFirefox) {
+            this.browser = 'Firefox'
+          } else if (isEdge) {
+            this.browser = 'Edge'
+          } else if (isChrome) {
+            this.browser = 'Chrome'
+          } else {
+            this.browser = 'unknown'
           }
-          else if (browser_name.includes('Brave')) {
-              isBrave = true;
-          } 
         }).catch((error) => { console.error(error); });
-
-        if (isDuckDuckGo) {
-          this.browser = 'duckduckgo'
-        } else if (isBrave) {
-          this.browser = 'brave'
-        } else if (isFirefox) {
-          this.browser = 'firefox'
-        } else if (isEdge) {
-          this.browser = 'edge'
-        } else if (isChrome) {
-          this.browser = 'chrome'
-        } else {
-          this.browser = 'unknown'
-        }
     },
 
     logData() {
