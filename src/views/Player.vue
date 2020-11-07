@@ -77,16 +77,18 @@ export default {
   methods: {
       setBrowser() {
         // Get the user-agent string 
-        // let userAgentString =  navigator.userAgent; 
+        let userAgentString =  navigator.userAgent; 
 
         // Firefox 1.0+
-        // var isFirefox = (typeof InstallTrigger !== 'undefined') || (userAgentString.indexOf("Firefox") > -1);
+        var isFirefox = (typeof InstallTrigger !== 'undefined') || (userAgentString.indexOf("Firefox") > -1);
 
-        // // Edge 20+
-        // var isEdge = !!window.StyleMedia || (navigator.userAgent.indexOf("Edg") != -1);
+        // Edge 20+
+        var isEdge = !!window.StyleMedia || (navigator.userAgent.indexOf("Edg") != -1);
 
-        // // Chrome 1 - 79
-        // var isChrome = (!!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime)) || (navigator.userAgent.indexOf("Chrome") != -1);
+        // Chrome 1 - 79
+        var isChrome = (!!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime)) || (navigator.userAgent.indexOf("Chrome") != -1);
+
+        var isBrave, isDuckDuckGo;
 
         const detectBraveBrowser = () => {
             return new Promise((resolve, reject) => {
@@ -95,17 +97,13 @@ export default {
               const xhr = new XMLHttpRequest();
               const onload = () => {
                 if(xhr.status >= 200 && xhr.status < 300) {
-                  const response = JSON.parse(xhr.responseText);
+                    const response = JSON.parse(xhr.responseText);
 
-                  if(!response) { return resolve(false); }
-                  if(!response.Answer) { return resolve(false); }
-                  console.log(response.Answer)
-                  // if(!response.Answer.includes('Brave')) { return resolve(false); }
-                  if(!response.Answer.includes('Brave')) { return resolve(response.Answer); }
-
-                  return resolve(true);
+                    if(!response) { return resolve(false); }
+                    if(!response.Answer) { return resolve(false); }
+                    return resolve(response.Answer);
                 } else {
-                  return reject(JSON.parse(xhr.responseText));
+                    return reject(JSON.parse(xhr.responseText));
                 }
               };
 
@@ -115,20 +113,28 @@ export default {
             });
           };
 
-        detectBraveBrowser().then((isBrave) => {
-          // console.log('isBrave', isBrave);
-          this.browser = isBrave
+        detectBraveBrowser().then((browser_name) => {
+          if (browser_name.includes('DuckDuckGo')) {
+              isDuckDuckGo = true
+          }
+          else if (browser_name.includes('Brave')) {
+              isBrave = true;
+          } 
         }).catch((error) => { console.error(error); });
 
-        // if (isFirefox) {
-        //   this.browser = 'firefox'
-        // } else if (isEdge) {
-        //   this.browser = 'edge'
-        // } else if (isChrome) {
-        //   this.browser = 'chrome'
-        // } else {
-        //   this.browser = 'unknown'
-        // }
+        if (isDuckDuckGo) {
+          this.browser = 'duckduckgo'
+        } else if (isBrave) {
+          this.browser = 'brave'
+        } else if (isFirefox) {
+          this.browser = 'firefox'
+        } else if (isEdge) {
+          this.browser = 'edge'
+        } else if (isChrome) {
+          this.browser = 'chrome'
+        } else {
+          this.browser = 'unknown'
+        }
     },
 
     logData() {
