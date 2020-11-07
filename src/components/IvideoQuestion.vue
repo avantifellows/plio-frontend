@@ -52,7 +52,7 @@
 
         <div class="modal__footer">
           <button
-            class="btn btn--primary revise"
+            class="btn revise"
             @click="
               closeModal();
               this.$emit('revision-needed', this.ivq);
@@ -68,7 +68,7 @@
             v-if="isAnswerSubmitted && !isAnswerCorrect"></i>
 
           <button
-            class="btn btn--primary submit"
+            class="btn submit"
             :disabled="isDisabled"
             @click="clickSubmit"
           >
@@ -373,6 +373,11 @@ input {
     color: green;
   }
 
+  .revise {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
   :disabled {
     color: gray;
   }
@@ -410,4 +415,5 @@ input {
 .fade-leave-to {
   opacity: 0;
 }
+
 </style>
