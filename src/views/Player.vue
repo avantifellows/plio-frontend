@@ -77,26 +77,58 @@ export default {
   methods: {
       setBrowser() {
         // Get the user-agent string 
-        let userAgentString =  navigator.userAgent; 
+        // let userAgentString =  navigator.userAgent; 
 
         // Firefox 1.0+
-        var isFirefox = (typeof InstallTrigger !== 'undefined') || (userAgentString.indexOf("Firefox") > -1);
+        // var isFirefox = (typeof InstallTrigger !== 'undefined') || (userAgentString.indexOf("Firefox") > -1);
 
-        // Edge 20+
-        var isEdge = !!window.StyleMedia || (navigator.userAgent.indexOf("Edg") != -1);
+        // // Edge 20+
+        // var isEdge = !!window.StyleMedia || (navigator.userAgent.indexOf("Edg") != -1);
 
-        // Chrome 1 - 79
-        var isChrome = (!!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime)) || (navigator.userAgent.indexOf("Chrome") != -1);
+        // // Chrome 1 - 79
+        // var isChrome = (!!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime)) || (navigator.userAgent.indexOf("Chrome") != -1);
 
-        if (isFirefox) {
-          this.browser = 'firefox'
-        } else if (isEdge) {
-          this.browser = 'edge'
-        } else if (isChrome) {
-          this.browser = 'chrome'
-        } else {
-          this.browser = 'unknown'
-        }
+        const detectBraveBrowser = () => {
+            return new Promise((resolve, reject) => {
+              if(!navigator.userAgent.includes('Chrome')) { return resolve(false); }
+              
+              const xhr = new XMLHttpRequest();
+              const onload = () => {
+                if(xhr.status >= 200 && xhr.status < 300) {
+                  const response = JSON.parse(xhr.responseText);
+
+                  if(!response) { return resolve(false); }
+                  if(!response.Answer) { return resolve(false); }
+                  console.log(response.Answer)
+                  // if(!response.Answer.includes('Brave')) { return resolve(false); }
+                  if(!response.Answer.includes('Brave')) { return resolve(response.Answer); }
+
+                  return resolve(true);
+                } else {
+                  return reject(JSON.parse(xhr.responseText));
+                }
+              };
+
+              xhr.onload = onload;
+              xhr.open('GET', 'https://api.duckduckgo.com/?q=useragent&format=json');
+              xhr.send();
+            });
+          };
+
+        detectBraveBrowser().then((isBrave) => {
+          // console.log('isBrave', isBrave);
+          this.browser = isBrave
+        }).catch((error) => { console.error(error); });
+
+        // if (isFirefox) {
+        //   this.browser = 'firefox'
+        // } else if (isEdge) {
+        //   this.browser = 'edge'
+        // } else if (isChrome) {
+        //   this.browser = 'chrome'
+        // } else {
+        //   this.browser = 'unknown'
+        // }
     },
 
     logData() {
