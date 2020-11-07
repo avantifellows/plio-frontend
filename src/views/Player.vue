@@ -13,9 +13,7 @@
 
       <div class="error" v-if="!isFullscreen">
         <button 
-          class="btn"
-          @click="this.player.fullscreen.enter()"
-          >
+          class="btn" @click="this.player.fullscreen.enter()">
           Go Fullscreen
         </button>
       </div>
