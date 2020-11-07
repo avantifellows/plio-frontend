@@ -325,7 +325,6 @@ export default {
 
 <style>
 @import "https://cdn.plyr.io/3.6.2/plyr.css";
-@import "../../node_modules/@fortawesome/fontawesome-free/css/all.css"; 
 
 .player_container {
   max-width: 800px;
@@ -368,7 +367,6 @@ export default {
   justify-content: center;
   bottom: 0;
   left: 0;
-  /*z-index: 9;*/
   background-color: rgba(255, 255, 255, 0.8);
 }
 </style>
