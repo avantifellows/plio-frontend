@@ -80,10 +80,10 @@ export default {
         let userAgentString =  navigator.userAgent; 
 
         // Firefox 1.0+
-        var isFirefox = (typeof InstallTrigger !== 'undefined';) || (userAgentString.indexOf("Firefox") > -1)
+        var isFirefox = (typeof InstallTrigger !== 'undefined') || (userAgentString.indexOf("Firefox") > -1);
 
         // Edge 20+
-        var isEdge = (!isIE && !!window.StyleMedia) || (navigator.userAgent.indexOf("Edg") != -1);
+        var isEdge = !!window.StyleMedia || (navigator.userAgent.indexOf("Edg") != -1);
 
         // Chrome 1 - 79
         var isChrome = (!!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime)) || (navigator.userAgent.indexOf("Chrome") != -1);
