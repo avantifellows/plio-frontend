@@ -14,7 +14,7 @@
       <div class="error" v-if="!isFullscreen">
         <button 
           class="btn" @click="this.player.fullscreen.enter()">
-          Go Fullscreen
+          Full Screen पे देखें
         </button>
       </div>
     </div>
@@ -340,11 +340,13 @@ export default {
     border-radius: 10px;
     text-align: center;
     text-decoration: none;
-    margin: 4px 2px;
+    margin: 2px;
     transition-duration: 0.4s;
     cursor: pointer;
     height: auto;
     align-self: center;
+    font-weight: 700;
+    font-size: 1rem;
   }
 
 .tooltip {

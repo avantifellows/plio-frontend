@@ -373,6 +373,11 @@ input {
     color: green;
   }
 
+  .revise {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
   :disabled {
     color: gray;
   }
