@@ -6,10 +6,19 @@
         data-plyr-provider="youtube"
         :data-plyr-embed-id="video_id"
       ></div>
-        <div v-for="ivq in ivideo_questions" :key="ivq.id.toString()" >
-          <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()" @answer-submitted="submitAnswer" @answer-skipped="skipAnswer" @revision-needed="revise">
-          </IvideoQuestion>
-        </div>
+      <div v-for="ivq in ivideo_questions" :key="ivq.id.toString()" >
+        <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()" @answer-submitted="submitAnswer" @answer-skipped="skipAnswer" @revision-needed="revise">
+        </IvideoQuestion>
+      </div>
+
+      <div class="error" v-if="!isFullscreen">
+        <button 
+          class="btn"
+          @click="this.player.fullscreen.enter()"
+          >
+          Go Fullscreen
+        </button>
+      </div>
     </div>
 </template>
 
@@ -42,7 +51,8 @@ export default {
       options: [],
       times: [],
       ivideo_id: null,
-      source: 'unknown'
+      source: 'unknown',
+      isFullscreen: false
     };
   },
   async created() {
@@ -57,6 +67,35 @@ export default {
 
     if (this.$route.query.src) {
         this.source = this.$route.query.src;
+    }
+
+    // Set the name of the hidden property and the change event for visibility
+    var hidden, visibilityChange; 
+    if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support 
+      hidden = "hidden";
+      visibilityChange = "visibilitychange";
+    } else if (typeof document.msHidden !== "undefined") {
+      hidden = "msHidden";
+      visibilityChange = "msvisibilitychange";
+    } else if (typeof document.webkitHidden !== "undefined") {
+      hidden = "webkitHidden";
+      visibilityChange = "webkitvisibilitychange";
+    }
+
+    // Warn if the browser doesn't support addEventListener or the Page Visibility API
+    if (typeof document.addEventListener === "undefined" || hidden === undefined) {
+      console.log('addEventListener will not work')
+    } else {
+      // Handle page visibility change   
+      document.addEventListener(visibilityChange, () => {
+        if (document[hidden]) {
+          // this.player.pause()
+          // this.isFullscreen = false;
+          console.log('Hidden')
+        } else {
+          console.log('visible')
+        }
+      }, false);
     }
   },
 
@@ -236,12 +275,14 @@ export default {
       });
 
       player.on('enterfullscreen', () => {
+          this.isFullscreen = true;
+          this.player.play();
           screen.orientation.lock('landscape');
       });
 
-      player.on('exitfullscreen', event => {
-        const instance = event.detail.plyr;
-        instance.fullscreen.enter()
+      player.on('exitfullscreen', () => {
+        this.isFullscreen = false;
+        this.player.pause();
       })
 
       var prevTime = -1
@@ -309,15 +350,33 @@ export default {
     clearTimeout(timeout)
   }
 };
+
 </script>
 
 <style>
 @import "https://cdn.plyr.io/3.6.2/plyr.css";
+@import "../../node_modules/@fortawesome/fontawesome-free/css/all.css"; 
+
 .player_container {
   max-width: 800px;
   margin: auto;
   position: relative;
 }
+
+.btn {
+    background-color: #4caf50; /* Green */
+    border: none;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    text-decoration: none;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    height: auto;
+    align-self: center;
+  }
 
 .tooltip {
   background:red;
@@ -328,5 +387,18 @@ export default {
   position: absolute;
   transform: translate(-50%, 14px);
   z-index: 2;
+}
+
+.error {
+  position: absolute;
+  top: 0;
+  right: 0;
+  text-align: left;
+  display: flex;
+  justify-content: center;
+  bottom: 0;
+  left: 0;
+  /*z-index: 9;*/
+  background-color: rgba(255, 255, 255, 0.8);
 }
 </style>
