@@ -50,7 +50,8 @@ export default {
       times: [],
       ivideo_id: null,
       source: 'unknown',
-      isFullscreen: false
+      isFullscreen: false,
+      browser: 'unknown'
     };
   },
   async created() {
@@ -66,12 +67,38 @@ export default {
     if (this.$route.query.src) {
         this.source = this.$route.query.src;
     }
+
+    this.setBrowser();
   },
 
   components: {
     IvideoQuestion,
   },
   methods: {
+      setBrowser() {
+        // Get the user-agent string 
+        let userAgentString =  navigator.userAgent; 
+
+        // Firefox 1.0+
+        var isFirefox = (typeof InstallTrigger !== 'undefined';) || (userAgentString.indexOf("Firefox") > -1)
+
+        // Edge 20+
+        var isEdge = (!isIE && !!window.StyleMedia) || (navigator.userAgent.indexOf("Edg") != -1);
+
+        // Chrome 1 - 79
+        var isChrome = (!!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime)) || (navigator.userAgent.indexOf("Chrome") != -1);
+
+        if (isFirefox) {
+          this.browser = 'firefox'
+        } else if (isEdge) {
+          this.browser = 'edge'
+        } else if (isChrome) {
+          this.browser = 'chrome'
+        } else {
+          this.browser = 'unknown'
+        }
+    },
+
     logData() {
       if (this.ivideo_id != undefined && this.player.playing) this.uploadJson()
       timeout = setTimeout(this.logData, upload_interval)
@@ -146,7 +173,8 @@ export default {
               'options': this.options,
               'watch-time': this.watch_time,
               'source': this.source,
-              'retention': this.retention
+              'retention': this.retention,
+              'browser': this.browser
           },
           'meta': {
               'object_id': this.ivideo_id,
