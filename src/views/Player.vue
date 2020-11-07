@@ -240,7 +240,7 @@ export default {
         this.retention = Array(this.player.duration).fill(0);
       });
 
-      player.pip = false;
+      player.pip = false;c
 
       player.on('play', event => {
         const instance = event.detail.plyr;
@@ -249,7 +249,6 @@ export default {
 
       player.on('enterfullscreen', () => {
           this.isFullscreen = true;
-          this.player.play();
           screen.orientation.lock('landscape');
       });
 
