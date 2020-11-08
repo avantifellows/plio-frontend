@@ -66,67 +66,13 @@ export default {
     if (this.$route.query.src) {
         this.source = this.$route.query.src;
     }
-
-    // this.setBrowser();
   },
 
   components: {
     IvideoQuestion,
   },
   methods: {
-    //   setBrowser() {
-    //     // Get the user-agent string 
-    //     let userAgentString =  navigator.userAgent; 
-
-    //     // Firefox 1.0+
-    //     var isFirefox = (typeof InstallTrigger !== 'undefined') || (userAgentString.indexOf("Firefox") > -1);
-
-    //     // Edge 20+
-    //     var isEdge = !!window.StyleMedia || (navigator.userAgent.indexOf("Edg") != -1);
-
-    //     // Chrome 1 - 79
-    //     var isChrome = (!!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime)) || (navigator.userAgent.indexOf("Chrome") != -1);
-
-    //     const detectBraveBrowser = () => {
-    //         return new Promise((resolve, reject) => {
-    //           if(!navigator.userAgent.includes('Chrome')) { return resolve(false); }
-              
-    //           const xhr = new XMLHttpRequest();
-    //           const onload = () => {
-    //             if(xhr.status >= 200 && xhr.status < 300) {
-    //                 const response = JSON.parse(xhr.responseText);
-
-    //                 if(!response) { return resolve(false); }
-    //                 if(!response.Answer) { return resolve(false); }
-    //                 return resolve(response.Answer);
-    //             } else {
-    //                 return reject(JSON.parse(xhr.responseText));
-    //             }
-    //           };
-
-    //           xhr.onload = onload;
-    //           xhr.open('GET', 'https://api.duckduckgo.com/?q=useragent&format=json');
-    //           xhr.send();
-    //         });
-    //       };
-
-    //     detectBraveBrowser().then((browser_name) => {
-    //       if (browser_name.includes('DuckDuckGo')) {
-    //         this.browser = 'DuckDuckGo'
-    //       } else if (browser_name.includes('Brave')) {
-    //         this.browser = 'Brave'
-    //       } else if (isFirefox) {
-    //         this.browser = 'Firefox'
-    //       } else if (isEdge) {
-    //         this.browser = 'Edge'
-    //       } else if (isChrome) {
-    //         this.browser = 'Chrome'
-    //       } else {
-    //         this.browser = 'unknown'
-    //       }
-    //     }).catch((error) => { console.error(error); });
-    // },
-
+    // will change this in next PR
     checkBrowser(browser) {
         console.log(browser)
     },
@@ -145,7 +91,8 @@ export default {
             this.$route.params.id
         )
         .then( (res) => {
-          // check browser
+          // check browser is a compatible one
+          // if not, show error message
           this.checkBrowser(res.data.browser)
 
           console.log(res.data)
