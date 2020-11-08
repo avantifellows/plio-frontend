@@ -155,7 +155,7 @@ export default {
               'options': this.options,
               'watch-time': this.watch_time,
               'source': this.source,
-              'retention': this.retention,
+              'retention': this.retention
           },
           'meta': {
               'object_id': this.ivideo_id,
