@@ -20,7 +20,11 @@ const routes = [
     name: "Phone Sign In",
     component: PhoneSignIn,
   },
-  { path: "/login", redirect: { name: "Phone Sign In" } },
+  { path: "/login", 
+    redirect: {
+      name: "Phone Sign In" 
+    } 
+  },
 ];
 
 const router = createRouter({
