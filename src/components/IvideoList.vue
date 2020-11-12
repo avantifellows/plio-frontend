@@ -1,9 +1,11 @@
 <template>
-  <h3>Plios</h3>
-  <div class="ivideos">
-      
-    <div v-for="ivideo in allIvideos" :key="ivideo.object_id" class="ivideos">
-        <IvideoThumbnail v-bind:ivideo="ivideo"  />
+  <div>
+    <h3>Plios</h3>
+    <div class="ivideos">
+        
+        <div v-for="ivideo in allIvideos" :key="ivideo.object_id" class="ivideos">
+            <IvideoThumbnail v-bind:ivideo="ivideo"  />
+        </div>
     </div>
   </div>
 </template>

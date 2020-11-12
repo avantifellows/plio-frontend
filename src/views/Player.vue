@@ -1,5 +1,7 @@
 <template>
-    <div class="player_container" v-if="dataLoaded">
+  <div> 
+    <Error :failsafe="failsafe" v-if="!isBrowserSupported"></Error>
+    <div class="player_container" v-if="dataLoaded && isBrowserSupported">
       <div
         id="player"
         class="plyr"
@@ -18,12 +20,14 @@
         </button>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
 import Plyr from "plyr";
 import axios from "axios";
 import IvideoQuestion from "../components/IvideoQuestion.vue";
+import Error from "../components/Error.vue";
 
 // The time period in which Plyr timeupdate event repeats
 // in milliseconds
@@ -50,16 +54,20 @@ export default {
       times: [],
       ivideo_id: null,
       source: 'unknown',
-      isFullscreen: false
+      isFullscreen: false,
+      supported_browsers: ['Chrome', 'Chrome Mobile', 'Firefox', 'Firefox Mobile', 'Microsoft Edge'],
+      isBrowserSupported: false,
+      failsafe: ''
     };
   },
   async created() {
-    if (!localStorage.phone) {
+    if(!localStorage.phone) {
       this.$router.push({path: '/login/' + this.$route.params.id})
     }
+
     this.student_id = localStorage.phone,
     console.log("Setting student id to: " + this.student_id)
-    await this.fetchData();    
+    await this.fetchData();
 
     document.getElementById('nav').style.display = "none";
 
@@ -70,8 +78,15 @@ export default {
 
   components: {
     IvideoQuestion,
+    Error
   },
   methods: {
+    // will change this in next PR
+    checkBrowser(browser) {
+      console.log(browser)
+      this.isBrowserSupported = this.supported_browsers.includes(browser)
+    },
+
     logData() {
       if (this.ivideo_id != undefined && this.player.playing) this.uploadJson()
       timeout = setTimeout(this.logData, upload_interval)
@@ -86,10 +101,16 @@ export default {
             this.$route.params.id
         )
         .then( (res) => {
+          // check browser is a compatible one
+          // if not, show error message
+          this.checkBrowser(res.data.user_agent.browser.family)
+
           console.log(res.data)
           var questions = res.data.ivideo_details.questions.questions;
           this.video_id = res.data.ivideo_details.video_id;
-          this.ivideo_id = res.data.ivideo_id
+          this.ivideo_id = res.data.ivideo_id;
+          this.failsafe = res.data.ivideo_details.failsafe;
+
           var i = 0;
           for (i = 0; i < questions.length; i++) {
             let ivq = {
