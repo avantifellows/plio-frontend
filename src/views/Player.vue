@@ -84,7 +84,7 @@ export default {
     // will change this in next PR
     checkBrowser(browser) {
       console.log(browser)
-      this.isBrowserSupported = this.supportedBrowser.includes(browser)
+      this.isBrowserSupported = this.supported_browsers.includes(browser)
     },
 
     logData() {
