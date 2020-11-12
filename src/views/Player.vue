@@ -1,6 +1,5 @@
 <template>
   <div> 
-    <Error :failsafe="failsafe" v-if="!isBrowserSupported"></Error>
     <div class="player_container" v-if="dataLoaded && isBrowserSupported">
       <div
         id="player"
@@ -20,6 +19,7 @@
         </button>
       </div>
     </div>
+    <Error :failsafe="failsafe" v-if="!isBrowserSupported"></Error>
   </div>
 </template>
 
@@ -56,7 +56,7 @@ export default {
       source: 'unknown',
       isFullscreen: false,
       supported_browsers: ['Chrome', 'Chrome Mobile', 'Firefox', 'Firefox Mobile', 'Microsoft Edge'],
-      isBrowserSupported: false,
+      isBrowserSupported: true,
       failsafe: ''
     };
   },
