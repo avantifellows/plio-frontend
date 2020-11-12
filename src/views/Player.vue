@@ -55,14 +55,15 @@ export default {
       ivideo_id: null,
       source: 'unknown',
       isFullscreen: false,
-      supported_browsers: ['Chrome', 'Chrome Mobile'],
+      supported_browsers: ['Chrome', 'Chrome Mobile', 'Firefox', 'Firefox Mobile', 'Microsoft Edge'],
       isBrowserSupported: false,
       failsafe: ''
     };
   },
   async created() {
-    if(!localStorage.phone)
+    if(!localStorage.phone) {
       this.$router.push({path: '/login/' + this.$route.params.id})
+    }
 
     this.student_id = localStorage.phone,
     console.log("Setting student id to: " + this.student_id)
@@ -83,16 +84,7 @@ export default {
     // will change this in next PR
     checkBrowser(browser) {
       console.log(browser)
-
-      // using vanilla code because 'indexOf' is only supported
-      // in modern browsers
-      for (let i = 0; i < this.supported_browsers.length; i++) {
-        if (browser == this.supported_browsers[i]){
-          this.isBrowserSupported = true
-          break
-        }
-      }
-      return
+      this.isBrowserSupported = this.supportedBrowser.includes(browser)
     },
 
     logData() {
@@ -111,7 +103,7 @@ export default {
         .then( (res) => {
           // check browser is a compatible one
           // if not, show error message
-          this.checkBrowser(res.data.browser.browser.family)
+          this.checkBrowser(res.data.user_agent.browser.family)
 
           console.log(res.data)
           var questions = res.data.ivideo_details.questions.questions;
