@@ -19,7 +19,7 @@
         </button>
       </div>
     </div>
-    <Error :failsafe="failsafe" v-if="!isBrowserSupported"></Error>
+    <PageNotFound :type="browser" :value="failsafe" v-if="!isBrowserSupported"></PageNotFound>
   </div>
 </template>
 
@@ -27,7 +27,7 @@
 import Plyr from "plyr";
 import axios from "axios";
 import IvideoQuestion from "../components/IvideoQuestion.vue";
-import Error from "../components/Error.vue";
+import PageNotFound from "../views/PageNotFound.vue";
 
 // The time period in which Plyr timeupdate event repeats
 // in milliseconds
@@ -78,7 +78,7 @@ export default {
 
   components: {
     IvideoQuestion,
-    Error
+    PageNotFound
   },
   methods: {
     // will change this in next PR
