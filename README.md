@@ -22,9 +22,6 @@ Hence, we have decided that the platform will:
 3. Work on feature phones, 
 4. Be freely available.
 
- some 
-
-
 ## Issues
 
 Please feel free to open a PR if you know how to solve any of these!
