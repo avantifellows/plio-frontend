@@ -29,3 +29,7 @@ Please feel free to open a PR if you know how to solve any of these!
 * Our code doesn't work on some low-end mobile browsers.
 * We don't have much knowledge on cross-browser testing
 * Our Vue architecture may not be state-of-the-art. 
+
+## Testing
+
+Our testing is powered by the open source plan of [Browserstack](https://www.browserstack.com/)
