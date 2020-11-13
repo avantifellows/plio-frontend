@@ -10,6 +10,15 @@
 
     <!-- Browser error starts -->
     <div v-if="isBrowserError">
+      <div class="lead_text" v-if="!!value">
+        <p>इसी प्रतियोगिता में Google फॉर्म से हिस्सा लेने के लिए नीचे बटन पे क्लिक करें</p>
+        <a
+          :href=value
+          class="icon-block">
+          <img src="../assets/google_form.svg">
+        </a>
+        <hr class="solid">
+      </div>
 
       <div class="lead_text" >
         <p>यह वेबसाइट सिर्फ Google Chrome पे चलेगी </p>
