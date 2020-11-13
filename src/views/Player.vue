@@ -53,7 +53,7 @@ export default {
       ivideo_id: null,
       source: 'unknown',
       isFullscreen: true,
-      supported_browsers: ['Chrome', 'Chrome Mobile'],
+      supported_browsers: ['Chrome', 'Chrome Mobile', 'Firefox', 'Firefox Mobile', 'Microsoft Edge'],
       isBrowserSupported: true,
       browserErrorHandlingValue: {
         'failsafe_type': 'g-form',
@@ -86,7 +86,6 @@ export default {
     // will change this in next PR
     checkBrowser(browser) {
       console.log(browser)
-      // TODO: reset back again
       this.isBrowserSupported = this.supported_browsers.includes(browser)
     },
 
