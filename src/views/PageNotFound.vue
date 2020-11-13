@@ -6,8 +6,6 @@
       <p>You have visited a wrong link</p>
       <p>आप गलत लिंक पर आ गए हैं</p>
     </div>
-
-    {{ type }}
     <!-- 404 error ends -->
 
     <!-- Browser error starts -->
@@ -41,7 +39,6 @@ export default {
   
   created() {
     document.getElementById('nav').style.display = "none";
-    console.log(this.type)
   },
 
   computed: {
@@ -49,7 +46,7 @@ export default {
       return this.type === '404'
     },
     isBrowserError() {
-      return this.type === 'browser-error'
+      return this.type === 'browser_error'
     }
   }
 }

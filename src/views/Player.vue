@@ -19,7 +19,8 @@
         </button>
       </div>
     </div>
-    <PageNotFound :type="browser" :value="failsafe" v-if="!isBrowserSupported"></PageNotFound>
+    {{ failsafe }}
+    <PageNotFound type="browser_error" :value="failsafe" v-if="!isBrowserSupported"></PageNotFound>
   </div>
 </template>
 
@@ -38,8 +39,6 @@ var upload_interval = 45000;
 var timeout = null;
 
 export default {
-
-
   name: "Player",
 
   data() {
@@ -55,7 +54,7 @@ export default {
       ivideo_id: null,
       source: 'unknown',
       isFullscreen: true,
-      supported_browsers: ['Chrome', 'Chrome Mobile', 'Firefox', 'Firefox Mobile', 'Microsoft Edge'],
+      supported_browsers: ['Chrome', 'Chrome Mobile'],
       isBrowserSupported: true,
       failsafe: ''
     };
@@ -80,6 +79,7 @@ export default {
     IvideoQuestion,
     PageNotFound
   },
+
   methods: {
     // will change this in next PR
     checkBrowser(browser) {
@@ -259,8 +259,6 @@ export default {
         // initializing the retention array with zeros
         this.retention = Array(this.player.duration).fill(0);
       });
-
-      player.pip = false;
 
       player.on('play', event => {
         const instance = event.detail.plyr;
