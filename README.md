@@ -32,4 +32,4 @@ Please feel free to open a PR if you know how to solve any of these!
 
 ## Testing
 
-Our testing is powered by the open source plan of [Browserstack](https://www.browserstack.com/)
+Our testing is powered by the open source plan of [BrowserStack](https://www.browserstack.com/)
