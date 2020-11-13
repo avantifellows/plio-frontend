@@ -1,6 +1,16 @@
 <template>
   <div class="container">
 
+    <div class="lead_text" v-if="!!failsafe">
+      <p>इसी प्रतियोगिता में Google फॉर्म से हिस्सा लेने के लिए नीचे बटन पे क्लिक करें</p>
+      <a
+        :href=failsafe
+        class="icon-block">
+        <img src="../assets/google_form.svg">
+      </a>
+      <hr class="solid">
+    </div>
+
     <div class="lead_text">
       <p>यह वेबसाइट सिर्फ Google Chrome पे चलेगी </p>
       <p>This website will only work on Google Chrome</p>
@@ -16,15 +26,6 @@
       <p>Link कॉपी करके Google Chrome में खोलें</p>
     </div>
 
-    <div class="lead_text" v-if="!!failsafe">
-      <hr class="solid">
-      <p>Google Form प्रतियोगिता देने के लिए नीचे click करें</p>
-      <a
-        :href=failsafe
-        class="icon-block">
-        <img src="../assets/google_form.svg">
-      </a>
-    </div>
   </div>
 </template>
 
