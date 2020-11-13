@@ -54,7 +54,7 @@ export default {
       times: [],
       ivideo_id: null,
       source: 'unknown',
-      isFullscreen: false,
+      isFullscreen: true,
       supported_browsers: ['Chrome', 'Chrome Mobile', 'Firefox', 'Firefox Mobile', 'Microsoft Edge'],
       isBrowserSupported: true,
       failsafe: ''
@@ -110,6 +110,7 @@ export default {
           this.video_id = res.data.ivideo_details.video_id;
           this.ivideo_id = res.data.ivideo_id;
           this.failsafe = res.data.ivideo_details.failsafe;
+          this.isFullscreen = false;
 
           var i = 0;
           for (i = 0; i < questions.length; i++) {
