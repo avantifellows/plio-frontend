@@ -10,15 +10,25 @@
 
     <!-- Browser error starts -->
     <div v-if="isBrowserError">
-      <div class="lead_text" v-if="!!value">
-        <p>इसी प्रतियोगिता में Google फॉर्म से हिस्सा लेने के लिए नीचे बटन पे क्लिक करें</p>
-        <a
-          :href=value
-          class="icon-block">
-          <img src="../assets/google_form.svg">
-        </a>
-        <hr class="solid">
+      <!-- failsafe begins -->
+      <div v-if="hasFailSafe">
+
+        <!-- failsafe G-form begins -->
+        <div v-if="isFailSafeGform">
+          <div class="lead_text">
+            <p>इसी प्रतियोगिता में Google फॉर्म से हिस्सा लेने के लिए नीचे बटन पे क्लिक करें</p>
+            <a
+              :href=value.failsafe_url
+              class="icon-block">
+              <img src="../assets/google_form.svg">
+            </a>
+            <hr class="solid">
+          </div>
+        </div>
+        <!-- failsafe G-form ends -->
+
       </div>
+      <!-- failsafe ends -->
 
       <div class="lead_text" >
         <p>यह वेबसाइट सिर्फ Google Chrome पे चलेगी </p>
@@ -56,6 +66,12 @@ export default {
     },
     isBrowserError() {
       return this.type === 'browser_error'
+    },
+    hasFailSafe() {
+      return !!this.value['failsafe_url']
+    },
+    isFailSafeGform() {
+      return this.value['failsafe_type'] === 'g-form'
     }
   }
 }

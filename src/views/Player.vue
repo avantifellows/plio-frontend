@@ -19,7 +19,7 @@
         </button>
       </div>
     </div>
-    <Error type="browser_error" :value="failsafe" v-if="!isBrowserSupported"></Error>
+    <Error type="browser_error" :value="browserErrorHandlingValue" v-if="!isBrowserSupported"></Error>
   </div>
 </template>
 
@@ -55,7 +55,10 @@ export default {
       isFullscreen: true,
       supported_browsers: ['Chrome', 'Chrome Mobile'],
       isBrowserSupported: true,
-      failsafe: ''
+      browserErrorHandlingValue: {
+        'failsafe_type': 'g-form',
+        'failsafe_url': ''
+      }
     };
   },
   async created() {
@@ -109,7 +112,7 @@ export default {
           var questions = res.data.ivideo_details.questions.questions;
           this.video_id = res.data.ivideo_details.video_id;
           this.ivideo_id = res.data.ivideo_id;
-          this.failsafe = res.data.ivideo_details.failsafe;
+          this.browserErrorHandlingValue.failsafe_url = res.data.ivideo_details.failsafe;
           this.isFullscreen = false;
 
           var i = 0;
