@@ -159,7 +159,15 @@ export default {
         .then(() => this.setPlayerProperties(this.player))
         .then(() => this.uploadJson())
         .then(() => this.logData())
-        .catch((err) => console.log(err));
+        .catch((err) => this.handleQueryError(err));
+    },
+
+    handleQueryError(err) {
+      if (err.response && err.response.status == 404) {
+        this.$router.push('/404-not-found')
+      } else { 
+        console.log(err)
+      }
     },
 
     // upload responses to S3
