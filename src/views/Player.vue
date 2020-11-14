@@ -19,7 +19,7 @@
         </button>
       </div>
     </div>
-    <Error :failsafe="failsafe" v-if="!isBrowserSupported"></Error>
+    <Error type="browser_error" :value="browserErrorHandlingValue" v-if="!isBrowserSupported"></Error>
   </div>
 </template>
 
@@ -27,7 +27,7 @@
 import Plyr from "plyr";
 import axios from "axios";
 import IvideoQuestion from "../components/IvideoQuestion.vue";
-import Error from "../components/Error.vue";
+import Error from "../views/Error.vue";
 
 // The time period in which Plyr timeupdate event repeats
 // in milliseconds
@@ -38,8 +38,6 @@ var upload_interval = 45000;
 var timeout = null;
 
 export default {
-
-
   name: "Player",
 
   data() {
@@ -57,7 +55,10 @@ export default {
       isFullscreen: true,
       supported_browsers: ['Chrome', 'Chrome Mobile', 'Firefox', 'Firefox Mobile', 'Microsoft Edge'],
       isBrowserSupported: true,
-      failsafe: ''
+      browserErrorHandlingValue: {
+        'failsafe_type': 'g-form',
+        'failsafe_url': ''
+      }
     };
   },
   async created() {
@@ -80,6 +81,7 @@ export default {
     IvideoQuestion,
     Error
   },
+
   methods: {
     // will change this in next PR
     checkBrowser(browser) {
@@ -109,7 +111,7 @@ export default {
           var questions = res.data.ivideo_details.questions.questions;
           this.video_id = res.data.ivideo_details.video_id;
           this.ivideo_id = res.data.ivideo_id;
-          this.failsafe = res.data.ivideo_details.failsafe;
+          this.browserErrorHandlingValue.failsafe_url = res.data.ivideo_details.failsafe;
           this.isFullscreen = false;
 
           var i = 0;
@@ -157,7 +159,15 @@ export default {
         .then(() => this.setPlayerProperties(this.player))
         .then(() => this.uploadJson())
         .then(() => this.logData())
-        .catch((err) => console.log(err));
+        .catch((err) => this.handleQueryError(err));
+    },
+
+    handleQueryError(err) {
+      if (err.response && err.response.status == 404) {
+        this.$router.push('/404-not-found')
+      } else { 
+        console.log(err)
+      }
     },
 
     // upload responses to S3
@@ -259,8 +269,6 @@ export default {
         // initializing the retention array with zeros
         this.retention = Array(this.player.duration).fill(0);
       });
-
-      player.pip = false;
 
       player.on('play', event => {
         const instance = event.detail.plyr;
