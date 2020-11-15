@@ -105,7 +105,7 @@ export default {
         .then( (res) => {
           // check browser is a compatible one
           // if not, show error message
-          this.checkBrowser(res.data.user_agent.browser.family)
+          // this.checkBrowser(res.data.user_agent.browser.family)
 
           console.log(res.data)
           var questions = res.data.ivideo_details.questions.questions;
