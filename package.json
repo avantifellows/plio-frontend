@@ -7,8 +7,8 @@
     "build": "vue-cli-service build",
     "build-staging": "vue-cli-service build --mode staging",
     "lint": "vue-cli-service lint",
-    "deploy": "vue-cli-service build && aws --profile S3-BOT --region ap-south-1 s3 sync ./dist s3://ivideo-frontend --delete --acl public-read",
-    "deploy-staging": "vue-cli-service build --mode staging && aws --profile S3-BOT --region ap-south-1 s3 sync ./dist s3://ivideo-frontend-staging --delete --acl public-read"
+    "deploy": "vue-cli-service build && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend --delete --acl public-read",
+    "deploy-staging": "vue-cli-service build --mode staging && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend-staging --delete --acl public-read"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.1",
