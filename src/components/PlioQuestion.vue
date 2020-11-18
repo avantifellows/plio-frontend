@@ -9,7 +9,7 @@
           <!-- The cross button to close the modal -->
           <div class="question_text_row">
             <div class="question_text">
-              {{ ivq.item.question.text }}
+              {{ plioQuestion.item.question.text }}
             </div>
             <div
               class="close-container"
@@ -27,7 +27,7 @@
             <ul>
               <li class="option">
                 <div
-                  v-for="option in ivq.item.question.options"
+                  v-for="option in plioQuestion.item.question.options"
                   :key="option"
                   class="answer_option radio"
                   :ref="option"
@@ -55,7 +55,7 @@
             class="btn revise"
             @click="
               closeModal();
-              this.$emit('revision-needed', this.ivq);
+              this.$emit('revision-needed', this.plioQuestion);
             "
           >
             Revise
@@ -83,7 +83,7 @@
 <script>
 export default {
   name: "IvideoQuestion",
-  props: ["ivq"],
+  props: ["plioQuestion"],
   data() {
     return {
       show: false,
@@ -101,11 +101,11 @@ export default {
     },
     // Returns index of the correct answer (1 indexed)
     correctAnswerIndex() {
-      return this.ivq.item.question.answers-1;
+      return this.plioQuestion.item.question.answers-1;
     },
     // Returns the text of the correct answer
     correctAnswer() {
-      return this.ivq.item.question.options[this.correctAnswerIndex];
+      return this.plioQuestion.item.question.options[this.correctAnswerIndex];
     }
   },
   methods: {
@@ -144,7 +144,7 @@ export default {
       // Closes the question window after 3 seconds
       setTimeout(() => {
         this.closeModal();
-        this.$emit('answer-submitted', this.ivq, this.selectedOption);
+        this.$emit('answer-submitted', this.plioQuestion, this.selectedOption);
         this.isAnswerSubmitted = false;
       }, 3000);
     }

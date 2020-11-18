@@ -1,10 +1,11 @@
 <template>
   <div class="container">
+    <p class="emoji">&#128546;</p>
+
     <!-- 404 error starts -->
     <div v-if="isPageNotFound">
-      <h1>404</h1>
-      <p>You have visited a wrong link</p>
-      <p>आप गलत लिंक पर आ गए हैं</p>
+      <h2>आपसे गलत लिंक कॉपी हो गया है | आप वापस जाकर सही लिंक यहाँ कॉपी करके पेस्ट करिए | सहायता के लिए अपने टीचर से बात करें</h2>
+      <h2>You have copied a wrong link. Please go back and copy the link again. Contact your teacher for help.</h2>
     </div>
     <!-- 404 error ends -->
 
@@ -83,6 +84,10 @@ export default {
     margin: auto;
     overflow: auto;
     padding: 0 2 rem;
+}
+
+.emoji {
+  font-size: 5em
 }
 
 .lead_text {

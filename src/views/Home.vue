@@ -3,13 +3,13 @@
     Welcome to Plio! <br>
     <a href='http://creator.plio.in'>Create a new Plio</a> <br>
     <a href='https://dashboard.plio.in'>Analyze Plios</a> <br>
-    <IvideoList />
+    <PlioList />
   </div>
 </template>
 
 <script>
 
-import IvideoList from '../components/IvideoList.vue'
+import PlioList from '../components/PlioList.vue'
 
 export default {
   created() {
@@ -21,7 +21,7 @@ export default {
 
   name: "Home",
   components: {
-    IvideoList
+    PlioList
   },
 
   computed: {
