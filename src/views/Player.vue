@@ -5,17 +5,18 @@
         id="player"
         class="plyr"
         data-plyr-provider="youtube"
-        :data-plyr-embed-id="video_id"
+        :data-plyr-embed-id="videoId"
       ></div>
-      <div v-for="ivq in ivideo_questions" :key="ivq.id.toString()" >
-        <IvideoQuestion :ivq="ivq" :ref="'position' + ivq.id.toString()" @answer-submitted="submitAnswer" @answer-skipped="skipAnswer" @revision-needed="revise">
-        </IvideoQuestion>
+      <div v-for="plioQuestion in plioQuestions" :key="plioQuestion.id.toString()" >
+        <PlioQuestion :plioQuestion="plioQuestion" :ref="'position' + plioQuestion.id.toString()" @answer-submitted="submitAnswer" @answer-skipped="skipAnswer" @revision-needed="revise">
+        </PlioQuestion>
       </div>
 
       <div class="error" v-if="!isFullscreen">
         <button 
           class="btn" @click="this.player.fullscreen.enter()">
-          Full Screen पे देखें
+          Start <br>
+          शुरू करें 
         </button>
       </div>
     </div>
@@ -26,7 +27,7 @@
 <script>
 import Plyr from "plyr";
 import axios from "axios";
-import IvideoQuestion from "../components/IvideoQuestion.vue";
+import PlioQuestion from "../components/PlioQuestion.vue";
 import Error from "../views/Error.vue";
 
 // The time period in which Plyr timeupdate event repeats
@@ -42,24 +43,26 @@ export default {
 
   data() {
     return {
-      student_id: '',
-      ivideo_questions: [],
+      studentId: '',
+      plioQuestions: [],
       dataLoaded: null,
-      video_id: null,
-      watch_time: 0,
+      videoId: null,
+      watchTime: 0,
       answers: [],
       options: [],
       times: [],
-      ivideo_id: null,
+      plioId: null,
       source: 'unknown',
       isFullscreen: true,
       supported_browsers: ['Chrome', 'Chrome Mobile', 'Firefox', 'Firefox Mobile', 'Microsoft Edge'],
       isBrowserSupported: true,
       browserErrorHandlingValue: {
-        'failsafe_type': 'g-form',
-        'failsafe_url': ''
+        'failsafeType': 'g-form',
+        'failsafeUrl': ''
       },
-      session_id: 0
+      enterFullscreen: [],
+      exitFullscreen: [],
+      sessionId: 1
     };
   },
   async created() {
@@ -67,8 +70,8 @@ export default {
       this.$router.push({path: '/login/' + this.$route.params.id})
     }
 
-    this.student_id = localStorage.phone,
-    console.log("Setting student id to: " + this.student_id)
+    this.studentId = localStorage.phone,
+    console.log("Setting student id to: " + this.studentId)
 
     // load plio details
     await this.fetchData();
@@ -81,13 +84,13 @@ export default {
   },
 
   components: {
-    IvideoQuestion,
+    PlioQuestion,
     Error
   },
 
   methods: {
     logData() {
-      if (this.ivideo_id != undefined && this.player.playing) this.uploadJson()
+      if (this.plioId != undefined && this.player.playing) this.uploadJson()
       timeout = setTimeout(this.logData, upload_interval)
     },
 
@@ -95,36 +98,38 @@ export default {
       axios
         .get(
           process.env.VUE_APP_BACKEND +
-            process.env.VUE_APP_BACKEND_IVIDEO_DETAILS +
-            "?ivideo_id=" +
-            this.$route.params.id
+            process.env.VUE_APP_BACKEND_PLIO_DETAILS +
+            "?plioId=" +
+            this.$route.params.id +
+            "&userId=" + this.studentId
         )
         .then( (res) => {
           console.log(res.data)
-          var questions = res.data.ivideo_details.questions.questions;
-          this.video_id = res.data.ivideo_details.video_id;
-          this.ivideo_id = res.data.ivideo_id;
-          this.browserErrorHandlingValue.failsafe_url = res.data.ivideo_details.failsafe;
+          var questions = res.data.plioDetails.questions.questions;
+          this.videoId = res.data.videoId;
+          this.plioId = res.data.plioId;
+          this.browserErrorHandlingValue.failsafeUrl = res.data.plioDetails.failsafe;
           this.isFullscreen = false;
+          this.sessionId = res.data.sessionId;
 
           var i = 0;
           for (i = 0; i < questions.length; i++) {
-            let ivq = {
+            let plioQuestion = {
               id: i.toString(),
               item: questions[i],
               user_answer: [],
               state: "notshown",
             }
-            this.ivideo_questions.push(ivq);
+            this.plioQuestions.push(plioQuestion);
 
             // set empty answer for each question
-            this.answers.push(ivq.user_answer)
+            this.answers.push(plioQuestion.user_answer)
           }
 
           // set the global list of
           // options and time values
           // (this.options, this.times) 
-          this.options = res.data.set_of_options
+          this.options = res.data.options
           this.times = res.data.times
         })
         .then( this.dataLoaded = true )
@@ -169,14 +174,16 @@ export default {
           'response': {
               'answers': this.answers,
               'options': this.options,
-              'watch-time': this.watch_time,
+              'watch-time': this.watchTime,
               'source': this.source,
-              'retention': this.retention
+              'retention': this.retention,
+              'enter-fullscreen': this.enterFullscreen,
+              'exit-fullscreen': this.exitFullscreen,
           },
           'meta': {
-              'object_id': this.ivideo_id,
-              'student_id': this.student_id,
-              'session_id': this.session_id
+              'plioId': this.plioId,
+              'studentId': this.studentId,
+              'sessionId': this.sessionId
           }
       }
       const json_response = JSON.stringify(student_response)
@@ -192,19 +199,19 @@ export default {
           .catch(err => console.log(err))
     },
 
-    submitAnswer(ivq, answer) {
+    submitAnswer(plioQuestion, answer) {
       // start playing whenever the user submits an answer
       this.player.play()
 
       // Update state to "answered"
-      ivq["state"] = "answered"
+      plioQuestion["state"] = "answered"
 
       // update answer for this question
-      ivq.user_answer = answer
+      plioQuestion.user_answer = answer
 
       // TODO: make this better -> not using the
       // benefits of Vue here
-      var index = Number(ivq.id)
+      var index = Number(plioQuestion.id)
 
       // Checking if the object is empty or not.
       // If empty, push the answer. Otherwise don't.
@@ -229,9 +236,9 @@ export default {
       console.log("Answer skipped");
     },
 
-    revise(ivq) {
+    revise(plioQuestion) {
       // Extract where the current question lies in the list of all questions
-      var currQuesIndex = Number(ivq.id)
+      var currQuesIndex = Number(plioQuestion.id)
 
       // If first question, go to the start of the video
       // else go to the question which came just before the current ones
@@ -248,8 +255,8 @@ export default {
         var progressBar = document.querySelectorAll(".plyr__progress")[0];
         // var left = progressBar.getBoundingClientRect().left;
         // var right = progressBar.getBoundingClientRect().right;
-        this.ivideo_questions.forEach(function (ivq) {
-          var question = ivq.item;
+        this.plioQuestions.forEach(function (plioQuestion) {
+          var question = plioQuestion.item;
           // Add marker to progress bar
           var marker = document.createElement("SPAN");
           marker.classList.add("tooltip");
@@ -257,7 +264,7 @@ export default {
           var pos_percent = 100 * question.time / player.duration; 
           marker.style.setProperty("left", `${pos_percent}%`);
           progressBar.appendChild(marker);
-          //ivq["marker"] = marker;
+          //plioQuestion["marker"] = marker;
         });
 
         // initializing the retention array with zeros
@@ -272,11 +279,19 @@ export default {
       player.on('enterfullscreen', () => {
           this.isFullscreen = true;
           screen.orientation.lock('landscape');
+
+          // record the times when they clicked to enter fullscreen
+          this.enterFullscreen.push(this.player.currentTime)
+          this.uploadJson()
       });
 
       player.on('exitfullscreen', () => {
         this.isFullscreen = false;
         this.player.pause();
+
+        // record the times when they clicked to exit fullscreen
+        this.exitFullscreen.push(this.player.currentTime)
+        this.uploadJson()
       })
 
       var prevTime = -1
@@ -284,7 +299,7 @@ export default {
 
         // Update watch time if the video is playing
         if(this.player.playing) {
-          this.watch_time += interval_time;
+          this.watchTime += interval_time;
         }
 
         // Record how many times a particular second was visited
@@ -294,17 +309,17 @@ export default {
             prevTime = currTime
         }
         
-        this.ivideo_questions.forEach(async (ivq) => {
+        this.plioQuestions.forEach(async (plioQuestion) => {
 
-          var question = ivq.item;
+          var question = plioQuestion.item;
           var t = question.time;
           if (
             // "timeupdate" event is called every interval_time millisecond
             this.player.currentTime > t
             && this.player.currentTime < t + (interval_time/1000)
-            //&& ivq["state"] == "notshown"
+            //&& plioQuestion["state"] == "notshown"
           ) {
-            var id = ivq.id
+            var id = plioQuestion.id
             this.$refs['position' + id.toString()].openModal();
             while (!document.querySelector(".modal")) {
               await new Promise((r) => setTimeout(r, 500));
@@ -315,8 +330,8 @@ export default {
                 .getElementsByClassName("plyr")[0]
                 .appendChild(document.getElementsByClassName("modal")[0]);
 
-              if (ivq["state"] == "notshown") ivq["state"] = "unanswered"; 
-                //var marker = ivq["marker"];
+              if (plioQuestion["state"] == "notshown") plioQuestion["state"] = "unanswered"; 
+                //var marker = plioQuestion["marker"];
                 this.player.pause();
                 //marker.remove();
             }
