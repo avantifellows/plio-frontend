@@ -2,9 +2,10 @@
   <div class="container">
     <!-- 404 error starts -->
     <div v-if="isPageNotFound">
-      <h1>404</h1>
-      <p>You have visited a wrong link</p>
-      <p>आप गलत लिंक पर आ गए हैं</p>
+      <h2>आपसे गलत लिंक कॉपी हो गया है | आप वापस जाकर सही लिंक यहाँ कॉपी करके पेस्ट करिए | लिंक कुछ ऐसा दिखेगा:</h2>
+      <h2 style="color:blue">https://player.plio.in/#/play/adndmidoe</h2>
+      <h2>You have copied a wrong link. Please go back and copy the link again. The link would look something like this:</h2>
+      <h2 style="color:blue">https://player.plio.in/#/play/adndmidoe</h2>
     </div>
     <!-- 404 error ends -->
 
