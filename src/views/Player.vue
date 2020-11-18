@@ -40,7 +40,7 @@ var timeout = null;
 
 // wait this much time (secs) then show error page
 // if browser is not supported
-var browser_check_time = 5;
+var browserCheckTime = 10;
 
 export default {
   name: "Player",
@@ -58,15 +58,15 @@ export default {
       plioId: null,
       source: 'unknown',
       isFullscreen: true,
-      supported_browsers: ['Chrome', 'Chrome Mobile', 'Firefox', 'Firefox Mobile', 'Microsoft Edge'],
+      supportedBrowsers: ['Chrome', 'Chrome Mobile', 'Firefox', 'Firefox Mobile', 'Microsoft Edge'],
       isBrowserSupported: true,
       browserErrorHandlingValue: {
         'failsafeType': 'g-form',
         'failsafeUrl': ''
       },
-      fullscreen_journey: [],
-      question_journey: [],
-      playback_journey: [],
+      fullscreenJourney: [],
+      questionJourney: [],
+      playbackJourney: [],
       hasVideoPlayed: -1
     };
   },
@@ -102,7 +102,7 @@ export default {
       var today = new Date();
       var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
       var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-      var dateTime = date+' '+time;
+      var dateTime = date + ' ' + time;
       console.log(typeof(dateTime))
       return dateTime
     },
@@ -195,9 +195,9 @@ export default {
               'source': this.source,
               'retention': this.retention,
               'hasVideoPlayed': this.hasVideoPlayed,
-              'question-journey': this.question_journey,
-              'playback-journey': this.playback_journey,
-              'fullscreen-journey': this.fullscreen_journey
+              'question-journey': this.questionJourney,
+              'playback-journey': this.playbackJourney,
+              'fullscreen-journey': this.fullscreenJourney
           },
           'meta': {
               'plioId': this.plioId,
@@ -237,7 +237,7 @@ export default {
         this.answers[currQuesIndex] = answer
       }
 
-      this.question_journey.push(
+      this.questionJourney.push(
         [
           String(this.getCurrentDateTime()),
           "submit",
@@ -258,7 +258,7 @@ export default {
       // start playing if the user skips the answer
       this.player.play()
 
-      this.question_journey.push(
+      this.questionJourney.push(
         [
           String(this.getCurrentDateTime()),
           "skip",
@@ -280,7 +280,7 @@ export default {
       // If first question, go to the start of the video
       // else go to the question which came just before the current ones
 
-      this.question_journey.push(
+      this.questionJourney.push(
         [
           String(this.getCurrentDateTime()),
           "revise",
@@ -298,7 +298,7 @@ export default {
     listenToPlayButtons(){
       var status = (this.player.playing) ? "played" : "paused"
 
-      this.playback_journey.push(
+      this.playbackJourney.push(
         [
           String(this.getCurrentDateTime()),
           status,
@@ -327,7 +327,7 @@ export default {
               var progressBar = document.querySelectorAll(".plyr__progress")[0]
               progressBar.firstChild.removeAttribute("disabled");
 
-            }, browser_check_time * 1000);
+            }, browserCheckTime * 1000);
         }
     },
 
@@ -348,7 +348,7 @@ export default {
           //plioQuestion["marker"] = marker;
         });
 
-        progressBar.firstChild.disabled=true;
+        progressBar.firstChild.disabled = true;
 
         // initializing the retention array with zeros
         this.retention = Array(this.player.duration).fill(0);
@@ -379,7 +379,7 @@ export default {
           screen.orientation.lock('landscape');
 
           // record the times when they clicked to enter fullscreen
-          this.fullscreen_journey.push(
+          this.fullscreenJourney.push(
             [
               String(this.getCurrentDateTime()),
               "go-fullscreen",
@@ -392,7 +392,7 @@ export default {
 
       player.on('seeked', () => {
 
-        this.playback_journey.push(
+        this.playbackJourney.push(
           [
             String(this.getCurrentDateTime()),
             "seeked",
@@ -407,7 +407,7 @@ export default {
         this.player.pause();
 
         // record the times when they clicked to exit fullscreen
-        this.fullscreen_journey.push(
+        this.fullscreenJourney.push(
           [
             String(this.getCurrentDateTime()),
             "exit-fullscreen",
