@@ -11,6 +11,12 @@
 
     <!-- Browser error starts -->
     <div v-if="isBrowserError">
+
+      <div class='embed-container'>
+        <iframe src='https://www.youtube.com/embed/4ChQ8nCiJBI' frameborder='0' allowfullscreen>
+        </iframe>
+      </div>
+
       <!-- failsafe begins -->
       <div v-if="hasFailSafe">
 
@@ -19,7 +25,7 @@
           <div class="lead_text">
             <p>इसी प्रतियोगिता में Google फॉर्म से हिस्सा लेने के लिए नीचे बटन पे क्लिक करें</p>
             <a
-              :href=value.failsafe_url
+              :href=value.failsafeUrl
               class="icon-block">
               <img src="../assets/google_form.svg">
             </a>
@@ -40,7 +46,7 @@
         class="icon-block">
         <img src="../assets/chrome.svg">
       </a>
-      <div class="lead_text" style="font-size:1em">
+      <div class="lead_text">
         <p>ऊपर click करके Google Chrome download करें</p>
         <p>या फिर</p>
         <p>Link कॉपी करके Google Chrome में खोलें</p>
@@ -69,16 +75,37 @@ export default {
       return this.type === 'browser_error'
     },
     hasFailSafe() {
-      return !!this.value['failsafe_url']
+      return !!this.value['failsafeUrl']
     },
     isFailSafeGform() {
-      return this.value['failsafe_type'] === 'g-form'
+      return this.value['failsafeType'] === 'g-form'
     }
   }
 }
 </script>
 
 <style scoped>
+
+.embed-container { 
+  position: relative; 
+  padding-bottom: 56.25%; 
+  height: 0; 
+  overflow: hidden; 
+  max-width: 100%; 
+} 
+
+.embed-container iframe, 
+.embed-container object, 
+.embed-container embed {
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+}
+
+
+
 .container {
     max-width: 1100px;
     margin: auto;
@@ -87,7 +114,7 @@ export default {
 }
 
 .emoji {
-  font-size: 5em
+  font-size: 2em
 }
 
 .lead_text {
