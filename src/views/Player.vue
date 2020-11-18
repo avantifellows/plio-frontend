@@ -47,7 +47,7 @@ export default {
 
   data() {
     return {
-      studentId: '',
+      userId: '',
       plioQuestions: [],
       dataLoaded: null,
       videoId: null,
@@ -67,7 +67,8 @@ export default {
       fullscreenJourney: [],
       questionJourney: [],
       playbackJourney: [],
-      hasVideoPlayed: -1
+      hasVideoPlayed: -1,
+      sessionId: 1
     };
   },
   async created() {
@@ -75,8 +76,10 @@ export default {
       this.$router.push({path: '/login/' + this.$route.params.id})
     }
 
-    this.studentId = localStorage.phone,
-    console.log("Setting student id to: " + this.studentId)
+    this.userId = localStorage.phone,
+    console.log("Setting student id to: " + this.userId)
+
+    // load plio details
     await this.fetchData();
 
     document.getElementById('nav').style.display = "none";
@@ -118,7 +121,8 @@ export default {
           process.env.VUE_APP_BACKEND +
             process.env.VUE_APP_BACKEND_PLIO_DETAILS +
             "?plioId=" +
-            this.$route.params.id
+            this.$route.params.id +
+            "&userId=" + this.userId
         )
         .then( (res) => {
           console.log(res.data)
@@ -127,6 +131,7 @@ export default {
           this.plioId = res.data.plioId;
           this.browserErrorHandlingValue.failsafeUrl = res.data.plioDetails.failsafe;
           this.isFullscreen = false;
+          this.sessionId = res.data.sessionId;
 
           var i = 0;
           for (i = 0; i < questions.length; i++) {
@@ -201,7 +206,8 @@ export default {
           },
           'meta': {
               'plioId': this.plioId,
-              'studentId': this.studentId
+              'userId': this.userId,
+              'sessionId': this.sessionId
           }
       }
       const json_response = JSON.stringify(student_response)
