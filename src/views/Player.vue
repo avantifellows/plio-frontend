@@ -43,7 +43,7 @@ export default {
 
   data() {
     return {
-      studentId: '',
+      userId: '',
       plioQuestions: [],
       dataLoaded: null,
       videoId: null,
@@ -70,8 +70,8 @@ export default {
       this.$router.push({path: '/login/' + this.$route.params.id})
     }
 
-    this.studentId = localStorage.phone,
-    console.log("Setting student id to: " + this.studentId)
+    this.userId = localStorage.phone,
+    console.log("Setting student id to: " + this.userId)
 
     // load plio details
     await this.fetchData();
@@ -101,7 +101,7 @@ export default {
             process.env.VUE_APP_BACKEND_PLIO_DETAILS +
             "?plioId=" +
             this.$route.params.id +
-            "&userId=" + this.studentId
+            "&userId=" + this.userId
         )
         .then( (res) => {
           console.log(res.data)
@@ -182,7 +182,7 @@ export default {
           },
           'meta': {
               'plioId': this.plioId,
-              'studentId': this.studentId,
+              'userId': this.userId,
               'sessionId': this.sessionId
           }
       }
