@@ -59,7 +59,9 @@ export default {
       browserErrorHandlingValue: {
         'failsafe_type': 'g-form',
         'failsafe_url': ''
-      }
+      },
+      enter_fullscreen: [],
+      exit_fullscreen: []
     };
   },
   async created() {
@@ -169,7 +171,9 @@ export default {
               'options': this.options,
               'watch-time': this.watch_time,
               'source': this.source,
-              'retention': this.retention
+              'retention': this.retention,
+              'enter-fullscreen': this.enter_fullscreen,
+              'exit-fullscreen': this.exit_fullscreen,
           },
           'meta': {
               'object_id': this.ivideo_id,
@@ -269,11 +273,19 @@ export default {
       player.on('enterfullscreen', () => {
           this.isFullscreen = true;
           screen.orientation.lock('landscape');
+
+          // record the times when they clicked to enter fullscreen
+          this.enter_fullscreen.push(this.player.currentTime)
+          this.uploadJson()
       });
 
       player.on('exitfullscreen', () => {
         this.isFullscreen = false;
         this.player.pause();
+
+        // record the times when they clicked to exit fullscreen
+        this.exit_fullscreen.push(this.player.currentTime)
+        this.uploadJson()
       })
 
       var prevTime = -1
