@@ -15,7 +15,7 @@
               class="close-container"
               @click="
                 closeModal();
-                this.$emit('answer-skipped');
+                this.$emit('answer-skipped', this.ivq);
               "
             >
               <div class="leftright"></div>

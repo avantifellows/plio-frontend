@@ -58,7 +58,13 @@ export default {
       browserErrorHandlingValue: {
         'failsafe_type': 'g-form',
         'failsafe_url': ''
-      }
+      },
+      isSeekBarMoving: true,
+      played: [],
+      submitted: [],
+      revised: [],
+      skipped: [],
+      paused: []
     };
   },
   async created() {
@@ -144,6 +150,7 @@ export default {
               },
               
               invertTime: false,
+              clickToPlay: false
             }))
         )
         .then(() => this.setPlayerProperties(this.player))
@@ -168,7 +175,13 @@ export default {
               'options': this.options,
               'watch-time': this.watch_time,
               'source': this.source,
-              'retention': this.retention
+              'retention': this.retention,
+              'isPlaying': this.isSeekBarMoving,
+              'played': this.played,
+              'paused': this.paused,
+              'submitted': this.submitted,
+              'skipped': this.skipped,
+              'revised': this.revised
           },
           'meta': {
               'object_id': this.ivideo_id,
@@ -200,12 +213,18 @@ export default {
 
       // TODO: make this better -> not using the
       // benefits of Vue here
-      var index = Number(ivq.id)
+      var currQuesIndex = Number(ivq.id)
 
       // Checking if the object is empty or not.
       // If empty, push the answer. Otherwise don't.
-      if(Object.keys(this.answers[index]).length === 0)
-        this.answers[index] = answer
+      if(Object.keys(this.answers[currQuesIndex]).length === 0){
+        this.answers[currQuesIndex] = answer
+      }
+
+      this.submitted[currQuesIndex] += 1;
+
+      this.skipped[currQuesIndex] = 0;
+      this.revised[currQuesIndex] = 0;
 
       // update response on S3
       this.uploadJson()
@@ -214,9 +233,16 @@ export default {
       console.log("Answer sent");
     },
 
-    skipAnswer() {
+    skipAnswer(ivq) {
+      var currQuesIndex = Number(ivq.id)
+
       // start playing if the user skips the answer
       this.player.play()
+
+      this.skipped[currQuesIndex] += 1;
+
+      this.submitted[currQuesIndex] = 0;
+      this.revised[currQuesIndex] = 0;
 
       // update response on S3
       this.uploadJson()
@@ -232,11 +258,24 @@ export default {
       // If first question, go to the start of the video
       // else go to the question which came just before the current ones
 
+      this.revised[currQuesIndex] += 1;
+
+      this.skipped[currQuesIndex] = 0;
+      this.submitted[currQuesIndex] = 0;
       // update response on S3
       this.uploadJson()
 
       this.player.currentTime = (currQuesIndex == 0) ? 0 : this.times[currQuesIndex - 1];
       this.player.play();
+    },
+
+    listenToPlayButtons(){
+      (this.player.playing == true) ? 
+        this.played.push(this.player.currentTime) :
+        this.paused.push(this.player.currentTime)
+
+      this.uploadJson()
+      console.log(this.played)
     },
 
     async setPlayerProperties(player) {
@@ -258,11 +297,37 @@ export default {
 
         // initializing the retention array with zeros
         this.retention = Array(this.player.duration).fill(0);
+        this.submitted = Array(this.ivideo_questions.length).fill(0);
+        this.skipped = Array(this.ivideo_questions.length).fill(0);
+        this.revised = Array(this.ivideo_questions.length).fill(0);
+
+        const play_buttons = document.querySelectorAll("[data-plyr='play']")
+        play_buttons[0].addEventListener(
+          'click', this.listenToPlayButtons, false
+        );
+
+        play_buttons[1].addEventListener(
+          'click', this.listenToPlayButtons, false
+        );
+
       });
 
       player.on('play', event => {
         const instance = event.detail.plyr;
         instance.fullscreen.enter()
+
+        if (this.player.currentTime < 10 && this.player.playing==true){
+          setTimeout(() => {
+            console.log(this.player.currentTime)
+            if (this.player.currentTime == 0 && this.player.playing==true) {
+              // browser unsupported -> show error page
+              this.isSeekBarMoving = false
+              this.isBrowserSupported = false
+            }
+            this.uploadJson()
+          }, 5000);
+        }
+
       });
 
       player.on('enterfullscreen', () => {
