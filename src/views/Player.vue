@@ -38,6 +38,10 @@ var interval_time = 50;
 var upload_interval = 45000;
 var timeout = null;
 
+// wait this much time (secs) then show error page
+// if browser is not supported
+var browser_check_time = 5;
+
 export default {
   name: "Player",
 
@@ -60,14 +64,10 @@ export default {
         'failsafeType': 'g-form',
         'failsafeUrl': ''
       },
-      isSeekBarMoving: true,
-      played: [],
-      submitted: [],
-      revised: [],
-      skipped: [],
-      paused: [],
-      enterFullscreen: [],
-      exitFullscreen: []
+      fullscreen_journey: [],
+      question_journey: [],
+      playback_journey: [],
+      hasVideoPlayed: -1
     };
   },
   async created() {
@@ -92,6 +92,21 @@ export default {
   },
 
   methods: {
+    getCurrentDateTime(){
+      /* 
+      Returns current date-time in format
+      YYYY-MM-DD HH:MM:S
+      return: string
+      */
+       
+      var today = new Date();
+      var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+      var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      var dateTime = date+' '+time;
+      console.log(typeof(dateTime))
+      return dateTime
+    },
+
     logData() {
       if (this.plioId != undefined && this.player.playing) this.uploadJson()
       timeout = setTimeout(this.logData, upload_interval)
@@ -179,14 +194,10 @@ export default {
               'watch-time': this.watchTime,
               'source': this.source,
               'retention': this.retention,
-              'isPlaying': this.isSeekBarMoving,
-              'played': this.played,
-              'paused': this.paused,
-              'submitted': this.submitted,
-              'skipped': this.skipped,
-              'revised': this.revised,
-              'enter-fullscreen': this.enterFullscreen,
-              'exit-fullscreen': this.exitFullscreen,
+              'hasVideoPlayed': this.hasVideoPlayed,
+              'question-journey': this.question_journey,
+              'playback-journey': this.playback_journey,
+              'fullscreen-journey': this.fullscreen_journey
           },
           'meta': {
               'plioId': this.plioId,
@@ -226,10 +237,13 @@ export default {
         this.answers[currQuesIndex] = answer
       }
 
-      this.submitted[currQuesIndex] += 1;
-
-      this.skipped[currQuesIndex] = 0;
-      this.revised[currQuesIndex] = 0;
+      this.question_journey.push(
+        [
+          String(this.getCurrentDateTime()),
+          "submit",
+          String("q-" + currQuesIndex)
+        ]
+      )
 
       // update response on S3
       this.uploadJson()
@@ -238,16 +252,19 @@ export default {
       console.log("Answer sent");
     },
 
-    skipAnswer(ivq) {
-      var currQuesIndex = Number(ivq.id)
+    skipAnswer(plioQuestion) {
+      var currQuesIndex = Number(plioQuestion.id)
 
       // start playing if the user skips the answer
       this.player.play()
 
-      this.skipped[currQuesIndex] += 1;
-
-      this.submitted[currQuesIndex] = 0;
-      this.revised[currQuesIndex] = 0;
+      this.question_journey.push(
+        [
+          String(this.getCurrentDateTime()),
+          "skip",
+          String("q-" + currQuesIndex)
+        ]
+      )
 
       // update response on S3
       this.uploadJson()
@@ -263,10 +280,14 @@ export default {
       // If first question, go to the start of the video
       // else go to the question which came just before the current ones
 
-      this.revised[currQuesIndex] += 1;
+      this.question_journey.push(
+        [
+          String(this.getCurrentDateTime()),
+          "revise",
+          String("q-" + currQuesIndex)
+        ]
+      )
 
-      this.skipped[currQuesIndex] = 0;
-      this.submitted[currQuesIndex] = 0;
       // update response on S3
       this.uploadJson()
 
@@ -275,12 +296,39 @@ export default {
     },
 
     listenToPlayButtons(){
-      (this.player.playing == true) ? 
-        this.played.push(this.player.currentTime) :
-        this.paused.push(this.player.currentTime)
+      var status = (this.player.playing) ? "played" : "paused"
+
+      this.playback_journey.push(
+        [
+          String(this.getCurrentDateTime()),
+          status,
+          String(this.player.currentTime)
+        ]
+      )
 
       this.uploadJson()
-      console.log(this.played)
+    },
+
+    checkBrowserSupport(){
+        if(this.hasVideoPlayed == -1 && this.player.playing){
+          const timeBefore = Math.round(this.player.currentTime * 100) / 100;
+
+          setTimeout(() => {
+              const timeAfter = Math.round(this.player.currentTime * 100) / 100;
+
+              if (timeAfter == timeBefore) {
+                // browser unsupported -> show error page
+                this.isBrowserSupported = false;
+                this.hasVideoPlayed = 0;
+              }
+              else this.hasVideoPlayed = 1;
+              this.uploadJson()
+
+              var progressBar = document.querySelectorAll(".plyr__progress")[0]
+              progressBar.firstChild.removeAttribute("disabled");
+
+            }, browser_check_time * 1000);
+        }
     },
 
     async setPlayerProperties(player) {
@@ -300,11 +348,13 @@ export default {
           //plioQuestion["marker"] = marker;
         });
 
+        progressBar.firstChild.disabled=true;
+
         // initializing the retention array with zeros
         this.retention = Array(this.player.duration).fill(0);
-        this.submitted = Array(this.ivideo_questions.length).fill(0);
-        this.skipped = Array(this.ivideo_questions.length).fill(0);
-        this.revised = Array(this.ivideo_questions.length).fill(0);
+        this.submitted = Array(this.plioQuestions.length).fill(0);
+        this.skipped = Array(this.plioQuestions.length).fill(0);
+        this.revised = Array(this.plioQuestions.length).fill(0);
 
         const play_buttons = document.querySelectorAll("[data-plyr='play']")
         play_buttons[0].addEventListener(
@@ -321,18 +371,7 @@ export default {
         const instance = event.detail.plyr;
         instance.fullscreen.enter()
 
-        if (this.player.currentTime < 10 && this.player.playing==true){
-          setTimeout(() => {
-            console.log(this.player.currentTime)
-            if (this.player.currentTime == 0 && this.player.playing==true) {
-              // browser unsupported -> show error page
-              this.isSeekBarMoving = false
-              this.isBrowserSupported = false
-            }
-            this.uploadJson()
-          }, 5000);
-        }
-
+        this.checkBrowserSupport();
       });
 
       player.on('enterfullscreen', () => {
@@ -340,8 +379,27 @@ export default {
           screen.orientation.lock('landscape');
 
           // record the times when they clicked to enter fullscreen
-          this.enterFullscreen.push(this.player.currentTime)
+          this.fullscreen_journey.push(
+            [
+              String(this.getCurrentDateTime()),
+              "go-fullscreen",
+              String(this.player.currentTime)
+            ]
+          )
+
           this.uploadJson()
+      });
+
+      player.on('seeked', () => {
+
+        this.playback_journey.push(
+          [
+            String(this.getCurrentDateTime()),
+            "seeked",
+            String(this.player.currentTime)
+          ]
+        )
+
       });
 
       player.on('exitfullscreen', () => {
@@ -349,7 +407,14 @@ export default {
         this.player.pause();
 
         // record the times when they clicked to exit fullscreen
-        this.exitFullscreen.push(this.player.currentTime)
+        this.fullscreen_journey.push(
+          [
+            String(this.getCurrentDateTime()),
+            "exit-fullscreen",
+            String(this.player.currentTime)
+          ]
+        )
+
         this.uploadJson()
       })
 

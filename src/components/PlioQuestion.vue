@@ -15,7 +15,7 @@
               class="close-container"
               @click="
                 closeModal();
-                this.$emit('answer-skipped', this.ivq);
+                this.$emit('answer-skipped', this.plioQuestion);
               "
             >
               <div class="leftright"></div>
