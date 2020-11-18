@@ -1,5 +1,7 @@
 <template>
   <div class="container">
+    <p style="font-size:5em">&#128546;</p>
+
     <!-- 404 error starts -->
     <div v-if="isPageNotFound">
       <h2>आपसे गलत लिंक कॉपी हो गया है | आप वापस जाकर सही लिंक यहाँ कॉपी करके पेस्ट करिए | लिंक कुछ ऐसा दिखेगा:</h2>
