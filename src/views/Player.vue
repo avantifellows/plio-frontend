@@ -194,7 +194,7 @@ export default {
               'watch-time': this.watchTime,
               'source': this.source,
               'retention': this.retention,
-              'hasVideoPlayed': this.hasVideoPlayed,
+              'has-video-played': this.hasVideoPlayed,
               'question-journey': this.questionJourney,
               'playback-journey': this.playbackJourney,
               'fullscreen-journey': this.fullscreenJourney
@@ -310,6 +310,14 @@ export default {
     },
 
     checkBrowserSupport(){
+      /* This logic works because for as long as browserCheckTime,
+         the progress bar will stay inactive, so the user will not be
+         able to seek forward or backward -> hence player.currentTime
+         cannot be changed via user.
+
+         If the video plays or not plays, the user cannot influence it
+         (as long as "browserCheckTime"). */
+
         if(this.hasVideoPlayed == -1 && this.player.playing){
           const timeBefore = Math.round(this.player.currentTime * 100) / 100;
 
