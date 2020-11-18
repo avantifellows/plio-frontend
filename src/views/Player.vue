@@ -58,7 +58,8 @@ export default {
       browserErrorHandlingValue: {
         'failsafe_type': 'g-form',
         'failsafe_url': ''
-      }
+      },
+      session_id: 0
     };
   },
   async created() {
@@ -68,6 +69,8 @@ export default {
 
     this.student_id = localStorage.phone,
     console.log("Setting student id to: " + this.student_id)
+
+    // load plio details
     await this.fetchData();
 
     document.getElementById('nav').style.display = "none";
@@ -172,7 +175,8 @@ export default {
           },
           'meta': {
               'object_id': this.ivideo_id,
-              'student_id': this.student_id
+              'student_id': this.student_id,
+              'session_id': this.session_id
           }
       }
       const json_response = JSON.stringify(student_response)
