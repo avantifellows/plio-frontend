@@ -15,7 +15,8 @@
       <div class="error" v-if="!isFullscreen">
         <button 
           class="btn" @click="this.player.fullscreen.enter()">
-          Full Screen पे देखें
+          Start <br>
+          शुरू करें 
         </button>
       </div>
     </div>
