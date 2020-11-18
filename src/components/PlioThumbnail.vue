@@ -1,23 +1,23 @@
 <template>
-<router-link :to="'/play/' +  ivideo.object_id" tag="div" class="ivideo">
+<router-link :to="'/play/' +  plio.plio_id" tag="div" class="plio">
   <div class="title">
-    {{ ivideo.title }}
+    {{ plio.title }}
   </div>
-  <div class="created_date"><i>Created: </i> {{ ivideo.created }}</div>
-  <div class="id">ID: {{ ivideo.object_id }}</div>
+  <div class="created_date"><i>Created: </i> {{ plio.created }}</div>
+  <div class="id">ID: {{ plio.plio_id }}</div>
 </router-link>
 </template>
 
 <script>
 
 export default {
-    name: "IvideoThumbnail",
-    props: ["ivideo"],
+    name: "PlioThumbnail",
+    props: ["plio"],
 };
 </script>
 
 <style scoped>
-.ivideo {
+.plio {
   color: white;
   border: 1px solid #ccc;
   background: #cc593d;
