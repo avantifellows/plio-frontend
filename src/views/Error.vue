@@ -1,13 +1,11 @@
 <template>
   <div class="container">
-    <p style="font-size:5em">&#128546;</p>
+    <p class="emoji">&#128546;</p>
 
     <!-- 404 error starts -->
     <div v-if="isPageNotFound">
-      <h2>आपसे गलत लिंक कॉपी हो गया है | आप वापस जाकर सही लिंक यहाँ कॉपी करके पेस्ट करिए | लिंक कुछ ऐसा दिखेगा:</h2>
-      <h2 class="link">https://player.plio.in/#/play/adndmidoe</h2>
-      <h2>You have copied a wrong link. Please go back and copy the link again. The link would look something like this:</h2>
-      <h2 class="link">https://player.plio.in/#/play/adndmidoe</h2>
+      <h2>आपसे गलत लिंक कॉपी हो गया है | आप वापस जाकर सही लिंक यहाँ कॉपी करके पेस्ट करिए | सहायता के लिए अपने टीचर से बात करें</h2>
+      <h2>You have copied a wrong link. Please go back and copy the link again. Contact your teacher for help.</h2>
     </div>
     <!-- 404 error ends -->
 
@@ -88,8 +86,8 @@ export default {
     padding: 0 2 rem;
 }
 
-.link {
-  color: blue
+.emoji {
+  font-size: 5em
 }
 
 .lead_text {
