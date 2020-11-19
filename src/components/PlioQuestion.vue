@@ -141,11 +141,8 @@ export default {
     clickSubmit(){
       this.isAnswerSubmitted = true;
 
-      var skipButton = document.getElementById('skip-button')
-      var reviseButton = document.getElementById('revise-button')
-
-      skipButton.setAttribute("style", "visibility: hidden;")
-      reviseButton.setAttribute("style", "visibility: hidden;")
+      document.getElementById('skip-button').hidden = true
+      document.getElementById('revise-button').hidden = true
       
       this.checkAnswer();
       this.showResult();
@@ -259,7 +256,8 @@ li {
   font-size: 1.3rem;
   margin-right: 57px;
   border-radius: 5px;
-  background-color:indianred
+  background-color:indianred;
+  color: white;
 }
 
 .question_text {

@@ -12,6 +12,8 @@
     <!-- Browser error starts -->
     <div v-if="isBrowserError">
 
+      <!-- TODO
+      remove hardcoded link -> either parameterize it, or enter a link to youtube -->
       <div class='embed-container'>
         <iframe src='https://www.youtube.com/embed/4ChQ8nCiJBI' frameborder='0' allowfullscreen>
         </iframe>

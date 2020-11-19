@@ -223,6 +223,28 @@ export default {
           .catch(err => console.log(err))
     },
 
+    updateJourney(journeyType, event, detail){
+      var obj = [
+        String(this.getCurrentDateTime()),
+        String(event),
+        String(detail)
+      ]
+
+      switch(journeyType) {
+        case "questionJourney":
+          this.questionJourney.push(obj)
+          break;
+        case "playbackJourney":
+          this.playbackJourney.push(obj)
+          break;
+        case "fullscreenJourney":
+          this.fullscreenJourney.push(obj)
+          break;
+        default:
+          console.log("invalid journey type")
+      }
+    },
+
     submitAnswer(plioQuestion, answer) {
       // start playing whenever the user submits an answer
       this.player.play()
@@ -233,8 +255,6 @@ export default {
       // update answer for this question
       plioQuestion.user_answer = answer
 
-      // TODO: make this better -> not using the
-      // benefits of Vue here
       var currQuesIndex = Number(plioQuestion.id)
 
       // Checking if the object is empty or not.
@@ -243,13 +263,20 @@ export default {
         this.answers[currQuesIndex] = answer
       }
 
-      this.questionJourney.push(
-        [
-          String(this.getCurrentDateTime()),
-          "submit",
-          String("q-" + currQuesIndex)
-        ]
+      this.updateJourney(
+        "questionJourney", "submit", String("q-" + currQuesIndex)
       )
+
+      // commented these right now,
+      // if plan changes in future
+
+      // this.questionJourney.push(
+      //   [
+      //     String(this.getCurrentDateTime()),
+      //     "submit",
+      //     String("q-" + currQuesIndex)
+      //   ]
+      // )
 
       // update response on S3
       this.uploadJson()
@@ -264,12 +291,16 @@ export default {
       // start playing if the user skips the answer
       this.player.play()
 
-      this.questionJourney.push(
-        [
-          String(this.getCurrentDateTime()),
-          "skip",
-          String("q-" + currQuesIndex)
-        ]
+      // this.questionJourney.push(
+      //   [
+      //     String(this.getCurrentDateTime()),
+      //     "skip",
+      //     String("q-" + currQuesIndex)
+      //   ]
+      // )
+
+      this.updateJourney(
+        "questionJourney", "skip", String("q-" + currQuesIndex)
       )
 
       // update response on S3
@@ -286,12 +317,16 @@ export default {
       // If first question, go to the start of the video
       // else go to the question which came just before the current ones
 
-      this.questionJourney.push(
-        [
-          String(this.getCurrentDateTime()),
-          "revise",
-          String("q-" + currQuesIndex)
-        ]
+      // this.questionJourney.push(
+      //   [
+      //     String(this.getCurrentDateTime()),
+      //     "revise",
+      //     String("q-" + currQuesIndex)
+      //   ]
+      // )
+
+      this.updateJourney(
+        "questionJourney", "revise", String("q-" + currQuesIndex)
       )
 
       // update response on S3
@@ -304,13 +339,17 @@ export default {
     listenToPlayButtons(){
       var status = (this.player.playing) ? "played" : "paused"
 
-      this.playbackJourney.push(
-        [
-          String(this.getCurrentDateTime()),
-          status,
-          String(this.player.currentTime)
-        ]
+      this.updateJourney(
+        "playbackJourney", status, String(this.player.currentTime)
       )
+
+      // this.playbackJourney.push(
+      //   [
+      //     String(this.getCurrentDateTime()),
+      //     status,
+      //     String(this.player.currentTime)
+      //   ]
+      // )
 
       this.uploadJson()
     },
@@ -362,6 +401,8 @@ export default {
           //plioQuestion["marker"] = marker;
         });
 
+        
+        // disabling progressbar
         progressBar.firstChild.disabled = true;
 
         // initializing the retention array with zeros
@@ -370,6 +411,10 @@ export default {
         this.skipped = Array(this.plioQuestions.length).fill(0);
         this.revised = Array(this.plioQuestions.length).fill(0);
 
+        
+        // Adding on-click listeners to the two play buttons
+        // one big play button in the middle, and one near the
+        // progress bar
         const play_buttons = document.querySelectorAll("[data-plyr='play']")
         play_buttons[0].addEventListener(
           'click', this.listenToPlayButtons, false
@@ -393,12 +438,16 @@ export default {
           screen.orientation.lock('landscape');
 
           // record the times when they clicked to enter fullscreen
-          this.fullscreenJourney.push(
-            [
-              String(this.getCurrentDateTime()),
-              "go-fullscreen",
-              String(this.player.currentTime)
-            ]
+          // this.fullscreenJourney.push(
+          //   [
+          //     String(this.getCurrentDateTime()),
+          //     "go-fullscreen",
+          //     String(this.player.currentTime)
+          //   ]
+          // )
+
+          this.updateJourney(
+            "fullscreenJourney", "go-fullscreen", String(this.player.currentTime)
           )
 
           this.uploadJson()
@@ -406,12 +455,16 @@ export default {
 
       player.on('seeked', () => {
 
-        this.playbackJourney.push(
-          [
-            String(this.getCurrentDateTime()),
-            "seeked",
-            String(this.player.currentTime)
-          ]
+        // this.playbackJourney.push(
+        //   [
+        //     String(this.getCurrentDateTime()),
+        //     "seeked",
+        //     String(this.player.currentTime)
+        //   ]
+        // )
+
+        this.updateJourney(
+          "playbackJourney", "seeked", String(this.player.currentTime)
         )
 
       });
@@ -421,12 +474,16 @@ export default {
         this.player.pause();
 
         // record the times when they clicked to exit fullscreen
-        this.fullscreenJourney.push(
-          [
-            String(this.getCurrentDateTime()),
-            "exit-fullscreen",
-            String(this.player.currentTime)
-          ]
+        // this.fullscreenJourney.push(
+        //   [
+        //     String(this.getCurrentDateTime()),
+        //     "exit-fullscreen",
+        //     String(this.player.currentTime)
+        //   ]
+        // )
+
+        this.updateJourney(
+          "fullscreenJourney", "exit-fullscreen", String(this.player.currentTime)
         )
 
         this.uploadJson()
