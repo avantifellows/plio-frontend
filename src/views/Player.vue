@@ -42,7 +42,7 @@ var timeout = null;
 // if browser is not supported
 
 // TODO - set back to 10 or 5 for PROD
-var browserCheckTime = 1;
+var browserCheckTime = 10;
 
 export default {
   name: "Player",
