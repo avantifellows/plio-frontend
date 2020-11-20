@@ -53,7 +53,6 @@ export default {
       videoId: null,
       watchTime: 0,
       answers: [],
-      options: [],
       times: [],
       plioId: null,
       source: 'unknown',
@@ -147,10 +146,7 @@ export default {
             this.answers.push(plioQuestion.user_answer)
           }
 
-          // set the global list of
-          // options and time values
-          // (this.options, this.times) 
-          this.options = res.data.options
+          // set the global list of time values
           this.times = res.data.times
         })
         .then( this.dataLoaded = true )
@@ -195,7 +191,6 @@ export default {
       const student_response = {
           'response': {
               'answers': this.answers,
-              'options': this.options,
               'watch-time': this.watchTime,
               'source': this.source,
               'retention': this.retention,
