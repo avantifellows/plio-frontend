@@ -41,7 +41,7 @@
                     name="options"
                     v-model="selectedOption"
                     :value="option"
-                    @click="this.selectOption(index)"
+                    @click="selectOption(index)"
                   />{{ option }}
                 </label>
                 </div>
