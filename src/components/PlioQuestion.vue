@@ -13,9 +13,10 @@
             </div>
             <div
               class="close-container"
+              id="skip-button"
               @click="
                 closeModal();
-                this.$emit('answer-skipped');
+                this.$emit('answer-skipped', this.plioQuestion);
               "
             >
               <div class="leftright"></div>
@@ -52,6 +53,7 @@
 
         <div class="modal__footer">
           <button
+            id="revise-button"
             class="btn revise"
             @click="
               closeModal();
@@ -138,6 +140,10 @@ export default {
     // Things to do after submit is clicked
     clickSubmit(){
       this.isAnswerSubmitted = true;
+
+      document.getElementById('skip-button').hidden = true
+      document.getElementById('revise-button').hidden = true
+      
       this.checkAnswer();
       this.showResult();
 
@@ -250,7 +256,8 @@ li {
   font-size: 1.3rem;
   margin-right: 57px;
   border-radius: 5px;
-  background-color:indianred
+  background-color:indianred;
+  color: white;
 }
 
 .question_text {
