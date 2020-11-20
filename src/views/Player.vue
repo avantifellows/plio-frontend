@@ -599,7 +599,7 @@ export default {
 }
 
 .tooltip-answered {
-    background:lawngreen;
+    background:green;
     border-radius: 3px;
     bottom: 100%;
     padding: 5px 3px;
