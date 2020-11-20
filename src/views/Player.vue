@@ -215,13 +215,13 @@ export default {
           .catch(err => console.log(err))
     },
 
-    updateJourney(event, details = {}) {
+    updateJourney(logEvent, details = {}) {
         // handle the case when fullscreen has been clicked but Plyr has not
         // yet loaded -> this.player.currentTime = NaN
         var player_time = this.hasPlyrLoaded ? this.player.currentTime : 0
 
         this.journey.push({
-            'event': event,
+            'event': logEvent,
             'details': details,
             'system_time': String(this.getCurrentDateTime()),
             'player_time': String(player_time)
