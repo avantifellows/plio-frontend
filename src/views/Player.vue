@@ -40,7 +40,9 @@ var timeout = null;
 
 // wait this much time (secs) then show error page
 // if browser is not supported
-var browserCheckTime = 10;
+
+// TODO - set back to 10 or 5 for PROD
+var browserCheckTime = 1;
 
 export default {
   name: "Player",
@@ -393,6 +395,7 @@ export default {
           var question = plioQuestion.item;
           // Add marker to progress bar
           var marker = document.createElement("SPAN");
+          marker.setAttribute("id", "marker")
           marker.classList.add("tooltip");
           marker.classList.remove();
           var pos_percent = 100 * question.time / player.duration; 
@@ -521,13 +524,14 @@ export default {
             }
             var modal = document.getElementsByClassName("modal")[0];
             if (modal != undefined)   {
+              this.player.pause();
+
               document
                 .getElementsByClassName("plyr")[0]
                 .appendChild(document.getElementsByClassName("modal")[0]);
 
               if (plioQuestion["state"] == "notshown") plioQuestion["state"] = "unanswered"; 
                 //var marker = plioQuestion["marker"];
-                this.player.pause();
                 //marker.remove();
             }
           }
@@ -593,6 +597,17 @@ export default {
   transform: translate(-50%, 14px);
   z-index: 2;
 }
+
+.tooltip-answered {
+    background:lawngreen;
+    border-radius: 3px;
+    bottom: 100%;
+    padding: 5px 3px;
+    pointer-events: none;
+    position: absolute;
+    transform: translate(-50%, 14px);
+    z-index: 2;
+  }
 
 .error {
   position: absolute;
