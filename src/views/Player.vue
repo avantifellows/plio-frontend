@@ -8,7 +8,9 @@
         :data-plyr-embed-id="videoId"
       ></div>
       <div v-for="plioQuestion in plioQuestions" :key="plioQuestion.id.toString()" >
-        <PlioQuestion :plioQuestion="plioQuestion" :ref="'position' + plioQuestion.id.toString()" @answer-submitted="submitAnswer" @answer-skipped="skipAnswer" @revision-needed="revise">
+        <PlioQuestion :plioQuestion="plioQuestion" :ref="'position' + plioQuestion.id.toString()"
+          @answer-submitted="submitAnswer" @answer-skipped="skipAnswer" @revision-needed="revise"
+          @update-journey="updateJourney">
         </PlioQuestion>
       </div>
 
@@ -29,6 +31,30 @@ import Plyr from "plyr";
 import axios from "axios";
 import PlioQuestion from "../components/PlioQuestion.vue";
 import Error from "../views/Error.vue";
+
+// supports indexOf for older browsers
+if (!Array.prototype.indexOf)
+{
+  Array.prototype.indexOf = function(elt /*, from*/)
+  {
+    var len = this.length >>> 0;
+
+    var from = Number(arguments[1]) || 0;
+    from = (from < 0)
+         ? Math.ceil(from)
+         : Math.floor(from);
+    if (from < 0)
+      from += len;
+
+    for (; from < len; from++)
+    {
+      if (from in this &&
+          this[from] === elt)
+        return from;
+    }
+    return -1;
+  };
+}
 
 // The time period in which Plyr timeupdate event repeats
 // in milliseconds
@@ -53,7 +79,6 @@ export default {
       videoId: null,
       watchTime: 0,
       answers: [],
-      options: [],
       times: [],
       plioId: null,
       source: 'unknown',
@@ -64,11 +89,10 @@ export default {
         'failsafeType': 'g-form',
         'failsafeUrl': ''
       },
-      fullscreenJourney: [],
-      questionJourney: [],
-      playbackJourney: [],
+      journey: [],
       hasVideoPlayed: -1,
-      sessionId: 1
+      sessionId: 1,
+      hasPlyrLoaded: false
     };
   },
   async created() {
@@ -106,7 +130,6 @@ export default {
       var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
       var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
       var dateTime = date + ' ' + time;
-      console.log(typeof(dateTime))
       return dateTime
     },
 
@@ -132,6 +155,7 @@ export default {
           this.browserErrorHandlingValue.failsafeUrl = res.data.plioDetails.failsafe;
           this.isFullscreen = false;
           this.sessionId = res.data.sessionId;
+          this.browser = res.data.userAgent['browser']['family'];
 
           var i = 0;
           for (i = 0; i < questions.length; i++) {
@@ -147,10 +171,7 @@ export default {
             this.answers.push(plioQuestion.user_answer)
           }
 
-          // set the global list of
-          // options and time values
-          // (this.options, this.times) 
-          this.options = res.data.options
+          // set the global list of time values
           this.times = res.data.times
         })
         .then( this.dataLoaded = true )
@@ -195,19 +216,14 @@ export default {
       const student_response = {
           'response': {
               'answers': this.answers,
-              'options': this.options,
               'watch-time': this.watchTime,
+              'user-id': this.userId,
+              'plio-id': this.plioId,
+              'session-id': this.sessionId,
               'source': this.source,
               'retention': this.retention,
               'has-video-played': this.hasVideoPlayed,
-              'question-journey': this.questionJourney,
-              'playback-journey': this.playbackJourney,
-              'fullscreen-journey': this.fullscreenJourney
-          },
-          'meta': {
-              'plioId': this.plioId,
-              'userId': this.userId,
-              'sessionId': this.sessionId
+              'journey': this.journey
           }
       }
       const json_response = JSON.stringify(student_response)
@@ -223,26 +239,17 @@ export default {
           .catch(err => console.log(err))
     },
 
-    updateJourney(journeyType, event, detail){
-      var obj = [
-        String(this.getCurrentDateTime()),
-        String(event),
-        String(detail)
-      ]
+    updateJourney(logEvent, details = {}) {
+        // handle the case when fullscreen has been clicked but Plyr has not
+        // yet loaded -> this.player.currentTime = NaN
+        var player_time = this.hasPlyrLoaded ? this.player.currentTime : 0
 
-      switch(journeyType) {
-        case "questionJourney":
-          this.questionJourney.push(obj)
-          break;
-        case "playbackJourney":
-          this.playbackJourney.push(obj)
-          break;
-        case "fullscreenJourney":
-          this.fullscreenJourney.push(obj)
-          break;
-        default:
-          console.log("invalid journey type")
-      }
+        this.journey.push({
+            'event': logEvent,
+            'details': details,
+            'system_time': String(this.getCurrentDateTime()),
+            'player_time': String(player_time)
+        })
     },
 
     submitAnswer(plioQuestion, answer) {
@@ -264,19 +271,10 @@ export default {
       }
 
       this.updateJourney(
-        "questionJourney", "submit", String("q-" + currQuesIndex)
-      )
-
-      // commented these right now,
-      // if plan changes in future
-
-      // this.questionJourney.push(
-      //   [
-      //     String(this.getCurrentDateTime()),
-      //     "submit",
-      //     String("q-" + currQuesIndex)
-      //   ]
-      // )
+          "question-submitted", {
+            'question': currQuesIndex,
+            'option': plioQuestion.item.question.options.indexOf(answer)
+          })
 
       // update response on S3
       this.uploadJson()
@@ -291,17 +289,10 @@ export default {
       // start playing if the user skips the answer
       this.player.play()
 
-      // this.questionJourney.push(
-      //   [
-      //     String(this.getCurrentDateTime()),
-      //     "skip",
-      //     String("q-" + currQuesIndex)
-      //   ]
-      // )
-
       this.updateJourney(
-        "questionJourney", "skip", String("q-" + currQuesIndex)
-      )
+          "question-skipped", {
+              'question': currQuesIndex
+          })
 
       // update response on S3
       this.uploadJson()
@@ -314,20 +305,10 @@ export default {
       // Extract where the current question lies in the list of all questions
       var currQuesIndex = Number(plioQuestion.id)
 
-      // If first question, go to the start of the video
-      // else go to the question which came just before the current ones
-
-      // this.questionJourney.push(
-      //   [
-      //     String(this.getCurrentDateTime()),
-      //     "revise",
-      //     String("q-" + currQuesIndex)
-      //   ]
-      // )
-
       this.updateJourney(
-        "questionJourney", "revise", String("q-" + currQuesIndex)
-      )
+          "question-revised", {
+              'question': currQuesIndex
+          })
 
       // update response on S3
       this.uploadJson()
@@ -339,18 +320,7 @@ export default {
     listenToPlayButtons(){
       var status = (this.player.playing) ? "played" : "paused"
 
-      this.updateJourney(
-        "playbackJourney", status, String(this.player.currentTime)
-      )
-
-      // this.playbackJourney.push(
-      //   [
-      //     String(this.getCurrentDateTime()),
-      //     status,
-      //     String(this.player.currentTime)
-      //   ]
-      // )
-
+      this.updateJourney(status)
       this.uploadJson()
     },
 
@@ -380,7 +350,7 @@ export default {
               var progressBar = document.querySelectorAll(".plyr__progress")[0]
               progressBar.firstChild.removeAttribute("disabled");
 
-            }, browserCheckTime * 1000);
+          }, browserCheckTime * 1000);
         }
     },
 
@@ -401,16 +371,18 @@ export default {
           //plioQuestion["marker"] = marker;
         });
 
+        // mark Plyr as loaded
+        this.hasPlyrLoaded = true;
         
         // disabling progressbar
-        progressBar.firstChild.disabled = true;
+        if (!this.supportedBrowsers.includes(this.browser))
+          progressBar.firstChild.disabled = true;
 
         // initializing the retention array with zeros
         this.retention = Array(this.player.duration).fill(0);
         this.submitted = Array(this.plioQuestions.length).fill(0);
         this.skipped = Array(this.plioQuestions.length).fill(0);
         this.revised = Array(this.plioQuestions.length).fill(0);
-
         
         // Adding on-click listeners to the two play buttons
         // one big play button in the middle, and one near the
@@ -427,65 +399,29 @@ export default {
       });
 
       player.on('play', event => {
-        const instance = event.detail.plyr;
-        instance.fullscreen.enter()
-
-        this.checkBrowserSupport();
+          const instance = event.detail.plyr;
+          instance.fullscreen.enter()
+          if (!this.supportedBrowsers.includes(this.browser))
+              this.checkBrowserSupport();
       });
 
       player.on('enterfullscreen', () => {
           this.isFullscreen = true;
           screen.orientation.lock('landscape');
 
-          // record the times when they clicked to enter fullscreen
-          // this.fullscreenJourney.push(
-          //   [
-          //     String(this.getCurrentDateTime()),
-          //     "go-fullscreen",
-          //     String(this.player.currentTime)
-          //   ]
-          // )
-
-          this.updateJourney(
-            "fullscreenJourney", "go-fullscreen", String(this.player.currentTime)
-          )
-
+          this.updateJourney("enter-fullscreen")
           this.uploadJson()
       });
 
       player.on('seeked', () => {
-
-        // this.playbackJourney.push(
-        //   [
-        //     String(this.getCurrentDateTime()),
-        //     "seeked",
-        //     String(this.player.currentTime)
-        //   ]
-        // )
-
-        this.updateJourney(
-          "playbackJourney", "seeked", String(this.player.currentTime)
-        )
-
+        this.updateJourney("seeked")
       });
 
       player.on('exitfullscreen', () => {
         this.isFullscreen = false;
         this.player.pause();
 
-        // record the times when they clicked to exit fullscreen
-        // this.fullscreenJourney.push(
-        //   [
-        //     String(this.getCurrentDateTime()),
-        //     "exit-fullscreen",
-        //     String(this.player.currentTime)
-        //   ]
-        // )
-
-        this.updateJourney(
-          "fullscreenJourney", "exit-fullscreen", String(this.player.currentTime)
-        )
-
+        this.updateJourney("exit-fullscreen")
         this.uploadJson()
       })
 
