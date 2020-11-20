@@ -8,7 +8,9 @@
         :data-plyr-embed-id="videoId"
       ></div>
       <div v-for="plioQuestion in plioQuestions" :key="plioQuestion.id.toString()" >
-        <PlioQuestion :plioQuestion="plioQuestion" :ref="'position' + plioQuestion.id.toString()" @answer-submitted="submitAnswer" @answer-skipped="skipAnswer" @revision-needed="revise">
+        <PlioQuestion :plioQuestion="plioQuestion" :ref="'position' + plioQuestion.id.toString()"
+          @answer-submitted="submitAnswer" @answer-skipped="skipAnswer" @revision-needed="revise"
+          @update-journey="updateJourney">
         </PlioQuestion>
       </div>
 
@@ -247,7 +249,7 @@ export default {
       this.updateJourney(
           "question-submitted", {
             'question': currQuesIndex,
-            'option': plioQuestion.item.question.options.indexOf(answer) + 1
+            'option': plioQuestion.item.question.options.indexOf(answer)
           })
 
       // update response on S3
@@ -388,9 +390,7 @@ export default {
       });
 
       player.on('seeked', () => {
-
         this.updateJourney("seeked")
-
       });
 
       player.on('exitfullscreen', () => {
