@@ -129,6 +129,7 @@ export default {
           this.browserErrorHandlingValue.failsafeUrl = res.data.plioDetails.failsafe;
           this.isFullscreen = false;
           this.sessionId = res.data.sessionId;
+          this.browser = res.data.userAgent['browser']['family'];
 
           var i = 0;
           for (i = 0; i < questions.length; i++) {
@@ -348,7 +349,8 @@ export default {
         this.hasPlyrLoaded = true;
         
         // disabling progressbar
-        progressBar.firstChild.disabled = true;
+        if (!this.supportedBrowsers.includes(this.browser))
+          progressBar.firstChild.disabled = true;
 
         // initializing the retention array with zeros
         this.retention = Array(this.player.duration).fill(0);
@@ -371,10 +373,10 @@ export default {
       });
 
       player.on('play', event => {
-        const instance = event.detail.plyr;
-        instance.fullscreen.enter()
-
-        this.checkBrowserSupport();
+          const instance = event.detail.plyr;
+          instance.fullscreen.enter()
+          if (!this.supportedBrowsers.includes(this.browser))
+              this.checkBrowserSupport();
       });
 
       player.on('enterfullscreen', () => {
