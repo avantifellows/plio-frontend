@@ -14,10 +14,7 @@
             <div
               class="close-container"
               id="skip-button"
-              @click="
-                closeModal();
-                this.$emit('answer-skipped', this.plioQuestion);
-              "
+              @click="clickSkip"
             >
               <div class="leftright"></div>
               <div class="rightleft"></div>
@@ -52,14 +49,12 @@
           </div>
         </div>
 
+        <!-- revise button -->
         <div class="modal__footer">
           <button
             id="revise-button"
             class="btn revise"
-            @click="
-              closeModal();
-              this.$emit('revision-needed', this.plioQuestion);
-            "
+            @click="clickRevise"
           >
             Revise
           </button>
@@ -70,12 +65,23 @@
           <i class="fas fa-times-circle" ref="wrong-icon"
             v-if="isAnswerSubmitted && !isAnswerCorrect"></i>
 
+          <!-- submit button -->
           <button
+            v-if="!isAnswerSubmitted"
             class="btn submit"
             :disabled="isDisabled"
             @click="clickSubmit"
           >
             Submit
+          </button>
+
+          <!-- close button -->
+          <button
+            v-else
+            class="btn close"
+            @click="clickClose"
+          >
+            Close
           </button>
         </div>
       </div>
@@ -109,6 +115,10 @@ export default {
     // Returns the text of the correct answer
     correctAnswer() {
       return this.plioQuestion.item.question.options[this.correctAnswerIndex];
+    },
+    // Returns the index of the question that has popped up.
+    currentQuestionIndex() {
+      return this.plioQuestion.id;
     }
   },
   methods: {
@@ -127,6 +137,14 @@ export default {
 
     // Opens the question window
     openModal() {
+      // Show highlighted options if coming back to an answered question
+      // Wait 200 ms because it takes some time to find the DOM elements
+      if (this.plioQuestion.state == "answered") {
+        setTimeout(() => {
+          this.showResult();
+        }, 200);
+      }
+      
       this.text = "";
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
@@ -139,14 +157,39 @@ export default {
     
     // Highlights the correct option as green, wrong one as red
     showResult(){
-      if (!this.isAnswerCorrect) 
-        this.$refs[this.selectedOption].className = "answer_option-wrongAnswer"
+      if (!this.isAnswerCorrect) {
+        this.$refs[this.selectedOption].classList.add("wrongAnswer")
+      }
       
-      this.$refs[this.correctAnswer].className = "answer_option-correctAnswer"
+      this.$refs[this.correctAnswer].classList.add("correctAnswer")
+    },
+
+    removeOptionHighlight(){
+      var allOptions = document.querySelectorAll('.answer_option')
+
+      allOptions.forEach( (option) => {
+        option.removeAttribute("class");
+        option.className = "answer_option"
+      });
+    },
+
+    toggleMarkers(index){
+      var markers = document.querySelectorAll('#marker')
+      
+      if (markers[index].className == 'tooltip'){
+        markers[index].classList.remove('tooltip')
+        markers[index].classList.add('tooltip-answered')
+      }
     },
 
     // Things to do after submit is clicked
     clickSubmit(){
+
+      // On clicking submit, previous highlights should be removed
+      // so new highlights can be configured
+      this.removeOptionHighlight();
+      this.toggleMarkers(this.currentQuestionIndex)
+
       this.isAnswerSubmitted = true;
 
       document.getElementById('skip-button').hidden = true
@@ -154,13 +197,25 @@ export default {
       
       this.checkAnswer();
       this.showResult();
+    },
 
-      // Closes the question window after 3 seconds
-      setTimeout(() => {
-        this.closeModal();
-        this.$emit('answer-submitted', this.plioQuestion, this.selectedOption);
-        this.isAnswerSubmitted = false;
-      }, 3000);
+    // Things to do after answer is submitted
+    // and close button appears
+    clickClose(){
+      this.closeModal();
+      this.isAnswerSubmitted = false;
+      this.$emit('answer-submitted', this.plioQuestion, this.selectedOption);
+    },
+
+    // Things to do when revise button is clicked
+    clickRevise(){
+      this.closeModal();
+      this.$emit('revision-needed', this.plioQuestion);
+    },
+
+    clickSkip(){
+      this.closeModal();
+      this.$emit('answer-skipped', this.plioQuestion);
     }
   },
   
@@ -247,23 +302,11 @@ li {
   border-radius: 5px;
 }
 
-.answer_option-correctAnswer {
-  text-align: left;
-  padding: 2px;
-  margin: 5px;
-  font-size: 1.3rem;
-  margin-right: 57px;
-  border-radius: 5px;
+.correctAnswer {
   background-color:lightgreen
 }
 
-.answer_option-wrongAnswer {
-  text-align: left;
-  padding: 2px;
-  margin: 5px;
-  font-size: 1.3rem;
-  margin-right: 57px;
-  border-radius: 5px;
+.wrongAnswer {
   background-color:indianred;
   color: white;
 }
@@ -369,6 +412,17 @@ input {
     padding: 10px 20px 20px;
   }
 
+  .tooltip-answered {
+    background: lawngreen;
+    border-radius: 3px;
+    bottom: 100%;
+    padding: 5px 3px;
+    pointer-events: none;
+    position: absolute;
+    transform: translate(-50%, 14px);
+    z-index: 2;
+  }
+
   .btn {
     background-color: #4caf50; /* Green */
     border: none;
@@ -386,6 +440,13 @@ input {
     font-size: 1rem;
     background-color: white;
     color: green;
+  }
+
+  .close {
+    background-color: #4caf50;
+    font-weight: 700;
+    font-size: 1rem;
+    color: white;
   }
 
   .revise {
