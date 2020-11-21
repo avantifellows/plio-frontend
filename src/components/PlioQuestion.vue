@@ -25,7 +25,7 @@
             <ul>
               <li class="option">
                 <div
-                  v-for="option in plioQuestion.item.question.options"
+                  v-for="(option, index) in plioQuestion.item.question.options"
                   :key="option"
                   class="answer_option radio"
                   :ref="option"
@@ -38,6 +38,7 @@
                     name="options"
                     v-model="selectedOption"
                     :value="option"
+                    @click="selectOption(index)"
                   />{{ option }}
                 </label>
                 </div>
@@ -90,7 +91,7 @@
 
 <script>
 export default {
-  name: "IvideoQuestion",
+  name: "PlioQuestion",
   props: ["plioQuestion"],
   data() {
     return {
@@ -125,6 +126,13 @@ export default {
     closeModal() {
       this.show = false;
       document.querySelector("body").classList.remove("overflow-hidden");
+    },
+
+    selectOption(option_index) {
+        this.$emit('update-journey', 'option-selected', {
+            'question': Number(this.plioQuestion.id),
+            'option': option_index
+        });
     },
 
     // Opens the question window
