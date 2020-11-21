@@ -76,7 +76,7 @@
 
           <!-- close button -->
           <button
-            v-if="isAnswerSubmitted"
+            v-else
             class="btn close"
             @click="clickClose"
           >
