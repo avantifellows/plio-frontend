@@ -12,16 +12,6 @@
     <!-- Browser error starts -->
     <div v-if="isBrowserError">
 
-      <!-- TODO
-      remove hardcoded link -> either parameterize it, or enter a link to youtube -->
-      <div class="lead_text">
-        <p>Plio को कैसे इस्तेमाल करना है, जानने के लिए ये video देखें </p>
-      </div>
-      <div class='embed-container'>
-        <iframe src='https://www.youtube.com/embed/FLOwzot27XM' frameborder='0' allowfullscreen>
-        </iframe>
-      </div>
-
       <!-- failsafe begins -->
       <div v-if="hasFailSafe">
 
@@ -31,7 +21,7 @@
           <hr class="solid">
 
           <div class="lead_text">
-            <p>इसी प्रतियोगिता में Google फॉर्म से हिस्सा लेने के लिए नीचे दिया गया वीडियो देखें और उसके बाद Google फॉर्म का लिंक क्लिक करें </p>
+            <p>नीचे दिया गया वीडियो देखें और उसके बाद Google फॉर्म के लिंक पे जाके प्रश्न करें</p>
             <div class='embed-container'>
               <iframe :src="this.value['youtubeId']" id="lesson-video" frameborder='0' allowfullscreen></iframe>
             </div>
@@ -39,8 +29,8 @@
             <i class="far fa-hand-point-right"></i>
             <a
             :href=value.failsafeUrl
-            class="icon-block" style="font-size:1.5em; width:3em;">
-              लिंक
+            class="icon-block" style="font-size:5vw; width:72vw;">
+              https://www.form.google.com
             </a>
             <i class="far fa-hand-point-left"></i>
             <hr class="solid">
@@ -50,6 +40,19 @@
 
       </div>
       <!-- failsafe ends -->
+
+      <!-- TODO
+      remove hardcoded link -> either parameterize it, or enter a link to youtube -->
+      <div class="lead_text">
+        <p>Plio कैसे इस्तेमाल करना है, यह जानने के लिए यह video देखें </p>
+      </div>
+      <div class='embed-container'>
+        <iframe src='https://www.youtube.com/embed/FLOwzot27XM' frameborder='0' allowfullscreen>
+        </iframe>
+      </div>
+
+      <hr class="solid">
+      <br>
 
       <div class="lead_text" >
         <p>यह वेबसाइट सिर्फ Google Chrome पे चलेगी </p>
