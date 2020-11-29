@@ -14,6 +14,9 @@
 
       <!-- TODO
       remove hardcoded link -> either parameterize it, or enter a link to youtube -->
+      <div class="lead_text">
+        <p>Plio को कैसे इस्तेमाल करना है, जानने के लिए ये video देखें </p>
+      </div>
       <div class='embed-container'>
         <iframe src='https://www.youtube.com/embed/FLOwzot27XM' frameborder='0' allowfullscreen>
         </iframe>
@@ -22,15 +25,24 @@
       <!-- failsafe begins -->
       <div v-if="hasFailSafe">
 
+        <!-- TODO - Adding loading spinner till YT video loads -->
         <!-- failsafe G-form begins -->
-        <div v-if="isFailSafeGform">
+        <div v-if="isFailSafeGform && isVideoIdFetched" >
+          <hr class="solid">
+
           <div class="lead_text">
-            <p>इसी प्रतियोगिता में Google फॉर्म से हिस्सा लेने के लिए नीचे बटन पे क्लिक करें</p>
+            <p>इसी प्रतियोगिता में Google फॉर्म से हिस्सा लेने के लिए नीचे दिया गया वीडियो देखें और उसके बाद Google फॉर्म का लिंक क्लिक करें </p>
+            <div class='embed-container'>
+              <iframe :src="this.value['youtubeId']" id="lesson-video" frameborder='0' allowfullscreen></iframe>
+            </div>
+            <br>
+            <i class="far fa-hand-point-right"></i>
             <a
-              :href=value.failsafeUrl
-              class="icon-block">
-              <img src="../assets/google_form.svg">
+            :href=value.failsafeUrl
+            class="icon-block" style="font-size:1.5em; width:3em;">
+              लिंक
             </a>
+            <i class="far fa-hand-point-left"></i>
             <hr class="solid">
           </div>
         </div>
@@ -81,6 +93,9 @@ export default {
     },
     isFailSafeGform() {
       return this.value['failsafeType'] === 'g-form'
+    },
+    isVideoIdFetched() {
+      return !!this.value['youtubeId']
     }
   }
 }
