@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <p class="emoji">&#128546;</p>
 
     <!-- 404 error starts -->
     <div v-if="isPageNotFound">
@@ -12,44 +11,48 @@
     <!-- Browser error starts -->
     <div v-if="isBrowserError">
 
-      <!-- failsafe begins -->
-      <div v-if="hasFailSafe">
+      <div v-if="isVideoIdAvailable">
 
-        <!-- failsafe G-form begins -->
-        <div v-if="isFailSafeGform && isVideoIdAvailable" >
-          <hr class="solid">
-
-          <div class="lead_text">
-            <p>नीचे दिया गया वीडियो देखें और उसके बाद Google फॉर्म के लिंक पे जाके प्रश्न करें</p>
-            <div class='embed-container'>
-              <iframe :src="this.value['youtubeId']" id="lesson-video" frameborder='0' allowfullscreen></iframe>
-            </div>
-            <br>
-            <i class="far fa-hand-point-right"></i>
-            <a
-            :href=value.failsafeUrl
-            class="icon-block" style="font-size:5vw; width:72vw;">
-              https://www.form.google.com
-            </a>
-            <i class="far fa-hand-point-left"></i>
-            <hr class="solid">
-          </div>
-        </div>
-        <!-- failsafe G-form ends -->
-
-      </div>
-
-      <div v-else-if="!hasFailSafe && isVideoIdAvailable">
-        <hr class="solid">
-
+        <!-- The lesson video in a YT iframe -->
         <div class="lead_text">
-          <p>नीचे दिया गया वीडियो देखें</p>
           <div class='embed-container'>
             <iframe :src="this.value['youtubeId']" id="lesson-video" frameborder='0' allowfullscreen></iframe>
           </div>
-        </div>        
+        </div>
+
+        <!-- failsafe begins -->
+        <div v-if="hasFailSafe">
+
+          <!-- failsafe G-form begins -->
+          <div v-if="isFailSafeGform" >
+            <hr class="solid">
+
+            <div class="lead_text">
+              <p>ऊपर दिया गया वीडियो देखें और उसके बाद Google फॉर्म के लिंक पे जाके प्रश्न करें</p>
+              <br>
+              <i class="far fa-hand-point-right"></i>
+              <a
+              :href=value.failsafeUrl
+              class="icon-block" style="font-size:5vw; width:72vw;">
+                https://www.form.google.com
+              </a>
+              <i class="far fa-hand-point-left"></i>
+              <hr class="solid">
+            </div>
+          </div>
+          <!-- failsafe G-form ends -->
+
+        </div>
+
+        <div v-else>
+          <hr class="solid">
+
+          <div class="lead_text">
+            <p>ऊपर दिया गया वीडियो देखें</p>
+          </div>        
+        </div>
+        <!-- failsafe ends -->
       </div>
-      <!-- failsafe ends -->
 
       <!-- TODO
       remove hardcoded link -> either parameterize it, or enter a link to youtube -->
@@ -63,6 +66,7 @@
       <hr class="solid">
       <br>
 
+      <p class="emoji">&#128546;</p>
       <div class="lead_text" >
         <p>यह वेबसाइट सिर्फ Google Chrome पे चलेगी </p>
         <p>This website will only work on Google Chrome</p>
