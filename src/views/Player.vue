@@ -99,7 +99,7 @@ export default {
         'failsafeUrl': ''
       },
       journey: [],
-      hasVideoPlayed: -1,
+      hasVideoPlayed: -1, // Three possible values: -1(don't know), 0(didn't play), 1(played)
       sessionId: 1,
       hasPlyrLoaded: false,
       retention: []
@@ -422,8 +422,7 @@ export default {
             this.checkBrowserSupport();
           }
           else {
-            this.hasVideoPlayed = true
-            this.isBrowserSupported = true
+            this.hasVideoPlayed = 1;
           }
       });
 
