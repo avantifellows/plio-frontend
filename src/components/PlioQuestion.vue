@@ -131,13 +131,7 @@ export default {
     // Returns the index of the question that has popped up.
     currentQuestionIndex() {
       return this.plioQuestion.id;
-    },
-    // reviseButton() {
-    //   return document.getElementById('revise-button')
-    // },
-    // skipButton() {
-    //   return document.getElementById('skip-button')
-    // }
+    }
   },
   methods: {
     // Closes the question window
