@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <p class="emoji">&#128546;</p>
 
     <!-- 404 error starts -->
     <div v-if="isPageNotFound">
@@ -12,33 +11,62 @@
     <!-- Browser error starts -->
     <div v-if="isBrowserError">
 
-      <!-- TODO
-      remove hardcoded link -> either parameterize it, or enter a link to youtube -->
-      <div class='embed-container'>
-        <iframe src='https://www.youtube.com/embed/FLOwzot27XM' frameborder='0' allowfullscreen>
-        </iframe>
-      </div>
+      <div v-if="isVideoIdAvailable">
 
-      <!-- failsafe begins -->
-      <div v-if="hasFailSafe">
-
-        <!-- failsafe G-form begins -->
-        <div v-if="isFailSafeGform">
-          <div class="lead_text">
-            <p>इसी प्रतियोगिता में Google फॉर्म से हिस्सा लेने के लिए नीचे बटन पे क्लिक करें</p>
-            <a
-              :href=value.failsafeUrl
-              class="icon-block">
-              <img src="../assets/google_form.svg">
-            </a>
-            <hr class="solid">
+        <!-- The lesson video in a YT iframe -->
+        <div class="lead_text">
+          <div class='embed-container'>
+            <iframe :src="this.value['youtubeId']" id="lesson-video" frameborder='0' allowfullscreen></iframe>
           </div>
         </div>
-        <!-- failsafe G-form ends -->
 
+        <!-- failsafe begins -->
+        <div v-if="hasFailSafe">
+
+          <!-- failsafe G-form begins -->
+          <div v-if="isFailSafeGform" >
+            <hr class="solid">
+
+            <div class="lead_text">
+              <p>ऊपर दिया गया वीडियो देखें और उसके बाद Google फॉर्म के लिंक पे जाके प्रश्न करें</p>
+              <br>
+              <i class="far fa-hand-point-right"></i>
+              <a
+              :href=value.failsafeUrl
+              class="icon-block" style="font-size:5vw; width:72vw;">
+                https://www.form.google.com
+              </a>
+              <i class="far fa-hand-point-left"></i>
+              <hr class="solid">
+            </div>
+          </div>
+          <!-- failsafe G-form ends -->
+
+        </div>
+
+        <div v-else>
+          <hr class="solid">
+
+          <div class="lead_text">
+            <p>ऊपर दिया गया वीडियो देखें</p>
+          </div>        
+        </div>
+        <!-- failsafe ends -->
       </div>
-      <!-- failsafe ends -->
 
+      <!-- TODO
+      remove hardcoded link -> either parameterize it, or enter a link to youtube -->
+      <div class="lead_text">
+        <p>Plio कैसे इस्तेमाल करना है, यह जानने के लिए यह video देखें </p>
+      </div>
+      <div class='embed-container'>
+        <iframe :src='plioTutorialYT' frameborder='0' allowfullscreen> </iframe>
+      </div>
+
+      <hr class="solid">
+      <br>
+
+      <p class="emoji">&#128546;</p>
       <div class="lead_text" >
         <p>यह वेबसाइट सिर्फ Google Chrome पे चलेगी </p>
         <p>This website will only work on Google Chrome</p>
@@ -64,6 +92,12 @@
 export default {
   name: "PageNotFound",
   props: ['type', 'value'],
+
+  data() {
+    return {
+      plioTutorialYT: "https://www.youtube.com/embed/FLOwzot27XM"
+    };
+  },
   
   created() {
     document.getElementById('nav').style.display = "none";
@@ -81,6 +115,9 @@ export default {
     },
     isFailSafeGform() {
       return this.value['failsafeType'] === 'g-form'
+    },
+    isVideoIdAvailable() {
+      return !!this.value['youtubeId']
     }
   }
 }

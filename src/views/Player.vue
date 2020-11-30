@@ -96,7 +96,8 @@ export default {
       isBrowserSupported: true,
       browserErrorHandlingValue: {
         'failsafeType': 'g-form',
-        'failsafeUrl': ''
+        'failsafeUrl': '',
+        'youtubeId': ''
       },
       journey: [],
       hasVideoPlayed: -1, // Three possible values: -1(don't know), 0(didn't play), 1(played)
@@ -164,6 +165,7 @@ export default {
           this.videoId = res.data.videoId;
           this.plioId = res.data.plioId;
           this.browserErrorHandlingValue.failsafeUrl = res.data.plioDetails.failsafe;
+          this.browserErrorHandlingValue.youtubeId = "https://www.youtube.com/embed/" + this.videoId;
           this.isFullscreen = false;
           this.sessionId = res.data.sessionId;
           this.browser = res.data.userAgent['browser']['family'];
