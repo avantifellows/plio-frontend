@@ -66,7 +66,7 @@ var interval_time = 50;
 
 // How precisely should the question pop-up logic
 // be measured. Time in milliseconds
-var popUpPrecisionTime = 10;
+var popUpPrecisionTime = 500;
 
 // upload to s3 after a fixed interval of time 
 var upload_interval = 45000;
@@ -463,7 +463,6 @@ export default {
             this.player.currentTime >= t
             && this.player.currentTime < t + (popUpPrecisionTime)/1000
           ) {
-            this.player.pause();
             var id = plioQuestion.id
             this.$refs['position' + id.toString()].openModal();
             while (!document.querySelector(".modal")) {

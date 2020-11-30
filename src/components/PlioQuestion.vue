@@ -131,12 +131,6 @@ export default {
     // Returns the index of the question that has popped up.
     currentQuestionIndex() {
       return this.plioQuestion.id;
-    },
-    reviseButton() {
-      return document.getElementById('revise-button')
-    },
-    skipButton() {
-      return document.getElementById('skip-button')
     }
   },
   methods: {
@@ -199,6 +193,12 @@ export default {
         markers[index].classList.add('tooltip-answered')
       }
     },
+
+    disableRadioButtons() {
+      document.getElementsByName('options').forEach( (option) => {
+        option.disabled = true
+      })
+    },
     
     clickSubmit(){
       // Things to do after clicking submit
@@ -208,15 +208,16 @@ export default {
       // 4-After some "loadTime", hide the revise/skip buttons
       // 5-Remove the loading spinner, check answer and show new result
 
+      this.disableRadioButtons();
       this.removeOptionHighlight();
       this.toggleMarkers(this.currentQuestionIndex)
       this.showButtonLoading = true
-      this.reviseButton.classList.add("disabled-div")
-      this.skipButton.classList.add("disabled-div")
+      document.getElementById('revise-button').classList.add("disabled-div")
+      document.getElementById('skip-button').classList.add("disabled-div")
 
       setTimeout(() => {
-        this.reviseButton.hidden = true
-        this.skipButton.hidden = true
+        document.getElementById('revise-button').hidden = true
+        document.getElementById('skip-button').hidden = true
         this.isAnswerSubmitted = true;
         this.showButtonLoading = false;
         this.checkAnswer();
@@ -257,11 +258,7 @@ $color1: #f4f4;
 $color2: #3197ee;
 $softorange: #f4a259;
 $tomatored: #f25c66;
-$mediumblu: #1e272d;
-
-i.fas{
-  animation: createBox .25s;
-} 
+$mediumblu: #1e272d; 
 
 .fa-check-circle {
   color: green;
@@ -271,15 +268,6 @@ i.fas{
 .fa-times-circle{
   color: red;
   font-size: 3em;
-}
-
-@keyframes createBox {
-  from {
-    transform: scale(0);
-  }
-  to {
-    transform: scale(1);
-  }
 }
 
 .question_text_row {
