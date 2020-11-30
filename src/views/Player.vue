@@ -463,7 +463,7 @@ export default {
             this.player.currentTime >= t
             && this.player.currentTime < t + (popUpPrecisionTime)/1000
           ) {
-            this.player.pause();
+            // this.player.pause();
             var id = plioQuestion.id
             this.$refs['position' + id.toString()].openModal();
             while (!document.querySelector(".modal")) {

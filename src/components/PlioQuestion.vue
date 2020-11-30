@@ -193,6 +193,12 @@ export default {
         markers[index].classList.add('tooltip-answered')
       }
     },
+
+    disableRadioButtons() {
+      document.getElementsByName('options').forEach( (option) => {
+        option.disabled = true
+      })
+    },
     
     clickSubmit(){
       // Things to do after clicking submit
@@ -202,6 +208,7 @@ export default {
       // 4-After some "loadTime", hide the revise/skip buttons
       // 5-Remove the loading spinner, check answer and show new result
 
+      this.disableRadioButtons();
       this.removeOptionHighlight();
       this.toggleMarkers(this.currentQuestionIndex)
       this.showButtonLoading = true
