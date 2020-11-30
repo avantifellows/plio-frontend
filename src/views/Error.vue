@@ -15,9 +15,8 @@
       <!-- failsafe begins -->
       <div v-if="hasFailSafe">
 
-        <!-- TODO - Adding loading spinner till YT video loads -->
         <!-- failsafe G-form begins -->
-        <div v-if="isFailSafeGform && isVideoIdFetched" >
+        <div v-if="isFailSafeGform && isVideoIdAvailable" >
           <hr class="solid">
 
           <div class="lead_text">
@@ -39,6 +38,17 @@
         <!-- failsafe G-form ends -->
 
       </div>
+
+      <div v-else-if="!hasFailSafe && isVideoIdAvailable">
+        <hr class="solid">
+
+        <div class="lead_text">
+          <p>नीचे दिया गया वीडियो देखें</p>
+          <div class='embed-container'>
+            <iframe :src="this.value['youtubeId']" id="lesson-video" frameborder='0' allowfullscreen></iframe>
+          </div>
+        </div>        
+      </div>
       <!-- failsafe ends -->
 
       <!-- TODO
@@ -47,8 +57,7 @@
         <p>Plio कैसे इस्तेमाल करना है, यह जानने के लिए यह video देखें </p>
       </div>
       <div class='embed-container'>
-        <iframe src='https://www.youtube.com/embed/FLOwzot27XM' frameborder='0' allowfullscreen>
-        </iframe>
+        <iframe :src='plioTutorialYT' frameborder='0' allowfullscreen> </iframe>
       </div>
 
       <hr class="solid">
@@ -79,6 +88,12 @@
 export default {
   name: "PageNotFound",
   props: ['type', 'value'],
+
+  data() {
+    return {
+      plioTutorialYT: "https://www.youtube.com/embed/FLOwzot27XM"
+    };
+  },
   
   created() {
     document.getElementById('nav').style.display = "none";
@@ -97,7 +112,7 @@ export default {
     isFailSafeGform() {
       return this.value['failsafeType'] === 'g-form'
     },
-    isVideoIdFetched() {
+    isVideoIdAvailable() {
       return !!this.value['youtubeId']
     }
   }
