@@ -66,6 +66,7 @@
             v-if="isAnswerSubmitted && !isAnswerCorrect"></i>
 
           <!-- submit button -->
+          <loading-spinner v-if="showButtonLoading"></loading-spinner>
           <button
             v-if="!isAnswerSubmitted"
             class="btn submit"
@@ -77,7 +78,7 @@
 
           <!-- close button -->
           <button
-            v-else
+            v-if="!showButtonLoading && isAnswerSubmitted"
             class="btn close"
             @click="clickClose"
           >
@@ -90,7 +91,13 @@
 </template>
 
 <script>
+import LoadingSpinner from './LoadingSpinner.vue';
+
+// For how long does the spinner show (in milliseconds)
+var loadTime = 1500
+
 export default {
+  components: { LoadingSpinner },
   name: "PlioQuestion",
   props: ["plioQuestion"],
   data() {
@@ -99,14 +106,19 @@ export default {
       text: "",
       selectedOption: null,
       isAnswerCorrect: false,
-      isAnswerSubmitted: false
+      isAnswerSubmitted: false,
+      showButtonLoading: false
     };
   },
 
   computed: {
-    // Submit button disabled if no option selected
+    // Submit button disabled if no option selected or screen is loading
     isDisabled() {
-      return (this.selectedOption == null || this.isAnswerSubmitted == true);
+      return (
+        this.selectedOption == null 
+        || this.isAnswerSubmitted == true 
+        || this.showButtonLoading == true
+      );
     },
     // Returns index of the correct answer (1 indexed)
     correctAnswerIndex() {
@@ -119,6 +131,12 @@ export default {
     // Returns the index of the question that has popped up.
     currentQuestionIndex() {
       return this.plioQuestion.id;
+    },
+    reviseButton() {
+      return document.getElementById('revise-button')
+    },
+    skipButton() {
+      return document.getElementById('skip-button')
     }
   },
   methods: {
@@ -181,22 +199,30 @@ export default {
         markers[index].classList.add('tooltip-answered')
       }
     },
-
-    // Things to do after submit is clicked
+    
     clickSubmit(){
+      // Things to do after clicking submit
+      // 1-Remove old option highlights
+      // 2-Toggle the current marker from red to green
+      // 3-Show Loading Spinner and disable revise/skip/submit buttons
+      // 4-After some "loadTime", hide the revise/skip buttons
+      // 5-Remove the loading spinner, check answer and show new result
 
-      // On clicking submit, previous highlights should be removed
-      // so new highlights can be configured
       this.removeOptionHighlight();
       this.toggleMarkers(this.currentQuestionIndex)
+      this.showButtonLoading = true
+      this.reviseButton.classList.add("disabled-div")
+      this.skipButton.classList.add("disabled-div")
 
-      this.isAnswerSubmitted = true;
-
-      document.getElementById('skip-button').hidden = true
-      document.getElementById('revise-button').hidden = true
+      setTimeout(() => {
+        this.reviseButton.hidden = true
+        this.skipButton.hidden = true
+        this.isAnswerSubmitted = true;
+        this.showButtonLoading = false;
+        this.checkAnswer();
+        this.showResult();
+      }, loadTime);
       
-      this.checkAnswer();
-      this.showResult();
     },
 
     // Things to do after answer is submitted
@@ -267,6 +293,11 @@ i.fas{
   margin-top: 16px;
   margin-right: 20px;
   cursor: pointer;
+}
+
+.disabled-div {
+  pointer-events: none;
+  opacity: 0.4;
 }
 
 .leftright {

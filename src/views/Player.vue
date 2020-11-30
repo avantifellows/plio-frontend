@@ -1,6 +1,9 @@
 <template>
-  <div> 
+  <div>
     <div class="player_container" v-if="dataLoaded && isBrowserSupported">
+
+      <LoadingSpinner v-if="!hasPlyrLoaded"></LoadingSpinner>
+
       <div
         id="player"
         class="plyr"
@@ -31,6 +34,7 @@ import Plyr from "plyr";
 import axios from "axios";
 import PlioQuestion from "../components/PlioQuestion.vue";
 import Error from "../views/Error.vue";
+import LoadingSpinner from "../components/LoadingSpinner.vue";
 
 // supports indexOf for older browsers
 if (!Array.prototype.indexOf)
@@ -60,6 +64,10 @@ if (!Array.prototype.indexOf)
 // in milliseconds
 var interval_time = 50;
 
+// How precisely should the question pop-up logic
+// be measured. Time in milliseconds
+var popUpPrecisionTime = 10;
+
 // upload to s3 after a fixed interval of time 
 var upload_interval = 45000;
 var timeout = null;
@@ -67,7 +75,6 @@ var timeout = null;
 // wait this much time (secs) then show error page
 // if browser is not supported
 
-// TODO - set back to 10 or 5 for PROD
 var browserCheckTime = 10;
 
 export default {
@@ -92,9 +99,10 @@ export default {
         'failsafeUrl': ''
       },
       journey: [],
-      hasVideoPlayed: -1,
+      hasVideoPlayed: -1, // Three possible values: -1(don't know), 0(didn't play), 1(played)
       sessionId: 1,
-      hasPlyrLoaded: false
+      hasPlyrLoaded: false,
+      retention: []
     };
   },
   async created() {
@@ -117,7 +125,8 @@ export default {
 
   components: {
     PlioQuestion,
-    Error
+    Error,
+    LoadingSpinner
   },
 
   methods: {
@@ -255,9 +264,6 @@ export default {
     },
 
     submitAnswer(plioQuestion, answer) {
-      // start playing whenever the user submits an answer
-      this.player.play()
-
       // Update state to "answered"
       plioQuestion["state"] = "answered"
 
@@ -283,13 +289,13 @@ export default {
 
       // logging for testing
       console.log("Answer sent");
+
+      // start playing whenever the user submits an answer
+      this.player.play()
     },
 
     skipAnswer(plioQuestion) {
       var currQuesIndex = Number(plioQuestion.id)
-
-      // start playing if the user skips the answer
-      this.player.play()
 
       this.updateJourney(
           "question-skipped", {
@@ -301,6 +307,9 @@ export default {
 
       // logging for testing
       console.log("Answer skipped");
+
+      // start playing if the user skips the answer
+      this.player.play()
     },
 
     revise(plioQuestion) {
@@ -315,8 +324,15 @@ export default {
       // update response on S3
       this.uploadJson()
 
-      this.player.currentTime = (currQuesIndex == 0) ? 0 : this.times[currQuesIndex - 1];
+      // after revise is clicked, make the user land just next to the marker
+      // and not on the marker so that question pops up again
+      this.player.currentTime = 
+        (currQuesIndex == 0) ? 0 : (this.times[currQuesIndex - 1] + (popUpPrecisionTime)/1000);
+
       this.player.play();
+
+      // logging for testing
+      console.log("Answer revised");
     },
 
     listenToPlayButtons(){
@@ -359,19 +375,15 @@ export default {
     async setPlayerProperties(player) {
       player.on("ready", () => {
         var progressBar = document.querySelectorAll(".plyr__progress")[0];
-        // var left = progressBar.getBoundingClientRect().left;
-        // var right = progressBar.getBoundingClientRect().right;
         this.plioQuestions.forEach(function (plioQuestion) {
           var question = plioQuestion.item;
           // Add marker to progress bar
           var marker = document.createElement("SPAN");
           marker.setAttribute("id", "marker")
           marker.classList.add("tooltip");
-          marker.classList.remove();
           var pos_percent = 100 * question.time / player.duration; 
           marker.style.setProperty("left", `${pos_percent}%`);
           progressBar.appendChild(marker);
-          //plioQuestion["marker"] = marker;
         });
 
         // mark Plyr as loaded
@@ -403,9 +415,15 @@ export default {
 
       player.on('play', event => {
           const instance = event.detail.plyr;
-          instance.fullscreen.enter()
-          if (!this.supportedBrowsers.includes(this.browser))
-              this.checkBrowserSupport();
+
+          if (!instance.fullscreen.active) instance.fullscreen.enter()
+
+          if (!this.supportedBrowsers.includes(this.browser)) {
+            this.checkBrowserSupport();
+          }
+          else {
+            this.hasVideoPlayed = 1;
+          }
       });
 
       player.on('enterfullscreen', () => {
@@ -426,7 +444,42 @@ export default {
 
         this.updateJourney("exit-fullscreen")
         this.uploadJson()
-      })
+      });
+
+
+      // Keep checking when to pop up the question
+      setInterval(() => {
+        
+        this.plioQuestions.forEach(async (plioQuestion) => {
+          
+          var question = plioQuestion.item;
+          var t = question.time;
+
+          if (
+            // if the seeker is within "popUpPrecisionTime" of the specific question time
+            // then fire this logic
+            this.player.currentTime >= t
+            && this.player.currentTime < t + (popUpPrecisionTime)/1000
+          ) {
+            this.player.pause();
+            var id = plioQuestion.id
+            this.$refs['position' + id.toString()].openModal();
+            while (!document.querySelector(".modal")) {
+              await new Promise((r) => setTimeout(r, 500));
+            }
+            var modal = document.getElementsByClassName("modal")[0];
+            if (modal != undefined)   {
+              this.player.pause();
+
+              document
+                .getElementsByClassName("plyr")[0]
+                .appendChild(modal);
+
+              if (plioQuestion["state"] == "notshown") plioQuestion["state"] = "unanswered"; 
+            }
+          }
+        });
+      }, popUpPrecisionTime);
 
       var prevTime = -1
       player.on("timeupdate", async () => {
@@ -442,36 +495,6 @@ export default {
             this.retention[currTime] += 1;
             prevTime = currTime
         }
-        
-        this.plioQuestions.forEach(async (plioQuestion) => {
-
-          var question = plioQuestion.item;
-          var t = question.time;
-          if (
-            // "timeupdate" event is called every interval_time millisecond
-            this.player.currentTime > t
-            && this.player.currentTime < t + (interval_time/1000)
-            //&& plioQuestion["state"] == "notshown"
-          ) {
-            var id = plioQuestion.id
-            this.$refs['position' + id.toString()].openModal();
-            while (!document.querySelector(".modal")) {
-              await new Promise((r) => setTimeout(r, 500));
-            }
-            var modal = document.getElementsByClassName("modal")[0];
-            if (modal != undefined)   {
-              this.player.pause();
-
-              document
-                .getElementsByClassName("plyr")[0]
-                .appendChild(document.getElementsByClassName("modal")[0]);
-
-              if (plioQuestion["state"] == "notshown") plioQuestion["state"] = "unanswered"; 
-                //var marker = plioQuestion["marker"];
-                //marker.remove();
-            }
-          }
-        });
       });
     },
   },
