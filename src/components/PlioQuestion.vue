@@ -16,8 +16,8 @@
               id="skip-button"
               @click="clickSkip"
             >
-              <div class="leftright"></div>
-              <div class="rightleft"></div>
+              <i class="fas fa-window-close" 
+                 style="font-size: 1.3em; color: crimson;"></i>
             </div>
           </div>
 
@@ -51,14 +51,6 @@
 
         <!-- revise button -->
         <div class="modal__footer">
-          <button
-            id="revise-button"
-            class="btn revise"
-            @click="clickRevise"
-          >
-            Revise
-          </button>
-
           <i class="fas fa-check-circle" ref="correct-icon" 
             v-if="isAnswerSubmitted && isAnswerCorrect"></i>
             
@@ -68,12 +60,20 @@
           <!-- submit button -->
           <loading-spinner v-if="showButtonLoading"></loading-spinner>
           <button
+            id="submit-button"
             v-if="!isAnswerSubmitted"
             class="btn submit"
             :disabled="isDisabled"
             @click="clickSubmit"
           >
-            Submit
+           ✓ Submit
+          </button>
+          <button
+            id="revise-button"
+            class="btn revise"
+            @click="clickRevise"
+          >
+            ⟳Revise
           </button>
 
           <!-- close button -->
@@ -82,7 +82,7 @@
             class="btn close"
             @click="clickClose"
           >
-            Close
+            ☓ Close
           </button>
         </div>
       </div>
@@ -154,6 +154,7 @@ export default {
       if (this.plioQuestion.state == "answered") {
         setTimeout(() => {
           this.showResult();
+          this.selectedOption = null;
         }, 200);
       }
       
@@ -281,6 +282,7 @@ $mediumblu: #1e272d;
   margin-top: 16px;
   margin-right: 20px;
   cursor: pointer;
+  padding-left: 3px;
 }
 
 .disabled-div {
@@ -317,6 +319,9 @@ li {
   padding: 2px;
   margin: 5px;
   font-size: 1.3rem;
+  @media (orientation: portrait) {
+    margin-right: 10px;
+  }
   margin-right: 57px;
   border-radius: 5px;
 }
@@ -428,7 +433,10 @@ input {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 20px 20px;
+    @media (orientation: portrait) {
+      padding: 4px 40px 4px;
+    }
+    padding: 4px 80px 4px;
   }
 
   .tooltip-answered {
@@ -443,47 +451,68 @@ input {
   }
 
   .btn {
-    background-color: #4caf50; /* Green */
     border: none;
     color: white;
-    padding: 2px 16px;
+    @media (orientation: portrait) {
+      padding: 2px 15px;
+    }
+    padding: 2px 40px;
     text-align: center;
     text-decoration: none;
     margin: 4px 2px;
     transition-duration: 0.4s;
     cursor: pointer;
+    height: 2.5em;
+    font-size: 1.4rem;
   }
 
   .submit {
     font-weight: 700;
-    font-size: 1rem;
-    background-color: white;
-    color: green;
-  }
-
-  .close {
     background-color: #4caf50;
-    font-weight: 700;
-    font-size: 1rem;
     color: white;
+    border-bottom: outset;
   }
-
-  .revise {
-    font-weight: 700;
-    font-size: 1rem;
-  }
-
-  :disabled {
-    color: gray;
-  }
-
   .submit:hover {
     background-color: green;
     border-radius: 5px;
     color: white;
   }
+  .submit:active{
+    border-bottom: hidden;
+  }
+  .submit:disabled{
+    color: gray;
+    background-color: white;
+    border-bottom: outset;
+  }
 
-  :disabled:hover {
+  .close {
+    background-color: white;
+    color: #4caf50;
+    font-weight: 700;
+    border-bottom: outset;
+  }
+  .close:active {
+    border-bottom: hidden;
+  }
+
+  .revise {
+    background-color: white;
+    color: green;
+    font-weight: 700;
+    border-bottom: outset;
+  }
+  .revise:active {
+    border-bottom: hidden;
+  }
+
+
+  :disabled {
+    color: gray;
+    background-color: white;
+  }
+
+ :disabled:hover {
     background-color: white;
     color: gray;
     cursor: default;
