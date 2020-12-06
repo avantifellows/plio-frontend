@@ -16,8 +16,7 @@
               id="skip-button"
               @click="clickSkip"
             >
-              <i class="fas fa-window-close" 
-                 style="font-size: 1.3em; color: crimson;"></i>
+              <i class="fas fa-window-close"></i>
             </div>
           </div>
 
@@ -269,6 +268,11 @@ $mediumblu: #1e272d;
 .fa-times-circle{
   color: red;
   font-size: 3em;
+}
+
+.fa-window-close{
+  font-size: 1.3em; 
+  color: crimson;
 }
 
 .question_text_row {
