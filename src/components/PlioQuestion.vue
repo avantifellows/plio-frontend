@@ -1,4 +1,3 @@
-
 <template>
   <transition name="fade">
     <div class="modal" v-if="show">
@@ -11,13 +10,8 @@
             <div class="question_text">
               {{ plioQuestion.item.question.text }}
             </div>
-            <div
-              class="close-container"
-              id="skip-button"
-              @click="clickSkip"
-            >
-              <div class="leftright"></div>
-              <div class="rightleft"></div>
+            <div class="close-container" id="skip-button" @click="clickSkip">
+              <i class="fas fa-window-close"></i>
             </div>
           </div>
 
@@ -30,17 +24,17 @@
                   class="answer_option radio"
                   :ref="option"
                 >
-                <!-- adding <label> so that touch input is just
+                  <!-- adding <label> so that touch input is just
                   not limited to the radio button -->
-                <label>
-                  <input
-                    type="radio"
-                    name="options"
-                    v-model="selectedOption"
-                    :value="option"
-                    @click="selectOption(index)"
-                  />{{ option }}
-                </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="options"
+                      v-model="selectedOption"
+                      :value="option"
+                      @click="selectOption(index)"
+                    />{{ option }}
+                  </label>
                 </div>
               </li>
             </ul>
@@ -51,29 +45,31 @@
 
         <!-- revise button -->
         <div class="modal__footer">
-          <button
-            id="revise-button"
-            class="btn revise"
-            @click="clickRevise"
-          >
-            Revise
-          </button>
+          <i
+            class="fas fa-check-circle"
+            ref="correct-icon"
+            v-if="isAnswerSubmitted && isAnswerCorrect"
+          ></i>
 
-          <i class="fas fa-check-circle" ref="correct-icon" 
-            v-if="isAnswerSubmitted && isAnswerCorrect"></i>
-            
-          <i class="fas fa-times-circle" ref="wrong-icon"
-            v-if="isAnswerSubmitted && !isAnswerCorrect"></i>
+          <i
+            class="fas fa-times-circle"
+            ref="wrong-icon"
+            v-if="isAnswerSubmitted && !isAnswerCorrect"
+          ></i>
 
           <!-- submit button -->
           <loading-spinner v-if="showButtonLoading"></loading-spinner>
           <button
+            id="submit-button"
             v-if="!isAnswerSubmitted"
             class="btn submit"
             :disabled="isDisabled"
             @click="clickSubmit"
           >
-            Submit
+            ✓ Submit
+          </button>
+          <button id="revise-button" class="btn revise" @click="clickRevise">
+            ⟳ Revise
           </button>
 
           <!-- close button -->
@@ -82,7 +78,7 @@
             class="btn close"
             @click="clickClose"
           >
-            Close
+            ☓ Close
           </button>
         </div>
       </div>
@@ -91,10 +87,10 @@
 </template>
 
 <script>
-import LoadingSpinner from './LoadingSpinner.vue';
+import LoadingSpinner from "./LoadingSpinner.vue";
 
 // For how long does the spinner show (in milliseconds)
-var loadTime = 1500
+var loadTime = 1500;
 
 export default {
   components: { LoadingSpinner },
@@ -107,7 +103,7 @@ export default {
       selectedOption: null,
       isAnswerCorrect: false,
       isAnswerSubmitted: false,
-      showButtonLoading: false
+      showButtonLoading: false,
     };
   },
 
@@ -115,14 +111,14 @@ export default {
     // Submit button disabled if no option selected or screen is loading
     isDisabled() {
       return (
-        this.selectedOption == null 
-        || this.isAnswerSubmitted == true 
-        || this.showButtonLoading == true
+        this.selectedOption == null ||
+        this.isAnswerSubmitted == true ||
+        this.showButtonLoading == true
       );
     },
     // Returns index of the correct answer (1 indexed)
     correctAnswerIndex() {
-      return this.plioQuestion.item.question.answers-1;
+      return this.plioQuestion.item.question.answers - 1;
     },
     // Returns the text of the correct answer
     correctAnswer() {
@@ -131,7 +127,7 @@ export default {
     // Returns the index of the question that has popped up.
     currentQuestionIndex() {
       return this.plioQuestion.id;
-    }
+    },
   },
   methods: {
     // Closes the question window
@@ -141,10 +137,10 @@ export default {
     },
 
     selectOption(option_index) {
-        this.$emit('update-journey', 'option-selected', {
-            'question': Number(this.plioQuestion.id),
-            'option': option_index
-        });
+      this.$emit("update-journey", "option-selected", {
+        question: Number(this.plioQuestion.id),
+        option: option_index,
+      });
     },
 
     // Opens the question window
@@ -154,53 +150,54 @@ export default {
       if (this.plioQuestion.state == "answered") {
         setTimeout(() => {
           this.showResult();
+          this.selectedOption = null;
         }, 200);
       }
-      
+
       this.text = "";
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
     },
 
     // Checks if the selected option is correct or not
-    checkAnswer(){
-      this.isAnswerCorrect = this.selectedOption == this.correctAnswer
+    checkAnswer() {
+      this.isAnswerCorrect = this.selectedOption == this.correctAnswer;
     },
-    
+
     // Highlights the correct option as green, wrong one as red
-    showResult(){
+    showResult() {
       if (!this.isAnswerCorrect) {
-        this.$refs[this.selectedOption].classList.add("wrongAnswer")
+        this.$refs[this.selectedOption].classList.add("wrongAnswer");
       }
-      
-      this.$refs[this.correctAnswer].classList.add("correctAnswer")
+
+      this.$refs[this.correctAnswer].classList.add("correctAnswer");
     },
 
-    removeOptionHighlight(){
-      var allOptions = document.querySelectorAll('.answer_option')
+    removeOptionHighlight() {
+      var allOptions = document.querySelectorAll(".answer_option");
 
-      allOptions.forEach( (option) => {
+      allOptions.forEach((option) => {
         option.removeAttribute("class");
-        option.className = "answer_option"
+        option.className = "answer_option";
       });
     },
 
-    toggleMarkers(index){
-      var markers = document.querySelectorAll('#marker')
-      
-      if (markers[index].className == 'tooltip'){
-        markers[index].classList.remove('tooltip')
-        markers[index].classList.add('tooltip-answered')
+    toggleMarkers(index) {
+      var markers = document.querySelectorAll("#marker");
+
+      if (markers[index].className == "tooltip") {
+        markers[index].classList.remove("tooltip");
+        markers[index].classList.add("tooltip-answered");
       }
     },
 
     disableRadioButtons() {
-      document.getElementsByName('options').forEach( (option) => {
-        option.disabled = true
-      })
+      document.getElementsByName("options").forEach((option) => {
+        option.disabled = true;
+      });
     },
-    
-    clickSubmit(){
+
+    clickSubmit() {
       // Things to do after clicking submit
       // 1-Remove old option highlights
       // 2-Toggle the current marker from red to green
@@ -210,64 +207,65 @@ export default {
 
       this.disableRadioButtons();
       this.removeOptionHighlight();
-      this.toggleMarkers(this.currentQuestionIndex)
-      this.showButtonLoading = true
-      document.getElementById('revise-button').classList.add("disabled-div")
-      document.getElementById('skip-button').classList.add("disabled-div")
+      this.toggleMarkers(this.currentQuestionIndex);
+      this.showButtonLoading = true;
+      document.getElementById("revise-button").classList.add("disabled-div");
+      document.getElementById("skip-button").classList.add("disabled-div");
 
       setTimeout(() => {
-        document.getElementById('revise-button').hidden = true
-        document.getElementById('skip-button').hidden = true
+        document.getElementById("revise-button").hidden = true;
+        document.getElementById("skip-button").hidden = true;
         this.isAnswerSubmitted = true;
         this.showButtonLoading = false;
         this.checkAnswer();
         this.showResult();
       }, loadTime);
-      
     },
 
     // Things to do after answer is submitted
     // and close button appears
-    clickClose(){
+    clickClose() {
       this.closeModal();
       this.isAnswerSubmitted = false;
-      this.$emit('answer-submitted', this.plioQuestion, this.selectedOption);
+      this.$emit("answer-submitted", this.plioQuestion, this.selectedOption);
     },
 
     // Things to do when revise button is clicked
-    clickRevise(){
+    clickRevise() {
       this.closeModal();
-      this.$emit('revision-needed', this.plioQuestion);
+      this.$emit("revision-needed", this.plioQuestion);
     },
 
-    clickSkip(){
+    clickSkip() {
       this.closeModal();
-      this.$emit('answer-skipped', this.plioQuestion);
-    }
+      this.$emit("answer-skipped", this.plioQuestion);
+    },
   },
-  
 };
 </script>
 
-
-
 <style lang="scss" scoped>
-@import "../../node_modules/@fortawesome/fontawesome-free/css/all.css"; 
+@import "../../node_modules/@fortawesome/fontawesome-free/css/all.css";
 
 $color1: #f4f4;
 $color2: #3197ee;
 $softorange: #f4a259;
 $tomatored: #f25c66;
-$mediumblu: #1e272d; 
+$mediumblu: #1e272d;
 
 .fa-check-circle {
   color: green;
   font-size: 3em;
 }
 
-.fa-times-circle{
+.fa-times-circle {
   color: red;
   font-size: 3em;
+}
+
+.fa-window-close {
+  font-size: 1.3em;
+  color: crimson;
 }
 
 .question_text_row {
@@ -281,6 +279,7 @@ $mediumblu: #1e272d;
   margin-top: 16px;
   margin-right: 20px;
   cursor: pointer;
+  padding-left: 3px;
 }
 
 .disabled-div {
@@ -317,16 +316,19 @@ li {
   padding: 2px;
   margin: 5px;
   font-size: 1.3rem;
+  @media (orientation: portrait) {
+    margin-right: 10px;
+  }
   margin-right: 57px;
   border-radius: 5px;
 }
 
 .correctAnswer {
-  background-color:lightgreen
+  background-color: lightgreen;
 }
 
 .wrongAnswer {
-  background-color:indianred;
+  background-color: indianred;
   color: white;
 }
 
@@ -428,7 +430,10 @@ input {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 20px 20px;
+    @media (orientation: portrait) {
+      padding: 4px 40px 4px;
+    }
+    padding: 4px 80px 4px;
   }
 
   .tooltip-answered {
@@ -443,44 +448,64 @@ input {
   }
 
   .btn {
-    background-color: #4caf50; /* Green */
     border: none;
     color: white;
-    padding: 2px 16px;
+    @media (orientation: portrait) {
+      padding: 2px 15px;
+    }
+    padding: 2px 40px;
     text-align: center;
     text-decoration: none;
     margin: 4px 2px;
     transition-duration: 0.4s;
     cursor: pointer;
+    height: 2.5em;
+    font-size: 1.4rem;
   }
 
   .submit {
     font-weight: 700;
-    font-size: 1rem;
-    background-color: white;
-    color: green;
-  }
-
-  .close {
     background-color: #4caf50;
-    font-weight: 700;
-    font-size: 1rem;
     color: white;
+    border-bottom: outset;
   }
-
-  .revise {
-    font-weight: 700;
-    font-size: 1rem;
-  }
-
-  :disabled {
-    color: gray;
-  }
-
   .submit:hover {
     background-color: green;
     border-radius: 5px;
     color: white;
+  }
+  .submit:active {
+    border-bottom: hidden;
+  }
+  .submit:disabled {
+    color: gray;
+    background-color: white;
+    border-bottom: outset;
+  }
+
+  .close {
+    background-color: white;
+    color: #4caf50;
+    font-weight: 700;
+    border-bottom: outset;
+  }
+  .close:active {
+    border-bottom: hidden;
+  }
+
+  .revise {
+    background-color: white;
+    color: green;
+    font-weight: 700;
+    border-bottom: outset;
+  }
+  .revise:active {
+    border-bottom: hidden;
+  }
+
+  :disabled {
+    color: gray;
+    background-color: white;
   }
 
   :disabled:hover {
@@ -510,5 +535,4 @@ input {
 .fade-leave-to {
   opacity: 0;
 }
-
 </style>

@@ -544,7 +544,7 @@ export default {
     height: auto;
     align-self: center;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 1.5rem;
   }
 
 .tooltip {
