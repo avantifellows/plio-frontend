@@ -103,7 +103,8 @@ export default {
       hasVideoPlayed: -1, // Three possible values: -1(don't know), 0(didn't play), 1(played)
       sessionId: 1,
       hasPlyrLoaded: false,
-      retention: []
+      retention: [],
+      previousPlayerTime: 0
     };
   },
   async created() {
@@ -116,7 +117,7 @@ export default {
 
     // load plio details
     await this.fetchData();
-
+    
     document.getElementById('nav').style.display = "none";
 
     if (this.$route.query.src) {
@@ -186,6 +187,22 @@ export default {
 
           // set the global list of time values
           this.times = res.data.times
+
+          // merge the previous session data
+          if (res.data.sessionData != null) {
+            this.answers = res.data.sessionData.answers
+            for (i=0; i < questions.length; i++){
+              this.plioQuestions[i].user_answer = this.answers[i]
+              this.plioQuestions[i].state = 
+                (this.answers[i].length == 0) ? "notshown" : "answered"
+            }
+            
+            this.journey = res.data.sessionData.journey
+            this.previousPlayerTime = (
+              (this.journey.length > 0) ? this.journey[this.journey.length - 1]['player_time'] : [])
+            this.watchTime += res.data.sessionData['watch-time']
+            this.retention = res.data.sessionData.retention
+          }
         })
         .then( this.dataLoaded = true )
         .then(
@@ -376,6 +393,8 @@ export default {
 
     async setPlayerProperties(player) {
       player.on("ready", () => {
+        this.player.currentTime = Math.abs(this.previousPlayerTime - 5)
+
         var progressBar = document.querySelectorAll(".plyr__progress")[0];
         this.plioQuestions.forEach(function (plioQuestion) {
           var question = plioQuestion.item;
@@ -383,6 +402,11 @@ export default {
           var marker = document.createElement("SPAN");
           marker.setAttribute("id", "marker")
           marker.classList.add("tooltip");
+
+          if (plioQuestion.state == "answered") {
+            marker.classList.add("tooltip-answered")
+          }
+          
           var pos_percent = 100 * question.time / player.duration; 
           marker.style.setProperty("left", `${pos_percent}%`);
           progressBar.appendChild(marker);
@@ -396,10 +420,9 @@ export default {
           progressBar.firstChild.disabled = true;
 
         // initializing the retention array with zeros
-        this.retention = Array(this.player.duration).fill(0);
-        this.submitted = Array(this.plioQuestions.length).fill(0);
-        this.skipped = Array(this.plioQuestions.length).fill(0);
-        this.revised = Array(this.plioQuestions.length).fill(0);
+        if (this.retention.length == 0){
+          this.retention = Array(this.player.duration).fill(0);
+        }
         
         // Adding on-click listeners to the two play buttons
         // one big play button in the middle, and one near the

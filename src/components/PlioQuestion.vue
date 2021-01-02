@@ -32,6 +32,7 @@
                       name="options"
                       v-model="selectedOption"
                       :value="option"
+                      :id="option"
                       @click="selectOption(index)"
                     />{{ option }}
                   </label>
@@ -149,6 +150,10 @@ export default {
       // Wait 200 ms because it takes some time to find the DOM elements
       if (this.plioQuestion.state == "answered") {
         setTimeout(() => {
+          // highlight wrong/right depending on what the user answered in previous session
+          document.getElementById(this.plioQuestion.user_answer).checked = true
+          this.selectedOption = this.plioQuestion.user_answer
+          this.checkAnswer()
           this.showResult();
           this.selectedOption = null;
         }, 200);
