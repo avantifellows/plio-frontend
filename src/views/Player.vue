@@ -400,9 +400,6 @@ export default {
         if (this.previousPlayerTime > stepBackTime){
           this.player.currentTime = this.previousPlayerTime - stepBackTime
         }
-        else{
-          this.player.currentTime = 0
-        }
 
         // start from beginning if video was watched till the end in the last session
         if (this.previousPlayerTime == this.player.duration) {
