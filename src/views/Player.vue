@@ -74,8 +74,11 @@ var timeout = null;
 
 // wait this much time (secs) then show error page
 // if browser is not supported
-
 var browserCheckTime = 10;
+
+// how many seconds to step back (currentTime) when a user comes back to
+// a plio for a new session
+var stepBackTime = 5;
 
 export default {
   name: "Player",
@@ -393,7 +396,18 @@ export default {
 
     async setPlayerProperties(player) {
       player.on("ready", () => {
-        this.player.currentTime = Math.abs(this.previousPlayerTime - 5)
+        // start playing from 5 seconds before where the user left off in previous session
+        if (this.previousPlayerTime > stepBackTime){
+          this.player.currentTime = this.previousPlayerTime - stepBackTime
+        }
+        else{
+          this.player.currentTime = 0
+        }
+
+        // start from beginning if video was watched till the end in the last session
+        if (this.previousPlayerTime == this.player.duration) {
+          this.player.currentTime = 0
+        }
 
         var progressBar = document.querySelectorAll(".plyr__progress")[0];
         this.plioQuestions.forEach(function (plioQuestion) {
