@@ -199,7 +199,7 @@ export default {
             
             this.journey = res.data.sessionData.journey
             this.previousPlayerTime = (
-              (this.journey.length > 0) ? this.journey[this.journey.length - 1]['player_time'] : [])
+              (this.journey.length > 0) ? this.journey[this.journey.length - 1]['player_time'] : 0)
             this.watchTime += res.data.sessionData['watch-time']
             this.retention = res.data.sessionData.retention
           }
