@@ -203,7 +203,7 @@ export default {
             this.journey = res.data.sessionData.journey
             this.previousPlayerTime = (
               (this.journey.length > 0) ? this.journey[this.journey.length - 1]['player_time'] : 0)
-            this.watchTime += res.data.sessionData['watch-time']
+            this.watchTime = res.data.sessionData['watch-time']
             this.retention = res.data.sessionData.retention
           }
         })
@@ -402,7 +402,7 @@ export default {
         }
 
         // start from beginning if video was watched till the end in the last session
-        if (this.previousPlayerTime == this.player.duration) {
+        if (this.player.duration - this.previousPlayerTime <= 2) {
           this.player.currentTime = 0
         }
 
