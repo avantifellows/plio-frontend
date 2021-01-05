@@ -192,7 +192,7 @@ export default {
           this.times = res.data.times
 
           // merge the previous session data
-          if (res.data.sessionData != null) {
+          if (res.data.sessionData != '') {
             this.answers = res.data.sessionData.answers
             for (i=0; i < questions.length; i++){
               this.plioQuestions[i].user_answer = this.answers[i]
