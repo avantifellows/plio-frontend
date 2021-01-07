@@ -62,23 +62,27 @@ if (!Array.prototype.indexOf)
 
 // The time period in which Plyr timeupdate event repeats
 // in milliseconds
-var interval_time = 50;
+const INTERVAL_TIME = 50;
 
 // How precisely should the question pop-up logic
 // be measured. Time in milliseconds
-var popUpPrecisionTime = 500;
+const POP_UP_PRECISION_TIME = 500;
 
 // upload to s3 after a fixed interval of time 
-var upload_interval = 45000;
-var timeout = null;
+const UPLOAD_INTERVAL = 45000;
+var TIMEOUT = null;
 
 // wait this much time (secs) then show error page
 // if browser is not supported
-var browserCheckTime = 10;
+const BROWSER_CHECK_TIME = 10;
 
 // how many seconds to step back (currentTime) when a user comes back to
 // a plio for a new session
-var stepBackTime = 5;
+const STEP_BACK_TIME = 5;
+
+// This buffer time is because currentTime and duration cannot be
+// exactly equal. Hence taking a ballpark of 2 seconds
+const COMPLETED_BUFFER_TIME = 2;
 
 export default {
   name: "Player",
@@ -151,7 +155,7 @@ export default {
 
     logData() {
       if (this.plioId != undefined && this.player.playing) this.uploadJson()
-      timeout = setTimeout(this.logData, upload_interval)
+      TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL)
     },
 
     fetchData() {
@@ -194,15 +198,20 @@ export default {
           // merge the previous session data
           if (res.data.sessionData != '') {
             this.answers = res.data.sessionData.answers
-            for (i=0; i < questions.length; i++){
-              this.plioQuestions[i].user_answer = this.answers[i]
-              this.plioQuestions[i].state = 
-                (this.answers[i].length == 0) ? "notshown" : "answered"
-            }
+
+            questions.forEach((question, index) => {
+              this.plioQuestions[index].user_answer = this.answers[index]
+              this.plioQuestions[index].state = 
+                (this.answers[index].length == 0) ? "notshown" : "answered"
+            });
             
             this.journey = res.data.sessionData.journey
-            this.previousPlayerTime = (
-              (this.journey.length > 0) ? this.journey[this.journey.length - 1]['player_time'] : 0)
+
+            this.previousPlayerTime = 0
+            if (this.journey.length > 0){
+              this.previousPlayerTime = this.journey[this.journey.length - 1]['player_time']
+            }
+            
             this.watchTime = res.data.sessionData['watch-time']
             this.retention = res.data.sessionData.retention
           }
@@ -349,7 +358,7 @@ export default {
       // after revise is clicked, make the user land just next to the marker
       // and not on the marker so that question pops up again
       this.player.currentTime = 
-        (currQuesIndex == 0) ? 0 : (this.times[currQuesIndex - 1] + (popUpPrecisionTime)/1000);
+        (currQuesIndex == 0) ? 0 : (this.times[currQuesIndex - 1] + (POP_UP_PRECISION_TIME)/1000);
 
       this.player.play();
 
@@ -365,13 +374,13 @@ export default {
     },
 
     checkBrowserSupport(){
-      /* This logic works because for as long as browserCheckTime,
+      /* This logic works because for as long as BROWSER_CHECK_TIME,
          the progress bar will stay inactive, so the user will not be
          able to seek forward or backward -> hence player.currentTime
          cannot be changed via user.
 
          If the video plays or not plays, the user cannot influence it
-         (as long as "browserCheckTime"). */
+         (as long as "BROWSER_CHECK_TIME"). */
 
         if(this.hasVideoPlayed == -1 && this.player.playing){
           const timeBefore = Math.round(this.player.currentTime * 100) / 100;
@@ -390,19 +399,19 @@ export default {
               var progressBar = document.querySelectorAll(".plyr__progress")[0]
               progressBar.firstChild.removeAttribute("disabled");
 
-          }, browserCheckTime * 1000);
+          }, BROWSER_CHECK_TIME * 1000);
         }
     },
 
     async setPlayerProperties(player) {
       player.on("ready", () => {
         // start playing from 5 seconds before where the user left off in previous session
-        if (this.previousPlayerTime > stepBackTime){
-          this.player.currentTime = this.previousPlayerTime - stepBackTime
+        if (this.previousPlayerTime > STEP_BACK_TIME){
+          this.player.currentTime = this.previousPlayerTime - STEP_BACK_TIME
         }
 
         // start from beginning if video was watched till the end in the last session
-        if (this.player.duration - this.previousPlayerTime <= 2) {
+        if (this.player.duration - this.previousPlayerTime <= COMPLETED_BUFFER_TIME) {
           this.player.currentTime = 0
         }
 
@@ -492,10 +501,10 @@ export default {
           var t = question.time;
 
           if (
-            // if the seeker is within "popUpPrecisionTime" of the specific question time
+            // if the seeker is within "POP_UP_PRECISION_TIME" of the specific question time
             // then fire this logic
             this.player.currentTime >= t
-            && this.player.currentTime < t + (popUpPrecisionTime)/1000
+            && this.player.currentTime < t + (POP_UP_PRECISION_TIME)/1000
           ) {
             var id = plioQuestion.id
             this.$refs['position' + id.toString()].openModal();
@@ -514,14 +523,14 @@ export default {
             }
           }
         });
-      }, popUpPrecisionTime);
+      }, POP_UP_PRECISION_TIME);
 
       var prevTime = -1
       player.on("timeupdate", async () => {
 
         // Update watch time if the video is playing
         if(this.player.playing) {
-          this.watchTime += interval_time;
+          this.watchTime += INTERVAL_TIME;
         }
 
         // Record how many times a particular second was visited
@@ -549,7 +558,7 @@ export default {
     // Store in data
   },
   beforeUnmount() {
-    clearTimeout(timeout)
+    clearTimeout(TIMEOUT)
   }
 };
 

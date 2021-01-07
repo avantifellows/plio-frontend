@@ -32,7 +32,6 @@
                       name="options"
                       v-model="selectedOption"
                       :value="option"
-                      :id="option"
                       @click="selectOption(index)"
                     />{{ option }}
                   </label>
@@ -151,7 +150,8 @@ export default {
       if (this.plioQuestion.state == "answered") {
         setTimeout(() => {
           // highlight wrong/right depending on what the user answered in previous session
-          document.getElementById(this.plioQuestion.user_answer).checked = true
+          var selectedOption = document.querySelectorAll(`input[value='${this.plioQuestion.user_answer}']`)[0];
+          selectedOption.checked = true
           this.selectedOption = this.plioQuestion.user_answer
           this.checkAnswer()
           this.showResult();
