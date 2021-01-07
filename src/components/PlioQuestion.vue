@@ -66,10 +66,10 @@
             :disabled="isDisabled"
             @click="clickSubmit"
           >
-            ✓ Submit
+          ✓ सबमिट करें
           </button>
           <button id="revise-button" class="btn revise" @click="clickRevise">
-            ⟳ Revise
+          ⟳ पुनः देखें
           </button>
 
           <!-- close button -->
@@ -78,7 +78,7 @@
             class="btn close"
             @click="clickClose"
           >
-            ☓ Close
+          आगे बढ़ें
           </button>
         </div>
       </div>
@@ -127,7 +127,7 @@ export default {
     // Returns the index of the question that has popped up.
     currentQuestionIndex() {
       return this.plioQuestion.id;
-    },
+    }
   },
   methods: {
     // Closes the question window
@@ -452,6 +452,7 @@ input {
     color: white;
     @media (orientation: portrait) {
       padding: 2px 15px;
+      height: fit-content;
     }
     padding: 2px 40px;
     text-align: center;
