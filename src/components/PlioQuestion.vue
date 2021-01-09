@@ -149,6 +149,11 @@ export default {
       // Wait 200 ms because it takes some time to find the DOM elements
       if (this.plioQuestion.state == "answered") {
         setTimeout(() => {
+          // highlight wrong/right depending on what the user answered in previous session
+          var selectedOption = document.querySelectorAll(`input[value='${this.plioQuestion.user_answer}']`)[0];
+          selectedOption.checked = true
+          this.selectedOption = this.plioQuestion.user_answer
+          this.checkAnswer()
           this.showResult();
           this.selectedOption = null;
         }, 200);
