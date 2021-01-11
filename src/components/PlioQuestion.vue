@@ -156,6 +156,10 @@ export default {
           this.checkAnswer()
           this.showResult();
           this.selectedOption = null;
+          this.hideReviseButton();
+          this.hideSkipButton();
+          this.isAnswerSubmitted = true;
+          this.disableRadioButtons();
         }, 200);
       }
 
@@ -167,6 +171,14 @@ export default {
     // Checks if the selected option is correct or not
     checkAnswer() {
       this.isAnswerCorrect = this.selectedOption == this.correctAnswer;
+    },
+
+    hideReviseButton(){
+      document.getElementById("revise-button").hidden = true;
+    },
+
+    hideSkipButton(){
+      document.getElementById("skip-button").hidden = true;
     },
 
     // Highlights the correct option as green, wrong one as red
