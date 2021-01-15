@@ -15,7 +15,9 @@ const routes = [{
         component: Player,
         query: {
             src: ''
-        }
+        },
+        props: route => ({ experiment: route.query.experiment })
+
     },
     {
         path: "/login/:id?/:type?",

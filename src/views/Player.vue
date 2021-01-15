@@ -86,6 +86,12 @@ const COMPLETED_BUFFER_TIME = 2;
 
 export default {
   name: "Player",
+  props: {
+    'experiment': {
+      default: '',
+      type: String
+    }
+  },
 
   data() {
     return {
@@ -111,7 +117,7 @@ export default {
       sessionId: 1,
       hasPlyrLoaded: false,
       retention: [],
-      previousPlayerTime: 0
+      previousPlayerTime: 0,
     };
   },
   async created() {
@@ -265,7 +271,8 @@ export default {
               'source': this.source,
               'retention': this.retention,
               'has-video-played': this.hasVideoPlayed,
-              'journey': this.journey
+              'journey': this.journey,
+              'experiment': this.experiment
           }
       }
       const json_response = JSON.stringify(student_response)

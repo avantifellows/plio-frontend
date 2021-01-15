@@ -12,6 +12,27 @@ export default {
                 path: '/login/' + this.$route.params.id + '/experiment'
             })
         }
+        
+        var experimentAssignment = this.getAssignment()
+        var assignment = experimentAssignment[0]
+        var userConfig = experimentAssignment[1]
+
+        this.$store
+            .dispatch("saveConfig", {
+                config: userConfig,
+            }).then(() => {
+                this.$router.push({
+                    path: '/play/' + assignment,
+                    query: {
+                        'experiment': this.$route.params.id
+                    }
+                })
+            })
+    },
+    methods: {
+        getAssignment() {
+            return ["ZIzADHngzy", {}];
+        }
     }
 
 }

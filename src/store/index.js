@@ -5,15 +5,21 @@ import plioItems from './modules/plioItems'
 const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 const LOGOUT = "LOGOUT";
 const LOGIN = "LOGIN";
+const CONFIG = "CONFIG";
+const CONFIG_SUCCESS = "CONFIG_SUCCESS";
 
 export default createStore({
     getters: {
         isLoggedIn: state => {
             return state.isLoggedIn
+        },
+        getConfig: state => {
+            return state.config
         }
     },
     state: {
-        isLoggedIn: !!localStorage.getItem("phone")
+        isLoggedIn: !!localStorage.getItem("phone"),
+        config: localStorage.getItem("config")
     },
     mutations: {
         [LOGIN](state) {
@@ -25,6 +31,12 @@ export default createStore({
         },
         [LOGOUT](state) {
             state.isLoggedIn = false;
+        },
+        [CONFIG](state) {
+            state.pending = true;
+        },
+        [CONFIG_SUCCESS](state) {
+            state.pending = false;
         }
     },
     actions: {
@@ -41,7 +53,17 @@ export default createStore({
         logout({ commit }) {
             localStorage.removeItem("phone");
             commit(LOGOUT);
-        }
+        },
+        saveConfig({ commit }, creds) {
+            commit(CONFIG); // show spinner
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    localStorage.setItem("config", creds.config);
+                    commit(CONFIG_SUCCESS);
+                    resolve();
+                }, 1000);
+            });
+        },
     },
     modules: {
         plioItems
