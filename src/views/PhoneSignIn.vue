@@ -53,8 +53,12 @@ export default {
           phone: this.phone_input,
         })
         .then(() => {
-          if (this.$route.params.id) {
-            this.$router.push( {path: "/play/" + this.$route.params.id})
+          if (this.$route.params.id){
+            if (this.$route.params.type && this.$route.params.type == 'experiment') {
+              this.$router.push({path: "/experiment/" + this.$route.params.id})
+            } else {
+              this.$router.push({path: "/play/" + this.$route.params.id})
+            }
           } else {
             this.$router.push({ path: "/" });
           }
