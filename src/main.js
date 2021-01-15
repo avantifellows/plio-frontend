@@ -3,5 +3,10 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-createApp(App).use(store).use(router).mount('#app')
+const app = createApp(App).use(store).use(router)
+
+app.component('font-awesome-icon', FontAwesomeIcon)
+
+app.mount('#app')

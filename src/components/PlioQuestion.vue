@@ -11,7 +11,10 @@
               {{ plioQuestion.item.question.text }}
             </div>
             <div class="close-container" id="skip-button" @click="clickSkip">
-              <i class="fas fa-window-close"></i>
+              <font-awesome-icon 
+                :icon="['fas', 'window-close']"
+                class="skip-icon"
+              ></font-awesome-icon>
             </div>
           </div>
 
@@ -45,17 +48,19 @@
 
         <!-- revise button -->
         <div class="modal__footer">
-          <i
-            class="fas fa-check-circle"
+          <font-awesome-icon 
+            :icon="['fas', 'check-circle']"
+            class="correct-icon"
             ref="correct-icon"
             v-if="isAnswerSubmitted && isAnswerCorrect"
-          ></i>
+          ></font-awesome-icon>
 
-          <i
-            class="fas fa-times-circle"
+          <font-awesome-icon 
+            :icon="['fas', 'times-circle']"
+            class="wrong-icon"
             ref="wrong-icon"
             v-if="isAnswerSubmitted && !isAnswerCorrect"
-          ></i>
+          ></font-awesome-icon>          
 
           <!-- submit button -->
           <loading-spinner v-if="showButtonLoading"></loading-spinner>
@@ -88,6 +93,11 @@
 
 <script>
 import LoadingSpinner from "./LoadingSpinner.vue";
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faWindowClose } from '@fortawesome/free-solid-svg-icons/faWindowClose';
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
+import { faTimesCircle } from '@fortawesome/free-solid-svg-icons/faTimesCircle';
+library.add(faWindowClose, faCheckCircle, faTimesCircle);
 
 // For how long does the spinner show (in milliseconds)
 var loadTime = 1500;
@@ -262,7 +272,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../node_modules/@fortawesome/fontawesome-free/css/all.css";
 
 $color1: #f4f4;
 $color2: #3197ee;
@@ -270,19 +279,19 @@ $softorange: #f4a259;
 $tomatored: #f25c66;
 $mediumblu: #1e272d;
 
-.fa-check-circle {
-  color: green;
+.correct-icon {
+  color: #008000;
   font-size: 3em;
 }
 
-.fa-times-circle {
+.wrong-icon {
   color: red;
   font-size: 3em;
 }
 
-.fa-window-close {
+.skip-icon {
   font-size: 1.3em;
-  color: crimson;
+  color: rgb(220, 20, 60);
 }
 
 .question_text_row {
