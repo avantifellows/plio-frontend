@@ -20,6 +20,8 @@ const routes = [{
 
     },
     {
+        // type: the type of component invoking this path (optional)
+        // id: the unique ID for the component invoking this path (optional)
         path: "/login/:id?/:type?",
         name: "Phone Sign In",
         component: PhoneSignIn,

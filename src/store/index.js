@@ -33,10 +33,10 @@ export default createStore({
             state.isLoggedIn = false;
         },
         [CONFIG](state) {
-            state.pending = true;
+            state.configFetchedPending = true;
         },
         [CONFIG_SUCCESS](state) {
-            state.pending = false;
+            state.configFetchedPending = false;
         }
     },
     actions: {
