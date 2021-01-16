@@ -48,6 +48,9 @@ export default {
   },
   methods: {
     storePhone() {
+      // this component stores only the user ID in Vuex
+      // other aspects of the User like the user Config are pulled
+      // separately by other components as needed
       this.$store
         .dispatch("login", {
           phone: this.phone_input,
