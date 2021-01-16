@@ -21,7 +21,7 @@
       <div class="error" v-if="!isFullscreen">
         <button 
           class="btn start-button" 
-          @click="startTheVideo"
+          @click="startVideo"
           id="start-button"
         >
           Start <br>
@@ -121,7 +121,8 @@ export default {
       previousPlayerTime: 0,
       isTutorialComplete: false,
       tutorialProgress: {},
-      isTutorialUploadRequired: true
+      isTutorialUploadRequired: true,
+      isModalOnScreen: false
     };
   },
   async created() {
@@ -177,18 +178,20 @@ export default {
       TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL)
     },
 
-    startTheVideo() {
+    startVideo() {
       var x = document.getElementById('start-button')
       x.classList.remove('start-button')
       x.classList.add('start-button-active')
       setTimeout(() => {
         this.player.fullscreen.enter();
-        this.waitFor(() => this.player.fullscreen.active === true)
+        this.waitFor(() => (
+            this.player.fullscreen.active === true && this.isModalOnScreen === false
+          )
+        )
         .then(() => this.player.play())
       }, 400);
 
       this.tutorialProgress['start'] = true;
-      this.checkIfTutorialIsComplete();
     },
 
     checkIfTutorialIsComplete(){
@@ -368,7 +371,6 @@ export default {
 
         if (logEvent == 'option-selected'){
           this.tutorialProgress['options'] = true;
-          this.checkIfTutorialIsComplete();
         }
     },
 
@@ -405,12 +407,13 @@ export default {
 
       // start playing whenever the user submits an answer
       this.player.play()
+
+      this.isModalOnScreen = false;
     },
 
     submitAnswer() {
       // this function is called when the submit button is clicked
       this.tutorialProgress['submit'] = true;
-      this.checkIfTutorialIsComplete();
       this.uploadJson();
     },
 
@@ -430,6 +433,7 @@ export default {
 
       // start playing if the user skips the answer
       this.player.play()
+      this.isModalOnScreen = false;
     },
 
     revise(plioQuestion) {
@@ -453,6 +457,7 @@ export default {
 
       // logging for testing
       console.log("Answer revised");
+      this.isModalOnScreen = false;
     },
 
     listenToPlayButtons(){
@@ -603,6 +608,7 @@ export default {
             var modal = document.getElementsByClassName("modal")[0];
             if (modal != undefined)   {
               this.player.pause();
+              this.isModalOnScreen = true;
 
               document
                 .getElementsByClassName("plyr")[0]
