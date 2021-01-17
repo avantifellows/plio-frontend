@@ -119,6 +119,7 @@ export default {
       hasPlyrLoaded: false,
       retention: [],
       previousPlayerTime: 0,
+      configs: {},
       isTutorialComplete: false,
       tutorialProgress: {},
       isTutorialUploadRequired: true,
@@ -224,8 +225,9 @@ export default {
           this.isFullscreen = false;
           this.sessionId = res.data.sessionId;
           this.browser = res.data.userAgent['browser']['family'];
-          this.isTutorialComplete = res.data.configData.tutorial.isComplete;
-          this.tutorialProgress = res.data.configData.tutorial.progress;
+          this.configs = res.data.configData
+          this.isTutorialComplete = this.configs.tutorial.isComplete;
+          this.tutorialProgress = this.configs.tutorial.progress;
 
           var i = 0;
           for (i = 0; i < questions.length; i++) {
@@ -331,14 +333,11 @@ export default {
         
       
       if (this.isTutorialUploadRequired) {
+          this.configs['tutorial']['isComplete'] = this.isTutorialComplete;
+          this.configs['tutorial']['progress'] = this.tutorialProgress;
           const tutorial_progress = {
               'user-id': this.userId,
-              'configs': {
-                'tutorial': {
-                    'isComplete': this.isTutorialComplete,
-                    'progress': this.tutorialProgress
-                }
-              }
+              'configs': this.configs
           }
 
           const json_tutorial_progress = JSON.stringify(tutorial_progress)
