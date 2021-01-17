@@ -11,11 +11,14 @@
               {{ plioQuestion.item.question.text }}
             </div>
             <div class="close-container" id="skip-button" @click="clickSkip">
-              <i class="fas fa-window-close"></i>
+              <font-awesome-icon 
+                :icon="['fas', 'window-close']"
+                class="skip-icon"
+              ></font-awesome-icon>
             </div>
           </div>
 
-          <div class="options">
+          <div id="options_container" class="options">
             <ul>
               <li class="option">
                 <div
@@ -40,22 +43,27 @@
             </ul>
 
             <!-- Selected: {{ selectedOption }} -->
+            <mcqOptionsPointer 
+              v-if="!isAnAnsweredQuestion && !isTutorialComplete && !tutorialProgress['options']">
+            </mcqOptionsPointer>
           </div>
-        </div>
+          </div>
 
         <!-- revise button -->
         <div class="modal__footer">
-          <i
-            class="fas fa-check-circle"
+          <font-awesome-icon 
+            :icon="['fas', 'check-circle']"
+            class="correct-icon"
             ref="correct-icon"
             v-if="isAnswerSubmitted && isAnswerCorrect"
-          ></i>
+          ></font-awesome-icon>
 
-          <i
-            class="fas fa-times-circle"
+          <font-awesome-icon 
+            :icon="['fas', 'times-circle']"
+            class="wrong-icon"
             ref="wrong-icon"
             v-if="isAnswerSubmitted && !isAnswerCorrect"
-          ></i>
+          ></font-awesome-icon>          
 
           <!-- submit button -->
           <loading-spinner v-if="showButtonLoading"></loading-spinner>
@@ -68,11 +76,17 @@
           >
           ✓ सबमिट करें
           </button>
+          <submit-button-pointer 
+            v-if="!isTutorialComplete && !tutorialProgress['submit'] && !isDisabled && !isAnAnsweredQuestion">
+          </submit-button-pointer>
           <button id="revise-button" class="btn revise" @click="clickRevise">
           ⟳ पुनः देखें
           </button>
 
           <!-- close button -->
+          <close-button-pointer 
+            v-if="!isTutorialComplete && !tutorialProgress['close'] && isAnswerSubmitted">
+          </close-button-pointer>
           <button
             v-if="!showButtonLoading && isAnswerSubmitted"
             class="btn close"
@@ -88,14 +102,23 @@
 
 <script>
 import LoadingSpinner from "./LoadingSpinner.vue";
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faWindowClose } from '@fortawesome/free-solid-svg-icons/faWindowClose';
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
+import { faTimesCircle } from '@fortawesome/free-solid-svg-icons/faTimesCircle';
+library.add(faWindowClose, faCheckCircle, faTimesCircle);
+
+import SubmitButtonPointer from './tutorial/SubmitButtonPointer.vue';
+import mcqOptionsPointer from './tutorial/mcqOptionsPointer.vue';
+import CloseButtonPointer from './tutorial/CloseButtonPointer.vue';
 
 // For how long does the spinner show (in milliseconds)
 var loadTime = 1500;
 
 export default {
-  components: { LoadingSpinner },
+  components: { LoadingSpinner, SubmitButtonPointer, mcqOptionsPointer, CloseButtonPointer},
   name: "PlioQuestion",
-  props: ["plioQuestion"],
+  props: ["plioQuestion", "isTutorialComplete", "tutorialProgress"],
   data() {
     return {
       show: false,
@@ -127,6 +150,9 @@ export default {
     // Returns the index of the question that has popped up.
     currentQuestionIndex() {
       return this.plioQuestion.id;
+    },
+    isAnAnsweredQuestion(){
+      return this.plioQuestion.state == "answered"
     }
   },
   methods: {
@@ -150,6 +176,7 @@ export default {
       if (this.plioQuestion.state == "answered") {
         setTimeout(() => {
           // highlight wrong/right depending on what the user answered in previous session
+          document.getElementById("options_container").classList.add("options-block");
           var selectedOption = document.querySelectorAll(`input[value='${this.plioQuestion.user_answer}']`)[0];
           selectedOption.checked = true
           this.selectedOption = this.plioQuestion.user_answer
@@ -228,6 +255,7 @@ export default {
       this.showButtonLoading = true;
       document.getElementById("revise-button").classList.add("disabled-div");
       document.getElementById("skip-button").classList.add("disabled-div");
+      document.getElementById("options_container").classList.add("options-block");
 
       setTimeout(() => {
         document.getElementById("revise-button").hidden = true;
@@ -237,6 +265,8 @@ export default {
         this.checkAnswer();
         this.showResult();
       }, loadTime);
+
+      this.$emit("answer-submitted")
     },
 
     // Things to do after answer is submitted
@@ -244,7 +274,7 @@ export default {
     clickClose() {
       this.closeModal();
       this.isAnswerSubmitted = false;
-      this.$emit("answer-submitted", this.plioQuestion, this.selectedOption);
+      this.$emit("question-closed", this.plioQuestion, this.selectedOption);
     },
 
     // Things to do when revise button is clicked
@@ -262,7 +292,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../node_modules/@fortawesome/fontawesome-free/css/all.css";
 
 $color1: #f4f4;
 $color2: #3197ee;
@@ -270,19 +299,19 @@ $softorange: #f4a259;
 $tomatored: #f25c66;
 $mediumblu: #1e272d;
 
-.fa-check-circle {
-  color: green;
+.correct-icon {
+  color: #008000;
   font-size: 3em;
 }
 
-.fa-times-circle {
+.wrong-icon {
   color: red;
   font-size: 3em;
 }
 
-.fa-window-close {
+.skip-icon {
   font-size: 1.3em;
-  color: crimson;
+  color: rgb(220, 20, 60);
 }
 
 .question_text_row {
@@ -338,6 +367,15 @@ li {
   }
   margin-right: 57px;
   border-radius: 5px;
+}
+
+.options{
+  display:flex;
+  align-items: center;
+}
+
+.options-block{
+  display: block;
 }
 
 .correctAnswer {
@@ -513,7 +551,7 @@ input {
 
   .revise {
     background-color: white;
-    color: green;
+    color: blue;
     font-weight: 700;
     border-bottom: outset;
   }

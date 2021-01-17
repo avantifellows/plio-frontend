@@ -95,7 +95,7 @@ export default {
 
   data() {
     return {
-      plioTutorialYT: "https://www.youtube.com/embed/FLOwzot27XM"
+      plioTutorialYT: "https://www.youtube.com/embed/DgySx8_H4DI"
     };
   },
   
