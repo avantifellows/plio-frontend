@@ -14,7 +14,6 @@
 </template>
 
 <script>
-
 export default {
   data() {
     return {
@@ -25,26 +24,24 @@ export default {
   watch: {
     phone_input: function () {
       let isPhoneValid = this.isPhoneValid();
-      
-      if (isPhoneValid) 
-        this.isSubmitDisabled = false;
-      else 
-        this.isSubmitDisabled = true;
+
+      if (isPhoneValid) this.isSubmitDisabled = false;
+      else this.isSubmitDisabled = true;
     },
   },
   created() {
-      if (this.isLoggedIn) {
-        this.$router.push('/')
-      }
+    if (this.isLoggedIn) {
+      this.$router.push("/");
+    }
 
-      if (this.$route.params.id) {
-        document.getElementById('nav').style.display = "none";
-      }
+    if (this.$route.params.id) {
+      document.getElementById("nav").style.display = "none";
+    }
   },
   computed: {
     isLoggedIn() {
       return this.$store.getters.isLoggedIn;
-    }
+    },
   },
   methods: {
     storePhone() {
@@ -53,30 +50,36 @@ export default {
       // separately by other components as needed
       // TODO: a separate UserConfig component to initialize the user
       // for everyone
-      this.$store
-        .dispatch("login", {
-          phone: this.phone_input,
+      const json_response = JSON.stringify({ userId: this.phone_input });
+
+      fetch(process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_LOGIN_USER, {
+        method: "POST",
+        body: json_response,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+        .then(() => {
+          this.$store.dispatch("login", {
+            phone: this.phone_input,
+          });
         })
         .then(() => {
-          if (this.$route.params.id){
-            if (this.$route.params.type && this.$route.params.type == 'experiment') {
-              this.$router.push({path: "/experiment/" + this.$route.params.id})
-            } else {
-              this.$router.push({path: "/play/" + this.$route.params.id})
-            }
+          if (this.$route.params.id) {
+            this.$router.push({ path: "/play/" + this.$route.params.id });
           } else {
             this.$router.push({ path: "/" });
           }
         });
     },
 
-    isPhoneValid(){
-      var num_match = this.phone_input.toString().match(
-        /^([0]|\+91)?[6-9]\d{9}$/g);
+    isPhoneValid() {
+      var num_match = this.phone_input.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g);
 
       if (num_match != null) return true;
       return false;
-    }
+    },
   },
 };
 </script>
