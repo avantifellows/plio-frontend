@@ -12,17 +12,23 @@
       ></div>
       <div v-for="plioQuestion in plioQuestions" :key="plioQuestion.id.toString()" >
         <PlioQuestion :plioQuestion="plioQuestion" :ref="'position' + plioQuestion.id.toString()"
+          :isTutorialComplete="isTutorialComplete" :tutorialProgress="tutorialProgress"
           @answer-submitted="submitAnswer" @answer-skipped="skipAnswer" @revision-needed="revise"
-          @update-journey="updateJourney">
+          @update-journey="updateJourney" @question-closed="recordAnswer">
         </PlioQuestion>
       </div>
 
       <div class="error" v-if="!isFullscreen">
         <button 
-          class="btn" @click="this.player.fullscreen.enter()">
+          class="btn start-button" 
+          @click="startVideo"
+          id="start-button"
+        >
           Start <br>
           शुरू करें 
         </button>
+        <start-button-pointer v-if="!isTutorialComplete && !tutorialProgress['start']">
+        </start-button-pointer>
       </div>
     </div>
     <Error type="browser_error" :value="browserErrorHandlingValue" v-if="!isBrowserSupported"></Error>
@@ -35,6 +41,7 @@ import axios from "axios";
 import PlioQuestion from "../components/PlioQuestion.vue";
 import Error from "../views/Error.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
+import StartButtonPointer from "../components/tutorial/StartButtonPointer.vue"
 
 // supports indexOf for older browsers
 if (!Array.prototype.indexOf)
@@ -111,7 +118,11 @@ export default {
       sessionId: 1,
       hasPlyrLoaded: false,
       retention: [],
-      previousPlayerTime: 0
+      previousPlayerTime: 0,
+      isTutorialComplete: false,
+      tutorialProgress: {},
+      isTutorialUploadRequired: true,
+      isModalOnScreen: false
     };
   },
   async created() {
@@ -124,7 +135,7 @@ export default {
 
     // load plio details
     await this.fetchData();
-    
+
     document.getElementById('nav').style.display = "none";
 
     if (this.$route.query.src) {
@@ -135,7 +146,8 @@ export default {
   components: {
     PlioQuestion,
     Error,
-    LoadingSpinner
+    LoadingSpinner,
+    StartButtonPointer
   },
 
   methods: {
@@ -153,9 +165,44 @@ export default {
       return dateTime
     },
 
+    waitFor(conditionFunction) {
+      const poll = resolve => {
+        if(conditionFunction()) resolve();
+        else setTimeout(() => poll(resolve), 400);
+      }
+      return new Promise(poll);
+    },
+
     logData() {
       if (this.plioId != undefined && this.player.playing) this.uploadJson()
       TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL)
+    },
+
+    startVideo() {
+      var x = document.getElementById('start-button')
+      x.classList.remove('start-button')
+      x.classList.add('start-button-active')
+      setTimeout(() => {
+        this.player.fullscreen.enter();
+        this.waitFor(() => (
+            this.player.fullscreen.active === true && this.isModalOnScreen === false
+          )
+        )
+        .then(() => this.player.play())
+      }, 400);
+
+      this.tutorialProgress['start'] = true;
+    },
+
+    checkIfTutorialIsComplete(){
+      this.isTutorialComplete = true;
+      for (const [key, value] of Object.entries(this.tutorialProgress)) {
+        console.log(key, value);
+        if (value == false) {
+          this.isTutorialComplete = false;
+          return
+        }
+      }
     },
 
     fetchData() {
@@ -177,6 +224,8 @@ export default {
           this.isFullscreen = false;
           this.sessionId = res.data.sessionId;
           this.browser = res.data.userAgent['browser']['family'];
+          this.isTutorialComplete = res.data.configData.tutorial.isComplete;
+          this.tutorialProgress = res.data.configData.tutorial.progress;
 
           var i = 0;
           for (i = 0; i < questions.length; i++) {
@@ -279,6 +328,33 @@ export default {
           .then(response => response.json())
           .then(data => console.log(data))
           .catch(err => console.log(err))
+        
+      
+      if (this.isTutorialUploadRequired) {
+          const tutorial_progress = {
+              'user-id': this.userId,
+              'configs': {
+                'tutorial': {
+                    'isComplete': this.isTutorialComplete,
+                    'progress': this.tutorialProgress
+                }
+              }
+          }
+
+          const json_tutorial_progress = JSON.stringify(tutorial_progress)
+
+          fetch(process.env.VUE_APP_BACKEND + 
+                process.env.VUE_APP_BACKEND_UPDATE_USER_CONFIG, {method: 'POST', body: json_tutorial_progress,
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                }})
+                .then(response => response.json())
+                .then(data => console.log(data))
+                .catch(err => console.log(err))
+          
+          if (this.isTutorialComplete) this.isTutorialUploadRequired = false;
+      }
     },
 
     updateJourney(logEvent, details = {}) {
@@ -292,11 +368,19 @@ export default {
             'system_time': String(this.getCurrentDateTime()),
             'player_time': String(player_time)
         })
+
+        if (logEvent == 'option-selected'){
+          this.tutorialProgress['options'] = true;
+        }
     },
 
-    submitAnswer(plioQuestion, answer) {
+    recordAnswer(plioQuestion, answer) {
+      // this function is called when the close button is clicked
       // Update state to "answered"
       plioQuestion["state"] = "answered"
+
+      this.tutorialProgress['close'] = true;
+      this.checkIfTutorialIsComplete();
 
       // update answer for this question
       plioQuestion.user_answer = answer
@@ -323,6 +407,14 @@ export default {
 
       // start playing whenever the user submits an answer
       this.player.play()
+
+      this.isModalOnScreen = false;
+    },
+
+    submitAnswer() {
+      // this function is called when the submit button is clicked
+      this.tutorialProgress['submit'] = true;
+      this.uploadJson();
     },
 
     skipAnswer(plioQuestion) {
@@ -341,6 +433,7 @@ export default {
 
       // start playing if the user skips the answer
       this.player.play()
+      this.isModalOnScreen = false;
     },
 
     revise(plioQuestion) {
@@ -364,6 +457,7 @@ export default {
 
       // logging for testing
       console.log("Answer revised");
+      this.isModalOnScreen = false;
     },
 
     listenToPlayButtons(){
@@ -514,6 +608,7 @@ export default {
             var modal = document.getElementsByClassName("modal")[0];
             if (modal != undefined)   {
               this.player.pause();
+              this.isModalOnScreen = true;
 
               document
                 .getElementsByClassName("plyr")[0]
@@ -567,13 +662,13 @@ export default {
 <style>
 @import "https://cdn.plyr.io/3.6.2/plyr.css";
 
-.player_container {
-  max-width: 800px;
-  margin: auto;
-  position: relative;
-}
+  .player_container {
+    max-width: 800px;
+    margin: auto;
+    position: relative;
+  }
 
-.btn {
+  .btn {
     background-color: #4caf50; /* Green */
     border: none;
     color: white;
@@ -590,18 +685,29 @@ export default {
     font-size: 1.5rem;
   }
 
-.tooltip {
-  background:red;
-  border-radius: 3px;
-  bottom: 100%;
-  padding: 5px 3px;
-  pointer-events: none;
-  position: absolute;
-  transform: translate(-50%, 14px);
-  z-index: 2;
-}
+  .start-button{
+    margin: 2em;
+    box-shadow: -5px 9px #402e0e, -5px 9px #402e0e, -1px 1px #402e0e;
+  }
 
-.tooltip-answered {
+  .start-button-active{
+    background-color: #437044; /* Green */
+    box-shadow: -3px 5px #402e0e, -3px 3px #402e0e, -3px 0px #402e0e;
+    transform: translate(-4px, 4px);
+  }
+
+  .tooltip {
+    background:red;
+    border-radius: 3px;
+    bottom: 100%;
+    padding: 5px 3px;
+    pointer-events: none;
+    position: absolute;
+    transform: translate(-50%, 14px);
+    z-index: 2;
+  }
+
+  .tooltip-answered {
     background:green;
     border-radius: 3px;
     bottom: 100%;
@@ -612,15 +718,28 @@ export default {
     z-index: 2;
   }
 
-.error {
-  position: absolute;
-  top: 0;
-  right: 0;
-  text-align: left;
-  display: flex;
-  justify-content: center;
-  bottom: 0;
-  left: 0;
-  background-color: rgba(255, 255, 255, 0.8);
-}
+  .error {
+    position: absolute;
+    top: 0;
+    right: 0;
+    text-align: left;
+    display: flex;
+    justify-content: center;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hand-pointer{
+    font-size: 4em;
+    animation: point 1s ease-in-out infinite alternate;
+  }
+
+  @keyframes point {
+    100% {
+      transform: translateY(-30px);
+    }
+  }
 </style>
