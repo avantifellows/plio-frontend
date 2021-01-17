@@ -16,6 +16,7 @@ export default {
   },
 
   created() {
+    document.getElementById("nav").style.display = "none";
     if (!localStorage.phone) {
       this.$router.push({
         path: "/login/" + this.$route.params.id + "/experiment",

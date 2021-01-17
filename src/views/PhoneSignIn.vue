@@ -78,7 +78,7 @@ export default {
             } else {
               this.$router.push({ path: "/" });
             }
-          }, 1000);
+          }, 2000);
         });
     },
 
