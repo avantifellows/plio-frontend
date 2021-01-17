@@ -61,11 +61,13 @@ export default {
           });
         })
         .then(() => {
-          if (this.$route.params.id) {
-            this.$router.push({ path: "/play/" + this.$route.params.id });
-          } else {
-            this.$router.push({ path: "/" });
-          }
+          setInterval(() => {
+            if (this.$route.params.id) {
+              this.$router.push({ path: "/play/" + this.$route.params.id });
+            } else {
+              this.$router.push({ path: "/" });
+            }
+          }, 1000);
         });
     },
 
