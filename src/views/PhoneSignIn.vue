@@ -66,6 +66,11 @@ export default {
           });
         })
         .then(() => {
+          console.log("here");
+          console.log(localStorage.phone);
+          // while (localStorage.phone == null) {
+          //   continue;
+          // }
           if (this.$route.params.id) {
             this.$router.push({ path: "/play/" + this.$route.params.id });
           } else {
