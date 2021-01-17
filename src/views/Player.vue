@@ -1,7 +1,6 @@
 <template>
   <div>
     <div class="player_container" v-if="dataLoaded && isBrowserSupported">
-
       <LoadingSpinner v-if="!hasPlyrLoaded"></LoadingSpinner>
 
       <div
@@ -10,28 +9,35 @@
         data-plyr-provider="youtube"
         :data-plyr-embed-id="videoId"
       ></div>
-      <div v-for="plioQuestion in plioQuestions" :key="plioQuestion.id.toString()" >
-        <PlioQuestion :plioQuestion="plioQuestion" :ref="'position' + plioQuestion.id.toString()"
-          :isTutorialComplete="isTutorialComplete" :tutorialProgress="tutorialProgress"
-          @answer-submitted="submitAnswer" @answer-skipped="skipAnswer" @revision-needed="revise"
-          @update-journey="updateJourney" @question-closed="recordAnswer">
+      <div v-for="plioQuestion in plioQuestions" :key="plioQuestion.id.toString()">
+        <PlioQuestion
+          :plioQuestion="plioQuestion"
+          :ref="'position' + plioQuestion.id.toString()"
+          :isTutorialComplete="isTutorialComplete"
+          :tutorialProgress="tutorialProgress"
+          @answer-submitted="submitAnswer"
+          @answer-skipped="skipAnswer"
+          @revision-needed="revise"
+          @update-journey="updateJourney"
+          @question-closed="recordAnswer"
+        >
         </PlioQuestion>
       </div>
 
       <div class="error" v-if="!isFullscreen">
-        <button 
-          class="btn start-button" 
-          @click="startVideo"
-          id="start-button"
-        >
-          Start <br>
-          शुरू करें 
+        <button class="btn start-button" @click="startVideo" id="start-button">
+          Start <br />
+          शुरू करें
         </button>
         <start-button-pointer v-if="!isTutorialComplete && !tutorialProgress['start']">
         </start-button-pointer>
       </div>
     </div>
-    <Error type="browser_error" :value="browserErrorHandlingValue" v-if="!isBrowserSupported"></Error>
+    <Error
+      type="browser_error"
+      :value="browserErrorHandlingValue"
+      v-if="!isBrowserSupported"
+    ></Error>
   </div>
 </template>
 
@@ -41,27 +47,19 @@ import axios from "axios";
 import PlioQuestion from "../components/PlioQuestion.vue";
 import Error from "../views/Error.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
-import StartButtonPointer from "../components/tutorial/StartButtonPointer.vue"
+import StartButtonPointer from "../components/tutorial/StartButtonPointer.vue";
 
 // supports indexOf for older browsers
-if (!Array.prototype.indexOf)
-{
-  Array.prototype.indexOf = function(elt /*, from*/)
-  {
+if (!Array.prototype.indexOf) {
+  Array.prototype.indexOf = function (elt /*, from*/) {
     var len = this.length >>> 0;
 
     var from = Number(arguments[1]) || 0;
-    from = (from < 0)
-         ? Math.ceil(from)
-         : Math.floor(from);
-    if (from < 0)
-      from += len;
+    from = from < 0 ? Math.ceil(from) : Math.floor(from);
+    if (from < 0) from += len;
 
-    for (; from < len; from++)
-    {
-      if (from in this &&
-          this[from] === elt)
-        return from;
+    for (; from < len; from++) {
+      if (from in this && this[from] === elt) return from;
     }
     return -1;
   };
@@ -75,7 +73,7 @@ const INTERVAL_TIME = 50;
 // be measured. Time in milliseconds
 const POP_UP_PRECISION_TIME = 500;
 
-// upload to s3 after a fixed interval of time 
+// upload to s3 after a fixed interval of time
 const UPLOAD_INTERVAL = 45000;
 var TIMEOUT = null;
 
@@ -94,15 +92,15 @@ const COMPLETED_BUFFER_TIME = 2;
 export default {
   name: "Player",
   props: {
-    'experiment': {
-      default: '',
-      type: String
-    }
+    experiment: {
+      default: "",
+      type: String,
+    },
   },
 
   data() {
     return {
-      userId: '',
+      userId: "",
       plioQuestions: [],
       dataLoaded: null,
       videoId: null,
@@ -110,14 +108,20 @@ export default {
       answers: [],
       times: [],
       plioId: null,
-      source: 'unknown',
+      source: "unknown",
       isFullscreen: true,
-      supportedBrowsers: ['Chrome', 'Chrome Mobile', 'Firefox', 'Firefox Mobile', 'Microsoft Edge'],
+      supportedBrowsers: [
+        "Chrome",
+        "Chrome Mobile",
+        "Firefox",
+        "Firefox Mobile",
+        "Microsoft Edge",
+      ],
       isBrowserSupported: true,
       browserErrorHandlingValue: {
-        'failsafeType': 'g-form',
-        'failsafeUrl': '',
-        'youtubeId': ''
+        failsafeType: "g-form",
+        failsafeUrl: "",
+        youtubeId: "",
       },
       journey: [],
       hasVideoPlayed: -1, // Three possible values: -1(don't know), 0(didn't play), 1(played)
@@ -128,25 +132,25 @@ export default {
       configs: {},
       isTutorialComplete: false,
       tutorialProgress: {},
-      isTutorialUploadRequired: true,
-      isModalOnScreen: false
+      isTutorialUploadRequired: false,
+      isModalOnScreen: false,
     };
   },
   async created() {
-    if(!localStorage.phone) {
-      this.$router.push({path: '/login/' + this.$route.params.id})
+    if (!localStorage.phone) {
+      this.$router.push({ path: "/login/" + this.$route.params.id });
     }
 
-    this.userId = localStorage.phone,
-    console.log("Setting student id to: " + this.userId)
+    (this.userId = localStorage.phone),
+      console.log("Setting student id to: " + this.userId);
 
     // load plio details
     await this.fetchData();
 
-    document.getElementById('nav').style.display = "none";
+    document.getElementById("nav").style.display = "none";
 
     if (this.$route.query.src) {
-        this.source = this.$route.query.src;
+      this.source = this.$route.query.src;
     }
   },
 
@@ -154,62 +158,51 @@ export default {
     PlioQuestion,
     Error,
     LoadingSpinner,
-    StartButtonPointer
+    StartButtonPointer,
   },
 
   methods: {
-    getCurrentDateTime(){
+    getCurrentDateTime() {
       /* 
       Returns current date-time in format
       YYYY-MM-DD HH:MM:S
       return: string
       */
-       
+
       var today = new Date();
-      var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+      var date =
+        today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
       var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-      var dateTime = date + ' ' + time;
-      return dateTime
+      var dateTime = date + " " + time;
+      return dateTime;
     },
 
     waitFor(conditionFunction) {
-      const poll = resolve => {
-        if(conditionFunction()) resolve();
+      const poll = (resolve) => {
+        if (conditionFunction()) resolve();
         else setTimeout(() => poll(resolve), 400);
-      }
+      };
       return new Promise(poll);
     },
 
     logData() {
-      if (this.plioId != undefined && this.player.playing) this.uploadJson()
-      TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL)
+      if (this.plioId != undefined && this.player.playing) this.uploadJson();
+      TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL);
     },
 
     startVideo() {
-      var x = document.getElementById('start-button')
-      x.classList.remove('start-button')
-      x.classList.add('start-button-active')
+      var x = document.getElementById("start-button");
+      x.classList.remove("start-button");
+      x.classList.add("start-button-active");
       setTimeout(() => {
         this.player.fullscreen.enter();
-        this.waitFor(() => (
-            this.player.fullscreen.active === true && this.isModalOnScreen === false
-          )
-        )
-        .then(() => this.player.play())
+        this.waitFor(
+          () => this.player.fullscreen.active === true && this.isModalOnScreen === false
+        ).then(() => this.player.play());
       }, 400);
 
-      this.tutorialProgress['start'] = true;
-    },
-
-    checkIfTutorialIsComplete(){
-      this.isTutorialComplete = true;
-      for (const [key, value] of Object.entries(this.tutorialProgress)) {
-        console.log(key, value);
-        if (value == false) {
-          this.isTutorialComplete = false;
-          return
-        }
-      }
+      this.tutorialProgress["start"] = true;
+      this.isTutorialUploadRequired = true;
     },
 
     fetchData() {
@@ -219,19 +212,21 @@ export default {
             process.env.VUE_APP_BACKEND_PLIO_DETAILS +
             "?plioId=" +
             this.$route.params.id +
-            "&userId=" + this.userId
+            "&userId=" +
+            this.userId
         )
-        .then( (res) => {
-          console.log(res.data)
+        .then((res) => {
+          console.log(res.data);
           var questions = res.data.plioDetails.questions.questions;
           this.videoId = res.data.videoId;
           this.plioId = res.data.plioId;
           this.browserErrorHandlingValue.failsafeUrl = res.data.plioDetails.failsafe;
-          this.browserErrorHandlingValue.youtubeId = "https://www.youtube.com/embed/" + this.videoId;
+          this.browserErrorHandlingValue.youtubeId =
+            "https://www.youtube.com/embed/" + this.videoId;
           this.isFullscreen = false;
           this.sessionId = res.data.sessionId;
-          this.browser = res.data.userAgent['browser']['family'];
-          this.configs = res.data.configData
+          this.browser = res.data.userAgent["browser"]["family"];
+          this.configs = res.data.configData;
           this.isTutorialComplete = this.configs.tutorial.isComplete;
           this.tutorialProgress = this.configs.tutorial.progress;
 
@@ -242,38 +237,40 @@ export default {
               item: questions[i],
               user_answer: [],
               state: "notshown",
-            }
+            };
             this.plioQuestions.push(plioQuestion);
 
             // set empty answer for each question
-            this.answers.push(plioQuestion.user_answer)
+            this.answers.push(plioQuestion.user_answer);
           }
 
           // set the global list of time values
-          this.times = res.data.times
+          this.times = res.data.times;
 
           // merge the previous session data
-          if (res.data.sessionData != '') {
-            this.answers = res.data.sessionData.answers
+          if (res.data.sessionData != "") {
+            this.answers = res.data.sessionData.answers;
 
             questions.forEach((question, index) => {
-              this.plioQuestions[index].user_answer = this.answers[index]
-              this.plioQuestions[index].state = 
-                (this.answers[index].length == 0) ? "notshown" : "answered"
+              this.plioQuestions[index].user_answer = this.answers[index];
+              this.plioQuestions[index].state =
+                this.answers[index].length == 0 ? "notshown" : "answered";
             });
-            
-            this.journey = res.data.sessionData.journey
 
-            this.previousPlayerTime = 0
-            if (this.journey.length > 0){
-              this.previousPlayerTime = this.journey[this.journey.length - 1]['player_time']
+            this.journey = res.data.sessionData.journey;
+
+            this.previousPlayerTime = 0;
+            if (this.journey.length > 0) {
+              this.previousPlayerTime = this.journey[this.journey.length - 1][
+                "player_time"
+              ];
             }
-            
-            this.watchTime = res.data.sessionData['watch-time']
-            this.retention = res.data.sessionData.retention
+
+            this.watchTime = res.data.sessionData["watch-time"];
+            this.retention = res.data.sessionData.retention;
           }
         })
-        .then( this.dataLoaded = true )
+        .then((this.dataLoaded = true))
         .then(
           () =>
             (this.player = new Plyr("#player", {
@@ -289,11 +286,11 @@ export default {
 
               keyboard: {
                 focused: false,
-                global: false
+                global: false,
               },
-              
+
               invertTime: false,
-              clickToPlay: false
+              clickToPlay: false,
             }))
         )
         .then(() => this.setPlayerProperties(this.player))
@@ -304,160 +301,168 @@ export default {
 
     handleQueryError(err) {
       if (err.response && err.response.status == 404) {
-        this.$router.push('/404-not-found')
-      } else { 
-        console.log(err)
+        this.$router.push("/404-not-found");
+      } else {
+        console.log(err);
       }
     },
 
     // upload responses to S3
     uploadJson() {
       const student_response = {
-          'response': {
-              'answers': this.answers,
-              'watch-time': this.watchTime,
-              'user-id': this.userId,
-              'plio-id': this.plioId,
-              'session-id': this.sessionId,
-              'source': this.source,
-              'retention': this.retention,
-              'has-video-played': this.hasVideoPlayed,
-              'journey': this.journey,
-              'experiment': this.experiment
-          }
-      }
-      const json_response = JSON.stringify(student_response)
+        response: {
+          answers: this.answers,
+          "watch-time": this.watchTime,
+          "user-id": this.userId,
+          "plio-id": this.plioId,
+          "session-id": this.sessionId,
+          source: this.source,
+          retention: this.retention,
+          "has-video-played": this.hasVideoPlayed,
+          journey: this.journey,
+          experiment: this.experiment,
+        },
+      };
+      const json_response = JSON.stringify(student_response);
 
-      fetch(process.env.VUE_APP_BACKEND +
-            process.env.VUE_APP_BACKEND_UPDATE_RESPONSE, {method: 'POST', body: json_response,
-          headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-          }})
-          .then(response => response.json())
-          .then(data => console.log(data))
-          .catch(err => console.log(err))
-        
-      
+      fetch(process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_UPDATE_RESPONSE, {
+        method: "POST",
+        body: json_response,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => console.log(data))
+        .catch((err) => console.log(err));
+
       if (this.isTutorialUploadRequired) {
-          this.configs['tutorial']['isComplete'] = this.isTutorialComplete;
-          this.configs['tutorial']['progress'] = this.tutorialProgress;
-          const tutorial_progress = {
-              'user-id': this.userId,
-              'configs': this.configs
+        this.configs["tutorial"]["isComplete"] = this.isTutorialComplete;
+        this.configs["tutorial"]["progress"] = this.tutorialProgress;
+        const tutorial_progress = {
+          "user-id": this.userId,
+          configs: this.configs,
+        };
+
+        const json_tutorial_progress = JSON.stringify(tutorial_progress);
+
+        fetch(
+          process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_UPDATE_USER_CONFIG,
+          {
+            method: "POST",
+            body: json_tutorial_progress,
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
           }
+        )
+          .then((response) => response.json())
+          .then((data) => console.log(data))
+          .catch((err) => console.log(err));
 
-          const json_tutorial_progress = JSON.stringify(tutorial_progress)
-
-          fetch(process.env.VUE_APP_BACKEND + 
-                process.env.VUE_APP_BACKEND_UPDATE_USER_CONFIG, {method: 'POST', body: json_tutorial_progress,
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json'
-                }})
-                .then(response => response.json())
-                .then(data => console.log(data))
-                .catch(err => console.log(err))
-          
-          if (this.isTutorialComplete) this.isTutorialUploadRequired = false;
+        if (this.isTutorialComplete) this.isTutorialUploadRequired = false;
       }
     },
 
     updateJourney(logEvent, details = {}) {
-        // handle the case when fullscreen has been clicked but Plyr has not
-        // yet loaded -> this.player.currentTime = NaN
-        var player_time = this.hasPlyrLoaded ? this.player.currentTime : 0
+      // handle the case when fullscreen has been clicked but Plyr has not
+      // yet loaded -> this.player.currentTime = NaN
+      var player_time = this.hasPlyrLoaded ? this.player.currentTime : 0;
 
-        this.journey.push({
-            'event': logEvent,
-            'details': details,
-            'system_time': String(this.getCurrentDateTime()),
-            'player_time': String(player_time)
-        })
+      this.journey.push({
+        event: logEvent,
+        details: details,
+        system_time: String(this.getCurrentDateTime()),
+        player_time: String(player_time),
+      });
 
-        if (logEvent == 'option-selected'){
-          this.tutorialProgress['options'] = true;
-        }
+      if (logEvent == "option-selected") {
+        this.tutorialProgress["options"] = true;
+        this.isTutorialUploadRequired = true;
+      }
     },
 
     recordAnswer(plioQuestion, answer) {
       // this function is called when the close button is clicked
       // Update state to "answered"
-      plioQuestion["state"] = "answered"
+      plioQuestion["state"] = "answered";
 
-      this.tutorialProgress['close'] = true;
-      this.checkIfTutorialIsComplete();
+      this.tutorialProgress["close"] = true;
+      this.isTutorialUploadRequired = true;
+      this.isTutorialComplete = true;
 
       // update answer for this question
-      plioQuestion.user_answer = answer
+      plioQuestion.user_answer = answer;
 
-      var currQuesIndex = Number(plioQuestion.id)
+      var currQuesIndex = Number(plioQuestion.id);
 
       // Checking if the object is empty or not.
       // If empty, push the answer. Otherwise don't.
-      if(Object.keys(this.answers[currQuesIndex]).length === 0){
-        this.answers[currQuesIndex] = answer
+      if (Object.keys(this.answers[currQuesIndex]).length === 0) {
+        this.answers[currQuesIndex] = answer;
       }
 
-      this.updateJourney(
-          "question-submitted", {
-            'question': currQuesIndex,
-            'option': plioQuestion.item.question.options.indexOf(answer)
-          })
+      this.updateJourney("question-submitted", {
+        question: currQuesIndex,
+        option: plioQuestion.item.question.options.indexOf(answer),
+      });
 
       // update response on S3
-      this.uploadJson()
+      this.uploadJson();
 
       // logging for testing
       console.log("Answer sent");
 
       // start playing whenever the user submits an answer
-      this.player.play()
+      this.player.play();
 
       this.isModalOnScreen = false;
     },
 
     submitAnswer() {
       // this function is called when the submit button is clicked
-      this.tutorialProgress['submit'] = true;
+      this.tutorialProgress["submit"] = true;
+      this.isTutorialUploadRequired = true;
       this.uploadJson();
     },
 
     skipAnswer(plioQuestion) {
-      var currQuesIndex = Number(plioQuestion.id)
+      var currQuesIndex = Number(plioQuestion.id);
 
-      this.updateJourney(
-          "question-skipped", {
-              'question': currQuesIndex
-          })
+      this.updateJourney("question-skipped", {
+        question: currQuesIndex,
+      });
 
       // update response on S3
-      this.uploadJson()
+      this.uploadJson();
 
       // logging for testing
       console.log("Answer skipped");
 
       // start playing if the user skips the answer
-      this.player.play()
+      this.player.play();
       this.isModalOnScreen = false;
     },
 
     revise(plioQuestion) {
       // Extract where the current question lies in the list of all questions
-      var currQuesIndex = Number(plioQuestion.id)
+      var currQuesIndex = Number(plioQuestion.id);
 
-      this.updateJourney(
-          "question-revised", {
-              'question': currQuesIndex
-          })
+      this.updateJourney("question-revised", {
+        question: currQuesIndex,
+      });
 
       // update response on S3
-      this.uploadJson()
+      this.uploadJson();
 
       // after revise is clicked, make the user land just next to the marker
       // and not on the marker so that question pops up again
-      this.player.currentTime = 
-        (currQuesIndex == 0) ? 0 : (this.times[currQuesIndex - 1] + (POP_UP_PRECISION_TIME)/1000);
+      this.player.currentTime =
+        currQuesIndex == 0
+          ? 0
+          : this.times[currQuesIndex - 1] + POP_UP_PRECISION_TIME / 1000;
 
       this.player.play();
 
@@ -466,14 +471,14 @@ export default {
       this.isModalOnScreen = false;
     },
 
-    listenToPlayButtons(){
-      var status = (this.player.playing) ? "played" : "paused"
+    listenToPlayButtons() {
+      var status = this.player.playing ? "played" : "paused";
 
-      this.updateJourney(status)
-      this.uploadJson()
+      this.updateJourney(status);
+      this.uploadJson();
     },
 
-    checkBrowserSupport(){
+    checkBrowserSupport() {
       /* This logic works because for as long as BROWSER_CHECK_TIME,
          the progress bar will stay inactive, so the user will not be
          able to seek forward or backward -> hence player.currentTime
@@ -482,37 +487,35 @@ export default {
          If the video plays or not plays, the user cannot influence it
          (as long as "BROWSER_CHECK_TIME"). */
 
-        if(this.hasVideoPlayed == -1 && this.player.playing){
-          const timeBefore = Math.round(this.player.currentTime * 100) / 100;
+      if (this.hasVideoPlayed == -1 && this.player.playing) {
+        const timeBefore = Math.round(this.player.currentTime * 100) / 100;
 
-          setTimeout(() => {
-              const timeAfter = Math.round(this.player.currentTime * 100) / 100;
+        setTimeout(() => {
+          const timeAfter = Math.round(this.player.currentTime * 100) / 100;
 
-              if (timeAfter == timeBefore) {
-                // browser unsupported -> show error page
-                this.isBrowserSupported = false;
-                this.hasVideoPlayed = 0;
-              }
-              else this.hasVideoPlayed = 1;
-              this.uploadJson()
+          if (timeAfter == timeBefore) {
+            // browser unsupported -> show error page
+            this.isBrowserSupported = false;
+            this.hasVideoPlayed = 0;
+          } else this.hasVideoPlayed = 1;
+          this.uploadJson();
 
-              var progressBar = document.querySelectorAll(".plyr__progress")[0]
-              progressBar.firstChild.removeAttribute("disabled");
-
-          }, BROWSER_CHECK_TIME * 1000);
-        }
+          var progressBar = document.querySelectorAll(".plyr__progress")[0];
+          progressBar.firstChild.removeAttribute("disabled");
+        }, BROWSER_CHECK_TIME * 1000);
+      }
     },
 
     async setPlayerProperties(player) {
       player.on("ready", () => {
         // start playing from 5 seconds before where the user left off in previous session
-        if (this.previousPlayerTime > STEP_BACK_TIME){
-          this.player.currentTime = this.previousPlayerTime - STEP_BACK_TIME
+        if (this.previousPlayerTime > STEP_BACK_TIME) {
+          this.player.currentTime = this.previousPlayerTime - STEP_BACK_TIME;
         }
 
         // start from beginning if video was watched till the end in the last session
         if (this.player.duration - this.previousPlayerTime <= COMPLETED_BUFFER_TIME) {
-          this.player.currentTime = 0
+          this.player.currentTime = 0;
         }
 
         var progressBar = document.querySelectorAll(".plyr__progress")[0];
@@ -520,125 +523,114 @@ export default {
           var question = plioQuestion.item;
           // Add marker to progress bar
           var marker = document.createElement("SPAN");
-          marker.setAttribute("id", "marker")
+          marker.setAttribute("id", "marker");
           marker.classList.add("tooltip");
 
           if (plioQuestion.state == "answered") {
-            marker.classList.add("tooltip-answered")
+            marker.classList.add("tooltip-answered");
           }
-          
-          var pos_percent = 100 * question.time / player.duration; 
+
+          var pos_percent = (100 * question.time) / player.duration;
           marker.style.setProperty("left", `${pos_percent}%`);
           progressBar.appendChild(marker);
         });
 
         // mark Plyr as loaded
         this.hasPlyrLoaded = true;
-        
+
         // disabling progressbar
         if (!this.supportedBrowsers.includes(this.browser))
           progressBar.firstChild.disabled = true;
 
         // initializing the retention array with zeros
-        if (this.retention.length == 0){
+        if (this.retention.length == 0) {
           this.retention = Array(this.player.duration).fill(0);
         }
-        
+
         // Adding on-click listeners to the two play buttons
         // one big play button in the middle, and one near the
         // progress bar
-        const play_buttons = document.querySelectorAll("[data-plyr='play']")
-        play_buttons[0].addEventListener(
-          'click', this.listenToPlayButtons, false
-        );
+        const play_buttons = document.querySelectorAll("[data-plyr='play']");
+        play_buttons[0].addEventListener("click", this.listenToPlayButtons, false);
 
-        play_buttons[1].addEventListener(
-          'click', this.listenToPlayButtons, false
-        );
-
+        play_buttons[1].addEventListener("click", this.listenToPlayButtons, false);
       });
 
-      player.on('play', event => {
-          const instance = event.detail.plyr;
+      player.on("play", (event) => {
+        const instance = event.detail.plyr;
 
-          if (!instance.fullscreen.active) instance.fullscreen.enter()
+        if (!instance.fullscreen.active) instance.fullscreen.enter();
 
-          if (!this.supportedBrowsers.includes(this.browser)) {
-            this.checkBrowserSupport();
-          }
-          else {
-            this.hasVideoPlayed = 1;
-          }
+        if (!this.supportedBrowsers.includes(this.browser)) {
+          this.checkBrowserSupport();
+        } else {
+          this.hasVideoPlayed = 1;
+        }
       });
 
-      player.on('enterfullscreen', () => {
-          this.isFullscreen = true;
-          screen.orientation.lock('landscape');
+      player.on("enterfullscreen", () => {
+        this.isFullscreen = true;
+        screen.orientation.lock("landscape");
 
-          this.updateJourney("enter-fullscreen")
-          this.uploadJson()
+        this.updateJourney("enter-fullscreen");
+        this.uploadJson();
       });
 
-      player.on('seeked', () => {
-        this.updateJourney("seeked")
+      player.on("seeked", () => {
+        this.updateJourney("seeked");
       });
 
-      player.on('exitfullscreen', () => {
+      player.on("exitfullscreen", () => {
         this.isFullscreen = false;
         this.player.pause();
 
-        this.updateJourney("exit-fullscreen")
-        this.uploadJson()
+        this.updateJourney("exit-fullscreen");
+        this.uploadJson();
       });
-
 
       // Keep checking when to pop up the question
       setInterval(() => {
-        
         this.plioQuestions.forEach(async (plioQuestion) => {
-          
           var question = plioQuestion.item;
           var t = question.time;
 
           if (
             // if the seeker is within "POP_UP_PRECISION_TIME" of the specific question time
             // then fire this logic
-            this.player.currentTime >= t
-            && this.player.currentTime < t + (POP_UP_PRECISION_TIME)/1000
+            this.player.currentTime >= t &&
+            this.player.currentTime < t + POP_UP_PRECISION_TIME / 1000
           ) {
-            var id = plioQuestion.id
-            this.$refs['position' + id.toString()].openModal();
+            var id = plioQuestion.id;
+            this.$refs["position" + id.toString()].openModal();
             while (!document.querySelector(".modal")) {
               await new Promise((r) => setTimeout(r, 500));
             }
             var modal = document.getElementsByClassName("modal")[0];
-            if (modal != undefined)   {
+            if (modal != undefined) {
               this.player.pause();
               this.isModalOnScreen = true;
 
-              document
-                .getElementsByClassName("plyr")[0]
-                .appendChild(modal);
+              document.getElementsByClassName("plyr")[0].appendChild(modal);
 
-              if (plioQuestion["state"] == "notshown") plioQuestion["state"] = "unanswered"; 
+              if (plioQuestion["state"] == "notshown")
+                plioQuestion["state"] = "unanswered";
             }
           }
         });
       }, POP_UP_PRECISION_TIME);
 
-      var prevTime = -1
+      var prevTime = -1;
       player.on("timeupdate", async () => {
-
         // Update watch time if the video is playing
-        if(this.player.playing) {
+        if (this.player.playing) {
           this.watchTime += INTERVAL_TIME;
         }
 
         // Record how many times a particular second was visited
         var currTime = Math.trunc(this.player.currentTime);
         if (currTime != prevTime) {
-            this.retention[currTime] += 1;
-            prevTime = currTime
+          this.retention[currTime] += 1;
+          prevTime = currTime;
         }
       });
     },
@@ -659,93 +651,92 @@ export default {
     // Store in data
   },
   beforeUnmount() {
-    clearTimeout(TIMEOUT)
-  }
+    clearTimeout(TIMEOUT);
+  },
 };
-
 </script>
 
 <style>
 @import "https://cdn.plyr.io/3.6.2/plyr.css";
 
-  .player_container {
-    max-width: 800px;
-    margin: auto;
-    position: relative;
-  }
+.player_container {
+  max-width: 800px;
+  margin: auto;
+  position: relative;
+}
 
-  .btn {
-    background-color: #4caf50; /* Green */
-    border: none;
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    text-decoration: none;
-    margin: 2px;
-    transition-duration: 0.4s;
-    cursor: pointer;
-    height: auto;
-    align-self: center;
-    font-weight: 700;
-    font-size: 1.5rem;
-  }
+.btn {
+  background-color: #4caf50; /* Green */
+  border: none;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  text-decoration: none;
+  margin: 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  height: auto;
+  align-self: center;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
 
-  .start-button{
-    margin: 2em;
-    box-shadow: -5px 9px #402e0e, -5px 9px #402e0e, -1px 1px #402e0e;
-  }
+.start-button {
+  margin: 2em;
+  box-shadow: -5px 9px #402e0e, -5px 9px #402e0e, -1px 1px #402e0e;
+}
 
-  .start-button-active{
-    background-color: #437044; /* Green */
-    box-shadow: -3px 5px #402e0e, -3px 3px #402e0e, -3px 0px #402e0e;
-    transform: translate(-4px, 4px);
-  }
+.start-button-active {
+  background-color: #437044; /* Green */
+  box-shadow: -3px 5px #402e0e, -3px 3px #402e0e, -3px 0px #402e0e;
+  transform: translate(-4px, 4px);
+}
 
-  .tooltip {
-    background:red;
-    border-radius: 3px;
-    bottom: 100%;
-    padding: 5px 3px;
-    pointer-events: none;
-    position: absolute;
-    transform: translate(-50%, 14px);
-    z-index: 2;
-  }
+.tooltip {
+  background: red;
+  border-radius: 3px;
+  bottom: 100%;
+  padding: 5px 3px;
+  pointer-events: none;
+  position: absolute;
+  transform: translate(-50%, 14px);
+  z-index: 2;
+}
 
-  .tooltip-answered {
-    background:green;
-    border-radius: 3px;
-    bottom: 100%;
-    padding: 5px 3px;
-    pointer-events: none;
-    position: absolute;
-    transform: translate(-50%, 14px);
-    z-index: 2;
-  }
+.tooltip-answered {
+  background: green;
+  border-radius: 3px;
+  bottom: 100%;
+  padding: 5px 3px;
+  pointer-events: none;
+  position: absolute;
+  transform: translate(-50%, 14px);
+  z-index: 2;
+}
 
-  .error {
-    position: absolute;
-    top: 0;
-    right: 0;
-    text-align: left;
-    display: flex;
-    justify-content: center;
-    bottom: 0;
-    left: 0;
-    background-color: rgba(255, 255, 255, 0.8);
-    flex-direction: column;
-    align-items: center;
-  }
+.error {
+  position: absolute;
+  top: 0;
+  right: 0;
+  text-align: left;
+  display: flex;
+  justify-content: center;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  flex-direction: column;
+  align-items: center;
+}
 
-  .hand-pointer{
-    font-size: 4em;
-    animation: point 1s ease-in-out infinite alternate;
-  }
+.hand-pointer {
+  font-size: 4em;
+  animation: point 1s ease-in-out infinite alternate;
+}
 
-  @keyframes point {
-    100% {
-      transform: translateY(-30px);
-    }
+@keyframes point {
+  100% {
+    transform: translateY(-30px);
   }
+}
 </style>
