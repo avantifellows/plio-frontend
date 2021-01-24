@@ -66,19 +66,22 @@ export default {
           });
         })
         .then(() => {
-          setTimeout(() => {
-            if (this.$route.params.id) {
-              if (this.$route.params.type && this.$route.params.type == "experiment") {
-                // redirect to experiment
-                this.$router.push({ path: "/experiment/" + this.$route.params.id });
+          var redirectId = setInterval(() => {
+            if (localStorage.phone != null) {
+              if (this.$route.params.id) {
+                if (this.$route.params.type && this.$route.params.type == "experiment") {
+                  // redirect to experiment
+                  this.$router.push({ path: "/experiment/" + this.$route.params.id });
+                } else {
+                  // redirect to plio
+                  this.$router.push({ path: "/play/" + this.$route.params.id });
+                }
               } else {
-                // redirect to plio
-                this.$router.push({ path: "/play/" + this.$route.params.id });
+                this.$router.push({ path: "/" });
               }
-            } else {
-              this.$router.push({ path: "/" });
+              clearInterval(redirectId);
             }
-          }, 2000);
+          }, 500);
         });
     },
 

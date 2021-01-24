@@ -43,11 +43,9 @@ export default createStore({
         login({ commit }, creds) {
             commit(LOGIN); // show spinner
             return new Promise(resolve => {
-                setTimeout(() => {
-                    localStorage.setItem("phone", creds.phone);
-                    commit(LOGIN_SUCCESS);
-                    resolve();
-                }, 1000);
+                localStorage.setItem("phone", creds.phone);
+                commit(LOGIN_SUCCESS);
+                resolve();
             });
         },
         logout({ commit }) {
@@ -57,11 +55,9 @@ export default createStore({
         saveConfig({ commit }, creds) {
             commit(CONFIG); // show spinner
             return new Promise(resolve => {
-                setTimeout(() => {
-                    localStorage.setItem("config", creds.config);
-                    commit(CONFIG_SUCCESS);
-                    resolve();
-                }, 1000);
+                localStorage.setItem("config", creds.config);
+                commit(CONFIG_SUCCESS);
+                resolve();
             });
         },
     },
