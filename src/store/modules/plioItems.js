@@ -12,8 +12,8 @@ const actions = {
             process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_PLIOS_LIST
         );
 
-        var all_ivideos = response.data["all_plios"]
-        commit('setPliosList', all_ivideos);
+        var all_plios = response.data["all_plios"]
+        commit('setPliosList', all_plios);
     },
 };
 const mutations = {
