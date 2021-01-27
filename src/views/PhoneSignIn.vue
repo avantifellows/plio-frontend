@@ -45,6 +45,11 @@ export default {
   },
   methods: {
     storePhone() {
+      // this component stores only the user ID in Vuex
+      // other aspects of the User like the user Config are pulled
+      // separately by other components as needed
+      // TODO: a separate UserConfig component to initialize the user
+      // for everyone
       const json_response = JSON.stringify({ userId: this.phone_input });
 
       fetch(process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_LOGIN_USER, {
@@ -61,13 +66,22 @@ export default {
           });
         })
         .then(() => {
-          setInterval(() => {
-            if (this.$route.params.id) {
-              this.$router.push({ path: "/play/" + this.$route.params.id });
-            } else {
-              this.$router.push({ path: "/" });
+          var redirectId = setInterval(() => {
+            if (localStorage.phone != null) {
+              if (this.$route.params.id) {
+                if (this.$route.params.type && this.$route.params.type == "experiment") {
+                  // redirect to experiment
+                  this.$router.push({ path: "/experiment/" + this.$route.params.id });
+                } else {
+                  // redirect to plio
+                  this.$router.push({ path: "/play/" + this.$route.params.id });
+                }
+              } else {
+                this.$router.push({ path: "/" });
+              }
+              clearInterval(redirectId);
             }
-          }, 1000);
+          }, 500);
         });
     },
 
