@@ -51,50 +51,60 @@
 
         <!-- revise button -->
         <div class="modal__footer">
-          <font-awesome-icon 
-            :icon="['fas', 'check-circle']"
-            class="correct-icon"
-            ref="correct-icon"
-            v-if="isAnswerSubmitted && isAnswerCorrect"
-          ></font-awesome-icon>
+          <!-- <div class="modal__footer__buttons"> -->
+            <font-awesome-icon 
+              :icon="['fas', 'check-circle']"
+              class="correct-icon"
+              ref="correct-icon"
+              v-if="isAnswerSubmitted && isAnswerCorrect"
+            ></font-awesome-icon>
 
-          <font-awesome-icon 
-            :icon="['fas', 'times-circle']"
-            class="wrong-icon"
-            ref="wrong-icon"
-            v-if="isAnswerSubmitted && !isAnswerCorrect"
-          ></font-awesome-icon>          
+            <font-awesome-icon 
+              :icon="['fas', 'times-circle']"
+              class="wrong-icon"
+              ref="wrong-icon"
+              v-if="isAnswerSubmitted && !isAnswerCorrect"
+            ></font-awesome-icon>          
 
-          <!-- submit button -->
-          <loading-spinner v-if="showButtonLoading"></loading-spinner>
-          <button
-            id="submit-button"
-            v-if="!isAnswerSubmitted"
-            class="btn submit"
-            :disabled="isDisabled"
-            @click="clickSubmit"
-          >
-          ✓ सबमिट करें
-          </button>
-          <submit-button-pointer 
-            v-if="!isTutorialComplete && !tutorialProgress['submit'] && !isDisabled && !isAnAnsweredQuestion">
-          </submit-button-pointer>
-          <button id="revise-button" class="btn revise" @click="clickRevise">
-          ⟳ पुनः देखें
-          </button>
+            <!-- submit button -->
+            <loading-spinner v-if="showButtonLoading"></loading-spinner>
+            <button
+              id="submit-button"
+              v-if="!isAnswerSubmitted"
+              class="btn submit"
+              :disabled="isDisabled"
+              @click="clickSubmit"
+            >
+            ✓ सबमिट करें
+            </button>
+            <submit-button-pointer 
+              v-if="!isTutorialComplete && !tutorialProgress['submit'] && !isDisabled && !isAnAnsweredQuestion">
+            </submit-button-pointer>
+            <button id="revise-button" class="btn revise" @click="clickRevise">
+            ⟳ पुनः देखें
+            </button>
 
-          <!-- close button -->
-          <close-button-pointer 
-            v-if="!isTutorialComplete && !tutorialProgress['close'] && isAnswerSubmitted">
-          </close-button-pointer>
-          <button
-            v-if="!showButtonLoading && isAnswerSubmitted"
-            class="btn close"
-            @click="clickClose"
-          >
-          आगे बढ़ें
-          </button>
+            <!-- close button -->
+            <close-button-pointer 
+              v-if="!isTutorialComplete && !tutorialProgress['close'] && isAnswerSubmitted">
+            </close-button-pointer>
+            <button
+              v-if="!showButtonLoading && isAnswerSubmitted"
+              class="btn close"
+              @click="clickClose"
+            >
+            आगे बढ़ें
+            </button>
+          <!-- </div> -->
+          <!-- <progress-bar v-if="show"></progress-bar> -->
         </div>
+        <progress-bar 
+          v-if="isProgressBarEnabled"
+          ref="progressBarRef"
+          :initial="progressBarInfo['completionPercent']"
+          :config="progressBarInfo['config']"
+        >
+        </progress-bar>
       </div>
     </div>
   </transition>
@@ -112,13 +122,20 @@ import SubmitButtonPointer from './tutorial/SubmitButtonPointer.vue';
 import mcqOptionsPointer from './tutorial/mcqOptionsPointer.vue';
 import CloseButtonPointer from './tutorial/CloseButtonPointer.vue';
 
+import ProgressBar from './features/ProgressBar.vue';
+
 // For how long does the spinner show (in milliseconds)
 var loadTime = 1500;
 
 export default {
-  components: { LoadingSpinner, SubmitButtonPointer, mcqOptionsPointer, CloseButtonPointer},
+  components: { LoadingSpinner, SubmitButtonPointer, mcqOptionsPointer, CloseButtonPointer, ProgressBar},
   name: "PlioQuestion",
-  props: ["plioQuestion", "isTutorialComplete", "tutorialProgress"],
+  props: [
+    "plioQuestion", 
+    "isTutorialComplete", 
+    "tutorialProgress", 
+    "progressBarInfo"
+  ],
   data() {
     return {
       show: false,
@@ -127,6 +144,11 @@ export default {
       isAnswerCorrect: false,
       isAnswerSubmitted: false,
       showButtonLoading: false,
+      updatedProgressBarInfo: {
+        "config": this.progressBarInfo['config'],
+        "updatedCompletionPercent": 0,
+        "totalQuestions": this.progressBarInfo['totalQuestions']
+      }
     };
   },
 
@@ -153,6 +175,9 @@ export default {
     },
     isAnAnsweredQuestion(){
       return this.plioQuestion.state == "answered"
+    },
+    isProgressBarEnabled(){
+      return this.progressBarInfo['config']['enabled']
     }
   },
   methods: {
@@ -193,6 +218,11 @@ export default {
       this.text = "";
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
+      this.updatedProgressBarInfo[
+        'updatedCompletionPercent'] = this.progressBarInfo['completionPercent']
+
+      console.log("isProgressBarEanbled")
+      console.log(this.isProgressBarEnabled)
     },
 
     // Checks if the selected option is correct or not
@@ -241,6 +271,19 @@ export default {
       });
     },
 
+    updateAndShowProgress(){
+      if (this.plioQuestion.state != "answered"){
+        this.updatedProgressBarInfo[
+          'updatedCompletionPercent'] += ((1/this.updatedProgressBarInfo['totalQuestions'])*100)
+      }
+
+      setTimeout(() => {
+        this.$refs["progressBarRef"].progressTo(
+          this.updatedProgressBarInfo['updatedCompletionPercent']
+        );
+      }, 200)
+    },
+
     clickSubmit() {
       // Things to do after clicking submit
       // 1-Remove old option highlights
@@ -264,6 +307,9 @@ export default {
         this.showButtonLoading = false;
         this.checkAnswer();
         this.showResult();
+        this.updateAndShowProgress();
+        console.log("before submitting - " + this.progressBarInfo['completionPercent'])
+        console.log("after submitting - " + this.updatedProgressBarInfo['updatedCompletionPercent'])
       }, loadTime);
 
       this.$emit("answer-submitted")
@@ -274,7 +320,8 @@ export default {
     clickClose() {
       this.closeModal();
       this.isAnswerSubmitted = false;
-      this.$emit("question-closed", this.plioQuestion, this.selectedOption);
+      this.$emit("question-closed", this.plioQuestion, 
+        this.selectedOption, this.updatedProgressBarInfo);
     },
 
     // Things to do when revise button is clicked
@@ -433,6 +480,9 @@ input {
     //   width: 90%;
     // }
   }
+  .last-item{
+    margin-top: auto;
+  }
 
   h3 {
     padding: 0;
@@ -458,6 +508,7 @@ input {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    margin-top: auto;
     scrollbar-face-color: #367cd2;
     scrollbar-shadow-color: #ffffff;
     scrollbar-highlight-color: #ffffff;
@@ -480,15 +531,21 @@ input {
     background: rgba(238, 205, 73, 0.8);
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
   }
-  &__footer {
+  &__footer, &__footer__buttons {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: auto;
     @media (orientation: portrait) {
       padding: 4px 40px 4px;
     }
     padding: 4px 80px 4px;
+    // flex-direction: column;
+  }
+
+  &__footer__buttons{
+    flex-direction: row;
   }
 
   .tooltip-answered {
