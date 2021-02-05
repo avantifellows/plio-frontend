@@ -149,7 +149,7 @@ export default {
       showButtonLoading: false,
       updatedProgressBarInfo: {
         "config": this.progressBarInfo['config'],
-        "updatedCompletionPercent": 0,
+        "updatedCompletionPercent": this.progressBarInfo['completionPercent'],
         "totalQuestions": this.progressBarInfo['totalQuestions']
       }
     };
@@ -221,8 +221,6 @@ export default {
       this.text = "";
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
-      this.updatedProgressBarInfo[
-        'updatedCompletionPercent'] = this.progressBarInfo['completionPercent']
     },
 
     // Checks if the selected option is correct or not
