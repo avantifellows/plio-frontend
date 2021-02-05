@@ -151,8 +151,9 @@ export default {
     (this.userId = localStorage.phone),
       console.log("Setting student id to: " + this.userId);
 
-    this.componentProperties = this.getFile(
-      'component-properties', '.json')['player']
+    // load the systemwide component properties
+    this.componentProperties = require(
+      '../assets/' + 'component-properties.json')
 
     // load plio details
     await this.fetchData();
@@ -193,10 +194,6 @@ export default {
         else setTimeout(() => poll(resolve), 400);
       };
       return new Promise(poll);
-    },
-
-    getFile(fileName, extension) {
-      return require('../assets/' + fileName + extension)
     },
 
     logData() {
@@ -255,6 +252,7 @@ export default {
           }
 
           this.progressBarInfo['config'] = this.plioPlayerConfig['progress_bar']
+          this.progressBarInfo['completionPercent'] = 0
 
           var i = 0;
           for (i = 0; i < questions.length; i++) {
@@ -269,6 +267,8 @@ export default {
             // set empty answer for each question
             this.answers.push(plioQuestion.user_answer);
           }
+
+          this.progressBarInfo['totalQuestions'] = this.plioQuestions.length
 
           // set the global list of time values
           this.times = res.data.times;
@@ -303,7 +303,6 @@ export default {
               this.progressBarInfo['completionPercent'] = Math.ceil(
                 (currCompletion/questions.length)*100)
             }
-            this.progressBarInfo['totalQuestions'] = this.plioQuestions.length
           }
         })
         .then((this.dataLoaded = true))

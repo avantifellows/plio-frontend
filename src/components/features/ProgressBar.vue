@@ -1,5 +1,5 @@
 <template>
-  <div class="progress">
+  <div class="progress progress-striped">
     <div class="progress__bar"></div>
   </div>
 </template>
@@ -7,16 +7,16 @@
 <script>
 export default {
   name: "ProgressBar",
-  props: ["initial", "config"],
+  props: ["startPercent", "config"],
   data() {
     return {
-      progressBar: null
+      progressBar: null,
+      progressBarContainer: null
     };
   },
 
   created() {
     this.initializeProgressBar();
-    this.setConfigProperties();
   },
 
   computed: {
@@ -25,18 +25,28 @@ export default {
   methods: {
     initializeProgressBar(){
       setTimeout(() => {
+        this.progressBarContainer = document.querySelector(".progress")
         this.progressBar = document.querySelector(".progress__bar")
-        this.progressTo(this.initial)
+        this.setConfigProperties(this.config['details'])
+        this.progressTo(this.startPercent)
       }, 200)
     },
 
-    setConfigProperties(){
+    setConfigProperties(config){
+      // for the container
+      Object.assign(this.progressBarContainer.style, {
+        background: `${config['empty_color']}`
+      })
 
+      // for the bar
+      Object.assign(this.progressBar.style, {
+        "background-color": `${config['progress_color']}`
+      })
     },
 
     progressTo(progress) {
         Object.assign(this.progressBar.style, {
-          transform: `scaleX(${progress / 100})`,
+          width: `${progress}%`,
           "background-position-y": progress + "%"
         });
     }
@@ -45,30 +55,26 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-body {
-  font: 300 1em "Inconsolata";
-}
-
 .progress {
-  $self: &;
-
   width: 100%;
   height: 20px;
-  // border: solid 1px;
-  // border-radius: 2px;
-  background: lightgray;
-
-  &__bar {
-    height: 100%;
-    width: 100%;
-    background: green;
-    /* make it big to eliminate gradient color visible during single progress position */
-    background-size: 100% 10000%;
-    transition: ease-out 0.8s;
-    transition-property: background-position, transform;
-    transform-origin: 0;
-    transform: scaleX(0);
-  }
+  background:#d3d3d3;
+  position: relative;
 }
 
+.progress__bar {
+  height: 100%;
+  width: 0%;
+  background-size: 100% 10000%;
+  transition: width ease-in-out 0.8s;
+  transform-origin: 0;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.progress-striped .progress__bar{
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-size: 40px 40px;
+  background-color: #008000;
+}
 </style>

@@ -51,57 +51,54 @@
 
         <!-- revise button -->
         <div class="modal__footer">
-          <!-- <div class="modal__footer__buttons"> -->
-            <font-awesome-icon 
-              :icon="['fas', 'check-circle']"
-              class="correct-icon"
-              ref="correct-icon"
-              v-if="isAnswerSubmitted && isAnswerCorrect"
-            ></font-awesome-icon>
+          <font-awesome-icon 
+            :icon="['fas', 'check-circle']"
+            class="correct-icon"
+            ref="correct-icon"
+            v-if="isAnswerSubmitted && isAnswerCorrect"
+          ></font-awesome-icon>
 
-            <font-awesome-icon 
-              :icon="['fas', 'times-circle']"
-              class="wrong-icon"
-              ref="wrong-icon"
-              v-if="isAnswerSubmitted && !isAnswerCorrect"
-            ></font-awesome-icon>          
+          <font-awesome-icon 
+            :icon="['fas', 'times-circle']"
+            class="wrong-icon"
+            ref="wrong-icon"
+            v-if="isAnswerSubmitted && !isAnswerCorrect"
+          ></font-awesome-icon>          
 
-            <!-- submit button -->
-            <loading-spinner v-if="showButtonLoading"></loading-spinner>
-            <button
-              id="submit-button"
-              v-if="!isAnswerSubmitted"
-              class="btn submit"
-              :disabled="isDisabled"
-              @click="clickSubmit"
-            >
-            ✓ सबमिट करें
-            </button>
-            <submit-button-pointer 
-              v-if="!isTutorialComplete && !tutorialProgress['submit'] && !isDisabled && !isAnAnsweredQuestion">
-            </submit-button-pointer>
-            <button id="revise-button" class="btn revise" @click="clickRevise">
-            ⟳ पुनः देखें
-            </button>
+          <!-- submit button -->
+          <loading-spinner v-if="showButtonLoading"></loading-spinner>
+          <button
+            id="submit-button"
+            v-if="!isAnswerSubmitted"
+            class="btn submit"
+            :disabled="isDisabled"
+            @click="clickSubmit"
+          >
+          ✓ सबमिट करें
+          </button>
+          <submit-button-pointer 
+            v-if="!isTutorialComplete && !tutorialProgress['submit'] && !isDisabled && !isAnAnsweredQuestion">
+          </submit-button-pointer>
+          <button id="revise-button" class="btn revise" @click="clickRevise">
+          ⟳ पुनः देखें
+          </button>
 
-            <!-- close button -->
-            <close-button-pointer 
-              v-if="!isTutorialComplete && !tutorialProgress['close'] && isAnswerSubmitted">
-            </close-button-pointer>
-            <button
-              v-if="!showButtonLoading && isAnswerSubmitted"
-              class="btn close"
-              @click="clickClose"
-            >
-            आगे बढ़ें
-            </button>
-          <!-- </div> -->
-          <!-- <progress-bar v-if="show"></progress-bar> -->
+          <!-- close button -->
+          <close-button-pointer 
+            v-if="!isTutorialComplete && !tutorialProgress['close'] && isAnswerSubmitted">
+          </close-button-pointer>
+          <button
+            v-if="!showButtonLoading && isAnswerSubmitted"
+            class="btn close"
+            @click="clickClose"
+          >
+          आगे बढ़ें
+          </button>
         </div>
         <progress-bar 
           v-if="isProgressBarEnabled"
           ref="progressBarRef"
-          :initial="progressBarInfo['completionPercent']"
+          :startPercent="progressBarInfo['completionPercent']"
           :config="progressBarInfo['config']"
         >
         </progress-bar>
@@ -128,7 +125,13 @@ import ProgressBar from './features/ProgressBar.vue';
 var loadTime = 1500;
 
 export default {
-  components: { LoadingSpinner, SubmitButtonPointer, mcqOptionsPointer, CloseButtonPointer, ProgressBar},
+  components: {
+    LoadingSpinner,
+    SubmitButtonPointer,
+    mcqOptionsPointer,
+    CloseButtonPointer,
+    ProgressBar
+  },
   name: "PlioQuestion",
   props: [
     "plioQuestion", 
@@ -220,9 +223,6 @@ export default {
       document.querySelector("body").classList.add("overflow-hidden");
       this.updatedProgressBarInfo[
         'updatedCompletionPercent'] = this.progressBarInfo['completionPercent']
-
-      console.log("isProgressBarEanbled")
-      console.log(this.isProgressBarEnabled)
     },
 
     // Checks if the selected option is correct or not
@@ -308,8 +308,6 @@ export default {
         this.checkAnswer();
         this.showResult();
         this.updateAndShowProgress();
-        console.log("before submitting - " + this.progressBarInfo['completionPercent'])
-        console.log("after submitting - " + this.updatedProgressBarInfo['updatedCompletionPercent'])
       }, loadTime);
 
       this.$emit("answer-submitted")
@@ -541,7 +539,6 @@ input {
       padding: 4px 40px 4px;
     }
     padding: 4px 80px 4px;
-    // flex-direction: column;
   }
 
   &__footer__buttons{
