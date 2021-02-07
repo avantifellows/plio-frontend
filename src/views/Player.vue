@@ -138,7 +138,7 @@ export default {
       componentProperties: {},
       progressBarInfo: {
         "config": {},
-        "completionPercent": 0,
+        "progressPercent": 0,
         "totalQuestions": 0
       }
     };
@@ -255,7 +255,7 @@ export default {
           if ('progress_bar' in this.plioPlayerConfig) 
             this.progressBarInfo['config'] = this.plioPlayerConfig['progress_bar']
             
-          this.progressBarInfo['completionPercent'] = 0
+          this.progressBarInfo['progressPercent'] = 0
 
           var i = 0;
           for (i = 0; i < questions.length; i++) {
@@ -286,7 +286,7 @@ export default {
                 this.answers[index].length == 0 ? "notshown" : "answered";
 
               if (this.plioQuestions[index].state == "answered") {
-                this.progressBarInfo['completionPercent'] += 1
+                this.progressBarInfo['progressPercent'] += 1
               }
             });
 
@@ -302,8 +302,8 @@ export default {
             this.watchTime = res.data.sessionData["watch-time"];
             this.retention = res.data.sessionData.retention;
             if (questions.length > 0) {
-              var currCompletion = this.progressBarInfo['completionPercent']
-              this.progressBarInfo['completionPercent'] = Math.ceil(
+              var currCompletion = this.progressBarInfo['progressPercent']
+              this.progressBarInfo['progressPercent'] = Math.ceil(
                 (currCompletion/questions.length)*100)
             }
           }
@@ -422,13 +422,13 @@ export default {
       }
     },
 
-    recordAnswer(plioQuestion, answer, updatedProgressBarInfo) {
+    recordAnswer(plioQuestion, answer, newProgressBarInfo) {
       // this function is called when the close button is clicked
       // Update state to "answered"
       plioQuestion["state"] = "answered";
 
-      this.progressBarInfo['completionPercent'] = updatedProgressBarInfo[
-        'updatedCompletionPercent']
+      this.progressBarInfo['progressPercent'] = newProgressBarInfo[
+        'progressPercent']
 
       this.tutorialProgress["close"] = true;
       this.isTutorialUploadRequired = true;

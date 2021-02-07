@@ -98,7 +98,7 @@
         <progress-bar 
           v-if="isProgressBarEnabled"
           ref="progressBarRef"
-          :startPercent="progressBarInfo['completionPercent']"
+          :startPercent="progressBarInfo['progressPercent']"
           :config="progressBarInfo['config']"
         >
         </progress-bar>
@@ -147,9 +147,9 @@ export default {
       isAnswerCorrect: false,
       isAnswerSubmitted: false,
       showButtonLoading: false,
-      updatedProgressBarInfo: {
+      newProgressBarInfo: {
         "config": this.progressBarInfo['config'],
-        "updatedCompletionPercent": this.progressBarInfo['completionPercent'],
+        "progressPercent": 0,
         "totalQuestions": this.progressBarInfo['totalQuestions']
       }
     };
@@ -224,6 +224,7 @@ export default {
       this.text = "";
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
+      this.newProgressBarInfo['progressPercent'] = this.progressBarInfo['progressPercent']
     },
 
     // Checks if the selected option is correct or not
@@ -274,13 +275,13 @@ export default {
 
     updateAndShowProgress(){
       if (this.plioQuestion.state != "answered"){
-        this.updatedProgressBarInfo[
-          'updatedCompletionPercent'] += ((1/this.updatedProgressBarInfo['totalQuestions'])*100)
+        this.newProgressBarInfo[
+          'progressPercent'] += ((1/this.newProgressBarInfo['totalQuestions'])*100)
       }
 
       setTimeout(() => {
         this.$refs["progressBarRef"].progressTo(
-          this.updatedProgressBarInfo['updatedCompletionPercent']
+          this.newProgressBarInfo['progressPercent']
         );
       }, 200)
     },
@@ -320,7 +321,7 @@ export default {
       this.closeModal();
       this.isAnswerSubmitted = false;
       this.$emit("question-closed", this.plioQuestion, 
-        this.selectedOption, this.updatedProgressBarInfo);
+        this.selectedOption, this.newProgressBarInfo);
     },
 
     // Things to do when revise button is clicked
