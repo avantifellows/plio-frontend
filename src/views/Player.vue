@@ -15,6 +15,7 @@
           :ref="'position' + plioQuestion.id.toString()"
           :isTutorialComplete="isTutorialComplete"
           :tutorialProgress="tutorialProgress"
+          :progressBarInfo="progressBarInfo"
           @answer-submitted="submitAnswer"
           @answer-skipped="skipAnswer"
           @revision-needed="revise"
@@ -125,7 +126,7 @@ export default {
       },
       journey: [],
       hasVideoPlayed: -1, // Three possible values: -1(don't know), 0(didn't play), 1(played)
-      sessionId: 1,
+      sessionId: 0,
       hasPlyrLoaded: false,
       retention: [],
       previousPlayerTime: 0,
@@ -134,6 +135,12 @@ export default {
       tutorialProgress: {},
       isTutorialUploadRequired: false,
       isModalOnScreen: false,
+      componentProperties: {},
+      progressBarInfo: {
+        "config": {},
+        "progressPercent": 0,
+        "totalQuestions": 0
+      }
     };
   },
   async created() {
@@ -143,6 +150,10 @@ export default {
 
     (this.userId = localStorage.phone),
       console.log("Setting student id to: " + this.userId);
+
+    // load the systemwide component properties
+    this.componentProperties = require(
+      '../assets/' + 'component-properties.json')
 
     // load plio details
     await this.fetchData();
@@ -226,9 +237,25 @@ export default {
           this.isFullscreen = false;
           this.sessionId = res.data.sessionId;
           this.browser = res.data.userAgent["browser"]["family"];
-          this.configs = res.data.configData;
-          this.isTutorialComplete = this.configs.tutorial.isComplete;
-          this.tutorialProgress = this.configs.tutorial.progress;
+          this.userConfigs = res.data.userConfig;
+          this.isTutorialComplete = this.userConfigs.tutorial.isComplete;
+          this.tutorialProgress = this.userConfigs.tutorial.progress;
+
+          // fetching plio config and verifying it with the component-properties.json
+          if('plioConfig' in res.data && 'player' in res.data.plioConfig) {
+            this.plioPlayerConfig = res.data.plioConfig['player']
+          }
+          else this.plioPlayerConfig = {}
+
+          for (const [feature, details] of Object.entries(this.componentProperties)) {
+              this.plioPlayerConfig[feature] = details
+          }
+
+          this.progressBarInfo['config'] = {}
+          if ('progress_bar' in this.plioPlayerConfig) 
+            this.progressBarInfo['config'] = this.plioPlayerConfig['progress_bar']
+            
+          this.progressBarInfo['progressPercent'] = 0
 
           var i = 0;
           for (i = 0; i < questions.length; i++) {
@@ -244,6 +271,8 @@ export default {
             this.answers.push(plioQuestion.user_answer);
           }
 
+          this.progressBarInfo['totalQuestions'] = this.plioQuestions.length
+
           // set the global list of time values
           this.times = res.data.times;
 
@@ -255,6 +284,10 @@ export default {
               this.plioQuestions[index].user_answer = this.answers[index];
               this.plioQuestions[index].state =
                 this.answers[index].length == 0 ? "notshown" : "answered";
+
+              if (this.plioQuestions[index].state == "answered") {
+                this.progressBarInfo['progressPercent'] += 1
+              }
             });
 
             this.journey = res.data.sessionData.journey;
@@ -268,6 +301,11 @@ export default {
 
             this.watchTime = res.data.sessionData["watch-time"];
             this.retention = res.data.sessionData.retention;
+            if (questions.length > 0) {
+              var currCompletion = this.progressBarInfo['progressPercent']
+              this.progressBarInfo['progressPercent'] = Math.ceil(
+                (currCompletion/questions.length)*100)
+            }
           }
         })
         .then((this.dataLoaded = true))
@@ -338,11 +376,11 @@ export default {
         .catch((err) => console.log(err));
 
       if (this.isTutorialUploadRequired) {
-        this.configs["tutorial"]["isComplete"] = this.isTutorialComplete;
-        this.configs["tutorial"]["progress"] = this.tutorialProgress;
+        this.userConfigs["tutorial"]["isComplete"] = this.isTutorialComplete;
+        this.userConfigs["tutorial"]["progress"] = this.tutorialProgress;
         const tutorial_progress = {
           "user-id": this.userId,
-          configs: this.configs,
+          configs: this.userConfigs,
         };
 
         const json_tutorial_progress = JSON.stringify(tutorial_progress);
@@ -384,10 +422,13 @@ export default {
       }
     },
 
-    recordAnswer(plioQuestion, answer) {
+    recordAnswer(plioQuestion, answer, newProgressBarInfo) {
       // this function is called when the close button is clicked
       // Update state to "answered"
       plioQuestion["state"] = "answered";
+
+      this.progressBarInfo['progressPercent'] = newProgressBarInfo[
+        'progressPercent']
 
       this.tutorialProgress["close"] = true;
       this.isTutorialUploadRequired = true;
@@ -500,8 +541,8 @@ export default {
           } else this.hasVideoPlayed = 1;
           this.uploadJson();
 
-          var progressBar = document.querySelectorAll(".plyr__progress")[0];
-          progressBar.firstChild.removeAttribute("disabled");
+          var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
+          plyrProgressBar.firstChild.removeAttribute("disabled");
         }, BROWSER_CHECK_TIME * 1000);
       }
     },
@@ -518,7 +559,7 @@ export default {
           this.player.currentTime = 0;
         }
 
-        var progressBar = document.querySelectorAll(".plyr__progress")[0];
+        var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
         this.plioQuestions.forEach(function (plioQuestion) {
           var question = plioQuestion.item;
           // Add marker to progress bar
@@ -532,15 +573,15 @@ export default {
 
           var pos_percent = (100 * question.time) / player.duration;
           marker.style.setProperty("left", `${pos_percent}%`);
-          progressBar.appendChild(marker);
+          plyrProgressBar.appendChild(marker);
         });
 
         // mark Plyr as loaded
         this.hasPlyrLoaded = true;
 
-        // disabling progressbar
+        // disabling plyrProgressBar
         if (!this.supportedBrowsers.includes(this.browser))
-          progressBar.firstChild.disabled = true;
+          plyrProgressBar.firstChild.disabled = true;
 
         // initializing the retention array with zeros
         if (this.retention.length == 0) {

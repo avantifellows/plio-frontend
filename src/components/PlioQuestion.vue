@@ -95,6 +95,13 @@
           आगे बढ़ें
           </button>
         </div>
+        <progress-bar 
+          v-if="isProgressBarEnabled"
+          ref="progressBarRef"
+          :startPercent="progressBarInfo['progressPercent']"
+          :config="progressBarInfo['config']"
+        >
+        </progress-bar>
       </div>
     </div>
   </transition>
@@ -112,13 +119,26 @@ import SubmitButtonPointer from './tutorial/SubmitButtonPointer.vue';
 import mcqOptionsPointer from './tutorial/mcqOptionsPointer.vue';
 import CloseButtonPointer from './tutorial/CloseButtonPointer.vue';
 
+import ProgressBar from './features/ProgressBar.vue';
+
 // For how long does the spinner show (in milliseconds)
 var loadTime = 1500;
 
 export default {
-  components: { LoadingSpinner, SubmitButtonPointer, mcqOptionsPointer, CloseButtonPointer},
+  components: {
+    LoadingSpinner,
+    SubmitButtonPointer,
+    mcqOptionsPointer,
+    CloseButtonPointer,
+    ProgressBar
+  },
   name: "PlioQuestion",
-  props: ["plioQuestion", "isTutorialComplete", "tutorialProgress"],
+  props: [
+    "plioQuestion", 
+    "isTutorialComplete", 
+    "tutorialProgress", 
+    "progressBarInfo"
+  ],
   data() {
     return {
       show: false,
@@ -127,6 +147,11 @@ export default {
       isAnswerCorrect: false,
       isAnswerSubmitted: false,
       showButtonLoading: false,
+      newProgressBarInfo: {
+        "config": this.progressBarInfo['config'],
+        "progressPercent": 0,
+        "totalQuestions": this.progressBarInfo['totalQuestions']
+      }
     };
   },
 
@@ -153,6 +178,12 @@ export default {
     },
     isAnAnsweredQuestion(){
       return this.plioQuestion.state == "answered"
+    },
+    isProgressBarEnabled(){
+      if ('enabled' in this.progressBarInfo['config'])
+        return this.progressBarInfo['config']['enabled']
+      
+      return false;
     }
   },
   methods: {
@@ -193,6 +224,7 @@ export default {
       this.text = "";
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
+      this.newProgressBarInfo['progressPercent'] = this.progressBarInfo['progressPercent']
     },
 
     // Checks if the selected option is correct or not
@@ -241,6 +273,19 @@ export default {
       });
     },
 
+    updateAndShowProgress(){
+      if (this.plioQuestion.state != "answered"){
+        this.newProgressBarInfo[
+          'progressPercent'] += ((1/this.newProgressBarInfo['totalQuestions'])*100)
+      }
+
+      setTimeout(() => {
+        this.$refs["progressBarRef"].progressTo(
+          this.newProgressBarInfo['progressPercent']
+        );
+      }, 200)
+    },
+
     clickSubmit() {
       // Things to do after clicking submit
       // 1-Remove old option highlights
@@ -264,6 +309,7 @@ export default {
         this.showButtonLoading = false;
         this.checkAnswer();
         this.showResult();
+        this.updateAndShowProgress();
       }, loadTime);
 
       this.$emit("answer-submitted")
@@ -274,7 +320,8 @@ export default {
     clickClose() {
       this.closeModal();
       this.isAnswerSubmitted = false;
-      this.$emit("question-closed", this.plioQuestion, this.selectedOption);
+      this.$emit("question-closed", this.plioQuestion, 
+        this.selectedOption, this.newProgressBarInfo);
     },
 
     // Things to do when revise button is clicked
@@ -433,6 +480,9 @@ input {
     //   width: 90%;
     // }
   }
+  .last-item{
+    margin-top: auto;
+  }
 
   h3 {
     padding: 0;
@@ -458,6 +508,7 @@ input {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    margin-top: auto;
     scrollbar-face-color: #367cd2;
     scrollbar-shadow-color: #ffffff;
     scrollbar-highlight-color: #ffffff;
@@ -480,15 +531,20 @@ input {
     background: rgba(238, 205, 73, 0.8);
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
   }
-  &__footer {
+  &__footer, &__footer__buttons {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: auto;
     @media (orientation: portrait) {
       padding: 4px 40px 4px;
     }
     padding: 4px 80px 4px;
+  }
+
+  &__footer__buttons{
+    flex-direction: row;
   }
 
   .tooltip-answered {
