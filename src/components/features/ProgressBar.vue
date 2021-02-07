@@ -37,6 +37,7 @@ export default {
     },
 
     setCSSProperties(config){
+      // refernce = css-tricks.com/updating-a-css-variable-with-javascript
       let root = document.documentElement;
       root.style.setProperty('--empty-color', config['empty_color'])
       root.style.setProperty('--progress-color', config['progress_color'])
