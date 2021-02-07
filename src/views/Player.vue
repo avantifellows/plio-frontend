@@ -242,7 +242,7 @@ export default {
           this.tutorialProgress = this.userConfigs.tutorial.progress;
 
           // fetching plio config and verifying it with the component-properties.json
-          if('player' in res.data.plioConfig) {
+          if('plioConfig' in res.data && 'player' in res.data.plioConfig) {
             this.plioPlayerConfig = res.data.plioConfig['player']
           }
           else this.plioPlayerConfig = {}
@@ -251,7 +251,10 @@ export default {
               this.plioPlayerConfig[feature] = details
           }
 
-          this.progressBarInfo['config'] = this.plioPlayerConfig['progress_bar']
+          this.progressBarInfo['config'] = {}
+          if ('progress_bar' in this.plioPlayerConfig) 
+            this.progressBarInfo['config'] = this.plioPlayerConfig['progress_bar']
+            
           this.progressBarInfo['completionPercent'] = 0
 
           var i = 0;

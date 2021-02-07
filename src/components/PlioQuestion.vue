@@ -180,7 +180,10 @@ export default {
       return this.plioQuestion.state == "answered"
     },
     isProgressBarEnabled(){
-      return this.progressBarInfo['config']['enabled']
+      if ('enabled' in this.progressBarInfo['config'])
+        return this.progressBarInfo['config']['enabled']
+      
+      return false;
     }
   },
   methods: {
