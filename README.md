@@ -31,7 +31,7 @@ This repo contains code for the frontend, in Vue.
 
   
 
-It includes features for:
+It includes features for:-
 
   
 
@@ -51,7 +51,7 @@ Some of them don't have their own phones and borrow from their families, and som
 
   
 
-Hence, we have decided that the platform will:
+Hence, we have decided that the platform will:-
 
   
 
