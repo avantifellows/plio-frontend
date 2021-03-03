@@ -7,13 +7,13 @@
 </template>
 
 <script>
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faHandPointRight } from "@fortawesome/free-solid-svg-icons/faHandPointRight";
-library.add(faHandPointRight);
+ import { library } from '@fortawesome/fontawesome-svg-core'
+ import { faHandPointRight } from '@fortawesome/free-solid-svg-icons/faHandPointRight'
+ library.add(faHandPointRight)
 
-export default {
-  name: "CloseButtonPointer"
-}
+ export default {
+   name: 'CloseButtonPointer',
+ }
 </script>
 
 <style scoped>

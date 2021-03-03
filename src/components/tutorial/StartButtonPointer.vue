@@ -7,13 +7,13 @@
 </template>
 
 <script>
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faHandPointUp } from "@fortawesome/free-solid-svg-icons/faHandPointUp";
-library.add(faHandPointUp);
+ import { library } from '@fortawesome/fontawesome-svg-core'
+ import { faHandPointUp } from '@fortawesome/free-solid-svg-icons/faHandPointUp'
+ library.add(faHandPointUp)
 
-export default {
-  name: "StartButtonPointer"
-}
+ export default {
+   name: 'StartButtonPointer',
+ }
 </script>
 
 <style scoped>
