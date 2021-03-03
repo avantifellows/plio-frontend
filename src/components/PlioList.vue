@@ -3,8 +3,11 @@
     <h3>Plios</h3>
     <div class="plios">
         
-        <div v-for="plio in allPlios" :key="plio.plio_id" class="plios">
-            <PlioThumbnail v-bind:plio="plio"  />
+        <div 
+         v-for="plio in allPlios" 
+         :key="plio.plio_id" 
+         class="plios"
+        ><PlioThumbnail v-bind:plio="plio"  />
         </div>
     </div>
   </div>
@@ -13,52 +16,52 @@
 
 <script>
 
-import { mapGetters, mapActions } from 'vuex';
-import PlioThumbnail from './PlioThumbnail.vue';
+ import { mapGetters, mapActions } from 'vuex'
+ import PlioThumbnail from './PlioThumbnail.vue'
 
 
-export default {
+ export default {
   name: "PlioList",
-  components: {
-      PlioThumbnail,
-  },
-  computed: mapGetters(['allPlios']),
-  methods: {
-      ...mapActions(['fetchPlios'])
-  },
-  created() {
-      this.fetchPlios();
-  }
-};
+   components: {
+       PlioThumbnail,
+   },
+   computed: mapGetters(['allPlios']),
+   methods: {
+       ...mapActions(['fetchPlios'])
+   },
+   created() {
+       this.fetchPlios();
+   }
+ };
 </script>
 
 <style scoped>
-.plios {
-    display: grid;
-    margin: auto;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    grid-gap: 1rem;
-}
+ .plios {
+     display: grid;
+     margin: auto;
+     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+     grid-gap: 1rem;
+ }
 
-.plio {
-    color:white;
-    border: 1px solid #ccc;
-    background: #CC593D;
-    padding: 2rem;
-    border-radius: 5px;
-    text-align: center;
-    position: relative;
-    cursor: pointer;
-    text-decoration: none;
-}
+ .plio {
+     color:white;
+     border: 1px solid #ccc;
+     background: #CC593D;
+     padding: 2rem;
+     border-radius: 5px;
+     text-align: center;
+     position: relative;
+     cursor: pointer;
+     text-decoration: none;
+ }
 
-.plio a {
-    text-decoration: none;
-    color: white;
-}
+ .plio a {
+     text-decoration: none;
+     color: white;
+ }
 
-.plio a:visited {
-    text-decoration: none;
-    color: white;
-}
+ .plio a:visited {
+     text-decoration: none;
+     color: white;
+ }
 </style>

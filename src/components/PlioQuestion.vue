@@ -1,6 +1,9 @@
 <template>
   <transition name="fade">
-    <div class="modal" v-if="show">
+    <div 
+     class="modal" 
+     v-if="show"
+    >
       <!-- <div class="modal__backdrop" @click="closeModal()"/> -->
 
       <div class="modal__dialog">
@@ -10,7 +13,11 @@
             <div class="question_text">
               {{ plioQuestion.item.question.text }}
             </div>
-            <div class="close-container" id="skip-button" @click="clickSkip">
+            <div 
+             class="close-container" 
+             id="skip-button" 
+             @click="clickSkip"
+            >
               <font-awesome-icon 
                 :icon="['fas', 'window-close']"
                 class="skip-icon"
@@ -18,7 +25,10 @@
             </div>
           </div>
 
-          <div id="options_container" class="options">
+          <div 
+           id="options_container" 
+           class="options"
+          >
             <ul>
               <li class="option">
                 <div
@@ -79,7 +89,11 @@
           <submit-button-pointer 
             v-if="!isTutorialComplete && !tutorialProgress['submit'] && !isDisabled && !isAnAnsweredQuestion">
           </submit-button-pointer>
-          <button id="revise-button" class="btn revise" @click="clickRevise">
+          <button 
+           id="revise-button" 
+           class="btn revise" 
+           @click="clickRevise"
+          >
           ⟳ पुनः देखें
           </button>
 
@@ -108,18 +122,17 @@
 </template>
 
 <script>
-import LoadingSpinner from "./LoadingSpinner.vue";
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faWindowClose } from '@fortawesome/free-solid-svg-icons/faWindowClose';
-import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
-import { faTimesCircle } from '@fortawesome/free-solid-svg-icons/faTimesCircle';
-library.add(faWindowClose, faCheckCircle, faTimesCircle);
+import LoadingSpinner from './LoadingSpinner.vue'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faWindowClose } from '@fortawesome/free-solid-svg-icons/faWindowClose'
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle'
+import { faTimesCircle } from '@fortawesome/free-solid-svg-icons/faTimesCircle'
+library.add(faWindowClose, faCheckCircle, faTimesCircle)
 
-import SubmitButtonPointer from './tutorial/SubmitButtonPointer.vue';
-import mcqOptionsPointer from './tutorial/mcqOptionsPointer.vue';
-import CloseButtonPointer from './tutorial/CloseButtonPointer.vue';
-
-import ProgressBar from './features/ProgressBar.vue';
+import SubmitButtonPointer from './tutorial/SubmitButtonPointer.vue'
+import mcqOptionsPointer from './tutorial/mcqOptionsPointer.vue'
+import CloseButtonPointer from './tutorial/CloseButtonPointer.vue'
+import ProgressBar from './features/ProgressBar.vue'
 
 // For how long does the spinner show (in milliseconds)
 var loadTime = 1500;
