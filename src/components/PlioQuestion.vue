@@ -7,8 +7,7 @@
         <div class="modal__body">
           <!-- The cross button to close the modal -->
           <div class="question_text_row">
-            <div class="question_text">
-              {{ plioQuestion.item.question.text }}
+            <div class="question_text" id="question" v-html="questionText">
             </div>
             <div class="close-container" id="skip-button" @click="clickSkip">
               <font-awesome-icon 
@@ -22,21 +21,23 @@
             <ul>
               <li class="option">
                 <div
-                  v-for="(option, index) in plioQuestion.item.question.options"
+                  v-for="(option, optionNumber) in plioQuestion.item.question.options"
                   :key="option"
                   class="answer_option radio"
                   :ref="option"
                 >
                   <!-- adding <label> so that touch input is just
                   not limited to the radio button -->
-                  <label>
+                  <label class="label">
                     <input
                       type="radio"
                       name="options"
                       v-model="selectedOption"
                       :value="option"
-                      @click="selectOption(index)"
-                    />{{ option }}
+                      :id = "'option_input_' + optionNumber"
+                      @click="selectOption(optionNumber)"
+                    />
+                      <div class="option_render" :id= "option" v-html="optionText[optionNumber]"></div>
                   </label>
                 </div>
               </li>
@@ -47,7 +48,7 @@
               v-if="!isAnAnsweredQuestion && !isTutorialComplete && !tutorialProgress['options']">
             </mcqOptionsPointer>
           </div>
-          </div>
+        </div>
 
         <!-- revise button -->
         <div class="modal__footer">
@@ -151,7 +152,9 @@ export default {
         "config": this.progressBarInfo['config'],
         "progressPercent": 0,
         "totalQuestions": this.progressBarInfo['totalQuestions']
-      }
+      },
+      questionText: this.plioQuestion.item.question.text,
+      optionText: this.plioQuestion.item.question.options,
     };
   },
 
@@ -184,6 +187,12 @@ export default {
         return this.progressBarInfo['config']['enabled']
       
       return false;
+    },
+    userAnswerIndex() {
+      // index of user answer in the options array
+      return this.plioQuestion.item.question.options.indexOf(
+        this.plioQuestion.user_answer
+      )
     }
   },
   methods: {
@@ -205,10 +214,10 @@ export default {
       // Show highlighted options if coming back to an answered question
       // Wait 200 ms because it takes some time to find the DOM elements
       if (this.plioQuestion.state == "answered") {
-        setTimeout(() => {
+        requestAnimationFrame(() =>{
           // highlight wrong/right depending on what the user answered in previous session
           document.getElementById("options_container").classList.add("options-block");
-          var selectedOption = document.querySelectorAll(`input[value='${this.plioQuestion.user_answer}']`)[0];
+          var selectedOption = document.getElementById(`option_input_${this.userAnswerIndex}`)
           selectedOption.checked = true
           this.selectedOption = this.plioQuestion.user_answer
           this.checkAnswer()
@@ -218,13 +227,124 @@ export default {
           this.hideSkipButton();
           this.isAnswerSubmitted = true;
           this.disableRadioButtons();
-        }, 200);
+        });
       }
 
       this.text = "";
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
       this.newProgressBarInfo['progressPercent'] = this.progressBarInfo['progressPercent']
+      this.handleImage()
+      this.styleQuestion()
+      this.styleOptions()
+      this.renderContent()
+    },
+
+    handleImage(){
+      this.$nextTick(() => {
+        // get question element
+        var question = document.getElementById('question')
+        if (question == null) return
+        // extract all <p> tags from the question element
+        var p_tags = question.querySelectorAll('p')
+        if (p_tags == null || p_tags.length == 0) return
+        // find which <p> tag has an <img> tag, cut it and
+        // paste it right outside, just below it.
+        p_tags.forEach(p_tag => {
+          var img_tag = p_tag.querySelector('img')
+          if (img_tag != null) {
+            p_tag.removeChild(img_tag)
+            p_tag.parentNode.insertBefore(img_tag, p_tag.nextSibling)
+            img_tag.setAttribute("id", "question_image")
+            // scale the image such that width is 1/3rd of screen width
+            // maintaining the aspect ratio
+            var currWidth = 0
+            var currHeight = 0
+            var finalWidth = window.screen.availWidth / 2.5
+            var finalHeight = 0
+            var parentDivWidth = document.getElementById('question').clientWidth
+            var parentDivHeight = document.getElementById('question').clientHeight
+            // handling cases - "50%" and "50px" separately
+            if (img_tag.style.width.includes("%")) {
+              // extract % value -> take product with the parentDiv width
+              // -> convert to string with 'px'
+              currWidth = String(
+                (parseInt(img_tag.style.width, 10) * parentDivWidth) / 100
+              ) + 'px'
+            }
+            else {
+              currWidth = parseInt(img_tag.style.width, 10)
+            }
+
+            if (img_tag.style.height.includes("%")) {
+              // extract % value -> take product with the parentDiv height
+              // -> convert to string with 'px'
+              currHeight = String(
+                (parseInt(img_tag.style.height, 10) * parentDivHeight) / 100
+              ) + 'px'
+            }
+            else {
+              currHeight = parseInt(img_tag.style.height, 10)
+            }
+
+            if (currHeight && currWidth) {
+              var aspectRatio = currWidth / currHeight
+              finalHeight = finalWidth / aspectRatio
+            }
+            
+            img_tag.style.width = String(finalWidth) + 'px'
+            // if height is not available, it will be defaulted
+            // to 100% of the parent div automatically
+            if(img_tag.style.height)
+              img_tag.style.height = String(finalHeight) + 'px'
+          }
+        })
+      })
+    },
+
+    renderContent(){
+      // force rendering of question and option texts
+      this.$nextTick(() => {
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "question"]);
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "option"]);
+      })
+    },
+
+    styleQuestion(){
+      // for each <p> tag in the question, set some CSS
+      // specifically overrides default <p> CSS for these tags
+      this.$nextTick(() => {
+        var question = document.getElementById('question')
+        if (question == null) return
+  
+        var p_tags = question.querySelectorAll('p')
+        if (p_tags == null || p_tags.length == 0) return
+
+        p_tags.forEach(p_tag => {
+          p_tag.style.lineHeight = '100%'
+          p_tag.style.marginRight = 'auto'
+          p_tag.style.marginBlock = '5px';
+        })
+      })
+    },
+
+    styleOptions(){
+      // for each <p> tag in the option, set some CSS
+      // specifically overrides default <p> CSS for these tags
+      this.$nextTick(() => {
+        var optionParents = document.getElementsByClassName('option_render')
+        if (optionParents == null) return
+  
+        optionParents.forEach(option => {
+          var optionTexts = option.querySelectorAll('p')
+          if (optionTexts == null || optionTexts.length == 0) return
+          
+          optionTexts.forEach(optionText => {
+            optionText.style.lineHeight = '100%'
+            optionText.style.marginBlock = "5px"
+          })
+        });
+      })
     },
 
     // Checks if the selected option is correct or not
@@ -279,11 +399,11 @@ export default {
           'progressPercent'] += ((1/this.newProgressBarInfo['totalQuestions'])*100)
       }
 
-      setTimeout(() => {
+      this.$nextTick(() => {
         this.$refs["progressBarRef"].progressTo(
           this.newProgressBarInfo['progressPercent']
         );
-      }, 200)
+      })
     },
 
     clickSubmit() {
@@ -334,6 +454,33 @@ export default {
       this.closeModal();
       this.$emit("answer-skipped", this.plioQuestion);
     },
+  },
+  mounted() {
+    // after DOM has been mounted/rendered, manipulating the DOM
+    // to add MathJax CDN links to the document head + some configs
+    let mathJaxConfigParent = document.createElement('script')
+    mathJaxConfigParent.setAttribute('type', 'text/x-mathjax-config')
+
+    var configString = 
+    `MathJax.Hub.Config({
+        messageStyle: 'none',
+        tex2jax: {
+          preview: 'none'
+        },
+        showProcessingMessages: false, 
+        'HTML-CSS': {
+          imageFont: null
+        }
+      });`
+
+    var configInnerText = document.createTextNode(configString);
+    mathJaxConfigParent.appendChild(configInnerText);
+    document.head.appendChild(mathJaxConfigParent)
+
+    let mathJaxCDN = document.createElement('script')
+    mathJaxCDN.setAttribute('type', 'text/javascript')
+    mathJaxCDN.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"
+    document.head.appendChild(mathJaxCDN)
   },
 };
 </script>
@@ -416,6 +563,12 @@ li {
   border-radius: 5px;
 }
 
+.label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
 .options{
   display:flex;
   align-items: center;
@@ -438,6 +591,10 @@ li {
   text-align: left;
   font-size: 1.5rem;
   font-weight: bold;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px
 }
 
 input {
@@ -465,7 +622,7 @@ input {
     z-index: 1;
   }
   &__dialog {
-    background-color: #eeeeee;
+    background-color: #ffffff;
     position: relative;
     width: 100%;
     height: 100%;
@@ -503,12 +660,12 @@ input {
   &__body {
     padding: 4px 4px 4px;
     padding-left: 16px;
-    margin-bottom: 0;
     overflow-y: scroll;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     margin-top: auto;
+    margin-bottom: auto;
     scrollbar-face-color: #367cd2;
     scrollbar-shadow-color: #ffffff;
     scrollbar-highlight-color: #ffffff;
@@ -518,16 +675,12 @@ input {
     scrollbar-arrow-color: #ffffff;
   }
   &__body::-webkit-scrollbar {
-    width: 12px;
+    width: 8px;
   }
   &__body::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    -webkit-border-radius: 10px;
-    border-radius: 10px;
   }
   &__body::-webkit-scrollbar-thumb {
-    -webkit-border-radius: 10px;
-    border-radius: 10px;
     background: rgba(238, 205, 73, 0.8);
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
   }
@@ -536,11 +689,14 @@ input {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: auto;
+    // margin-bottom: auto;
     @media (orientation: portrait) {
       padding: 4px 40px 4px;
     }
     padding: 4px 80px 4px;
+    background-color: #ececec;
+    box-shadow: 0px -1px 6px #5e5e5d;
+    z-index: 10
   }
 
   &__footer__buttons{
