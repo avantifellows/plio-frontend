@@ -266,16 +266,22 @@ export default {
             var parentDivHeight = document.getElementById('question').clientHeight
             // handling cases - "50%" and "50px" separately
             if (img_tag.style.width.includes("%")) {
-              var imgPixelWidth = (parseInt(img_tag.style.width, 10) * parentDivWidth) / 100
-              currWidth = String(imgPixelWidth) + 'px'
+              // extract % value -> take product with the parentDiv width
+              // -> convert to string with 'px'
+              currWidth = String(
+                (parseInt(img_tag.style.width, 10) * parentDivWidth) / 100
+              ) + 'px'
             }
             else {
               currWidth = parseInt(img_tag.style.width, 10)
             }
 
             if (img_tag.style.height.includes("%")) {
-              var imgPixelHeight = (parseInt(img_tag.style.height, 10) * parentDivHeight) / 100
-              currHeight = String(imgPixelHeight) + 'px'
+              // extract % value -> take product with the parentDiv height
+              // -> convert to string with 'px'
+              currHeight = String(
+                (parseInt(img_tag.style.height, 10) * parentDivHeight) / 100
+              ) + 'px'
             }
             else {
               currHeight = parseInt(img_tag.style.height, 10)
