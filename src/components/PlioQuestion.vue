@@ -21,7 +21,7 @@
             <ul>
               <li class="option">
                 <div
-                  v-for="(option, index) in plioQuestion.item.question.options"
+                  v-for="(option, optionNumber) in plioQuestion.item.question.options"
                   :key="option"
                   class="answer_option radio"
                   :ref="option"
@@ -34,10 +34,10 @@
                       name="options"
                       v-model="selectedOption"
                       :value="option"
-                      :id = "'option_input_' + index"
-                      @click="selectOption(index)"
+                      :id = "'option_input_' + optionNumber"
+                      @click="selectOption(optionNumber)"
                     />
-                      <div class="option_render" :id= "option" v-html="optionText[index]"></div>
+                      <div class="option_render" :id= "option" v-html="optionText[optionNumber]"></div>
                   </label>
                 </div>
               </li>
@@ -50,7 +50,7 @@
           </div>
         </div>
 
-          <!-- revise button -->
+        <!-- revise button -->
         <div class="modal__footer">
           <font-awesome-icon 
             :icon="['fas', 'check-circle']"
@@ -258,9 +258,9 @@ export default {
             img_tag.setAttribute("id", "question_image")
             // scale the image such that width is 1/3rd of screen width
             // maintaining the aspect ratio
-            var heightToWidth = (img_tag.offsetHeight/img_tag.offsetWidth)
+            var aspectRatio = (img_tag.offsetHeight/img_tag.offsetWidth)
             img_tag.style.width = String(window.screen.availWidth/3) + 'px'
-            img_tag.style.height = String(img_tag.offsetWidth * heightToWidth) + 'px'
+            img_tag.style.height = String(img_tag.offsetWidth * aspectRatio) + 'px'
           }
         })
       })
@@ -269,8 +269,8 @@ export default {
     renderContent(){
       // force rendering of question and option texts
       this.$nextTick(() => {
-        MathJax.Hub.Queue(["Typeset",MathJax.Hub,"question"]);
-        MathJax.Hub.Queue(["Typeset",MathJax.Hub,"option"]);
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "question"]);
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "option"]);
       })
     },
 
@@ -624,7 +624,6 @@ input {
   &__body {
     padding: 4px 4px 4px;
     padding-left: 16px;
-    // margin-bottom: 0;
     overflow-y: scroll;
     display: flex;
     flex-direction: column;
