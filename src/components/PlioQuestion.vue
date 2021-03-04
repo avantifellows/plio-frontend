@@ -258,10 +258,28 @@ export default {
             img_tag.setAttribute("id", "question_image")
             // scale the image such that width is 1/3rd of screen width
             // maintaining the aspect ratio
-            var currWidth = parseInt(img_tag.style.width, 10)
-            var currHeight = parseInt(img_tag.style.height, 10)
-            var finalWidth = window.screen.availWidth / 3
+            var currWidth = 0
+            var currHeight = 0
+            var finalWidth = window.screen.availWidth / 2.5
             var finalHeight = 0
+            var parentDivWidth = document.getElementById('question').clientWidth
+            var parentDivHeight = document.getElementById('question').clientHeight
+            // handling cases - "50%" and "50px" separately
+            if (img_tag.style.width.includes("%")) {
+              var imgPixelWidth = (parseInt(img_tag.style.width, 10) * parentDivWidth) / 100
+              currWidth = String(imgPixelWidth) + 'px'
+            }
+            else {
+              currWidth = parseInt(img_tag.style.width, 10)
+            }
+
+            if (img_tag.style.height.includes("%")) {
+              var imgPixelHeight = (parseInt(img_tag.style.height, 10) * parentDivHeight) / 100
+              currHeight = String(imgPixelHeight) + 'px'
+            }
+            else {
+              currHeight = parseInt(img_tag.style.height, 10)
+            }
 
             if (currHeight && currWidth) {
               var aspectRatio = currWidth / currHeight
@@ -269,7 +287,10 @@ export default {
             }
             
             img_tag.style.width = String(finalWidth) + 'px'
-            img_tag.style.height = String(finalHeight) + 'px'
+            // if height is not available, it will be defaulted
+            // to 100% of the parent div automatically
+            if(img_tag.style.height)
+              img_tag.style.height = String(finalHeight) + 'px'
           }
         })
       })
