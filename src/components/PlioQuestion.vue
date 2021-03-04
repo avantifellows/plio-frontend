@@ -258,9 +258,12 @@ export default {
             img_tag.setAttribute("id", "question_image")
             // scale the image such that width is 1/3rd of screen width
             // maintaining the aspect ratio
-            var aspectRatio = (img_tag.offsetHeight/img_tag.offsetWidth)
+            var aspectRatio = 0
+            if (img_tag.offsetHeight){
+              aspectRatio = (img_tag.offsetWidth / img_tag.offsetHeight)
+            }
             img_tag.style.width = String(window.screen.availWidth/3) + 'px'
-            img_tag.style.height = String(img_tag.offsetWidth * aspectRatio) + 'px'
+            img_tag.style.height = String(img_tag.offsetWidth / aspectRatio) + 'px'
           }
         })
       })
