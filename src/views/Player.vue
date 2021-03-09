@@ -137,10 +137,10 @@ export default {
       isModalOnScreen: false,
       componentProperties: {},
       progressBarInfo: {
-        "config": {},
-        "progressPercent": 0,
-        "totalQuestions": 0
-      }
+        config: {},
+        progressPercent: 0,
+        totalQuestions: 0,
+      },
     };
   },
   async created() {
@@ -148,12 +148,11 @@ export default {
       this.$router.push({ path: "/login/" + this.$route.params.id });
     }
 
-    (this.userId = localStorage.phone),
-      console.log("Setting student id to: " + this.userId);
+    this.userId = localStorage.phone;
+    console.log("Setting student id to: " + this.userId);
 
     // load the systemwide component properties
-    this.componentProperties = require(
-      '../assets/' + 'component-properties.json')
+    this.componentProperties = require("../assets/" + "component-properties.json");
 
     // load plio details
     await this.fetchData();
@@ -242,20 +241,19 @@ export default {
           this.tutorialProgress = this.userConfigs.tutorial.progress;
 
           // fetching plio config and verifying it with the component-properties.json
-          if('plioConfig' in res.data && 'player' in res.data.plioConfig) {
-            this.plioPlayerConfig = res.data.plioConfig['player']
-          }
-          else this.plioPlayerConfig = {}
+          if ("plioConfig" in res.data && "player" in res.data.plioConfig) {
+            this.plioPlayerConfig = res.data.plioConfig["player"];
+          } else this.plioPlayerConfig = {};
 
           for (const [feature, details] of Object.entries(this.componentProperties)) {
-              this.plioPlayerConfig[feature] = details
+            this.plioPlayerConfig[feature] = details;
           }
 
-          this.progressBarInfo['config'] = {}
-          if ('progress_bar' in this.plioPlayerConfig) 
-            this.progressBarInfo['config'] = this.plioPlayerConfig['progress_bar']
-            
-          this.progressBarInfo['progressPercent'] = 0
+          this.progressBarInfo["config"] = {};
+          if ("progress_bar" in this.plioPlayerConfig)
+            this.progressBarInfo["config"] = this.plioPlayerConfig["progress_bar"];
+
+          this.progressBarInfo["progressPercent"] = 0;
 
           var i = 0;
           for (i = 0; i < questions.length; i++) {
@@ -271,7 +269,7 @@ export default {
             this.answers.push(plioQuestion.user_answer);
           }
 
-          this.progressBarInfo['totalQuestions'] = this.plioQuestions.length
+          this.progressBarInfo["totalQuestions"] = this.plioQuestions.length;
 
           // set the global list of time values
           this.times = res.data.times;
@@ -286,7 +284,7 @@ export default {
                 this.answers[index].length == 0 ? "notshown" : "answered";
 
               if (this.plioQuestions[index].state == "answered") {
-                this.progressBarInfo['progressPercent'] += 1
+                this.progressBarInfo["progressPercent"] += 1;
               }
             });
 
@@ -302,9 +300,10 @@ export default {
             this.watchTime = res.data.sessionData["watch-time"];
             this.retention = res.data.sessionData.retention;
             if (questions.length > 0) {
-              var currCompletion = this.progressBarInfo['progressPercent']
-              this.progressBarInfo['progressPercent'] = Math.ceil(
-                (currCompletion/questions.length)*100)
+              var currCompletion = this.progressBarInfo["progressPercent"];
+              this.progressBarInfo["progressPercent"] = Math.ceil(
+                (currCompletion / questions.length) * 100
+              );
             }
           }
         })
@@ -363,7 +362,7 @@ export default {
       };
       const json_response = JSON.stringify(student_response);
 
-      fetch(process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_UPDATE_RESPONSE, {
+      fetch(process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_UPDATE_ENTRY, {
         method: "POST",
         body: json_response,
         headers: {
@@ -427,8 +426,7 @@ export default {
       // Update state to "answered"
       plioQuestion["state"] = "answered";
 
-      this.progressBarInfo['progressPercent'] = newProgressBarInfo[
-        'progressPercent']
+      this.progressBarInfo["progressPercent"] = newProgressBarInfo["progressPercent"];
 
       this.tutorialProgress["close"] = true;
       this.isTutorialUploadRequired = true;
