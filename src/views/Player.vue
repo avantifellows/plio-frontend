@@ -148,8 +148,8 @@ export default {
       this.$router.push({ path: "/login/" + this.$route.params.id });
     }
 
-    (this.userId = localStorage.phone),
-      console.log("Setting student id to: " + this.userId);
+    this.userId = localStorage.phone;
+    console.log("Setting student id to: " + this.userId);
 
     // load the systemwide component properties
     this.componentProperties = require("../assets/" + "component-properties.json");
