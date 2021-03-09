@@ -23,7 +23,7 @@ export default {
 </script>
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: "KrutiDev" ,Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -41,5 +41,11 @@ export default {
 
 #nav a.router-link-exact-active {
   color: #42b983;
+}
+
+@font-face {
+  font-family: "Kruti Dev";
+  src: local("Kruti Dev"),
+    url('./fonts/Kruti_Dev_10.TTF') format("truetype");
 }
 </style>
