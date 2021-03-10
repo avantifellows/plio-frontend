@@ -1,34 +1,33 @@
 <template>
   <div id="app" class="container">
-    Welcome to Plio! <br>
-    <a href='http://creator.plio.in'>Create a new Plio</a> <br>
-    <a href='https://dashboard.plio.in'>Analyze Plios</a> <br>
+    {{ $t("home.welcome") }}<br />
+    <a href="http://creator.plio.in">{{ $t("home.create_plio") }}</a> <br />
+    <a href="https://dashboard.plio.in">{{ $t("home.analyze_plio") }}</a> <br />
     <PlioList />
   </div>
 </template>
 
 <script>
-
-import PlioList from '../components/PlioList.vue'
+import PlioList from "../components/PlioList.vue";
 
 export default {
   created() {
     if (!this.isLoggedIn) {
-      this.$router.push('/login/')
+      this.$router.push("/login/");
     }
-    document.getElementById('nav').style.display = "inline";
+    document.getElementById("nav").style.display = "inline";
   },
 
   name: "Home",
   components: {
-    PlioList
+    PlioList,
   },
 
   computed: {
     isLoggedIn() {
       return this.$store.getters.isLoggedIn;
-    }
-  }
+    },
+  },
 };
 </script>
 

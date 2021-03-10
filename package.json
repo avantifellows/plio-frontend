@@ -1,58 +1,60 @@
 {
-  "name": "ivideo_frontend",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "build-staging": "vue-cli-service build --mode staging",
-    "lint": "vue-cli-service lint",
-    "deploy": "vue-cli-service build && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend --delete --acl public-read",
-    "deploy-staging": "vue-cli-service build --mode staging && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend-staging --delete --acl public-read"
-  },
-  "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.1",
-    "@fortawesome/fontawesome-svg-core": "^1.2.32",
-    "@fortawesome/free-solid-svg-icons": "^5.15.1",
-    "@fortawesome/vue-fontawesome": "^3.0.0-3",
-    "axios": "^0.21.1",
-    "core-js": "^3.6.5",
-    "plyr": "^3.6.3",
-    "vue": "^3.0.0-0",
-    "vue-router": "^4.0.0-beta.12",
-    "vuex": "^4.0.0-beta.4"
-  },
-  "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-plugin-router": "^4.5.6",
-    "@vue/cli-plugin-vuex": "^4.5.6",
-    "@vue/cli-service": "~4.5.0",
-    "@vue/compiler-sfc": "^3.0.0-0",
-    "babel-eslint": "^10.1.0",
-    "babel-plugin-transform-remove-console": "^6.9.4",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.0.0-0",
-    "sass": "^1.26.11",
-    "sass-loader": "^10.0.2"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
+    "name": "ivideo_frontend",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "serve": "vue-cli-service serve",
+        "build": "vue-cli-service build",
+        "lint": "vue-cli-service lint",
+        "deploy": "vue-cli-service build && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend --delete --acl public-read",
+        "build-staging": "vue-cli-service build --mode staging",
+        "deploy-staging": "vue-cli-service build --mode staging && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend-staging --delete --acl public-read",
+        "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\""
     },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "babel-eslint"
+    "dependencies": {
+        "@fortawesome/fontawesome-free": "^5.15.1",
+        "@fortawesome/fontawesome-svg-core": "^1.2.32",
+        "@fortawesome/free-solid-svg-icons": "^5.15.1",
+        "@fortawesome/vue-fontawesome": "^3.0.0-3",
+        "axios": "^0.21.1",
+        "core-js": "^3.6.5",
+        "plyr": "^3.6.3",
+        "vue": "^3.0.0-0",
+        "vue-i18n": "^9.0.0",
+        "vue-router": "^4.0.0-beta.12",
+        "vuex": "^4.0.0-beta.4"
     },
-    "rules": {}
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+    "devDependencies": {
+        "@vue/cli-plugin-babel": "~4.5.0",
+        "@vue/cli-plugin-eslint": "~4.5.0",
+        "@vue/cli-plugin-router": "^4.5.6",
+        "@vue/cli-plugin-vuex": "^4.5.6",
+        "@vue/cli-service": "~4.5.0",
+        "@vue/compiler-sfc": "^3.0.0-0",
+        "babel-eslint": "^10.1.0",
+        "babel-plugin-transform-remove-console": "^6.9.4",
+        "eslint": "^6.7.2",
+        "eslint-plugin-vue": "^7.0.0-0",
+        "sass": "^1.26.11",
+        "sass-loader": "^10.0.2"
+    },
+    "eslintConfig": {
+        "root": true,
+        "env": {
+            "node": true
+        },
+        "extends": [
+            "plugin:vue/vue3-essential",
+            "eslint:recommended"
+        ],
+        "parserOptions": {
+            "parser": "babel-eslint"
+        },
+        "rules": {}
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not dead"
+    ]
 }

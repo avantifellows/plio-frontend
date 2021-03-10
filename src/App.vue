@@ -1,14 +1,22 @@
 <template>
   <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link v-if="!isLoggedIn" to="/login/">Login</router-link>
-    <a href="#" v-if="isLoggedIn" @click="logout"> Logout</a>
+    <router-link to="/">{{ $t("nav.home") }}</router-link> |
+    <router-link v-if="!isLoggedIn" to="/login/">{{ $t("nav.login") }}</router-link>
+    <a href="#" v-if="isLoggedIn" @click="logout">{{ $t("nav.logout") }}</a>
   </div>
+  <LocaleSwitcher></LocaleSwitcher>
   <router-view />
 </template>
 
 <script>
+import LocaleSwitcher from "./components/LocaleSwitcher.vue";
 export default {
+  components: {
+    LocaleSwitcher,
+  },
+  created() {
+    console.log(this.$i18n.availableLocales);
+  },
   methods: {
     logout() {
       this.$store.dispatch("logout").then(this.$router.push("/login/"));
@@ -23,7 +31,7 @@ export default {
 </script>
 <style>
 #app {
-  font-family: "KrutiDev" ,Avenir, Helvetica, Arial, sans-serif;
+  font-family: "KrutiDev", Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -45,7 +53,6 @@ export default {
 
 @font-face {
   font-family: "Kruti Dev";
-  src: local("Kruti Dev"),
-    url('./fonts/Kruti_Dev_10.TTF') format("truetype");
+  src: local("Kruti Dev"), url("./fonts/Kruti_Dev_10.TTF") format("truetype");
 }
 </style>
