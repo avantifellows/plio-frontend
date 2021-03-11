@@ -47,7 +47,7 @@ export default {
         })
         .then(() =>
           this.$store.dispatch("saveConfig", {
-            config: this.userConfig,
+            config: JSON.stringify(this.userConfig),
           })
         )
         .then(() => {

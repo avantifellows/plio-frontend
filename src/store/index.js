@@ -13,12 +13,16 @@ export default createStore({
         isLoggedIn: state => {
             return state.isLoggedIn
         },
+        getUserId: state => {
+            return state.userId
+        },
         getConfig: state => {
             return state.config
         }
     },
     state: {
         isLoggedIn: !!localStorage.getItem("phone"),
+        userId: localStorage.getItem("phone"),
         config: localStorage.getItem("config")
     },
     mutations: {

@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
@@ -65,6 +66,9 @@ export default {
           });
         })
         .then(() => {
+          this.saveLocalUserConfig();
+        })
+        .then(() => {
           var redirectId = setInterval(() => {
             if (localStorage.phone != null) {
               if (this.$route.params.id) {
@@ -82,6 +86,35 @@ export default {
             }
           }, 500);
         });
+    },
+
+    saveLocalUserConfig() {
+      axios
+        .get(
+          process.env.VUE_APP_BACKEND +
+            process.env.VUE_APP_BACKEND_USER_CONFIG +
+            "?user-id=" +
+            this.phone_input
+        )
+        .then((response) => {
+          this.$store.dispatch("saveConfig", {
+            config: JSON.stringify(response.data), // save user config locally
+          });
+        })
+        .then(this.setLocale());
+    },
+
+    setLocale() {
+      var redirectId = setInterval(() => {
+        // for some reason, the localStorage.config has the correct value
+        // but when fetching the same through Vuex, it gives null
+        // upon refreshing, the fetch from Vues starts working fine
+        if (localStorage.config != null) {
+          var userConfig = JSON.parse(localStorage.config);
+          this.$i18n.locale = userConfig["locale"] || process.env.VUE_APP_I18N_LOCALE;
+          clearInterval(redirectId);
+        }
+      }, 500);
     },
 
     isPhoneValid() {

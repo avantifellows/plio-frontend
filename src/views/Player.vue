@@ -172,7 +172,7 @@ export default {
 
   methods: {
     getCurrentDateTime() {
-      /* 
+      /*
       Returns current date-time in format
       YYYY-MM-DD HH:MM:S
       return: string
@@ -211,7 +211,7 @@ export default {
       }, 400);
 
       this.tutorialProgress["start"] = true;
-      this.isTutorialUploadRequired = true;
+      this.isTutorialUploadRequired = !this.isTutorialComplete;
     },
 
     fetchData() {
@@ -235,9 +235,9 @@ export default {
           this.isFullscreen = false;
           this.sessionId = res.data.sessionId;
           this.browser = res.data.userAgent["browser"]["family"];
-          this.userConfigs = res.data.userConfig;
-          this.isTutorialComplete = this.userConfigs.tutorial.isComplete;
-          this.tutorialProgress = this.userConfigs.tutorial.progress;
+          this.userConfig = res.data.userConfig;
+          this.isTutorialComplete = this.userConfig.tutorial.isComplete;
+          this.tutorialProgress = this.userConfig.tutorial.progress;
 
           // fetching plio config and verifying it with the component-properties.json
           if ("plioConfig" in res.data && "player" in res.data.plioConfig) {
@@ -374,20 +374,20 @@ export default {
         .catch((err) => console.log(err));
 
       if (this.isTutorialUploadRequired) {
-        this.userConfigs["tutorial"]["isComplete"] = this.isTutorialComplete;
-        this.userConfigs["tutorial"]["progress"] = this.tutorialProgress;
-        const tutorial_progress = {
+        this.userConfig["tutorial"]["isComplete"] = this.isTutorialComplete;
+        this.userConfig["tutorial"]["progress"] = this.tutorialProgress;
+        const userConfig = {
           "user-id": this.userId,
-          configs: this.userConfigs,
+          configs: this.userConfig,
         };
 
-        const json_tutorial_progress = JSON.stringify(tutorial_progress);
+        const jsonUserConfig = JSON.stringify(userConfig);
 
         fetch(
           process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_UPDATE_USER_CONFIG,
           {
             method: "POST",
-            body: json_tutorial_progress,
+            body: jsonUserConfig,
             headers: {
               Accept: "application/json",
               "Content-Type": "application/json",
@@ -395,7 +395,11 @@ export default {
           }
         )
           .then((response) => response.json())
-          .then((data) => console.log(data))
+          .then(() =>
+            this.$store.dispatch("saveConfig", {
+              config: JSON.stringify(this.userConfig),
+            })
+          )
           .catch((err) => console.log(err));
 
         if (this.isTutorialComplete) this.isTutorialUploadRequired = false;
