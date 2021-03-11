@@ -27,8 +27,7 @@
 
       <div class="error" v-if="!isFullscreen">
         <button class="btn start-button" @click="startVideo" id="start-button">
-          Start <br />
-          शुरू करें
+          {{ $t("player.start") }}
         </button>
         <start-button-pointer v-if="!isTutorialComplete && !tutorialProgress['start']">
         </start-button-pointer>

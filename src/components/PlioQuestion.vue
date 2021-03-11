@@ -7,10 +7,9 @@
         <div class="modal__body">
           <!-- The cross button to close the modal -->
           <div class="question_text_row">
-            <div class="question_text" id="question" v-html="questionText">
-            </div>
+            <div class="question_text" id="question" v-html="questionText"></div>
             <div class="close-container" id="skip-button" @click="clickSkip">
-              <font-awesome-icon 
+              <font-awesome-icon
                 :icon="['fas', 'window-close']"
                 class="skip-icon"
               ></font-awesome-icon>
@@ -34,37 +33,46 @@
                       name="options"
                       v-model="selectedOption"
                       :value="option"
-                      :id = "'option_input_' + optionNumber"
+                      :id="'option_input_' + optionNumber"
                       @click="selectOption(optionNumber)"
                     />
-                      <div class="option_render" :id= "option" v-html="optionText[optionNumber]"></div>
+                    <div
+                      class="option_render"
+                      :id="option"
+                      v-html="optionText[optionNumber]"
+                    ></div>
                   </label>
                 </div>
               </li>
             </ul>
 
             <!-- Selected: {{ selectedOption }} -->
-            <mcqOptionsPointer 
-              v-if="!isAnAnsweredQuestion && !isTutorialComplete && !tutorialProgress['options']">
+            <mcqOptionsPointer
+              v-if="
+                !isAnAnsweredQuestion &&
+                !isTutorialComplete &&
+                !tutorialProgress['options']
+              "
+            >
             </mcqOptionsPointer>
           </div>
         </div>
 
         <!-- revise button -->
         <div class="modal__footer">
-          <font-awesome-icon 
+          <font-awesome-icon
             :icon="['fas', 'check-circle']"
             class="correct-icon"
             ref="correct-icon"
             v-if="isAnswerSubmitted && isAnswerCorrect"
           ></font-awesome-icon>
 
-          <font-awesome-icon 
+          <font-awesome-icon
             :icon="['fas', 'times-circle']"
             class="wrong-icon"
             ref="wrong-icon"
             v-if="isAnswerSubmitted && !isAnswerCorrect"
-          ></font-awesome-icon>          
+          ></font-awesome-icon>
 
           <!-- submit button -->
           <loading-spinner v-if="showButtonLoading"></loading-spinner>
@@ -75,28 +83,35 @@
             :disabled="isDisabled"
             @click="clickSubmit"
           >
-          ✓ सबमिट करें
+            ✓ {{ $t("player.question.submit") }}
           </button>
-          <submit-button-pointer 
-            v-if="!isTutorialComplete && !tutorialProgress['submit'] && !isDisabled && !isAnAnsweredQuestion">
+          <submit-button-pointer
+            v-if="
+              !isTutorialComplete &&
+              !tutorialProgress['submit'] &&
+              !isDisabled &&
+              !isAnAnsweredQuestion
+            "
+          >
           </submit-button-pointer>
           <button id="revise-button" class="btn revise" @click="clickRevise">
-          ⟳ पुनः देखें
+            ⟳ {{ $t("player.question.revise") }}
           </button>
 
           <!-- close button -->
-          <close-button-pointer 
-            v-if="!isTutorialComplete && !tutorialProgress['close'] && isAnswerSubmitted">
+          <close-button-pointer
+            v-if="!isTutorialComplete && !tutorialProgress['close'] && isAnswerSubmitted"
+          >
           </close-button-pointer>
           <button
             v-if="!showButtonLoading && isAnswerSubmitted"
             class="btn close"
             @click="clickClose"
           >
-          आगे बढ़ें
+            {{ $t("player.question.proceed") }}
           </button>
         </div>
-        <progress-bar 
+        <progress-bar
           v-if="isProgressBarEnabled"
           ref="progressBarRef"
           :startPercent="progressBarInfo['progressPercent']"
@@ -110,17 +125,17 @@
 
 <script>
 import LoadingSpinner from "./LoadingSpinner.vue";
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faWindowClose } from '@fortawesome/free-solid-svg-icons/faWindowClose';
-import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
-import { faTimesCircle } from '@fortawesome/free-solid-svg-icons/faTimesCircle';
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faWindowClose } from "@fortawesome/free-solid-svg-icons/faWindowClose";
+import { faCheckCircle } from "@fortawesome/free-solid-svg-icons/faCheckCircle";
+import { faTimesCircle } from "@fortawesome/free-solid-svg-icons/faTimesCircle";
 library.add(faWindowClose, faCheckCircle, faTimesCircle);
 
-import SubmitButtonPointer from './tutorial/SubmitButtonPointer.vue';
-import mcqOptionsPointer from './tutorial/mcqOptionsPointer.vue';
-import CloseButtonPointer from './tutorial/CloseButtonPointer.vue';
+import SubmitButtonPointer from "./tutorial/SubmitButtonPointer.vue";
+import mcqOptionsPointer from "./tutorial/mcqOptionsPointer.vue";
+import CloseButtonPointer from "./tutorial/CloseButtonPointer.vue";
 
-import ProgressBar from './features/ProgressBar.vue';
+import ProgressBar from "./features/ProgressBar.vue";
 
 // For how long does the spinner show (in milliseconds)
 var loadTime = 1500;
@@ -131,15 +146,10 @@ export default {
     SubmitButtonPointer,
     mcqOptionsPointer,
     CloseButtonPointer,
-    ProgressBar
+    ProgressBar,
   },
   name: "PlioQuestion",
-  props: [
-    "plioQuestion", 
-    "isTutorialComplete", 
-    "tutorialProgress", 
-    "progressBarInfo"
-  ],
+  props: ["plioQuestion", "isTutorialComplete", "tutorialProgress", "progressBarInfo"],
   data() {
     return {
       show: false,
@@ -149,9 +159,9 @@ export default {
       isAnswerSubmitted: false,
       showButtonLoading: false,
       newProgressBarInfo: {
-        "config": this.progressBarInfo['config'],
-        "progressPercent": 0,
-        "totalQuestions": this.progressBarInfo['totalQuestions']
+        config: this.progressBarInfo["config"],
+        progressPercent: 0,
+        totalQuestions: this.progressBarInfo["totalQuestions"],
       },
       questionText: this.plioQuestion.item.question.text,
       optionText: this.plioQuestion.item.question.options,
@@ -179,21 +189,21 @@ export default {
     currentQuestionIndex() {
       return this.plioQuestion.id;
     },
-    isAnAnsweredQuestion(){
-      return this.plioQuestion.state == "answered"
+    isAnAnsweredQuestion() {
+      return this.plioQuestion.state == "answered";
     },
-    isProgressBarEnabled(){
-      if ('enabled' in this.progressBarInfo['config'])
-        return this.progressBarInfo['config']['enabled']
-      
+    isProgressBarEnabled() {
+      if ("enabled" in this.progressBarInfo["config"])
+        return this.progressBarInfo["config"]["enabled"];
+
       return false;
     },
     userAnswerIndex() {
       // index of user answer in the options array
       return this.plioQuestion.item.question.options.indexOf(
         this.plioQuestion.user_answer
-      )
-    }
+      );
+    },
   },
   methods: {
     // Closes the question window
@@ -214,13 +224,15 @@ export default {
       // Show highlighted options if coming back to an answered question
       // Wait 200 ms because it takes some time to find the DOM elements
       if (this.plioQuestion.state == "answered") {
-        requestAnimationFrame(() =>{
+        requestAnimationFrame(() => {
           // highlight wrong/right depending on what the user answered in previous session
           document.getElementById("options_container").classList.add("options-block");
-          var selectedOption = document.getElementById(`option_input_${this.userAnswerIndex}`)
-          selectedOption.checked = true
-          this.selectedOption = this.plioQuestion.user_answer
-          this.checkAnswer()
+          var selectedOption = document.getElementById(
+            `option_input_${this.userAnswerIndex}`
+          );
+          selectedOption.checked = true;
+          this.selectedOption = this.plioQuestion.user_answer;
+          this.checkAnswer();
           this.showResult();
           this.selectedOption = null;
           this.hideReviseButton();
@@ -233,118 +245,116 @@ export default {
       this.text = "";
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
-      this.newProgressBarInfo['progressPercent'] = this.progressBarInfo['progressPercent']
-      this.handleImage()
-      this.styleQuestion()
-      this.styleOptions()
-      this.renderContent()
+      this.newProgressBarInfo["progressPercent"] = this.progressBarInfo[
+        "progressPercent"
+      ];
+      this.handleImage();
+      this.styleQuestion();
+      this.styleOptions();
+      this.renderContent();
     },
 
-    handleImage(){
+    handleImage() {
       this.$nextTick(() => {
         // get question element
-        var question = document.getElementById('question')
-        if (question == null) return
+        var question = document.getElementById("question");
+        if (question == null) return;
         // extract all <p> tags from the question element
-        var p_tags = question.querySelectorAll('p')
-        if (p_tags == null || p_tags.length == 0) return
+        var p_tags = question.querySelectorAll("p");
+        if (p_tags == null || p_tags.length == 0) return;
         // find which <p> tag has an <img> tag, cut it and
         // paste it right outside, just below it.
-        p_tags.forEach(p_tag => {
-          var img_tag = p_tag.querySelector('img')
+        p_tags.forEach((p_tag) => {
+          var img_tag = p_tag.querySelector("img");
           if (img_tag != null) {
-            p_tag.removeChild(img_tag)
-            p_tag.parentNode.insertBefore(img_tag, p_tag.nextSibling)
-            img_tag.setAttribute("id", "question_image")
+            p_tag.removeChild(img_tag);
+            p_tag.parentNode.insertBefore(img_tag, p_tag.nextSibling);
+            img_tag.setAttribute("id", "question_image");
             // scale the image such that width is 1/3rd of screen width
             // maintaining the aspect ratio
-            var currWidth = 0
-            var currHeight = 0
-            var finalWidth = window.screen.availWidth / 2.5
-            var finalHeight = 0
-            var parentDivWidth = document.getElementById('question').clientWidth
-            var parentDivHeight = document.getElementById('question').clientHeight
+            var currWidth = 0;
+            var currHeight = 0;
+            var finalWidth = window.screen.availWidth / 2.5;
+            var finalHeight = 0;
+            var parentDivWidth = document.getElementById("question").clientWidth;
+            var parentDivHeight = document.getElementById("question").clientHeight;
             // handling cases - "50%" and "50px" separately
             if (img_tag.style.width.includes("%")) {
               // extract % value -> take product with the parentDiv width
               // -> convert to string with 'px'
-              currWidth = String(
-                (parseInt(img_tag.style.width, 10) * parentDivWidth) / 100
-              ) + 'px'
-            }
-            else {
-              currWidth = parseInt(img_tag.style.width, 10)
+              currWidth =
+                String((parseInt(img_tag.style.width, 10) * parentDivWidth) / 100) + "px";
+            } else {
+              currWidth = parseInt(img_tag.style.width, 10);
             }
 
             if (img_tag.style.height.includes("%")) {
               // extract % value -> take product with the parentDiv height
               // -> convert to string with 'px'
-              currHeight = String(
-                (parseInt(img_tag.style.height, 10) * parentDivHeight) / 100
-              ) + 'px'
-            }
-            else {
-              currHeight = parseInt(img_tag.style.height, 10)
+              currHeight =
+                String((parseInt(img_tag.style.height, 10) * parentDivHeight) / 100) +
+                "px";
+            } else {
+              currHeight = parseInt(img_tag.style.height, 10);
             }
 
             if (currHeight && currWidth) {
-              var aspectRatio = currWidth / currHeight
-              finalHeight = finalWidth / aspectRatio
+              var aspectRatio = currWidth / currHeight;
+              finalHeight = finalWidth / aspectRatio;
             }
-            
-            img_tag.style.width = String(finalWidth) + 'px'
+
+            img_tag.style.width = String(finalWidth) + "px";
             // if height is not available, it will be defaulted
             // to 100% of the parent div automatically
-            if(img_tag.style.height)
-              img_tag.style.height = String(finalHeight) + 'px'
+            if (img_tag.style.height) img_tag.style.height = String(finalHeight) + "px";
           }
-        })
-      })
+        });
+      });
     },
 
-    renderContent(){
+    renderContent() {
       // force rendering of question and option texts
       this.$nextTick(() => {
         MathJax.Hub.Queue(["Typeset", MathJax.Hub, "question"]);
         MathJax.Hub.Queue(["Typeset", MathJax.Hub, "option"]);
-      })
+      });
     },
 
-    styleQuestion(){
+    styleQuestion() {
       // for each <p> tag in the question, set some CSS
       // specifically overrides default <p> CSS for these tags
       this.$nextTick(() => {
-        var question = document.getElementById('question')
-        if (question == null) return
-  
-        var p_tags = question.querySelectorAll('p')
-        if (p_tags == null || p_tags.length == 0) return
+        var question = document.getElementById("question");
+        if (question == null) return;
 
-        p_tags.forEach(p_tag => {
-          p_tag.style.lineHeight = '100%'
-          p_tag.style.marginRight = 'auto'
-          p_tag.style.marginBlock = '5px';
-        })
-      })
+        var p_tags = question.querySelectorAll("p");
+        if (p_tags == null || p_tags.length == 0) return;
+
+        p_tags.forEach((p_tag) => {
+          p_tag.style.lineHeight = "100%";
+          p_tag.style.marginRight = "auto";
+          p_tag.style.marginBlock = "5px";
+        });
+      });
     },
 
-    styleOptions(){
+    styleOptions() {
       // for each <p> tag in the option, set some CSS
       // specifically overrides default <p> CSS for these tags
       this.$nextTick(() => {
-        var optionParents = document.getElementsByClassName('option_render')
-        if (optionParents == null) return
-  
-        optionParents.forEach(option => {
-          var optionTexts = option.querySelectorAll('p')
-          if (optionTexts == null || optionTexts.length == 0) return
-          
-          optionTexts.forEach(optionText => {
-            optionText.style.lineHeight = '100%'
-            optionText.style.marginBlock = "5px"
-          })
+        var optionParents = document.getElementsByClassName("option_render");
+        if (optionParents == null) return;
+
+        optionParents.forEach((option) => {
+          var optionTexts = option.querySelectorAll("p");
+          if (optionTexts == null || optionTexts.length == 0) return;
+
+          optionTexts.forEach((optionText) => {
+            optionText.style.lineHeight = "100%";
+            optionText.style.marginBlock = "5px";
+          });
         });
-      })
+      });
     },
 
     // Checks if the selected option is correct or not
@@ -352,11 +362,11 @@ export default {
       this.isAnswerCorrect = this.selectedOption == this.correctAnswer;
     },
 
-    hideReviseButton(){
+    hideReviseButton() {
       document.getElementById("revise-button").hidden = true;
     },
 
-    hideSkipButton(){
+    hideSkipButton() {
       document.getElementById("skip-button").hidden = true;
     },
 
@@ -393,17 +403,17 @@ export default {
       });
     },
 
-    updateAndShowProgress(){
-      if (this.plioQuestion.state != "answered"){
-        this.newProgressBarInfo[
-          'progressPercent'] += ((1/this.newProgressBarInfo['totalQuestions'])*100)
+    updateAndShowProgress() {
+      if (this.plioQuestion.state != "answered") {
+        this.newProgressBarInfo["progressPercent"] +=
+          (1 / this.newProgressBarInfo["totalQuestions"]) * 100;
       }
 
       this.$nextTick(() => {
         this.$refs["progressBarRef"].progressTo(
-          this.newProgressBarInfo['progressPercent']
+          this.newProgressBarInfo["progressPercent"]
         );
-      })
+      });
     },
 
     clickSubmit() {
@@ -432,7 +442,7 @@ export default {
         this.updateAndShowProgress();
       }, loadTime);
 
-      this.$emit("answer-submitted")
+      this.$emit("answer-submitted");
     },
 
     // Things to do after answer is submitted
@@ -440,8 +450,12 @@ export default {
     clickClose() {
       this.closeModal();
       this.isAnswerSubmitted = false;
-      this.$emit("question-closed", this.plioQuestion, 
-        this.selectedOption, this.newProgressBarInfo);
+      this.$emit(
+        "question-closed",
+        this.plioQuestion,
+        this.selectedOption,
+        this.newProgressBarInfo
+      );
     },
 
     // Things to do when revise button is clicked
@@ -458,11 +472,10 @@ export default {
   mounted() {
     // after DOM has been mounted/rendered, manipulating the DOM
     // to add MathJax CDN links to the document head + some configs
-    let mathJaxConfigParent = document.createElement('script')
-    mathJaxConfigParent.setAttribute('type', 'text/x-mathjax-config')
+    let mathJaxConfigParent = document.createElement("script");
+    mathJaxConfigParent.setAttribute("type", "text/x-mathjax-config");
 
-    var configString = 
-    `MathJax.Hub.Config({
+    var configString = `MathJax.Hub.Config({
         messageStyle: 'none',
         tex2jax: {
           preview: 'none'
@@ -471,22 +484,22 @@ export default {
         'HTML-CSS': {
           imageFont: null
         }
-      });`
+      });`;
 
     var configInnerText = document.createTextNode(configString);
     mathJaxConfigParent.appendChild(configInnerText);
-    document.head.appendChild(mathJaxConfigParent)
+    document.head.appendChild(mathJaxConfigParent);
 
-    let mathJaxCDN = document.createElement('script')
-    mathJaxCDN.setAttribute('type', 'text/javascript')
-    mathJaxCDN.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"
-    document.head.appendChild(mathJaxCDN)
+    let mathJaxCDN = document.createElement("script");
+    mathJaxCDN.setAttribute("type", "text/javascript");
+    mathJaxCDN.src =
+      "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML";
+    document.head.appendChild(mathJaxCDN);
   },
 };
 </script>
 
 <style lang="scss" scoped>
-
 $color1: #f4f4;
 $color2: #3197ee;
 $softorange: #f4a259;
@@ -569,12 +582,12 @@ li {
   align-items: center;
 }
 
-.options{
-  display:flex;
+.options {
+  display: flex;
   align-items: center;
 }
 
-.options-block{
+.options-block {
   display: block;
 }
 
@@ -594,7 +607,7 @@ li {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 10px
+  margin: 10px;
 }
 
 input {
@@ -637,7 +650,7 @@ input {
     //   width: 90%;
     // }
   }
-  .last-item{
+  .last-item {
     margin-top: auto;
   }
 
@@ -684,7 +697,8 @@ input {
     background: rgba(238, 205, 73, 0.8);
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
   }
-  &__footer, &__footer__buttons {
+  &__footer,
+  &__footer__buttons {
     width: 100%;
     display: flex;
     align-items: center;
@@ -696,10 +710,10 @@ input {
     padding: 4px 80px 4px;
     background-color: #ececec;
     box-shadow: 0px -1px 6px #5e5e5d;
-    z-index: 10
+    z-index: 10;
   }
 
-  &__footer__buttons{
+  &__footer__buttons {
     flex-direction: row;
   }
 

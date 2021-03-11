@@ -1,18 +1,19 @@
 <template>
-<router-link :to="'/play/' +  plio.plio_id" tag="div" class="plio">
-  <div class="title">
-    {{ plio.title }}
-  </div>
-  <div class="created_date"><i>Created: </i> {{ plio.created }}</div>
-  <div class="id">ID: {{ plio.plio_id }}</div>
-</router-link>
+  <router-link :to="'/play/' + plio.plio_id" tag="div" class="plio">
+    <div class="title">
+      {{ plio.title }}
+    </div>
+    <div class="created_date">
+      <i>{{ $t("home.plio_thumbnail.created") }}: </i> {{ plio.created }}
+    </div>
+    <div class="id">{{ $t("home.plio_thumbnail.id") }}: {{ plio.plio_id }}</div>
+  </router-link>
 </template>
 
 <script>
-
 export default {
-    name: "PlioThumbnail",
-    props: ["plio"],
+  name: "PlioThumbnail",
+  props: ["plio"],
 };
 </script>
 

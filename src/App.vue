@@ -14,9 +14,6 @@ export default {
   components: {
     LocaleSwitcher,
   },
-  created() {
-    console.log(this.$i18n.availableLocales);
-  },
   methods: {
     logout() {
       this.$store.dispatch("logout").then(this.$router.push("/login/"));
