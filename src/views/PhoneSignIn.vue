@@ -9,16 +9,16 @@
         {{ $t("login.learner.button") }}
       </button>
     </div>
-    <set-user-properties ref="userProperties"></set-user-properties>
+    <user-properties ref="userProperties"></user-properties>
   </div>
 </template>
 
 <script>
-import SetUserProperties from "../components/SetUserProperties.vue";
+import UserProperties from "../components/UserProperties.vue";
 
 export default {
   components: {
-    SetUserProperties,
+    UserProperties,
   },
   data() {
     return {
@@ -53,8 +53,6 @@ export default {
       // this component stores only the user ID in Vuex
       // other aspects of the User like the user Config are pulled
       // separately by other components as needed
-      // TODO: a separate UserConfig component to initialize the user
-      // for everyone
       const jsonResponse = JSON.stringify({ userId: this.phoneInput });
 
       fetch(process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_LOGIN_USER, {
@@ -75,7 +73,7 @@ export default {
           this.$refs.userProperties.saveLocalUserConfigs();
 
           // set locale from user config
-          this.$refs.userProperties.setLocale();
+          this.$refs.userProperties.setLocaleFromUserConfig();
         })
         .then(() => {
           var redirectId = setInterval(() => {

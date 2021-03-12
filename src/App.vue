@@ -8,19 +8,19 @@
     <div class="overlay">
       <LocaleSwitcher id="locale"></LocaleSwitcher>
     </div>
-    <set-user-properties ref="userProperties"></set-user-properties>
+    <user-properties ref="userProperties"></user-properties>
   </div>
   <router-view />
 </template>
 
 <script>
 import LocaleSwitcher from "./components/LocaleSwitcher.vue";
-import SetUserProperties from "./components/SetUserProperties.vue";
+import UserProperties from "./components/UserProperties.vue";
 
 export default {
   components: {
     LocaleSwitcher,
-    SetUserProperties,
+    UserProperties,
   },
   mounted() {
     if (this.isLoggedIn && !this.hasLocalUserConfigs) {
@@ -28,7 +28,7 @@ export default {
       this.$refs.userProperties.saveLocalUserConfigs();
     }
     // set locale based on their config
-    this.$refs.userProperties.setLocale();
+    this.$refs.userProperties.setLocaleFromUserConfig();
   },
   methods: {
     logout() {

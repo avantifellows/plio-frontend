@@ -38,6 +38,7 @@
       :value="browserErrorHandlingValue"
       v-if="!isBrowserSupported"
     ></Error>
+    <user-properties ref="userProperties"></user-properties>
   </div>
 </template>
 
@@ -48,6 +49,7 @@ import PlioQuestion from "../components/PlioQuestion.vue";
 import Error from "../views/Error.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 import StartButtonPointer from "../components/tutorial/StartButtonPointer.vue";
+import UserProperties from "../components/UserProperties.vue";
 
 // supports indexOf for older browsers
 if (!Array.prototype.indexOf) {
@@ -168,6 +170,7 @@ export default {
     Error,
     LoadingSpinner,
     StartButtonPointer,
+    UserProperties,
   },
 
   methods: {
@@ -376,31 +379,9 @@ export default {
       if (this.isTutorialUploadRequired) {
         this.userConfigs["tutorial"]["isComplete"] = this.isTutorialComplete;
         this.userConfigs["tutorial"]["progress"] = this.tutorialProgress;
-        const userConfig = {
-          "user-id": this.userId,
-          configs: this.userConfigs,
-        };
 
-        const jsonUserConfig = JSON.stringify(userConfig);
-
-        fetch(
-          process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_UPDATE_USER_CONFIG,
-          {
-            method: "POST",
-            body: jsonUserConfig,
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-          }
-        )
-          .then((response) => response.json())
-          .then(() =>
-            this.$store.dispatch("saveConfigs", {
-              configs: JSON.stringify(this.userConfigs),
-            })
-          )
-          .catch((err) => console.log(err));
+        // update user config remotely and locally
+        this.$refs.userProperties.updateUserConfigs(this.userConfigs);
 
         if (this.isTutorialComplete) this.isTutorialUploadRequired = false;
       }
