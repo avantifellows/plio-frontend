@@ -21,7 +21,7 @@ export default {
     LocaleSwitcher,
   },
   created() {
-    if (this.isLoggedIn && !this.hasLocalUserConfig) {
+    if (this.isLoggedIn && !this.hasLocalUserConfigs) {
       this.userId = this.$store.getters.getUserId;
 
       // fetch user config for logged in users if not already present
@@ -43,17 +43,17 @@ export default {
             this.userId
         )
         .then((response) => {
-          this.$store.dispatch("saveConfig", {
-            config: JSON.stringify(response.data), // save user config locally
+          this.$store.dispatch("saveConfigs", {
+            configs: JSON.stringify(response.data), // save user config locally
           });
         });
     },
     setLocale() {
       var redirectId = setInterval(() => {
-        var userConfig = this.$store.getters.getConfig;
-        if (userConfig != null) {
-          userConfig = JSON.parse(userConfig);
-          this.$i18n.locale = userConfig["locale"] || process.env.VUE_APP_I18N_LOCALE;
+        var userConfigs = this.$store.getters.getConfigs;
+        if (userConfigs != null) {
+          userConfigs = JSON.parse(userConfigs);
+          this.$i18n.locale = userConfigs["locale"] || process.env.VUE_APP_I18N_LOCALE;
           clearInterval(redirectId);
         }
       }, 500);
@@ -63,8 +63,8 @@ export default {
     isLoggedIn() {
       return this.$store.getters.isLoggedIn;
     },
-    hasLocalUserConfig() {
-      return this.$store.getters.getConfig != null;
+    hasLocalUserConfigs() {
+      return this.$store.getters.getConfigs != null;
     },
   },
 };

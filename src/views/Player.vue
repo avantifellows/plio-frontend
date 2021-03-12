@@ -235,9 +235,9 @@ export default {
           this.isFullscreen = false;
           this.sessionId = res.data.sessionId;
           this.browser = res.data.userAgent["browser"]["family"];
-          this.userConfig = res.data.userConfig;
-          this.isTutorialComplete = this.userConfig.tutorial.isComplete;
-          this.tutorialProgress = this.userConfig.tutorial.progress;
+          this.userConfigs = res.data.userConfigs;
+          this.isTutorialComplete = this.userConfigs.tutorial.isComplete;
+          this.tutorialProgress = this.userConfigs.tutorial.progress;
 
           // fetching plio config and verifying it with the component-properties.json
           if ("plioConfig" in res.data && "player" in res.data.plioConfig) {
@@ -374,11 +374,11 @@ export default {
         .catch((err) => console.log(err));
 
       if (this.isTutorialUploadRequired) {
-        this.userConfig["tutorial"]["isComplete"] = this.isTutorialComplete;
-        this.userConfig["tutorial"]["progress"] = this.tutorialProgress;
+        this.userConfigs["tutorial"]["isComplete"] = this.isTutorialComplete;
+        this.userConfigs["tutorial"]["progress"] = this.tutorialProgress;
         const userConfig = {
           "user-id": this.userId,
-          configs: this.userConfig,
+          configs: this.userConfigs,
         };
 
         const jsonUserConfig = JSON.stringify(userConfig);
@@ -396,8 +396,8 @@ export default {
         )
           .then((response) => response.json())
           .then(() =>
-            this.$store.dispatch("saveConfig", {
-              config: JSON.stringify(this.userConfig),
+            this.$store.dispatch("saveConfigs", {
+              configs: JSON.stringify(this.userConfigs),
             })
           )
           .catch((err) => console.log(err));

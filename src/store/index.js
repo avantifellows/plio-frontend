@@ -16,14 +16,14 @@ export default createStore({
         getUserId: state => {
             return state.userId
         },
-        getConfig: state => {
-            return state.config
+        getConfigs: state => {
+            return state.configs
         }
     },
     state: {
         isLoggedIn: !!localStorage.getItem("phone"),
         userId: localStorage.getItem("phone"),
-        config: localStorage.getItem("config")
+        configs: localStorage.getItem("configs")
     },
     mutations: {
         [LOGIN](state) {
@@ -43,7 +43,7 @@ export default createStore({
         },
         [CONFIG_SUCCESS](state) {
             state.configFetchedPending = false;
-            state.config = localStorage.getItem('config');
+            state.configs = localStorage.getItem('configs');
         }
     },
     actions: {
@@ -59,10 +59,10 @@ export default createStore({
             localStorage.removeItem("phone");
             commit(LOGOUT);
         },
-        saveConfig({ commit }, creds) {
+        saveConfigs({ commit }, creds) {
             commit(CONFIG); // show spinner
             return new Promise(resolve => {
-                localStorage.setItem("config", creds.config);
+                localStorage.setItem("configs", creds.configs);
                 commit(CONFIG_SUCCESS);
                 resolve();
             });

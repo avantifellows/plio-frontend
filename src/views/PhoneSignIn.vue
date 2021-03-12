@@ -66,7 +66,7 @@ export default {
           });
         })
         .then(() => {
-          this.saveLocalUserConfig();
+          this.saveLocalUserConfigs();
         })
         .then(() => {
           var redirectId = setInterval(() => {
@@ -88,7 +88,7 @@ export default {
         });
     },
 
-    saveLocalUserConfig() {
+    saveLocalUserConfigs() {
       axios
         .get(
           process.env.VUE_APP_BACKEND +
@@ -97,8 +97,8 @@ export default {
             this.phone_input
         )
         .then((response) => {
-          this.$store.dispatch("saveConfig", {
-            config: JSON.stringify(response.data), // save user config locally
+          this.$store.dispatch("saveConfigs", {
+            configs: JSON.stringify(response.data), // save user config locally
           });
         })
         .then(this.setLocale());
@@ -106,10 +106,10 @@ export default {
 
     setLocale() {
       var redirectId = setInterval(() => {
-        var userConfig = this.$store.getters.getConfig;
-        if (userConfig != null) {
-          userConfig = JSON.parse(userConfig);
-          this.$i18n.locale = userConfig["locale"] || process.env.VUE_APP_I18N_LOCALE;
+        var userConfigs = this.$store.getters.getConfigs;
+        if (userConfigs != null) {
+          userConfigs = JSON.parse(userConfigs);
+          this.$i18n.locale = userConfigs["locale"] || process.env.VUE_APP_I18N_LOCALE;
           clearInterval(redirectId);
         }
       }, 500);

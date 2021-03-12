@@ -12,13 +12,13 @@ export default {
   name: "LocaleSwitcher",
   methods: {
     setLocale() {
-      var userConfig = JSON.parse(this.$store.getters.getConfig);
+      var userConfigs = JSON.parse(this.$store.getters.getConfigs);
       // change the locale
-      userConfig["locale"] = this.$i18n.locale;
+      userConfigs["locale"] = this.$i18n.locale;
 
       const jsonUserConfig = JSON.stringify({
         "user-id": this.$store.getters.getUserId,
-        configs: userConfig,
+        configs: userConfigs,
       });
 
       // update user config remotely
@@ -41,9 +41,9 @@ export default {
           }
         })
         .then(() =>
-          this.$store.dispatch("saveConfig", {
+          this.$store.dispatch("saveConfigs", {
             // update user config locally
-            config: JSON.stringify(userConfig),
+            configs: JSON.stringify(userConfigs),
           })
         )
         .catch((err) => console.log(err));

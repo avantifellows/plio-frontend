@@ -10,7 +10,7 @@ export default {
   data() {
     return {
       assignment: null,
-      userConfig: {},
+      userConfigs: {},
       plioId: null,
     };
   },
@@ -42,12 +42,12 @@ export default {
           // same as assignment for now as we might conduct interface
           // level changes where assignment won't be the same as plio ID
           this.assignment = res.data.assignment;
-          this.userConfig = res.data.config;
+          this.userConfigs = res.data.config;
           this.plioId = res.data.plioId;
         })
         .then(() =>
-          this.$store.dispatch("saveConfig", {
-            config: JSON.stringify(this.userConfig),
+          this.$store.dispatch("saveConfigs", {
+            configs: JSON.stringify(this.userConfigs),
           })
         )
         .then(() => {
