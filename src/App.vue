@@ -8,55 +8,31 @@
     <div class="overlay">
       <LocaleSwitcher id="locale"></LocaleSwitcher>
     </div>
+    <set-user-properties ref="userProperties"></set-user-properties>
   </div>
   <router-view />
 </template>
 
 <script>
 import LocaleSwitcher from "./components/LocaleSwitcher.vue";
-import axios from "axios";
+import SetUserProperties from "./components/SetUserProperties.vue";
 
 export default {
   components: {
     LocaleSwitcher,
+    SetUserProperties,
   },
-  created() {
+  mounted() {
     if (this.isLoggedIn && !this.hasLocalUserConfigs) {
-      this.userId = this.$store.getters.getUserId;
-
       // fetch user config for logged in users if not already present
-      this.saveLocalUserConfig();
+      this.$refs.userProperties.saveLocalUserConfigs();
     }
     // set locale based on their config
-    this.setLocale();
+    this.$refs.userProperties.setLocale();
   },
   methods: {
     logout() {
       this.$store.dispatch("logout").then(this.$router.push("/login/"));
-    },
-    saveLocalUserConfig() {
-      axios
-        .get(
-          process.env.VUE_APP_BACKEND +
-            process.env.VUE_APP_BACKEND_USER_CONFIG +
-            "?user-id=" +
-            this.userId
-        )
-        .then((response) => {
-          this.$store.dispatch("saveConfigs", {
-            configs: JSON.stringify(response.data), // save user config locally
-          });
-        });
-    },
-    setLocale() {
-      var redirectId = setInterval(() => {
-        var userConfigs = this.$store.getters.getConfigs;
-        if (userConfigs != null) {
-          userConfigs = JSON.parse(userConfigs);
-          this.$i18n.locale = userConfigs["locale"] || process.env.VUE_APP_I18N_LOCALE;
-          clearInterval(redirectId);
-        }
-      }, 500);
     },
   },
   computed: {

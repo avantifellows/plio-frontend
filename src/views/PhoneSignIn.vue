@@ -3,26 +3,31 @@
     <div class="lead_text">
       <p>{{ $t("login.learner.phone_prompt") }}</p>
     </div>
-    <input id="phone" v-model="phone_input" type="tel" maxlength="10" />
+    <input id="phone" v-model="phoneInput" type="tel" maxlength="10" />
     <div class="watch_plio">
       <button id="submit" :disabled="isSubmitDisabled" @click="storePhone">
         {{ $t("login.learner.button") }}
       </button>
     </div>
+    <set-user-properties ref="userProperties"></set-user-properties>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import SetUserProperties from "../components/SetUserProperties.vue";
+
 export default {
+  components: {
+    SetUserProperties,
+  },
   data() {
     return {
-      phone_input: "",
+      phoneInput: "",
       isSubmitDisabled: true,
     };
   },
   watch: {
-    phone_input: function () {
+    phoneInput: function () {
       let isPhoneValid = this.isPhoneValid();
 
       if (isPhoneValid) this.isSubmitDisabled = false;
@@ -50,11 +55,11 @@ export default {
       // separately by other components as needed
       // TODO: a separate UserConfig component to initialize the user
       // for everyone
-      const json_response = JSON.stringify({ userId: this.phone_input });
+      const jsonResponse = JSON.stringify({ userId: this.phoneInput });
 
       fetch(process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_LOGIN_USER, {
         method: "POST",
-        body: json_response,
+        body: jsonResponse,
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -62,11 +67,15 @@ export default {
       })
         .then(() => {
           this.$store.dispatch("login", {
-            phone: this.phone_input,
+            phone: this.phoneInput,
           });
         })
         .then(() => {
-          this.saveLocalUserConfigs();
+          // set user config locally
+          this.$refs.userProperties.saveLocalUserConfigs();
+
+          // set locale from user config
+          this.$refs.userProperties.setLocale();
         })
         .then(() => {
           var redirectId = setInterval(() => {
@@ -88,35 +97,8 @@ export default {
         });
     },
 
-    saveLocalUserConfigs() {
-      axios
-        .get(
-          process.env.VUE_APP_BACKEND +
-            process.env.VUE_APP_BACKEND_USER_CONFIG +
-            "?user-id=" +
-            this.phone_input
-        )
-        .then((response) => {
-          this.$store.dispatch("saveConfigs", {
-            configs: JSON.stringify(response.data), // save user config locally
-          });
-        })
-        .then(this.setLocale());
-    },
-
-    setLocale() {
-      var redirectId = setInterval(() => {
-        var userConfigs = this.$store.getters.getConfigs;
-        if (userConfigs != null) {
-          userConfigs = JSON.parse(userConfigs);
-          this.$i18n.locale = userConfigs["locale"] || process.env.VUE_APP_I18N_LOCALE;
-          clearInterval(redirectId);
-        }
-      }, 500);
-    },
-
     isPhoneValid() {
-      var num_match = this.phone_input.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g);
+      var num_match = this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g);
 
       if (num_match != null) return true;
       return false;
