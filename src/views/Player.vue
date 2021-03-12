@@ -27,8 +27,7 @@
 
       <div class="error" v-if="!isFullscreen">
         <button class="btn start-button" @click="startVideo" id="start-button">
-          Start <br />
-          शुरू करें
+          {{ $t("player.start") }}
         </button>
         <start-button-pointer v-if="!isTutorialComplete && !tutorialProgress['start']">
         </start-button-pointer>
@@ -39,6 +38,7 @@
       :value="browserErrorHandlingValue"
       v-if="!isBrowserSupported"
     ></Error>
+    <user-properties ref="userProperties"></user-properties>
   </div>
 </template>
 
@@ -49,6 +49,7 @@ import PlioQuestion from "../components/PlioQuestion.vue";
 import Error from "../views/Error.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 import StartButtonPointer from "../components/tutorial/StartButtonPointer.vue";
+import UserProperties from "../components/UserProperties.vue";
 
 // supports indexOf for older browsers
 if (!Array.prototype.indexOf) {
@@ -144,11 +145,11 @@ export default {
     };
   },
   async created() {
-    if (!localStorage.phone) {
+    if (!this.$store.getters.getUserId) {
       this.$router.push({ path: "/login/" + this.$route.params.id });
     }
 
-    this.userId = localStorage.phone;
+    this.userId = this.$store.getters.getUserId;
     console.log("Setting student id to: " + this.userId);
 
     // load the systemwide component properties
@@ -169,11 +170,12 @@ export default {
     Error,
     LoadingSpinner,
     StartButtonPointer,
+    UserProperties,
   },
 
   methods: {
     getCurrentDateTime() {
-      /* 
+      /*
       Returns current date-time in format
       YYYY-MM-DD HH:MM:S
       return: string
@@ -212,7 +214,7 @@ export default {
       }, 400);
 
       this.tutorialProgress["start"] = true;
-      this.isTutorialUploadRequired = true;
+      this.isTutorialUploadRequired = !this.isTutorialComplete;
     },
 
     fetchData() {
@@ -236,7 +238,7 @@ export default {
           this.isFullscreen = false;
           this.sessionId = res.data.sessionId;
           this.browser = res.data.userAgent["browser"]["family"];
-          this.userConfigs = res.data.userConfig;
+          this.userConfigs = res.data.userConfigs;
           this.isTutorialComplete = this.userConfigs.tutorial.isComplete;
           this.tutorialProgress = this.userConfigs.tutorial.progress;
 
@@ -377,27 +379,9 @@ export default {
       if (this.isTutorialUploadRequired) {
         this.userConfigs["tutorial"]["isComplete"] = this.isTutorialComplete;
         this.userConfigs["tutorial"]["progress"] = this.tutorialProgress;
-        const tutorial_progress = {
-          "user-id": this.userId,
-          configs: this.userConfigs,
-        };
 
-        const json_tutorial_progress = JSON.stringify(tutorial_progress);
-
-        fetch(
-          process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_UPDATE_USER_CONFIG,
-          {
-            method: "POST",
-            body: json_tutorial_progress,
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-          }
-        )
-          .then((response) => response.json())
-          .then((data) => console.log(data))
-          .catch((err) => console.log(err));
+        // update user config remotely and locally
+        this.$refs.userProperties.updateUserConfigs(this.userConfigs);
 
         if (this.isTutorialComplete) this.isTutorialUploadRequired = false;
       }
