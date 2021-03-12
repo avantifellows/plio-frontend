@@ -32,15 +32,18 @@ export default createStore({
         [LOGIN_SUCCESS](state) {
             state.pending = false;
             state.isLoggedIn = true;
+            state.userId = localStorage.getItem('phone');
         },
         [LOGOUT](state) {
             state.isLoggedIn = false;
+            state.userId = null;
         },
         [CONFIG](state) {
             state.configFetchedPending = true;
         },
         [CONFIG_SUCCESS](state) {
             state.configFetchedPending = false;
+            state.config = localStorage.getItem('config');
         }
     },
     actions: {

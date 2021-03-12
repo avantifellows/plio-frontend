@@ -143,11 +143,11 @@ export default {
     };
   },
   async created() {
-    if (!localStorage.phone) {
+    if (!this.$store.getters.getUserId) {
       this.$router.push({ path: "/login/" + this.$route.params.id });
     }
 
-    this.userId = localStorage.phone;
+    this.userId = this.$store.getters.getUserId;
     console.log("Setting student id to: " + this.userId);
 
     // load the systemwide component properties

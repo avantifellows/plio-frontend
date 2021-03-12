@@ -12,12 +12,12 @@ export default {
   name: "LocaleSwitcher",
   methods: {
     setLocale() {
-      var userConfig = JSON.parse(localStorage.config);
+      var userConfig = JSON.parse(this.$store.getters.getConfig);
       // change the locale
       userConfig["locale"] = this.$i18n.locale;
 
       const jsonUserConfig = JSON.stringify({
-        "user-id": localStorage.phone,
+        "user-id": this.$store.getters.getUserId,
         configs: userConfig,
       });
 

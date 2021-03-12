@@ -70,7 +70,7 @@ export default {
         })
         .then(() => {
           var redirectId = setInterval(() => {
-            if (localStorage.phone != null) {
+            if (this.$store.getters.getUserId != null) {
               if (this.$route.params.id) {
                 if (this.$route.params.type && this.$route.params.type == "experiment") {
                   // redirect to experiment
@@ -106,11 +106,9 @@ export default {
 
     setLocale() {
       var redirectId = setInterval(() => {
-        // for some reason, the localStorage.config has the correct value
-        // but when fetching the same through Vuex, it gives null
-        // upon refreshing, the fetch from Vues starts working fine
-        if (localStorage.config != null) {
-          var userConfig = JSON.parse(localStorage.config);
+        var userConfig = this.$store.getters.getConfig;
+        if (userConfig != null) {
+          userConfig = JSON.parse(userConfig);
           this.$i18n.locale = userConfig["locale"] || process.env.VUE_APP_I18N_LOCALE;
           clearInterval(redirectId);
         }

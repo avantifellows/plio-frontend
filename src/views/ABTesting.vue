@@ -17,7 +17,7 @@ export default {
 
   created() {
     document.getElementById("nav").style.display = "none";
-    if (!localStorage.phone) {
+    if (!this.$store.getters.getUserId) {
       this.$router.push({
         path: "/login/" + this.$route.params.id + "/experiment",
       });
@@ -34,7 +34,7 @@ export default {
         "?experimentId=" +
         this.$route.params.id +
         "&userId=" +
-        localStorage.phone;
+        this.$store.getters.getUserId;
       axios
         .get(url)
         .then((res) => {

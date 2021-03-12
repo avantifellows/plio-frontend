@@ -22,6 +22,8 @@ export default {
   },
   created() {
     if (this.isLoggedIn && !this.hasLocalUserConfig) {
+      this.userId = this.$store.getters.getUserId;
+
       // fetch user config for logged in users if not already present
       this.saveLocalUserConfig();
     }
@@ -38,7 +40,7 @@ export default {
           process.env.VUE_APP_BACKEND +
             process.env.VUE_APP_BACKEND_USER_CONFIG +
             "?user-id=" +
-            localStorage.phone
+            this.userId
         )
         .then((response) => {
           this.$store.dispatch("saveConfig", {
@@ -48,11 +50,9 @@ export default {
     },
     setLocale() {
       var redirectId = setInterval(() => {
-        // for some reason, the localStorage.config has the correct value
-        // but when fetching the same through Vuex, it gives null
-        // upon refreshing, the fetch from Vues starts working fine
-        if (localStorage.config != null) {
-          var userConfig = JSON.parse(localStorage.config);
+        var userConfig = this.$store.getters.getConfig;
+        if (userConfig != null) {
+          userConfig = JSON.parse(userConfig);
           this.$i18n.locale = userConfig["locale"] || process.env.VUE_APP_I18N_LOCALE;
           clearInterval(redirectId);
         }
