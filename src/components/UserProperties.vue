@@ -34,12 +34,14 @@ export default {
     },
 
     updateLocale() {
-      var userConfigs = JSON.parse(this.$store.getters.getConfigs);
-      // change the locale
-      userConfigs["locale"] = this.$i18n.locale;
+      if (this.$$store.getters.isLoggedIn) {
+        var userConfigs = JSON.parse(this.$store.getters.getConfigs);
+        // change the locale
+        userConfigs["locale"] = this.$i18n.locale;
 
-      // update user config remotely and locally
-      this.updateUserConfigs(userConfigs);
+        // update user config remotely and locally
+        this.updateUserConfigs(userConfigs);
+      }
     },
 
     updateUserConfigs(userConfigs) {
