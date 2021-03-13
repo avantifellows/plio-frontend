@@ -3,7 +3,12 @@
     <div class="lead_text">
       <p>{{ $t("login.learner.phone_prompt") }}</p>
     </div>
-    <input id="phone" v-model="phoneInput" type="tel" maxlength="10" />
+    <vue-tel-input
+      v-bind="bindProps"
+      @validate="validate"
+      @keypress="isNumber($event)"
+    ></vue-tel-input>
+    <!-- <input id="phone" v-model="phoneInput" type="tel" maxlength="10" /> -->
     <div class="watch_plio">
       <button id="submit" :disabled="isSubmitDisabled" @click="storePhone">
         {{ $t("login.learner.button") }}
@@ -15,25 +20,43 @@
 
 <script>
 import UserProperties from "../components/UserProperties.vue";
+import { VueTelInput } from "vue3-tel-input";
+import "vue3-tel-input/dist/vue3-tel-input.css";
 
 export default {
   components: {
     UserProperties,
+    VueTelInput,
   },
   data() {
     return {
       phoneInput: "",
       isSubmitDisabled: true,
+      bindProps: {
+        mode: "auto",
+        autoFormat: false,
+        placeholder: "",
+        required: true,
+        preferredCountries: ["IN", "US"],
+        name: "telephone",
+        // validCharactersOnly: true,
+        inputOptions: {
+          showDialCode: false,
+          invalidMsg: "ddd",
+          type: "tel",
+          maxlength: 13,
+        },
+      },
     };
   },
-  watch: {
-    phoneInput: function () {
-      let isPhoneValid = this.isPhoneValid();
+  // watch: {
+  //   phoneInput() {
+  //     let isPhoneValid = this.isPhoneValid();
 
-      if (isPhoneValid) this.isSubmitDisabled = false;
-      else this.isSubmitDisabled = true;
-    },
-  },
+  //     if (isPhoneValid) this.isSubmitDisabled = false;
+  //     else this.isSubmitDisabled = true;
+  //   },
+  // },
   created() {
     if (this.isLoggedIn) {
       this.$router.push("/");
@@ -49,6 +72,24 @@ export default {
     },
   },
   methods: {
+    isNumber: function (event) {
+      event = event ? event : window.event;
+      var charCode = event.which ? event.which : event.keyCode;
+      if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode !== 46) {
+        event.preventDefault();
+      } else {
+        return true;
+      }
+    },
+
+    validate(phoneObject) {
+      if (phoneObject.valid) {
+        this.isSubmitDisabled = false;
+        this.phoneInput = phoneObject.countryCallingCode + phoneObject.nationalNumber;
+        console.log(this.phoneInput);
+      } else this.isSubmitDisabled = true;
+    },
+
     storePhone() {
       // this component stores only the user ID in Vuex
       // other aspects of the User like the user Config are pulled
@@ -93,13 +134,6 @@ export default {
             }
           }, 500);
         });
-    },
-
-    isPhoneValid() {
-      var num_match = this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g);
-
-      if (num_match != null) return true;
-      return false;
     },
   },
 };
