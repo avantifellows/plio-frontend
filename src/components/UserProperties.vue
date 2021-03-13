@@ -34,7 +34,7 @@ export default {
     },
 
     updateLocale() {
-      if (this.$$store.getters.isLoggedIn) {
+      if (this.$store.getters.isLoggedIn) {
         var userConfigs = JSON.parse(this.$store.getters.getConfigs);
         // change the locale
         userConfigs["locale"] = this.$i18n.locale;
