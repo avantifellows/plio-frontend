@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import ExperimentService from '@/services/ExperimentService.js'
 
 export default {
   name: "ABTesting",
@@ -28,38 +28,33 @@ export default {
   },
   methods: {
     getAssignment() {
-      var url =
-        process.env.VUE_APP_BACKEND +
-        process.env.VUE_APP_BACKEND_EXPERIMENT_ASSIGNMENT +
-        "?experimentId=" +
-        this.$route.params.id +
-        "&userId=" +
-        this.$store.getters.getUserId;
-      axios
-        .get(url)
-        .then((res) => {
-          // separately seting plio ID although it will be the
-          // same as assignment for now as we might conduct interface
-          // level changes where assignment won't be the same as plio ID
-          this.assignment = res.data.assignment;
-          this.userConfigs = res.data.config;
-          this.plioId = res.data.plioId;
+      ExperimentService.getExperimentAssignment(
+        this.$route.params.id,
+        this.$store.getters.getUserId
+      )
+      .then((res) => {
+        // separately seting plio ID although it will be the
+        // same as assignment for now as we might conduct interface
+        // level changes where assignment won't be the same as plio ID
+        this.assignment = res.data.assignment;
+        this.userConfigs = res.data.config;
+        this.plioId = res.data.plioId;
+      })
+      .then(() =>
+        this.$store.dispatch("saveConfigs", {
+          configs: JSON.stringify(this.userConfigs),
         })
-        .then(() =>
-          this.$store.dispatch("saveConfigs", {
-            configs: JSON.stringify(this.userConfigs),
-          })
-        )
-        .then(() => {
-          console.log("Assignment: " + this.assignment);
-          this.$router.push({
-            path: "/play/" + this.plioId,
-            query: {
-              experiment: this.$route.params.id,
-            },
-          });
-        })
-        .catch((err) => this.handleQueryError(err));
+      )
+      .then(() => {
+        console.log("Assignment: " + this.assignment);
+        this.$router.push({
+          path: "/play/" + this.plioId,
+          query: {
+            experiment: this.$route.params.id,
+          },
+        });
+      })
+      .catch((err) => this.handleQueryError(err));
     },
 
     handleQueryError(err) {

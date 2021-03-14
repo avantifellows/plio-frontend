@@ -44,12 +44,14 @@
 
 <script>
 import Plyr from "plyr";
-import axios from "axios";
 import PlioQuestion from "../components/PlioQuestion.vue";
 import Error from "../views/Error.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 import StartButtonPointer from "../components/tutorial/StartButtonPointer.vue";
 import UserProperties from "../components/UserProperties.vue";
+
+import PlioService from '@/services/PlioService.js'
+import UserService from '@/services/UserService.js'
 
 // supports indexOf for older browsers
 if (!Array.prototype.indexOf) {
@@ -218,14 +220,9 @@ export default {
     },
 
     fetchData() {
-      axios
-        .get(
-          process.env.VUE_APP_BACKEND +
-            process.env.VUE_APP_BACKEND_PLIO_DETAILS +
-            "?plioId=" +
-            this.$route.params.id +
-            "&userId=" +
-            this.userId
+        PlioService.getPlioDetails(
+          this.$route.params.id,
+          this.userId
         )
         .then((res) => {
           console.log(res.data);
@@ -364,17 +361,9 @@ export default {
       };
       const json_response = JSON.stringify(student_response);
 
-      fetch(process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_UPDATE_ENTRY, {
-        method: "POST",
-        body: json_response,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => console.log(data))
-        .catch((err) => console.log(err));
+      UserService.postUserResponse(json_response) 
+      .then((data) => console.log(data))
+      .catch((err) => console.log(err));
 
       if (this.isTutorialUploadRequired) {
         this.userConfigs["tutorial"]["isComplete"] = this.isTutorialComplete;

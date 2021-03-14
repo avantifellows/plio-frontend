@@ -1,4 +1,4 @@
-import axios from "axios";
+import PlioService from '@/services/PlioService.js'
 
 const state = {
     plioItems: [],
@@ -8,10 +8,7 @@ const getters = {
 };
 const actions = {
     async fetchPlios({ commit }) {
-        const response = await axios.get(
-            process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_PLIOS_LIST
-        );
-
+        const response = await PlioService.getAllPlios()
         var all_plios = response.data["all_plios"]
         commit('setPliosList', all_plios);
     },

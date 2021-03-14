@@ -3,23 +3,17 @@
 </template>
 
 <script>
-import axios from "axios";
+import UserService from '@/services/UserService.js'
 
 export default {
   methods: {
     saveLocalUserConfigs() {
-      axios
-        .get(
-          process.env.VUE_APP_BACKEND +
-            process.env.VUE_APP_BACKEND_USER_CONFIG +
-            "?user-id=" +
-            this.$store.getters.getUserId
-        )
-        .then((response) => {
-          this.$store.dispatch("saveConfigs", {
-            configs: JSON.stringify(response.data), // save user config locally
-          });
+      UserService.getUserConfig(this.$store.getters.getUserId)
+      .then((response) => {
+        this.$store.dispatch("saveConfigs", {
+          configs: JSON.stringify(response.data), // save user config locally
         });
+      });
     },
 
     setLocaleFromUserConfig() {
@@ -50,31 +44,21 @@ export default {
         configs: userConfigs,
       });
 
-      fetch(
-        process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_UPDATE_USER_CONFIG,
-        {
-          method: "POST",
-          body: jsonUserConfig,
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
+      UserService.updateUserConfig(jsonUserConfig)
+      .then((response) => {
+        if (response.status == 200) {
+          console.log("Config updated successfully");
+        } else {
+          console.log("Error with config update");
         }
-      )
-        .then((response) => {
-          if (response.status == 200) {
-            console.log("Config updated successfully");
-          } else {
-            console.log("Error with config update");
-          }
+      })
+      .then(() =>
+        this.$store.dispatch("saveConfigs", {
+          // update user config locally
+          configs: JSON.stringify(userConfigs),
         })
-        .then(() =>
-          this.$store.dispatch("saveConfigs", {
-            // update user config locally
-            configs: JSON.stringify(userConfigs),
-          })
-        )
-        .catch((err) => console.log(err));
+      )
+      .catch((err) => console.log(err));
     },
   },
 };
