@@ -1,11 +1,14 @@
 <template>
   <div id="header">
+    <div>
+      <LocaleSwitcher id="locale" class="hidden"></LocaleSwitcher>
+    </div>
     <div id="nav">
       <router-link to="/">{{ $t("nav.home") }}</router-link> |
       <router-link v-if="!isLoggedIn" to="/login/">{{ $t("nav.login") }}</router-link>
       <a href="#" v-if="isLoggedIn" @click="logout">{{ $t("nav.logout") }}</a>
     </div>
-    <div class="overlay">
+    <div>
       <LocaleSwitcher id="locale"></LocaleSwitcher>
     </div>
     <user-properties ref="userProperties"></user-properties>
@@ -56,6 +59,8 @@ export default {
 
 #nav {
   padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #nav a {
@@ -64,7 +69,7 @@ export default {
 }
 
 #header {
-  position: relative;
+  display: flex;
   padding-top: 20px;
   padding-bottom: 20px;
 }
@@ -76,14 +81,8 @@ export default {
   vertical-align: center;
 }
 
-.overlay {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  align-items: center;
+.hidden {
+  visibility: hidden;
 }
 
 #nav a.router-link-exact-active {
