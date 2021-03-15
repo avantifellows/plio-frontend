@@ -2,8 +2,10 @@
 
 
 ### Pre-requisites
-- Install [nodeJs](https://nodejs.org/en/), [vue-cli](https://cli.vuejs.org/guide/installation.html) and [yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable).
-- Install pre-commit
+1. Install [nodeJs](https://nodejs.org/en/), [vue-cli](https://cli.vuejs.org/guide/installation.html) and [yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable).
+
+#### Development only
+1. Install pre-commit
     #### macOS
     Using homebrew
     ```sh
@@ -11,7 +13,6 @@
     ```
 
 ### Installation steps
-
 Follow the steps below to set up the repo for development
 1. Clone the repository and change the working directory
     ```sh
