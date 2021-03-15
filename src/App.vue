@@ -1,6 +1,6 @@
 <template>
   <div id="header">
-    <div>
+    <div class="left">
       <LocaleSwitcher id="locale" class="hidden"></LocaleSwitcher>
     </div>
     <div id="nav">
@@ -8,7 +8,7 @@
       <router-link v-if="!isLoggedIn" to="/login/">{{ $t("nav.login") }}</router-link>
       <a href="#" v-if="isLoggedIn" @click="logout">{{ $t("nav.logout") }}</a>
     </div>
-    <div>
+    <div class="right">
       <LocaleSwitcher id="locale"></LocaleSwitcher>
     </div>
     <user-properties ref="userProperties"></user-properties>
@@ -79,6 +79,14 @@ export default {
   display: flex;
   align-items: center;
   vertical-align: center;
+}
+
+.left {
+  margin-right: auto;
+}
+
+.right {
+  margin-left: auto;
 }
 
 .hidden {
