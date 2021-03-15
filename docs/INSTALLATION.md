@@ -1,10 +1,13 @@
 ## Installation
 
+- [Pre-requisites](#pre-requisites)
+  - [Development](#development)
+- [Installation steps](#installation-steps)
 
 ### Pre-requisites
 1. Install [nodeJs](https://nodejs.org/en/), [vue-cli](https://cli.vuejs.org/guide/installation.html) and [yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable).
 
-#### Development only
+#### Development
 1. Install pre-commit
     #### macOS
     Using homebrew
