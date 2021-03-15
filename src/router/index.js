@@ -2,9 +2,9 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "../views/Home.vue";
 import Player from "../views/Player.vue";
 import PhoneSignIn from "../views/PhoneSignIn";
-import ABTesting from "../views/ABTesting";
 
-const routes = [{
+const routes = [
+    {
         path: "/",
         name: "Home",
         component: Home
@@ -16,8 +16,10 @@ const routes = [{
         query: {
             src: ''
         },
-        props: route => ({ experiment: route.query.experiment })
-
+        props: route => ({ 
+            experiment: route.query.experiment,
+            id: route.params.id 
+        })
     },
     {
         // type: the type of component invoking this path (optional)
@@ -25,11 +27,14 @@ const routes = [{
         path: "/login/:id?/:type?",
         name: "Phone Sign In",
         component: PhoneSignIn,
+        props: true
     },
     {
         path: "/experiment/:id?",
         name: "ABTesting",
-        component: ABTesting,
+        component: () => 
+            import ("@/views/ABTesting"),
+        props: true
     },
     {
         path: '/404-not-found',
@@ -45,7 +50,6 @@ const routes = [{
             'name': '404'
         }
     }
-
 ];
 
 const router = createRouter({

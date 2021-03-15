@@ -52,6 +52,7 @@ import UserProperties from "../components/UserProperties.vue";
 
 import PlioService from '@/services/PlioService.js'
 import UserService from '@/services/UserService.js'
+import { mapState } from 'vuex';
 
 // supports indexOf for older browsers
 if (!Array.prototype.indexOf) {
@@ -100,11 +101,14 @@ export default {
       default: "",
       type: String,
     },
+    id: {
+      default: "",
+      type:String
+    }
   },
 
   data() {
     return {
-      userId: "",
       plioQuestions: [],
       dataLoaded: null,
       videoId: null,
@@ -147,11 +151,13 @@ export default {
     };
   },
   async created() {
-    if (!this.$store.getters.getUserId) {
-      this.$router.push({ path: "/login/" + this.$route.params.id });
+    if (!this.userId) {
+      this.$router.push({ 
+        name: 'Phone Sign In', 
+        params: {id: this.id}  
+      });
     }
 
-    this.userId = this.$store.getters.getUserId;
     console.log("Setting student id to: " + this.userId);
 
     // load the systemwide component properties
@@ -221,7 +227,7 @@ export default {
 
     fetchData() {
         PlioService.getPlioDetails(
-          this.$route.params.id,
+          this.id,
           this.userId
         )
         .then((res) => {
@@ -337,7 +343,7 @@ export default {
 
     handleQueryError(err) {
       if (err.response && err.response.status == 404) {
-        this.$router.push("/404-not-found");
+        this.$router.push({ name: '404' });
       } else {
         console.log(err);
       }
@@ -648,6 +654,7 @@ export default {
     },
   },
   computed: {
+    ...mapState(['userId']),
     playerOptions() {
       const options = {
         title: "This is an example video",

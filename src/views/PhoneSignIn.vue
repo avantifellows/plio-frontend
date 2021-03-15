@@ -17,7 +17,10 @@
 import UserProperties from "../components/UserProperties.vue";
 import UserService from "@/services/UserService.js"
 
+import { mapState, mapActions } from 'vuex'
+
 export default {
+  props: ['id', 'type'],
   components: {
     UserProperties,
   },
@@ -37,19 +40,16 @@ export default {
   },
   created() {
     if (this.isLoggedIn) {
-      this.$router.push("/");
+      this.$router.replace({ name : 'Home'});
     }
-
-    if (this.$route.params.id) {
+    
+    if (this.id) {
       document.getElementById("nav").style.display = "none";
     }
   },
-  computed: {
-    isLoggedIn() {
-      return this.$store.getters.isLoggedIn;
-    },
-  },
+  computed: mapState(['isLoggedIn', 'userId']),
   methods: {
+    ...mapActions(['login']),
     storePhone() {
       // this component stores only the user ID in Vuex
       // other aspects of the User like the user Config are pulled
@@ -59,9 +59,9 @@ export default {
       UserService.loginUser(jsonResponse)
       .then((response) => console.log(response))
       .then(() => {
-        this.$store.dispatch("login", {
+        this.login({
           phone: this.phoneInput,
-        });
+        })
       })
       .then(() => {
         // set user config locally
@@ -71,22 +71,19 @@ export default {
         this.$refs.userProperties.setLocaleFromUserConfig();
       })
       .then(() => {
-        var redirectId = setInterval(() => {
-          if (this.$store.getters.getUserId != null) {
-            if (this.$route.params.id) {
-              if (this.$route.params.type && this.$route.params.type == "experiment") {
+          if (this.userId != null) {
+            if (this.id) {
+              if (this.type && this.type == "experiment") {
                 // redirect to experiment
-                this.$router.push({ path: "/experiment/" + this.$route.params.id });
+                this.$router.replace({ name: 'ABTesting', params: { id: this.id }});
               } else {
                 // redirect to plio
-                this.$router.push({ path: "/play/" + this.$route.params.id });
+                this.$router.replace({ name: 'Player', params:{ id: this.id }});
               }
             } else {
-              this.$router.push({ path: "/" });
+              this.$router.replace({ name : 'Home'});
             }
-            clearInterval(redirectId);
           }
-        }, 500);
       });
     },
 

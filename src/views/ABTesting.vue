@@ -4,9 +4,11 @@
 
 <script>
 import ExperimentService from '@/services/ExperimentService.js'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   name: "ABTesting",
+  props: ['id'],
   data() {
     return {
       assignment: null,
@@ -17,20 +19,23 @@ export default {
 
   created() {
     document.getElementById("nav").style.display = "none";
-    if (!this.$store.getters.getUserId) {
+    if (!this.isLoggedIn) {
       this.$router.push({
-        path: "/login/" + this.$route.params.id + "/experiment",
+        name: 'Phone Sign In',
+        params: { id: this.id, type: '/experiment'}
       });
     } else {
       // get variant and redirect user
       this.getAssignment();
     }
   },
+  computed: mapState(['isLoggedIn', 'userId']),
   methods: {
+    ...mapActions(['saveConfigs']),
     getAssignment() {
       ExperimentService.getExperimentAssignment(
-        this.$route.params.id,
-        this.$store.getters.getUserId
+        this.id,
+        this.userId
       )
       .then((res) => {
         // separately seting plio ID although it will be the
@@ -41,17 +46,16 @@ export default {
         this.plioId = res.data.plioId;
       })
       .then(() =>
-        this.$store.dispatch("saveConfigs", {
+        this.saveConfigs({
           configs: JSON.stringify(this.userConfigs),
         })
       )
       .then(() => {
         console.log("Assignment: " + this.assignment);
         this.$router.push({
-          path: "/play/" + this.plioId,
-          query: {
-            experiment: this.$route.params.id,
-          },
+          name: 'Player',
+          params: { id: this.plioId },
+          query: { experiment: this.id }
         });
       })
       .catch((err) => this.handleQueryError(err));
@@ -59,7 +63,7 @@ export default {
 
     handleQueryError(err) {
       if (err.response && err.response.status == 404) {
-        this.$router.push("/404-not-found");
+        this.$router.push({ name: '404' });
       } else {
         console.log(err);
       }

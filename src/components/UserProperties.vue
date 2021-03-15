@@ -4,32 +4,33 @@
 
 <script>
 import UserService from '@/services/UserService.js'
+import { mapState, mapActions } from 'vuex'
 
 export default {
+  computed: mapState(['isLoggedIn', 'userId', 'configs']),
   methods: {
+    ...mapActions(['saveConfigs']),
+
     saveLocalUserConfigs() {
-      UserService.getUserConfig(this.$store.getters.getUserId)
+      UserService.getUserConfig(this.userId)
       .then((response) => {
-        this.$store.dispatch("saveConfigs", {
+        this.saveConfigs({
           configs: JSON.stringify(response.data), // save user config locally
-        });
+        })
       });
     },
 
     setLocaleFromUserConfig() {
-      var redirectId = setInterval(() => {
-        var userConfigs = this.$store.getters.getConfigs;
+        var userConfigs = this.configs;
         if (userConfigs != null) {
           userConfigs = JSON.parse(userConfigs);
           this.$i18n.locale = userConfigs["locale"] || process.env.VUE_APP_I18N_LOCALE;
-          clearInterval(redirectId);
         }
-      }, 500);
     },
 
     updateLocale() {
-      if (this.$store.getters.isLoggedIn) {
-        var userConfigs = JSON.parse(this.$store.getters.getConfigs);
+      if (this.isLoggedIn) {
+        var userConfigs = JSON.parse(this.configs);
         // change the locale
         userConfigs["locale"] = this.$i18n.locale;
 
@@ -40,7 +41,7 @@ export default {
 
     updateUserConfigs(userConfigs) {
       const jsonUserConfig = JSON.stringify({
-        "user-id": this.$store.getters.getUserId,
+        "user-id": this.userId,
         configs: userConfigs,
       });
 
@@ -53,7 +54,7 @@ export default {
         }
       })
       .then(() =>
-        this.$store.dispatch("saveConfigs", {
+        this.saveConfigs({
           // update user config locally
           configs: JSON.stringify(userConfigs),
         })

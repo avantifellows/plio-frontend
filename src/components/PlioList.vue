@@ -3,14 +3,14 @@
     <h3>{{ $t("home.plio_list_heading") }}</h3>
     <div class="plios">
       <div v-for="plio in allPlios" :key="plio.plio_id" class="plios">
-        <PlioThumbnail v-bind:plio="plio" />
+        <PlioThumbnail :plio="plio" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapActions, mapState } from 'vuex';
 import PlioThumbnail from "./PlioThumbnail.vue";
 
 export default {
@@ -18,10 +18,8 @@ export default {
   components: {
     PlioThumbnail,
   },
-  computed: mapGetters(["allPlios"]),
-  methods: {
-    ...mapActions(["fetchPlios"]),
-  },
+  computed: mapState('plioItems', ['allPlios']),
+  methods: mapActions('plioItems', ['fetchPlios']),
   created() {
     this.fetchPlios();
   },

@@ -1,5 +1,5 @@
 <template>
-  <router-link :to="'/play/' + plio.plio_id" tag="div" class="plio">
+  <router-link :to="{ name: 'Player', params: { id: plio.plio_id } }" tag="div" class="plio">
     <div class="title">
       {{ plio.title }}
     </div>
