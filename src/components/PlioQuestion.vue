@@ -9,7 +9,6 @@
           <div class="question-text-row">
             <div class="question-text" id="question" v-html="questionText"></div>
             <div class="close-container" id="skip-button" @click="clickSkip">
-              <!-- {{ isAnswerSubmitted }} -->
               <font-awesome-icon
                 :icon="['fas', 'window-close']"
                 class="skip-icon"
@@ -230,13 +229,12 @@ export default {
           this.isAnswerSubmitted = true;
 
           // highlight wrong/right depending on what the user answered in previous session
-          // document.getElementById("options-container").classList.add("options-block");
           var selectedOption = document.getElementById(
-            `option_input_${this.plioQuestion.userAnswer}`
+            `option_input_${this.plioQuestion.userAnswerIndex}`
           );
           selectedOption.checked = true;
           this.selectedOption = this.plioQuestion.item.details.options[
-            this.plioQuestion.userAnswer
+            this.plioQuestion.userAnswerIndex
           ];
           this.showResult();
           this.disableRadioButtons();
@@ -314,8 +312,8 @@ export default {
     renderContent() {
       // force rendering of question and option texts
       this.$nextTick(() => {
-        // MathJax.Hub.Queue(["Typeset", MathJax.Hub, "question"]);
-        // MathJax.Hub.Queue(["Typeset", MathJax.Hub, "option"]);
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "question"]);
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "option"]);
       });
     },
 

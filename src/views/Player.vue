@@ -262,13 +262,13 @@ export default {
             let plioQuestion = {
               id: i.toString(),
               item: questions[i],
-              userAnswer: -1,
+              userAnswerIndex: -1,
               state: "notshown",
             };
             this.plioQuestions.push(plioQuestion);
 
             // set empty answer for each question
-            this.answers.push(plioQuestion.userAnswer);
+            this.answers.push(plioQuestion.userAnswerIndex);
           }
 
           this.progressBarInfo["totalQuestions"] = this.plioQuestions.length;
@@ -281,7 +281,7 @@ export default {
             this.answers = res.data.sessionData.answers;
 
             questions.forEach((question, index) => {
-              this.plioQuestions[index].userAnswer = this.answers[index];
+              this.plioQuestions[index].userAnswerIndex = this.answers[index];
               this.plioQuestions[index].state =
                 this.answers[index] == -1 ? "notshown" : "answered";
 
@@ -420,7 +420,7 @@ export default {
       answer = plioQuestion.item.details.options.indexOf(answer);
 
       // update answer for this question
-      plioQuestion.userAnswer = answer;
+      plioQuestion.userAnswerIndex = answer;
 
       var currQuesIndex = Number(plioQuestion.id);
 
