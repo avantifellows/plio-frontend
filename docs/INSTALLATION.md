@@ -9,10 +9,20 @@
 
 #### Development
 1. Install pre-commit
-    #### macOS
-    Using homebrew
+    Use `pip` to install pre-commit
+    ```sh
+    pip install pre-commit
+    ```
+
+    Or using homebrew on macOS
     ```sh
     brew install pre-commit
+    ```
+
+    For more installation alternatives, check out [Pre-commit official documentation](https://pre-commit.com/#install).
+2. Verify pre-commit installation
+    ```sh
+    pre-commit --version
     ```
 
 ### Installation steps
