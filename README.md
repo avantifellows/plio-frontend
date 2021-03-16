@@ -33,3 +33,4 @@ Our testing is powered by the open source plan of [BrowserStack](https://www.bro
 
 ## Contributing
 - [Pre-commit](docs/PRE-COMMIT.md)
+- [GitHub Workflows](docs/GITHUB-WORKFLOWS.md)
