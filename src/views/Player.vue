@@ -432,7 +432,7 @@ export default {
 
       this.updateJourney("question-submitted", {
         question: currQuesIndex,
-        option: plioQuestion.item.details.options.indexOf(answer),
+        option: answer,
       });
 
       // update response on S3

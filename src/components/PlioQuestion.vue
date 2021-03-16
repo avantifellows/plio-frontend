@@ -9,10 +9,11 @@
           <div class="question-text-row">
             <div class="question-text" id="question" v-html="questionText"></div>
             <div class="close-container" id="skip-button" @click="clickSkip">
+              <!-- {{ isAnswerSubmitted }} -->
               <font-awesome-icon
                 :icon="['fas', 'window-close']"
                 class="skip-icon"
-                :hidden="isAnswerSubmitted"
+                :class="{ hidden: isAnswerSubmitted }"
               ></font-awesome-icon>
             </div>
           </div>
@@ -213,10 +214,10 @@ export default {
       document.querySelector("body").classList.remove("overflow-hidden");
     },
 
-    selectOption(option_index) {
+    selectOption(optionIndex) {
       this.$emit("update-journey", "option-selected", {
         question: Number(this.plioQuestion.id),
-        option: option_index,
+        option: optionIndex,
       });
     },
 
@@ -541,6 +542,10 @@ $mediumblu: #1e272d;
 
 li {
   list-style: none;
+}
+
+.hidden {
+  visibility: hidden;
 }
 
 .answer-option {
