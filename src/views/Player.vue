@@ -228,7 +228,6 @@ export default {
             this.userId
         )
         .then((res) => {
-          console.log(res.data);
           var questions = res.data.plioDetails.items;
           this.videoId = res.data.videoId;
           this.plioId = res.data.plioId;
@@ -257,11 +256,10 @@ export default {
 
           this.progressBarInfo["progressPercent"] = 0;
 
-          var i = 0;
-          for (i = 0; i < questions.length; i++) {
+          questions.forEach((question, index) => {
             let plioQuestion = {
-              id: i.toString(),
-              item: questions[i],
+              id: index.toString(),
+              item: question,
               userAnswerIndex: -1,
               state: "notshown",
             };
@@ -269,7 +267,7 @@ export default {
 
             // set empty answer for each question
             this.answers.push(plioQuestion.userAnswerIndex);
-          }
+          });
 
           this.progressBarInfo["totalQuestions"] = this.plioQuestions.length;
 
