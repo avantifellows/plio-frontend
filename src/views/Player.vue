@@ -17,10 +17,10 @@
           :tutorialProgress="tutorialProgress"
           :progressBarInfo="progressBarInfo"
           @answer-submitted="submitAnswer"
-          @answer-skipped="skipAnswer"
-          @revision-needed="revise"
+          @question-skipped="skipQuestion"
+          @clicked-revise="reviseQuestion"
           @update-journey="updateJourney"
-          @question-closed="recordAnswer"
+          @question-completed="recordAnswer"
         >
         </PlioQuestion>
       </div>
@@ -228,8 +228,7 @@ export default {
             this.userId
         )
         .then((res) => {
-          console.log(res.data);
-          var questions = res.data.plioDetails.questions.questions;
+          var questions = res.data.plioDetails.items;
           this.videoId = res.data.videoId;
           this.plioId = res.data.plioId;
           this.browserErrorHandlingValue.failsafeUrl = res.data.plioDetails.failsafe;
@@ -257,19 +256,18 @@ export default {
 
           this.progressBarInfo["progressPercent"] = 0;
 
-          var i = 0;
-          for (i = 0; i < questions.length; i++) {
+          questions.forEach((question, index) => {
             let plioQuestion = {
-              id: i.toString(),
-              item: questions[i],
-              user_answer: [],
+              id: index.toString(),
+              item: question,
+              userAnswerIndex: -1,
               state: "notshown",
             };
             this.plioQuestions.push(plioQuestion);
 
             // set empty answer for each question
-            this.answers.push(plioQuestion.user_answer);
-          }
+            this.answers.push(plioQuestion.userAnswerIndex);
+          });
 
           this.progressBarInfo["totalQuestions"] = this.plioQuestions.length;
 
@@ -281,9 +279,9 @@ export default {
             this.answers = res.data.sessionData.answers;
 
             questions.forEach((question, index) => {
-              this.plioQuestions[index].user_answer = this.answers[index];
+              this.plioQuestions[index].userAnswerIndex = this.answers[index];
               this.plioQuestions[index].state =
-                this.answers[index].length == 0 ? "notshown" : "answered";
+                this.answers[index] == -1 ? "notshown" : "answered";
 
               if (this.plioQuestions[index].state == "answered") {
                 this.progressBarInfo["progressPercent"] += 1;
@@ -416,8 +414,11 @@ export default {
       this.isTutorialUploadRequired = true;
       this.isTutorialComplete = true;
 
+      // convert answer from option text to index
+      answer = plioQuestion.item.details.options.indexOf(answer);
+
       // update answer for this question
-      plioQuestion.user_answer = answer;
+      plioQuestion.userAnswerIndex = answer;
 
       var currQuesIndex = Number(plioQuestion.id);
 
@@ -429,7 +430,7 @@ export default {
 
       this.updateJourney("question-submitted", {
         question: currQuesIndex,
-        option: plioQuestion.item.question.options.indexOf(answer),
+        option: answer,
       });
 
       // update response on S3
@@ -451,7 +452,7 @@ export default {
       this.uploadJson();
     },
 
-    skipAnswer(plioQuestion) {
+    skipQuestion(plioQuestion) {
       var currQuesIndex = Number(plioQuestion.id);
 
       this.updateJourney("question-skipped", {
@@ -469,7 +470,7 @@ export default {
       this.isModalOnScreen = false;
     },
 
-    revise(plioQuestion) {
+    reviseQuestion(plioQuestion) {
       // Extract where the current question lies in the list of all questions
       var currQuesIndex = Number(plioQuestion.id);
 
@@ -543,8 +544,7 @@ export default {
 
         var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
         this.plioQuestions.forEach(function (plioQuestion) {
-          var question = plioQuestion.item;
-          // Add marker to progress bar
+          // Add marker to player seek bar
           var marker = document.createElement("SPAN");
           marker.setAttribute("id", "marker");
           marker.classList.add("tooltip");
@@ -553,7 +553,7 @@ export default {
             marker.classList.add("tooltip-answered");
           }
 
-          var pos_percent = (100 * question.time) / player.duration;
+          var pos_percent = (100 * plioQuestion.item.time) / player.duration;
           marker.style.setProperty("left", `${pos_percent}%`);
           plyrProgressBar.appendChild(marker);
         });
