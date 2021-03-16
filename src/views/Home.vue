@@ -8,8 +8,8 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
-import PlioList from "../components/PlioList.vue";
+import { mapState } from 'vuex';
+import PlioList from "@/components/PlioList.vue";
 
 export default {
   created() {
@@ -24,7 +24,7 @@ export default {
     PlioList,
   },
 
-  computed: mapGetters(['isLoggedIn'])
+  computed: mapState(['isLoggedIn'])
 };
 </script>
 

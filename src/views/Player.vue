@@ -44,11 +44,11 @@
 
 <script>
 import Plyr from "plyr";
-import PlioQuestion from "../components/PlioQuestion.vue";
-import Error from "../views/Error.vue";
-import LoadingSpinner from "../components/LoadingSpinner.vue";
-import StartButtonPointer from "../components/tutorial/StartButtonPointer.vue";
-import UserProperties from "../components/UserProperties.vue";
+import PlioQuestion from "@/components/PlioQuestion.vue";
+import Error from "@/views/Error.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import StartButtonPointer from "@/components/tutorial/StartButtonPointer.vue";
+import UserProperties from "@/components/UserProperties.vue";
 
 import PlioService from '@/services/PlioService.js'
 import UserService from '@/services/UserService.js'

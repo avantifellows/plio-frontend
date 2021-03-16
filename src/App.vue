@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import LocaleSwitcher from "./components/LocaleSwitcher.vue";
-import UserProperties from "./components/UserProperties.vue";
+import LocaleSwitcher from "@/components/LocaleSwitcher.vue";
+import UserProperties from "@/components/UserProperties.vue";
 import LoadingSpinner from '@/components/LoadingSpinner.vue';
 import { mapActions, mapState } from 'vuex';
 

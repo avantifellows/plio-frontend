@@ -11,7 +11,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
-import PlioThumbnail from "./PlioThumbnail.vue";
+import PlioThumbnail from "@/components/PlioThumbnail.vue";
 
 export default {
   name: "PlioList",

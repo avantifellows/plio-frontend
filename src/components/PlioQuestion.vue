@@ -124,18 +124,18 @@
 </template>
 
 <script>
-import LoadingSpinner from "./LoadingSpinner.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faWindowClose } from "@fortawesome/free-solid-svg-icons/faWindowClose";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons/faCheckCircle";
 import { faTimesCircle } from "@fortawesome/free-solid-svg-icons/faTimesCircle";
 library.add(faWindowClose, faCheckCircle, faTimesCircle);
 
-import SubmitButtonPointer from "./tutorial/SubmitButtonPointer.vue";
-import mcqOptionsPointer from "./tutorial/mcqOptionsPointer.vue";
-import CloseButtonPointer from "./tutorial/CloseButtonPointer.vue";
+import SubmitButtonPointer from "@/components/tutorial/SubmitButtonPointer.vue";
+import mcqOptionsPointer from "@/components/tutorial/mcqOptionsPointer.vue";
+import CloseButtonPointer from "@/components/tutorial/CloseButtonPointer.vue";
 
-import ProgressBar from "./features/ProgressBar.vue";
+import ProgressBar from "@/components/features/ProgressBar.vue";
 
 // For how long does the spinner show (in milliseconds)
 var loadTime = 1500;

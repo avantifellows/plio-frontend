@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import UserProperties from "../components/UserProperties.vue";
+import UserProperties from "@/components/UserProperties.vue";
 import UserService from "@/services/UserService.js"
 
 import { mapState, mapActions } from 'vuex'
