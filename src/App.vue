@@ -1,12 +1,15 @@
 <template>
   <div id="header">
+    <div class="left">
+      <LocaleSwitcher id="locale" class="hidden"></LocaleSwitcher>
+    </div>
     <div id="nav">
       <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
       <router-link :to="{ name: 'Home' }">{{ $t("nav.home") }}</router-link> |
       <router-link v-if="!isLoggedIn" :to="{ name: 'Phone Sign In' }">{{ $t("nav.login") }}</router-link>
       <a href="#" v-if="isLoggedIn" @click="logoutUser">{{ $t("nav.logout") }}</a>
     </div>
-    <div class="overlay">
+    <div class="right">
       <LocaleSwitcher id="locale"></LocaleSwitcher>
     </div>
     <user-properties ref="userProperties"></user-properties>
@@ -64,6 +67,8 @@ export default {
 
 #nav {
   padding: 10px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #nav a {
@@ -72,7 +77,7 @@ export default {
 }
 
 #header {
-  position: relative;
+  display: flex;
   padding-top: 20px;
   padding-bottom: 20px;
 }
@@ -84,14 +89,16 @@ export default {
   vertical-align: center;
 }
 
-.overlay {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  align-items: center;
+.left {
+  margin-right: auto;
+}
+
+.right {
+  margin-left: auto;
+}
+
+.hidden {
+  visibility: hidden;
 }
 
 #nav a.router-link-exact-active {
