@@ -6,23 +6,28 @@
       <div class="modal__dialog">
         <div class="modal__body">
           <!-- The cross button to close the modal -->
-          <div class="question_text_row">
-            <div class="question_text" id="question" v-html="questionText"></div>
+          <div class="question-text-row">
+            <div class="question-text" id="question" v-html="questionText"></div>
             <div class="close-container" id="skip-button" @click="clickSkip">
               <font-awesome-icon
                 :icon="['fas', 'window-close']"
                 class="skip-icon"
+                :hidden="isAnswerSubmitted"
               ></font-awesome-icon>
             </div>
           </div>
 
-          <div id="options_container" class="options">
+          <div
+            id="options-container"
+            class="options"
+            :class="{ optionsBlock: isAnswerSubmitted }"
+          >
             <ul>
               <li class="option">
                 <div
-                  v-for="(option, optionNumber) in plioQuestion.item.question.options"
+                  v-for="(option, optionNumber) in plioQuestion.item.details.options"
                   :key="option"
-                  class="answer_option radio"
+                  class="answer-option radio"
                   :ref="option"
                 >
                   <!-- adding <label> so that touch input is just
@@ -75,12 +80,12 @@
           ></font-awesome-icon>
 
           <!-- submit button -->
-          <loading-spinner v-if="showButtonLoading"></loading-spinner>
+          <loading-spinner v-if="showLoadingSpinner"></loading-spinner>
           <button
             id="submit-button"
             v-if="!isAnswerSubmitted"
             class="btn submit"
-            :disabled="isDisabled"
+            :disabled="isSubmitDisabled"
             @click="clickSubmit"
           >
             ✓ {{ $t("player.question.submit") }}
@@ -89,24 +94,29 @@
             v-if="
               !isTutorialComplete &&
               !tutorialProgress['submit'] &&
-              !isDisabled &&
+              !isSubmitDisabled &&
               !isAnAnsweredQuestion
             "
           >
           </submit-button-pointer>
-          <button id="revise-button" class="btn revise" @click="clickRevise">
+          <button
+            id="revise-button"
+            class="btn revise"
+            @click="clickRevise"
+            :hidden="isAnswerSubmitted"
+          >
             ⟳ {{ $t("player.question.revise") }}
           </button>
 
-          <!-- close button -->
-          <close-button-pointer
+          <!-- proceed button -->
+          <proceed-button-pointer
             v-if="!isTutorialComplete && !tutorialProgress['close'] && isAnswerSubmitted"
           >
-          </close-button-pointer>
+          </proceed-button-pointer>
           <button
-            v-if="!showButtonLoading && isAnswerSubmitted"
+            v-if="!showLoadingSpinner && isAnswerSubmitted"
             class="btn close"
-            @click="clickClose"
+            @click="clickProceed"
           >
             {{ $t("player.question.proceed") }}
           </button>
@@ -133,76 +143,67 @@ library.add(faWindowClose, faCheckCircle, faTimesCircle);
 
 import SubmitButtonPointer from "./tutorial/SubmitButtonPointer.vue";
 import mcqOptionsPointer from "./tutorial/mcqOptionsPointer.vue";
-import CloseButtonPointer from "./tutorial/CloseButtonPointer.vue";
+import ProceedButtonPointer from "./tutorial/ProceedButtonPointer.vue";
 
 import ProgressBar from "./features/ProgressBar.vue";
-
-// For how long does the spinner show (in milliseconds)
-var loadTime = 1500;
 
 export default {
   components: {
     LoadingSpinner,
     SubmitButtonPointer,
     mcqOptionsPointer,
-    CloseButtonPointer,
+    ProceedButtonPointer,
     ProgressBar,
   },
   name: "PlioQuestion",
   props: ["plioQuestion", "isTutorialComplete", "tutorialProgress", "progressBarInfo"],
   data() {
     return {
-      show: false,
-      text: "",
-      selectedOption: null,
-      isAnswerCorrect: false,
-      isAnswerSubmitted: false,
-      showButtonLoading: false,
+      show: false, // whether to show this question or not
+      selectedOption: null, // the content of the option that is selected
+      isAnswerSubmitted: false, // whether any answer has been submitted
+      showLoadingSpinner: false, // whether to show a spinner
       newProgressBarInfo: {
+        // info needed for the Progress bar
         config: this.progressBarInfo["config"],
         progressPercent: 0,
         totalQuestions: this.progressBarInfo["totalQuestions"],
       },
-      questionText: this.plioQuestion.item.question.text,
-      optionText: this.plioQuestion.item.question.options,
+      questionText: this.plioQuestion.item.details.text, // content for the question
+      optionText: this.plioQuestion.item.details.options, // content for the options
     };
   },
 
   computed: {
     // Submit button disabled if no option selected or screen is loading
-    isDisabled() {
-      return (
-        this.selectedOption == null ||
-        this.isAnswerSubmitted == true ||
-        this.showButtonLoading == true
-      );
+    isSubmitDisabled() {
+      return this.selectedOption == null || this.isAnswerSubmitted == true;
     },
-    // Returns index of the correct answer (1 indexed)
+    // Returns index of the correct answer (0 indexed)
     correctAnswerIndex() {
-      return this.plioQuestion.item.question.answers - 1;
+      return this.plioQuestion.item.details.correct_answer;
     },
     // Returns the text of the correct answer
     correctAnswer() {
-      return this.plioQuestion.item.question.options[this.correctAnswerIndex];
+      return this.plioQuestion.item.details.options[this.correctAnswerIndex];
     },
     // Returns the index of the question that has popped up.
     currentQuestionIndex() {
       return this.plioQuestion.id;
     },
+    // whether the question has been already answered
     isAnAnsweredQuestion() {
       return this.plioQuestion.state == "answered";
+    },
+    // whether the submitted answer is correct
+    isAnswerCorrect() {
+      return this.selectedOption == this.correctAnswer;
     },
     isProgressBarEnabled() {
       if ("enabled" in this.progressBarInfo["config"])
         return this.progressBarInfo["config"]["enabled"];
 
       return false;
-    },
-    userAnswerIndex() {
-      // index of user answer in the options array
-      return this.plioQuestion.item.question.options.indexOf(
-        this.plioQuestion.user_answer
-      );
     },
   },
   methods: {
@@ -223,26 +224,24 @@ export default {
     openModal() {
       // Show highlighted options if coming back to an answered question
       // Wait 200 ms because it takes some time to find the DOM elements
-      if (this.plioQuestion.state == "answered") {
+      if (this.isAnAnsweredQuestion) {
         requestAnimationFrame(() => {
+          this.isAnswerSubmitted = true;
+
           // highlight wrong/right depending on what the user answered in previous session
-          document.getElementById("options_container").classList.add("options-block");
+          // document.getElementById("options-container").classList.add("options-block");
           var selectedOption = document.getElementById(
-            `option_input_${this.userAnswerIndex}`
+            `option_input_${this.plioQuestion.userAnswer}`
           );
           selectedOption.checked = true;
-          this.selectedOption = this.plioQuestion.user_answer;
-          this.checkAnswer();
+          this.selectedOption = this.plioQuestion.item.details.options[
+            this.plioQuestion.userAnswer
+          ];
           this.showResult();
-          this.selectedOption = null;
-          this.hideReviseButton();
-          this.hideSkipButton();
-          this.isAnswerSubmitted = true;
           this.disableRadioButtons();
         });
       }
 
-      this.text = "";
       this.show = true;
       document.querySelector("body").classList.add("overflow-hidden");
       this.newProgressBarInfo["progressPercent"] = this.progressBarInfo[
@@ -269,7 +268,6 @@ export default {
           if (img_tag != null) {
             p_tag.removeChild(img_tag);
             p_tag.parentNode.insertBefore(img_tag, p_tag.nextSibling);
-            img_tag.setAttribute("id", "question_image");
             // scale the image such that width is 1/3rd of screen width
             // maintaining the aspect ratio
             var currWidth = 0;
@@ -315,8 +313,8 @@ export default {
     renderContent() {
       // force rendering of question and option texts
       this.$nextTick(() => {
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "question"]);
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "option"]);
+        // MathJax.Hub.Queue(["Typeset", MathJax.Hub, "question"]);
+        // MathJax.Hub.Queue(["Typeset", MathJax.Hub, "option"]);
       });
     },
 
@@ -357,19 +355,6 @@ export default {
       });
     },
 
-    // Checks if the selected option is correct or not
-    checkAnswer() {
-      this.isAnswerCorrect = this.selectedOption == this.correctAnswer;
-    },
-
-    hideReviseButton() {
-      document.getElementById("revise-button").hidden = true;
-    },
-
-    hideSkipButton() {
-      document.getElementById("skip-button").hidden = true;
-    },
-
     // Highlights the correct option as green, wrong one as red
     showResult() {
       if (!this.isAnswerCorrect) {
@@ -380,11 +365,11 @@ export default {
     },
 
     removeOptionHighlight() {
-      var allOptions = document.querySelectorAll(".answer_option");
+      var allOptions = document.querySelectorAll(".answer-option");
 
       allOptions.forEach((option) => {
         option.removeAttribute("class");
-        option.className = "answer_option";
+        option.className = "answer-option";
       });
     },
 
@@ -420,38 +405,30 @@ export default {
       // Things to do after clicking submit
       // 1-Remove old option highlights
       // 2-Toggle the current marker from red to green
-      // 3-Show Loading Spinner and disable revise/skip/submit buttons
-      // 4-After some "loadTime", hide the revise/skip buttons
-      // 5-Remove the loading spinner, check answer and show new result
+      // 3-hide the revise/skip/submit buttons
+      // 4-check answer and show new result
 
       this.disableRadioButtons();
       this.removeOptionHighlight();
       this.toggleMarkers(this.currentQuestionIndex);
-      this.showButtonLoading = true;
-      document.getElementById("revise-button").classList.add("disabled-div");
-      document.getElementById("skip-button").classList.add("disabled-div");
-      document.getElementById("options_container").classList.add("options-block");
+      this.isAnswerSubmitted = true;
 
-      setTimeout(() => {
-        document.getElementById("revise-button").hidden = true;
-        document.getElementById("skip-button").hidden = true;
-        this.isAnswerSubmitted = true;
-        this.showButtonLoading = false;
-        this.checkAnswer();
+      this.$nextTick(() => {
         this.showResult();
-        this.updateAndShowProgress();
-      }, loadTime);
+        if (this.isProgressBarEnabled) {
+          this.updateAndShowProgress();
+        }
+      });
 
       this.$emit("answer-submitted");
     },
 
     // Things to do after answer is submitted
-    // and close button appears
-    clickClose() {
+    // and proceed button appears
+    clickProceed() {
       this.closeModal();
-      this.isAnswerSubmitted = false;
       this.$emit(
-        "question-closed",
+        "question-completed",
         this.plioQuestion,
         this.selectedOption,
         this.newProgressBarInfo
@@ -461,12 +438,12 @@ export default {
     // Things to do when revise button is clicked
     clickRevise() {
       this.closeModal();
-      this.$emit("revision-needed", this.plioQuestion);
+      this.$emit("clicked-revise", this.plioQuestion);
     },
 
     clickSkip() {
       this.closeModal();
-      this.$emit("answer-skipped", this.plioQuestion);
+      this.$emit("question-skipped", this.plioQuestion);
     },
   },
   mounted() {
@@ -480,7 +457,7 @@ export default {
         tex2jax: {
           preview: 'none'
         },
-        showProcessingMessages: false, 
+        showProcessingMessages: false,
         'HTML-CSS': {
           imageFont: null
         }
@@ -496,6 +473,13 @@ export default {
       "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML";
     document.head.appendChild(mathJaxCDN);
   },
+  emits: [
+    "update-journey",
+    "question-skipped",
+    "answer-submitted",
+    "clicked-revise",
+    "question-completed",
+  ],
 };
 </script>
 
@@ -521,7 +505,7 @@ $mediumblu: #1e272d;
   color: rgb(220, 20, 60);
 }
 
-.question_text_row {
+.question-text-row {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -533,11 +517,6 @@ $mediumblu: #1e272d;
   margin-right: 20px;
   cursor: pointer;
   padding-left: 3px;
-}
-
-.disabled-div {
-  pointer-events: none;
-  opacity: 0.4;
 }
 
 .leftright {
@@ -564,7 +543,7 @@ li {
   list-style: none;
 }
 
-.answer_option {
+.answer-option {
   text-align: left;
   padding: 2px;
   margin: 5px;
@@ -587,7 +566,7 @@ li {
   align-items: center;
 }
 
-.options-block {
+.optionsBlock {
   display: block;
 }
 
@@ -600,7 +579,7 @@ li {
   color: white;
 }
 
-.question_text {
+.question-text {
   text-align: left;
   font-size: 1.5rem;
   font-weight: bold;
