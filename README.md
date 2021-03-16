@@ -25,6 +25,9 @@ Hence, we have decided that the platform will:
 ## Installation
 To set up this project, visit the [installation steps](docs/INSTALLATION.md).
 
+## Deployment
+Visit our [deployment guideline](docs/DEPLOYMENT.md) for setting up this repository on a production environment.
+
 ##  Testing
 Our testing is powered by the open source plan of [BrowserStack](https://www.browserstack.com/)
 
