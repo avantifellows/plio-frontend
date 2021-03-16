@@ -18,6 +18,8 @@ export default {
   components: {
     PlioThumbnail,
   },
+  // namespaced helpers
+  // https://vuex.vuejs.org/guide/modules.html#binding-helpers-with-namespace
   computed: mapState('plioItems', ['allPlios']),
   methods: mapActions('plioItems', ['fetchPlios']),
   created() {

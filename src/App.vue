@@ -1,6 +1,7 @@
 <template>
   <div id="header">
     <div id="nav">
+      <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
       <router-link :to="{ name: 'Home' }">{{ $t("nav.home") }}</router-link> |
       <router-link v-if="!isLoggedIn" :to="{ name: 'Phone Sign In' }">{{ $t("nav.login") }}</router-link>
       <a href="#" v-if="isLoggedIn" @click="logoutUser">{{ $t("nav.logout") }}</a>
@@ -35,6 +36,8 @@ export default {
     this.$refs.userProperties.setLocaleFromUserConfig();
   },
   methods: {
+    // object spread operator
+    // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions(['logout']),
     logoutUser() {
       this.logout().then(() => {

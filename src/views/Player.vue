@@ -103,7 +103,7 @@ export default {
     },
     id: {
       default: "",
-      type:String
+      type: String
     }
   },
 
@@ -365,9 +365,9 @@ export default {
           experiment: this.experiment,
         },
       };
-      const json_response = JSON.stringify(student_response);
+      const jsonResponse = JSON.stringify(student_response);
 
-      UserService.postUserResponse(json_response) 
+      UserService.postUserResponse(jsonResponse) 
       .then((data) => console.log(data))
       .catch((err) => console.log(err));
 

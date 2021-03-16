@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import Home from "../views/Home.vue";
-import Player from "../views/Player.vue";
-import PhoneSignIn from "../views/PhoneSignIn";
+import Home from "@/views/Home.vue";
+import Player from "@/views/Player.vue";
+import PhoneSignIn from "@/views/PhoneSignIn";
 
 const routes = [
     {
@@ -16,6 +16,8 @@ const routes = [
         query: {
             src: ''
         },
+        // passing props to route components
+        // https://router.vuejs.org/guide/essentials/passing-props.html#passing-props-to-route-components
         props: route => ({ 
             experiment: route.query.experiment,
             id: route.params.id 
@@ -27,11 +29,15 @@ const routes = [
         path: "/login/:id?/:type?",
         name: "Phone Sign In",
         component: PhoneSignIn,
+        // passing props to route components
+        // https://router.vuejs.org/guide/essentials/passing-props.html#passing-props-to-route-components
         props: true
     },
     {
         path: "/experiment/:id?",
         name: "ABTesting",
+        // lazy loading of routes
+        // https://router.vuejs.org/guide/advanced/lazy-loading.html#grouping-components-in-the-same-chunk
         component: () => 
             import ("@/views/ABTesting"),
         props: true

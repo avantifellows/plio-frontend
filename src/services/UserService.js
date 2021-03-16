@@ -8,10 +8,10 @@ export default {
     )
   },
 
-  loginUser(payload) {
+  loginUser(userCreds) {
     return apiClient().post(
       process.env.VUE_APP_BACKEND_LOGIN_USER,
-      payload
+      userCreds
     )
   },
   
@@ -22,10 +22,10 @@ export default {
     )
   },
 
-  updateUserConfig(payload) {
+  updateUserConfig(userConfig) {
     return apiClient().post(
       process.env.VUE_APP_BACKEND_UPDATE_USER_CONFIG,
-      payload
+      userConfig
     )
   }
 }

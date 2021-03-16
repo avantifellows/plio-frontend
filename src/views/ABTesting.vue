@@ -8,7 +8,7 @@ import { mapActions, mapState } from 'vuex'
 
 export default {
   name: "ABTesting",
-  props: ['id'],
+  props: ['id'], // coming from the router
   data() {
     return {
       assignment: null,
@@ -31,6 +31,8 @@ export default {
   },
   computed: mapState(['isLoggedIn', 'userId']),
   methods: {
+    // object spread operator
+    // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions(['saveConfigs']),
     getAssignment() {
       ExperimentService.getExperimentAssignment(

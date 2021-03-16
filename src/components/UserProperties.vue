@@ -9,6 +9,8 @@ import { mapState, mapActions } from 'vuex'
 export default {
   computed: mapState(['isLoggedIn', 'userId', 'configs']),
   methods: {
+    // object spread operator
+    // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions(['saveConfigs']),
 
     saveLocalUserConfigs() {
