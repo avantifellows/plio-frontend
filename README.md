@@ -4,7 +4,7 @@
 ![Pre-commit checks](https://img.shields.io/github/workflow/status/avantifellows/plio-frontend/pre-commit/master?label=Pre-commit%20checks&style=flat-square)
 [![Discord](https://img.shields.io/discord/717975833226248303.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2&style=flat-square)](https://discord.gg/29qYD7fZtZ)
 
-Plio enables educators to teach better through videos. Educators can overlay questions on top of any video to make learning interactive, gather detailed insights on student engagement and receive feedback on their content itself. 
+Plio enables educators to teach better through videos. Educators can overlay questions on top of any video to make learning interactive, gather detailed insights on the engagement of learners and receive feedback on their content itself. 
 
 This repo contains code for the frontend, in VueJS.
 
