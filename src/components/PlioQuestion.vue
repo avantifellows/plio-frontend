@@ -80,7 +80,6 @@
           ></font-awesome-icon>
 
           <!-- submit button -->
-          <loading-spinner v-if="showLoadingSpinner"></loading-spinner>
           <button
             id="submit-button"
             v-if="!isAnswerSubmitted"
@@ -113,11 +112,7 @@
             v-if="!isTutorialComplete && !tutorialProgress['close'] && isAnswerSubmitted"
           >
           </proceed-button-pointer>
-          <button
-            v-if="!showLoadingSpinner && isAnswerSubmitted"
-            class="btn close"
-            @click="clickProceed"
-          >
+          <button v-if="isAnswerSubmitted" class="btn close" @click="clickProceed">
             {{ $t("player.question.proceed") }}
           </button>
         </div>
@@ -134,7 +129,6 @@
 </template>
 
 <script>
-import LoadingSpinner from "./LoadingSpinner.vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faWindowClose } from "@fortawesome/free-solid-svg-icons/faWindowClose";
 import { faCheckCircle } from "@fortawesome/free-solid-svg-icons/faCheckCircle";
@@ -149,7 +143,6 @@ import ProgressBar from "./features/ProgressBar.vue";
 
 export default {
   components: {
-    LoadingSpinner,
     SubmitButtonPointer,
     mcqOptionsPointer,
     ProceedButtonPointer,
@@ -162,7 +155,6 @@ export default {
       show: false, // whether to show this question or not
       selectedOption: null, // the content of the option that is selected
       isAnswerSubmitted: false, // whether any answer has been submitted
-      showLoadingSpinner: false, // whether to show a spinner
       newProgressBarInfo: {
         // info needed for the Progress bar
         config: this.progressBarInfo["config"],
