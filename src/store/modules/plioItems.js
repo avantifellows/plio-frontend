@@ -1,26 +1,34 @@
-import axios from "axios";
+import PlioService from '@/services/PlioAPIService.js'
+
+const namespaced = true
+// namespacing modules
+// https://vuex.vuejs.org/guide/modules.html#namespacing
 
 const state = {
-    plioItems: [],
+    allPlios: [],
 };
-const getters = {
-    allPlios: (state) => state.plioItems,
-};
+const getters = {};
 const actions = {
-    async fetchPlios({ commit }) {
-        const response = await axios.get(
-            process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_PLIOS_LIST
-        );
+    async fetchPlios({ commit, dispatch }) {
+        // dispatch root actions in namespaced modules
+        // https://vuex.vuejs.org/api/#dispatch
+        // we want to call the action 'startLoading' but this action doesn't
+        // exist here, it exists in the root store file "index.js"
+        dispatch('startLoading', null, { root: true })
 
-        var all_plios = response.data["all_plios"]
-        commit('setPliosList', all_plios);
+        const response = await PlioService.getAllPlios()
+        var allPlios = response.data["all_plios"]
+        commit('setPliosList', allPlios);
+        
+        dispatch('stopLoading', null, { root: true })
     },
 };
 const mutations = {
-    setPliosList: (state, plioItems) => (state.plioItems = plioItems)
+    setPliosList: (state, plioItems) => (state.allPlios = plioItems)
 };
 
 export default {
+    namespaced,
     state,
     getters,
     actions,

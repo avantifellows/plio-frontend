@@ -4,26 +4,31 @@
       <LocaleSwitcher id="locale" class="hidden"></LocaleSwitcher>
     </div>
     <div id="nav">
-      <router-link to="/">{{ $t("nav.home") }}</router-link> |
-      <router-link v-if="!isLoggedIn" to="/login/">{{ $t("nav.login") }}</router-link>
-      <a href="#" v-if="isLoggedIn" @click="logout">{{ $t("nav.logout") }}</a>
+      <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
+      <router-link :to="{ name: 'Home' }">{{ $t("nav.home") }}</router-link> |
+      <router-link v-if="!isLoggedIn" :to="{ name: 'Phone Sign In' }">{{ $t("nav.login") }}</router-link>
+      <a href="#" v-if="isLoggedIn" @click="logoutUser">{{ $t("nav.logout") }}</a>
     </div>
     <div class="right">
       <LocaleSwitcher id="locale"></LocaleSwitcher>
     </div>
     <user-properties ref="userProperties"></user-properties>
   </div>
+  <loading-spinner v-if="pending"></loading-spinner>
   <router-view />
 </template>
 
 <script>
-import LocaleSwitcher from "./components/LocaleSwitcher.vue";
-import UserProperties from "./components/UserProperties.vue";
+import LocaleSwitcher from "@/components/LocaleSwitcher.vue";
+import UserProperties from "@/components/UserProperties.vue";
+import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import { mapActions, mapState } from 'vuex';
 
 export default {
   components: {
     LocaleSwitcher,
     UserProperties,
+    LoadingSpinner
   },
   mounted() {
     if (this.isLoggedIn && !this.hasLocalUserConfigs) {
@@ -34,16 +39,19 @@ export default {
     this.$refs.userProperties.setLocaleFromUserConfig();
   },
   methods: {
-    logout() {
-      this.$store.dispatch("logout").then(this.$router.push("/login/"));
-    },
+    // object spread operator
+    // https://vuex.vuejs.org/guide/state.html#object-spread-operator
+    ...mapActions(['logout']),
+    logoutUser() {
+      this.logout().then(() => {
+        this.$router.push({ name: 'Phone Sign In' })
+      })
+    }
   },
   computed: {
-    isLoggedIn() {
-      return this.$store.getters.isLoggedIn;
-    },
+    ...mapState(['pending', 'isLoggedIn', 'configs']),
     hasLocalUserConfigs() {
-      return this.$store.getters.getConfigs != null;
+      return this.configs != null;
     },
   },
 };

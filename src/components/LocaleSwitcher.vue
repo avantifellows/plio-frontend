@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import UserProperties from "./UserProperties.vue";
+import UserProperties from "@/components/UserProperties.vue";
 
 export default {
   name: "LocaleSwitcher",

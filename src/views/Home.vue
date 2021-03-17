@@ -8,12 +8,13 @@
 </template>
 
 <script>
-import PlioList from "../components/PlioList.vue";
+import { mapState } from 'vuex';
+import PlioList from "@/components/PlioList.vue";
 
 export default {
   created() {
     if (!this.isLoggedIn) {
-      this.$router.push("/login/");
+      this.$router.push({ name: 'Phone Sign In' });
     }
     document.getElementById("nav").style.display = "inline";
   },
@@ -23,11 +24,7 @@ export default {
     PlioList,
   },
 
-  computed: {
-    isLoggedIn() {
-      return this.$store.getters.isLoggedIn;
-    },
-  },
+  computed: mapState(['isLoggedIn'])
 };
 </script>
 

@@ -3,10 +3,12 @@
 </template>
 
 <script>
-import axios from "axios";
+import ExperimentService from '@/services/ExperimentAPIService.js'
+import { mapActions, mapState } from 'vuex'
 
 export default {
   name: "ABTesting",
+  props: ['id'], // coming from the router
   data() {
     return {
       assignment: null,
@@ -17,54 +19,53 @@ export default {
 
   created() {
     document.getElementById("nav").style.display = "none";
-    if (!this.$store.getters.getUserId) {
+    if (!this.isLoggedIn) {
       this.$router.push({
-        path: "/login/" + this.$route.params.id + "/experiment",
+        name: 'Phone Sign In',
+        params: { id: this.id, type: 'experiment'}
       });
     } else {
       // get variant and redirect user
       this.getAssignment();
     }
   },
+  computed: mapState(['isLoggedIn', 'userId']),
   methods: {
+    // object spread operator
+    // https://vuex.vuejs.org/guide/state.html#object-spread-operator
+    ...mapActions(['saveConfigs']),
     getAssignment() {
-      var url =
-        process.env.VUE_APP_BACKEND +
-        process.env.VUE_APP_BACKEND_EXPERIMENT_ASSIGNMENT +
-        "?experimentId=" +
-        this.$route.params.id +
-        "&userId=" +
-        this.$store.getters.getUserId;
-      axios
-        .get(url)
-        .then((res) => {
-          // separately seting plio ID although it will be the
-          // same as assignment for now as we might conduct interface
-          // level changes where assignment won't be the same as plio ID
-          this.assignment = res.data.assignment;
-          this.userConfigs = res.data.config;
-          this.plioId = res.data.plioId;
+      ExperimentService.getExperimentAssignment(
+        this.id,
+        this.userId
+      )
+      .then((res) => {
+        // separately seting plio ID although it will be the
+        // same as assignment for now as we might conduct interface
+        // level changes where assignment won't be the same as plio ID
+        this.assignment = res.data.assignment;
+        this.userConfigs = res.data.config;
+        this.plioId = res.data.plioId;
+      })
+      .then(() =>
+        this.saveConfigs({
+          configs: JSON.stringify(this.userConfigs),
         })
-        .then(() =>
-          this.$store.dispatch("saveConfigs", {
-            configs: JSON.stringify(this.userConfigs),
-          })
-        )
-        .then(() => {
-          console.log("Assignment: " + this.assignment);
-          this.$router.push({
-            path: "/play/" + this.plioId,
-            query: {
-              experiment: this.$route.params.id,
-            },
-          });
-        })
-        .catch((err) => this.handleQueryError(err));
+      )
+      .then(() => {
+        console.log("Assignment: " + this.assignment);
+        this.$router.push({
+          name: 'Player',
+          params: { id: this.plioId },
+          query: { experiment: this.id }
+        });
+      })
+      .catch((err) => this.handleQueryError(err));
     },
 
     handleQueryError(err) {
       if (err.response && err.response.status == 404) {
-        this.$router.push("/404-not-found");
+        this.$router.push({ name: '404' });
       } else {
         console.log(err);
       }

@@ -1,5 +1,6 @@
 <template>
-  <router-link :to="'/play/' + plio.plio_id" tag="div" class="plio">
+  <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
+  <router-link :to="{ name: 'Player', params: { id: plio.plio_id } }" tag="div" class="plio">
     <div class="title">
       {{ plio.title }}
     </div>

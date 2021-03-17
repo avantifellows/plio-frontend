@@ -3,25 +3,25 @@
     <h3>{{ $t("home.plio_list_heading") }}</h3>
     <div class="plios">
       <div v-for="plio in allPlios" :key="plio.plio_id" class="plios">
-        <PlioThumbnail v-bind:plio="plio" />
+        <PlioThumbnail :plio="plio" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
-import PlioThumbnail from "./PlioThumbnail.vue";
+import { mapActions, mapState } from 'vuex';
+import PlioThumbnail from "@/components/PlioThumbnail.vue";
 
 export default {
   name: "PlioList",
   components: {
     PlioThumbnail,
   },
-  computed: mapGetters(["allPlios"]),
-  methods: {
-    ...mapActions(["fetchPlios"]),
-  },
+  // namespaced helpers
+  // https://vuex.vuejs.org/guide/modules.html#binding-helpers-with-namespace
+  computed: mapState('plioItems', ['allPlios']),
+  methods: mapActions('plioItems', ['fetchPlios']),
   created() {
     this.fetchPlios();
   },

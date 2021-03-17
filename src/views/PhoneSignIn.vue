@@ -14,9 +14,13 @@
 </template>
 
 <script>
-import UserProperties from "../components/UserProperties.vue";
+import UserProperties from "@/components/UserProperties.vue";
+import UserService from "@/services/UserAPIService.js"
+
+import { mapState, mapActions } from 'vuex'
 
 export default {
+  props: ['id', 'type'],
   components: {
     UserProperties,
   },
@@ -36,63 +40,51 @@ export default {
   },
   created() {
     if (this.isLoggedIn) {
-      this.$router.push("/");
+      this.$router.replace({ name : 'Home'});
     }
-
-    if (this.$route.params.id) {
+    
+    if (this.id) {
       document.getElementById("nav").style.display = "none";
     }
   },
-  computed: {
-    isLoggedIn() {
-      return this.$store.getters.isLoggedIn;
-    },
-  },
+  computed: mapState(['isLoggedIn', 'userId']),
   methods: {
+    ...mapActions(['login']),
     storePhone() {
       // this component stores only the user ID in Vuex
       // other aspects of the User like the user Config are pulled
       // separately by other components as needed
       const jsonResponse = JSON.stringify({ userId: this.phoneInput });
-
-      fetch(process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_LOGIN_USER, {
-        method: "POST",
-        body: jsonResponse,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
+      
+      UserService.loginUser(jsonResponse)
+      .then((response) => console.log(response))
+      .then(() => {
+        this.login({
+          phone: this.phoneInput,
+        })
       })
-        .then(() => {
-          this.$store.dispatch("login", {
-            phone: this.phoneInput,
-          });
-        })
-        .then(() => {
-          // set user config locally
-          this.$refs.userProperties.saveLocalUserConfigs();
+      .then(() => {
+        // set user config locally
+        this.$refs.userProperties.saveLocalUserConfigs();
 
-          // set locale from user config
-          this.$refs.userProperties.setLocaleFromUserConfig();
-        })
-        .then(() => {
-          var redirectId = setInterval(() => {
-            if (this.$store.getters.getUserId != null) {
-              if (this.$route.params.id) {
-                if (this.$route.params.type && this.$route.params.type == "experiment") {
-                  // redirect to experiment
-                  this.$router.push({ path: "/experiment/" + this.$route.params.id });
-                } else {
-                  // redirect to plio
-                  this.$router.push({ path: "/play/" + this.$route.params.id });
-                }
+        // set locale from user config
+        this.$refs.userProperties.setLocaleFromUserConfig();
+      })
+      .then(() => {
+          if (this.userId != null) {
+            if (this.id) {
+              if (this.type && this.type == "experiment") {
+                // redirect to experiment
+                this.$router.replace({ name: 'ABTesting', params: { id: this.id }});
               } else {
-                this.$router.push({ path: "/" });
+                // redirect to plio
+                this.$router.replace({ name: 'Player', params:{ id: this.id }});
               }
-              clearInterval(redirectId);
+            } else {
+              this.$router.replace({ name : 'Home'});
             }
-          }, 500);
-        });
+          }
+      });
     },
 
     isPhoneValid() {

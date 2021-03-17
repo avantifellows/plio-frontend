@@ -44,12 +44,15 @@
 
 <script>
 import Plyr from "plyr";
-import axios from "axios";
-import PlioQuestion from "../components/PlioQuestion.vue";
-import Error from "../views/Error.vue";
-import LoadingSpinner from "../components/LoadingSpinner.vue";
-import StartButtonPointer from "../components/tutorial/StartButtonPointer.vue";
-import UserProperties from "../components/UserProperties.vue";
+import PlioQuestion from "@/components/PlioQuestion.vue";
+import Error from "@/views/Error.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import StartButtonPointer from "@/components/tutorial/StartButtonPointer.vue";
+import UserProperties from "@/components/UserProperties.vue";
+
+import PlioService from '@/services/PlioAPIService.js'
+import UserService from '@/services/UserAPIService.js'
+import { mapState } from 'vuex';
 
 // supports indexOf for older browsers
 if (!Array.prototype.indexOf) {
@@ -98,11 +101,14 @@ export default {
       default: "",
       type: String,
     },
+    id: {
+      default: "",
+      type: String
+    }
   },
 
   data() {
     return {
-      userId: "",
       plioQuestions: [],
       dataLoaded: null,
       videoId: null,
@@ -145,11 +151,13 @@ export default {
     };
   },
   async created() {
-    if (!this.$store.getters.getUserId) {
-      this.$router.push({ path: "/login/" + this.$route.params.id });
+    if (!this.userId) {
+      this.$router.push({ 
+        name: 'Phone Sign In', 
+        params: {id: this.id}  
+      });
     }
 
-    this.userId = this.$store.getters.getUserId;
     console.log("Setting student id to: " + this.userId);
 
     // load the systemwide component properties
@@ -218,14 +226,9 @@ export default {
     },
 
     fetchData() {
-      axios
-        .get(
-          process.env.VUE_APP_BACKEND +
-            process.env.VUE_APP_BACKEND_PLIO_DETAILS +
-            "?plioId=" +
-            this.$route.params.id +
-            "&userId=" +
-            this.userId
+        PlioService.getPlioDetails(
+          this.id,
+          this.userId
         )
         .then((res) => {
           var items = res.data.plioDetails.items;
@@ -339,7 +342,7 @@ export default {
 
     handleQueryError(err) {
       if (err.response && err.response.status == 404) {
-        this.$router.push("/404-not-found");
+        this.$router.push({ name: '404' });
       } else {
         console.log(err);
       }
@@ -361,19 +364,11 @@ export default {
           experiment: this.experiment,
         },
       };
-      const json_response = JSON.stringify(student_response);
+      const jsonResponse = JSON.stringify(student_response);
 
-      fetch(process.env.VUE_APP_BACKEND + process.env.VUE_APP_BACKEND_UPDATE_ENTRY, {
-        method: "POST",
-        body: json_response,
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => console.log(data))
-        .catch((err) => console.log(err));
+      UserService.postUserResponse(jsonResponse) 
+      .then((data) => console.log(data))
+      .catch((err) => console.log(err));
 
       if (this.isTutorialUploadRequired) {
         this.userConfigs["tutorial"]["isComplete"] = this.isTutorialComplete;
@@ -660,6 +655,7 @@ export default {
     },
   },
   computed: {
+    ...mapState(['userId']),
     playerOptions() {
       const options = {
         title: "This is an example video",
