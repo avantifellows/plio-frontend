@@ -1,4 +1,4 @@
-import PlioService from '@/services/PlioService.js'
+import PlioService from '@/services/PlioAPIService.js'
 
 const namespaced = true
 // namespacing modules

@@ -15,7 +15,7 @@
 
 <script>
 import UserProperties from "@/components/UserProperties.vue";
-import UserService from "@/services/UserService.js"
+import UserService from "@/services/UserAPIService.js"
 
 import { mapState, mapActions } from 'vuex'
 
