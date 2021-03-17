@@ -1,113 +1,23 @@
 # Plio Frontend
+[![License: MIT](https://img.shields.io/github/license/avantifellows/plio-frontend?color=blue&style=flat-square)](LICENSE)
+![GitHub issues](https://img.shields.io/github/issues-raw/avantifellows/plio-frontend?style=flat-square)
+![Pre-commit checks](https://img.shields.io/github/workflow/status/avantifellows/plio-frontend/pre-commit/master?label=Pre-commit%20checks&style=flat-square)
+[![Discord](https://img.shields.io/discord/717975833226248303.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2&style=flat-square)](https://discord.gg/29qYD7fZtZ)
 
-Plio is an open-source AI-based platform that enables personalized learning through free interactive
-videos. 
+Plio enables educators to teach better through videos. Educators can overlay questions on top of any video to make learning interactive, gather detailed insights on the engagement of learners and receive feedback on their content itself. 
 
-This repo contains code for the frontend, in Vue.
+This repo contains code for the frontend, in VueJS.
 
-It includes features for:
 
-1. A player that overlays items (currently assumed to be questions) on top of any video (currently assumed to be from YouTube(
-2. Recording the phone number of the user (currently without any authentication).
 
-## Priorities
 
-We are keeping the features *extremely* simple, because our target market is students from low-income backgrounds in India.
-Some of them don't have their own phones and borrow from their families, and some of them have only KaiOS feature phones.
+## Installation
+To set up this project, visit the [installation steps](docs/INSTALLATION.md).
 
-Hence, we have decided that the platform will:
+## Deployment
+Visit our [deployment guideline](docs/DEPLOYMENT.md) for setting up this repository on a production environment.
 
-#  Plio Frontend
 
-  
-
-Plio is an open-source AI-based platform that enables personalized learning through free interactive
-
-videos.
-
-  
-
-This repo contains code for the frontend, in Vue.
-
-  
-
-It includes features for:
-
-  
-
-1. A player that overlays items (currently assumed to be questions) on top of any video (currently assumed to be from YouTube(
-
-2. Recording the phone number of the user (currently without any authentication).
-
-  
-
-##  Priorities
-
-  
-
-We are keeping the features *extremely* simple, because our target market is students from low-income backgrounds in India.
-
-Some of them don't have their own phones and borrow from their families, and some of them have only KaiOS feature phones.
-
-  
-
-Hence, we have decided that the platform will:
-
-  
-
-1. Recommend high-quality free video content in local languages,
-
-2. Automatically build interactive lessons on top of these videos,
-
-3. Work on feature phones,
-
-4. Be freely available.
-
-  
-
-##  Issues
-
-  
-
-Please feel free to open a PR if you know how to solve any of these!
-
-  
-
-* Our code doesn't work on some low-end mobile browsers.
-
-* We don't have much knowledge on cross-browser testing
-
-* Our Vue architecture may not be state-of-the-art.
-
-  
-
-##  Testing
-
-  
-
-Our testing is powered by the open source plan of [BrowserStack](https://www.browserstack.com/)
-
-## Get Started
-Follow the steps below to set up the repo for development
-1. Install [nodeJs](https://nodejs.org/en/), [vue-cli](https://cli.vuejs.org/guide/installation.html) and [yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable). All these can be installed globally.
-2. Clone the repo.
-3. `cd` into the repo and run `npm install`.
-4. Run the vue ui using the command `vue ui`
-5. This will start a local server from where the project can be served locally, or deployed to dev/staging
-**NOTE** - The project will be up and running with this method but you'll have to start the backend service and the API layer service locally as well to get it working fully.
-1. Recommend high-quality free video content in local languages,
-2. Automatically build interactive lessons on top of these videos,
-3. Work on feature phones, 
-4. Be freely available.
-
-## Issues
-
-Please feel free to open a PR if you know how to solve any of these!
-
-* Our code doesn't work on some low-end mobile browsers.
-* We don't have much knowledge on cross-browser testing
-* Our Vue architecture may not be state-of-the-art. 
-
-## Testing
-
-Our testing is powered by the open source plan of [BrowserStack](https://www.browserstack.com/)
+## Contributing
+- [Pre-commit](docs/PRE-COMMIT.md)
+- [GitHub Workflows](docs/GITHUB-WORKFLOWS.md)
