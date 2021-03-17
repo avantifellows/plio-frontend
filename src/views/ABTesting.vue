@@ -22,7 +22,7 @@ export default {
     if (!this.isLoggedIn) {
       this.$router.push({
         name: 'Phone Sign In',
-        params: { id: this.id, type: '/experiment'}
+        params: { id: this.id, type: 'experiment'}
       });
     } else {
       // get variant and redirect user

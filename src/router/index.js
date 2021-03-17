@@ -34,7 +34,7 @@ const routes = [
         props: true
     },
     {
-        path: "/experiment/:id?",
+        path: "/experiment/:id",
         name: "ABTesting",
         // lazy loading of routes
         // https://router.vuejs.org/guide/advanced/lazy-loading.html#grouping-components-in-the-same-chunk

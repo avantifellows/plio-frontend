@@ -23,11 +23,14 @@ export default {
     },
 
     setLocaleFromUserConfig() {
+      var redirectId = setInterval(() => {
         var userConfigs = this.configs;
         if (userConfigs != null) {
           userConfigs = JSON.parse(userConfigs);
           this.$i18n.locale = userConfigs["locale"] || process.env.VUE_APP_I18N_LOCALE;
+          clearInterval(redirectId);
         }
+      }, 500);
     },
 
     updateLocale() {
