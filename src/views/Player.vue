@@ -228,7 +228,8 @@ export default {
             this.userId
         )
         .then((res) => {
-          var questions = res.data.plioDetails.items;
+          var items = res.data.plioDetails.items;
+          var questions = items;
           this.videoId = res.data.videoId;
           this.plioId = res.data.plioId;
           this.browserErrorHandlingValue.failsafeUrl = res.data.plioDetails.failsafe;
