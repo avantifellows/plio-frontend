@@ -366,7 +366,7 @@ export default {
       };
       const jsonResponse = JSON.stringify(student_response);
 
-      UserService.postUserResponse(jsonResponse) 
+      UserService.postUserResponse(jsonResponse)
       .then((data) => console.log(data))
       .catch((err) => console.log(err));
 

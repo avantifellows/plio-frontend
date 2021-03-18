@@ -3,7 +3,7 @@
       :icon="['fas', 'hand-point-up']"
       class="hand-pointer"
       ref="hand-pointer"
-    ></font-awesome-icon> 
+    ></font-awesome-icon>
 </template>
 
 <script>

@@ -1,14 +1,14 @@
-import axios from 'axios'
+import axios from "axios";
 
 const client = axios.create({
   baseURL: process.env.VUE_APP_BACKEND,
   withCredentials: false, //default
   headers: {
-    Accept: 'application/json',
-    'Content-Type': 'application/json'
-  }
-})
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
+});
 
 export function apiClient() {
-    return client
+  return client;
 }
