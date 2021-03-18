@@ -42,7 +42,7 @@ export default {
     if (this.isLoggedIn) {
       this.$router.replace({ name : 'Home'});
     }
-    
+
     if (this.id) {
       document.getElementById("nav").style.display = "none";
     }
@@ -55,7 +55,7 @@ export default {
       // other aspects of the User like the user Config are pulled
       // separately by other components as needed
       const jsonResponse = JSON.stringify({ userId: this.phoneInput });
-      
+
       UserService.loginUser(jsonResponse)
       .then((response) => console.log(response))
       .then(() => {
