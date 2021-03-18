@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "@/views/Home.vue";
 import Player from "@/views/Player.vue";
-import PhoneSignIn from "@/views/PhoneSignIn";
+import Login from "@/views/Login";
 
 const routes = [
     {
@@ -27,8 +27,8 @@ const routes = [
         // type: the type of component invoking this path (optional)
         // id: the unique ID for the component invoking this path (optional)
         path: "/login/:id?/:type?",
-        name: "Phone Sign In",
-        component: PhoneSignIn,
+        name: "Login",
+        component: Login,
         // passing props to route components
         // https://router.vuejs.org/guide/essentials/passing-props.html#passing-props-to-route-components
         props: true
@@ -39,7 +39,7 @@ const routes = [
         // lazy loading of routes
         // https://router.vuejs.org/guide/advanced/lazy-loading.html#grouping-components-in-the-same-chunk
         component: () => 
-            import ("@/views/ABTesting"),
+            import ("@/components/FunctionalComponents/ABTesting"),
         props: true
     },
     {

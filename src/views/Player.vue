@@ -44,11 +44,11 @@
 
 <script>
 import Plyr from "plyr";
-import PlioQuestion from "@/components/PlioQuestion.vue";
+import PlioQuestion from "@/components/Player/PlioQuestion.vue";
 import Error from "@/views/Error.vue";
-import LoadingSpinner from "@/components/LoadingSpinner.vue";
-import StartButtonPointer from "@/components/tutorial/StartButtonPointer.vue";
-import UserProperties from "@/components/UserProperties.vue";
+import LoadingSpinner from "@/components/UIComponents/LoadingSpinner.vue";
+import StartButtonPointer from "@/components/UIComponents/tutorial/StartButtonPointer.vue";
+import UserProperties from "@/components/FunctionalComponents/UserProperties.vue";
 
 import PlioService from '@/services/PlioAPIService.js'
 import UserService from '@/services/UserAPIService.js'
@@ -153,7 +153,7 @@ export default {
   async created() {
     if (!this.userId) {
       this.$router.push({ 
-        name: 'Phone Sign In', 
+        name: 'Login', 
         params: {id: this.id}  
       });
     }

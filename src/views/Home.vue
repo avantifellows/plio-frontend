@@ -9,12 +9,12 @@
 
 <script>
 import { mapState } from 'vuex';
-import PlioList from "@/components/PlioList.vue";
+import PlioList from "@/components/UIComponents/PlioList.vue";
 
 export default {
   created() {
     if (!this.isLoggedIn) {
-      this.$router.push({ name: 'Phone Sign In' });
+      this.$router.push({ name: 'Login' });
     }
     document.getElementById("nav").style.display = "inline";
   },

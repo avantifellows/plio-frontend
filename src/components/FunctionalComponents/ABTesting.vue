@@ -21,7 +21,7 @@ export default {
     document.getElementById("nav").style.display = "none";
     if (!this.isLoggedIn) {
       this.$router.push({
-        name: 'Phone Sign In',
+        name: 'Login',
         params: { id: this.id, type: 'experiment'}
       });
     } else {
