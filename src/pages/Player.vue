@@ -225,7 +225,7 @@ export default {
       this.isTutorialUploadRequired = !this.isTutorialComplete;
     },
 
-    fetchData() {
+    async fetchData() {
         PlioService.getPlioDetails(
           this.id,
           this.userId
