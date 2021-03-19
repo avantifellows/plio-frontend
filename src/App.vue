@@ -6,7 +6,7 @@
     <div id="nav">
       <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
       <router-link :to="{ name: 'Home' }">{{ $t("nav.home") }}</router-link> |
-      <router-link v-if="!isLoggedIn" :to="{ name: 'Login' }">{{ $t("nav.login") }}</router-link>
+      <router-link v-if="!isLoggedIn" :to="{ name: 'PhoneSignIn' }">{{ $t("nav.login") }}</router-link>
       <a href="#" v-if="isLoggedIn" @click="logoutUser">{{ $t("nav.logout") }}</a>
     </div>
     <div class="right">
@@ -19,9 +19,9 @@
 </template>
 
 <script>
-import LocaleSwitcher from "@/components/UIComponents/LocaleSwitcher.vue";
-import UserProperties from "@/components/FunctionalComponents/UserProperties.vue";
-import LoadingSpinner from '@/components/UIComponents/LoadingSpinner.vue';
+import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
+import UserProperties from "@/utils/UserProperties.vue";
+import LoadingSpinner from '@/components/UI/LoadingSpinner.vue';
 import { mapActions, mapState } from 'vuex';
 
 export default {
@@ -44,7 +44,7 @@ export default {
     ...mapActions(['logout']),
     logoutUser() {
       this.logout().then(() => {
-        this.$router.push({ name: 'Login' })
+        this.$router.push({ name: 'PhoneSignIn' })
       })
     }
   },

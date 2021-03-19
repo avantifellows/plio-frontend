@@ -1,4 +1,4 @@
-import { apiClient } from "@/services/RootApiClient.js";
+import { apiClient } from "@/utils/APIservices/RootApiClient.js";
 
 export default {
   getPlioDetails(plioId, userId) {

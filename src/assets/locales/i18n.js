@@ -1,6 +1,6 @@
 import { createI18n } from "vue-i18n";
-import translationsEn from "./locales/en";
-import translationsHi from "./locales/hi";
+import translationsEn from "./en";
+import translationsHi from "./hi";
 
 /**
  * Load locale messages

@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import ExperimentService from '@/services/ExperimentAPIService.js'
+import ExperimentService from '@/utils/APIservices/ExperimentAPIService.js'
 import { mapActions, mapState } from 'vuex'
 
 export default {
@@ -21,7 +21,7 @@ export default {
     document.getElementById("nav").style.display = "none";
     if (!this.isLoggedIn) {
       this.$router.push({
-        name: 'Login',
+        name: 'PhoneSignIn',
         params: { id: this.id, type: 'experiment'}
       });
     } else {

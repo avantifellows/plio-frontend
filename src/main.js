@@ -4,7 +4,7 @@ import router from "./router";
 import store from "./store";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import i18n from "./i18n";
+import i18n from "./assets/locales/i18n.js";
 
 const app = createApp(App).use(store).use(router);
 

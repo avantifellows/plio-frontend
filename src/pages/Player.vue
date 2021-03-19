@@ -44,14 +44,14 @@
 
 <script>
 import Plyr from "plyr";
-import PlioQuestion from "@/components/Player/PlioQuestion.vue";
-import Error from "@/views/Error.vue";
-import LoadingSpinner from "@/components/UIComponents/LoadingSpinner.vue";
-import StartButtonPointer from "@/components/UIComponents/tutorial/StartButtonPointer.vue";
-import UserProperties from "@/components/FunctionalComponents/UserProperties.vue";
+import PlioQuestion from "@/components/Items/PlioQuestion.vue";
+import Error from "@/pages/Error.vue";
+import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
+import StartButtonPointer from "@/components/UI/tutorial/StartButtonPointer.vue";
+import UserProperties from "@/utils/UserProperties.vue";
 
-import PlioService from '@/services/PlioAPIService.js'
-import UserService from '@/services/UserAPIService.js'
+import PlioService from '@/utils/APIservices/PlioAPIService.js'
+import UserService from '@/utils/APIservices/UserAPIService.js'
 import { mapState } from 'vuex';
 
 // supports indexOf for older browsers
@@ -152,9 +152,9 @@ export default {
   },
   async created() {
     if (!this.userId) {
-      this.$router.push({ 
-        name: 'Login', 
-        params: {id: this.id}  
+      this.$router.push({
+        name: 'PhoneSignIn',
+        params: {id: this.id}
       });
     }
 
