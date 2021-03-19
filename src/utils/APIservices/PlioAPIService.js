@@ -11,7 +11,7 @@ export default {
           userId
       );
       resolve(response);
-      })
+    });
   },
 
   getAllPlios() {
