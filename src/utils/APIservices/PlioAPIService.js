@@ -2,13 +2,16 @@ import { apiClient } from "@/utils/APIservices/RootApiClient.js";
 
 export default {
   getPlioDetails(plioId, userId) {
-    return apiClient().get(
-      process.env.VUE_APP_BACKEND_PLIO_DETAILS +
-        "?plioId=" +
-        plioId +
-        "&userId=" +
-        userId
-    );
+    return new Promise((resolve) => {
+      var response = apiClient().get(
+        process.env.VUE_APP_BACKEND_PLIO_DETAILS +
+          "?plioId=" +
+          plioId +
+          "&userId=" +
+          userId
+      );
+      resolve(response);
+      })
   },
 
   getAllPlios() {
