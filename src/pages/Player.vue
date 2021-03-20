@@ -231,7 +231,6 @@ export default {
           this.userId
         )
         .then((res) => {
-          console.log(res)
           var items = res.data.plioDetails.items;
           var questions = items;
           this.videoId = res.data.videoId;
