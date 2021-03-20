@@ -1,4 +1,4 @@
-import { apiClient } from "@/services/RootApiClient.js";
+import { apiClient } from "@/services/API/RootClient.js";
 
 export default {
   getExperimentAssignment(experimentId, userId) {

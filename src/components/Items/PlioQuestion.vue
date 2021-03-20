@@ -135,11 +135,11 @@ import { faCheckCircle } from "@fortawesome/free-solid-svg-icons/faCheckCircle";
 import { faTimesCircle } from "@fortawesome/free-solid-svg-icons/faTimesCircle";
 library.add(faWindowClose, faCheckCircle, faTimesCircle);
 
-import SubmitButtonPointer from "@/components/tutorial/SubmitButtonPointer.vue";
-import mcqOptionsPointer from "@/components/tutorial/mcqOptionsPointer.vue";
-import ProceedButtonPointer from "@/components/tutorial/ProceedButtonPointer.vue";
+import SubmitButtonPointer from "@/components/UI/tutorial/SubmitButtonPointer.vue";
+import mcqOptionsPointer from "@/components/UI/tutorial/mcqOptionsPointer.vue";
+import ProceedButtonPointer from "@/components/UI/tutorial/ProceedButtonPointer.vue";
 
-import ProgressBar from "@/components/features/ProgressBar.vue";
+import ProgressBar from "@/components/UI/ProgressBar.vue";
 
 export default {
   components: {

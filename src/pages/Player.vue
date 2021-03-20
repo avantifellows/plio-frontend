@@ -44,14 +44,14 @@
 
 <script>
 import Plyr from "plyr";
-import PlioQuestion from "@/components/PlioQuestion.vue";
-import Error from "@/views/Error.vue";
-import LoadingSpinner from "@/components/LoadingSpinner.vue";
-import StartButtonPointer from "@/components/tutorial/StartButtonPointer.vue";
-import UserProperties from "@/components/UserProperties.vue";
+import PlioQuestion from "@/components/Items/PlioQuestion.vue";
+import Error from "@/pages/Error.vue";
+import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
+import StartButtonPointer from "@/components/UI/tutorial/StartButtonPointer.vue";
+import UserProperties from "@/services/Config/User.vue";
 
-import PlioService from '@/services/PlioAPIService.js'
-import UserService from '@/services/UserAPIService.js'
+import PlioService from '@/services/API/Plio.js'
+import UserService from '@/services/API/User.js'
 import { mapState } from 'vuex';
 
 // supports indexOf for older browsers
@@ -153,7 +153,7 @@ export default {
   async created() {
     if (!this.userId) {
       this.$router.push({
-        name: 'Phone Sign In',
+        name: 'PhoneSignIn',
         params: {id: this.id}
       });
     }
@@ -161,7 +161,7 @@ export default {
     console.log("Setting student id to: " + this.userId);
 
     // load the systemwide component properties
-    this.componentProperties = require("../assets/" + "component-properties.json");
+    this.componentProperties = require("@/services/Config/" + "Player.json");
 
     // load plio details
     await this.fetchData();
@@ -225,7 +225,7 @@ export default {
       this.isTutorialUploadRequired = !this.isTutorialComplete;
     },
 
-    fetchData() {
+    async fetchData() {
         PlioService.getPlioDetails(
           this.id,
           this.userId

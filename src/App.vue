@@ -6,7 +6,7 @@
     <div id="nav">
       <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
       <router-link :to="{ name: 'Home' }">{{ $t("nav.home") }}</router-link> |
-      <router-link v-if="!isLoggedIn" :to="{ name: 'Phone Sign In' }">{{ $t("nav.login") }}</router-link>
+      <router-link v-if="!isLoggedIn" :to="{ name: 'PhoneSignIn' }">{{ $t("nav.login") }}</router-link>
       <a href="#" v-if="isLoggedIn" @click="logoutUser">{{ $t("nav.logout") }}</a>
     </div>
     <div class="right">
@@ -19,9 +19,9 @@
 </template>
 
 <script>
-import LocaleSwitcher from "@/components/LocaleSwitcher.vue";
-import UserProperties from "@/components/UserProperties.vue";
-import LoadingSpinner from '@/components/LoadingSpinner.vue';
+import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
+import UserProperties from "@/services/Config/User.vue";
+import LoadingSpinner from '@/components/UI/LoadingSpinner.vue';
 import { mapActions, mapState } from 'vuex';
 
 export default {
@@ -44,7 +44,7 @@ export default {
     ...mapActions(['logout']),
     logoutUser() {
       this.logout().then(() => {
-        this.$router.push({ name: 'Phone Sign In' })
+        this.$router.push({ name: 'PhoneSignIn' })
       })
     }
   },
@@ -107,6 +107,6 @@ export default {
 
 @font-face {
   font-family: "Kruti Dev";
-  src: local("Kruti Dev"), url("./fonts/Kruti_Dev_10.TTF") format("truetype");
+  src: local("Kruti Dev"), url("./assets/fonts/Kruti_Dev_10.TTF") format("truetype");
 }
 </style>

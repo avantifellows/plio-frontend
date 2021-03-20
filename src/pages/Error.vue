@@ -80,7 +80,7 @@
         href="https://play.google.com/store/apps/details?id=com.android.chrome"
         class="icon-block"
       >
-        <img src="../assets/chrome.svg" />
+        <img src="@/assets/images/chrome.svg" />
       </a>
       <div class="lead_text">
         <p>&#128070;</p>

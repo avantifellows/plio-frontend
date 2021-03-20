@@ -4,7 +4,7 @@ import router from "./router";
 import store from "./store";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import i18n from "./i18n";
+import i18n from "./services/Localisation/i18n.js";
 import PrimeVue from "primevue/config";
 
 import "primevue/resources/themes/saga-blue/theme.css";
