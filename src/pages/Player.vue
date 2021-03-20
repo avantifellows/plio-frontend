@@ -50,8 +50,8 @@ import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import StartButtonPointer from "@/components/UI/tutorial/StartButtonPointer.vue";
 import UserProperties from "@/utils/UserProperties.vue";
 
-import PlioService from '@/utils/APIservices/PlioAPIService.js'
-import UserService from '@/utils/APIservices/UserAPIService.js'
+import PlioService from '@/APIClients/plioService.js'
+import UserService from '@/APIClients/userService.js'
 import { mapState } from 'vuex';
 
 // supports indexOf for older browsers
