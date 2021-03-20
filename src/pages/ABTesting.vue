@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import ExperimentService from '@/APIClients/experimentService.js'
+import ExperimentService from '@/services/API/Experiment.js'
 import { mapActions, mapState } from 'vuex'
 
 export default {

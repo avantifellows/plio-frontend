@@ -48,10 +48,10 @@ import PlioQuestion from "@/components/Items/PlioQuestion.vue";
 import Error from "@/pages/Error.vue";
 import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import StartButtonPointer from "@/components/UI/tutorial/StartButtonPointer.vue";
-import UserProperties from "@/utils/UserProperties.vue";
+import UserProperties from "@/services/Config/User.vue";
 
-import PlioService from '@/APIClients/plioService.js'
-import UserService from '@/APIClients/userService.js'
+import PlioService from '@/services/API/Plio.js'
+import UserService from '@/services/API/User.js'
 import { mapState } from 'vuex';
 
 // supports indexOf for older browsers
@@ -161,7 +161,7 @@ export default {
     console.log("Setting student id to: " + this.userId);
 
     // load the systemwide component properties
-    this.componentProperties = require("../assets/" + "component-properties.json");
+    this.componentProperties = require("@/services/Config/" + "Player.json");
 
     // load plio details
     await this.fetchData();

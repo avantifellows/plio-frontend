@@ -38,7 +38,7 @@ const routes = [
     name: "ABTesting",
     // lazy loading of routes
     // https://router.vuejs.org/guide/advanced/lazy-loading.html#grouping-components-in-the-same-chunk
-    component: () => import("@/ABTesting/ABTesting"),
+    component: () => import("@/pages/ABTesting"),
     props: true,
   },
   {

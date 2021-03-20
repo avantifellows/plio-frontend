@@ -20,7 +20,7 @@
 
 <script>
 import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
-import UserProperties from "@/utils/UserProperties.vue";
+import UserProperties from "@/services/Config/User.vue";
 import LoadingSpinner from '@/components/UI/LoadingSpinner.vue';
 import { mapActions, mapState } from 'vuex';
 

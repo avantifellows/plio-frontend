@@ -1,4 +1,4 @@
-import { apiClient } from "@/APIClients/rootAPIClient.js";
+import { apiClient } from "@/services/API/RootClient.js";
 
 export default {
   postUserResponse(userResponse) {

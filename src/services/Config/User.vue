@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import UserService from '@/APIClients/userService.js'
+import UserService from '@/services/API/User.js'
 import { mapState, mapActions } from 'vuex'
 
 export default {
