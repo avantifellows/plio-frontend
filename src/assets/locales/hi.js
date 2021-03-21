@@ -4,6 +4,16 @@ export default {
     login: "लॉगिन",
     logout: "लॉगआउट",
   },
+  editor: {
+    video_input: {
+      placeholder: "यूट्यूब वीडियो का लिंक यहाँ लिखें",
+      title: "यूट्यूब वीडियो का लिंक",
+    },
+    plio_title: {
+      placeholder: "प्लायो का नाम यहाँ लिखें ",
+      title: "प्लायो का नाम",
+    },
+  },
   home: {
     welcome: "प्लायो में आपका स्वागत है",
     create_plio: "एक नया प्लायो बनाएं",

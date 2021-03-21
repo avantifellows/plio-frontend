@@ -304,8 +304,8 @@ export default {
     renderContent() {
       // force rendering of question and option texts
       this.$nextTick(() => {
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "question"]);
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "option"]);
+        // MathJax.Hub.Queue(["Typeset", MathJax.Hub, "question"]);
+        // MathJax.Hub.Queue(["Typeset", MathJax.Hub, "option"]);
       });
     },
 

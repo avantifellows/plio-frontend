@@ -4,6 +4,16 @@ export default {
     login: "Login",
     logout: "Logout",
   },
+  editor: {
+    video_input: {
+      placeholder: "Enter link to the YouTube video",
+      title: "YouTube video link",
+    },
+    plio_title: {
+      placeholder: "Enter the name of the Plio",
+      title: "Plio Title",
+    },
+  },
   home: {
     welcome: "Welcome to Plio!",
     create_plio: "Create a new Plio",
