@@ -3,12 +3,7 @@
     <div class="player_container" v-if="dataLoaded && isBrowserSupported">
       <LoadingSpinner v-if="!hasPlyrLoaded"></LoadingSpinner>
 
-      <div
-        id="player"
-        class="plyr"
-        data-plyr-provider="youtube"
-        :data-plyr-embed-id="videoId"
-      ></div>
+      <div id="player" data-plyr-provider="youtube" :data-plyr-embed-id="videoId"></div>
       <div v-for="plioQuestion in plioQuestions" :key="plioQuestion.id.toString()">
         <PlioQuestion
           :plioQuestion="plioQuestion"
@@ -672,8 +667,6 @@ export default {
 </script>
 
 <style>
-@import "https://cdn.plyr.io/3.6.2/plyr.css";
-
 .player_container {
   max-width: 800px;
   margin: auto;
