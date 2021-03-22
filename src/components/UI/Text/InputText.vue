@@ -1,6 +1,6 @@
 <template>
   <div class="grid grid-cols-1 gap-y-1">
-    <div class="flex justify-between">
+    <div class="flex">
       <p class="text-xs pl-2">{{ title }}</p>
     </div>
     <input
