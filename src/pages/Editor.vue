@@ -65,7 +65,7 @@
         </div>
       </div>
     </div>
-    <toast></toast>
+    <!-- <toast></toast> -->
   </div>
 </template>
 
@@ -75,7 +75,7 @@ import URL from "@/components/UI/Text/URL.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import Button from "primevue/button";
-import Toast from "primevue/toast";
+// import Toast from "primevue/toast";
 
 export default {
   components: {
@@ -83,7 +83,7 @@ export default {
     URL,
     Button,
     SliderWithMarkers,
-    Toast,
+    // Toast,
     VideoPlayer,
   },
   data() {
@@ -182,23 +182,21 @@ export default {
       this.plioTitle = player.config.title;
       this.$refs.title.value = this.plioTitle;
     },
-    showCopyStatus(success) {
-      // display a toast to indicate if the copy operation was successful
-      let severity;
-      let summary;
-      if (success) {
-        severity = "success";
-        summary = "Link Copied to Clipboard";
-      } else {
-        severity = "error";
-        summary = "Error while copying link to Clipboard";
-      }
-
-      this.$toast.add({
-        severity: severity,
-        summary: summary,
-        life: 3000,
-      });
+    showCopyStatus() {
+      // let severity;
+      // let summary;
+      // if (success) {
+      //   severity = "success";
+      //   summary = "Link Copied to Clipboard";
+      // } else {
+      //   severity = "error";
+      //   summary = "Error while copying link to Clipboard";
+      // }
+      // this.$toast.add({
+      //   severity: severity,
+      //   summary: summary,
+      //   life: 3000,
+      // });
     },
     titleUpdated(value) {
       // invoked when the plio title input is updated

@@ -103,11 +103,6 @@ export default {
       plioTutorialYT: "https://www.youtube.com/embed/DgySx8_H4DI",
     };
   },
-
-  created() {
-    document.getElementById("nav").style.display = "none";
-  },
-
   computed: {
     isPageNotFound() {
       return this.type === "404";

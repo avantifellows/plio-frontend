@@ -3,6 +3,10 @@ export default {
     home: "Home",
     login: "Login",
     logout: "Logout",
+    editor: "Editor",
+    abtesting: "",
+    player: "",
+    404: "Error",
   },
   editor: {
     video_input: {

@@ -161,8 +161,6 @@ export default {
     // load plio details
     await this.fetchData();
 
-    document.getElementById("nav").style.display = "none";
-
     if (this.$route.query.src) {
       this.source = this.$route.query.src;
     }

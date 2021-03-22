@@ -18,7 +18,6 @@ export default {
   },
 
   created() {
-    document.getElementById("nav").style.display = "none";
     if (!this.isLoggedIn) {
       this.$router.push({
         name: 'PhoneSignIn',

@@ -15,12 +15,12 @@
 
 <script>
 import UserProperties from "@/services/Config/User.vue";
-import UserService from "@/services/API/User.js"
+import UserService from "@/services/API/User.js";
 
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions } from "vuex";
 
 export default {
-  props: ['id', 'type'],
+  props: ["id", "type"],
   components: {
     UserProperties,
   },
@@ -40,16 +40,12 @@ export default {
   },
   created() {
     if (this.isLoggedIn) {
-      this.$router.replace({ name : 'Home'});
-    }
-
-    if (this.id) {
-      document.getElementById("nav").style.display = "none";
+      this.$router.replace({ name: "Home" });
     }
   },
-  computed: mapState(['isLoggedIn', 'userId']),
+  computed: mapState(["isLoggedIn", "userId"]),
   methods: {
-    ...mapActions(['login']),
+    ...mapActions(["login"]),
     storePhone() {
       // this component stores only the user ID in Vuex
       // other aspects of the User like the user Config are pulled
@@ -57,34 +53,34 @@ export default {
       const jsonResponse = JSON.stringify({ userId: this.phoneInput });
 
       UserService.loginUser(jsonResponse)
-      .then((response) => console.log(response))
-      .then(() => {
-        this.login({
-          phone: this.phoneInput,
+        .then((response) => console.log(response))
+        .then(() => {
+          this.login({
+            phone: this.phoneInput,
+          });
         })
-      })
-      .then(() => {
-        // set user config locally
-        this.$refs.userProperties.saveLocalUserConfigs();
+        .then(() => {
+          // set user config locally
+          this.$refs.userProperties.saveLocalUserConfigs();
 
-        // set locale from user config
-        this.$refs.userProperties.setLocaleFromUserConfig();
-      })
-      .then(() => {
+          // set locale from user config
+          this.$refs.userProperties.setLocaleFromUserConfig();
+        })
+        .then(() => {
           if (this.userId != null) {
             if (this.id) {
               if (this.type && this.type == "experiment") {
                 // redirect to experiment
-                this.$router.replace({ name: 'ABTesting', params: { id: this.id }});
+                this.$router.replace({ name: "ABTesting", params: { id: this.id } });
               } else {
                 // redirect to plio
-                this.$router.replace({ name: 'Player', params:{ id: this.id }});
+                this.$router.replace({ name: "Player", params: { id: this.id } });
               }
             } else {
-              this.$router.replace({ name : 'Home'});
+              this.$router.replace({ name: "Home" });
             }
           }
-      });
+        });
     },
 
     isPhoneValid() {
