@@ -43,6 +43,7 @@
         <input-text
           :placeholder="videoInputPlaceholder"
           :title="videoInputTitle"
+          :validation="videoInputValidation"
         ></input-text>
 
         <!--- plio title -->
@@ -90,6 +91,13 @@ export default {
       videoDuration: 150,
       // TODO: dummy
       videoId: "bTqVqk7FSmY",
+      // TODO: dummy
+      videoInputValidation: {
+        enabled: true,
+        isValid: false,
+        validMessage: "Link is valid",
+        invalidMessage: "Invalid Link",
+      },
       currentTimestamp: 0,
       currentItemIndex: null, // current item being displayed
       plyrConfig: {

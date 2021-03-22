@@ -1,7 +1,7 @@
 <template>
   <div class="flex">
     <!-- URL link -->
-    <p class="text-md lg:text-lg underline align-middle">{{ link }}</p>
+    <p class="text-md lg:text-lg underline h-full place-self-center">{{ link }}</p>
     <!-- copy button -->
     <button @click="copyToClipboard()">
       <img src="@/assets/images/copy.svg" class="w-10 h-10 min-width-full" />
