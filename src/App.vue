@@ -101,11 +101,7 @@ export default {
     currentPageName() {
       var pageName;
       if (this.$route.name) {
-        if (this.$route.name == "Player" || this.$route.name == "ABTesting") {
-          pageName = "";
-        } else {
           pageName = this.$t("nav." + this.$route.name.toLowerCase());
-        }
       }
       return pageName;
     },
