@@ -6,6 +6,7 @@ export default {
     editor: "Editor",
     abtesting: "",
     player: "",
+    404: "Error",
   },
   editor: {
     video_input: {
