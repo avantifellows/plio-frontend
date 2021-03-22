@@ -5,11 +5,12 @@
         <URL :link="plioLink" @copied="showCopyStatus"></URL>
       </div>
       <div class="row-span-2">
+        Timestamp: {{ currentTimestamp }}
         <slider-with-markers
-          @input="updateCurrentTimestamp"
+          @update="updateCurrentTimestamp"
+          :end="videoLength"
           :markerPositions="itemPositions"
         ></slider-with-markers>
-        Timestamp: {{ currentTimestamp }}
       </div>
       <div class="row-span-1 items-stretch">
         <Button label="Publish Plio" class="p-button-success" />
@@ -51,9 +52,10 @@ export default {
       // TODO: this is just a dummy value
       plioId: "r7R7ErAy2a",
       // TODO: dummy
-      items: [{ time: 10 }, { time: 20 }],
-      value: [20, 80],
+      items: [{ time: 40 }, { time: 80 }],
+      videoLength: 150,
       currentTimestamp: 0,
+      currentItemIndex: null, // current item being displayed
     };
   },
   computed: {
@@ -89,8 +91,9 @@ export default {
     },
   },
   methods: {
-    updateCurrentTimestamp(timestamp) {
+    updateCurrentTimestamp(timestamp, markerIndex) {
       this.currentTimestamp = timestamp;
+      this.currentItemIndex = markerIndex;
     },
     showCopyStatus(success) {
       let severity;

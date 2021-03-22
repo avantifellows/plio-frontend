@@ -2,7 +2,7 @@
   <div class="flex">
     <p class="text-md lg:text-lg underline align-middle">{{ link }}</p>
     <button @click="copyToClipboard()">
-      <img src="@/assets/images/copy.svg" class="w-10 h-10" />
+      <img src="@/assets/images/copy.svg" class="w-10 h-10 min-width-full" />
     </button>
   </div>
 </template>
