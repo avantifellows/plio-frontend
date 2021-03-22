@@ -1,16 +1,30 @@
 <template>
-  <div id="header">
-    <div class="left">
-      <LocaleSwitcher id="locale" class="hidden"></LocaleSwitcher>
+  <div class="grid grid-cols-5 gap-2 sm:grid-cols-12 sm:gap-2 border-b-2 border-solid bg-white">
+    <router-link v-if="isLoggedIn" :to="{ name: 'Home' }" class="h-15 w-10 place-self-center p-0.5 mt-1">
+        <img class="h-full w-full object-scale-down" id="logo" src='@/assets/images/logo.png'>
+    </router-link>
+
+    <div v-if="isLoggedIn" class="col-start-3 col-span-1 sm:col-start-6 sm:col-span-3 place-self-center">
+      <p class="text-2xl sm:text-4xl"> {{currentRouteName}} </p>
     </div>
-    <div id="nav">
+
+    <router-link v-if="!isLoggedIn" :to="{ name: 'Home' }" class="h-15 w-10 place-self-center p-0.5 mt-1 col-start-3 col-span-1 sm:col-start-6 sm:col-span-3 place-self-center">
+        <img class="h-full w-full object-scale-down" id="logo" src='@/assets/images/logo.png'>
+    </router-link>
+
+    <div class="grid col-start-5 sm:col-start-11 sm:col-span-1 gap-1 mt-2 justify-items-auto place-self-center">
       <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
-      <router-link :to="{ name: 'Home' }">{{ $t("nav.home") }}</router-link> |
-      <router-link v-if="!isLoggedIn" :to="{ name: 'PhoneSignIn' }">{{ $t("nav.login") }}</router-link>
-      <a href="#" v-if="isLoggedIn" @click="logoutUser">{{ $t("nav.logout") }}</a>
-    </div>
-    <div class="right">
-      <LocaleSwitcher id="locale"></LocaleSwitcher>
+      <div id="nav" v-if="!onLoginPage" class="text-lg sm:text-2xl place-self-center">
+        <router-link v-if="!isLoggedIn" :to="{ name: 'PhoneSignIn' }">
+          <button class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 sm:px-4 sm:py-2">{{ $t("nav.login") }}</button>
+        </router-link>
+        <a href="#" v-if="isLoggedIn" @click="logoutUser">
+          <button class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 sm:px-4 sm:py-2">{{ $t("nav.logout") }}</button>
+        </a>
+      </div>
+      <div class="place-self-center">
+        <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
+      </div>
     </div>
     <user-properties ref="userProperties"></user-properties>
   </div>
@@ -28,7 +42,7 @@ export default {
   components: {
     LocaleSwitcher,
     UserProperties,
-    LoadingSpinner
+    LoadingSpinner,
   },
   mounted() {
     if (this.isLoggedIn && !this.hasLocalUserConfigs) {
@@ -46,13 +60,23 @@ export default {
       this.logout().then(() => {
         this.$router.push({ name: 'PhoneSignIn' })
       })
-    }
+    },
   },
   computed: {
     ...mapState(['pending', 'isLoggedIn', 'configs']),
     hasLocalUserConfigs() {
       return this.configs != null;
     },
+    onLoginPage() {
+      return this.$route.name == 'PhoneSignIn'
+    },
+    currentRouteName() {
+      var routerObject
+      if( this.$route.name ) {
+        routerObject = this.$t("nav." + this.$route.name.toLowerCase())
+      }
+      return routerObject
+    }
   },
 };
 </script>
@@ -61,11 +85,10 @@ export default {
   font-family: "KrutiDev", Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
 }
 
-#nav {
+/* #nav {
   padding: 10px;
   margin-left: auto;
   margin-right: auto;
@@ -74,21 +97,21 @@ export default {
 #nav a {
   font-weight: bold;
   color: #2c3e50;
-}
+} */
 
-#header {
+/* #header {
   display: flex;
   padding-top: 20px;
   padding-bottom: 20px;
-}
+} */
 
-#locale {
+/* #locale {
   height: 100%;
   display: flex;
   align-items: center;
   vertical-align: center;
-}
-
+} */
+/*
 .left {
   margin-right: auto;
 }
@@ -99,11 +122,17 @@ export default {
 
 .hidden {
   visibility: hidden;
-}
+} */
 
-#nav a.router-link-exact-active {
+/* #nav a.router-link-exact-active {
   color: #42b983;
-}
+} */
+
+/* #logo {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+} */
 
 @font-face {
   font-family: "Kruti Dev";

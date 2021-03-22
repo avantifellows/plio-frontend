@@ -20,7 +20,4 @@ export default {
 </script>
 
 <style scoped>
-select {
-  margin-left: auto;
-}
 </style>

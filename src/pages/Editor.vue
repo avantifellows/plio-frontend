@@ -27,7 +27,7 @@
         ></input-text>
       </div>
     </div>
-    <toast></toast>
+    <!-- <toast></toast> -->
   </div>
 </template>
 
@@ -36,7 +36,7 @@ import InputText from "@/components/UI/Text/InputText.vue";
 import URL from "@/components/UI/Text/URL.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import Button from "primevue/button";
-import Toast from "primevue/toast";
+// import Toast from "primevue/toast";
 
 export default {
   components: {
@@ -44,7 +44,7 @@ export default {
     URL,
     Button,
     SliderWithMarkers,
-    Toast,
+    // Toast,
   },
   data() {
     return {
@@ -92,22 +92,22 @@ export default {
     updateCurrentTimestamp(timestamp) {
       this.currentTimestamp = timestamp;
     },
-    showCopyStatus(success) {
-      let severity;
-      let summary;
-      if (success) {
-        severity = "success";
-        summary = "Link Copied to Clipboard";
-      } else {
-        severity = "error";
-        summary = "Error while copying link to Clipboard";
-      }
+    showCopyStatus() {
+      // let severity;
+      // let summary;
+      // if (success) {
+      //   severity = "success";
+      //   summary = "Link Copied to Clipboard";
+      // } else {
+      //   severity = "error";
+      //   summary = "Error while copying link to Clipboard";
+      // }
 
-      this.$toast.add({
-        severity: severity,
-        summary: summary,
-        life: 3000,
-      });
+      // this.$toast.add({
+      //   severity: severity,
+      //   summary: summary,
+      //   life: 3000,
+      // });
     },
   },
 };
