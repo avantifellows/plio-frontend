@@ -105,11 +105,11 @@ export default {
       return this.$route.name == "Player";
     },
     currentPageName() {
-      var routerObject;
+      var pageName;
       if (this.$route.name) {
-        routerObject = this.$t("nav." + this.$route.name.toLowerCase());
+        pageName = this.$t("nav." + this.$route.name.toLowerCase());
       }
-      return routerObject;
+      return pageName;
     },
   },
 };
