@@ -98,19 +98,16 @@ export default {
     onLoginPage() {
       return this.$route.name == "PhoneSignIn";
     },
-    onPlayerPage() {
-      return this.$route.name == "Player";
-    },
     currentPageName() {
-      var routerObject;
+      var pageName;
       if (this.$route.name) {
         if (this.$route.name == "Player" || this.$route.name == "ABTesting") {
-          routerObject = "";
+          pageName = "";
         } else {
-          routerObject = this.$t("nav." + this.$route.name.toLowerCase());
+          pageName = this.$t("nav." + this.$route.name.toLowerCase());
         }
       }
-      return routerObject;
+      return pageName;
     },
   },
 };
