@@ -2,20 +2,22 @@
   <!-- :style="markerStyle" -->
 
   <div>
+    <!-- PrimeVue Slider -->
     <slider
       v-model="timestamp"
-      @change="updateTimestamp"
+      @change="updateSliderValue"
       :max="end"
       :step="step"
     ></slider>
     <div class="flex relative">
+      <!-- markers shown at the given positions -->
       <div
         v-for="(markerStyle, markerIndex) in markerStyles"
         :key="markerIndex"
         class="absolute"
         :style="markerStyle"
       >
-        <button @click="updateTimestampFromMarker(markerIndex)">
+        <button @click="updateSliderValueFromMarker(markerIndex)">
           <font-awesome-icon
             :icon="['fas', 'map-marker']"
             class="transform rotate-180"
@@ -42,30 +44,37 @@ export default {
     };
   },
   props: {
+    // positions where the markers are to be displayed
     markerPositions: {
       default: () => [],
       type: Array,
     },
+    // maximum boundary value.
     end: {
       default: 100,
       type: Number,
     },
+    // step factor to increment/decrement the value
     step: {
       default: 1,
       type: Number,
     },
   },
   methods: {
-    updateTimestamp(markerIndex = null) {
-      this.$emit("update", this.timestamp, markerIndex);
+    updateSliderValue(timestamp, markerIndex = null) {
+      // emit an event indicating the slider value has been updated
+      this.$emit("update", timestamp, markerIndex);
     },
-    updateTimestampFromMarker(markerIndex) {
+    updateSliderValueFromMarker(markerIndex) {
+      // update the slider position from the marker selected
+      // and emit an event for the update
       this.timestamp = this.markerPositions[markerIndex];
-      this.updateTimestamp(markerIndex);
+      this.updateSliderValue(this.timestamp, markerIndex);
     },
   },
   computed: {
     markerRelativePositions() {
+      // converts the absolute positions of the markers to relative to the slider length
       var relativePositions = [];
 
       this.markerPositions.forEach((position) => {
@@ -75,6 +84,7 @@ export default {
       return relativePositions;
     },
     markerStyles() {
+      // computes the styles to be applied on each marker
       var styles = [];
 
       this.markerRelativePositions.forEach((relativePosition) => {

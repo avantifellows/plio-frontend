@@ -1,8 +1,10 @@
 <template>
   <div class="grid grid-cols-1 gap-y-1">
     <div class="flex">
+      <!-- title for the input box -->
       <p class="text-xs pl-2">{{ title }}</p>
     </div>
+    <!-- input area -->
     <input
       class="resize-none border rounded-md h-10 pl-4 col-span-1"
       type="text"
