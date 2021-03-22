@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-5 gap-2 sm:grid-cols-12 sm:gap-2 border-b-2 border-solid bg-white">
+  <div id="nav" class="grid grid-cols-5 gap-2 sm:grid-cols-12 sm:gap-2 border-b-2 border-solid bg-white">
     <router-link v-if="isLoggedIn" :to="{ name: 'Home' }" class="h-15 w-10 place-self-center p-0.5 mt-1">
         <img class="h-full w-full object-scale-down" id="logo" src='@/assets/images/logo.png'>
     </router-link>
@@ -14,7 +14,7 @@
 
     <div class="grid col-start-5 sm:col-start-11 sm:col-span-1 gap-1 mt-2 justify-items-auto place-self-center">
       <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
-      <div id="nav" v-if="!onLoginPage" class="text-lg sm:text-2xl place-self-center">
+      <div v-if="!onLoginPage" class="text-lg sm:text-2xl place-self-center">
         <router-link v-if="!isLoggedIn" :to="{ name: 'PhoneSignIn' }">
           <button class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 sm:px-4 sm:py-2">{{ $t("nav.login") }}</button>
         </router-link>

@@ -1,5 +1,8 @@
 <template>
-  <div>
+  <div class="container h-full">
+    <div class="float-right pt-2 h-20">
+      <LocaleSwitcher id="locale" ></LocaleSwitcher>
+    </div>
     <div class="player_container" v-if="dataLoaded && isBrowserSupported">
       <LoadingSpinner v-if="!hasPlyrLoaded"></LoadingSpinner>
 
@@ -49,6 +52,7 @@ import Error from "@/pages/Error.vue";
 import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import StartButtonPointer from "@/components/UI/tutorial/StartButtonPointer.vue";
 import UserProperties from "@/services/Config/User.vue";
+import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
 
 import PlioService from '@/services/API/Plio.js'
 import UserService from '@/services/API/User.js'
@@ -179,6 +183,7 @@ export default {
     LoadingSpinner,
     StartButtonPointer,
     UserProperties,
+    LocaleSwitcher
   },
 
   methods: {

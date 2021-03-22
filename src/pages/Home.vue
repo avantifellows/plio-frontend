@@ -16,7 +16,6 @@ export default {
     if (!this.isLoggedIn) {
       this.$router.push({ name: 'PhoneSignIn' });
     }
-    document.getElementById("nav").style.display = "inline";
   },
 
   name: "Home",
