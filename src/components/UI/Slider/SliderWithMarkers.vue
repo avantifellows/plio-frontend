@@ -2,7 +2,12 @@
   <!-- :style="markerStyle" -->
 
   <div>
-    <slider v-model="timestamp" @change="updateTimestamp" :max="end">></slider>
+    <slider
+      v-model="timestamp"
+      @change="updateTimestamp"
+      :max="end"
+      :step="step"
+    ></slider>
     <div class="flex relative">
       <div
         v-for="(markerStyle, markerIndex) in markerStyles"
@@ -43,6 +48,10 @@ export default {
     },
     end: {
       default: 100,
+      type: Number,
+    },
+    step: {
+      default: 1,
       type: Number,
     },
   },
