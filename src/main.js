@@ -10,7 +10,7 @@ import PrimeVue from "primevue/config";
 import "primevue/resources/themes/saga-blue/theme.css";
 import "primevue/resources/primevue.min.css";
 import "primeicons/primeicons.css";
-import "tailwindcss/tailwind.css";
+import "./index.css";
 
 const app = createApp(App).use(store).use(router);
 
