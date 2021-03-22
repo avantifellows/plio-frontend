@@ -3,22 +3,23 @@
     <div class="flex justify-between">
       <!-- title for the input box -->
       <p class="text-xs pl-2">{{ title }}</p>
+      <!-- input validation -->
       <div class="pr-2" v-if="isValidationEnabled">
         <div class="flex text-xs" :class="validationColor">
+          <!-- validation icon -->
           <font-awesome-icon
-            :icon="['fas', validationIcon]"
+            :icon="['fas', 'check']"
+            v-if="isValid"
             class="place-self-center"
           ></font-awesome-icon>
+          <font-awesome-icon
+            :icon="['fas', 'times']"
+            v-else
+            class="place-self-center"
+          ></font-awesome-icon>
+          <!-- validation message -->
           <p class="pl-1">{{ validationMessage }}</p>
         </div>
-        <!-- <div v-if="isValid" class="text-green-600">
-          <font-awesome-icon :icon="['fas', 'check']"></font-awesome-icon>
-          <p class="text-xs">{{ validMessage }}</p>
-        </div>
-        <div v-else class="text-red-600">
-          <font-awesome-icon :icon="['fas', 'times']"></font-awesome-icon>
-          <p class="text-xs">{{ invalidMessage }}</p>
-        </div> -->
       </div>
     </div>
     <!-- input area -->
@@ -27,6 +28,8 @@
       type="text"
       name="placeholder"
       :placeholder="placeholder"
+      v-model="value"
+      @input="inputChange"
     />
   </div>
 </template>
@@ -38,6 +41,11 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons/faTimes";
 library.add(faCheck, faTimes);
 
 export default {
+  data() {
+    return {
+      value: "", // value of the user input
+    };
+  },
   props: {
     placeholder: {
       default: "",
@@ -77,12 +85,12 @@ export default {
       }
       return this.validation["invalidMessage"];
     },
-    validationIcon() {
-      if (this.isValid) {
-        return "check";
-      }
-      return "times";
+  },
+  methods: {
+    inputChange() {
+      this.$emit("input", this.value);
     },
   },
+  emits: ["input"],
 };
 </script>

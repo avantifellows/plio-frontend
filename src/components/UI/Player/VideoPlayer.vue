@@ -1,9 +1,7 @@
 <template>
   <div>
     <!--- plyr instance -->
-    <div class="player_container">
-      <div id="player" data-plyr-provider="youtube" :data-plyr-embed-id="videoId"></div>
-    </div>
+    <div id="player" data-plyr-provider="youtube" :data-plyr-embed-id="videoId"></div>
   </div>
 </template>
 
@@ -62,11 +60,3 @@ export default {
   emits: ["update", "ready"],
 };
 </script>
-
-<style scoped>
-.player_container {
-  max-width: 800px;
-  margin: auto;
-  position: relative;
-}
-</style>

@@ -44,12 +44,16 @@
           :placeholder="videoInputPlaceholder"
           :title="videoInputTitle"
           :validation="videoInputValidation"
+          @input="videoLinkUpdated"
+          ref="videoLink"
         ></input-text>
 
         <!--- plio title -->
         <input-text
           :placeholder="titleInputPlaceholder"
           :title="titleInputTitle"
+          @input="titleUpdated"
+          ref="title"
         ></input-text>
 
         <!--- item editor  -->
@@ -90,15 +94,17 @@ export default {
       // TODO: dummy
       videoDuration: 150,
       // TODO: dummy
-      videoId: "bTqVqk7FSmY",
+      videoId: "bTqVqk7FSmY", // ID of the YouTube video
       // TODO: dummy
       videoInputValidation: {
+        // video link validation display config
         enabled: true,
         isValid: false,
         validMessage: "Link is valid",
         invalidMessage: "Invalid Link",
       },
-      currentTimestamp: 0,
+      plioTitle: "", // title for the current plio
+      currentTimestamp: 0, // current timestamp
       currentItemIndex: null, // current item being displayed
       plyrConfig: {
         controls: ["play-large", "play", "volume"],
@@ -161,6 +167,8 @@ export default {
     playerReady(player) {
       // set variables once the player instance is ready
       this.videoDuration = player.duration;
+      this.plioTitle = player.config.title;
+      this.$refs.title.value = this.plioTitle;
     },
     showCopyStatus(success) {
       // display a toast to indicate if the copy operation was successful
@@ -180,13 +188,31 @@ export default {
         life: 3000,
       });
     },
+    titleUpdated(value) {
+      // invoked when the plio title input is updated
+      this.plioTitle = value;
+    },
+    videoLinkUpdated(value) {
+      // invoked when the video link is updated
+      if (!this.isVideoLinkValid(value)) return;
+      this.videoInputValidation["isValid"] = true;
+      this.videoId = this.getVideoIdfromTitle(value);
+      // TODO: update Plyr
+      console.log(this.videoId);
+      console.log(this.$refs.player.player.source);
+      // this.videoLink = value;
+    },
+    getVideoIdfromTitle(link) {
+      // TODO: dummy
+      console.log(link);
+      return "uVAbT9r1UOY";
+    },
+    isVideoLinkValid(link) {
+      // checks if the link is valid
+      // TODO: dummy
+      console.log(link);
+      return true;
+    },
   },
 };
 </script>
-
-<style scoped>
-.container {
-  margin: 20px auto;
-  max-width: 500px;
-}
-</style>
