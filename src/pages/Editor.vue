@@ -17,6 +17,7 @@
           :plyrConfig="plyrConfig"
           @update="videoTimestampUpdated"
           @ready="playerReady"
+          @play="playerPlayed"
           ref="player"
         ></video-player>
 
@@ -103,6 +104,7 @@ export default {
         validMessage: "Link is valid",
         invalidMessage: "Invalid Link",
       },
+      isItemSelected: false, // indicated if an item has been selected currently
       plioTitle: "", // title for the current plio
       currentTimestamp: 0, // current timestamp
       currentItemIndex: null, // current item being displayed
@@ -156,11 +158,21 @@ export default {
     sliderTimestampUpdated(timestamp, markerIndex) {
       // update the value of currentTimestamp when the slider is updated
       this.currentTimestamp = timestamp;
-      this.currentItemIndex = markerIndex;
       this.$refs.player.currentTime = timestamp;
+      if (markerIndex != null) {
+        this.isItemSelected = true;
+        this.$refs.player.player.pause();
+        this.currentItemIndex = markerIndex;
+      }
     },
     videoTimestampUpdated(timestamp) {
       // update the value of slider when the video's timestamp is updated
+      if (this.isItemSelected) {
+        // handles the case when the marker has been selected (and hence, video should pause)
+        // but the emit from the video time update is still on the way
+        // if we don't have this, the slider gets another timestamp update
+        return;
+      }
       this.currentTimestamp = timestamp;
       this.$refs.slider.timestamp = timestamp;
     },
@@ -212,6 +224,9 @@ export default {
       // TODO: dummy
       console.log(link);
       return true;
+    },
+    playerPlayed() {
+      this.isItemSelected = false;
     },
   },
 };

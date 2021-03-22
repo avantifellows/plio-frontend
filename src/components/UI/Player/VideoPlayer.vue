@@ -1,6 +1,7 @@
 <template>
   <div>
     <!--- plyr instance -->
+    {{ videoId }}
     <div id="player" data-plyr-provider="youtube" :data-plyr-embed-id="videoId"></div>
   </div>
 </template>
@@ -15,6 +16,7 @@ export default {
         default: 0,
         type: Number,
       },
+      player: null,
     };
   },
   created() {
@@ -47,6 +49,7 @@ export default {
       // set properties of the player
       player.on("timeupdate", this.emitTimeUpdate);
       player.on("ready", this.emitReady);
+      player.on("play", this.emitPlay);
     },
     emitTimeUpdate() {
       // emit an event saying that the player time has been updated
@@ -56,7 +59,11 @@ export default {
       // emit an event indicating that the player instance is ready
       this.$emit("ready", this.player);
     },
+    emitPlay() {
+      // emit an event indicating that the player has been played
+      this.$emit("play", this.player);
+    },
   },
-  emits: ["update", "ready"],
+  emits: ["update", "ready", "play"],
 };
 </script>
