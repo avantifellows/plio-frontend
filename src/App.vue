@@ -14,10 +14,7 @@
     </router-link>
 
     <!-- page heading -->
-    <div
-      v-if="isLoggedIn && !onPlayerPage"
-      class="col-start-3 col-span-1 place-self-center"
-    >
+    <div v-if="isLoggedIn" class="col-start-3 col-span-1 place-self-center">
       <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
     </div>
 
@@ -107,7 +104,11 @@ export default {
     currentPageName() {
       var routerObject;
       if (this.$route.name) {
-        routerObject = this.$t("nav." + this.$route.name.toLowerCase());
+        if (this.$route.name == "Player" || this.$route.name == "ABTesting") {
+          routerObject = "";
+        } else {
+          routerObject = this.$t("nav." + this.$route.name.toLowerCase());
+        }
       }
       return routerObject;
     },
