@@ -1,8 +1,5 @@
 <template>
-  <div class="container h-full">
-    <div class="float-right pt-2 h-20">
-      <LocaleSwitcher id="locale" ></LocaleSwitcher>
-    </div>
+  <div>
     <div class="player_container" v-if="dataLoaded && isBrowserSupported">
       <LoadingSpinner v-if="!hasPlyrLoaded"></LoadingSpinner>
 
@@ -52,11 +49,10 @@ import Error from "@/pages/Error.vue";
 import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import StartButtonPointer from "@/components/UI/tutorial/StartButtonPointer.vue";
 import UserProperties from "@/services/Config/User.vue";
-import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
 
-import PlioService from '@/services/API/Plio.js'
-import UserService from '@/services/API/User.js'
-import { mapState } from 'vuex';
+import PlioService from "@/services/API/Plio.js";
+import UserService from "@/services/API/User.js";
+import { mapState } from "vuex";
 
 // supports indexOf for older browsers
 if (!Array.prototype.indexOf) {
@@ -107,8 +103,8 @@ export default {
     },
     id: {
       default: "",
-      type: String
-    }
+      type: String,
+    },
   },
 
   data() {
@@ -157,8 +153,8 @@ export default {
   async created() {
     if (!this.userId) {
       this.$router.push({
-        name: 'PhoneSignIn',
-        params: {id: this.id}
+        name: "PhoneSignIn",
+        params: { id: this.id },
       });
     }
 
@@ -169,8 +165,6 @@ export default {
 
     // load plio details
     await this.fetchData();
-
-    document.getElementById("nav").style.display = "none";
 
     if (this.$route.query.src) {
       this.source = this.$route.query.src;
@@ -183,7 +177,6 @@ export default {
     LoadingSpinner,
     StartButtonPointer,
     UserProperties,
-    LocaleSwitcher
   },
 
   methods: {
@@ -231,10 +224,7 @@ export default {
     },
 
     async fetchData() {
-        PlioService.getPlioDetails(
-          this.id,
-          this.userId
-        )
+      PlioService.getPlioDetails(this.id, this.userId)
         .then((res) => {
           var items = res.data.plioDetails.items;
           var questions = items;
@@ -347,7 +337,7 @@ export default {
 
     handleQueryError(err) {
       if (err.response && err.response.status == 404) {
-        this.$router.push({ name: '404' });
+        this.$router.push({ name: "404" });
       } else {
         console.log(err);
       }
@@ -372,8 +362,8 @@ export default {
       const jsonResponse = JSON.stringify(student_response);
 
       UserService.postUserResponse(jsonResponse)
-      .then((data) => console.log(data))
-      .catch((err) => console.log(err));
+        .then((data) => console.log(data))
+        .catch((err) => console.log(err));
 
       if (this.isTutorialUploadRequired) {
         this.userConfigs["tutorial"]["isComplete"] = this.isTutorialComplete;
@@ -660,7 +650,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(['userId']),
+    ...mapState(["userId"]),
     playerOptions() {
       const options = {
         title: "This is an example video",

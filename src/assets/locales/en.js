@@ -4,7 +4,6 @@ export default {
     login: "Login",
     logout: "Logout",
     editor: "Editor",
-    player: "Player",
   },
   editor: {
     video_input: {
