@@ -3,12 +3,7 @@
     <div class="player_container" v-if="dataLoaded && isBrowserSupported">
       <LoadingSpinner v-if="!hasPlyrLoaded"></LoadingSpinner>
 
-      <div
-        id="player"
-        class="plyr"
-        data-plyr-provider="youtube"
-        :data-plyr-embed-id="videoId"
-      ></div>
+      <div id="player" data-plyr-provider="youtube" :data-plyr-embed-id="videoId"></div>
       <div v-for="plioQuestion in plioQuestions" :key="plioQuestion.id.toString()">
         <PlioQuestion
           :plioQuestion="plioQuestion"
@@ -50,9 +45,9 @@ import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import StartButtonPointer from "@/components/UI/tutorial/StartButtonPointer.vue";
 import UserProperties from "@/services/Config/User.vue";
 
-import PlioService from '@/services/API/Plio.js'
-import UserService from '@/services/API/User.js'
-import { mapState } from 'vuex';
+import PlioService from "@/services/API/Plio.js";
+import UserService from "@/services/API/User.js";
+import { mapState } from "vuex";
 
 // supports indexOf for older browsers
 if (!Array.prototype.indexOf) {
@@ -103,8 +98,8 @@ export default {
     },
     id: {
       default: "",
-      type: String
-    }
+      type: String,
+    },
   },
 
   data() {
@@ -153,8 +148,8 @@ export default {
   async created() {
     if (!this.userId) {
       this.$router.push({
-        name: 'PhoneSignIn',
-        params: {id: this.id}
+        name: "PhoneSignIn",
+        params: { id: this.id },
       });
     }
 
@@ -226,10 +221,7 @@ export default {
     },
 
     async fetchData() {
-        PlioService.getPlioDetails(
-          this.id,
-          this.userId
-        )
+      PlioService.getPlioDetails(this.id, this.userId)
         .then((res) => {
           var items = res.data.plioDetails.items;
           var questions = items;
@@ -342,7 +334,7 @@ export default {
 
     handleQueryError(err) {
       if (err.response && err.response.status == 404) {
-        this.$router.push({ name: '404' });
+        this.$router.push({ name: "404" });
       } else {
         console.log(err);
       }
@@ -367,8 +359,8 @@ export default {
       const jsonResponse = JSON.stringify(student_response);
 
       UserService.postUserResponse(jsonResponse)
-      .then((data) => console.log(data))
-      .catch((err) => console.log(err));
+        .then((data) => console.log(data))
+        .catch((err) => console.log(err));
 
       if (this.isTutorialUploadRequired) {
         this.userConfigs["tutorial"]["isComplete"] = this.isTutorialComplete;
@@ -655,7 +647,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(['userId']),
+    ...mapState(["userId"]),
     playerOptions() {
       const options = {
         title: "This is an example video",
@@ -677,8 +669,6 @@ export default {
 </script>
 
 <style>
-@import "https://cdn.plyr.io/3.6.2/plyr.css";
-
 .player_container {
   max-width: 800px;
   margin: auto;

@@ -1,8 +1,10 @@
 <template>
   <div class="flex">
-    <p class="text-md lg:text-lg underline align-middle">{{ link }}</p>
+    <!-- URL link -->
+    <p class="text-md lg:text-lg underline h-full place-self-center">{{ link }}</p>
+    <!-- copy button -->
     <button @click="copyToClipboard()">
-      <img src="@/assets/images/copy.svg" class="w-10 h-10" />
+      <img src="@/assets/images/copy.svg" class="w-10 h-10 min-width-full" />
     </button>
   </div>
 </template>
@@ -16,6 +18,7 @@ export default {
   },
   methods: {
     copyToClipboard() {
+      // copies the link to the clipboard
       var hiddenElement = document.createElement("textarea");
       document.body.appendChild(hiddenElement);
       hiddenElement.value = this.link;

@@ -6,7 +6,9 @@
     <div id="nav">
       <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
       <router-link :to="{ name: 'Home' }">{{ $t("nav.home") }}</router-link> |
-      <router-link v-if="!isLoggedIn" :to="{ name: 'PhoneSignIn' }">{{ $t("nav.login") }}</router-link>
+      <router-link v-if="!isLoggedIn" :to="{ name: 'PhoneSignIn' }">{{
+        $t("nav.login")
+      }}</router-link>
       <a href="#" v-if="isLoggedIn" @click="logoutUser">{{ $t("nav.logout") }}</a>
     </div>
     <div class="right">
@@ -21,14 +23,14 @@
 <script>
 import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
 import UserProperties from "@/services/Config/User.vue";
-import LoadingSpinner from '@/components/UI/LoadingSpinner.vue';
-import { mapActions, mapState } from 'vuex';
+import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
+import { mapActions, mapState } from "vuex";
 
 export default {
   components: {
     LocaleSwitcher,
     UserProperties,
-    LoadingSpinner
+    LoadingSpinner,
   },
   mounted() {
     if (this.isLoggedIn && !this.hasLocalUserConfigs) {
@@ -41,15 +43,15 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions(['logout']),
+    ...mapActions(["logout"]),
     logoutUser() {
       this.logout().then(() => {
-        this.$router.push({ name: 'PhoneSignIn' })
-      })
-    }
+        this.$router.push({ name: "PhoneSignIn" });
+      });
+    },
   },
   computed: {
-    ...mapState(['pending', 'isLoggedIn', 'configs']),
+    ...mapState(["pending", "isLoggedIn", "configs"]),
     hasLocalUserConfigs() {
       return this.configs != null;
     },
