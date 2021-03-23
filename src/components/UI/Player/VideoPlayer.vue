@@ -21,12 +21,31 @@ export default {
   },
   created() {
     // start the player
-    this.$nextTick(() => this.initiatePlayer());
+    this.$nextTick(() => {
+      if (this.isVideoIdValid) {
+        this.initiatePlayer();
+      }
+    });
   },
   watch: {
     currentTime(newTime) {
       // update player time if currentTime is changed
       this.player.currentTime = newTime;
+    },
+    videoId() {
+      if (this.player == undefined) {
+        // initiate the player when a new valid videoId is given
+        this.initiatePlayer();
+      } else {
+        // replace the plyr instance with the new video Id
+        document
+          .getElementById("player")
+          .setAttribute("data-plyr-embed-id", this.videoId);
+        // reinitiate player
+        this.$nextTick(() => {
+          this.initiatePlayer();
+        });
+      }
     },
   },
   props: {
@@ -62,6 +81,12 @@ export default {
     emitPlay() {
       // emit an event indicating that the player has been played
       this.$emit("play", this.player);
+    },
+  },
+  computed: {
+    isVideoIdValid() {
+      // whether the video Id is valid
+      return this.videoId != null && this.videoId != "";
     },
   },
   emits: ["update", "ready", "play"],

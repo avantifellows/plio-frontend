@@ -12,27 +12,35 @@
 
       <div class="justify-center">
         <!--- video preview -->
-        <video-player
-          :videoId="videoId"
-          :plyrConfig="plyrConfig"
-          @update="videoTimestampUpdated"
-          @ready="playerReady"
-          @play="playerPlayed"
-          ref="player"
-        ></video-player>
+        <div v-if="!isVideoIdValid" class="flex justify-center">
+          <div class="flex relative justify-center">
+            <img src="@/assets/images/plain.svg" />
+            <img src="@/assets/images/play.svg" class="absolute place-self-center" />
+          </div>
+        </div>
+        <div v-else>
+          <video-player
+            :videoId="videoId"
+            :plyrConfig="plyrConfig"
+            @update="videoTimestampUpdated"
+            @ready="playerReady"
+            @play="playerPlayed"
+            ref="player"
+          ></video-player>
 
-        <!--- slider with question markers -->
-        <slider-with-markers
-          @update="sliderTimestampUpdated"
-          :end="videoDuration"
-          :step="sliderStep"
-          :markerPositions="itemPositions"
-          ref="slider"
-        ></slider-with-markers>
+          <!--- slider with question markers -->
+          <slider-with-markers
+            @update="sliderTimestampUpdated"
+            :end="videoDuration"
+            :step="sliderStep"
+            :markerPositions="itemPositions"
+            ref="slider"
+          ></slider-with-markers>
+        </div>
       </div>
 
       <!--- buttons -->
-      <div class="justify-center mt-10">
+      <div class="flex justify-center mt-10">
         <Button label="Publish Plio" class="p-button-success" />
       </div>
     </div>
@@ -91,12 +99,9 @@ export default {
       // TODO: this is just a dummy value
       plioId: "r7R7ErAy2a",
       // TODO: dummy
-      items: [{ time: 40 }, { time: 80 }],
-      // TODO: dummy
-      videoDuration: 150,
-      // TODO: dummy
-      videoId: "bTqVqk7FSmY", // ID of the YouTube video
-      // TODO: dummy
+      items: [{ time: 20 }, { time: 80 }],
+      videoDuration: 0,
+      videoId: "", // ID of the YouTube video
       videoInputValidation: {
         // video link validation display config
         enabled: true,
@@ -153,6 +158,10 @@ export default {
 
       return positions;
     },
+    isVideoIdValid() {
+      // whether the video Id is valid
+      return this.videoId != "";
+    },
   },
   methods: {
     sliderTimestampUpdated(timestamp, markerIndex) {
@@ -204,26 +213,26 @@ export default {
     },
     videoLinkUpdated(value) {
       // invoked when the video link is updated
-      if (!this.isVideoLinkValid(value)) return;
-      this.videoInputValidation["isValid"] = true;
-      this.videoId = this.getVideoIdfromTitle(value);
-      // TODO: update Plyr
-      console.log(this.videoId);
-      console.log(this.$refs.player.player.source);
-      // this.videoLink = value;
-    },
-    getVideoIdfromTitle(link) {
-      // TODO: dummy
-      console.log(link);
-      return "uVAbT9r1UOY";
+      var linkValidation = this.isVideoLinkValid(value);
+      this.videoInputValidation["isValid"] = linkValidation["valid"];
+      if (!linkValidation["valid"]) return;
+
+      if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
+        this.$refs.player.player.destroy();
+      }
+      this.videoId = linkValidation["ID"];
     },
     isVideoLinkValid(link) {
       // checks if the link is valid
-      // TODO: dummy
-      console.log(link);
-      return true;
+      var pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+      var matches = link.match(pattern);
+      if (matches) {
+        return { valid: true, ID: matches[1] };
+      }
+      return { valid: false };
     },
     playerPlayed() {
+      // invoked when the player is played from a paused state
       this.isItemSelected = false;
     },
   },

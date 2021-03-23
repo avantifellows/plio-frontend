@@ -1,6 +1,6 @@
 <template>
   <!-- :style="markerStyle" -->
-
+  <!-- :class="{ 'markerVisibility(markerIndex)': hidden }" -->
   <div>
     <!-- PrimeVue Slider -->
     <slider
@@ -15,6 +15,7 @@
         v-for="(markerStyle, markerIndex) in markerStyles"
         :key="markerIndex"
         class="absolute"
+        :class="{ hidden: !isMarkerVisible(markerIndex) }"
         :style="markerStyle"
       >
         <button @click="updateSliderValueFromMarker(markerIndex)">
@@ -59,8 +60,17 @@ export default {
       default: 1,
       type: Number,
     },
+    // whether to hide markers which overflow from the slider
+    hideOverflowMarkers: {
+      default: true,
+      type: Boolean,
+    },
   },
   methods: {
+    isMarkerVisible(markerIndex) {
+      var markerRelativePosition = this.markerRelativePositions[markerIndex];
+      return markerRelativePosition >= 0 && markerRelativePosition <= 100;
+    },
     updateSliderValue(timestamp, markerIndex = null) {
       // emit an event indicating the slider value has been updated
       this.$emit("update", timestamp, markerIndex);
