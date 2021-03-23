@@ -1,7 +1,6 @@
 <template>
   <div>
     <!--- plyr instance -->
-    {{ videoId }}
     <div id="player" data-plyr-provider="youtube" :data-plyr-embed-id="videoId"></div>
   </div>
 </template>
