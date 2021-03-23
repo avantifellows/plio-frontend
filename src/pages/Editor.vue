@@ -4,11 +4,7 @@
     <!--- preview grid -->
     <div class="justify-center ml-5 mr-5">
       <!--- plio link -->
-      <URL
-        :link="plioLink"
-        @copied="showCopyStatus"
-        class="col-span-2 justify-center m-1"
-      ></URL>
+      <URL :link="plioLink" class="col-span-2 justify-center m-1"></URL>
 
       <div class="justify-center">
         <!--- video preview -->
@@ -41,7 +37,12 @@
 
       <!--- buttons -->
       <div class="flex justify-center mt-10">
-        <Button label="Publish Plio" class="p-button-success" />
+        <Button
+          label="Publish Plio"
+          class="p-button-success"
+          :disabled="!isVideoIdValid"
+          v-tooltip.bottom="'Click to publish plio'"
+        />
       </div>
     </div>
 
@@ -73,7 +74,6 @@
         </div>
       </div>
     </div>
-    <!-- <toast></toast> -->
   </div>
 </template>
 
@@ -91,7 +91,6 @@ export default {
     URL,
     Button,
     SliderWithMarkers,
-    // Toast,
     VideoPlayer,
   },
   data() {
@@ -190,22 +189,6 @@ export default {
       this.videoDuration = player.duration;
       this.plioTitle = player.config.title;
       this.$refs.title.value = this.plioTitle;
-    },
-    showCopyStatus() {
-      // let severity;
-      // let summary;
-      // if (success) {
-      //   severity = "success";
-      //   summary = "Link Copied to Clipboard";
-      // } else {
-      //   severity = "error";
-      //   summary = "Error while copying link to Clipboard";
-      // }
-      // this.$toast.add({
-      //   severity: severity,
-      //   summary: summary,
-      //   life: 3000,
-      // });
     },
     titleUpdated(value) {
       // invoked when the plio title input is updated
