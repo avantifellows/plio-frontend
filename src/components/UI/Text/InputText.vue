@@ -8,13 +8,8 @@
         <div class="flex text-xs" :class="validationColor">
           <!-- validation icon -->
           <font-awesome-icon
-            :icon="['fas', 'check']"
-            v-if="isValid"
-            class="place-self-center"
-          ></font-awesome-icon>
-          <font-awesome-icon
-            :icon="['fas', 'times']"
-            v-else
+            :icon="validationIcon"
+            :key="validationIcon"
             class="place-self-center"
           ></font-awesome-icon>
           <!-- validation message -->
@@ -84,6 +79,12 @@ export default {
         return this.validation["validMessage"];
       }
       return this.validation["invalidMessage"];
+    },
+    validationIcon() {
+      if (this.isValid) {
+        return ["fas", "check"];
+      }
+      return ["fas", "times"];
     },
   },
   methods: {
