@@ -5,46 +5,49 @@
       <p class="text-xs pl-2">{{ title }}</p>
       <!-- input validation -->
       <div class="pr-2" v-if="isValidationEnabled">
-        <div class="flex text-xs" :class="validationColor">
+        <div class="flex text-xs">
           <!-- validation icon -->
-          <font-awesome-icon
-            :icon="['fas', 'check']"
-            v-if="isValid"
-            class="place-self-center"
-          ></font-awesome-icon>
-          <font-awesome-icon
-            :icon="['fas', 'times']"
-            v-else
-            class="place-self-center"
-          ></font-awesome-icon>
+          <inline-svg
+            :src="validityIcon"
+            class="h-5 w-2.5 place-self-center"
+            :class="validationColorClass"
+          ></inline-svg>
+
           <!-- validation message -->
-          <p class="pl-1">{{ validationMessage }}</p>
+          <p class="pl-1 place-self-center" :class="validationColorClass">
+            {{ validationMessage }}
+          </p>
         </div>
       </div>
     </div>
-    <!-- input area -->
-    <input
-      class="resize-none border rounded-md h-10 pl-4 col-span-1"
-      type="text"
-      name="placeholder"
-      :placeholder="placeholder"
-      v-model="value"
-      @input="inputChange"
-    />
+
+    <div class="relative flex w-full flex-wrap items-stretch mb-3">
+      <!-- left icon -->
+      <!-- TODO: icon styling is fixed right now, will make it parametrized  -->
+      <span
+        v-if="sideIcon.enabled"
+        class="z-10 h-full leading-snug font-normal flex text-blueGray-300 absolute bg-transparent rounded text-base w-8 p-3 items-center"
+      >
+        <inline-svg :src="sideIconObj"></inline-svg>
+      </span>
+
+      <!-- input area -->
+      <input
+        class="px-3 py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-md border border-blueGray-300 focus:outline-none focus:ring focus:border-blue-300 focus:shadow-outline w-full pl-8"
+        type="text"
+        name="placeholder"
+        :placeholder="placeholder"
+        v-model="localValue"
+        @input="inputChange"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faCheck } from "@fortawesome/free-solid-svg-icons/faCheck";
-import { faTimes } from "@fortawesome/free-solid-svg-icons/faTimes";
-library.add(faCheck, faTimes);
-
 export default {
   data() {
-    return {
-      value: "", // value of the user input
-    };
+    return {};
   },
   props: {
     placeholder: {
@@ -65,19 +68,41 @@ export default {
       },
       type: Object,
     },
+    sideIcon: {
+      // whether side icon is enabled or not
+      // and the icon name if enabled
+      default: () => {
+        return {
+          enabled: false,
+        };
+      },
+    },
+    value: {
+      // the value of the input of the input box
+      default: "",
+    },
   },
   computed: {
+    localValue: {
+      get() {
+        return this.value;
+      },
+      set(localValue) {
+        this.$emit("update:value", localValue);
+      },
+    },
     isValidationEnabled() {
       return this.validation["enabled"];
     },
     isValid() {
       return this.isValidationEnabled && this.validation["isValid"];
     },
-    validationColor() {
-      if (this.isValid) {
-        return "text-green-600";
-      }
-      return "text-red-600";
+    validationColorClass() {
+      // https://v3.vuejs.org/guide/class-and-style.html#class-and-style-bindings
+      return {
+        "text-green-600": this.isValid,
+        "text-red-600": !this.isValid,
+      };
     },
     validationMessage() {
       if (this.isValid) {
@@ -85,12 +110,33 @@ export default {
       }
       return this.validation["invalidMessage"];
     },
+    validityIcon() {
+      // fetches and returns the icon object, depending on "isValid"
+      var icon = require("@/assets/images/times-solid.svg");
+      if (this.isValid) {
+        icon = require("@/assets/images/check-solid.svg");
+      }
+      return icon;
+    },
+    sideIconName() {
+      // gets the side icon name from the prop
+      return this.sideIcon.iconSVGName || "";
+    },
+    sideIconObj() {
+      // uses the sideicon name to fetch the icon object
+      // and return it
+      var icon;
+      if (this.sideIcon.enabled) {
+        icon = require("@/assets/images/" + this.sideIconName + ".svg");
+      }
+      return icon;
+    },
   },
   methods: {
     inputChange() {
       this.$emit("input", this.value);
     },
   },
-  emits: ["input"],
+  emits: ["input", "update:value"],
 };
 </script>

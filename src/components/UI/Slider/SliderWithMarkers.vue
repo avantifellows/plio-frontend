@@ -17,7 +17,7 @@
         class="absolute"
         :style="markerStyle"
       >
-        <button @click="updateSliderValueFromMarker(markerIndex)">
+        <button @click="updateSliderValueFromMarker(markerIndex)" :key="markerIndex">
           <font-awesome-icon
             :icon="['fas', 'map-marker']"
             class="transform rotate-180"
