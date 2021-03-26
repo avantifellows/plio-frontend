@@ -9,15 +9,17 @@
         {{ $t("login.learner.button") }}
       </button>
     </div>
+    <button @click="handleClickSignIn" :disabled="!Vue3GoogleOauth.isInit || Vue3GoogleOauth.isAuthorized">Google sign in</button>
     <user-properties ref="userProperties"></user-properties>
+    <!-- <button @click="printConsoleUserInfo">Console User </button> -->
   </div>
 </template>
 
 <script>
 import UserProperties from "@/services/Config/User.vue";
 import UserService from "@/services/API/User.js"
-
 import { mapState, mapActions } from 'vuex'
+import { inject, toRefs } from "vue";
 
 export default {
   props: ['id', 'type'],
@@ -28,6 +30,7 @@ export default {
     return {
       phoneInput: "",
       isSubmitDisabled: true,
+      user: '',
     };
   },
   watch: {
@@ -39,6 +42,7 @@ export default {
     },
   },
   created() {
+
     if (this.isLoggedIn) {
       this.$router.replace({ name : 'Home'});
     }
@@ -93,6 +97,43 @@ export default {
       if (num_match != null) return true;
       return false;
     },
+
+    async handleClickSignIn(){
+      try {
+        const googleUser = await this.$gAuth.signIn();
+        if (!googleUser) {
+          return null;
+        }
+        console.log("googleUser", googleUser);
+        this.user = googleUser.getBasicProfile().getEmail();
+        console.log("getId", this.user);
+        console.log("getBasicProfile", googleUser.getBasicProfile());
+        console.log("getAuthResponse", googleUser.getAuthResponse());
+        console.log(
+          "getAuthResponse",
+          this.$gAuth.instance.currentUser.get().getAuthResponse()
+        );
+      } catch (error) {
+        //on fail do something
+        console.error(error);
+        return null;
+      }
+    },
+
+    // printConsoleUserInfo() {
+    //   console.log(this.user);
+    // }
+
+  },
+  setup(props) {
+    const { isSignIn } = toRefs(props);
+    const Vue3GoogleOauth = inject("Vue3GoogleOauth");
+    const handleClickLogin = () => {};
+    return {
+      Vue3GoogleOauth,
+      handleClickLogin,
+      isSignIn,
+    };
   },
 };
 </script>
