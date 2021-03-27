@@ -16,11 +16,12 @@
         :class="{ hidden: !isMarkerVisible(markerIndex) }"
         :style="markerStyle"
       >
-        <button @click="updateSliderValueFromMarker(markerIndex)" :key="markerIndex" class="w-5 transform rotate-180">
-          <font-awesome-icon
-            :icon="['fas', 'map-marker']"
-            class="transform rotate-180"
-          ></font-awesome-icon>
+        <button
+          @click="updateSliderValueFromMarker(markerIndex)"
+          :key="markerIndex"
+          class="w-5 transform rotate-180"
+        >
+          <inline-svg :src="markerIcon"> </inline-svg>
         </button>
       </div>
     </div>
@@ -29,9 +30,6 @@
 
 <script>
 import Slider from "primevue/slider";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faMapMarker } from "@fortawesome/free-solid-svg-icons/faMapMarker";
-library.add(faMapMarker);
 
 export default {
   components: {
@@ -100,6 +98,9 @@ export default {
       });
 
       return styles;
+    },
+    markerIcon() {
+      return require("@/assets/images/thumbtack-solid.svg");
     },
   },
   emits: ["update"],

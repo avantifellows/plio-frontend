@@ -5,7 +5,6 @@
     <div class="flex flex-col ml-5 mr-5">
       <!--- plio link -->
       <URL :link="plioLink" class="justify-center m-1"></URL>
-      <!-- <URL :link="plioLink" class="col-span-2 justify-center m-1"></URL> -->
 
       <div class="justify-center">
         <!--- video preview -->
@@ -63,7 +62,7 @@
           :placeholder="videoInputPlaceholder"
           :title="videoInputTitle"
           :validation="videoInputValidation"
-          @input="videoLinkUpdated"
+          v-model:value="videoURL"
           ref="videoLink"
         ></input-text>
 
@@ -161,7 +160,21 @@ export default {
       },
       // still only integer steps - fix this
       sliderStep: 0.1,
+      videoURL: "",
     };
+  },
+  watch: {
+    videoURL(newVideoURL) {
+      // invoked when the video link is updated
+      var linkValidation = this.isVideoLinkValid(newVideoURL);
+      this.videoInputValidation["isValid"] = linkValidation["valid"];
+      if (!linkValidation["valid"]) return;
+
+      if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
+        this.$refs.player.player.destroy();
+      }
+      this.videoId = linkValidation["ID"];
+    },
   },
   computed: {
     isDraftCreated() {
@@ -233,17 +246,6 @@ export default {
       // set variables once the player instance is ready
       this.videoDuration = player.duration;
       this.plioTitle = player.config.title;
-    },
-    videoLinkUpdated(value) {
-      // invoked when the video link is updated
-      var linkValidation = this.isVideoLinkValid(value);
-      this.videoInputValidation["isValid"] = linkValidation["valid"];
-      if (!linkValidation["valid"]) return;
-
-      if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
-        this.$refs.player.player.destroy();
-      }
-      this.videoId = linkValidation["ID"];
     },
     isVideoLinkValid(link) {
       // checks if the link is valid
