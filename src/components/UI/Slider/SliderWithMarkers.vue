@@ -22,7 +22,7 @@
         :max="getMarkerSlideMax(markerIndex)"
         :step="step"
         :style="markerStyle"
-        class="slider absolute marker-slider-thumb outline-black"
+        class="slider absolute marker-slider-thumb"
         :class="getMarkerSlideClass(markerIndex)"
         v-model.number="localMarkerPositions[markerIndex]"
         @mouseover="markerSliderSelected(markerIndex)"
@@ -39,10 +39,10 @@
 export default {
   data() {
     return {
-      activeMarkerIndex: null,
-      sliderWidth: null,
-      markerWidth: null,
-      markerArenaWidth: null,
+      activeMarkerIndex: null, // index of the current active marker
+      sliderWidth: null, // width of the slider
+      markerWidth: null, // width of one marker
+      clickAfterDragEnded: false, // indicates whether a marker click was invoked right after it was dragged
     };
   },
   created() {
@@ -89,7 +89,6 @@ export default {
       // sets various properties based on the device screen
       this.sliderWidth = document.getElementById("mainSlider").clientWidth;
       this.markerWidth = document.getElementById("dummyMarker").clientWidth;
-      this.markerArenaWidth = this.sliderWidth - this.markerWidth;
     },
     isMarkerVisible(markerIndex) {
       // whether the marker at the given index should be visible
@@ -102,8 +101,12 @@ export default {
     updateValueFromMarker(markerIndex) {
       // update the slider position from the marker selected
       // and emit an event for the update
-      this.localValue = this.markerPositions[markerIndex];
-      this.$emit("marker-selected", markerIndex);
+      if (this.clickAfterDragEnded) {
+        this.clickAfterDragEnded = false;
+      } else {
+        this.localValue = this.markerPositions[markerIndex];
+        this.$emit("marker-selected", markerIndex);
+      }
     },
     markerSliderUpdated(markerIndex) {
       // invoked when the marker slider value is changing while being dragged
@@ -115,6 +118,7 @@ export default {
     },
     markerSliderChangeOver(markerIndex) {
       // invoked when the marker slider value change is done
+      this.clickAfterDragEnded = true;
       this.$emit("marker-drag-end", markerIndex);
       // invoked when a marker has been unselected
       this.activeMarkerIndex = null;
@@ -162,6 +166,12 @@ export default {
     },
   },
   computed: {
+    markerArenaWidth() {
+      // the width in pixels of the possible range where the left margin of each marker
+      // could start from
+      if (this.sliderWidth == null || this.markerWidth == null) return null;
+      return this.sliderWidth - this.markerWidth;
+    },
     localValue: {
       // local copy of the value prop
       get() {
@@ -228,7 +238,7 @@ export default {
 }
 
 .marker-slider-thumb::-webkit-slider-thumb {
-  @apply appearance-none w-6 h-6 rounded-full bg-red-500 mt-8 outline-black;
+  @apply appearance-none w-6 h-6 rounded-full bg-red-500 mt-8;
 }
 .marker-slider-thumb::-moz-slider-thumb {
   @apply appearance-none w-6 h-6 rounded-full bg-red-500 mt-8;

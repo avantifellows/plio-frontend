@@ -97,7 +97,7 @@ import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import Button from "primevue/button";
 
-var cloneDeep = require("lodash.clonedeep");
+// var cloneDeep = require("lodash.clonedeep");
 
 export default {
   components: {
@@ -183,66 +183,16 @@ export default {
   methods: {
     itemMarkerTimestampDragEnd(itemIndex) {
       // invoked when the drag on the marker for an item is completed
-      // console.log("yuss " + this.itemTimestamps[itemIndex]);
       var itemTimestamp = this.itemTimestamps[itemIndex];
-      console.log(itemTimestamp);
       this.items[itemIndex]["time"] = itemTimestamp;
       this.items.sort(function (a, b) {
         return a["time"] - b["time"];
       });
       this.itemTimestamps = this.getItemTimestamps(this.items);
-      console.log(this.items);
-      console.log(this.itemTimestamps);
-      console.log(itemTimestamp);
       this.currentItemIndex = this.itemTimestamps.indexOf(itemTimestamp);
-      console.log(this.currentItemIndex);
-      this.$forceUpdate();
-    },
-    reviewMarkerOrder(itemIndex) {
-      var swap = false;
-      // reviews the order of the item in the given index in the list of items
-      // and corrects the order (ascending) when necessary
-      if (itemIndex < this.itemTimestamps.length - 1) {
-        // ignore check if timestamp for the next item is > video length
-        if (this.itemTimestamps[itemIndex + 1] <= this.videoDuration) {
-          // check if the marker value is > the value at the next index
-          if (this.itemTimestamps[itemIndex] > this.itemTimestamps[itemIndex + 1]) {
-            this.swapItems(itemIndex, itemIndex + 1);
-            this.currentItemIndex = itemIndex + 1;
-            swap = true;
-          }
-        }
-      }
-      if (itemIndex > 0 && !swap) {
-        // check if the marker value is < the value at the previous index
-        if (this.itemTimestamps[itemIndex] < this.itemTimestamps[itemIndex - 1]) {
-          this.swapItems(itemIndex, itemIndex - 1);
-          this.currentItemIndex = itemIndex - 1;
-        }
-      }
-      this.$refs.slider.activeMarkerIndex = this.currentItemIndex;
-    },
-    swapItems(itemIndex1, itemIndex2) {
-      var tempItem = cloneDeep(this.items[itemIndex1]);
-      console.log("starting ");
-      console.log(this.items);
-      console.log(this.items[itemIndex1]["time"]);
-      console.log(tempItem["time"]);
-      console.log(
-        "Swapping: " +
-          this.itemTimestamps[itemIndex1] +
-          " and " +
-          this.itemTimestamps[itemIndex2]
-      );
-      this.items[itemIndex1] = this.items[itemIndex2];
-      this.items[itemIndex2] = tempItem;
-      console.log("Swapping: " + itemIndex1 + " and " + itemIndex2);
-      console.log("ending ");
-      console.log(cloneDeep(this.items));
-      this.itemTimestamps = this.getItemTimestamps(this.items);
-      console.log(this.items[itemIndex1]["time"]);
-      console.log(this.items[itemIndex2]["time"]);
-      console.log(cloneDeep(this.itemTimestamps));
+      this.currentTimestamp = itemTimestamp;
+      this.updatePlayerTimestamp(itemTimestamp);
+      this.markItemSelected(this.currentItemIndex);
     },
     checkItemToSelect(timestamp) {
       var itemSelected = false;
@@ -268,14 +218,18 @@ export default {
         this.markNoItemSelected();
       }
     },
+    updatePlayerTimestamp(timestamp) {
+      // update player time to the given timestamp
+      this.$refs.playerObj.player.currentTime = timestamp;
+    },
     sliderUpdated(timestamp) {
       // invoked when the time slider is updated
-      this.$refs.playerObj.player.currentTime = timestamp;
+      this.updatePlayerTimestamp(timestamp);
       this.checkItemToSelect(timestamp);
     },
     itemSelected(itemIndex) {
       // invoked when an item marker has been selected
-      this.sliderUpdated(this.currentTimestamp);
+      this.updatePlayerTimestamp(this.currentTimestamp);
       this.markItemSelected(itemIndex);
     },
     markItemSelected(itemIndex) {
