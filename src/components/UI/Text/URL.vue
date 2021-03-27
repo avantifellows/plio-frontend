@@ -5,18 +5,29 @@
       {{ link }}
     </p>
     <!-- copy button -->
-    <button @click="copyToClipboard()">
+    <button @click="copyToClipboard()" v-tooltip="'Copy link'">
       <img src="@/assets/images/copy.svg" class="w-10 h-10 min-width-full" />
     </button>
+    <toast ref="toast"></toast>
   </div>
 </template>
 
 <script>
+import Toast from "@/components/UI/Message/Toast.vue";
+
 export default {
+  data() {
+    return {
+      toastLife: 3000,
+    };
+  },
   props: {
     link: {
       type: String,
     },
+  },
+  components: {
+    Toast,
   },
   methods: {
     copyToClipboard() {
@@ -27,6 +38,13 @@ export default {
       hiddenElement.select();
       var success = document.execCommand("copy");
       document.body.removeChild(hiddenElement);
+      if (success) {
+        this.$refs.toast.show("success", "URL Copied Successfully", this.toastLife);
+      }
+      else {
+        this.$refs.toast.show("error", "Error while copying", this.toastLife);
+      }
+
       this.$emit("copied", success);
     },
   },
