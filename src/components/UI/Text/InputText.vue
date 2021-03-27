@@ -6,19 +6,36 @@
       <!-- input validation -->
       <div class="pr-2" v-if="isValidationEnabled">
         <div class="flex text-xs" :class="validationColor">
-          <!-- validation icon -->
-          <font-awesome-icon
-            :icon="['fas', 'check']"
+          <!-- valid icon -->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
             v-if="isValid"
-            class="place-self-center"
-          ></font-awesome-icon>
-          <font-awesome-icon
-            :icon="['fas', 'times']"
+            class="place-self-center w-5 h-5"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <!-- invalid icon -->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
             v-else
-            class="place-self-center"
-          ></font-awesome-icon>
+            class="place-self-center w-5 h-5"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clip-rule="evenodd"
+            />
+          </svg>
           <!-- validation message -->
-          <p class="pl-1">{{ validationMessage }}</p>
+          <p class="pl-1 place-self-center">{{ validationMessage }}</p>
         </div>
       </div>
     </div>
@@ -35,10 +52,6 @@
 </template>
 
 <script>
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faCheck } from "@fortawesome/free-solid-svg-icons/faCheck";
-import { faTimes } from "@fortawesome/free-solid-svg-icons/faTimes";
-library.add(faCheck, faTimes);
 
 export default {
   data() {
