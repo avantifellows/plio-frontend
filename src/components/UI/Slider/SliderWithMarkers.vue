@@ -25,7 +25,7 @@
         @mouseover="markerSliderSelected(markerIndex)"
         @change="markerSliderChangeOver(markerIndex)"
         @input="markerSliderUpdated(markerIndex)"
-        @mouseout="markerSliderUnselected(markerIndex)"
+        @mouseout="markerSliderUnselected"
         @click="updateValueFromMarker(markerIndex)"
       />
     </div>
