@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "@/pages/Home.vue";
 import Editor from "@/pages/Editor.vue";
-
+import Test2 from "@/components/UI/Slider/Test2.vue";
 import Player from "@/pages/Player.vue";
 import PhoneSignIn from "@/pages/PhoneSignIn";
 
@@ -10,6 +10,11 @@ const routes = [
     path: "/",
     name: "Home",
     component: Home,
+  },
+  {
+    path: "/test",
+    name: "Test2",
+    component: Test2,
   },
   {
     path: "/new",

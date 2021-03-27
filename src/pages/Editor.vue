@@ -21,15 +21,24 @@
             @update="videoTimestampUpdated"
             @ready="playerReady"
             @play="playerPlayed"
-            ref="player"
+            ref="playerObj"
           ></video-player>
+
+          {{ items }}
+          {{ itemTimestamps }}
+          {{ currentItemIndex }}
+
+          <!-- @marker-updated="itemMarkerTimestampUpdated" -->
 
           <!--- slider with question markers -->
           <slider-with-markers
-            @update="sliderTimestampUpdated"
             :end="videoDuration"
             :step="sliderStep"
-            :markerPositions="itemPositions"
+            v-model:value="currentTimestamp"
+            v-model:markerPositions="itemTimestamps"
+            @marker-selected="itemSelected"
+            @marker-drag-end="itemMarkerTimestampDragEnd"
+            @update="sliderUpdated"
             ref="slider"
           ></slider-with-markers>
         </div>
@@ -78,12 +87,17 @@
 </template>
 
 <script>
+// How precisely should the question pop-up logic
+// be measured. Time in milliseconds
+const POP_UP_PRECISION_TIME = 50;
+
 import InputText from "@/components/UI/Text/InputText.vue";
 import URL from "@/components/UI/Text/URL.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import Button from "primevue/button";
-// import Toast from "primevue/toast";
+
+var cloneDeep = require("lodash.clonedeep");
 
 export default {
   components: {
@@ -98,9 +112,9 @@ export default {
       // TODO: this is just a dummy value
       plioId: "r7R7ErAy2a",
       // TODO: dummy
-      items: [{ time: 20 }, { time: 80 }],
+      items: [], // list of all items
       videoDuration: 0,
-      videoId: "", // ID of the YouTube video
+      videoId: "uVAbT9r1UOY", // ID of the YouTube video
       videoInputValidation: {
         // video link validation display config
         enabled: true,
@@ -115,9 +129,23 @@ export default {
       plyrConfig: {
         controls: ["play-large", "play", "volume"],
       },
-      // still only integer steps - fix this
-      sliderStep: 0.1,
+      sliderStep: 0.1, // timestep for the slider
+      itemTimestamps: [], // stores the list of the timestamps of all items
     };
+  },
+  created() {
+    // dummy
+    this.items = [{ time: 40.04 }, { time: 80.04 }];
+  },
+  watch: {
+    items() {
+      this.itemTimestamps = this.getItemTimestamps(this.items);
+    },
+    itemTimestamps() {
+      this.itemTimestamps.forEach((itemTimestamp, index) => {
+        this.items[index]["time"] = itemTimestamp;
+      });
+    },
   },
   computed: {
     isDraftCreated() {
@@ -147,31 +175,121 @@ export default {
       }
       return process.env.VUE_APP_FRONTEND + "/#/play/" + this.plioId;
     },
-    itemPositions() {
-      // timestamps of all items in the plio
-      var positions = [];
-
-      this.items.forEach((item) => {
-        positions.push(item.time);
-      });
-
-      return positions;
-    },
     isVideoIdValid() {
       // whether the video Id is valid
       return this.videoId != "";
     },
   },
   methods: {
-    sliderTimestampUpdated(timestamp, markerIndex) {
-      // update the value of currentTimestamp when the slider is updated
-      this.currentTimestamp = timestamp;
-      this.$refs.player.currentTime = timestamp;
-      if (markerIndex != null) {
-        this.isItemSelected = true;
-        this.$refs.player.player.pause();
-        this.currentItemIndex = markerIndex;
+    itemMarkerTimestampDragEnd(itemIndex) {
+      // invoked when the drag on the marker for an item is completed
+      // console.log("yuss " + this.itemTimestamps[itemIndex]);
+      var itemTimestamp = this.itemTimestamps[itemIndex];
+      console.log(itemTimestamp);
+      this.items[itemIndex]["time"] = itemTimestamp;
+      this.items.sort(function (a, b) {
+        return a["time"] - b["time"];
+      });
+      this.itemTimestamps = this.getItemTimestamps(this.items);
+      console.log(this.items);
+      console.log(this.itemTimestamps);
+      console.log(itemTimestamp);
+      this.currentItemIndex = this.itemTimestamps.indexOf(itemTimestamp);
+      console.log(this.currentItemIndex);
+      this.$forceUpdate();
+    },
+    reviewMarkerOrder(itemIndex) {
+      var swap = false;
+      // reviews the order of the item in the given index in the list of items
+      // and corrects the order (ascending) when necessary
+      if (itemIndex < this.itemTimestamps.length - 1) {
+        // ignore check if timestamp for the next item is > video length
+        if (this.itemTimestamps[itemIndex + 1] <= this.videoDuration) {
+          // check if the marker value is > the value at the next index
+          if (this.itemTimestamps[itemIndex] > this.itemTimestamps[itemIndex + 1]) {
+            this.swapItems(itemIndex, itemIndex + 1);
+            this.currentItemIndex = itemIndex + 1;
+            swap = true;
+          }
+        }
       }
+      if (itemIndex > 0 && !swap) {
+        // check if the marker value is < the value at the previous index
+        if (this.itemTimestamps[itemIndex] < this.itemTimestamps[itemIndex - 1]) {
+          this.swapItems(itemIndex, itemIndex - 1);
+          this.currentItemIndex = itemIndex - 1;
+        }
+      }
+      this.$refs.slider.activeMarkerIndex = this.currentItemIndex;
+    },
+    swapItems(itemIndex1, itemIndex2) {
+      var tempItem = cloneDeep(this.items[itemIndex1]);
+      console.log("starting ");
+      console.log(this.items);
+      console.log(this.items[itemIndex1]["time"]);
+      console.log(tempItem["time"]);
+      console.log(
+        "Swapping: " +
+          this.itemTimestamps[itemIndex1] +
+          " and " +
+          this.itemTimestamps[itemIndex2]
+      );
+      this.items[itemIndex1] = this.items[itemIndex2];
+      this.items[itemIndex2] = tempItem;
+      console.log("Swapping: " + itemIndex1 + " and " + itemIndex2);
+      console.log("ending ");
+      console.log(cloneDeep(this.items));
+      this.itemTimestamps = this.getItemTimestamps(this.items);
+      console.log(this.items[itemIndex1]["time"]);
+      console.log(this.items[itemIndex2]["time"]);
+      console.log(cloneDeep(this.itemTimestamps));
+    },
+    checkItemToSelect(timestamp) {
+      var itemSelected = false;
+      // checks if any item is to be marked selected for the given timestamp
+      this.itemTimestamps.every((itemTimestamp, index) => {
+        // if the seeker is within "POP_UP_PRECISION_TIME" of the
+        // specific item time, then mark the item as selected
+        if (
+          timestamp < itemTimestamp &&
+          timestamp >= itemTimestamp - POP_UP_PRECISION_TIME / 1000
+        ) {
+          // mark that some item has been selected at this timestamp
+          itemSelected = true;
+          this.markItemSelected(index);
+          // breaks the loop
+          return false;
+        } else {
+          // go on to check the next item
+          return true;
+        }
+      });
+      if (!itemSelected) {
+        this.markNoItemSelected();
+      }
+    },
+    sliderUpdated(timestamp) {
+      // invoked when the time slider is updated
+      this.$refs.playerObj.player.currentTime = timestamp;
+      this.checkItemToSelect(timestamp);
+    },
+    itemSelected(itemIndex) {
+      // invoked when an item marker has been selected
+      this.sliderUpdated(this.currentTimestamp);
+      this.markItemSelected(itemIndex);
+    },
+    markItemSelected(itemIndex) {
+      // mark the item at the given index as selected
+      if (itemIndex != null) {
+        this.isItemSelected = true;
+        this.$refs.playerObj.player.pause();
+        this.currentItemIndex = itemIndex;
+      }
+    },
+    markNoItemSelected() {
+      // mark that no item has been currently selected
+      this.isItemSelected = false;
+      this.currentItemIndex = null;
     },
     videoTimestampUpdated(timestamp) {
       // update the value of slider when the video's timestamp is updated
@@ -182,7 +300,7 @@ export default {
         return;
       }
       this.currentTimestamp = timestamp;
-      this.$refs.slider.timestamp = timestamp;
+      this.checkItemToSelect(timestamp);
     },
     playerReady(player) {
       // set variables once the player instance is ready
@@ -201,7 +319,7 @@ export default {
       if (!linkValidation["valid"]) return;
 
       if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
-        this.$refs.player.player.destroy();
+        this.$refs.playerObj.player.destroy();
       }
       this.videoId = linkValidation["ID"];
     },
@@ -217,6 +335,16 @@ export default {
     playerPlayed() {
       // invoked when the player is played from a paused state
       this.isItemSelected = false;
+    },
+    getItemTimestamps(items) {
+      // returns the list of timestamps of the items
+      var positions = [];
+
+      items.forEach((item) => {
+        positions.push(item.time);
+      });
+
+      return positions;
     },
   },
 };

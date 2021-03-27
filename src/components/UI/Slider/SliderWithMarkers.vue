@@ -1,58 +1,68 @@
 <template>
   <div>
-    <!-- PrimeVue Slider -->
-    <slider
-      v-model="timestamp"
-      @change="updateSliderValue"
-      :max="end"
-      :step="step"
-    ></slider>
+    Inside <br />
+    {{ activeMarkerIndex }}
+    {{ markerPositions }}
     <div class="flex relative">
-      <!-- markers shown at the given positions -->
-      <div
+      <div class="rounded-full w-6 h-6" id="dummyMarker"></div>
+      <input
+        id="mainSlider"
+        type="range"
+        v-model.number="localValue"
+        :max="end"
+        :step="step"
+        class="slider w-full absolute z-50 main-slider-thumb"
+        @input="valueUpdated"
+      />
+      <input
+        type="range"
         v-for="(markerStyle, markerIndex) in markerStyles"
         :key="markerIndex"
-        class="absolute"
-        :class="{ hidden: !isMarkerVisible(markerIndex) }"
+        :min="getMarkerSlideMin(markerIndex)"
+        :max="getMarkerSlideMax(markerIndex)"
+        :step="step"
         :style="markerStyle"
-      >
-        <button
-          @click="updateSliderValueFromMarker(markerIndex)"
-          class="w-5 transform rotate-180"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path
-              fillRule="evenodd"
-              d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-      </div>
+        class="slider absolute marker-slider-thumb outline-black"
+        :class="getMarkerSlideClass(markerIndex)"
+        v-model.number="localMarkerPositions[markerIndex]"
+        @mouseover="markerSliderSelected(markerIndex)"
+        @change="markerSliderChangeOver(markerIndex)"
+        @input="markerSliderUpdated(markerIndex)"
+        @mouseout="markerSliderUnselected(markerIndex)"
+        @click="updateValueFromMarker(markerIndex)"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import Slider from "primevue/slider";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faMapMarker } from "@fortawesome/free-solid-svg-icons/faMapMarker";
-library.add(faMapMarker);
-
 export default {
-  components: {
-    Slider,
-  },
   data() {
     return {
-      timestamp: null,
+      activeMarkerIndex: null,
+      sliderWidth: null,
+      markerWidth: null,
+      markerArenaWidth: null,
     };
+  },
+  created() {
+    this.$nextTick(() => {
+      this.setScreenProperties();
+      window.addEventListener("resize", this.handleScreenSizeChange);
+    });
+  },
+  unmounted() {
+    window.removeEventListener("resize", this.handleScreenSizeChange);
   },
   props: {
     // positions where the markers are to be displayed
     markerPositions: {
       default: () => [],
       type: Array,
+    },
+    value: {
+      default: 0,
+      type: Number,
     },
     // maximum boundary value.
     end: {
@@ -71,28 +81,118 @@ export default {
     },
   },
   methods: {
+    handleScreenSizeChange() {
+      // invoked when the screen size is changing
+      this.setScreenProperties();
+    },
+    setScreenProperties() {
+      // sets various properties based on the device screen
+      this.sliderWidth = document.getElementById("mainSlider").clientWidth;
+      this.markerWidth = document.getElementById("dummyMarker").clientWidth;
+      this.markerArenaWidth = this.sliderWidth - this.markerWidth;
+    },
     isMarkerVisible(markerIndex) {
+      // whether the marker at the given index should be visible
       var markerRelativePosition = this.markerRelativePositions[markerIndex];
       return markerRelativePosition >= 0 && markerRelativePosition <= 100;
     },
-    updateSliderValue(timestamp, markerIndex = null) {
-      // emit an event indicating the slider value has been updated
-      this.$emit("update", timestamp, markerIndex);
+    valueUpdated() {
+      this.$emit("update", this.value);
     },
-    updateSliderValueFromMarker(markerIndex) {
+    updateValueFromMarker(markerIndex) {
       // update the slider position from the marker selected
       // and emit an event for the update
-      this.timestamp = this.markerPositions[markerIndex];
-      this.updateSliderValue(this.timestamp, markerIndex);
+      this.localValue = this.markerPositions[markerIndex];
+      this.$emit("marker-selected", markerIndex);
+    },
+    markerSliderUpdated(markerIndex) {
+      // invoked when the marker slider value is changing while being dragged
+      this.$emit("marker-drag", markerIndex);
+    },
+    markerSliderSelected(markerIndex) {
+      // invoked when a marker has been selected
+      this.activeMarkerIndex = markerIndex;
+    },
+    markerSliderChangeOver(markerIndex) {
+      // invoked when the marker slider value change is done
+      this.$emit("marker-drag-end", markerIndex);
+      // invoked when a marker has been unselected
+      this.activeMarkerIndex = null;
+    },
+    markerSliderUnselected() {
+      // invoked when a marker has been unselected
+      this.activeMarkerIndex = null;
+    },
+    getMarkerSlideClass(markerIndex) {
+      var markerActive = this.isMarkerActive(markerIndex);
+      return [
+        {
+          hidden: !this.isMarkerVisible(markerIndex),
+          "w-full": markerActive,
+          "z-0": markerActive,
+          "z-20": !markerActive,
+          "marker-slider-thumb-inactive": !markerActive,
+          "bg-red-500": markerActive,
+        },
+        "w-6",
+        "bg-green-500",
+      ];
+    },
+    getMarkerSlideMin(markerIndex) {
+      // minimum value for the slider of a given marker index
+      if (!this.isMarkerActive(markerIndex))
+        return this.localMarkerPositions[markerIndex];
+      else return 0;
+    },
+    getMarkerSlideMax(markerIndex) {
+      // maximum value for the slider of a given marker index
+      if (!this.isMarkerActive(markerIndex))
+        return this.localMarkerPositions[markerIndex];
+      else return this.end;
+    },
+    isMarkerActive(markerIndex) {
+      // whether the given marker index is active
+      return this.activeMarkerIndex != null && this.activeMarkerIndex == markerIndex;
+    },
+    convertRemToPixels() {
+      return 1.5 * parseInt(this.getBaseFontSize(), 10);
+    },
+    getBaseFontSize() {
+      return window.getComputedStyle(document.body, null).getPropertyValue("font-size");
     },
   },
   computed: {
+    localValue: {
+      // local copy of the value prop
+      get() {
+        return this.value;
+      },
+      set(localValue) {
+        this.$emit("update:value", localValue);
+      },
+    },
+    localMarkerPositions: {
+      // local copy of the markerPositions prop
+      get() {
+        return this.markerPositions;
+      },
+      set(localMarkerPositions) {
+        this.$emit("update:markerPositions", localMarkerPositions);
+      },
+    },
     markerRelativePositions() {
       // converts the absolute positions of the markers to relative to the slider length
+      if (
+        this.sliderWidth == null ||
+        this.sliderWidth == 0 ||
+        this.markerArenaWidth == null
+      )
+        return [];
       var relativePositions = [];
-
       this.markerPositions.forEach((position) => {
-        relativePositions.push(Number(((position * 100) / this.end).toFixed(2)));
+        var numerator = (position * this.markerArenaWidth) / this.end;
+        var relativePosition = Number(((numerator * 100) / this.sliderWidth).toFixed(2));
+        relativePositions.push(relativePosition);
       });
 
       return relativePositions;
@@ -101,13 +201,48 @@ export default {
       // computes the styles to be applied on each marker
       var styles = [];
 
-      this.markerRelativePositions.forEach((relativePosition) => {
-        styles.push("left: " + relativePosition + "%");
+      this.markerRelativePositions.forEach((relativePosition, markerIndex) => {
+        if (this.isMarkerActive(markerIndex)) styles.push("");
+        else {
+          styles.push("left: " + relativePosition + "%");
+        }
       });
 
       return styles;
     },
   },
-  emits: ["update"],
+  emits: [
+    "update:value",
+    "update:markerPositions",
+    "marker-selected",
+    "update",
+    "marker-drag",
+    "marker-drag-end",
+  ],
 };
 </script>
+
+<style lang="postcss" scoped>
+.slider {
+  @apply appearance-none h-2 cursor-pointer bg-gray-300 focus:outline-none;
+}
+
+.marker-slider-thumb::-webkit-slider-thumb {
+  @apply appearance-none w-6 h-6 rounded-full bg-red-500 mt-8 outline-black;
+}
+.marker-slider-thumb::-moz-slider-thumb {
+  @apply appearance-none w-6 h-6 rounded-full bg-red-500 mt-8;
+}
+.marker-slider-thumb-inactive::-webkit-slider-thumb {
+  @apply bg-green-500;
+}
+.marker-slider-thumb-inactive::-moz-slider-thumb {
+  @apply bg-green-500;
+}
+.main-slider-thumb::-webkit-slider-thumb {
+  @apply appearance-none w-6 h-6 rounded-full bg-blue-500;
+}
+.main-slider-thumb::-moz-slider-thumb {
+  @apply appearance-none w-6 h-6 rounded-full bg-blue-500;
+}
+</style>
