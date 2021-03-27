@@ -16,7 +16,7 @@ import Toast from "@/components/UI/Message/Toast.vue";
 export default {
   data() {
     return {
-      toastLife: 1000,
+      toastLife: 3000,
     };
   },
   props: {
@@ -36,9 +36,13 @@ export default {
       hiddenElement.select();
       var success = document.execCommand("copy");
       document.body.removeChild(hiddenElement);
-      if (success)
+      if (success) {
         this.$refs.toast.show("success", "URL Copied Successfully", this.toastLife);
-      else this.$refs.toast.show("error", "Error while copying", this.toastLife);
+      }
+      else {
+        this.$refs.toast.show("error", "Error while copying", this.toastLife);
+      }
+
       this.$emit("copied", success);
     },
   },

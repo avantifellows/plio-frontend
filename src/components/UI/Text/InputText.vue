@@ -52,14 +52,8 @@
 </template>
 
 <script>
-// import Check from "@/components/UI/Icons/Check.vue";
-// import Cross from "@/components/UI/Icons/Cross.vue";
 
 export default {
-  // components: {
-  //   Check,
-  //   Cross,
-  // },
   data() {
     return {
       value: "", // value of the user input
@@ -103,16 +97,6 @@ export default {
         return this.validation["validMessage"];
       }
       return this.validation["invalidMessage"];
-    },
-    validationIcon() {
-      // if (this.isValid) {
-      //   return ["fas", "check"];
-      // }
-      // return ["fas", "times"];
-      if (this.isValid) {
-        return "@/assets/images/copy.svg";
-      }
-      return "@/assets/images/play.svg";
     },
   },
   methods: {
