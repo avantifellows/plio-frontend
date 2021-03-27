@@ -8,7 +8,7 @@
         <div class="flex text-xs">
           <!-- validation icon -->
           <inline-svg
-            :src="validityIcon"
+            :src="validationIcon"
             class="h-5 w-2.5 place-self-center"
             :class="validationColorClass"
           ></inline-svg>
@@ -25,7 +25,7 @@
       <!-- left icon -->
       <!-- TODO: icon styling is fixed right now, will make it parametrized  -->
       <span
-        v-if="sideIcon.enabled"
+        v-if="isSideIconEnabled"
         class="z-10 h-full leading-snug font-normal flex text-blueGray-300 absolute bg-transparent rounded text-base w-8 p-3 items-center"
       >
         <inline-svg :src="sideIconObj"></inline-svg>
@@ -110,7 +110,7 @@ export default {
       }
       return this.validation["invalidMessage"];
     },
-    validityIcon() {
+    validationIcon() {
       // fetches and returns the icon object, depending on "isValid"
       var icon = require("@/assets/images/times-solid.svg");
       if (this.isValid) {
@@ -131,6 +131,9 @@ export default {
       }
       return icon;
     },
+    isSideIconEnabled() {
+      return this.sideIcon.enabled
+    }
   },
   methods: {
     inputChange() {

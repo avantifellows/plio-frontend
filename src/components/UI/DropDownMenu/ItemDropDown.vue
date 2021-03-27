@@ -4,7 +4,6 @@
     :options="optionsList"
     optionLabel="label"
     optionValue="index"
-    placeholder="dummy placeholder"
   >
   </Dropdown>
 </template>
@@ -17,10 +16,6 @@ export default {
   components: {
     Dropdown,
   },
-  data() {
-    return {};
-  },
-  created() {},
   props: {
     optionsList: {
       default: () => [],
@@ -41,7 +36,6 @@ export default {
       },
     },
   },
-  methods: {},
   emits: ["update:selectedItemIndex"],
 };
 </script>

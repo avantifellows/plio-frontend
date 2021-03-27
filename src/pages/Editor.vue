@@ -139,11 +139,8 @@ export default {
           metadata: { source: { name: "Default" } },
         },
       ],
-      // TODO: dummy
       videoDuration: 0,
-      // TODO: dummy
       videoId: "", // ID of the YouTube video
-      // TODO: dummy
       videoInputValidation: {
         // video link validation display config
         enabled: true,
