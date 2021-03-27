@@ -46,7 +46,6 @@
 
 <script>
 export default {
-  },
   props: {
     placeholder: {
       default: "",
