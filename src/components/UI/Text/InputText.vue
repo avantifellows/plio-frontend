@@ -46,8 +46,6 @@
 
 <script>
 export default {
-  data() {
-    return {};
   },
   props: {
     placeholder: {
@@ -76,10 +74,12 @@ export default {
           enabled: false,
         };
       },
+      type: Object
     },
     value: {
       // the value of the input of the input box
       default: "",
+      type: String
     },
   },
   computed: {
@@ -120,7 +120,7 @@ export default {
     },
     sideIconName() {
       // gets the side icon name from the prop
-      return this.sideIcon.iconSVGName || "";
+      return this.sideIcon.name || "";
     },
     sideIconObj() {
       // uses the sideicon name to fetch the icon object
