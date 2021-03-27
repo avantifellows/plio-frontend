@@ -95,7 +95,7 @@ import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import Button from "primevue/button";
 // import Toast from "primevue/toast";
-import ItemEditor from "@/components/Items/ItemEditor.vue";
+import ItemEditor from "@/components/Editor/ItemEditor.vue";
 
 export default {
   name: "Editor",

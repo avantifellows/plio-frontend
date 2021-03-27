@@ -121,6 +121,10 @@ export default {
     },
     itemOptionsList() {
       // preparing an options list to pass to the dropdown
+      // the dropdown implementation takes a list of labels to show,
+      // along with the index to actually let the component choose which
+      // label to show (using a v-model). This combination of "index", "label"
+      // can be used by some other parent component as well.
       // TODO: ditch the primevue implementation
       var optionsList = [];
       this.localItemList.forEach((item, itemIndex) => {
