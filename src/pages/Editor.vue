@@ -1,10 +1,10 @@
 <template>
   <!--- base grid -->
-  <div class="grid md:grid-cols-2 items-stretch">
+  <div class="grid grid-cols-1 md:grid-cols-2 items-stretch">
     <!--- preview grid -->
-    <div class="justify-center ml-5 mr-5">
+    <div class="flex flex-col ml-5 mr-5">
       <!--- plio link -->
-      <URL :link="plioLink" class="col-span-2 justify-center m-1"></URL>
+      <URL :link="plioLink" class="justify-center m-1"></URL>
 
       <div class="justify-center">
         <!--- video preview -->
@@ -23,10 +23,6 @@
             @play="playerPlayed"
             ref="playerObj"
           ></video-player>
-
-          {{ items }}
-          {{ itemTimestamps }}
-          {{ currentItemIndex }}
 
           <!-- @marker-updated="itemMarkerTimestampUpdated" -->
 
@@ -53,17 +49,25 @@
           v-tooltip.bottom="'Click to publish plio'"
         />
       </div>
+
+      <!-- TEMPORARY - this is just the plio json preview - for testing  -->
+      <div class="grid grid-cols-1">
+        <pre class="text-sm overflow-auto">
+          {{ JSON.stringify(items, null, 2) }}</pre
+        >
+      </div>
+      <!-- TEMPORARY -->
     </div>
 
     <!--- input grid -->
     <div class="grid grid-rows-6 grid-cols-1 m-5 justify-start">
-      <div class="row-span-1 grid gap-y-4">
+      <div class="row-start-1 row-span-1 grid gap-y-4">
         <!--- video link -->
         <input-text
           :placeholder="videoInputPlaceholder"
           :title="videoInputTitle"
           :validation="videoInputValidation"
-          @input="videoLinkUpdated"
+          v-model:value="videoURL"
           ref="videoLink"
         ></input-text>
 
@@ -71,7 +75,7 @@
         <input-text
           :placeholder="titleInputPlaceholder"
           :title="titleInputTitle"
-          @input="titleUpdated"
+          v-model:value="plioTitle"
           ref="title"
         ></input-text>
 
@@ -81,6 +85,9 @@
           <p>item index: {{ currentItemIndex }}</p>
           <p>video length: {{ videoDuration }}</p>
         </div>
+      </div>
+      <div class="row-start-2 row-span-3 py-2">
+        <item-editor v-model:itemList="items"></item-editor>
       </div>
     </div>
   </div>
@@ -96,25 +103,28 @@ import URL from "@/components/UI/Text/URL.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import Button from "primevue/button";
+import ItemEditor from "@/components/Editor/ItemEditor.vue";
 
+// used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
 
 export default {
+  name: "Editor",
   components: {
     InputText,
     URL,
     Button,
     SliderWithMarkers,
     VideoPlayer,
+    ItemEditor,
   },
   data() {
     return {
       // TODO: this is just a dummy value
       plioId: "r7R7ErAy2a",
-      // TODO: dummy
-      items: [], // list of all items
+      items: [], // list of all items created for this plio
       videoDuration: 0,
-      videoId: "uVAbT9r1UOY", // ID of the YouTube video
+      videoId: "", // ID of the YouTube video
       videoInputValidation: {
         // video link validation display config
         enabled: true,
@@ -131,11 +141,37 @@ export default {
       },
       sliderStep: 0.1, // timestep for the slider
       itemTimestamps: [], // stores the list of the timestamps of all items
+      videoURL: "",
     };
   },
   created() {
-    // dummy
-    this.items = [{ time: 40.04 }, { time: 80.04 }];
+    this.videoURL = "https://www.youtube.com/watch?v=uVAbT9r1UOY&ab_channel=TapeATale";
+    this.items = [
+      {
+        time: 40,
+        details: {
+          type: "mcq_single_answer",
+          text:
+            "हम इस विडीओ में तंत्रिका उत्तक और तांत्रिका आवेग के बारे में बात करेंगे, क्या आप तैयार है?",
+          options: ["हाँ", "नही"],
+          correct_answer: 0,
+        },
+        type: "question",
+        metadata: { source: { name: "Default" } },
+      },
+      {
+        time: 80,
+        details: {
+          type: "mcq_single_answer",
+          text:
+            "हमारे शरीर में ______________ होते हैं जो उत्तेजित होने और उत्तेजना को शरीर के भीतर एक स्थान से दूसरे स्थान तक बहुत तेजी से संचारित करने के लिए अत्यधिक विशिष्ट होते हैं।",
+          options: ["तंत्रिका पेशी", "ऊतक", "WBC", "प्लाज्मा"],
+          correct_answer: 0,
+        },
+        type: "note",
+        metadata: { source: { name: "Default" } },
+      },
+    ];
   },
   watch: {
     items() {
@@ -145,6 +181,17 @@ export default {
       this.itemTimestamps.forEach((itemTimestamp, index) => {
         this.items[index]["time"] = itemTimestamp;
       });
+    },
+    videoURL(newVideoURL) {
+      // invoked when the video link is updated
+      var linkValidation = this.isVideoLinkValid(newVideoURL);
+      this.videoInputValidation["isValid"] = linkValidation["valid"];
+      if (!linkValidation["valid"]) return;
+
+      if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
+        this.$refs.player.player.destroy();
+      }
+      this.videoId = linkValidation["ID"];
     },
   },
   computed: {
@@ -260,22 +307,6 @@ export default {
       // set variables once the player instance is ready
       this.videoDuration = player.duration;
       this.plioTitle = player.config.title;
-      this.$refs.title.value = this.plioTitle;
-    },
-    titleUpdated(value) {
-      // invoked when the plio title input is updated
-      this.plioTitle = value;
-    },
-    videoLinkUpdated(value) {
-      // invoked when the video link is updated
-      var linkValidation = this.isVideoLinkValid(value);
-      this.videoInputValidation["isValid"] = linkValidation["valid"];
-      if (!linkValidation["valid"]) return;
-
-      if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
-        this.$refs.playerObj.player.destroy();
-      }
-      this.videoId = linkValidation["ID"];
     },
     isVideoLinkValid(link) {
       // checks if the link is valid

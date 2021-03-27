@@ -1,8 +1,5 @@
 <template>
   <div>
-    Inside <br />
-    {{ activeMarkerIndex }}
-    {{ markerPositions }}
     <div class="flex relative">
       <div class="rounded-full w-6 h-6" id="dummyMarker"></div>
       <input
@@ -219,6 +216,9 @@ export default {
       });
 
       return styles;
+    },
+    markerIcon() {
+      return require("@/assets/images/thumbtack-solid.svg");
     },
   },
   emits: [

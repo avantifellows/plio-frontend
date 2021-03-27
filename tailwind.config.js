@@ -5,12 +5,12 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {},
-    // colors: {
-    //     ...colors,
-    //     gray: {
-    //         dark: '#d3d3d3'
-    //     },
-    // }
+    backgroundColor: (theme) => ({
+      ...theme("colors"),
+      "primary-button": "#F78000",
+      "primary-button-hover": "#db7506",
+      "delete-button": "#E80000",
+    }),
   },
   variants: {
     extend: {},

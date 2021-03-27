@@ -5,60 +5,47 @@
       <p class="text-xs pl-2">{{ title }}</p>
       <!-- input validation -->
       <div class="pr-2" v-if="isValidationEnabled">
-        <div class="flex text-xs" :class="validationColor">
-          <!-- valid icon -->
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            v-if="isValid"
-            class="place-self-center w-5 h-5"
-          >
-            <path
-              fillRule="evenodd"
-              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <!-- invalid icon -->
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            v-else
-            class="place-self-center w-5 h-5"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-              clip-rule="evenodd"
-            />
-          </svg>
+        <div class="flex text-xs">
+          <!-- validation icon -->
+          <inline-svg
+            :src="validationIcon"
+            class="h-5 w-2.5 place-self-center"
+            :class="validationColorClass"
+          ></inline-svg>
+
           <!-- validation message -->
-          <p class="pl-1 place-self-center">{{ validationMessage }}</p>
+          <p class="pl-1 place-self-center" :class="validationColorClass">
+            {{ validationMessage }}
+          </p>
         </div>
       </div>
     </div>
-    <!-- input area -->
-    <input
-      class="resize-none border rounded-md h-10 pl-4 col-span-1"
-      type="text"
-      name="placeholder"
-      :placeholder="placeholder"
-      v-model="value"
-      @input="inputChange"
-    />
+
+    <div class="relative flex w-full flex-wrap items-stretch mb-3">
+      <!-- left icon -->
+      <!-- TODO: icon styling is fixed right now, will make it parametrized  -->
+      <span
+        v-if="isSideIconEnabled"
+        class="z-10 h-full leading-snug font-normal flex text-blueGray-300 absolute bg-transparent rounded text-base w-8 p-3 items-center"
+      >
+        <inline-svg :src="sideIconObj"></inline-svg>
+      </span>
+
+      <!-- input area -->
+      <input
+        class="px-3 py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-md border border-blueGray-300 focus:outline-none focus:ring focus:border-blue-300 focus:shadow-outline w-full pl-8"
+        type="text"
+        name="placeholder"
+        :placeholder="placeholder"
+        v-model="localValue"
+        @input="inputChange"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-
 export default {
-  data() {
-    return {
-      value: "", // value of the user input
-    };
-  },
   props: {
     placeholder: {
       default: "",
@@ -78,19 +65,43 @@ export default {
       },
       type: Object,
     },
+    sideIcon: {
+      // whether side icon is enabled or not
+      // and the icon name if enabled
+      default: () => {
+        return {
+          enabled: false,
+        };
+      },
+      type: Object
+    },
+    value: {
+      // the value of the input of the input box
+      default: "",
+      type: String
+    },
   },
   computed: {
+    localValue: {
+      get() {
+        return this.value;
+      },
+      set(localValue) {
+        this.$emit("update:value", localValue);
+      },
+    },
     isValidationEnabled() {
       return this.validation["enabled"];
     },
     isValid() {
       return this.isValidationEnabled && this.validation["isValid"];
     },
-    validationColor() {
-      if (this.isValid) {
-        return "text-green-600";
-      }
-      return "text-red-600";
+    validationColorClass() {
+      // https://v3.vuejs.org/guide/class-and-style.html#class-and-style-bindings
+      return {
+        "text-green-600": this.isValid,
+        "text-red-600": !this.isValid,
+      };
     },
     validationMessage() {
       if (this.isValid) {
@@ -98,12 +109,36 @@ export default {
       }
       return this.validation["invalidMessage"];
     },
+    validationIcon() {
+      // fetches and returns the icon object, depending on "isValid"
+      var icon = require("@/assets/images/times-solid.svg");
+      if (this.isValid) {
+        icon = require("@/assets/images/check-solid.svg");
+      }
+      return icon;
+    },
+    sideIconName() {
+      // gets the side icon name from the prop
+      return this.sideIcon.name || "";
+    },
+    sideIconObj() {
+      // uses the sideicon name to fetch the icon object
+      // and return it
+      var icon;
+      if (this.sideIcon.enabled) {
+        icon = require("@/assets/images/" + this.sideIconName + ".svg");
+      }
+      return icon;
+    },
+    isSideIconEnabled() {
+      return this.sideIcon.enabled
+    }
   },
   methods: {
     inputChange() {
       this.$emit("input", this.value);
     },
   },
-  emits: ["input"],
+  emits: ["input", "update:value"],
 };
 </script>

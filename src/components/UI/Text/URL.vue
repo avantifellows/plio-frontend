@@ -1,7 +1,9 @@
 <template>
   <div class="flex">
     <!-- URL link -->
-    <p class="text-md lg:text-lg underline h-full place-self-center">{{ link }}</p>
+    <p class="text-md lg:text-lg h-full place-self-center border-b-2 border-yellow-500">
+      {{ link }}
+    </p>
     <!-- copy button -->
     <button @click="copyToClipboard()" v-tooltip="'Copy link'">
       <img src="@/assets/images/copy.svg" class="w-10 h-10 min-width-full" />
