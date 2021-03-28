@@ -1,7 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "@/pages/Home.vue";
 import Editor from "@/pages/Editor.vue";
-
 import Player from "@/pages/Player.vue";
 import PhoneSignIn from "@/pages/PhoneSignIn";
 

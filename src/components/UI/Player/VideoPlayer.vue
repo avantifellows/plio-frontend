@@ -11,12 +11,22 @@ import Plyr from "plyr";
 export default {
   data() {
     return {
-      currentTime: {
-        default: 0,
-        type: Number,
-      },
       player: null,
     };
+  },
+  props: {
+    plyrConfig: {
+      default: () => {},
+      type: Object,
+    },
+    videoId: {
+      default: "",
+      type: String,
+    },
+    currentTime: {
+      default: 0,
+      type: Number,
+    },
   },
   created() {
     // start the player
@@ -47,16 +57,6 @@ export default {
       }
     },
   },
-  props: {
-    plyrConfig: {
-      default: () => {},
-      type: Object,
-    },
-    videoId: {
-      default: "",
-      type: String,
-    },
-  },
   methods: {
     initiatePlayer() {
       // creates a new instance of plyr and sets its properties
@@ -71,7 +71,9 @@ export default {
     },
     emitTimeUpdate() {
       // emit an event saying that the player time has been updated
-      this.$emit("update", Number(this.player.currentTime.toFixed(2)));
+      var updatedTime = Number(this.player.currentTime.toFixed(2));
+      this.$emit("update:currentTime", updatedTime);
+      this.$emit("update", updatedTime);
     },
     emitReady() {
       // emit an event indicating that the player instance is ready
@@ -88,6 +90,6 @@ export default {
       return this.videoId != null && this.videoId != "";
     },
   },
-  emits: ["update", "ready", "play"],
+  emits: ["update", "ready", "play", "update:currentTime"],
 };
 </script>

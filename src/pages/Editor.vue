@@ -21,15 +21,18 @@
             @update="videoTimestampUpdated"
             @ready="playerReady"
             @play="playerPlayed"
-            ref="player"
+            ref="playerObj"
           ></video-player>
 
           <!--- slider with question markers -->
           <slider-with-markers
-            @update="sliderTimestampUpdated"
             :end="videoDuration"
             :step="sliderStep"
-            :markerPositions="itemPositions"
+            v-model:value="currentTimestamp"
+            v-model:markerPositions="itemTimestamps"
+            @marker-selected="itemSelected"
+            @marker-drag-end="itemMarkerTimestampDragEnd"
+            @update="sliderUpdated"
             ref="slider"
           ></slider-with-markers>
         </div>
@@ -89,13 +92,19 @@
 </template>
 
 <script>
+// How precisely should the question pop-up logic
+// be measured. Time in milliseconds
+const POP_UP_PRECISION_TIME = 50;
+
 import InputText from "@/components/UI/Text/InputText.vue";
 import URL from "@/components/UI/Text/URL.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import Button from "primevue/button";
-// import Toast from "primevue/toast";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
+
+// used for deep cloning objects
+// var cloneDeep = require("lodash.clonedeep");
 
 export default {
   name: "Editor",
@@ -111,34 +120,7 @@ export default {
     return {
       // TODO: this is just a dummy value
       plioId: "r7R7ErAy2a",
-      // TODO: dummy data
-      // items: [{ time: 40 }, { time: 80 }],
-      items: [
-        {
-          time: 2,
-          details: {
-            type: "mcq_single_answer",
-            text:
-              "हम इस विडीओ में तंत्रिका उत्तक और तांत्रिका आवेग के बारे में बात करेंगे, क्या आप तैयार है?",
-            options: ["हाँ", "नही"],
-            correct_answer: 0,
-          },
-          type: "question",
-          metadata: { source: { name: "Default" } },
-        },
-        {
-          time: 36,
-          details: {
-            type: "mcq_single_answer",
-            text:
-              "हमारे शरीर में ______________ होते हैं जो उत्तेजित होने और उत्तेजना को शरीर के भीतर एक स्थान से दूसरे स्थान तक बहुत तेजी से संचारित करने के लिए अत्यधिक विशिष्ट होते हैं।",
-            options: ["तंत्रिका पेशी", "ऊतक", "WBC", "प्लाज्मा"],
-            correct_answer: 0,
-          },
-          type: "note",
-          metadata: { source: { name: "Default" } },
-        },
-      ],
+      items: [], // list of all items created for this plio
       videoDuration: 0,
       videoId: "", // ID of the YouTube video
       videoInputValidation: {
@@ -155,12 +137,49 @@ export default {
       plyrConfig: {
         controls: ["play-large", "play", "volume"],
       },
-      // still only integer steps - fix this
-      sliderStep: 0.1,
+      sliderStep: 0.1, // timestep for the slider
+      itemTimestamps: [], // stores the list of the timestamps of all items
       videoURL: "",
     };
   },
+  created() {
+    this.videoURL = "https://www.youtube.com/watch?v=uVAbT9r1UOY&ab_channel=TapeATale";
+    this.items = [
+      {
+        time: 40,
+        details: {
+          type: "mcq_single_answer",
+          text:
+            "हम इस विडीओ में तंत्रिका उत्तक और तांत्रिका आवेग के बारे में बात करेंगे, क्या आप तैयार है?",
+          options: ["हाँ", "नही"],
+          correct_answer: 0,
+        },
+        type: "question",
+        metadata: { source: { name: "Default" } },
+      },
+      {
+        time: 80,
+        details: {
+          type: "mcq_single_answer",
+          text:
+            "हमारे शरीर में ______________ होते हैं जो उत्तेजित होने और उत्तेजना को शरीर के भीतर एक स्थान से दूसरे स्थान तक बहुत तेजी से संचारित करने के लिए अत्यधिक विशिष्ट होते हैं।",
+          options: ["तंत्रिका पेशी", "ऊतक", "WBC", "प्लाज्मा"],
+          correct_answer: 0,
+        },
+        type: "note",
+        metadata: { source: { name: "Default" } },
+      },
+    ];
+  },
   watch: {
+    items() {
+      this.itemTimestamps = this.getItemTimestamps(this.items);
+    },
+    itemTimestamps() {
+      this.itemTimestamps.forEach((itemTimestamp, index) => {
+        this.items[index]["time"] = itemTimestamp;
+      });
+    },
     videoURL(newVideoURL) {
       // invoked when the video link is updated
       var linkValidation = this.isVideoLinkValid(newVideoURL);
@@ -201,32 +220,78 @@ export default {
       }
       return process.env.VUE_APP_FRONTEND + "/#/play/" + this.plioId;
     },
-    itemPositions() {
-      // timestamps of all items in the plio
-      var positions = [];
-
-      this.items.forEach((item) => {
-        positions.push(item.time);
-      });
-
-      return positions;
-    },
     isVideoIdValid() {
       // whether the video Id is valid
       return this.videoId != "";
     },
   },
-  created() {},
   methods: {
-    sliderTimestampUpdated(timestamp, markerIndex) {
-      // update the value of currentTimestamp when the slider is updated
-      this.currentTimestamp = timestamp;
-      this.$refs.player.currentTime = timestamp;
-      if (markerIndex != null) {
-        this.isItemSelected = true;
-        this.$refs.player.player.pause();
-        this.currentItemIndex = markerIndex;
+    itemMarkerTimestampDragEnd(itemIndex) {
+      // invoked when the drag on the marker for an item is completed
+      var itemTimestamp = this.itemTimestamps[itemIndex];
+      this.items[itemIndex]["time"] = itemTimestamp;
+      // sort the items based on timestamp
+      this.items.sort(function (a, b) {
+        return a["time"] - b["time"];
+      });
+      // update itemTimestamps based on new sorted items
+      this.itemTimestamps = this.getItemTimestamps(this.items);
+      // update everything else
+      this.currentItemIndex = this.itemTimestamps.indexOf(itemTimestamp);
+      this.currentTimestamp = itemTimestamp;
+      this.updatePlayerTimestamp(itemTimestamp);
+      this.markItemSelected(this.currentItemIndex);
+    },
+    checkItemToSelect(timestamp) {
+      var itemSelected = false;
+      // checks if any item is to be marked selected for the given timestamp
+      this.itemTimestamps.every((itemTimestamp, index) => {
+        // if the seeker is within "POP_UP_PRECISION_TIME" of the
+        // specific item time, then mark the item as selected
+        if (
+          timestamp < itemTimestamp &&
+          timestamp >= itemTimestamp - POP_UP_PRECISION_TIME / 1000
+        ) {
+          // mark that some item has been selected at this timestamp
+          itemSelected = true;
+          this.markItemSelected(index);
+          // breaks the loop
+          return false;
+        } else {
+          // go on to check the next item
+          return true;
+        }
+      });
+      if (!itemSelected) {
+        this.markNoItemSelected();
       }
+    },
+    updatePlayerTimestamp(timestamp) {
+      // update player time to the given timestamp
+      this.$refs.playerObj.player.currentTime = timestamp;
+    },
+    sliderUpdated(timestamp) {
+      // invoked when the time slider is updated
+      this.updatePlayerTimestamp(timestamp);
+      this.checkItemToSelect(timestamp);
+    },
+    itemSelected(itemIndex) {
+      // invoked when an item marker has been selected
+      this.updatePlayerTimestamp(this.currentTimestamp);
+      this.markItemSelected(itemIndex);
+    },
+    markItemSelected(itemIndex) {
+      // mark the item at the given index as selected
+      if (itemIndex != null) {
+        this.isItemSelected = true;
+        this.$refs.playerObj.player.pause();
+        this.currentItemIndex = itemIndex;
+      }
+    },
+    markNoItemSelected() {
+      // mark that no item has been currently selected
+      this.isItemSelected = false;
+      this.currentItemIndex = null;
     },
     videoTimestampUpdated(timestamp) {
       // update the value of slider when the video's timestamp is updated
@@ -237,7 +302,7 @@ export default {
         return;
       }
       this.currentTimestamp = timestamp;
-      this.$refs.slider.timestamp = timestamp;
+      this.checkItemToSelect(timestamp);
     },
     playerReady(player) {
       // set variables once the player instance is ready
@@ -256,6 +321,16 @@ export default {
     playerPlayed() {
       // invoked when the player is played from a paused state
       this.isItemSelected = false;
+    },
+    getItemTimestamps(items) {
+      // returns the list of timestamps of the items
+      var positions = [];
+
+      items.forEach((item) => {
+        positions.push(item.time);
+      });
+
+      return positions;
     },
   },
 };
