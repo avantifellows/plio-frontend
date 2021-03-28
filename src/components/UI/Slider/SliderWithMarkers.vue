@@ -1,34 +1,32 @@
 <template>
-  <div>
-    <div class="flex relative">
-      <div class="rounded-full w-6 h-6" id="dummyMarker"></div>
-      <input
-        id="mainSlider"
-        type="range"
-        v-model.number="localValue"
-        :max="end"
-        :step="step"
-        class="slider w-full absolute z-50 main-slider-thumb"
-        @input="valueUpdated"
-      />
-      <input
-        type="range"
-        v-for="(markerStyle, markerIndex) in markerStyles"
-        :key="markerIndex"
-        :min="getMarkerSlideMin(markerIndex)"
-        :max="getMarkerSlideMax(markerIndex)"
-        :step="step"
-        :style="markerStyle"
-        class="slider absolute marker-slider-thumb"
-        :class="getMarkerSlideClass(markerIndex)"
-        v-model.number="localMarkerPositions[markerIndex]"
-        @mouseover="markerSliderSelected(markerIndex)"
-        @change="markerSliderChangeOver(markerIndex)"
-        @input="markerSliderUpdated(markerIndex)"
-        @mouseout="markerSliderUnselected"
-        @click="updateValueFromMarker(markerIndex)"
-      />
-    </div>
+  <div class="flex relative">
+    <div class="rounded-full w-6 h-6" id="dummyMarker"></div>
+    <input
+      id="mainSlider"
+      type="range"
+      v-model.number="localValue"
+      :max="end"
+      :step="step"
+      class="slider w-full absolute z-50 main-slider-thumb"
+      @input="valueUpdated"
+    />
+    <input
+      type="range"
+      v-for="(markerStyle, markerIndex) in markerStyles"
+      :key="markerIndex"
+      :min="getMarkerSlideMin(markerIndex)"
+      :max="getMarkerSlideMax(markerIndex)"
+      :step="step"
+      :style="markerStyle"
+      class="slider absolute marker-slider-thumb"
+      :class="getMarkerSlideClass(markerIndex)"
+      v-model.number="localMarkerPositions[markerIndex]"
+      @mouseover="markerSliderSelected(markerIndex)"
+      @change="markerSliderChangeOver(markerIndex)"
+      @input="markerSliderUpdated(markerIndex)"
+      @mouseout="markerSliderUnselected"
+      @click="updateValueFromMarker(markerIndex)"
+    />
   </div>
 </template>
 
@@ -57,6 +55,7 @@ export default {
       default: () => [],
       type: Array,
     },
+    // the actual value of the main slider
     value: {
       default: 0,
       type: Number,
@@ -90,7 +89,10 @@ export default {
     isMarkerVisible(markerIndex) {
       // whether the marker at the given index should be visible
       var markerRelativePosition = this.markerRelativePositions[markerIndex];
-      return markerRelativePosition >= 0 && markerRelativePosition <= 100;
+      return (
+        markerRelativePosition >= 0 &&
+        markerRelativePosition <= (100 * this.markerArenaWidth) / this.sliderWidth
+      );
     },
     valueUpdated() {
       this.$emit("update", this.value);

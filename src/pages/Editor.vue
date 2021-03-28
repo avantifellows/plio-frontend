@@ -24,8 +24,6 @@
             ref="playerObj"
           ></video-player>
 
-          <!-- @marker-updated="itemMarkerTimestampUpdated" -->
-
           <!--- slider with question markers -->
           <slider-with-markers
             :end="videoDuration"
