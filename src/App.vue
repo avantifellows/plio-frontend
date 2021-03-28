@@ -1,68 +1,70 @@
 <template>
-  <div
-    id="nav"
-    class="grid grid-cols-6 sm:grid-cols-7 gap-2 border-b-2 pt-2 border-solid bg-white pl-2 pr-2"
-  >
-    <!-- top left logo -->
-    <router-link
-      :to="{ name: 'Home' }"
-      class="h-14 w-11 justify-self-start place-self-center"
-    >
-      <img
-        class="h-full w-full object-scale-down"
-        id="logo"
-        src="@/assets/images/logo.png"
-      />
-    </router-link>
-
-    <!-- page heading -->
+  <div :class="{ 'opacity-50': pending }">
     <div
-      v-if="isLoggedIn"
-      class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center"
+      id="nav"
+      class="grid grid-cols-6 sm:grid-cols-7 gap-2 border-b-2 pt-2 border-solid bg-white pl-2 pr-2"
     >
-      <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
-    </div>
+      <!-- top left logo -->
+      <router-link
+        :to="{ name: 'Home' }"
+        class="h-14 w-11 justify-self-start place-self-center"
+      >
+        <img
+          class="h-full w-full object-scale-down"
+          id="logo"
+          src="@/assets/images/logo.png"
+        />
+      </router-link>
 
-    <!-- create plio button -->
-    <div
-      v-if="showCreateButton"
-      class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1"
-    >
-      <icon-button
-        :titleConfig="createButtonTextConfig"
-        class="rounded-md"
-        @click="createNewPlio"
-      ></icon-button>
-    </div>
+      <!-- page heading -->
+      <div
+        v-if="isLoggedIn"
+        class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center"
+      >
+        <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
+      </div>
 
-    <!-- logout and locale switcher -->
-    <div class="grid col-start-7 sm:gap-1 sm:justify-items-center">
-      <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
-      <div v-if="!onLoginPage" class="text-lg sm:text-xl place-self-center">
-        <router-link v-if="!isLoggedIn" :to="{ name: 'PhoneSignIn' }">
-          <button
-            class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain"
-          >
-            {{ $t("nav.login") }}
-          </button>
-        </router-link>
-        <a href="#" v-if="isLoggedIn" @click="logoutUser">
-          <button
-            class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2"
-          >
-            {{ $t("nav.logout") }}
-          </button>
-        </a>
+      <!-- create plio button -->
+      <div
+        v-if="showCreateButton"
+        class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1"
+      >
+        <icon-button
+          :titleConfig="createButtonTextConfig"
+          class="rounded-md"
+          @click="createNewPlio"
+        ></icon-button>
       </div>
-      <div class="place-self-center">
-        <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
+
+      <!-- logout and locale switcher -->
+      <div class="grid col-start-7 sm:gap-1 sm:justify-items-center">
+        <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
+        <div v-if="!onLoginPage" class="text-lg sm:text-xl place-self-center">
+          <router-link v-if="!isLoggedIn" :to="{ name: 'PhoneSignIn' }">
+            <button
+              class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain"
+            >
+              {{ $t("nav.login") }}
+            </button>
+          </router-link>
+          <a href="#" v-if="isLoggedIn" @click="logoutUser">
+            <button
+              class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2"
+            >
+              {{ $t("nav.logout") }}
+            </button>
+          </a>
+        </div>
+        <div class="place-self-center">
+          <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
+        </div>
       </div>
+      <user-properties ref="userProperties"></user-properties>
     </div>
-    <user-properties ref="userProperties"></user-properties>
+    <loading-spinner v-if="pending"></loading-spinner>
+    <toast ref="toast"></toast>
+    <router-view />
   </div>
-  <loading-spinner v-if="pending"></loading-spinner>
-  <toast ref="toast"></toast>
-  <router-view />
 </template>
 
 <script>
@@ -102,7 +104,7 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions(["logout"]),
+    ...mapActions(["logout", "startLoading", "stopLoading"]),
     logoutUser() {
       // logs out the user
       this.logout().then(() => {
@@ -112,8 +114,9 @@ export default {
     createNewPlio() {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
+      this.startLoading();
       PlioService.createPlio().then((response) => {
-        console.log(response);
+        this.stopLoading();
         if (response.status == 200) {
           this.$router.push({
             name: "Editor",
