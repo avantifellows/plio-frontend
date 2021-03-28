@@ -232,10 +232,13 @@ export default {
       // invoked when the drag on the marker for an item is completed
       var itemTimestamp = this.itemTimestamps[itemIndex];
       this.items[itemIndex]["time"] = itemTimestamp;
+      // sort the items based on timestamp
       this.items.sort(function (a, b) {
         return a["time"] - b["time"];
       });
+      // update itemTimestamps based on new sorted items
       this.itemTimestamps = this.getItemTimestamps(this.items);
+      // update everything else
       this.currentItemIndex = this.itemTimestamps.indexOf(itemTimestamp);
       this.currentTimestamp = itemTimestamp;
       this.updatePlayerTimestamp(itemTimestamp);
