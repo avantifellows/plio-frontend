@@ -28,7 +28,11 @@
       v-if="showCreateButton"
       class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1"
     >
-      <icon-button :titleConfig="createButtonTextConfig" class="rounded-md"></icon-button>
+      <icon-button
+        :titleConfig="createButtonTextConfig"
+        class="rounded-md"
+        @click="createNewPlio"
+      ></icon-button>
     </div>
 
     <!-- logout and locale switcher -->
@@ -57,6 +61,7 @@
     <user-properties ref="userProperties"></user-properties>
   </div>
   <loading-spinner v-if="pending"></loading-spinner>
+  <toast ref="toast"></toast>
   <router-view />
 </template>
 
@@ -65,7 +70,9 @@ import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
 import UserProperties from "@/services/Config/User.vue";
 import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import Toast from "@/components/UI/Message/Toast.vue";
 import { mapActions, mapState } from "vuex";
+import PlioService from "@/services/API/Plio.js";
 
 export default {
   components: {
@@ -73,6 +80,7 @@ export default {
     UserProperties,
     LoadingSpinner,
     IconButton,
+    Toast,
   },
   data() {
     return {
@@ -80,6 +88,7 @@ export default {
         value: "Create",
         class: "text-lg md:text-xl lg:text-2xl text-white",
       },
+      toastLife: 3000,
     };
   },
   mounted() {
@@ -98,6 +107,21 @@ export default {
       // logs out the user
       this.logout().then(() => {
         this.$router.push({ name: "PhoneSignIn" });
+      });
+    },
+    createNewPlio() {
+      // invoked when the user clicks on Create
+      // creates a new draft plio and redirects the user to the editor
+      PlioService.createPlio().then((response) => {
+        console.log(response);
+        if (response.status == 200) {
+          this.$router.push({
+            name: "Editor",
+            params: { plioId: response.data.plio_id },
+          });
+        } else {
+          this.$refs.toast.show("error", "Error creating Plio", this.toastLife);
+        }
       });
     },
   },
@@ -133,53 +157,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
 }
-
-/* #nav {
-  padding: 10px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-} */
-
-/* #header {
-  display: flex;
-  padding-top: 20px;
-  padding-bottom: 20px;
-} */
-
-/* #locale {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  vertical-align: center;
-} */
-/*
-.left {
-  margin-right: auto;
-}
-
-.right {
-  margin-left: auto;
-}
-
-.hidden {
-  visibility: hidden;
-} */
-
-/* #nav a.router-link-exact-active {
-  color: #42b983;
-} */
-
-/* #logo {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-} */
-
 @font-face {
   font-family: "Kruti Dev";
   src: local("Kruti Dev"), url("./assets/fonts/Kruti_Dev_10.TTF") format("truetype");
