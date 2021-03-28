@@ -1,14 +1,12 @@
 <template>
   <button
     type="button"
-    class="h-8 w-8 py-2 px-2 flex justify-center items-center bg-primary-button hover:bg-primary-button-hover transition ease-in duration-200 text-center text-base font-semibold shadow-lg focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2"
+    class="h-full flex justify-center items-center bg-primary-button hover:bg-primary-button-hover transition ease-in duration-200 text-center text-base font-semibold shadow-lg focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2"
   >
-    <inline-svg
-      v-if="localIconConfig.enabled"
-      :src="icon"
-      class="h-5 w-2.5"
-      :class="localIconConfig.iconClass"
-    ></inline-svg>
+    <div class="flex w-full justify-center">
+      <inline-svg v-if="isIconConfigEnabled" :src="icon" :class="iconClass"></inline-svg>
+      <p v-if="displayTitle" :class="titleClass">{{ title }}</p>
+    </div>
   </button>
 </template>
 
@@ -21,6 +19,10 @@ export default {
         iconName: "spinner-solid",
         iconClass: "stroke-0 text-white white",
       },
+      defaultTitleConfig: {
+        value: "",
+        class: "text-white",
+      },
     };
   },
   created() {},
@@ -31,13 +33,29 @@ export default {
         return {};
       },
     },
+    titleConfig: {
+      type: Object,
+      default: function () {
+        return {};
+      },
+    },
   },
   computed: {
     iconName() {
+      // name of the icon image file under assets/images
       return this.localIconConfig.iconName;
     },
     icon() {
+      // imports and returns the icon
       return require("@/assets/images/" + this.iconName + ".svg");
+    },
+    iconClass() {
+      // class specific to the icon
+      return this.localIconConfig.iconClass || "";
+    },
+    isIconConfigEnabled() {
+      // whether icon needs to be shown
+      return this.localIconConfig.enabled;
     },
     localIconConfig() {
       // merges the default icon config and the icon config coming
@@ -49,6 +67,31 @@ export default {
         }
       });
       return localCopy;
+    },
+    localTitleConfig() {
+      // merges the default title config and the title config coming
+      // as a prop -> places that into "localTitleConfig"
+      var localCopy = this.titleConfig;
+      Object.entries(this.defaultTitleConfig).forEach(([key, val]) => {
+        if (!(key in localCopy)) {
+          localCopy[key] = val;
+        }
+      });
+      return localCopy;
+    },
+    title() {
+      // title text
+      return this.localTitleConfig["value"];
+    },
+    titleClass() {
+      // class specific to the title
+      return this.localTitleConfig.class || "";
+    },
+    displayTitle() {
+      // whether the title prop is to be displayed
+      return (
+        this.localTitleConfig["value"] != null && this.localTitleConfig["value"] != ""
+      );
     },
   },
 };
