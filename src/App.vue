@@ -25,7 +25,7 @@
 
     <!-- create plio button -->
     <div
-      v-if="isLoggedIn"
+      v-if="showCreateButton"
       class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1"
     >
       <icon-button :titleConfig="createButtonTextConfig" class="rounded-md"></icon-button>
@@ -95,6 +95,7 @@ export default {
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions(["logout"]),
     logoutUser() {
+      // logs out the user
       this.logout().then(() => {
         this.$router.push({ name: "PhoneSignIn" });
       });
@@ -103,12 +104,19 @@ export default {
   computed: {
     ...mapState(["pending", "isLoggedIn", "configs"]),
     hasLocalUserConfigs() {
+      // whether the use configs have been set
       return this.configs != null;
     },
     onLoginPage() {
+      // whether the current page is the login page
       return this.$route.name == "PhoneSignIn";
     },
+    showCreateButton() {
+      // whether to show the Create button
+      return this.isLoggedIn && this.$route.name == "Home";
+    },
     currentPageName() {
+      // name of the current page as saved in assets/locales
       var pageName;
       if (this.$route.name) {
         pageName = this.$t("nav." + this.$route.name.toLowerCase());
