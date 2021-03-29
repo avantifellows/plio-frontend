@@ -1,0 +1,141 @@
+<template>
+  <div class="shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-800 w-64 m-auto">
+    <div class="w-full h-full text-center">
+      <div class="flex h-full flex-col justify-between">
+        <!-- icon -->
+        <inline-svg
+          v-if="isIconEnabled"
+          :src="icon"
+          class="place-self-center"
+          :class="iconClass"
+        ></inline-svg>
+        <!-- title -->
+        <p
+          class="text-gray-800 dark:text-gray-200 text-xl font-bold mt-4"
+          v-if="showTitle"
+        >
+          {{ title }}
+        </p>
+        <!-- description -->
+        <p
+          class="text-gray-600 dark:text-gray-400 text-xs py-2 px-6"
+          v-if="showDescription"
+        >
+          {{ description }}
+        </p>
+        <div class="flex items-center justify-between gap-4 w-full mt-8">
+          <button
+            type="button"
+            class="py-2 px-4 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg"
+            :class="confirmButtonClass"
+            @click="confirmClicked"
+          >
+            {{ confirmButtonText }}
+          </button>
+          <button
+            type="button"
+            class="py-2 px-4 w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg"
+            :class="cancelButtonClass"
+            @click="cancelClicked"
+          >
+            {{ cancelButtonText }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    iconConfig: {
+      // config for the icon in the alert box
+      default: () => {
+        return {
+          enabled: false,
+          name: "check",
+          class: "w-12 h-12",
+        };
+      },
+      type: Object,
+    },
+    title: {
+      // title of the alert
+      default: "",
+      type: String,
+    },
+    description: {
+      // description of the alert
+      default: "",
+      type: String,
+    },
+    confirmButtonConfig: {
+      // config for the confirmation button
+      default: () => {
+        return {
+          text: "Yes",
+          class:
+            "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        };
+      },
+      type: Object,
+    },
+    cancelButtonConfig: {
+      // config for the cancel button
+      default: () => {
+        return {
+          text: "No",
+          class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
+        };
+      },
+      type: Object,
+    },
+  },
+  computed: {
+    showTitle() {
+      return this.title != null && this.title != "";
+    },
+    showDescription() {
+      return this.description != null && this.description != "";
+    },
+    confirmButtonText() {
+      return this.confirmButtonConfig["text"];
+    },
+    confirmButtonClass() {
+      return this.confirmButtonConfig["class"];
+    },
+    cancelButtonText() {
+      return this.cancelButtonConfig["text"];
+    },
+    cancelButtonClass() {
+      return this.cancelButtonConfig["class"];
+    },
+    isIconEnabled() {
+      return this.iconConfig["enabled"];
+    },
+    iconName() {
+      // name of the icon image file under assets/images
+      return this.iconConfig.name;
+    },
+    icon() {
+      // imports and returns the icon
+      return require("@/assets/images/" + this.iconName + ".svg");
+    },
+    iconClass() {
+      return this.iconConfig["class"];
+    },
+  },
+  methods: {
+    confirmClicked() {
+      // invoked when the confirm button is clicked
+      this.$emit("confirm");
+    },
+    cancelClicked() {
+      // invoked when the cancel button is clicked
+      this.$emit("cancel");
+    },
+  },
+  emits: ["confirm", "cancel"],
+};
+</script>
