@@ -188,7 +188,7 @@ export default {
       if (!linkValidation["valid"]) return;
 
       if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
-        this.$refs.player.player.destroy();
+        this.$refs.playerObj.player.destroy();
       }
       this.videoId = linkValidation["ID"];
       this.checkAndSavePlio();
@@ -359,7 +359,7 @@ export default {
         this.videoURL = plioDetails.video_url;
         this.plioTitle = plioDetails.plio_title;
         this.status = plioDetails.status;
-        this.lastUpdated = plioDetails.updated_at;
+        this.lastUpdated = new Date(plioDetails.updated_at);
       });
     },
     checkAndSavePlio() {
