@@ -25,10 +25,19 @@ export default {
       },
       bucket: "plio-test-data",
     };
-    console.log(newPlioData);
     return apiClient().post(
       process.env.VUE_APP_BACKEND_CREATE_PLIO,
       newPlioData
     );
+  },
+  updatePlio(value, plioId) {
+    // creates a new draft plio
+    var plioData = {
+      value: value,
+      plio_id: plioId,
+      bucket: "plio-test-data",
+    };
+    console.log(plioData);
+    return apiClient().post(process.env.VUE_APP_BACKEND_CREATE_PLIO, plioData);
   },
 };

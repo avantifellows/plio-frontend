@@ -26,14 +26,16 @@
       <!-- TODO: icon styling is fixed right now, will make it parametrized  -->
       <span
         v-if="isSideIconEnabled"
-        class="z-10 h-full leading-snug font-normal flex text-blueGray-300 absolute bg-transparent rounded text-base w-8 p-3 items-center"
+        class="z-10 h-full leading-snug font-normal flex text-blueGray-300 absolute bg-transparent rounded text-base p-3 items-center"
+        :class="sideIconClass"
       >
         <inline-svg :src="sideIconObj"></inline-svg>
       </span>
 
       <!-- input area -->
       <input
-        class="px-3 py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-md border border-blueGray-300 focus:outline-none focus:ring focus:border-blue-300 focus:shadow-outline w-full pl-8"
+        class="py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-md border border-blueGray-300 focus:outline-none focus:ring focus:border-blue-300 focus:shadow-outline w-full"
+        :class="inputAreaClass"
         type="text"
         name="placeholder"
         :placeholder="placeholder"
@@ -71,14 +73,16 @@ export default {
       default: () => {
         return {
           enabled: false,
+          name: "check",
+          class: "w-10 h-10",
         };
       },
-      type: Object
+      type: Object,
     },
     value: {
       // the value of the input of the input box
       default: "",
-      type: String
+      type: String,
     },
   },
   computed: {
@@ -119,7 +123,11 @@ export default {
     },
     sideIconName() {
       // gets the side icon name from the prop
-      return this.sideIcon.name || "";
+      return this.sideIcon.name;
+    },
+    sideIconClass() {
+      // gets the side icon name from the prop
+      return this.sideIcon.class;
     },
     sideIconObj() {
       // uses the sideicon name to fetch the icon object
@@ -131,8 +139,14 @@ export default {
       return icon;
     },
     isSideIconEnabled() {
-      return this.sideIcon.enabled
-    }
+      return this.sideIcon.enabled;
+    },
+    inputAreaClass() {
+      return {
+        "pl-10": this.isSideIconEnabled,
+        "pl-4": !this.isSideIconEnabled,
+      };
+    },
   },
   methods: {
     inputChange() {

@@ -170,7 +170,7 @@ export default {
           options: ["तंत्रिका पेशी", "ऊतक", "WBC", "प्लाज्मा"],
           correct_answer: 0,
         },
-        type: "note",
+        type: "question",
         metadata: { source: { name: "Default" } },
       },
     ];
