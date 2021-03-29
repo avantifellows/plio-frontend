@@ -412,7 +412,8 @@ export default {
         this.videoURL = plioDetails.video_url || "";
         this.plioTitle = plioDetails.plio_title || "";
         this.status = plioDetails.status;
-        this.lastUpdated = new Date(plioDetails.updated_at) || new Date();
+        if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
+          this.lastUpdated = new Date(plioDetails.updated_at);
       });
     },
     checkAndSavePlio() {
