@@ -100,6 +100,10 @@ export default {
     // place a listener for the event of closing of the browser
     window.addEventListener("beforeunload", this.onClose);
   },
+  destroyed() {
+    // remove the listener for the event of closing of the browser
+    window.removeEventListener("beforeunload");
+  },
   mounted() {
     if (this.isLoggedIn && !this.hasLocalUserConfigs) {
       // fetch user config for logged in users if not already present
