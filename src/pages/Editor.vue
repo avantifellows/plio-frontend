@@ -173,8 +173,12 @@ export default {
     clearInterval(this.savingInterval);
   },
   watch: {
-    items() {
-      this.itemTimestamps = this.getItemTimestamps(this.items);
+    items: {
+      handler() {
+        this.itemTimestamps = this.getItemTimestamps(this.items);
+        this.checkAndSavePlio();
+      },
+      deep: true,
     },
     itemTimestamps() {
       this.itemTimestamps.forEach((itemTimestamp, index) => {
