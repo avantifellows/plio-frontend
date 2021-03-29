@@ -4,7 +4,7 @@
     <!--- preview grid -->
     <div class="flex flex-col ml-5 mr-5">
       <!--- plio link -->
-      <URL :link="plioLink" class="justify-center m-1"></URL>
+      <URL :link="plioLink" class="justify-center m-4"></URL>
 
       <div class="justify-center">
         <!--- video preview -->
@@ -39,13 +39,18 @@
       </div>
 
       <!--- buttons -->
-      <div class="flex justify-center mt-10">
-        <Button
-          label="Publish Plio"
-          class="p-button-success"
+      <div class="flex justify-between mt-10">
+        <icon-button
+          :titleConfig="backButtonTitleConfig"
+          :iconConfig="backButtonIconConfig"
+          :buttonClass="backButtonClass"
+          @click="returnToHome"
+        ></icon-button>
+        <icon-button
+          :titleConfig="publishButtonTitleConfig"
           :disabled="!isVideoIdValid"
-          v-tooltip.bottom="'Click to publish plio'"
-        />
+          v-tooltip.right="publishButtonTooltip"
+        ></icon-button>
       </div>
 
       <!-- TEMPORARY - this is just the plio json preview - for testing  -->
@@ -103,9 +108,9 @@ import InputText from "@/components/UI/Text/InputText.vue";
 import URL from "@/components/UI/Text/URL.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
-import Button from "primevue/button";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import PlioService from "@/services/API/Plio.js";
+import IconButton from "../components/UI/Buttons/IconButton.vue";
 
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
@@ -115,10 +120,10 @@ export default {
   components: {
     InputText,
     URL,
-    Button,
     SliderWithMarkers,
     VideoPlayer,
     ItemEditor,
+    IconButton,
   },
   props: {
     plioId: {
@@ -203,6 +208,36 @@ export default {
     },
   },
   computed: {
+    backButtonIconConfig() {
+      return {
+        enabled: true,
+        iconName: "chevron-left-solid",
+        iconClass: "w-4 h-4 ml-2 text-primary",
+      };
+    },
+    backButtonClass() {
+      return "bg-gray-100 hover:bg-gray-200 rounded-md";
+    },
+    backButtonTitleConfig() {
+      return {
+        value: "Home",
+        class: "p-4 text-primary font-bold",
+      };
+    },
+    publishButtonTitleConfig() {
+      return {
+        value: this.publishButtonText,
+        class: "bg-green-500 p-4 text-white rounded-md font-bold hover:bg-green-600",
+      };
+    },
+    publishButtonText() {
+      if (this.status == "draft") return "Publish Plio";
+      return "Publish Changes";
+    },
+    publishButtonTooltip() {
+      if (this.status == "draft") return "Click to publish the plio";
+      return "Click to publish your changes";
+    },
     lastUpdatedStr() {
       return this.lastUpdated.toLocaleString();
     },
@@ -242,6 +277,9 @@ export default {
     },
   },
   methods: {
+    returnToHome() {
+      this.$router.push({ name: "Home" });
+    },
     itemMarkerTimestampDragEnd(itemIndex) {
       // invoked when the drag on the marker for an item is completed
       var itemTimestamp = this.itemTimestamps[itemIndex];

@@ -26,7 +26,7 @@
       <!-- create plio button -->
       <div
         v-if="showCreateButton"
-        class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1"
+        class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1 bg-primary hover:bg-primary-hover rounded-lg"
       >
         <icon-button
           :titleConfig="createButtonTextConfig"
@@ -137,8 +137,9 @@ export default {
     },
     onClose(event) {
       // invoked when trying to close the browser or changing pages
-      event.preventDefault();
-      event.returnValue = "";
+      console.log(event);
+      // event.preventDefault();
+      // event.returnValue = "";
     },
   },
   computed: {

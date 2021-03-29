@@ -1,10 +1,16 @@
 <template>
   <button
     type="button"
-    class="h-full flex justify-center items-center bg-primary-button hover:bg-primary-button-hover transition ease-in duration-200 text-center text-base font-semibold shadow-lg focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2"
+    class="h-full flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold shadow-lg focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2"
+    :class="buttonClass"
   >
     <div class="flex w-full justify-center">
-      <inline-svg v-if="isIconConfigEnabled" :src="icon" :class="iconClass"></inline-svg>
+      <inline-svg
+        v-if="isIconConfigEnabled"
+        :src="icon"
+        :class="iconClass"
+        class="place-self-center"
+      ></inline-svg>
       <p v-if="displayTitle" :class="titleClass">{{ title }}</p>
     </div>
   </button>
@@ -38,6 +44,10 @@ export default {
       default: function () {
         return {};
       },
+    },
+    buttonClass: {
+      type: Object,
+      default: () => {},
     },
   },
   computed: {

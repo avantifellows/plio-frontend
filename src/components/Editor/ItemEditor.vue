@@ -20,6 +20,7 @@
         :iconConfig="previousItemIconConfig"
         @click="updateSelectedItemIndex(selectedItemIndex - 1)"
         :class="{ 'opacity-50': isFirstItem }"
+        :buttonClass="previousItemButtonClass"
         :disabled="isFirstItem"
       ></icon-button>
 
@@ -29,6 +30,7 @@
         :iconConfig="nextItemIconConfig"
         @click="updateSelectedItemIndex(selectedItemIndex + 1)"
         :class="{ 'opacity-50': isLastItem }"
+        :buttonClass="nextItemButtonClass"
         :disabled="isLastItem"
       ></icon-button>
 
@@ -36,6 +38,7 @@
       <icon-button
         class="rounded-xl w-8 h-8"
         :iconConfig="addItemIconConfig"
+        :buttonClass="addItemButtonClass"
       ></icon-button>
 
       <!-- delete item button -->
@@ -73,16 +76,19 @@ export default {
         iconName: "chevron-left-solid",
         iconClass: "text-white h-5 w-2.5",
       },
+      previousItemButtonClass: "bg-primary-button hover:bg-primary-button-hover",
       nextItemIconConfig: {
         enabled: true,
         iconName: "chevron-right-solid",
         iconClass: "text-white h-5 w-2.5",
       },
+      nextItemButtonClass: "bg-primary-button hover:bg-primary-button-hover",
       addItemIconConfig: {
         enabled: true,
         iconName: "plus-solid",
         iconClass: "text-white h-5 w-2.5",
       },
+      addItemButtonClass: "bg-primary-button hover:bg-primary-button-hover",
       deleteItemIconConfig: {
         enabled: true,
         iconName: "delete",
