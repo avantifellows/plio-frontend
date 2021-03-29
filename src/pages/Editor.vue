@@ -199,12 +199,6 @@ export default {
     },
   },
   computed: {
-    lastUpdatedTime() {
-      return this.lastUpdated.toLocaleTimeString();
-    },
-    lastUpdatedDate() {
-      return this.lastUpdated.toLocaleDateString();
-    },
     lastUpdatedStr() {
       return this.lastUpdated.toLocaleString();
     },
