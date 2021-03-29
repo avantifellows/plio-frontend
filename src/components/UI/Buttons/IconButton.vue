@@ -46,7 +46,7 @@ export default {
       },
     },
     buttonClass: {
-      type: Object,
+      type: String,
       default: () => {},
     },
   },

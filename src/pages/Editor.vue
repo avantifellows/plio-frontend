@@ -66,7 +66,7 @@
     <div class="grid grid-rows-6 grid-cols-1 m-5 justify-start">
       <div class="row-start-1 row-span-1 grid gap-y-4">
         <p class="text-sm text-gray-500 justify-self-end">
-          Updated at: {{ lastUpdatedStr }}
+          {{ syncStatusText }}
         </p>
         <!--- video link -->
         <input-text
@@ -111,6 +111,7 @@ import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import PlioService from "@/services/API/Plio.js";
 import IconButton from "../components/UI/Buttons/IconButton.vue";
+import { mapActions, mapState } from "vuex";
 
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
@@ -208,7 +209,14 @@ export default {
     },
   },
   computed: {
+    ...mapState(["syncing"]),
+    syncStatusText() {
+      // text to show the sync status
+      if (this.syncing) return "Updating...";
+      else return "Updated at: " + this.lastUpdatedStr;
+    },
     backButtonIconConfig() {
+      // config for icon of back button
       return {
         enabled: true,
         iconName: "chevron-left-solid",
@@ -216,32 +224,39 @@ export default {
       };
     },
     backButtonClass() {
+      // classes for the back button
       return "bg-gray-100 hover:bg-gray-200 rounded-md";
     },
     backButtonTitleConfig() {
+      // config for text of back button
       return {
         value: "Home",
         class: "p-4 text-primary font-bold",
       };
     },
     publishButtonTitleConfig() {
+      // config for text of back button
       return {
         value: this.publishButtonText,
         class: "bg-green-500 p-4 text-white rounded-md font-bold hover:bg-green-600",
       };
     },
     publishButtonText() {
+      // text for the publish button
       if (this.status == "draft") return "Publish Plio";
       return "Publish Changes";
     },
     publishButtonTooltip() {
+      // tooltip text for publish button
       if (this.status == "draft") return "Click to publish the plio";
       return "Click to publish your changes";
     },
     lastUpdatedStr() {
+      // lastUpdated as a human readable string
       return this.lastUpdated.toLocaleString();
     },
     hasAnyItems() {
+      // whether there are any itesm
       return this.items.length != 0;
     },
     isDraftCreated() {
@@ -277,7 +292,9 @@ export default {
     },
   },
   methods: {
+    ...mapActions(["startSyncing", "stopSyncing"]),
     returnToHome() {
+      // returns the user back to Home
       this.$router.push({ name: "Home" });
     },
     itemMarkerTimestampDragEnd(itemIndex) {
@@ -390,12 +407,12 @@ export default {
       // fetch plio details
       PlioService.getPlio(this.plioId).then((response) => {
         var plioDetails = response.data.plioDetails;
-        this.items = plioDetails.items;
-        this.videoId = plioDetails.video_id;
-        this.videoURL = plioDetails.video_url;
-        this.plioTitle = plioDetails.plio_title;
+        this.items = plioDetails.items || [];
+        this.videoId = plioDetails.video_id || "";
+        this.videoURL = plioDetails.video_url || "";
+        this.plioTitle = plioDetails.plio_title || "";
         this.status = plioDetails.status;
-        this.lastUpdated = new Date(plioDetails.updated_at);
+        this.lastUpdated = new Date(plioDetails.updated_at) || new Date();
       });
     },
     checkAndSavePlio() {
@@ -410,6 +427,7 @@ export default {
     savePlio() {
       // saves the plio data on remote
       this.changeInProgress = false;
+      this.startSyncing();
       this.lastUpdated = new Date();
       var plioValue = {
         video_id: this.videoId,
@@ -422,6 +440,7 @@ export default {
       };
       PlioService.updatePlio(plioValue, this.plioId).then((response) => {
         console.log(response);
+        this.stopSyncing();
       });
     },
   },
