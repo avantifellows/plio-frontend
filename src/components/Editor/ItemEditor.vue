@@ -75,14 +75,13 @@
         :sideIcon="{
           enabled: true,
           name: 'check-circle-regular',
-          styling: { 'text-green-500': optionNumber == correctOptionIndex },
+          class: { 'text-green-500': optionNumber == correctOptionIndex },
         }"
         :boxStyling="[
           {
             'border-green-500': optionNumber == correctOptionIndex,
             'border-4': optionNumber == correctOptionIndex,
           },
-          'p-2',
         ]"
         @box-selected="updateCorrectOption"
       ></input-text>

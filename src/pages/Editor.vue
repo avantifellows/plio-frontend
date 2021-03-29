@@ -60,6 +60,9 @@
     <!--- input grid -->
     <div class="grid grid-rows-6 grid-cols-1 m-5 justify-start">
       <div class="row-start-1 row-span-1 grid gap-y-4">
+        <p class="text-sm text-gray-500 justify-self-end">
+          Updated at: {{ lastUpdatedStr }}
+        </p>
         <!--- video link -->
         <input-text
           :placeholder="videoInputPlaceholder"
@@ -85,7 +88,7 @@
         </div>
       </div>
       <div class="row-start-2 row-span-3 py-2">
-        <item-editor v-model:itemList="items"></item-editor>
+        <item-editor v-if="hasAnyItems" v-model:itemList="items"></item-editor>
       </div>
     </div>
   </div>
@@ -102,6 +105,7 @@ import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import Button from "primevue/button";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
+import PlioService from "@/services/API/Plio.js";
 
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
@@ -127,6 +131,7 @@ export default {
       items: [], // list of all items created for this plio
       videoDuration: 0,
       videoId: "", // ID of the YouTube video
+      status: "draft", // whether the plio is in draft/publish mode
       videoInputValidation: {
         // video link validation display config
         enabled: true,
@@ -143,41 +148,37 @@ export default {
       },
       sliderStep: 0.1, // timestep for the slider
       itemTimestamps: [], // stores the list of the timestamps of all items
-      videoURL: "",
+      videoURL: "", // full video url
+      lastUpdated: new Date(), // time when the last update to remote was made
+      minUpdateInterval: 1000, // minimum time in milliseconds between updates
+      changeInProgress: false, // whether a change is in progress but has not been saved yet
+      saveInterval: 5000, // time interval
     };
   },
-  created() {
-    this.videoURL = "https://www.youtube.com/watch?v=uVAbT9r1UOY&ab_channel=TapeATale";
-    this.items = [
-      {
-        time: 40,
-        details: {
-          type: "mcq_single_answer",
-          text:
-            "हम इस विडीओ में तंत्रिका उत्तक और तांत्रिका आवेग के बारे में बात करेंगे, क्या आप तैयार है?",
-          options: ["हाँ", "नही"],
-          correct_answer: 0,
-        },
-        type: "question",
-        metadata: { source: { name: "Default" } },
-      },
-      {
-        time: 80,
-        details: {
-          type: "mcq_single_answer",
-          text:
-            "हमारे शरीर में ______________ होते हैं जो उत्तेजित होने और उत्तेजना को शरीर के भीतर एक स्थान से दूसरे स्थान तक बहुत तेजी से संचारित करने के लिए अत्यधिक विशिष्ट होते हैं।",
-          options: ["तंत्रिका पेशी", "ऊतक", "WBC", "प्लाज्मा"],
-          correct_answer: 0,
-        },
-        type: "note",
-        metadata: { source: { name: "Default" } },
-      },
-    ];
+  async created() {
+    // fetch plio details
+    await this.loadPlio();
+
+    // periodically check if anything has not been updated yet
+    // and update it
+    this.savingInterval = setInterval(() => {
+      // if anything was changed but not updated, update it
+      if (this.changeInProgress) {
+        this.savePlio();
+      }
+    }, this.saveInterval);
+  },
+  beforeUnmount() {
+    // clear interval
+    clearInterval(this.savingInterval);
   },
   watch: {
-    items() {
-      this.itemTimestamps = this.getItemTimestamps(this.items);
+    items: {
+      handler() {
+        this.itemTimestamps = this.getItemTimestamps(this.items);
+        this.checkAndSavePlio();
+      },
+      deep: true,
     },
     itemTimestamps() {
       this.itemTimestamps.forEach((itemTimestamp, index) => {
@@ -191,12 +192,23 @@ export default {
       if (!linkValidation["valid"]) return;
 
       if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
-        this.$refs.player.player.destroy();
+        this.$refs.playerObj.player.destroy();
       }
       this.videoId = linkValidation["ID"];
+      this.checkAndSavePlio();
+    },
+    plioTitle() {
+      // invoked when the plio title is update
+      this.checkAndSavePlio();
     },
   },
   computed: {
+    lastUpdatedStr() {
+      return this.lastUpdated.toLocaleString();
+    },
+    hasAnyItems() {
+      return this.items.length != 0;
+    },
     isDraftCreated() {
       // whether the draft has been created
       return this.plioId != "";
@@ -311,7 +323,7 @@ export default {
     playerReady(player) {
       // set variables once the player instance is ready
       this.videoDuration = player.duration;
-      this.plioTitle = player.config.title;
+      if (!this.plioTitle) this.plioTitle = player.config.title;
     },
     isVideoLinkValid(link) {
       // checks if the link is valid
@@ -335,6 +347,46 @@ export default {
       });
 
       return positions;
+    },
+    async loadPlio() {
+      // fetch plio details
+      PlioService.getPlio(this.plioId).then((response) => {
+        var plioDetails = response.data.plioDetails;
+        this.items = plioDetails.items || [];
+        this.videoId = plioDetails.video_id || "";
+        this.videoURL = plioDetails.video_url || "";
+        this.plioTitle = plioDetails.plio_title || "";
+        this.status = plioDetails.status;
+        if (plioDetails.updated_at != undefined && plioDetails.updated_at != "") {
+          this.lastUpdated = new Date(plioDetails.updated_at);
+        }
+      });
+    },
+    checkAndSavePlio() {
+      // ensures that requests are made after a minimum time interval
+      this.changeInProgress = true;
+      var time = new Date();
+      // only update after a certain interval between last and current update
+      if (time - this.lastUpdated >= this.minUpdateInterval) {
+        this.savePlio();
+      }
+    },
+    savePlio() {
+      // saves the plio data on remote
+      this.changeInProgress = false;
+      this.lastUpdated = new Date();
+      var plioValue = {
+        video_id: this.videoId,
+        video_url: this.videoURL,
+        plio_title: this.plioTitle,
+        video_duration: this.videoDuration,
+        items: this.items,
+        status: this.status,
+        updated_at: this.lastUpdated,
+      };
+      PlioService.updatePlio(plioValue, this.plioId).then((response) => {
+        console.log(response);
+      });
     },
   },
 };

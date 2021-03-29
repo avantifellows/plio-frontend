@@ -27,7 +27,7 @@
         v-if="isSideIconEnabled"
         class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center text-xl w-5 inset-y-1/4 left-1.5"
         @click="selectThisBox"
-        :class="sideIcon.styling"
+        :class="sideIconClass"
       >
         <inline-svg :src="sideIconObj"></inline-svg>
       </div>
@@ -41,7 +41,7 @@
         :placeholder="placeholder"
         v-model="localValue"
         @input="inputChange"
-        :class="[{ 'pl-7': isSideIconEnabled }, boxStyling]"
+        :class="[inputAreaClass, boxStyling]"
       />
 
       <!-- input text area - expandable and supports newlines  -->
@@ -52,7 +52,7 @@
         :placeholder="placeholder"
         v-model="localValue"
         @input="inputChange"
-        :class="boxStyling"
+        :class="[inputAreaClass, boxStyling]"
       />
 
       <!-- input text area - only supports number input -->
@@ -63,7 +63,7 @@
         :placeholder="placeholder"
         v-model="localValue"
         @input="inputChange"
-        :class="boxStyling"
+        :class="[inputAreaClass, boxStyling]"
         :min="min"
         :max="max"
         type="number"
@@ -99,6 +99,8 @@ export default {
       default: () => {
         return {
           enabled: false,
+          name: "check",
+          class: "w-10 h-10",
         };
       },
       type: Object,
@@ -173,7 +175,11 @@ export default {
     },
     sideIconName() {
       // gets the side icon name from the prop
-      return this.sideIcon.name || "";
+      return this.sideIcon.name;
+    },
+    sideIconClass() {
+      // gets the side icon name from the prop
+      return this.sideIcon.class;
     },
     sideIconObj() {
       // uses the sideicon name to fetch the icon object
@@ -186,6 +192,12 @@ export default {
     },
     isSideIconEnabled() {
       return this.sideIcon.enabled;
+    },
+    inputAreaClass() {
+      return {
+        "pl-10": this.isSideIconEnabled,
+        "pl-4": !this.isSideIconEnabled,
+      };
     },
   },
   methods: {
