@@ -60,6 +60,9 @@
     <!--- input grid -->
     <div class="grid grid-rows-6 grid-cols-1 m-5 justify-start">
       <div class="row-start-1 row-span-1 grid gap-y-4">
+        <p class="text-sm text-gray-500 justify-self-end">
+          Updated at: {{ lastUpdatedStr }}
+        </p>
         <!--- video link -->
         <input-text
           :placeholder="videoInputPlaceholder"
