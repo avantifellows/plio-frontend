@@ -1,24 +1,24 @@
 <template>
   <!-- big box -->
-  <div class="flex flex-col w-full h-full rounded-md main-container">
+  <div v-if="localSelectedItemIndex != null" class="flex flex-col w-full h-full rounded-md main-container">
     <!-- nav bar -->
     <div class="flex gap-1 flex-row w-full p-4 nav-bar justify-end">
       <div class="mr-auto flex content-center">
         <p class="self-center editor-title">
-          EDIT {{ localItemList[selectedItemIndex].type.toUpperCase() }}
+          EDIT {{ localItemList[localSelectedItemIndex].type.toUpperCase() }}
         </p>
       </div>
 
       <ItemDropDown
         :optionsList="itemOptionsList"
-        v-model:selectedItemIndex="selectedItemIndex"
+        v-model:selectedItemIndex="localSelectedItemIndex"
       ></ItemDropDown>
 
       <!-- previous item button -->
       <icon-button
         class="rounded-tl-xl rounded-bl-xl w-8 h-8"
         :iconConfig="previousItemIconConfig"
-        @click="updateSelectedItemIndex(selectedItemIndex - 1)"
+        @click="updateSelectedItemIndex(localSelectedItemIndex - 1)"
         :class="{ 'opacity-50': isFirstItem }"
         :disabled="isFirstItem"
       ></icon-button>
@@ -27,7 +27,7 @@
       <icon-button
         class="rounded-tr-xl rounded-br-xl w-8 h-8"
         :iconConfig="nextItemIconConfig"
-        @click="updateSelectedItemIndex(selectedItemIndex + 1)"
+        @click="updateSelectedItemIndex(localSelectedItemIndex + 1)"
         :class="{ 'opacity-50': isLastItem }"
         :disabled="isLastItem"
       ></icon-button>
@@ -98,6 +98,7 @@ import TimeStampInput from "@/components/UI/Text/TimeStampInput.vue";
 export default {
   name: "ItemEditor",
 
+
   data() {
     return {
       previousItemIconConfig: {
@@ -120,7 +121,6 @@ export default {
         iconName: "delete",
         iconClass: "text-white h-5 w-2.5",
       },
-      selectedItemIndex: 0,
     };
   },
 
@@ -129,6 +129,10 @@ export default {
       default: () => [],
       type: Array,
     },
+    selectedItemIndex: {
+      default: 0,
+      type: Number
+    }
   },
 
   components: {
@@ -143,7 +147,7 @@ export default {
       return str.charAt(0).toUpperCase() + str.slice(1);
     },
     updateSelectedItemIndex(index) {
-      this.selectedItemIndex = index;
+      this.localSelectedItemIndex = index;
     },
     convertSecondsToHHMMSSmmm(timeInSeconds) {
       // converts time in seconds to ISOString format
@@ -185,7 +189,7 @@ export default {
       // item list
       var indexOfSelectedOption = this.options.indexOf(option);
       this.localItemList[
-        this.selectedItemIndex
+        this.localSelectedItemIndex
       ].details.correct_answer = indexOfSelectedOption;
     },
   },
@@ -199,6 +203,14 @@ export default {
       set(localItemList) {
         this.$emit("update:itemList", localItemList);
       },
+    },
+    localSelectedItemIndex: {
+      get() {
+        return this.selectedItemIndex
+      },
+      set(localSelectedItemIndex) {
+        this.$emit("update:selectedItemIndex", localSelectedItemIndex)
+      }
     },
     itemOptionsList() {
       // preparing an options list to pass to the dropdown
@@ -220,20 +232,20 @@ export default {
     },
     isLastItem() {
       // is the current selected item the last item in the list?
-      return this.selectedItemIndex == this.localItemList.length - 1;
+      return this.localSelectedItemIndex == this.localItemList.length - 1;
     },
     isFirstItem() {
       // is the current selected item the first item in the list?
-      return this.selectedItemIndex == 0;
+      return this.localSelectedItemIndex == 0;
     },
     questionText: {
       get() {
         // extract question text from item
-        return this.localItemList[this.selectedItemIndex].details.text;
+        return this.localItemList[this.localSelectedItemIndex].details.text;
       },
       set(value) {
         // set the updated question text back into the item
-        this.localItemList[this.selectedItemIndex].details.text = value;
+        this.localItemList[this.localSelectedItemIndex].details.text = value;
       },
     },
     timeObject: {
@@ -241,30 +253,30 @@ export default {
       // and 'millisecond' - all are type Number
       get() {
         // convert seconds to timeObject
-        var itemTime = this.localItemList[this.selectedItemIndex].time;
+        var itemTime = this.localItemList[this.localSelectedItemIndex].time;
         return this.convertSecondsToHHMMSSmmm(itemTime || 0);
       },
       set(value) {
         // convert timeObject to seconds
         var timeInSeconds = this.convertHHMMSSmmmToSeconds(value);
-        this.localItemList[this.selectedItemIndex].time = timeInSeconds || 0;
+        this.localItemList[this.localSelectedItemIndex].time = timeInSeconds || 0;
       },
     },
     options: {
       // computed array of options
       get() {
-        return this.localItemList[this.selectedItemIndex].details.options;
+        return this.localItemList[this.localSelectedItemIndex].details.options;
       },
       set(value) {
-        this.localItemList[this.selectedItemIndex].details.options = value;
+        this.localItemList[this.localSelectedItemIndex].details.options = value;
       },
     },
     correctOptionIndex() {
-      return this.localItemList[this.selectedItemIndex].details.correct_answer;
+      return this.localItemList[this.localSelectedItemIndex].details.correct_answer;
     },
   },
 
-  emits: ["update:itemList"],
+  emits: ["update:itemList", "update:selectedItemIndex"],
 };
 </script>
 

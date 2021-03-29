@@ -88,7 +88,11 @@
         </div>
       </div>
       <div class="row-start-2 row-span-3 py-2">
-        <item-editor v-if="hasAnyItems" v-model:itemList="items"></item-editor>
+        <item-editor
+          v-if="hasAnyItems"
+          v-model:itemList="items"
+          v-model:selectedItemIndex="currentItemIndex"
+        ></item-editor>
       </div>
     </div>
   </div>

@@ -223,21 +223,21 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
-::-webkit-input-placeholder {
+input[type="number"]::-webkit-input-placeholder {
   text-align: center;
 }
 
-:-moz-placeholder {
+input[type="number"]:-moz-placeholder {
   /* Firefox 18- */
   text-align: center;
 }
 
-::-moz-placeholder {
+input[type="number"]::-moz-placeholder {
   /* Firefox 19+ */
   text-align: center;
 }
 
-:-ms-input-placeholder {
+input[type="number"]:-ms-input-placeholder {
   text-align: center;
 }
 </style>
