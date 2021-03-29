@@ -102,7 +102,7 @@ export default {
   },
   beforeUnmount() {
     // remove the listener for the event of closing of the browser
-    window.removeEventListener("beforeunload");
+    window.removeEventListener("beforeunload", this.onClose);
   },
   mounted() {
     if (this.isLoggedIn && !this.hasLocalUserConfigs) {
