@@ -209,10 +209,10 @@ export default {
     },
   },
   computed: {
-    ...mapState(["syncing"]),
+    ...mapState(["uploading"]),
     syncStatusText() {
       // text to show the sync status
-      if (this.syncing) return "Updating...";
+      if (this.uploading) return "Updating...";
       else return "Updated at: " + this.lastUpdatedStr;
     },
     backButtonIconConfig() {
@@ -292,7 +292,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["startSyncing", "stopSyncing"]),
+    ...mapActions(["startUploading", "stopUploading"]),
     returnToHome() {
       // returns the user back to Home
       this.$router.push({ name: "Home" });
@@ -427,7 +427,7 @@ export default {
     savePlio() {
       // saves the plio data on remote
       this.changeInProgress = false;
-      this.startSyncing();
+      this.startUploading();
       this.lastUpdated = new Date();
       var plioValue = {
         video_id: this.videoId,
@@ -440,7 +440,7 @@ export default {
       };
       PlioService.updatePlio(plioValue, this.plioId).then((response) => {
         console.log(response);
-        this.stopSyncing();
+        this.stopUploading();
       });
     },
   },
