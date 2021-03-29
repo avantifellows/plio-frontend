@@ -2,7 +2,12 @@ module.exports = {
   purge: ["./public/index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   darkMode: false, // or 'media' or 'class'
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: "#F78000",
+        "primary-hover": "#db7506",
+      },
+    },
     backgroundColor: (theme) => ({
       ...theme("colors"),
       "primary-button": "#F78000",

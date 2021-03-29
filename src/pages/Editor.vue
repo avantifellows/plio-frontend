@@ -116,10 +116,14 @@ export default {
     VideoPlayer,
     ItemEditor,
   },
+  props: {
+    plioId: {
+      default: "",
+      type: String,
+    },
+  },
   data() {
     return {
-      // TODO: this is just a dummy value
-      plioId: "r7R7ErAy2a",
       items: [], // list of all items created for this plio
       videoDuration: 0,
       videoId: "", // ID of the YouTube video

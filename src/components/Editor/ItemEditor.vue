@@ -16,7 +16,7 @@
 
       <!-- previous item button -->
       <icon-button
-        class="rounded-tl-xl rounded-bl-xl"
+        class="rounded-tl-xl rounded-bl-xl w-8 h-8"
         :iconConfig="previousItemIconConfig"
         @click="updateSelectedItemIndex(selectedItemIndex - 1)"
         :class="{ 'opacity-50': isFirstItem }"
@@ -25,7 +25,7 @@
 
       <!-- next item button -->
       <icon-button
-        class="rounded-tr-xl rounded-br-xl"
+        class="rounded-tr-xl rounded-br-xl w-8 h-8"
         :iconConfig="nextItemIconConfig"
         @click="updateSelectedItemIndex(selectedItemIndex + 1)"
         :class="{ 'opacity-50': isLastItem }"
@@ -33,11 +33,14 @@
       ></icon-button>
 
       <!-- add item button -->
-      <icon-button class="rounded-xl" :iconConfig="addItemIconConfig"></icon-button>
+      <icon-button
+        class="rounded-xl w-8 h-8"
+        :iconConfig="addItemIconConfig"
+      ></icon-button>
 
       <!-- delete item button -->
       <icon-button
-        class="rounded-xl bg-delete-button"
+        class="rounded-xl bg-delete-button w-8 h-8"
         :iconConfig="deleteItemIconConfig"
       ></icon-button>
     </div>
@@ -68,18 +71,22 @@ export default {
       previousItemIconConfig: {
         enabled: true,
         iconName: "chevron-left-solid",
+        iconClass: "text-white h-5 w-2.5",
       },
       nextItemIconConfig: {
         enabled: true,
         iconName: "chevron-right-solid",
+        iconClass: "text-white h-5 w-2.5",
       },
       addItemIconConfig: {
         enabled: true,
         iconName: "plus-solid",
+        iconClass: "text-white h-5 w-2.5",
       },
       deleteItemIconConfig: {
         enabled: true,
         iconName: "delete",
+        iconClass: "text-white h-5 w-2.5",
       },
       selectedItemIndex: 0,
     };

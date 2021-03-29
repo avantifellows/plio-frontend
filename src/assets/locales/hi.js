@@ -19,9 +19,6 @@ export default {
     },
   },
   home: {
-    welcome: "प्लायो में आपका स्वागत है",
-    create_plio: "एक नया प्लायो बनाएं",
-    analyze_plio: "प्लायो का विश्लेषण करें",
     plio_list_heading: "सारे प्लायो",
     plio_thumbnail: {
       created: "कब बना",
