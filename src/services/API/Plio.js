@@ -3,16 +3,13 @@ import { apiClient } from "@/services/API/RootClient.js";
 export default {
   getPlioDetails(plioId, userId) {
     // returns the details for one plio-user session
-    return new Promise((resolve) => {
-      var response = apiClient().get(
-        process.env.VUE_APP_BACKEND_PLIO_DETAILS +
-          "?plioId=" +
-          plioId +
-          "&userId=" +
-          userId
-      );
-      resolve(response);
-    });
+    return apiClient().get(
+      process.env.VUE_APP_BACKEND_PLIO_DETAILS +
+        "?plioId=" +
+        plioId +
+        "&userId=" +
+        userId
+    );
   },
 
   getAllPlios() {
