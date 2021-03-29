@@ -44,12 +44,44 @@
 
     <!-- item editor -->
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 item-editor-box">
-      <!-- question input box -->
+      <!-- question input box : expandable -->
       <input-text
         :placeholder="'placeholder'"
         :title="'Question'"
         v-model:value="questionText"
         ref="questionText"
+        class="p-2"
+        :type="{ boxType: 'textarea' }"
+      ></input-text>
+
+      <!-- time stamp input -- HH : MM : SS : mmm -->
+      <time-stamp-input
+        :title="'Time for popup (HH:MM:SS:mmm)'"
+        class="p-2"
+        v-model:timeObject="timeObject"
+      ></time-stamp-input>
+
+      <!-- options input boxes  -->
+      <input-text
+        v-for="(option, optionNumber) in options"
+        :placeholder="'Enter Option'"
+        :title="'Option ' + (optionNumber + 1)"
+        class="p-2"
+        v-model:value="options[optionNumber]"
+        :key="optionNumber"
+        :sideIcon="{
+          enabled: true,
+          name: 'check-circle-regular',
+          styling: { 'text-green-500': optionNumber == correctOptionIndex },
+        }"
+        :boxStyling="[
+          {
+            'border-green-500': optionNumber == correctOptionIndex,
+            'border-4': optionNumber == correctOptionIndex,
+          },
+          'p-2',
+        ]"
+        @box-selected="updateCorrectOption"
       ></input-text>
     </div>
   </div>
@@ -59,6 +91,7 @@
 import IconButton from "../UI/Buttons/IconButton.vue";
 import ItemDropDown from "../UI/DropDownMenu/ItemDropDown.vue";
 import InputText from "../UI/Text/InputText.vue";
+import TimeStampInput from "@/components/UI/Text/TimeStampInput.vue";
 
 export default {
   name: "ItemEditor",
@@ -96,9 +129,8 @@ export default {
     ItemDropDown,
     IconButton,
     InputText,
+    TimeStampInput,
   },
-
-  created() {},
 
   methods: {
     capitalizeFirstLetter(str) {
@@ -106,6 +138,49 @@ export default {
     },
     updateSelectedItemIndex(index) {
       this.selectedItemIndex = index;
+    },
+    convertSecondsToHHMMSSmmm(timeInSeconds) {
+      // converts time in seconds to ISOString format
+      // reference -
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
+      // https://stackoverflow.com/questions/1322732/convert-seconds-to-hh-mm-ss-with-javascript
+
+      var timestampObject = {};
+      var isoTime = new Date(Math.floor(timeInSeconds) * 1000)
+        .toISOString()
+        .substr(11, 8);
+      var hour = parseInt(isoTime.split(":")[0]);
+      var minute = parseInt(isoTime.split(":")[1]);
+      var second = parseInt(isoTime.split(":")[2]);
+
+      timestampObject["hour"] = hour;
+      timestampObject["minute"] = minute;
+      timestampObject["second"] = second;
+      timestampObject["millisecond"] = 0;
+
+      if (Math.floor(timeInSeconds) < timeInSeconds) {
+        var ms = parseInt(String(timeInSeconds).split(".")[1].padEnd(3, "0"));
+        timestampObject["millisecond"] = ms;
+      }
+
+      return timestampObject;
+    },
+    convertHHMMSSmmmToSeconds(timeInISO) {
+      // converts the timestamp object recieved from the timeinput component
+      // into seconds
+      var hour = parseInt(timeInISO.hour) || 0;
+      var minute = parseInt(timeInISO.minute) || 0;
+      var second = parseInt(timeInISO.second) || 0;
+      var millisecond = parseInt(timeInISO.millisecond) || 0;
+      return hour * 3600 + minute * 60 + second + millisecond / 1000;
+    },
+    updateCorrectOption(option) {
+      // when some option is selected as correct, update it in the
+      // item list
+      var indexOfSelectedOption = this.options.indexOf(option);
+      this.localItemList[
+        this.selectedItemIndex
+      ].details.correct_answer = indexOfSelectedOption;
     },
   },
 
@@ -154,6 +229,32 @@ export default {
         // set the updated question text back into the item
         this.localItemList[this.selectedItemIndex].details.text = value;
       },
+    },
+    timeObject: {
+      // this object contains four keys - 'hour', 'minute', 'second'
+      // and 'millisecond' - all are type Number
+      get() {
+        // convert seconds to timeObject
+        var itemTime = this.localItemList[this.selectedItemIndex].time;
+        return this.convertSecondsToHHMMSSmmm(itemTime || 0);
+      },
+      set(value) {
+        // convert timeObject to seconds
+        var timeInSeconds = this.convertHHMMSSmmmToSeconds(value);
+        this.localItemList[this.selectedItemIndex].time = timeInSeconds || 0;
+      },
+    },
+    options: {
+      // computed array of options
+      get() {
+        return this.localItemList[this.selectedItemIndex].details.options;
+      },
+      set(value) {
+        this.localItemList[this.selectedItemIndex].details.options = value;
+      },
+    },
+    correctOptionIndex() {
+      return this.localItemList[this.selectedItemIndex].details.correct_answer;
     },
   },
 

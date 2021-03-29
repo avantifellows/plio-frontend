@@ -21,24 +21,52 @@
       </div>
     </div>
 
-    <div class="relative flex w-full flex-wrap items-stretch mb-3">
+    <div class="flex relative">
       <!-- left icon -->
-      <!-- TODO: icon styling is fixed right now, will make it parametrized  -->
-      <span
+      <div
         v-if="isSideIconEnabled"
-        class="z-10 h-full leading-snug font-normal flex text-blueGray-300 absolute bg-transparent rounded text-base w-8 p-3 items-center"
+        class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center text-xl w-5 inset-y-1/4 left-1.5"
+        @click="selectThisBox"
+        :class="sideIcon.styling"
       >
         <inline-svg :src="sideIconObj"></inline-svg>
-      </span>
+      </div>
 
-      <!-- input area -->
+      <!-- input text area -->
       <input
-        class="px-3 py-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white rounded text-md border border-blueGray-300 focus:outline-none focus:ring focus:border-blue-300 focus:shadow-outline w-full pl-8"
+        v-if="type.boxType == 'input' && type.inputType == 'text'"
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-blue-300 focus:shadow-outline w-full"
         type="text"
         name="placeholder"
         :placeholder="placeholder"
         v-model="localValue"
         @input="inputChange"
+        :class="[{ 'pl-7': isSideIconEnabled }, boxStyling]"
+      />
+
+      <!-- input text area - expandable and supports newlines  -->
+      <textarea
+        v-if="type.boxType == 'textarea'"
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-blue-300 focus:shadow-outline w-full"
+        name="placeholder"
+        :placeholder="placeholder"
+        v-model="localValue"
+        @input="inputChange"
+        :class="boxStyling"
+      />
+
+      <!-- input text area - only supports number input -->
+      <input
+        v-if="type.boxType == 'input' && type.inputType == 'number'"
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-blue-300 focus:shadow-outline w-full"
+        name="placeholder"
+        :placeholder="placeholder"
+        v-model="localValue"
+        @input="inputChange"
+        :class="boxStyling"
+        :min="min"
+        :max="max"
+        type="number"
       />
     </div>
   </div>
@@ -73,12 +101,38 @@ export default {
           enabled: false,
         };
       },
-      type: Object
+      type: Object,
     },
     value: {
       // the value of the input of the input box
       default: "",
-      type: String
+      type: [String, Number],
+    },
+    type: {
+      // the type of input text box needed
+      default: function () {
+        return {
+          boxType: "input",
+          inputType: "text",
+        };
+      },
+      type: Object,
+    },
+    min: {
+      // minimum value possible in a number textbox
+      default: 0,
+      type: Number,
+    },
+    max: {
+      // maximum value possible in a number textbox
+      default: 999,
+      type: Number,
+    },
+    boxStyling: {
+      // pass any classes that need to be added to the input
+      // boxes
+      default: () => {},
+      type: Object,
     },
   },
   computed: {
@@ -131,14 +185,47 @@ export default {
       return icon;
     },
     isSideIconEnabled() {
-      return this.sideIcon.enabled
-    }
+      return this.sideIcon.enabled;
+    },
   },
   methods: {
     inputChange() {
       this.$emit("input", this.value);
     },
+    selectThisBox() {
+      this.$emit("box-selected", this.value);
+    },
   },
-  emits: ["input", "update:value"],
+  emits: ["input", "update:value", "box-selected"],
 };
 </script>
+<style lang="postcss" scoped>
+/* the below code is to remove the up and down arrows */
+/* that come along with a number text input */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+::-webkit-input-placeholder {
+  text-align: center;
+}
+
+:-moz-placeholder {
+  /* Firefox 18- */
+  text-align: center;
+}
+
+::-moz-placeholder {
+  /* Firefox 19+ */
+  text-align: center;
+}
+
+:-ms-input-placeholder {
+  text-align: center;
+}
+</style>
