@@ -1,6 +1,9 @@
 <template>
   <!--- base grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 items-stretch">
+  <div
+    class="grid grid-cols-1 md:grid-cols-2 items-stretch"
+    :class="{ 'opacity-50': isBeingPublished }"
+  >
     <!--- preview grid -->
     <div class="flex flex-col ml-5 mr-5">
       <!--- plio link -->
@@ -50,6 +53,7 @@
           :titleConfig="publishButtonTitleConfig"
           :disabled="!isVideoIdValid"
           v-tooltip.right="publishButtonTooltip"
+          @click="publishPlio"
         ></icon-button>
       </div>
 
@@ -65,9 +69,16 @@
     <!--- input grid -->
     <div class="grid grid-rows-6 grid-cols-1 m-5 justify-start">
       <div class="row-start-1 row-span-1 grid gap-y-4">
-        <p class="text-sm text-gray-500 justify-self-end">
-          {{ syncStatusText }}
-        </p>
+        <div class="flex w-full justify-between">
+          <simple-badge
+            :text="capitalize(status)"
+            :badgeClass="statusBadgeClass"
+            v-tooltip.top="statusBadgeTooltip"
+          ></simple-badge>
+          <p class="text-sm text-gray-500">
+            {{ syncStatusText }}
+          </p>
+        </div>
         <!--- video link -->
         <input-text
           :placeholder="videoInputPlaceholder"
@@ -112,6 +123,7 @@ import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import PlioService from "@/services/API/Plio.js";
 import IconButton from "../components/UI/Buttons/IconButton.vue";
 import { mapActions, mapState } from "vuex";
+import SimpleBadge from "../components/UI/Badges/SimpleBadge.vue";
 
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
@@ -125,6 +137,7 @@ export default {
     VideoPlayer,
     ItemEditor,
     IconButton,
+    SimpleBadge,
   },
   props: {
     plioId: {
@@ -159,6 +172,7 @@ export default {
       minUpdateInterval: 1000, // minimum time in milliseconds between updates
       changeInProgress: false, // whether a change is in progress but has not been saved yet
       saveInterval: 5000, // time interval
+      isBeingPublished: false, // whether the current plio is in the process of being published
     };
   },
   async created() {
@@ -210,6 +224,17 @@ export default {
   },
   computed: {
     ...mapState(["uploading"]),
+    statusBadgeClass() {
+      return {
+        "text-green-500 border-green-500": this.isPublished,
+        "border-black text-black": !this.isPublished,
+      };
+    },
+    statusBadgeTooltip() {
+      if (!this.isPublished)
+        return "This plio is currently in draft mode and only accessible to you. To make it publicly accessible, publish the plio";
+      return "This plio has been published and is publicly accessible";
+    },
     syncStatusText() {
       // text to show the sync status
       if (this.uploading) return "Updating...";
@@ -243,12 +268,12 @@ export default {
     },
     publishButtonText() {
       // text for the publish button
-      if (this.status == "draft") return "Publish Plio";
+      if (!this.isPublished) return "Publish Plio";
       return "Publish Changes";
     },
     publishButtonTooltip() {
       // tooltip text for publish button
-      if (this.status == "draft") return "Click to publish the plio";
+      if (!this.isPublished) return "Click to publish the plio";
       return "Click to publish your changes";
     },
     lastUpdatedStr() {
@@ -258,6 +283,10 @@ export default {
     hasAnyItems() {
       // whether there are any itesm
       return this.items.length != 0;
+    },
+    isPublished() {
+      // whether the plio has been pubished
+      return this.status == "published";
     },
     isDraftCreated() {
       // whether the draft has been created
@@ -296,6 +325,10 @@ export default {
     returnToHome() {
       // returns the user back to Home
       this.$router.push({ name: "Home" });
+    },
+    capitalize(string) {
+      // capitalize first letter of string and return
+      return string.charAt(0).toUpperCase() + string.slice(1);
     },
     itemMarkerTimestampDragEnd(itemIndex) {
       // invoked when the drag on the marker for an item is completed
@@ -418,6 +451,8 @@ export default {
     },
     checkAndSavePlio() {
       // ensures that requests are made after a minimum time interval
+      // don't update changes automatically once published
+      if (this.isPublished) return;
       this.changeInProgress = true;
       var time = new Date();
       // only update after a certain interval between last and current update
@@ -439,9 +474,17 @@ export default {
         status: this.status,
         updated_at: this.lastUpdated,
       };
-      PlioService.updatePlio(plioValue, this.plioId).then((response) => {
-        console.log(response);
+      return PlioService.updatePlio(plioValue, this.plioId).then(() => {
         this.stopUploading();
+      });
+    },
+    publishPlio() {
+      // mark the plio as published if in draft mode
+      // and update the changes only if already published
+      this.isBeingPublished = true;
+      this.status = "published";
+      this.savePlio().then(() => {
+        this.isBeingPublished = false;
       });
     },
   },

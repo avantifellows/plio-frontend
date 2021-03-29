@@ -1,22 +1,19 @@
 <template>
   <div>
-    <dialog-box
-      title="Are you sure you want to leave?"
-      @confirm="confirmClicked"
-    ></dialog-box>
+    <simple-badge text="Hello"></simple-badge>
   </div>
 </template>
 
 <script>
-import DialogBox from "@/components/UI/Alert/DialogBox";
+import SimpleBadge from "@/components/UI/Badges/SimpleBadge";
 export default {
   components: {
-    DialogBox,
+    SimpleBadge,
   },
-  methods: {
-    confirmClicked() {
-      console.log("confirm");
-    },
+  data() {
+    return {
+      badgeClass: "text-indigo-500 border-indigo-500",
+    };
   },
 };
 </script>
