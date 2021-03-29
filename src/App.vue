@@ -100,7 +100,7 @@ export default {
     // place a listener for the event of closing of the browser
     window.addEventListener("beforeunload", this.onClose);
   },
-  destroyed() {
+  unmounted() {
     // remove the listener for the event of closing of the browser
     window.removeEventListener("beforeunload");
   },
