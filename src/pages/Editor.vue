@@ -158,12 +158,16 @@ export default {
 
     // periodically check if anything has not been updated yet
     // and update it
-    setInterval(() => {
+    this.savingInterval = setInterval(() => {
       // if anything was changed but not updated, update it
       if (this.changeInProgress) {
         this.savePlio();
       }
     }, this.saveInterval);
+  },
+  beforeUnmount() {
+    // clear interval
+    clearInterval(this.savingInterval);
   },
   watch: {
     items() {
