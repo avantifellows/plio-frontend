@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "@/pages/Home.vue";
+import Test from "@/pages/Test.vue";
 import Editor from "@/pages/Editor.vue";
 import Player from "@/pages/Player.vue";
 import PhoneSignIn from "@/pages/PhoneSignIn";
@@ -11,9 +12,15 @@ const routes = [
     component: Home,
   },
   {
-    path: "/new",
+    path: "/test",
+    name: "Test",
+    component: Test,
+  },
+  {
+    path: "/edit/:plioId",
     name: "Editor",
     component: Editor,
+    props: true,
   },
   {
     path: "/play/:id",

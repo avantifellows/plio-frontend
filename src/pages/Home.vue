@@ -1,8 +1,5 @@
 <template>
   <div id="app" class="container">
-    {{ $t("home.welcome") }}<br />
-    <a href="http://creator.plio.in">{{ $t("home.create_plio") }}</a> <br />
-    <a href="https://dashboard.plio.in">{{ $t("home.analyze_plio") }}</a> <br />
     <PlioList />
   </div>
 </template>

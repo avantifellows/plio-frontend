@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import Toast from "@/components/UI/Message/Toast.vue";
+import Toast from "@/components/UI/Alert/Toast.vue";
 
 export default {
   data() {
@@ -40,8 +40,7 @@ export default {
       document.body.removeChild(hiddenElement);
       if (success) {
         this.$refs.toast.show("success", "URL Copied Successfully", this.toastLife);
-      }
-      else {
+      } else {
         this.$refs.toast.show("error", "Error while copying", this.toastLife);
       }
 
