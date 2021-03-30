@@ -94,6 +94,7 @@
           v-if="hasAnyItems"
           v-model:itemList="items"
           v-model:selectedItemIndex="currentItemIndex"
+          @update:selectedItemIndex="navigateToItem"
         ></item-editor>
       </div>
     </div>
@@ -192,7 +193,7 @@ export default {
       });
       // handle item sorting and marker positioning
       // when time is changed from the time input boxes
-      this.handleTimeUpdateFromEditor()
+      this.handleTimeUpdateFromEditor();
     },
     videoURL(newVideoURL) {
       // invoked when the video link is updated
@@ -251,13 +252,20 @@ export default {
     },
   },
   methods: {
+    navigateToItem(itemIndex) {
+      var selectedTimestamp = this.items[itemIndex].time;
+      if (selectedTimestamp != null) {
+        this.currentTimestamp = selectedTimestamp;
+        this.itemSelected(itemIndex);
+      }
+    },
     handleTimeUpdateFromEditor() {
       // sort the items according to new timestamps
       // and reset the currentItemIndex
-      if(this.currentItemIndex != null) {
-        var currentItem = this.items[this.currentItemIndex]
-        this.sortItems()
-        this.currentItemIndex = this.items.indexOf(currentItem)
+      if (this.currentItemIndex != null) {
+        var currentItem = this.items[this.currentItemIndex];
+        this.sortItems();
+        this.currentItemIndex = this.items.indexOf(currentItem);
       }
     },
     sortItems() {
@@ -271,7 +279,7 @@ export default {
       var itemTimestamp = this.itemTimestamps[itemIndex];
       this.items[itemIndex]["time"] = itemTimestamp;
       // sort the items based on timestamp
-      this.sortItems()
+      this.sortItems();
       // update itemTimestamps based on new sorted items
       this.itemTimestamps = this.getItemTimestamps(this.items);
       // update everything else
