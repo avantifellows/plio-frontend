@@ -80,6 +80,7 @@
             :validation="videoInputValidation"
             v-model:value="videoURL"
             ref="videoLink"
+            :boxStyling="'pl-4'"
           ></input-text>
 
           <!--- plio title -->
@@ -88,17 +89,24 @@
             :title="titleInputTitle"
             v-model:value="plioTitle"
             ref="title"
+            :boxStyling="'pl-4'"
           ></input-text>
 
-          <!--- item editor  -->
           <div>
             <p>current time: {{ currentTimestamp }}</p>
             <p>item index: {{ currentItemIndex }}</p>
             <p>video length: {{ videoDuration }}</p>
           </div>
         </div>
+        <!--- item editor  -->
         <div class="row-start-2 row-span-3 py-2">
-          <item-editor v-if="hasAnyItems" v-model:itemList="items"></item-editor>
+          <item-editor
+            v-if="hasAnyItems"
+            v-model:itemList="items"
+            v-model:selectedItemIndex="currentItemIndex"
+            @update:selectedItemIndex="navigateToItem"
+            :videoDuration="videoDuration"
+          ></item-editor>
         </div>
       </div>
     </div>
@@ -220,6 +228,9 @@ export default {
       this.itemTimestamps.forEach((itemTimestamp, index) => {
         this.items[index]["time"] = itemTimestamp;
       });
+      // handle item sorting and marker positioning
+      // when time is changed from the time input boxes
+      this.handleTimeUpdateFromEditor();
     },
     videoURL(newVideoURL) {
       // invoked when the video link is updated
@@ -397,14 +408,34 @@ export default {
       // capitalize first letter of string and return
       return string.charAt(0).toUpperCase() + string.slice(1);
     },
+    navigateToItem(itemIndex) {
+      var selectedTimestamp = this.items[itemIndex].time;
+      if (selectedTimestamp != null) {
+        this.currentTimestamp = selectedTimestamp;
+        this.itemSelected(itemIndex);
+      }
+    },
+    handleTimeUpdateFromEditor() {
+      // sort the items according to new timestamps
+      // and reset the currentItemIndex
+      if (this.currentItemIndex != null) {
+        var currentItem = this.items[this.currentItemIndex];
+        this.sortItems();
+        this.currentItemIndex = this.items.indexOf(currentItem);
+      }
+    },
+    sortItems() {
+      // sort items based on ascending time values
+      this.items.sort(function (a, b) {
+        return a["time"] - b["time"];
+      });
+    },
     itemMarkerTimestampDragEnd(itemIndex) {
       // invoked when the drag on the marker for an item is completed
       var itemTimestamp = this.itemTimestamps[itemIndex];
       this.items[itemIndex]["time"] = itemTimestamp;
       // sort the items based on timestamp
-      this.items.sort(function (a, b) {
-        return a["time"] - b["time"];
-      });
+      this.sortItems();
       // update itemTimestamps based on new sorted items
       this.itemTimestamps = this.getItemTimestamps(this.items);
       // update everything else
