@@ -71,8 +71,8 @@
         class="p-2"
         v-model:value="options[optionNumber]"
         :key="optionNumber"
-        :sideIcon="setOptionSideIconConfig(optionNumber)"
-        :boxStyling="setOptionBoxStyling(optionNumber)"
+        :sideIcon="getOptionSideIconConfig(optionNumber)"
+        :boxStyling="getOptionBoxStyling(optionNumber)"
         @box-selected="updateCorrectOption"
       ></input-text>
     </div>
@@ -135,7 +135,7 @@ export default {
   },
 
   methods: {
-    setOptionSideIconConfig(optionNumber) {
+    getOptionSideIconConfig(optionNumber) {
       return {
         enabled: true,
         name: 'check-circle-regular',
@@ -145,7 +145,7 @@ export default {
         ]
       }
     },
-    setOptionBoxStyling(optionNumber) {
+    getOptionBoxStyling(optionNumber) {
       return {
         'border-green-500': optionNumber == this.correctOptionIndex,
         'border-4': optionNumber == this.correctOptionIndex
