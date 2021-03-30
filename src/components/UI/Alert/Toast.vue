@@ -2,7 +2,7 @@
 <template>
   <div
     :class="boxColor"
-    class="absolute top-0 right-0 m-5 p-5 flex text-center items-center place-self-center"
+    class="absolute top-0 right-0 p-5 flex text-center items-center place-self-center"
   >
     <div class="flex text-md">
       <!-- success icon -->
@@ -16,7 +16,6 @@
 </template>
 
 <script>
-
 export default {
   data() {
     return {
