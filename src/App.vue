@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'opacity-50': coverBackground }">
+  <div :class="{ 'opacity-50 pointer-events-none': coverBackground }">
     <div
       class="grid grid-cols-6 sm:grid-cols-7 gap-2 border-b-2 pt-2 border-solid bg-white pl-2 pr-2"
     >
@@ -137,9 +137,9 @@ export default {
     },
     onClose(event) {
       // invoked when trying to close the browser or changing pages
-      console.log(event);
-      // event.preventDefault();
-      // event.returnValue = "";
+      // console.log(event);
+      event.preventDefault();
+      event.returnValue = "";
     },
   },
   computed: {

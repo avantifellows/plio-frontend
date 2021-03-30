@@ -3,7 +3,7 @@
   <div class="flex relative justify-center">
     <div
       class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
-      :class="{ 'opacity-50': blurMainScreen }"
+      :class="{ 'opacity-50 pointer-events-none': blurMainScreen }"
     >
       <!--- preview grid -->
       <div class="flex flex-col ml-5 mr-5">
@@ -44,12 +44,14 @@
 
         <!--- buttons -->
         <div class="flex justify-between mt-10">
+          <!--- button to go back to home -->
           <icon-button
             :titleConfig="backButtonTitleConfig"
             :iconConfig="backButtonIconConfig"
             :buttonClass="backButtonClass"
             @click="returnToHome"
           ></icon-button>
+          <!--- publish button -->
           <icon-button
             :titleConfig="publishButtonTitleConfig"
             :class="publishButtonClass"
@@ -63,11 +65,13 @@
       <div class="grid grid-rows-6 grid-cols-1 m-5 justify-start">
         <div class="row-start-1 row-span-1 grid gap-y-4">
           <div class="flex w-full justify-between">
+            <!--- publish/draft badge -->
             <simple-badge
               :text="capitalize(status)"
               :badgeClass="statusBadgeClass"
               v-tooltip.top="statusBadgeTooltip"
             ></simple-badge>
+            <!--- text to show updated time status -->
             <p class="text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
               {{ syncStatusText }}
             </p>
@@ -252,6 +256,7 @@ export default {
   computed: {
     ...mapState(["uploading"]),
     isPublishButtonEnabled() {
+      // whether the publish button is enabled
       if (!this.isPublished) return this.isVideoIdValid;
       return this.hasUnpublishedChanges;
     },
