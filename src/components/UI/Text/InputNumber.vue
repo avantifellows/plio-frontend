@@ -34,14 +34,15 @@
 
       <!-- input text area -->
       <input
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:shadow-outline w-full"
-        type="text"
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-blue-300 focus:shadow-outline w-full"
         name="placeholder"
         :placeholder="placeholder"
         v-model="localValue"
         @input="inputChange"
         :class="[inputAreaClass, boxStyling]"
-        :maxLength="maxLength"
+        :min="min"
+        :max="max"
+        type="number"
       />
     </div>
   </div>
@@ -85,16 +86,22 @@ export default {
       default: "",
       type: [String, Number],
     },
+    min: {
+      // minimum value possible in a number textbox
+      default: 0,
+      type: Number,
+    },
+    max: {
+      // maximum value possible in a number textbox
+      default: 999,
+      type: Number,
+    },
     boxStyling: {
       // pass any classes that need to be added to the input
       // boxes
       default: () => {},
-      type: [Object, String]
+      type: Object,
     },
-    maxLength: {
-      default: null,
-      type: Number
-    }
   },
   computed: {
     localValue: {
@@ -155,6 +162,7 @@ export default {
     inputAreaClass() {
       return {
         "pl-10": this.isSideIconEnabled,
+        "pl-4": !this.isSideIconEnabled,
       };
     },
   },
@@ -169,3 +177,33 @@ export default {
   emits: ["input", "update:value", "box-selected"],
 };
 </script>
+<style lang="postcss" scoped>
+/* the below code is to remove the up and down arrows */
+/* that come along with a number text input */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-input-placeholder {
+  text-align: center;
+}
+
+input[type="number"]:-moz-placeholder {
+  /* Firefox 18- */
+  text-align: center;
+}
+
+input[type="number"]::-moz-placeholder {
+  /* Firefox 19+ */
+  text-align: center;
+}
+
+input[type="number"]:-ms-input-placeholder {
+  text-align: center;
+}
+</style>

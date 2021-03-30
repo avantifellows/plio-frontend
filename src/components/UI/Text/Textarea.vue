@@ -33,15 +33,13 @@
       </div>
 
       <!-- input text area -->
-      <input
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:shadow-outline w-full"
-        type="text"
+      <textarea
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-blue-300 focus:shadow-outline w-full"
         name="placeholder"
         :placeholder="placeholder"
         v-model="localValue"
         @input="inputChange"
         :class="[inputAreaClass, boxStyling]"
-        :maxLength="maxLength"
       />
     </div>
   </div>
@@ -91,10 +89,6 @@ export default {
       default: () => {},
       type: [Object, String]
     },
-    maxLength: {
-      default: null,
-      type: Number
-    }
   },
   computed: {
     localValue: {

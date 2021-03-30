@@ -48,23 +48,22 @@
     <!-- item editor -->
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 item-editor-box">
       <!-- question input box : expandable -->
-      <input-text
+      <Textarea
         :placeholder="'placeholder'"
         :title="'Question'"
         v-model:value="questionText"
         ref="questionText"
         class="p-2"
-        :type="{ boxType: 'textarea' }"
-      ></input-text>
+        :boxStyling="'pl-4'"
+      ></Textarea>
 
-      <!-- time stamp input -- HH : MM : SS : mmm -->
-      <time-stamp-input
-        :title="'Time for popup (HH:MM:SS:mmm)'"
+      <!-- time input HH : MM : SS : mmm -->
+      <time-input
+        :title="'Time for the question to appear'"
         class="p-2"
         v-model:timeObject="timeObject"
-      ></time-stamp-input>
+      ></time-input>
 
-      <!-- options input boxes  -->
       <input-text
         v-for="(option, optionNumber) in options"
         :placeholder="'Enter Option'"
@@ -72,17 +71,8 @@
         class="p-2"
         v-model:value="options[optionNumber]"
         :key="optionNumber"
-        :sideIcon="{
-          enabled: true,
-          name: 'check-circle-regular',
-          class: { 'text-green-500': optionNumber == correctOptionIndex },
-        }"
-        :boxStyling="[
-          {
-            'border-green-500': optionNumber == correctOptionIndex,
-            'border-4': optionNumber == correctOptionIndex,
-          },
-        ]"
+        :sideIcon="setOptionSideIconConfig(optionNumber)"
+        :boxStyling="setOptionBoxStyling(optionNumber)"
         @box-selected="updateCorrectOption"
       ></input-text>
     </div>
@@ -93,7 +83,8 @@
 import IconButton from "../UI/Buttons/IconButton.vue";
 import ItemDropDown from "../UI/DropDownMenu/ItemDropDown.vue";
 import InputText from "../UI/Text/InputText.vue";
-import TimeStampInput from "@/components/UI/Text/TimeStampInput.vue";
+import TimeInput from "@/components/UI/Text/TimeInput.vue";
+import Textarea from "@/components/UI/Text/Textarea.vue";
 
 export default {
   name: "ItemEditor",
@@ -139,17 +130,34 @@ export default {
     ItemDropDown,
     IconButton,
     InputText,
-    TimeStampInput,
+    TimeInput,
+    Textarea
   },
 
   methods: {
+    setOptionSideIconConfig(optionNumber) {
+      return {
+        enabled: true,
+        name: 'check-circle-regular',
+        class: [
+          { 'text-green-500': optionNumber == this.correctOptionIndex },
+          'cursor-pointer'
+        ]
+      }
+    },
+    setOptionBoxStyling(optionNumber) {
+      return {
+        'border-green-500': optionNumber == this.correctOptionIndex,
+        'border-4': optionNumber == this.correctOptionIndex
+      }
+    },
     capitalizeFirstLetter(str) {
       return str.charAt(0).toUpperCase() + str.slice(1);
     },
     updateSelectedItemIndex(index) {
       this.localSelectedItemIndex = index;
     },
-    convertSecondsToHHMMSSmmm(timeInSeconds) {
+    convertSecondsToISOTime(timeInSeconds) {
       // converts time in seconds to ISOString format
       // reference -
       // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
@@ -175,7 +183,7 @@ export default {
 
       return timestampObject;
     },
-    convertHHMMSSmmmToSeconds(timeInISO) {
+    convertISOTimeToSeconds(timeInISO) {
       // converts the timestamp object recieved from the timeinput component
       // into seconds
       var hour = parseInt(timeInISO.hour) || 0;
@@ -254,13 +262,13 @@ export default {
       get() {
         // convert seconds to timeObject
         var itemTime = this.localItemList[this.localSelectedItemIndex].time;
-        return this.convertSecondsToHHMMSSmmm(itemTime || 0);
+        return this.convertSecondsToISOTime(itemTime || 0);
       },
       set(value) {
         // convert timeObject to seconds
-        var timeInSeconds = this.convertHHMMSSmmmToSeconds(value);
-        this.localItemList[this.localSelectedItemIndex].time = timeInSeconds || 0;
-      },
+          var timeInSeconds = this.convertISOTimeToSeconds(value);
+          this.localItemList[this.localSelectedItemIndex].time = timeInSeconds || 0;
+        }
     },
     options: {
       // computed array of options

@@ -70,6 +70,7 @@
           :validation="videoInputValidation"
           v-model:value="videoURL"
           ref="videoLink"
+          :boxStyling="'pl-4'"
         ></input-text>
 
         <!--- plio title -->
@@ -78,6 +79,7 @@
           :title="titleInputTitle"
           v-model:value="plioTitle"
           ref="title"
+          :boxStyling="'pl-4'"
         ></input-text>
 
         <!--- item editor  -->
@@ -188,6 +190,9 @@ export default {
       this.itemTimestamps.forEach((itemTimestamp, index) => {
         this.items[index]["time"] = itemTimestamp;
       });
+      // handle item sorting and marker positioning
+      // when time is changed from the time input boxes
+      this.handleTimeUpdateFromEditor()
     },
     videoURL(newVideoURL) {
       // invoked when the video link is updated
@@ -246,14 +251,27 @@ export default {
     },
   },
   methods: {
+    handleTimeUpdateFromEditor() {
+      // sort the items according to new timestamps
+      // and reset the currentItemIndex
+      if(this.currentItemIndex != null) {
+        var currentItem = this.items[this.currentItemIndex]
+        this.sortItems()
+        this.currentItemIndex = this.items.indexOf(currentItem)
+      }
+    },
+    sortItems() {
+      // sort items based on ascending time values
+      this.items.sort(function (a, b) {
+        return a["time"] - b["time"];
+      });
+    },
     itemMarkerTimestampDragEnd(itemIndex) {
       // invoked when the drag on the marker for an item is completed
       var itemTimestamp = this.itemTimestamps[itemIndex];
       this.items[itemIndex]["time"] = itemTimestamp;
       // sort the items based on timestamp
-      this.items.sort(function (a, b) {
-        return a["time"] - b["time"];
-      });
+      this.sortItems()
       // update itemTimestamps based on new sorted items
       this.itemTimestamps = this.getItemTimestamps(this.items);
       // update everything else
