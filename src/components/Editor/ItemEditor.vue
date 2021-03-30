@@ -62,7 +62,7 @@
         :title="'Time for the question to appear'"
         class="p-2"
         v-model:timeObject="timeObject"
-        :timeExceedsVideoDuration="timeExceedsVideoDuration"
+        :timeValid="timeExceedsVideoDuration"
       ></time-input>
 
       <input-text

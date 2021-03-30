@@ -67,7 +67,7 @@
 
     </div>
 
-    <div v-if="timeExceedsVideoDuration" class="flex flex-row pl-2">
+    <div v-if="timeValid" class="flex flex-row pl-2">
 
       <inline-svg
         :src="require('@/assets/images/times-solid.svg')"
@@ -140,7 +140,7 @@ export default {
       },
       type: Object,
     },
-    timeExceedsVideoDuration: {
+    timeValid: {
       default: false,
       type: Boolean
     }
