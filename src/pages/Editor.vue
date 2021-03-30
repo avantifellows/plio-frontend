@@ -95,6 +95,7 @@
           v-model:itemList="items"
           v-model:selectedItemIndex="currentItemIndex"
           @update:selectedItemIndex="navigateToItem"
+          :videoDuration="videoDuration"
         ></item-editor>
       </div>
     </div>

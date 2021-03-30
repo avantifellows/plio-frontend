@@ -62,6 +62,7 @@
         :title="'Time for the question to appear'"
         class="p-2"
         v-model:timeObject="timeObject"
+        :timeExceedsVideoDuration="timeExceedsVideoDuration"
       ></time-input>
 
       <input-text
@@ -112,6 +113,7 @@ export default {
         iconName: "delete",
         iconClass: "text-white h-5 w-2.5",
       },
+      timeExceedsVideoDuration: false
     };
   },
 
@@ -121,6 +123,10 @@ export default {
       type: Array,
     },
     selectedItemIndex: {
+      default: 0,
+      type: Number
+    },
+    videoDuration: {
       default: 0,
       type: Number
     }
@@ -267,7 +273,13 @@ export default {
       set(value) {
         // convert timeObject to seconds
           var timeInSeconds = this.convertISOTimeToSeconds(value);
-          this.localItemList[this.localSelectedItemIndex].time = timeInSeconds || 0;
+          if (timeInSeconds > this.videoDuration) {
+            this.timeExceedsVideoDuration = true
+          }
+          else {
+            this.timeExceedsVideoDuration = false
+            this.localItemList[this.localSelectedItemIndex].time = timeInSeconds || 0;
+          }
         }
     },
     options: {

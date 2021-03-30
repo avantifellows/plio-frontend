@@ -66,6 +66,17 @@
       <p class="text-xs pl-2 place-self-center text-red-600">{{ invalidInputWarning }}</p>
 
     </div>
+
+    <div v-if="timeExceedsVideoDuration" class="flex flex-row pl-2">
+
+      <inline-svg
+        :src="require('@/assets/images/times-solid.svg')"
+        class="h-5 w-2.5 place-self-center text-red-600"
+      ></inline-svg>
+
+      <p class="text-xs pl-2 place-self-center text-red-600">{{ timeExceedsWarning }}</p>
+
+    </div>
   </div>
 </template>
 
@@ -96,7 +107,8 @@ export default {
       localSecond: 0,
       localMillisecond: 0,
 
-      invalidInputWarning: "Invalid time value"
+      invalidInputWarning: "Invalid time value",
+      timeExceedsWarning: "The time entered exceeds the video duration",
     }
   },
   components: {
@@ -128,6 +140,10 @@ export default {
       },
       type: Object,
     },
+    timeExceedsVideoDuration: {
+      default: false,
+      type: Boolean
+    }
   },
   methods: {
     isNumeric(value) {
