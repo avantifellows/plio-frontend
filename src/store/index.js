@@ -7,6 +7,8 @@ const LOGOUT = "LOGOUT";
 const CONFIG_SUCCESS = "CONFIG_SUCCESS";
 const START_LOADING = "START_LOADING";
 const STOP_LOADING = "STOP_LOADING";
+const START_UPLOADING = "START_UPLOADING";
+const STOP_UPLOADING = "STOP_UPLOADING";
 
 export default createStore({
   state: {
@@ -14,6 +16,7 @@ export default createStore({
     userId: localStorage.getItem("phone"),
     configs: localStorage.getItem("configs"),
     pending: false,
+    uploading: false,
   },
   mutations: {
     [LOGIN_SUCCESS](state) {
@@ -32,6 +35,12 @@ export default createStore({
     },
     [STOP_LOADING](state) {
       state.pending = false;
+    },
+    [START_UPLOADING](state) {
+      state.uploading = true;
+    },
+    [STOP_UPLOADING](state) {
+      state.uploading = false;
     },
   },
   actions: {
@@ -65,6 +74,12 @@ export default createStore({
     },
     stopLoading({ commit }) {
       commit(STOP_LOADING);
+    },
+    startUploading({ commit }) {
+      commit(START_UPLOADING);
+    },
+    stopUploading({ commit }) {
+      commit(STOP_UPLOADING);
     },
   },
   getters: {},

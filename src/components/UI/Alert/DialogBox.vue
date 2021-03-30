@@ -23,7 +23,10 @@
         >
           {{ description }}
         </p>
-        <div class="flex items-center justify-between gap-4 w-full mt-8">
+        <div
+          v-if="isButtonVisible"
+          class="flex items-center justify-between gap-4 w-full mt-2"
+        >
           <button
             type="button"
             class="py-2 px-4 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg"
@@ -93,25 +96,41 @@ export default {
     },
   },
   computed: {
+    isButtonVisible() {
+      // is either of the confirm or cancel buttons visible
+      // the only way to hide each of those two buttons is by
+      // adding the `hidden` class to each of those button classes
+      return (
+        this.confirmButtonClass.indexOf("hidden") == -1 &&
+        this.cancelButtonClass.indexOf("hidden") == -1
+      );
+    },
     showTitle() {
+      // whether to show title
       return this.title != null && this.title != "";
     },
     showDescription() {
+      // whether to show description
       return this.description != null && this.description != "";
     },
     confirmButtonText() {
+      // text of the confirm button
       return this.confirmButtonConfig["text"];
     },
     confirmButtonClass() {
+      // class for the confirm button
       return this.confirmButtonConfig["class"];
     },
     cancelButtonText() {
+      // text of the cancel button
       return this.cancelButtonConfig["text"];
     },
     cancelButtonClass() {
+      // class for the cancel button
       return this.cancelButtonConfig["class"];
     },
     isIconEnabled() {
+      // whether icon is to be shown
       return this.iconConfig["enabled"];
     },
     iconName() {
@@ -123,6 +142,7 @@ export default {
       return require("@/assets/images/" + this.iconName + ".svg");
     },
     iconClass() {
+      // class for the icon of the dialog box
       return this.iconConfig["class"];
     },
   },

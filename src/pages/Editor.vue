@@ -1,104 +1,129 @@
 <template>
   <!--- base grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 items-stretch">
-    <!--- preview grid -->
-    <div class="flex flex-col ml-5 mr-5">
-      <!--- plio link -->
-      <URL :link="plioLink" class="justify-center m-1"></URL>
+  <div class="flex relative justify-center">
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
+      :class="{ 'opacity-50 pointer-events-none': blurMainScreen }"
+    >
+      <!--- preview grid -->
+      <div class="flex flex-col ml-5 mr-5">
+        <!--- plio link -->
+        <URL :link="plioLink" class="justify-center m-4"></URL>
 
-      <div class="justify-center">
-        <!--- video preview -->
-        <div v-if="!isVideoIdValid" class="flex justify-center">
-          <div class="flex relative justify-center">
-            <img src="@/assets/images/plain.svg" />
-            <img src="@/assets/images/play.svg" class="absolute place-self-center" />
+        <div class="justify-center">
+          <!--- video preview -->
+          <div v-if="!isVideoIdValid" class="flex justify-center">
+            <div class="flex relative justify-center">
+              <img src="@/assets/images/plain.svg" />
+              <img src="@/assets/images/play.svg" class="absolute place-self-center" />
+            </div>
+          </div>
+          <div v-else>
+            <video-player
+              :videoId="videoId"
+              :plyrConfig="plyrConfig"
+              @update="videoTimestampUpdated"
+              @ready="playerReady"
+              @play="playerPlayed"
+              ref="playerObj"
+            ></video-player>
+
+            <!--- slider with question markers -->
+            <slider-with-markers
+              :end="videoDuration"
+              :step="sliderStep"
+              v-model:value="currentTimestamp"
+              v-model:markerPositions="itemTimestamps"
+              @marker-selected="itemSelected"
+              @marker-drag-end="itemMarkerTimestampDragEnd"
+              @update="sliderUpdated"
+              ref="slider"
+            ></slider-with-markers>
           </div>
         </div>
-        <div v-else>
-          <video-player
-            :videoId="videoId"
-            :plyrConfig="plyrConfig"
-            @update="videoTimestampUpdated"
-            @ready="playerReady"
-            @play="playerPlayed"
-            ref="playerObj"
-          ></video-player>
 
-          <!--- slider with question markers -->
-          <slider-with-markers
-            :end="videoDuration"
-            :step="sliderStep"
-            v-model:value="currentTimestamp"
-            v-model:markerPositions="itemTimestamps"
-            @marker-selected="itemSelected"
-            @marker-drag-end="itemMarkerTimestampDragEnd"
-            @update="sliderUpdated"
-            ref="slider"
-          ></slider-with-markers>
+        <!--- buttons -->
+        <div class="flex justify-between mt-10">
+          <!--- button to go back to home -->
+          <icon-button
+            :titleConfig="backButtonTitleConfig"
+            :iconConfig="backButtonIconConfig"
+            :buttonClass="backButtonClass"
+            @click="returnToHome"
+          ></icon-button>
+          <!--- publish button -->
+          <icon-button
+            :titleConfig="publishButtonTitleConfig"
+            :class="publishButtonClass"
+            v-tooltip.right="publishButtonTooltip"
+            @click="publishButtonClicked"
+          ></icon-button>
         </div>
       </div>
 
-      <!--- buttons -->
-      <div class="flex justify-center mt-10">
-        <Button
-          label="Publish Plio"
-          class="p-button-success"
-          :disabled="!isVideoIdValid"
-          v-tooltip.bottom="'Click to publish plio'"
-        />
-      </div>
+      <!--- input grid -->
+      <div class="grid grid-rows-6 grid-cols-1 m-5 justify-start">
+        <div class="row-start-1 row-span-1 grid gap-y-4">
+          <div class="flex w-full justify-between">
+            <!--- publish/draft badge -->
+            <simple-badge
+              :text="capitalize(status)"
+              :badgeClass="statusBadgeClass"
+              v-tooltip.top="statusBadgeTooltip"
+            ></simple-badge>
+            <!--- text to show updated time status -->
+            <p class="text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
+              {{ syncStatusText }}
+            </p>
+          </div>
 
-      <!-- TEMPORARY - this is just the plio json preview - for testing  -->
-      <div class="grid grid-cols-1">
-        <pre class="text-sm overflow-auto">
-          {{ JSON.stringify(items, null, 2) }}</pre
-        >
-      </div>
-      <!-- TEMPORARY -->
-    </div>
+          <!--- video link -->
+          <input-text
+            :placeholder="videoInputPlaceholder"
+            :title="videoInputTitle"
+            :validation="videoInputValidation"
+            v-model:value="videoURL"
+            ref="videoLink"
+            :boxStyling="'pl-4'"
+          ></input-text>
 
-    <!--- input grid -->
-    <div class="grid grid-rows-6 grid-cols-1 m-5 justify-start">
-      <div class="row-start-1 row-span-1 grid gap-y-4">
-        <p class="text-sm text-gray-500 justify-self-end">
-          Updated at: {{ lastUpdatedStr }}
-        </p>
-        <!--- video link -->
-        <input-text
-          :placeholder="videoInputPlaceholder"
-          :title="videoInputTitle"
-          :validation="videoInputValidation"
-          v-model:value="videoURL"
-          ref="videoLink"
-          :boxStyling="'pl-4'"
-        ></input-text>
+          <!--- plio title -->
+          <input-text
+            :placeholder="titleInputPlaceholder"
+            :title="titleInputTitle"
+            v-model:value="plioTitle"
+            ref="title"
+            :boxStyling="'pl-4'"
+          ></input-text>
 
-        <!--- plio title -->
-        <input-text
-          :placeholder="titleInputPlaceholder"
-          :title="titleInputTitle"
-          v-model:value="plioTitle"
-          ref="title"
-          :boxStyling="'pl-4'"
-        ></input-text>
-
+          <div>
+            <p>current time: {{ currentTimestamp }}</p>
+            <p>item index: {{ currentItemIndex }}</p>
+            <p>video length: {{ videoDuration }}</p>
+          </div>
+        </div>
         <!--- item editor  -->
-        <div>
-          <p>current time: {{ currentTimestamp }}</p>
-          <p>item index: {{ currentItemIndex }}</p>
-          <p>video length: {{ videoDuration }}</p>
+        <div class="row-start-2 row-span-3 py-2">
+          <item-editor
+            v-if="hasAnyItems"
+            v-model:itemList="items"
+            v-model:selectedItemIndex="currentItemIndex"
+            @update:selectedItemIndex="navigateToItem"
+            :videoDuration="videoDuration"
+          ></item-editor>
         </div>
       </div>
-      <div class="row-start-2 row-span-3 py-2">
-        <item-editor
-          v-if="hasAnyItems"
-          v-model:itemList="items"
-          v-model:selectedItemIndex="currentItemIndex"
-          @update:selectedItemIndex="navigateToItem"
-          :videoDuration="videoDuration"
-        ></item-editor>
-      </div>
     </div>
+    <dialog-box
+      class="absolute"
+      v-if="showDialogBox"
+      :title="dialogTitle"
+      :description="dialogDescription"
+      :confirmButtonConfig="dialogConfirmButtonConfig"
+      :cancelButtonConfig="dialogCancelButtonConfig"
+      @confirm="dialogConfirmed"
+      @cancel="dialogCancelled"
+    ></dialog-box>
   </div>
 </template>
 
@@ -111,9 +136,12 @@ import InputText from "@/components/UI/Text/InputText.vue";
 import URL from "@/components/UI/Text/URL.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
-import Button from "primevue/button";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import PlioService from "@/services/API/Plio.js";
+import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
+import DialogBox from "@/components/UI/Alert/DialogBox";
+import { mapActions, mapState } from "vuex";
 
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
@@ -123,10 +151,12 @@ export default {
   components: {
     InputText,
     URL,
-    Button,
     SliderWithMarkers,
     VideoPlayer,
     ItemEditor,
+    IconButton,
+    SimpleBadge,
+    DialogBox,
   },
   props: {
     plioId: {
@@ -161,6 +191,16 @@ export default {
       minUpdateInterval: 1000, // minimum time in milliseconds between updates
       changeInProgress: false, // whether a change is in progress but has not been saved yet
       saveInterval: 5000, // time interval
+      isBeingPublished: false, // whether the current plio is in the process of being published
+      showDialogBox: false, // whether to show dialog box
+      dialogTitle: "", // title for the dialog box
+      dialogDescription: "", // description for the dialog box
+      dialogConfirmButtonConfig: {}, // config for the confirm button of the dialog box
+      dialogCancelButtonConfig: {}, // config for the cancel button of the dialog box
+      hasUnpublishedChanges: false,
+      // whether there are changes which have not been published
+      // once plio is published, we don't automatically save changes
+      // this tracks if there are unpublished changes
     };
   },
   async created() {
@@ -214,11 +254,98 @@ export default {
     },
   },
   computed: {
+    ...mapState(["uploading"]),
+    isPublishButtonEnabled() {
+      // whether the publish button is enabled
+      if (!this.isPublished) return this.isVideoIdValid;
+      return this.hasUnpublishedChanges;
+    },
+    blurMainScreen() {
+      // whether to blur the main screen with opacity
+      return this.isBeingPublished || this.showDialogBox;
+    },
+    statusBadgeClass() {
+      // class for the status badge
+      var badgeClass = {
+        "text-green-500 border-green-500": this.isPublished,
+        "border-black text-black": !this.isPublished,
+        "text-xs": true,
+        "lg:text-base": true,
+      };
+      return badgeClass;
+    },
+    statusBadgeTooltip() {
+      // tooltip for the status badge
+      if (!this.isPublished)
+        return "This plio is currently in draft mode and only accessible to you. To make it publicly accessible, publish the plio";
+      return "This plio has been published and is publicly accessible";
+    },
+    syncStatusText() {
+      // text to show the sync status
+      if (this.uploading) return "Updating...";
+      else return "Updated at: " + this.lastUpdatedStr;
+    },
+    syncStatusClass() {
+      // class for the sync status text
+      return {
+        "text-red-500": this.isPublished && this.hasUnpublishedChanges,
+      };
+    },
+    backButtonIconConfig() {
+      // config for icon of back button
+      return {
+        enabled: true,
+        iconName: "chevron-left-solid",
+        iconClass: "w-4 h-4 ml-2 text-primary",
+      };
+    },
+    backButtonClass() {
+      // classes for the back button
+      return "bg-gray-100 hover:bg-gray-200 rounded-md";
+    },
+    backButtonTitleConfig() {
+      // config for text of back button
+      return {
+        value: "Home",
+        class: "p-4 text-primary font-bold",
+      };
+    },
+    publishButtonTitleConfig() {
+      // config for text of back button
+      return {
+        value: this.publishButtonText,
+        class: "bg-green-500 p-4 text-white rounded-md font-bold hover:bg-green-600",
+      };
+    },
+    publishButtonText() {
+      // text for the publish button
+      if (!this.isPublished) return "Publish Plio";
+      return "Publish Changes";
+    },
+    publishButtonClass() {
+      // class for the publish button
+      return { "opacity-50 cursor-not-allowed": !this.isPublishButtonEnabled };
+    },
+    publishButtonTooltip() {
+      // tooltip text for publish button
+      if (!this.isPublished) {
+        if (!this.isPublishButtonEnabled) return "Enter a valid video URL first";
+        return "Click to publish the plio";
+      }
+      if (!this.isPublishButtonEnabled) return "No unpublished changes yet";
+      return "Click to publish your changes";
+    },
     lastUpdatedStr() {
+      // lastUpdated as a human readable string
       return this.lastUpdated.toLocaleString();
     },
     hasAnyItems() {
+      // whether there are any itesm
       return this.items.length != 0;
+    },
+    isPublished() {
+      // whether the plio has been pubished
+      return this.status == "published";
     },
     isDraftCreated() {
       // whether the draft has been created
@@ -251,8 +378,41 @@ export default {
       // whether the video Id is valid
       return this.videoId != "";
     },
+    publishDialogTitle() {
+      // title for the dialog box that appears when publishing a
+      // draft plio or publishing changes to a published plio
+      if (this.isPublished) {
+        return "Are you sure you want to publish your changes?";
+      }
+      return "Are you sure you want to publish the plio?";
+    },
+    publishDialogDescription() {
+      // description for the dialog box that appears when publishing a
+      // draft plio or publishing changes to a published plio
+      if (this.isPublished) {
+        return "The plio will be permananently changed once you publish the changes";
+      }
+      return "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question";
+    },
+    publishInProgressDialogTitle() {
+      // title for the dialog box that appears when the
+      // publishing for a plio is in progress
+      if (this.isPublished) {
+        return "Publishing the changes..";
+      }
+      return "Publishing the plio...";
+    },
   },
   methods: {
+    ...mapActions(["startUploading", "stopUploading"]),
+    returnToHome() {
+      // returns the user back to Home
+      this.$router.push({ name: "Home" });
+    },
+    capitalize(string) {
+      // capitalize first letter of string and return
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    },
     navigateToItem(itemIndex) {
       var selectedTimestamp = this.items[itemIndex].time;
       if (selectedTimestamp != null) {
@@ -388,13 +548,18 @@ export default {
         this.videoURL = plioDetails.video_url || "";
         this.plioTitle = plioDetails.plio_title || "";
         this.status = plioDetails.status;
-        if (plioDetails.updated_at != undefined && plioDetails.updated_at != "") {
+        if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
           this.lastUpdated = new Date(plioDetails.updated_at);
-        }
+        this.hasUnpublishedChanges = false;
       });
     },
     checkAndSavePlio() {
       // ensures that requests are made after a minimum time interval
+      // don't update changes automatically once published
+      if (this.isPublished) {
+        this.hasUnpublishedChanges = true;
+        return;
+      }
       this.changeInProgress = true;
       var time = new Date();
       // only update after a certain interval between last and current update
@@ -405,6 +570,7 @@ export default {
     savePlio() {
       // saves the plio data on remote
       this.changeInProgress = false;
+      this.startUploading();
       this.lastUpdated = new Date();
       var plioValue = {
         video_id: this.videoId,
@@ -415,9 +581,55 @@ export default {
         status: this.status,
         updated_at: this.lastUpdated,
       };
-      PlioService.updatePlio(plioValue, this.plioId).then((response) => {
-        console.log(response);
+      return PlioService.updatePlio(plioValue, this.plioId).then(() => {
+        this.stopUploading();
       });
+    },
+    publishPlio() {
+      // mark the plio as published if in draft mode
+      // and update the changes only if already published
+      this.isBeingPublished = true;
+      this.status = "published";
+      this.savePlio().then(() => {
+        this.isBeingPublished = false;
+        this.showDialogBox = false;
+        this.hasUnpublishedChanges = false;
+      });
+    },
+    publishButtonClicked() {
+      // invoked when the publish button is clicked
+      // set dialog properties
+      this.dialogTitle = this.publishDialogTitle;
+      this.dialogDescription = this.publishDialogDescription;
+      this.dialogConfirmButtonConfig = {
+        text: "Yes",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+      };
+      this.dialogCancelButtonConfig = {
+        text: "No",
+        class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
+      };
+      // show the dialogue
+      this.showDialogBox = true;
+    },
+    dialogConfirmed() {
+      // invoked when the confirm button of the dialog box is clicked
+      // update the dialog properties
+      this.dialogConfirmButtonConfig = {
+        class: "hidden",
+      };
+      this.dialogCancelButtonConfig = {
+        class: "hidden",
+      };
+      this.dialogDescription = "";
+      this.dialogTitle = this.publishInProgressDialogTitle;
+      // publish the plio or its changes
+      this.publishPlio();
+    },
+    dialogCancelled() {
+      // invoked when the cancel button of the dialog box is clicked
+      this.showDialogBox = false;
     },
   },
 };

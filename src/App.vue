@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'opacity-50': coverBackground }">
+  <div :class="{ 'opacity-50 pointer-events-none': coverBackground }">
     <div
       class="grid grid-cols-6 sm:grid-cols-7 gap-2 border-b-2 pt-2 border-solid bg-white pl-2 pr-2"
     >
@@ -26,7 +26,7 @@
       <!-- create plio button -->
       <div
         v-if="showCreateButton"
-        class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1"
+        class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1 bg-primary hover:bg-primary-hover rounded-lg"
       >
         <icon-button
           :titleConfig="createButtonTextConfig"
@@ -137,6 +137,7 @@ export default {
     },
     onClose(event) {
       // invoked when trying to close the browser or changing pages
+      // console.log(event);
       event.preventDefault();
       event.returnValue = "";
     },
