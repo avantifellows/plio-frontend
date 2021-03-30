@@ -137,9 +137,9 @@ export default {
     },
     onClose(event) {
       // invoked when trying to close the browser or changing pages
-      // console.log(event);
-      event.preventDefault();
-      event.returnValue = "";
+      console.log(event);
+      // event.preventDefault();
+      // event.returnValue = "";
     },
   },
   computed: {

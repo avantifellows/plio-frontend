@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span class="px-4 py-2 text-base rounded-full border" :class="badgeClass">
+    <span class="px-4 py-2 rounded-full border" :class="badgeClass">
       {{ text }}
     </span>
   </div>
@@ -14,7 +14,7 @@ export default {
       default: "'",
     },
     badgeClass: {
-      default: () => "border-black text-black",
+      default: () => "border-black text-black text-base",
     },
   },
 };

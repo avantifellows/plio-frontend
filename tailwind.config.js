@@ -7,6 +7,7 @@ module.exports = {
         primary: "#F78000",
         "primary-hover": "#db7506",
       },
+      opacity: ["disabled"],
     },
     backgroundColor: (theme) => ({
       ...theme("colors"),
