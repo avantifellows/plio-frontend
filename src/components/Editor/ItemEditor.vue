@@ -91,6 +91,13 @@
           @start-icon-selected="updateCorrectOption(optionIndex)"
           @end-icon-selected="deleteOption(optionIndex)"
         ></input-text>
+        <div class="flex justify-end mr-2 mt-2">
+          <icon-button
+            :titleConfig="addOptionButtonTitleConfig"
+            class="float-right"
+            @click="addOption"
+          ></icon-button>
+        </div>
       </div>
     </div>
     <dialog-box
@@ -177,6 +184,10 @@ export default {
   },
 
   methods: {
+    addOption() {
+      // adds an option to the current question
+      this.localItemList[this.localSelectedItemIndex].details.options.push("");
+    },
     dialogConfirmClicked() {
       // invoked when the confirm button of the dialog box is clicked
       // hide the dialog box
@@ -307,6 +318,12 @@ export default {
   },
 
   computed: {
+    addOptionButtonTitleConfig() {
+      return {
+        value: "Add another option",
+        class: "bg-yellow-600 p-4 text-white rounded-md font-bold hover:bg-green-600",
+      };
+    },
     getDeleteOptionIconConfig() {
       // config for the delete option icon
       return {
