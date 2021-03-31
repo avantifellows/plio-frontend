@@ -21,15 +21,16 @@
       </div>
     </div>
 
-    <div class="flex relative">
+    <div class="flex relative items-center">
       <!-- left icon -->
       <div
-        v-if="isSideIconEnabled"
-        class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center text-xl w-5 inset-y-1/4 left-1.5"
-        @click="selectThisBox"
-        :class="sideIconClass"
+        v-if="isStartIconEnabled"
+        class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center w-5 inset-y-1/4 left-1.5"
+        @click="startIconSelected"
+        :class="startIconClass"
+        v-tooltip.left="startIconTooltip"
       >
-        <inline-svg :src="sideIconObj"></inline-svg>
+        <inline-svg :src="startIconObj"></inline-svg>
       </div>
 
       <!-- input text area -->
@@ -43,6 +44,15 @@
         :class="[inputAreaClass, boxStyling]"
         :maxLength="maxLength"
       />
+      <div
+        v-if="isEndIconEnabled"
+        class="z-10 absolute rounded text-base place-content-center w-5 right-1.5 flex"
+        @click="endIconSelected"
+        :class="endIconClass"
+        v-tooltip.left="endIconTooltip"
+      >
+        <inline-svg :src="endIconObj" class="place-self-center"></inline-svg>
+      </div>
     </div>
   </div>
 </template>
@@ -68,14 +78,28 @@ export default {
       },
       type: Object,
     },
-    sideIcon: {
-      // whether side icon is enabled or not
+    startIcon: {
+      // whether the start icon is enabled or not
       // and the icon name if enabled
       default: () => {
         return {
           enabled: false,
           name: "check",
           class: "w-10 h-10",
+          tooltip: "",
+        };
+      },
+      type: Object,
+    },
+    endIcon: {
+      // whether the end icon is enabled or not
+      // and the icon name if enabled
+      default: () => {
+        return {
+          enabled: false,
+          name: "delete",
+          class: "w-10 h-10 bg-red-500",
+          tooltip: "",
         };
       },
       type: Object,
@@ -89,15 +113,16 @@ export default {
       // pass any classes that need to be added to the input
       // boxes
       default: () => {},
-      type: [Object, String]
+      type: [Object, String],
     },
     maxLength: {
       default: null,
-      type: Number
-    }
+      type: Number,
+    },
   },
   computed: {
     localValue: {
+      // local copy of the value prop
       get() {
         return this.value;
       },
@@ -106,9 +131,11 @@ export default {
       },
     },
     isValidationEnabled() {
+      // whether input validation is on
       return this.validation["enabled"];
     },
     isValid() {
+      // whether the input is valid
       return this.isValidationEnabled && this.validation["isValid"];
     },
     validationColorClass() {
@@ -119,6 +146,7 @@ export default {
       };
     },
     validationMessage() {
+      // message to show for valid/invalid input
       if (this.isValid) {
         return this.validation["validMessage"];
       }
@@ -132,40 +160,77 @@ export default {
       }
       return icon;
     },
-    sideIconName() {
-      // gets the side icon name from the prop
-      return this.sideIcon.name;
+    startIconName() {
+      // gets the start icon name from the prop
+      return this.startIcon.name;
     },
-    sideIconClass() {
-      // gets the side icon name from the prop
-      return this.sideIcon.class;
+    startIconClass() {
+      // gets the start icon name from the prop
+      return this.startIcon.class;
     },
-    sideIconObj() {
-      // uses the sideicon name to fetch the icon object
+    startIconTooltip() {
+      // returns the tooltip text for the side icon
+      return this.startIcon.tooltip || "";
+    },
+    startIconObj() {
+      // uses the start icon name to fetch the icon object
       // and return it
       var icon;
-      if (this.sideIcon.enabled) {
-        icon = require("@/assets/images/" + this.sideIconName + ".svg");
+      if (this.startIcon.enabled) {
+        icon = require("@/assets/images/" + this.startIconName + ".svg");
       }
       return icon;
     },
-    isSideIconEnabled() {
-      return this.sideIcon.enabled;
+    isStartIconEnabled() {
+      // whether the start icon is enabled
+      return this.startIcon.enabled;
+    },
+    isEndIconEnabled() {
+      // whether the end icon is enabled
+      return this.endIcon.enabled;
+    },
+    endIconClass() {
+      // gets the end icon name from the prop
+      return this.endIcon.class;
+    },
+    endIconTooltip() {
+      // returns the tooltip text for the end icon
+      return this.endIcon.tooltip || "";
+    },
+    endIconName() {
+      // gets the end icon name from the prop
+      return this.endIcon.name;
+    },
+    endIconObj() {
+      // uses the end icon name to fetch the icon object
+      // and return it
+      var icon;
+      if (this.endIcon.enabled) {
+        icon = require("@/assets/images/" + this.endIconName + ".svg");
+      }
+      return icon;
     },
     inputAreaClass() {
+      // class for the input element
       return {
-        "pl-10": this.isSideIconEnabled,
+        "pl-10": this.isStartIconEnabled,
       };
     },
   },
   methods: {
     inputChange() {
+      // invoked on input change
       this.$emit("input", this.value);
     },
-    selectThisBox() {
-      this.$emit("box-selected", this.value);
+    startIconSelected() {
+      // invoked on start icon being selected
+      this.$emit("start-icon-selected", this.value);
+    },
+    endIconSelected() {
+      // invoked on end icon being selected
+      this.$emit("end-icon-selected", this.value);
     },
   },
-  emits: ["input", "update:value", "box-selected"],
+  emits: ["input", "update:value", "start-icon-selected", "end-icon-selected"],
 };
 </script>

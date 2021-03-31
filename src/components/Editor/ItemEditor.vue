@@ -1,85 +1,106 @@
 <template>
   <!-- big box -->
-  <div v-if="localSelectedItemIndex != null" class="flex flex-col w-full h-full rounded-md main-container">
-    <!-- nav bar -->
-    <div class="flex gap-1 flex-row w-full p-4 nav-bar justify-end">
-      <div class="mr-auto flex content-center">
-        <p class="self-center editor-title">
-          EDIT {{ localItemList[localSelectedItemIndex].type.toUpperCase() }}
-        </p>
+  <div class="flex relative h-full justify-center" v-if="localSelectedItemIndex != null">
+    <div
+      class="flex flex-col w-full rounded-md main-container"
+      :class="{ 'opacity-50 pointer-events-none': showDialog }"
+    >
+      <div class="flex gap-1 flex-row w-full p-4 nav-bar justify-end">
+        <!-- nav bar -->
+        <div class="mr-auto flex content-center">
+          <p class="self-center editor-title">
+            EDIT {{ localItemList[localSelectedItemIndex].type.toUpperCase() }}
+          </p>
+        </div>
+
+        <!-- dropdown for choosing items -->
+        <ItemDropDown
+          :optionsList="itemOptionsList"
+          v-model:selectedItemIndex="localSelectedItemIndex"
+        ></ItemDropDown>
+
+        <!-- previous item button -->
+        <icon-button
+          class="rounded-tl-xl rounded-bl-xl w-8 h-8"
+          :iconConfig="previousItemIconConfig"
+          @click="updateSelectedItemIndex(localSelectedItemIndex - 1)"
+          :class="{ 'opacity-50': isFirstItem }"
+          :buttonClass="previousItemButtonClass"
+          :disabled="isFirstItem"
+          v-tooltip.top="'Move to previous question'"
+        ></icon-button>
+
+        <!-- next item button -->
+        <icon-button
+          class="rounded-tr-xl rounded-br-xl w-8 h-8"
+          :iconConfig="nextItemIconConfig"
+          @click="updateSelectedItemIndex(localSelectedItemIndex + 1)"
+          :class="{ 'opacity-50': isLastItem }"
+          :buttonClass="nextItemButtonClass"
+          :disabled="isLastItem"
+          v-tooltip.top="'Move to next question'"
+        ></icon-button>
+
+        <!-- add item button -->
+        <icon-button
+          class="rounded-xl w-8 h-8"
+          :iconConfig="addItemIconConfig"
+          :buttonClass="addItemButtonClass"
+          v-tooltip.top="'Create a new question'"
+        ></icon-button>
+
+        <!-- delete item button -->
+        <icon-button
+          class="rounded-xl bg-delete-button w-8 h-8"
+          :iconConfig="deleteItemIconConfig"
+          v-tooltip.top="'Delete this question'"
+        ></icon-button>
       </div>
 
-      <ItemDropDown
-        :optionsList="itemOptionsList"
-        v-model:selectedItemIndex="localSelectedItemIndex"
-      ></ItemDropDown>
+      <!-- item editor -->
+      <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 item-editor-box">
+        <!-- question input box : expandable -->
+        <Textarea
+          :placeholder="'placeholder'"
+          :title="'Question'"
+          v-model:value="questionText"
+          ref="questionText"
+          class="p-2"
+          :boxStyling="'pl-4'"
+        ></Textarea>
 
-      <!-- previous item button -->
-      <icon-button
-        class="rounded-tl-xl rounded-bl-xl w-8 h-8"
-        :iconConfig="previousItemIconConfig"
-        @click="updateSelectedItemIndex(localSelectedItemIndex - 1)"
-        :class="{ 'opacity-50': isFirstItem }"
-        :buttonClass="previousItemButtonClass"
-        :disabled="isFirstItem"
-      ></icon-button>
+        <!-- time input HH : MM : SS : mmm -->
+        <time-input
+          :title="'Time for the question to appear'"
+          class="p-2"
+          v-model:timeObject="timeObject"
+          :timeValid="timeExceedsVideoDuration"
+        ></time-input>
 
-      <!-- next item button -->
-      <icon-button
-        class="rounded-tr-xl rounded-br-xl w-8 h-8"
-        :iconConfig="nextItemIconConfig"
-        @click="updateSelectedItemIndex(localSelectedItemIndex + 1)"
-        :class="{ 'opacity-50': isLastItem }"
-        :buttonClass="nextItemButtonClass"
-        :disabled="isLastItem"
-      ></icon-button>
-
-      <!-- add item button -->
-      <icon-button
-        class="rounded-xl w-8 h-8"
-        :iconConfig="addItemIconConfig"
-        :buttonClass="addItemButtonClass"
-      ></icon-button>
-
-      <!-- delete item button -->
-      <icon-button
-        class="rounded-xl bg-delete-button w-8 h-8"
-        :iconConfig="deleteItemIconConfig"
-      ></icon-button>
+        <!-- input field for entering options  -->
+        <input-text
+          v-for="(option, optionIndex) in options"
+          :placeholder="'Enter Option'"
+          :title="'Option ' + (optionIndex + 1)"
+          class="p-2"
+          v-model:value="options[optionIndex]"
+          :key="optionIndex"
+          :startIcon="getCorrectOptionIconConfig(optionIndex)"
+          :endIcon="getDeleteOptionIconConfig"
+          :boxStyling="getOptionBoxStyling(optionIndex)"
+          @start-icon-selected="updateCorrectOption(optionIndex)"
+          @end-icon-selected="deleteOption(optionIndex)"
+        ></input-text>
+      </div>
     </div>
-
-    <!-- item editor -->
-    <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 item-editor-box">
-      <!-- question input box : expandable -->
-      <Textarea
-        :placeholder="'placeholder'"
-        :title="'Question'"
-        v-model:value="questionText"
-        ref="questionText"
-        class="p-2"
-        :boxStyling="'pl-4'"
-      ></Textarea>
-
-      <!-- time input HH : MM : SS : mmm -->
-      <time-input
-        :title="'Time for the question to appear'"
-        class="p-2"
-        v-model:timeObject="timeObject"
-        :timeValid="timeExceedsVideoDuration"
-      ></time-input>
-
-      <input-text
-        v-for="(option, optionNumber) in options"
-        :placeholder="'Enter Option'"
-        :title="'Option ' + (optionNumber + 1)"
-        class="p-2"
-        v-model:value="options[optionNumber]"
-        :key="optionNumber"
-        :sideIcon="getOptionSideIconConfig(optionNumber)"
-        :boxStyling="getOptionBoxStyling(optionNumber)"
-        @box-selected="updateCorrectOption"
-      ></input-text>
-    </div>
+    <dialog-box
+      :title="dialogTitle"
+      class="absolute"
+      v-if="showDialog"
+      @confirm="dialogConfirmClicked"
+      @cancel="dialogCancelClicked"
+    ></dialog-box>
+    <toast ref="toast"></toast>
   </div>
 </template>
 
@@ -89,10 +110,11 @@ import ItemDropDown from "../UI/DropDownMenu/ItemDropDown.vue";
 import InputText from "../UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
+import DialogBox from "../UI/Alert/DialogBox.vue";
+import Toast from "@/components/UI/Alert/Toast";
 
 export default {
   name: "ItemEditor",
-
 
   data() {
     return {
@@ -119,7 +141,13 @@ export default {
         iconName: "delete",
         iconClass: "text-white h-5 w-2.5",
       },
-      timeExceedsVideoDuration: false
+      timeExceedsVideoDuration: false,
+      dialogTitle: "", // title for the dialog box
+      dialogDescription: "", // description for the dialog box
+      showDialog: false, // whether to show the dialog box
+      dialogAction: "", // action that invoked the dialog box
+      // index of the option to be deleted; -1 means nothing to be deleted
+      optionIndexToDelete: -1,
     };
   },
 
@@ -130,12 +158,12 @@ export default {
     },
     selectedItemIndex: {
       default: 0,
-      type: Number
+      type: Number,
     },
     videoDuration: {
       default: 0,
-      type: Number
-    }
+      type: Number,
+    },
   },
 
   components: {
@@ -143,30 +171,95 @@ export default {
     IconButton,
     InputText,
     TimeInput,
-    Textarea
+    Textarea,
+    DialogBox,
+    Toast,
   },
 
   methods: {
-    getOptionSideIconConfig(optionNumber) {
+    dialogConfirmClicked() {
+      // invoked when the confirm button of the dialog box is clicked
+      // hide the dialog box
+      this.showDialog = false;
+      if (this.dialogAction == "deleteOption") {
+        this.confirmDeleteOption();
+      }
+    },
+    dialogCancelClicked() {
+      // invoked when the cancel button of the dialog box is clicked
+      // hide the dialog box
+      this.showDialog = false;
+      if (this.dialogAction == "deleteOption") {
+        this.cancelDeleteOption();
+      }
+      // reset dialog action
+      this.dialogAction = "";
+    },
+    confirmDeleteOption() {
+      // invoked when the confirm button of the dialog box for deleting option is clicked
+      // there should always be at least 2 options, allow deletion only
+      // if the number of options is >= 3
+      if (this.localItemList[this.localSelectedItemIndex].details.options.length < 3) {
+        this.$refs.toast.show("error", "A question must have at least 2 options", 3000);
+        return;
+      }
+
+      // delete the option
+      this.localItemList[this.localSelectedItemIndex].details.options.splice(
+        this.optionIndexToDelete,
+        1
+      );
+      // if the deleted option was the correct answer, reset the correct answer
+      if (this.optionIndexToDelete == this.correctOptionIndex) {
+        this.correctOptionIndex = 0;
+      }
+      this.optionIndexToDelete = -1; // reset the option index to be deleted
+    },
+    cancelDeleteOption() {
+      // invoked when the cancel button of the dialog box for deleting option is clicked
+      this.optionIndexToDelete = -1; // reset the option index to be deleted
+    },
+    getCorrectOptionIconConfig(optionIndex) {
+      // config for the correct option icon
       return {
         enabled: true,
-        name: 'check-circle-regular',
+        name: "check-circle-regular",
         class: [
-          { 'text-green-500': optionNumber == this.correctOptionIndex },
-          'cursor-pointer'
-        ]
-      }
+          { "text-green-500": this.isOptionMarkedCorrect(optionIndex) },
+          "cursor-pointer",
+        ],
+        tooltip: this.getCorrectOptionTooltip(optionIndex),
+      };
     },
-    getOptionBoxStyling(optionNumber) {
+    deleteOption(optionIndex) {
+      this.dialogTitle = "Are you sure you want to delete this option?";
+      this.optionIndexToDelete = optionIndex;
+      this.dialogAction = "deleteOption";
+      this.showDialog = true;
+    },
+    getCorrectOptionTooltip(optionIndex) {
+      // returns the tooltip for the correct option button for the given option index
+      if (this.isOptionMarkedCorrect(optionIndex))
+        return "This option has marked as the correct option for this question";
+      return "Mark this option as the correct option for this question";
+    },
+    isOptionMarkedCorrect(optionIndex) {
+      // whether the given option index is the right option
+      return optionIndex == this.correctOptionIndex;
+    },
+    getOptionBoxStyling(optionIndex) {
+      // returns the styling for the option box for the given index
       return {
-        'border-green-500': optionNumber == this.correctOptionIndex,
-        'border-4': optionNumber == this.correctOptionIndex
-      }
+        "border-green-500": this.isOptionMarkedCorrect(optionIndex),
+        "border-4": this.isOptionMarkedCorrect(optionIndex),
+      };
     },
     capitalizeFirstLetter(str) {
+      // capitalize the first letter of a given string
       return str.charAt(0).toUpperCase() + str.slice(1);
     },
     updateSelectedItemIndex(index) {
+      // updates the current item selected
       this.localSelectedItemIndex = index;
     },
     convertSecondsToISOTime(timeInSeconds) {
@@ -204,17 +297,25 @@ export default {
       var millisecond = parseInt(timeInISO.millisecond) || 0;
       return hour * 3600 + minute * 60 + second + millisecond / 1000;
     },
-    updateCorrectOption(option) {
+    updateCorrectOption(selectedOptionIndex) {
       // when some option is selected as correct, update it in the
       // item list
-      var indexOfSelectedOption = this.options.indexOf(option);
       this.localItemList[
         this.localSelectedItemIndex
-      ].details.correct_answer = indexOfSelectedOption;
+      ].details.correct_answer = selectedOptionIndex;
     },
   },
 
   computed: {
+    getDeleteOptionIconConfig() {
+      // config for the delete option icon
+      return {
+        enabled: true,
+        name: "delete",
+        class: "bg-red-500 cursor-pointer w-8 h-8 hover:bg-red-700 rounded-md",
+        tooltip: "Delete this option",
+      };
+    },
     localItemList: {
       // a local copy of the item list
       get() {
@@ -226,11 +327,11 @@ export default {
     },
     localSelectedItemIndex: {
       get() {
-        return this.selectedItemIndex
+        return this.selectedItemIndex;
       },
       set(localSelectedItemIndex) {
-        this.$emit("update:selectedItemIndex", localSelectedItemIndex)
-      }
+        this.$emit("update:selectedItemIndex", localSelectedItemIndex);
+      },
     },
     itemOptionsList() {
       // preparing an options list to pass to the dropdown
@@ -278,15 +379,14 @@ export default {
       },
       set(value) {
         // convert timeObject to seconds
-          var timeInSeconds = this.convertISOTimeToSeconds(value);
-          if (timeInSeconds > this.videoDuration) {
-            this.timeExceedsVideoDuration = true
-          }
-          else {
-            this.timeExceedsVideoDuration = false
-            this.localItemList[this.localSelectedItemIndex].time = timeInSeconds || 0;
-          }
+        var timeInSeconds = this.convertISOTimeToSeconds(value);
+        if (timeInSeconds > this.videoDuration) {
+          this.timeExceedsVideoDuration = true;
+        } else {
+          this.timeExceedsVideoDuration = false;
+          this.localItemList[this.localSelectedItemIndex].time = timeInSeconds || 0;
         }
+      },
     },
     options: {
       // computed array of options
