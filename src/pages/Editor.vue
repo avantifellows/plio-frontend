@@ -714,7 +714,7 @@ export default {
       this.dialogAction = "closeDialog"
       // show the dialogue
       this.showDialogBox = true;
-    }
+    },
     dialogPublish() {
       this.dialogTitle = this.publishInProgressDialogTitle;
       // publish the plio or its changes
