@@ -211,7 +211,7 @@ export default {
       );
       // if the deleted option was the correct answer, reset the correct answer
       if (this.optionIndexToDelete == this.correctOptionIndex) {
-        this.correctOptionIndex = 0;
+        this.localItemList[this.localSelectedItemIndex].details.correct_answer = 0;
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
