@@ -16,20 +16,18 @@
 
       <!-- previous item button -->
       <icon-button
-        class="rounded-tl-xl rounded-bl-xl w-8 h-8"
+        class="rounded-tl-xl rounded-bl-xl w-8 h-8 disabled:opacity-50"
         :iconConfig="previousItemIconConfig"
         @click="updateSelectedItemIndex(localSelectedItemIndex - 1)"
-        :class="{ 'opacity-50': isFirstItem }"
         :buttonClass="previousItemButtonClass"
         :disabled="isFirstItem"
       ></icon-button>
 
       <!-- next item button -->
       <icon-button
-        class="rounded-tr-xl rounded-br-xl w-8 h-8"
+        class="rounded-tr-xl rounded-br-xl w-8 h-8 disabled:opacity-50"
         :iconConfig="nextItemIconConfig"
         @click="updateSelectedItemIndex(localSelectedItemIndex + 1)"
-        :class="{ 'opacity-50': isLastItem }"
         :buttonClass="nextItemButtonClass"
         :disabled="isLastItem"
       ></icon-button>
@@ -45,6 +43,10 @@
       <icon-button
         class="rounded-xl bg-delete-button w-8 h-8"
         :iconConfig="deleteItemIconConfig"
+        @click="deleteSelectedItem"
+        v-tooltip="deleteItemButtonTooltip"
+        :class="deleteItemButtonClass"
+        :disabled="isPublished"
       ></icon-button>
     </div>
 
@@ -52,7 +54,7 @@
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 item-editor-box">
       <!-- question input box : expandable -->
       <Textarea
-        :placeholder="'placeholder'"
+        :placeholder="'Enter the question text here'"
         :title="'Question'"
         v-model:value="questionText"
         ref="questionText"
@@ -119,6 +121,7 @@ export default {
         iconName: "delete",
         iconClass: "text-white h-5 w-2.5",
       },
+      deleteItemButtonClass: this.isPublished ? "disabled:opacity-40 cursor-not-allowed" : undefined,
       timeExceedsVideoDuration: false
     };
   },
@@ -135,6 +138,10 @@ export default {
     videoDuration: {
       default: 0,
       type: Number
+    },
+    isPublished: {
+      default: false,
+      type: Boolean
     }
   },
 
@@ -212,9 +219,18 @@ export default {
         this.localSelectedItemIndex
       ].details.correct_answer = indexOfSelectedOption;
     },
+    deleteSelectedItem() {
+      this.$emit("delete-selected-item")
+    }
   },
 
   computed: {
+    deleteItemButtonTooltip() {
+      // tooltip text for delete item button
+      if (this.isPublished)
+        return "Not allowed when a plio is published"
+      return "Delete this item"
+    },
     localItemList: {
       // a local copy of the item list
       get() {
@@ -302,7 +318,7 @@ export default {
     },
   },
 
-  emits: ["update:itemList", "update:selectedItemIndex"],
+  emits: ["update:itemList", "update:selectedItemIndex", "delete-selected-item"],
 };
 </script>
 

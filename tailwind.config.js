@@ -16,7 +16,10 @@ module.exports = {
     }),
   },
   variants: {
-    extend: {},
+    extend: {
+      // to use "disabled:opacity-50" with tailwind
+      opacity: ["disabled"],
+    },
   },
   plugins: [],
 };

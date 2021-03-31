@@ -102,20 +102,35 @@
             <p>video length: {{ videoDuration }}</p>
           </div>
         </div>
-        <!--- item editor  -->
-        <div class="row-start-2 row-span-3 py-2">
+
+        <div class="flex justify-center row-start-2 row-span-3 py-2">
+          <!-- big add item button -->
+          <div class="flex-initial" v-if="currentItemIndex == null" >
+            <icon-button
+              :iconConfig="addItemIconConfig"
+              :titleConfig="addItemTitleConfig"
+              :buttonClass="addItemButtonClass"
+              @click="addNewItem"
+              :disabled="isPublished"
+            ></icon-button>
+          </div>
+
+           <!--- item editor  -->
           <item-editor
-            v-if="hasAnyItems"
+            v-if="hasAnyItems || currentItemIndex != null"
             v-model:itemList="items"
             v-model:selectedItemIndex="currentItemIndex"
             @update:selectedItemIndex="navigateToItem"
             :videoDuration="videoDuration"
+            @delete-selected-item="deleteItemButtonClicked"
+            :isPublished="isPublished"
           ></item-editor>
+
         </div>
       </div>
     </div>
     <dialog-box
-      class="absolute"
+      class="fixed top-1/3"
       v-if="showDialogBox"
       :title="dialogTitle"
       :description="dialogDescription"
@@ -197,10 +212,19 @@ export default {
       dialogDescription: "", // description for the dialog box
       dialogConfirmButtonConfig: {}, // config for the confirm button of the dialog box
       dialogCancelButtonConfig: {}, // config for the cancel button of the dialog box
+      dialogAction: "",
       hasUnpublishedChanges: false,
       // whether there are changes which have not been published
       // once plio is published, we don't automatically save changes
       // this tracks if there are unpublished changes
+      addItemIconConfig: { // config for icon of add item button
+        'enabled': true,
+        'iconName': 'plus-solid',
+        'iconClass': 'text-white h-5 w-5 mr-3'
+      },
+      addItemTitleConfig: { // config for title of add item button
+        'value': 'Add a question'
+      },
     };
   },
   async created() {
@@ -324,7 +348,9 @@ export default {
     },
     publishButtonClass() {
       // class for the publish button
-      return { "opacity-50 cursor-not-allowed": !this.isPublishButtonEnabled };
+      return {
+        "opacity-50 cursor-not-allowed pointer-events-none": !this.isPublishButtonEnabled
+      };
     },
     publishButtonTooltip() {
       // tooltip text for publish button
@@ -386,6 +412,14 @@ export default {
       }
       return "Are you sure you want to publish the plio?";
     },
+    deleteItemDialogTitle() {
+      // show this warning before deleting an item
+      return "Are you sure you want to delete this?"
+    },
+    deleteItemDialogDescription() {
+      // show this description before deleting an item
+      return "This will permanently delete this item"
+    },
     publishDialogDescription() {
       // description for the dialog box that appears when publishing a
       // draft plio or publishing changes to a published plio
@@ -402,6 +436,20 @@ export default {
       }
       return "Publishing the plio...";
     },
+    deleteItemInProgressDialogTitle() {
+      return "Deleting the item"
+    },
+    addItemButtonClass() {
+      // styling class for add item button
+      // disabled the button if plio is published
+      var classObject = [
+        { 'cursor-not-allowed': this.isPublished },
+
+        `rounded-md font-bold p-5 h-12 bg-primary-button
+        hover:bg-primary-button-hover disabled:opacity-50`
+      ]
+      return classObject
+    }
   },
   methods: {
     ...mapActions(["startUploading", "stopUploading"]),
@@ -602,14 +650,18 @@ export default {
       this.dialogTitle = this.publishDialogTitle;
       this.dialogDescription = this.publishDialogDescription;
       this.dialogConfirmButtonConfig = {
+        enabled: true,
         text: "Yes",
         class:
           "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
+        enabled: true,
         text: "No",
         class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
       };
+      // closing the dialog executes this action
+      this.dialogAction = "publish"
       // show the dialogue
       this.showDialogBox = true;
     },
@@ -617,20 +669,148 @@ export default {
       // invoked when the confirm button of the dialog box is clicked
       // update the dialog properties
       this.dialogConfirmButtonConfig = {
+        enabled: true,
         class: "hidden",
       };
       this.dialogCancelButtonConfig = {
+        enabled: true,
         class: "hidden",
       };
       this.dialogDescription = "";
-      this.dialogTitle = this.publishInProgressDialogTitle;
-      // publish the plio or its changes
-      this.publishPlio();
+
+      // call separate methods depening on the dialog action that
+      // was set
+      if (this.dialogAction == "publish")
+        this.dialogPublish()
+      else if (this.dialogAction == "deleteItem")
+        this.dialogDeleteItem()
+      else if (this.dialogAction == "closeDialog")
+        this.showDialogBox = false
+
+      // reset the dialog action value
+      this.dialogAction = ""
     },
     dialogCancelled() {
       // invoked when the cancel button of the dialog box is clicked
       this.showDialogBox = false;
     },
+    showCannotAddItemDialog() {
+      // set up the dialog properties when user tries to add an item
+      // at an invalid time
+      this.dialogTitle = "Cannot add a new item here";
+      this.dialogDescription = "An item already exists nearby. Please use the marker to choose a different time";
+      this.dialogConfirmButtonConfig = {
+        enabled: true,
+        text: "Got it!",
+        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+      };
+      this.dialogCancelButtonConfig = {
+        enabled: false,
+        text: "",
+        class: ""
+      };
+
+      // carry out the closeDialog action when dialog is closed
+      this.dialogAction = "closeDialog"
+      // show the dialogue
+      this.showDialogBox = true;
+    }
+    dialogPublish() {
+      this.dialogTitle = this.publishInProgressDialogTitle;
+      // publish the plio or its changes
+      this.publishPlio();
+    },
+    dialogDeleteItem() {
+      this.dialogTitle = this.deleteItemInProgressDialogTitle;
+      // delete the selected item after user confirms
+      this.deleteSelectedItem();
+    },
+    getTimestampForNewItem() {
+      // loop through itemTimestamps to check if the time where the user
+      // is trying to add an item is valid or not
+      // using for loop instead of forEach as forEach was running async
+
+      // returning -1 to signify that the time chosen by the user is not valid
+      for (let index = 0; index < this.itemTimestamps.length; index++) {
+        var val = this.itemTimestamps[index]
+        if (val == this.currentTimestamp) return -1
+        if ( this.currentTimestamp <= (val + 2) && this.currentTimestamp >= (val - 2) )
+          return -1
+      }
+      return this.currentTimestamp
+    },
+    getItemTypeForNewItem() {
+      // hardcoded for now
+      return "question"
+    },
+    getMetadataForNewItem() {
+      // defaults to "default" right now
+      var metadata = {}
+      metadata['source'] = {}
+      metadata['source']['name'] = "default"
+      return metadata
+    },
+    getDetailsForNewItem() {
+      // barebones question structure
+      var details = {}
+      details['correct_answer'] = 0
+      details['text'] = ""
+      details['type'] = "mcq_single_answer"
+      details['options'] = ["", ""]
+      return details
+    },
+    addNewItem() {
+      // get all the data needed to create a new item
+      var newItem = {}
+      var newTimestamp = this.getTimestampForNewItem()
+      var newType = this.getItemTypeForNewItem()
+      var newMetadata = this.getMetadataForNewItem()
+      var newItemDetails = this.getDetailsForNewItem()
+
+      if(newTimestamp == -1){
+        this.showCannotAddItemDialog()
+        return
+      }
+
+      // create the newItem object
+      newItem['time'] = newTimestamp
+      newItem['type'] = newType
+      newItem['metadata'] = newMetadata
+      newItem['details'] = newItemDetails
+
+      // push it into items, update the itemTimestamps and currentItemIndex
+      this.items.push(newItem)
+      this.itemTimestamps = this.getItemTimestamps(this.items);
+      this.currentItemIndex = this.itemTimestamps.indexOf(this.currentTimestamp)
+    },
+    deleteItemButtonClicked() {
+      // invoked when the delete item button is clicked
+      // set dialog properties
+      this.dialogTitle = this.deleteItemDialogTitle;
+      this.dialogDescription = this.deleteItemDialogDescription;
+      this.dialogConfirmButtonConfig = {
+        enabled: true,
+        text: "Yes",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+      };
+      this.dialogCancelButtonConfig = {
+        enabled: true,
+        text: "No",
+        class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
+      };
+      // set the action to be carried out
+      this.dialogAction = "deleteItem"
+      // show the dialogue
+      this.showDialogBox = true;
+    },
+    deleteSelectedItem() {
+      // remove that item from the item list
+      // set currentItemIndex to null to hide the item editor
+      this.items.splice(this.currentItemIndex, 1)
+      this.currentItemIndex = null
+      this.showDialogBox = false;
+    }
   },
 };
 </script>

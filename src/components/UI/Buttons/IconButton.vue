@@ -1,7 +1,7 @@
 <template>
   <button
     type="button"
-    class="h-full flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold shadow-lg focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2"
+    class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold shadow-lg focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2"
     :class="buttonClass"
   >
     <div class="flex w-full justify-center">
@@ -46,7 +46,7 @@ export default {
       },
     },
     buttonClass: {
-      type: String,
+      type: [String, Object],
       default: () => {},
     },
   },

@@ -28,6 +28,7 @@
           class="flex items-center justify-between gap-4 w-full mt-2"
         >
           <button
+            v-if="isConfirmButtonEnabled"
             type="button"
             class="py-2 px-4 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg"
             :class="confirmButtonClass"
@@ -36,6 +37,7 @@
             {{ confirmButtonText }}
           </button>
           <button
+            v-if="isCancelButtonEnabled"
             type="button"
             class="py-2 px-4 w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg"
             :class="cancelButtonClass"
@@ -77,6 +79,7 @@ export default {
       // config for the confirmation button
       default: () => {
         return {
+          enabled: true,
           text: "Yes",
           class:
             "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
@@ -88,6 +91,7 @@ export default {
       // config for the cancel button
       default: () => {
         return {
+          enabled: true,
           text: "No",
           class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
         };
@@ -96,6 +100,12 @@ export default {
     },
   },
   computed: {
+    isConfirmButtonEnabled() {
+      return this.confirmButtonConfig.enabled
+    },
+    isCancelButtonEnabled() {
+      return this.cancelButtonConfig.enabled
+    },
     isButtonVisible() {
       // is either of the confirm or cancel buttons visible
       // the only way to hide each of those two buttons is by
