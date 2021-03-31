@@ -548,7 +548,7 @@ export default {
         this.videoId = plioDetails.video_id || "";
         this.videoURL = plioDetails.video_url || "";
         this.plioTitle = plioDetails.plio_title || "";
-        // this.status = plioDetails.status;
+        this.status = plioDetails.status;
         if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
           this.lastUpdated = new Date(plioDetails.updated_at);
         this.hasUnpublishedChanges = false;
