@@ -121,6 +121,7 @@
             @update:selectedItemIndex="navigateToItem"
             :videoDuration="videoDuration"
             @delete-selected-item="deleteItemButtonClicked"
+            @delete-option="deleteOption"
             :isPublished="isPublished"
           ></item-editor>
         </div>
@@ -136,6 +137,7 @@
       @confirm="dialogConfirmed"
       @cancel="dialogCancelled"
     ></dialog-box>
+    <toast class="mt-20" ref="toast"></toast>
   </div>
 </template>
 
@@ -157,6 +159,7 @@ import PlioService from "@/services/API/Plio.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
+import Toast from "@/components/UI/Alert/Toast";
 import { mapActions, mapState } from "vuex";
 
 // used for deep cloning objects
@@ -173,6 +176,7 @@ export default {
     IconButton,
     SimpleBadge,
     DialogBox,
+    Toast
   },
   props: {
     plioId: {
@@ -228,6 +232,8 @@ export default {
         // config for title of add item button
         value: "Add a question",
       },
+      // index of the option to be deleted; -1 means nothing to be deleted
+      optionIndexToDelete: -1,
     };
   },
   async created() {
@@ -282,6 +288,10 @@ export default {
   },
   computed: {
     ...mapState(["uploading"]),
+    correctOptionIndex() {
+      // get the index of the correct answer from options list
+      return this.items[this.currentItemIndex].details.correct_answer;
+    },
     isPublishButtonEnabled() {
       // whether the publish button is enabled
       if (!this.isPublished) return this.isVideoIdValid;
@@ -684,21 +694,13 @@ export default {
     },
     dialogConfirmed() {
       // invoked when the confirm button of the dialog box is clicked
-      // update the dialog properties
-      this.dialogConfirmButtonConfig = {
-        enabled: true,
-        class: "hidden",
-      };
-      this.dialogCancelButtonConfig = {
-        enabled: true,
-        class: "hidden",
-      };
-      this.dialogDescription = "";
+      this.showDialogBox = false
 
       // call separate methods depening on the dialog action that
       // was set
       if (this.dialogAction == "publish") this.confirmPublish();
       else if (this.dialogAction == "deleteItem") this.confirmDeleteItem();
+      else if (this.dialogAction == "deleteOption") this.configmDeleteOption();
       else if (this.dialogAction == "closeDialog") this.showDialogBox = false;
 
       // reset the dialog action value
@@ -707,6 +709,11 @@ export default {
     dialogCancelled() {
       // invoked when the cancel button of the dialog box is clicked
       this.showDialogBox = false;
+      if (this.dialogAction == "deleteOption") this.cancelDeleteOption();
+    },
+    cancelDeleteOption() {
+      // invoked when the cancel button of the dialog box for deleting option is clicked
+      this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
     showCannotAddItemDialog() {
       // set up the dialog properties when user tries to add an item
@@ -739,6 +746,26 @@ export default {
     confirmDeleteItem() {
       // delete the selected item after user confirms
       this.deleteSelectedItem();
+    },
+    configmDeleteOption() {
+      // invoked when the confirm button of the dialog box for deleting option is clicked
+      // there should always be at least 2 options, allow deletion only
+      // if the number of options is >= 3
+      if (this.items[this.currentItemIndex].details.options.length < 3) {
+        this.$refs.toast.show("error", "A question must have at least 2 options", 3000);
+        return;
+      }
+
+      // delete the option
+      this.items[this.currentItemIndex].details.options.splice(
+        this.optionIndexToDelete,
+        1
+      );
+      // if the deleted option was the correct answer, reset the correct answer
+      if (this.optionIndexToDelete == this.correctOptionIndex) {
+        this.items[this.currentItemIndex].details.correct_answer = 0;
+      }
+      this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
     getTimestampForNewItem() {
       // loop through itemTimestamps to check if the time where the user
@@ -829,6 +856,29 @@ export default {
       this.currentItemIndex = null;
       this.showDialogBox = false;
     },
+    deleteOption(optionIndex) {
+      // invoked when delete option button is clicked
+      // set dialog properties
+      this.dialogTitle = "Are you sure you want to delete this option?";
+      this.dialogDescription = "";
+      this.dialogConfirmButtonConfig = {
+        enabled: true,
+        text: "Yes",
+        class: `bg-primary-button hover:bg-primary-button-hover
+          focus:outline-none focus:ring-0`,
+      };
+      this.dialogCancelButtonConfig = {
+        enabled: true,
+        text: "No",
+        class: `bg-white hover:bg-gray-100 focus:outline-none
+          text-primary`,
+      };
+
+      // set the index to delete, set the dialog action, show the dialog
+      this.optionIndexToDelete = optionIndex;
+      this.dialogAction = "deleteOption";
+      this.showDialogBox = true;
+    }
   },
 };
 </script>
