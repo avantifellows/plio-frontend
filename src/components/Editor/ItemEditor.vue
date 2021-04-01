@@ -179,7 +179,7 @@ export default {
   methods: {
     removeSelectedItemIndex() {
       // resets the selectedItemIndex value to null
-      // doing this makes the itemEditor invisible and the "add question"
+      // doing this makes the itemEditor invisible and the add item
       // button shows up
       this.localSelectedItemIndex = null;
     },
