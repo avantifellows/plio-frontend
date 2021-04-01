@@ -461,7 +461,7 @@ export default {
     },
     videoLinkTooltip() {
       if (this.isPublished)
-        return "Changing the video URL in a published plio is not allowed"
+        return "You cannot edit the video URL in a published plio"
       return undefined
     }
   },
@@ -776,6 +776,7 @@ export default {
       return details
     },
     addNewItem() {
+      this.$refs.playerObj.player.pause();
       // get all the data needed to create a new item
       var newItem = {}
       var newTimestamp = this.getTimestampForNewItem()

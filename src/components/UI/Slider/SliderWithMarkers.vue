@@ -41,6 +41,11 @@ export default {
     };
   },
   created() {
+    // set marker color to orange if plio is published else set it to
+    // default
+    if(this.isDragDisabled) this.setMarkerColor('#F78000')
+    else this.setMarkerColor('#10b981')
+
     this.$nextTick(() => {
       this.setScreenProperties();
       window.addEventListener("resize", this.handleScreenSizeChange);
@@ -81,6 +86,10 @@ export default {
     }
   },
   methods: {
+    setMarkerColor(hexCode) {
+      let root = document.documentElement;
+      root.style.setProperty('--marker-color', hexCode)
+    },
     handleScreenSizeChange() {
       // invoked when the screen size is changing
       this.setScreenProperties();
@@ -237,6 +246,10 @@ export default {
 </script>
 
 <style lang="postcss" scoped>
+:root {
+  --marker-color: '#10b981';
+}
+
 .slider {
   @apply appearance-none h-2 cursor-pointer bg-gray-300 focus:outline-none;
 }
@@ -248,7 +261,7 @@ export default {
   @apply appearance-none w-6 h-6 rounded-full bg-red-500 mt-8;
 }
 .marker-slider-thumb-inactive::-webkit-slider-thumb {
-  @apply bg-green-500;
+  background-color: var(--marker-color);
 }
 .marker-slider-thumb-inactive::-moz-slider-thumb {
   @apply bg-green-500;

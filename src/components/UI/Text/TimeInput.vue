@@ -117,7 +117,6 @@ export default {
 
       invalidInputWarning: "Invalid time value",
       timeExceedsWarning: "The time entered exceeds the video duration",
-      disabledInputTooltip: "Cannot edit time in a published plio"
     }
   },
   components: {
@@ -193,6 +192,11 @@ export default {
     }
   },
   computed: {
+    disabledInputTooltip() {
+      if (this.isDisabled)
+        return "You cannot edit time in a published plio"
+      return undefined
+    },
     isAnyInputInvalid() {
       // is any input invalid
       return (
