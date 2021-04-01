@@ -1,5 +1,7 @@
 <template>
-  <div class="border border-2 shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-800 w-64 m-auto">
+  <div
+    class="border border-2 shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-800 w-64 m-auto"
+  >
     <div class="w-full h-full text-center">
       <div class="flex h-full flex-col justify-between">
         <!-- icon -->
@@ -101,10 +103,12 @@ export default {
   },
   computed: {
     isConfirmButtonEnabled() {
-      return this.confirmButtonConfig.enabled
+      // to show the confirm button or not
+      return this.confirmButtonConfig.enabled;
     },
     isCancelButtonEnabled() {
-      return this.cancelButtonConfig.enabled
+      // to show the cancel button or not
+      return this.cancelButtonConfig.enabled;
     },
     isButtonVisible() {
       // is either of the confirm or cancel buttons visible

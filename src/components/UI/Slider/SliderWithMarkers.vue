@@ -43,8 +43,8 @@ export default {
   created() {
     // set marker color to orange if plio is published else set it to
     // default
-    if(this.isDragDisabled) this.setMarkerColor('#F78000')
-    else this.setMarkerColor('#10b981')
+    if (this.isDragDisabled) this.setMarkerColor("#F78000");
+    else this.setMarkerColor("#10b981");
 
     this.$nextTick(() => {
       this.setScreenProperties();
@@ -81,14 +81,17 @@ export default {
       type: Boolean,
     },
     isDragDisabled: {
+      // whether to make the markers non draggable or not
       default: false,
-      type: Boolean
-    }
+      type: Boolean,
+    },
   },
   methods: {
     setMarkerColor(hexCode) {
+      // sets the incoming hexcode as the
+      // color of the slider thumb(marker)
       let root = document.documentElement;
-      root.style.setProperty('--marker-color', hexCode)
+      root.style.setProperty("--marker-color", hexCode);
     },
     handleScreenSizeChange() {
       // invoked when the screen size is changing
@@ -126,8 +129,7 @@ export default {
     },
     markerSliderSelected(markerIndex) {
       // invoked when a marker has been selected
-      if (!this.isDragDisabled)
-        this.activeMarkerIndex = markerIndex;
+      if (!this.isDragDisabled) this.activeMarkerIndex = markerIndex;
     },
     markerSliderChangeOver(markerIndex) {
       // invoked when the marker slider value change is done
@@ -247,7 +249,7 @@ export default {
 
 <style lang="postcss" scoped>
 :root {
-  --marker-color: '#10b981';
+  --marker-color: "#10b981";
 }
 
 .slider {

@@ -1,6 +1,9 @@
 <template>
   <!-- big box -->
-  <div v-if="localSelectedItemIndex != null" class="flex flex-col w-full h-full rounded-md main-container">
+  <div
+    v-if="localSelectedItemIndex != null"
+    class="flex flex-col w-full h-full rounded-md main-container"
+  >
     <!-- nav bar -->
     <div class="flex gap-1 flex-row w-full p-4 nav-bar justify-end">
       <div class="mr-auto flex content-center">
@@ -47,8 +50,8 @@
         class="rounded-xl bg-delete-button w-8 h-8"
         :iconConfig="deleteItemIconConfig"
         @click="deleteSelectedItem"
-        v-tooltip.top="deleteItemButtonTooltip"
-        :class="deleteItemButtonClass"
+        v-tooltip.left="deleteItemButtonTooltip"
+        :buttonClass="deleteItemButtonClass"
         :disabled="isPublished"
       ></icon-button>
     </div>
@@ -99,57 +102,70 @@ import Textarea from "@/components/UI/Text/Textarea.vue";
 export default {
   name: "ItemEditor",
 
-
   data() {
     return {
       previousItemIconConfig: {
+        // icon config for previous item button
         enabled: true,
         iconName: "chevron-left-solid",
         iconClass: "text-white h-5 w-5",
       },
+      // styling classes for previous item button
       previousItemButtonClass: "bg-primary-button hover:bg-primary-button-hover",
       nextItemIconConfig: {
+        // icon config for next item button
         enabled: true,
         iconName: "chevron-right-solid",
         iconClass: "text-white h-5 w-5",
       },
+      // styling classes for next item button
       nextItemButtonClass: "bg-primary-button hover:bg-primary-button-hover",
       addItemIconConfig: {
+        // icon config for add item button
         enabled: true,
         iconName: "plus-solid",
         iconClass: "text-white h-5 w-5",
       },
+      // styling classes for add item button
       addItemButtonClass: [
         "bg-primary-button hover:bg-primary-button-hover disabled:opacity-40",
-        { 'cursor-not-allowed': this.isPublished }
+        { "cursor-not-allowed": this.isPublished },
       ],
       deleteItemIconConfig: {
+        // icon config for delete item button
         enabled: true,
         iconName: "delete",
         iconClass: "text-white",
       },
-      deleteItemButtonClass: this.isPublished ? "disabled:opacity-40 cursor-not-allowed" : undefined,
-      timeExceedsVideoDuration: false
+      // styling classes for delete item button
+      deleteItemButtonClass: this.isPublished
+        ? "disabled:opacity-40 cursor-not-allowed"
+        : undefined,
+      timeExceedsVideoDuration: false, //stores if the time entered by the user exceeds the total video duration
     };
   },
 
   props: {
     itemList: {
+      // list of items
       default: () => [],
       type: Array,
     },
     selectedItemIndex: {
+      // index of the selected item
       default: 0,
-      type: Number
+      type: Number,
     },
     videoDuration: {
+      // total video duration in seconds
       default: 0,
-      type: Number
+      type: Number,
     },
     isPublished: {
+      // whether the plio has been published or not
       default: false,
-      type: Boolean
-    }
+      type: Boolean,
+    },
   },
 
   components: {
@@ -157,28 +173,31 @@ export default {
     IconButton,
     InputText,
     TimeInput,
-    Textarea
+    Textarea,
   },
 
   methods: {
     removeSelectedItemIndex() {
-      this.localSelectedItemIndex = null
+      // resets the selectedItemIndex value to null
+      // doing this makes the itemEditor invisible and the "add question"
+      // button shows up
+      this.localSelectedItemIndex = null;
     },
     getOptionSideIconConfig(optionNumber) {
       return {
         enabled: true,
-        name: 'check-circle-regular',
+        name: "check-circle-regular",
         class: [
-          { 'text-green-500': optionNumber == this.correctOptionIndex },
-          'cursor-pointer'
-        ]
-      }
+          { "text-green-500": optionNumber == this.correctOptionIndex },
+          "cursor-pointer",
+        ],
+      };
     },
     getOptionBoxStyling(optionNumber) {
       return {
-        'border-green-500': optionNumber == this.correctOptionIndex,
-        'border-4': optionNumber == this.correctOptionIndex
-      }
+        "border-green-500": optionNumber == this.correctOptionIndex,
+        "border-4": optionNumber == this.correctOptionIndex,
+      };
     },
     capitalizeFirstLetter(str) {
       return str.charAt(0).toUpperCase() + str.slice(1);
@@ -229,21 +248,30 @@ export default {
       ].details.correct_answer = optionNumber;
     },
     deleteSelectedItem() {
-      this.$emit("delete-selected-item")
-    }
+      this.$emit("delete-selected-item");
+    },
   },
 
   computed: {
     deleteItemButtonTooltip() {
       // tooltip text for delete item button
-      if (this.isPublished)
-        return "Not allowed when a plio is published"
-      return "Delete this item"
+      // itemType is just "question" right now - parametrize when more types are supported
+
+      // TODO: uncomment below code when a non-buggy tooltip is implemented
+
+      // var itemType = "question"
+      // if (this.isPublished)
+      //   return `You cannot delete a ${itemType} once the plio is published`
+      // return "Delete this ${itemType}"
+      return undefined;
     },
     addItemButtonTooltip() {
+      // tooltip for the smaller add item button
+      // itemType is just "question" right now - parametrize when more types are supported
+      var itemType = "question";
       if (this.isPublished)
-        return "Not allowed when a plio is published"
-      return "Add a question"
+        return `You cannot add a new ${itemType} once the plio is published`;
+      return `Add a ${itemType}`;
     },
     localItemList: {
       // a local copy of the item list
@@ -256,11 +284,11 @@ export default {
     },
     localSelectedItemIndex: {
       get() {
-        return this.selectedItemIndex
+        return this.selectedItemIndex;
       },
       set(localSelectedItemIndex) {
-        this.$emit("update:selectedItemIndex", localSelectedItemIndex)
-      }
+        this.$emit("update:selectedItemIndex", localSelectedItemIndex);
+      },
     },
     itemOptionsList() {
       // preparing an options list to pass to the dropdown
@@ -308,15 +336,14 @@ export default {
       },
       set(value) {
         // convert timeObject to seconds
-          var timeInSeconds = this.convertISOTimeToSeconds(value);
-          if (timeInSeconds > this.videoDuration) {
-            this.timeExceedsVideoDuration = true
-          }
-          else {
-            this.timeExceedsVideoDuration = false
-            this.localItemList[this.localSelectedItemIndex].time = timeInSeconds || 0;
-          }
+        var timeInSeconds = this.convertISOTimeToSeconds(value);
+        if (timeInSeconds > this.videoDuration) {
+          this.timeExceedsVideoDuration = true;
+        } else {
+          this.timeExceedsVideoDuration = false;
+          this.localItemList[this.localSelectedItemIndex].time = timeInSeconds || 0;
         }
+      },
     },
     options: {
       // computed array of options
