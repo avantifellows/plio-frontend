@@ -15,6 +15,8 @@
         class="w-12"
         :maxLength="2"
         :boxStyling="[ defaultBoxClass, hourInputInvalidClass ]"
+        :isDisabled="isDisabled"
+        v-tooltip.bottom="disabledInputTooltip"
       ></input-text>
 
       <p class="self-center" v-if="localConfig.showHour && localConfig.showMinute">:</p>
@@ -27,6 +29,8 @@
         class="w-12"
         :maxLength="2"
         :boxStyling="[ defaultBoxClass, minuteInputInvalidClass ]"
+        :isDisabled="isDisabled"
+        v-tooltip.bottom="disabledInputTooltip"
       ></input-text>
 
       <p class="self-center" v-if="localConfig.showMinute && localConfig.showSecond">:</p>
@@ -39,6 +43,8 @@
         class="w-12"
         :maxLength="2"
         :boxStyling="[ defaultBoxClass, secondInputInvalidClass ]"
+        :isDisabled="isDisabled"
+        v-tooltip.bottom="disabledInputTooltip"
       ></input-text>
 
       <p class="self-center" v-if="localConfig.showSecond && localConfig.showMillisecond">:</p>
@@ -51,6 +57,8 @@
         class="w-16"
         :maxLength="3"
         :boxStyling="[ defaultBoxClass, millisecondInputInvalidClass ]"
+        :isDisabled="isDisabled"
+        v-tooltip.bottom="disabledInputTooltip"
       ></input-text>
 
     </div>
@@ -109,6 +117,7 @@ export default {
 
       invalidInputWarning: "Invalid time value",
       timeExceedsWarning: "The time entered exceeds the video duration",
+      disabledInputTooltip: "Cannot edit time in a published plio"
     }
   },
   components: {
@@ -141,6 +150,10 @@ export default {
       type: Object,
     },
     timeValid: {
+      default: false,
+      type: Boolean
+    },
+    isDisabled: {
       default: false,
       type: Boolean
     }
@@ -191,7 +204,10 @@ export default {
     },
     defaultBoxClass() {
       // centering the text specifically for time boxes
-      return 'text-center'
+      return [
+        'text-center disabled:opacity-50',
+        { 'cursor-not-allowed': this.isDisabled }
+      ]
     },
     invalidInputStyle() {
       // show a red border if input is invalid

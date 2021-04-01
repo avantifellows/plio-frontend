@@ -75,6 +75,10 @@ export default {
       default: true,
       type: Boolean,
     },
+    isDragDisabled: {
+      default: false,
+      type: Boolean
+    }
   },
   methods: {
     handleScreenSizeChange() {
@@ -113,7 +117,8 @@ export default {
     },
     markerSliderSelected(markerIndex) {
       // invoked when a marker has been selected
-      this.activeMarkerIndex = markerIndex;
+      if (!this.isDragDisabled)
+        this.activeMarkerIndex = markerIndex;
     },
     markerSliderChangeOver(markerIndex) {
       // invoked when the marker slider value change is done
@@ -218,9 +223,6 @@ export default {
       });
 
       return styles;
-    },
-    markerIcon() {
-      return require("@/assets/images/thumbtack-solid.svg");
     },
   },
   emits: [

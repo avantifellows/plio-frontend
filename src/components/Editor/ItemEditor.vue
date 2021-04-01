@@ -37,6 +37,9 @@
         class="rounded-xl w-8 h-8"
         :iconConfig="addItemIconConfig"
         :buttonClass="addItemButtonClass"
+        @click="removeSelectedItemIndex"
+        v-tooltip.top="addItemButtonTooltip"
+        :disabled="isPublished"
       ></icon-button>
 
       <!-- delete item button -->
@@ -44,14 +47,14 @@
         class="rounded-xl bg-delete-button w-8 h-8"
         :iconConfig="deleteItemIconConfig"
         @click="deleteSelectedItem"
-        v-tooltip="deleteItemButtonTooltip"
+        v-tooltip.top="deleteItemButtonTooltip"
         :class="deleteItemButtonClass"
         :disabled="isPublished"
       ></icon-button>
     </div>
 
     <!-- item editor -->
-    <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 item-editor-box">
+    <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
       <!-- question input box : expandable -->
       <Textarea
         :placeholder="'Enter the question text here'"
@@ -68,6 +71,7 @@
         class="p-2"
         v-model:timeObject="timeObject"
         :timeValid="timeExceedsVideoDuration"
+        :isDisabled="isPublished"
       ></time-input>
 
       <input-text
@@ -79,7 +83,7 @@
         :key="optionNumber"
         :sideIcon="getOptionSideIconConfig(optionNumber)"
         :boxStyling="getOptionBoxStyling(optionNumber)"
-        @box-selected="updateCorrectOption"
+        @box-selected="updateCorrectOption(optionNumber)"
       ></input-text>
     </div>
   </div>
@@ -101,25 +105,28 @@ export default {
       previousItemIconConfig: {
         enabled: true,
         iconName: "chevron-left-solid",
-        iconClass: "text-white h-5 w-2.5",
+        iconClass: "text-white h-5 w-5",
       },
       previousItemButtonClass: "bg-primary-button hover:bg-primary-button-hover",
       nextItemIconConfig: {
         enabled: true,
         iconName: "chevron-right-solid",
-        iconClass: "text-white h-5 w-2.5",
+        iconClass: "text-white h-5 w-5",
       },
       nextItemButtonClass: "bg-primary-button hover:bg-primary-button-hover",
       addItemIconConfig: {
         enabled: true,
         iconName: "plus-solid",
-        iconClass: "text-white h-5 w-2.5",
+        iconClass: "text-white h-5 w-5",
       },
-      addItemButtonClass: "bg-primary-button hover:bg-primary-button-hover",
+      addItemButtonClass: [
+        "bg-primary-button hover:bg-primary-button-hover disabled:opacity-40",
+        { 'cursor-not-allowed': this.isPublished }
+      ],
       deleteItemIconConfig: {
         enabled: true,
         iconName: "delete",
-        iconClass: "text-white h-5 w-2.5",
+        iconClass: "text-white",
       },
       deleteItemButtonClass: this.isPublished ? "disabled:opacity-40 cursor-not-allowed" : undefined,
       timeExceedsVideoDuration: false
@@ -154,6 +161,9 @@ export default {
   },
 
   methods: {
+    removeSelectedItemIndex() {
+      this.localSelectedItemIndex = null
+    },
     getOptionSideIconConfig(optionNumber) {
       return {
         enabled: true,
@@ -211,13 +221,12 @@ export default {
       var millisecond = parseInt(timeInISO.millisecond) || 0;
       return hour * 3600 + minute * 60 + second + millisecond / 1000;
     },
-    updateCorrectOption(option) {
+    updateCorrectOption(optionNumber) {
       // when some option is selected as correct, update it in the
       // item list
-      var indexOfSelectedOption = this.options.indexOf(option);
       this.localItemList[
         this.localSelectedItemIndex
-      ].details.correct_answer = indexOfSelectedOption;
+      ].details.correct_answer = optionNumber;
     },
     deleteSelectedItem() {
       this.$emit("delete-selected-item")
@@ -230,6 +239,11 @@ export default {
       if (this.isPublished)
         return "Not allowed when a plio is published"
       return "Delete this item"
+    },
+    addItemButtonTooltip() {
+      if (this.isPublished)
+        return "Not allowed when a plio is published"
+      return "Add a question"
     },
     localItemList: {
       // a local copy of the item list

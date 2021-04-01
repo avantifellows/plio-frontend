@@ -3,7 +3,7 @@
   <div class="flex relative justify-center">
     <div
       class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
-      :class="{ 'opacity-50 pointer-events-none': blurMainScreen }"
+      :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
     >
       <!--- preview grid -->
       <div class="flex flex-col ml-5 mr-5">
@@ -38,6 +38,7 @@
               @marker-drag-end="itemMarkerTimestampDragEnd"
               @update="sliderUpdated"
               ref="slider"
+              :isDragDisabled="isPublished"
             ></slider-with-markers>
           </div>
         </div>
@@ -62,8 +63,8 @@
       </div>
 
       <!--- input grid -->
-      <div class="grid grid-rows-6 grid-cols-1 m-5 justify-start">
-        <div class="row-start-1 row-span-1 grid gap-y-4">
+      <div class="flex flex-col m-5 justify-start">
+        <div class="grid gap-y-4">
           <div class="flex w-full justify-between">
             <!--- publish/draft badge -->
             <simple-badge
@@ -84,7 +85,9 @@
             :validation="videoInputValidation"
             v-model:value="videoURL"
             ref="videoLink"
-            :boxStyling="'pl-4'"
+            :boxStyling="videoLinkInputStyling"
+            :isDisabled="isPublished"
+            v-tooltip.top="videoLinkTooltip"
           ></input-text>
 
           <!--- plio title -->
@@ -95,15 +98,9 @@
             ref="title"
             :boxStyling="'pl-4'"
           ></input-text>
-
-          <div>
-            <p>current time: {{ currentTimestamp }}</p>
-            <p>item index: {{ currentItemIndex }}</p>
-            <p>video length: {{ videoDuration }}</p>
-          </div>
         </div>
 
-        <div class="flex justify-center row-start-2 row-span-3 py-2">
+        <div class="flex justify-center py-2 mt-10">
           <!-- big add item button -->
           <div class="flex-initial" v-if="currentItemIndex == null" >
             <icon-button
@@ -112,6 +109,7 @@
               :buttonClass="addItemButtonClass"
               @click="addNewItem"
               :disabled="isPublished"
+              v-tooltip="addItemTooltip"
             ></icon-button>
           </div>
 
@@ -445,10 +443,26 @@ export default {
       var classObject = [
         { 'cursor-not-allowed': this.isPublished },
 
-        `rounded-md font-bold p-5 h-12 bg-primary-button
+        `rounded-md font-bold p-5 h-12 w-96 bg-primary-button
         hover:bg-primary-button-hover disabled:opacity-50`
       ]
       return classObject
+    },
+    addItemTooltip() {
+      if (this.isPublished)
+        return "Adding new questions in a published plio is not allowed"
+      return "Click here to add a question"
+    },
+    videoLinkInputStyling() {
+      return [
+        'pl-4 disabled:opacity-50',
+        { 'cursor-not-allowed' : this.isPublished }
+      ]
+    },
+    videoLinkTooltip() {
+      if (this.isPublished)
+        return "Changing the video URL in a published plio is not allowed"
+      return undefined
     }
   },
   methods: {
@@ -462,6 +476,8 @@ export default {
       return string.charAt(0).toUpperCase() + string.slice(1);
     },
     navigateToItem(itemIndex) {
+      if (itemIndex == null) return
+
       var selectedTimestamp = this.items[itemIndex].time;
       if (selectedTimestamp != null) {
         this.currentTimestamp = selectedTimestamp;
@@ -697,8 +713,8 @@ export default {
     showCannotAddItemDialog() {
       // set up the dialog properties when user tries to add an item
       // at an invalid time
-      this.dialogTitle = "Cannot add a new item here";
-      this.dialogDescription = "An item already exists nearby. Please use the marker to choose a different time";
+      this.dialogTitle = "Cannot add a new question here";
+      this.dialogDescription = "Questions should be at least 2 seconds apart. Please choose a different time for the question";
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: "Got it!",
@@ -782,6 +798,7 @@ export default {
       this.items.push(newItem)
       this.itemTimestamps = this.getItemTimestamps(this.items);
       this.currentItemIndex = this.itemTimestamps.indexOf(this.currentTimestamp)
+      this.markItemSelected(this.currentItemIndex);
     },
     deleteItemButtonClicked() {
       // invoked when the delete item button is clicked

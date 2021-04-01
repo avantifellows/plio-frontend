@@ -1,5 +1,5 @@
 <template>
-  <div class="shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-800 w-64 m-auto">
+  <div class="border border-2 shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-800 w-64 m-auto">
     <div class="w-full h-full text-center">
       <div class="flex h-full flex-col justify-between">
         <!-- icon -->
@@ -18,7 +18,7 @@
         </p>
         <!-- description -->
         <p
-          class="text-gray-600 dark:text-gray-400 text-xs py-2 px-6"
+          class="text-gray-600 dark:text-gray-400 text-sm py-2 px-6"
           v-if="showDescription"
         >
           {{ description }}

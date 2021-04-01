@@ -25,7 +25,7 @@
       <!-- left icon -->
       <div
         v-if="isSideIconEnabled"
-        class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center text-xl w-5 inset-y-1/4 left-1.5"
+        class="absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center text-xl w-5 inset-y-1/4 left-1.5"
         @click="selectThisBox"
         :class="sideIconClass"
       >
@@ -42,6 +42,7 @@
         @input="inputChange"
         :class="[inputAreaClass, boxStyling]"
         :maxLength="maxLength"
+        :disabled="isDisabled"
       />
     </div>
   </div>
@@ -94,6 +95,10 @@ export default {
     maxLength: {
       default: null,
       type: Number
+    },
+    isDisabled: {
+      default: false,
+      type: Boolean
     }
   },
   computed: {
