@@ -90,7 +90,7 @@ export default {
           name: "check",
           class: "w-10 h-10",
           tooltip: "",
-          isDisabled: false
+          isDisabled: false,
         };
       },
       type: Object,
@@ -104,7 +104,7 @@ export default {
           name: "delete",
           class: "w-10 h-10 bg-red-500",
           tooltip: "",
-          isDisabled: false
+          isDisabled: false,
         };
       },
       type: Object,
@@ -123,26 +123,24 @@ export default {
     maxLength: {
       // maximum allowed character length of input
       default: null,
-      type: Number
+      type: Number,
     },
     isDisabled: {
       // whether the input text is disabled or not
       default: false,
-      type: Boolean
-    }
+      type: Boolean,
+    },
   },
   computed: {
     isEndIconDisabled() {
       // is end icon disabled or not
-      if (this.endIcon.isDisabled != null)
-        return this.endIcon.isDisabled
-      return false
+      if (this.endIcon.isDisabled != null) return this.endIcon.isDisabled;
+      return false;
     },
     isStartIconDisabled() {
       // is start icon disabled or not
-      if (this.startIcon.isDisabled != null)
-        return this.startIcon.isDisabled
-      return false
+      if (this.startIcon.isDisabled != null) return this.startIcon.isDisabled;
+      return false;
     },
     localValue: {
       // local copy of the value prop
@@ -191,8 +189,8 @@ export default {
       // gets the start icon name from the prop
       return [
         this.startIcon.class,
-        { 'cursor-not-allowed pointer-events-none opacity-50' : this.isEndIconDisabled }
-      ]
+        { "cursor-not-allowed pointer-events-none opacity-50": this.isEndIconDisabled },
+      ];
     },
     startIconTooltip() {
       // returns the tooltip text for the side icon
@@ -219,8 +217,8 @@ export default {
       // gets the end icon name from the prop
       return [
         this.endIcon.class,
-        { 'cursor-not-allowed pointer-events-none opacity-50' : this.isEndIconDisabled }
-      ]
+        { "cursor-not-allowed pointer-events-none opacity-50": this.isEndIconDisabled },
+      ];
     },
     endIconTooltip() {
       // returns the tooltip text for the end icon

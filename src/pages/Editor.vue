@@ -176,7 +176,7 @@ export default {
     IconButton,
     SimpleBadge,
     DialogBox,
-    Toast
+    Toast,
   },
   props: {
     plioId: {
@@ -694,7 +694,7 @@ export default {
     },
     dialogConfirmed() {
       // invoked when the confirm button of the dialog box is clicked
-      this.showDialogBox = false
+      this.showDialogBox = false;
 
       // call separate methods depening on the dialog action that
       // was set
@@ -878,7 +878,7 @@ export default {
       this.optionIndexToDelete = optionIndex;
       this.dialogAction = "deleteOption";
       this.showDialogBox = true;
-    }
+    },
   },
 };
 </script>

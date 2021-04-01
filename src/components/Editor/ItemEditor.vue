@@ -1,107 +1,110 @@
 <template>
   <!-- big box -->
-    <div class="flex flex-col w-full h-full rounded-md main-container" v-if="localSelectedItemIndex != null">
-      <div class="flex gap-1 flex-row w-full p-4 nav-bar justify-end">
-        <!-- nav bar -->
-        <div class="mr-auto flex content-center">
-          <p class="self-center editor-title">
-            EDIT {{ localItemList[localSelectedItemIndex].type.toUpperCase() }}
-          </p>
-        </div>
+  <div
+    class="flex flex-col w-full h-full rounded-md main-container"
+    v-if="localSelectedItemIndex != null"
+  >
+    <div class="flex gap-1 flex-row w-full p-4 nav-bar justify-end">
+      <!-- nav bar -->
+      <div class="mr-auto flex content-center">
+        <p class="self-center editor-title">
+          EDIT {{ localItemList[localSelectedItemIndex].type.toUpperCase() }}
+        </p>
+      </div>
 
-        <!-- dropdown for choosing items -->
-        <ItemDropDown
-          :optionsList="itemOptionsList"
-          v-model:selectedItemIndex="localSelectedItemIndex"
-        ></ItemDropDown>
+      <!-- dropdown for choosing items -->
+      <ItemDropDown
+        :optionsList="itemOptionsList"
+        v-model:selectedItemIndex="localSelectedItemIndex"
+      ></ItemDropDown>
 
-        <!-- previous item button -->
+      <!-- previous item button -->
+      <icon-button
+        class="rounded-tl-xl rounded-bl-xl w-8 h-8 disabled:opacity-50"
+        :iconConfig="previousItemIconConfig"
+        @click="updateSelectedItemIndex(localSelectedItemIndex - 1)"
+        :buttonClass="previousItemButtonClass"
+        :disabled="isFirstItem"
+        v-tooltip.top="'Move to previous question'"
+      ></icon-button>
+
+      <!-- next item button -->
+      <icon-button
+        class="rounded-tr-xl rounded-br-xl w-8 h-8 disabled:opacity-50"
+        :iconConfig="nextItemIconConfig"
+        @click="updateSelectedItemIndex(localSelectedItemIndex + 1)"
+        :buttonClass="nextItemButtonClass"
+        :disabled="isLastItem"
+        v-tooltip.top="'Move to next question'"
+      ></icon-button>
+
+      <!-- add item button -->
+      <icon-button
+        class="rounded-xl w-8 h-8"
+        :iconConfig="addItemIconConfig"
+        :buttonClass="addItemButtonClass"
+        @click="removeSelectedItemIndex"
+        v-tooltip.top="addItemButtonTooltip"
+        :disabled="isPublished"
+      ></icon-button>
+
+      <!-- delete item button -->
+      <icon-button
+        class="rounded-xl bg-delete-button w-8 h-8"
+        :iconConfig="deleteItemIconConfig"
+        @click="deleteSelectedItem"
+        v-tooltip.left="deleteItemButtonTooltip"
+        :buttonClass="deleteItemButtonClass"
+        :disabled="isPublished"
+      ></icon-button>
+    </div>
+
+    <!-- item editor -->
+    <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
+      <!-- question input box : expandable -->
+      <Textarea
+        :placeholder="'Enter the question text here'"
+        :title="'Question'"
+        v-model:value="questionText"
+        ref="questionText"
+        class="p-2"
+        :boxStyling="'pl-4'"
+      ></Textarea>
+
+      <!-- time input HH : MM : SS : mmm -->
+      <time-input
+        :title="'Time for the question to appear'"
+        class="p-2"
+        v-model:timeObject="timeObject"
+        :timeValid="timeExceedsVideoDuration"
+        :isDisabled="isPublished"
+      ></time-input>
+
+      <!-- input field for entering options  -->
+      <input-text
+        v-for="(option, optionIndex) in options"
+        :placeholder="'Enter Option'"
+        :title="'Option ' + (optionIndex + 1)"
+        class="p-2"
+        v-model:value="options[optionIndex]"
+        :key="optionIndex"
+        :startIcon="getCorrectOptionIconConfig(optionIndex)"
+        :endIcon="getDeleteOptionIconConfig"
+        :boxStyling="getOptionBoxStyling(optionIndex)"
+        @start-icon-selected="updateCorrectOption(optionIndex)"
+        @end-icon-selected="deleteOption(optionIndex)"
+      ></input-text>
+      <!-- add option button -->
+      <div class="flex justify-end mr-2 mt-2" v-tooltip.bottom="addOptionTooltip">
         <icon-button
-          class="rounded-tl-xl rounded-bl-xl w-8 h-8 disabled:opacity-50"
-          :iconConfig="previousItemIconConfig"
-          @click="updateSelectedItemIndex(localSelectedItemIndex - 1)"
-          :buttonClass="previousItemButtonClass"
-          :disabled="isFirstItem"
-          v-tooltip.top="'Move to previous question'"
-        ></icon-button>
-
-        <!-- next item button -->
-        <icon-button
-          class="rounded-tr-xl rounded-br-xl w-8 h-8 disabled:opacity-50"
-          :iconConfig="nextItemIconConfig"
-          @click="updateSelectedItemIndex(localSelectedItemIndex + 1)"
-          :buttonClass="nextItemButtonClass"
-          :disabled="isLastItem"
-          v-tooltip.top="'Move to next question'"
-        ></icon-button>
-
-        <!-- add item button -->
-        <icon-button
-          class="rounded-xl w-8 h-8"
-          :iconConfig="addItemIconConfig"
-          :buttonClass="addItemButtonClass"
-          @click="removeSelectedItemIndex"
-          v-tooltip.top="addItemButtonTooltip"
-          :disabled="isPublished"
-        ></icon-button>
-
-        <!-- delete item button -->
-        <icon-button
-          class="rounded-xl bg-delete-button w-8 h-8"
-          :iconConfig="deleteItemIconConfig"
-          @click="deleteSelectedItem"
-          v-tooltip.left="deleteItemButtonTooltip"
-          :buttonClass="deleteItemButtonClass"
+          :titleConfig="addOptionButtonTitleConfig"
+          class="float-right"
+          @click="addOption"
+          :buttonClass="addOptionButtonClass"
           :disabled="isPublished"
         ></icon-button>
       </div>
-
-      <!-- item editor -->
-      <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
-        <!-- question input box : expandable -->
-        <Textarea
-          :placeholder="'Enter the question text here'"
-          :title="'Question'"
-          v-model:value="questionText"
-          ref="questionText"
-          class="p-2"
-          :boxStyling="'pl-4'"
-        ></Textarea>
-
-        <!-- time input HH : MM : SS : mmm -->
-        <time-input
-          :title="'Time for the question to appear'"
-          class="p-2"
-          v-model:timeObject="timeObject"
-          :timeValid="timeExceedsVideoDuration"
-          :isDisabled="isPublished"
-        ></time-input>
-
-        <!-- input field for entering options  -->
-        <input-text
-          v-for="(option, optionIndex) in options"
-          :placeholder="'Enter Option'"
-          :title="'Option ' + (optionIndex + 1)"
-          class="p-2"
-          v-model:value="options[optionIndex]"
-          :key="optionIndex"
-          :startIcon="getCorrectOptionIconConfig(optionIndex)"
-          :endIcon="getDeleteOptionIconConfig"
-          :boxStyling="getOptionBoxStyling(optionIndex)"
-          @start-icon-selected="updateCorrectOption(optionIndex)"
-          @end-icon-selected="deleteOption(optionIndex)"
-        ></input-text>
-        <!-- add option button -->
-        <div class="flex justify-end mr-2 mt-2" v-tooltip.bottom="addOptionTooltip">
-          <icon-button
-            :titleConfig="addOptionButtonTitleConfig"
-            class="float-right"
-            @click="addOption"
-            :buttonClass="addOptionButtonClass"
-            :disabled="isPublished"
-          ></icon-button>
-        </div>
-      </div>
+    </div>
     <toast ref="toast"></toast>
   </div>
 </template>
@@ -150,7 +153,7 @@ export default {
       addOptionButtonClass: [
         `rounded-md font-bold p-5 h-2 w-auto bg-primary-button
         hover:bg-primary-button-hover disabled:opacity-50`,
-        { "cursor-not-allowed": this.isPublished }
+        { "cursor-not-allowed": this.isPublished },
       ],
       deleteItemIconConfig: {
         // icon config for delete item button
@@ -229,7 +232,7 @@ export default {
     deleteOption(optionIndex) {
       // emit a request for option deletion, pass the optionIndex
       // as a payload -- will be listened to by Editor.vue
-      this.$emit("delete-option", optionIndex)
+      this.$emit("delete-option", optionIndex);
     },
     getCorrectOptionTooltip(optionIndex) {
       // returns the tooltip for the correct option button for the given option index
@@ -308,9 +311,8 @@ export default {
   computed: {
     addOptionTooltip() {
       // tooltip for add option button
-      if (this.isPublished)
-        return "You cannot add an option once the plio is published"
-      return "Add an option"
+      if (this.isPublished) return "You cannot add an option once the plio is published";
+      return "Add an option";
     },
     deleteItemButtonTooltip() {
       // tooltip text for delete item button
@@ -345,10 +347,10 @@ export default {
         enabled: true,
         name: "delete",
         class: "bg-red-500 cursor-pointer w-8 h-8 hover:bg-red-700 rounded-md",
-        tooltip: this.isPublished ?
-          "Cannot delete option once the plio is published" :
-          "Delete this option",
-        isDisabled: this.isPublished ? true : false
+        tooltip: this.isPublished
+          ? "Cannot delete option once the plio is published"
+          : "Delete this option",
+        isDisabled: this.isPublished ? true : false,
       };
     },
     localItemList: {
@@ -439,7 +441,12 @@ export default {
     },
   },
 
-  emits: ["update:itemList", "update:selectedItemIndex", "delete-selected-item", "delete-option"],
+  emits: [
+    "update:itemList",
+    "update:selectedItemIndex",
+    "delete-selected-item",
+    "delete-option",
+  ],
 };
 </script>
 
