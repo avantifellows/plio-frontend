@@ -8,7 +8,7 @@
     <button @click="copyToClipboard()" v-tooltip="'Copy link'">
       <img src="@/assets/images/copy.svg" class="w-10 h-10 min-width-full" />
     </button>
-    <toast ref="toast"></toast>
+    <toast class="mt-20" ref="toast"></toast>
   </div>
 </template>
 

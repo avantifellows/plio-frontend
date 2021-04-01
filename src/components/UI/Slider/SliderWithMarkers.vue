@@ -40,7 +40,16 @@ export default {
       clickAfterDragEnded: false, // indicates whether a marker click was invoked right after it was dragged
     };
   },
+  watch: {
+    // watch whenever "isDragDisabled" changes and update the marker
+    // colors accordingly
+    isDragDisabled() {
+      this.setDisabledMarkerColor();
+    },
+  },
   created() {
+    // set marker colors when instantiated
+    this.setDisabledMarkerColor();
     this.$nextTick(() => {
       this.setScreenProperties();
       window.addEventListener("resize", this.handleScreenSizeChange);
@@ -75,8 +84,25 @@ export default {
       default: true,
       type: Boolean,
     },
+    isDragDisabled: {
+      // whether to make the markers non draggable or not
+      default: false,
+      type: Boolean,
+    },
   },
   methods: {
+    setDisabledMarkerColor() {
+      // set marker color to orange if plio is published else set it to
+      // default
+      if (this.isDragDisabled) this.setMarkerColor("#F78000");
+      else this.setMarkerColor("#10b981");
+    },
+    setMarkerColor(hexCode) {
+      // sets the incoming hexcode as the
+      // color of the slider thumb(marker)
+      let root = document.documentElement;
+      root.style.setProperty("--marker-color", hexCode);
+    },
     handleScreenSizeChange() {
       // invoked when the screen size is changing
       this.setScreenProperties();
@@ -113,7 +139,7 @@ export default {
     },
     markerSliderSelected(markerIndex) {
       // invoked when a marker has been selected
-      this.activeMarkerIndex = markerIndex;
+      if (!this.isDragDisabled) this.activeMarkerIndex = markerIndex;
     },
     markerSliderChangeOver(markerIndex) {
       // invoked when the marker slider value change is done
@@ -219,9 +245,6 @@ export default {
 
       return styles;
     },
-    markerIcon() {
-      return require("@/assets/images/thumbtack-solid.svg");
-    },
   },
   emits: [
     "update:value",
@@ -235,6 +258,10 @@ export default {
 </script>
 
 <style lang="postcss" scoped>
+:root {
+  --marker-color: "#10b981";
+}
+
 .slider {
   @apply appearance-none h-2 cursor-pointer bg-gray-300 focus:outline-none;
 }
@@ -246,7 +273,7 @@ export default {
   @apply appearance-none w-6 h-6 rounded-full bg-red-500 mt-8;
 }
 .marker-slider-thumb-inactive::-webkit-slider-thumb {
-  @apply bg-green-500;
+  background-color: var(--marker-color);
 }
 .marker-slider-thumb-inactive::-moz-slider-thumb {
   @apply bg-green-500;

@@ -1,5 +1,7 @@
 <template>
-  <div class="shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-800 w-64 m-auto">
+  <div
+    class="border border-2 shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-800 w-64 m-auto"
+  >
     <div class="w-full h-full text-center">
       <div class="flex h-full flex-col justify-between">
         <!-- icon -->
@@ -18,7 +20,7 @@
         </p>
         <!-- description -->
         <p
-          class="text-gray-600 dark:text-gray-400 text-xs py-2 px-6"
+          class="text-gray-600 dark:text-gray-400 text-sm py-2 px-6"
           v-if="showDescription"
         >
           {{ description }}
@@ -28,6 +30,7 @@
           class="flex items-center justify-between gap-4 w-full mt-2"
         >
           <button
+            v-if="isConfirmButtonEnabled"
             type="button"
             class="py-2 px-4 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg"
             :class="confirmButtonClass"
@@ -36,6 +39,7 @@
             {{ confirmButtonText }}
           </button>
           <button
+            v-if="isCancelButtonEnabled"
             type="button"
             class="py-2 px-4 w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg"
             :class="cancelButtonClass"
@@ -77,6 +81,7 @@ export default {
       // config for the confirmation button
       default: () => {
         return {
+          enabled: true,
           text: "Yes",
           class:
             "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
@@ -88,6 +93,7 @@ export default {
       // config for the cancel button
       default: () => {
         return {
+          enabled: true,
           text: "No",
           class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
         };
@@ -96,6 +102,14 @@ export default {
     },
   },
   computed: {
+    isConfirmButtonEnabled() {
+      // to show the confirm button or not
+      return this.confirmButtonConfig.enabled;
+    },
+    isCancelButtonEnabled() {
+      // to show the cancel button or not
+      return this.cancelButtonConfig.enabled;
+    },
     isButtonVisible() {
       // is either of the confirm or cancel buttons visible
       // the only way to hide each of those two buttons is by

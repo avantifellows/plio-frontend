@@ -43,6 +43,7 @@
         @input="inputChange"
         :class="[inputAreaClass, boxStyling]"
         :maxLength="maxLength"
+        :disabled="isDisabled"
       />
 
       <!-- end icon -->
@@ -89,6 +90,7 @@ export default {
           name: "check",
           class: "w-10 h-10",
           tooltip: "",
+          isDisabled: false,
         };
       },
       type: Object,
@@ -102,6 +104,7 @@ export default {
           name: "delete",
           class: "w-10 h-10 bg-red-500",
           tooltip: "",
+          isDisabled: false,
         };
       },
       type: Object,
@@ -118,11 +121,27 @@ export default {
       type: [Object, String],
     },
     maxLength: {
+      // maximum allowed character length of input
       default: null,
       type: Number,
     },
+    isDisabled: {
+      // whether the input text is disabled or not
+      default: false,
+      type: Boolean,
+    },
   },
   computed: {
+    isEndIconDisabled() {
+      // is end icon disabled or not
+      if (this.endIcon.isDisabled != null) return this.endIcon.isDisabled;
+      return false;
+    },
+    isStartIconDisabled() {
+      // is start icon disabled or not
+      if (this.startIcon.isDisabled != null) return this.startIcon.isDisabled;
+      return false;
+    },
     localValue: {
       // local copy of the value prop
       get() {
@@ -168,7 +187,10 @@ export default {
     },
     startIconClass() {
       // gets the start icon name from the prop
-      return this.startIcon.class;
+      return [
+        this.startIcon.class,
+        { "cursor-not-allowed pointer-events-none opacity-50": this.isStartIconDisabled },
+      ];
     },
     startIconTooltip() {
       // returns the tooltip text for the side icon
@@ -193,7 +215,10 @@ export default {
     },
     endIconClass() {
       // gets the end icon name from the prop
-      return this.endIcon.class;
+      return [
+        this.endIcon.class,
+        { "cursor-not-allowed pointer-events-none opacity-50": this.isEndIconDisabled },
+      ];
     },
     endIconTooltip() {
       // returns the tooltip text for the end icon
