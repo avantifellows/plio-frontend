@@ -59,7 +59,6 @@
             @click="publishButtonClicked"
           ></icon-button>
         </div>
-        {{ items }}
       </div>
 
       <!--- input grid -->

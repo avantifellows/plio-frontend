@@ -22,10 +22,10 @@
     </div>
 
     <div class="flex relative items-center">
-      <!-- left icon -->
+      <!-- start icon -->
       <div
         v-if="isStartIconEnabled"
-        class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center w-5 inset-y-1/4 left-1.5"
+        class="absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center w-5 inset-y-1/4 left-1.5"
         @click="startIconSelected"
         :class="startIconClass"
         v-tooltip.left="startIconTooltip"
@@ -44,9 +44,11 @@
         :class="[inputAreaClass, boxStyling]"
         :maxLength="maxLength"
       />
+
+      <!-- end icon -->
       <div
         v-if="isEndIconEnabled"
-        class="z-10 absolute rounded text-base place-content-center w-5 right-1.5 flex"
+        class="absolute rounded text-base place-content-center w-5 right-1.5 flex"
         @click="endIconSelected"
         :class="endIconClass"
         v-tooltip.left="endIconTooltip"

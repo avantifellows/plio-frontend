@@ -91,6 +91,7 @@
           @start-icon-selected="updateCorrectOption(optionIndex)"
           @end-icon-selected="deleteOption(optionIndex)"
         ></input-text>
+        <!-- add option button -->
         <div class="flex justify-end mr-2 mt-2">
           <icon-button
             :titleConfig="addOptionButtonTitleConfig"
@@ -102,7 +103,7 @@
     </div>
     <dialog-box
       :title="dialogTitle"
-      class="absolute"
+      class="fixed"
       v-if="showDialog"
       @confirm="dialogConfirmClicked"
       @cancel="dialogCancelClicked"
