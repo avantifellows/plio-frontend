@@ -189,7 +189,7 @@ export default {
       // gets the start icon name from the prop
       return [
         this.startIcon.class,
-        { "cursor-not-allowed pointer-events-none opacity-50": this.isEndIconDisabled },
+        { "cursor-not-allowed pointer-events-none opacity-50": this.isStartIconDisabled },
       ];
     },
     startIconTooltip() {

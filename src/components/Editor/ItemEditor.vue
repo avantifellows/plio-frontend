@@ -161,10 +161,6 @@ export default {
         iconName: "delete",
         iconClass: "text-white",
       },
-      // styling classes for delete item button
-      deleteItemButtonClass: this.isPublished
-        ? "disabled:opacity-40 cursor-not-allowed"
-        : undefined,
       timeExceedsVideoDuration: false, //stores if the time entered by the user exceeds the total video duration
       dialogTitle: "", // title for the dialog box
       dialogDescription: "", // description for the dialog box
@@ -309,6 +305,11 @@ export default {
   },
 
   computed: {
+    deleteItemButtonClass() {
+      // styling classes for delete item button
+      if (this.isPublished) return "disabled:opacity-40 cursor-not-allowed";
+      return undefined;
+    },
     addOptionTooltip() {
       // tooltip for add option button
       if (this.isPublished) return "You cannot add an option once the plio is published";

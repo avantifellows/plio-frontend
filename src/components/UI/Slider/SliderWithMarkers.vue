@@ -40,12 +40,16 @@ export default {
       clickAfterDragEnded: false, // indicates whether a marker click was invoked right after it was dragged
     };
   },
+  watch: {
+    // watch whenever "isDragDisabled" changes and update the marker
+    // colors accordingly
+    isDragDisabled() {
+      this.setDisabledMarkerColor();
+    },
+  },
   created() {
-    // set marker color to orange if plio is published else set it to
-    // default
-    if (this.isDragDisabled) this.setMarkerColor("#F78000");
-    else this.setMarkerColor("#10b981");
-
+    // set marker colors when instantiated
+    this.setDisabledMarkerColor();
     this.$nextTick(() => {
       this.setScreenProperties();
       window.addEventListener("resize", this.handleScreenSizeChange);
@@ -87,6 +91,12 @@ export default {
     },
   },
   methods: {
+    setDisabledMarkerColor() {
+      // set marker color to orange if plio is published else set it to
+      // default
+      if (this.isDragDisabled) this.setMarkerColor("#F78000");
+      else this.setMarkerColor("#10b981");
+    },
     setMarkerColor(hexCode) {
       // sets the incoming hexcode as the
       // color of the slider thumb(marker)

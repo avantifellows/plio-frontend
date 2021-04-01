@@ -695,12 +695,13 @@ export default {
     dialogConfirmed() {
       // invoked when the confirm button of the dialog box is clicked
       this.showDialogBox = false;
+      this.dialogDescription = "";
 
       // call separate methods depening on the dialog action that
       // was set
       if (this.dialogAction == "publish") this.confirmPublish();
       else if (this.dialogAction == "deleteItem") this.confirmDeleteItem();
-      else if (this.dialogAction == "deleteOption") this.configmDeleteOption();
+      else if (this.dialogAction == "deleteOption") this.confirmDeleteOption();
       else if (this.dialogAction == "closeDialog") this.showDialogBox = false;
 
       // reset the dialog action value
@@ -747,7 +748,7 @@ export default {
       // delete the selected item after user confirms
       this.deleteSelectedItem();
     },
-    configmDeleteOption() {
+    confirmDeleteOption() {
       // invoked when the confirm button of the dialog box for deleting option is clicked
       // there should always be at least 2 options, allow deletion only
       // if the number of options is >= 3
