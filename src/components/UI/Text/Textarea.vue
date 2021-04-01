@@ -24,12 +24,12 @@
     <div class="flex relative">
       <!-- left icon -->
       <div
-        v-if="isSideIconEnabled"
+        v-if="isStartIconEnabled"
         class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center text-xl w-5 inset-y-1/4 left-1.5"
-        @click="selectThisBox"
-        :class="sideIconClass"
+        @click="startIconSelected"
+        :class="startIconClass"
       >
-        <inline-svg :src="sideIconObj"></inline-svg>
+        <inline-svg :src="startIconObj"></inline-svg>
       </div>
 
       <!-- input text area -->
@@ -66,8 +66,8 @@ export default {
       },
       type: Object,
     },
-    sideIcon: {
-      // whether side icon is enabled or not
+    startIcon: {
+      // whether the start icon is enabled or not
       // and the icon name if enabled
       default: () => {
         return {
@@ -87,11 +87,12 @@ export default {
       // pass any classes that need to be added to the input
       // boxes
       default: () => {},
-      type: [Object, String]
+      type: [Object, String],
     },
   },
   computed: {
     localValue: {
+      // local copy of the value prop
       get() {
         return this.value;
       },
@@ -100,9 +101,11 @@ export default {
       },
     },
     isValidationEnabled() {
+      // whether input validation is on
       return this.validation["enabled"];
     },
     isValid() {
+      // whether the input is valid
       return this.isValidationEnabled && this.validation["isValid"];
     },
     validationColorClass() {
@@ -113,6 +116,7 @@ export default {
       };
     },
     validationMessage() {
+      // message to show for valid/invalid input
       if (this.isValid) {
         return this.validation["validMessage"];
       }
@@ -126,40 +130,44 @@ export default {
       }
       return icon;
     },
-    sideIconName() {
-      // gets the side icon name from the prop
-      return this.sideIcon.name;
+    startIconName() {
+      // gets the start icon name from the prop
+      return this.startIcon.name;
     },
-    sideIconClass() {
-      // gets the side icon name from the prop
-      return this.sideIcon.class;
+    startIconClass() {
+      // gets the start icon name from the prop
+      return this.startIcon.class;
     },
-    sideIconObj() {
-      // uses the sideicon name to fetch the icon object
+    startIconObj() {
+      // uses the start icon name to fetch the icon object
       // and return it
       var icon;
-      if (this.sideIcon.enabled) {
-        icon = require("@/assets/images/" + this.sideIconName + ".svg");
+      if (this.startIcon.enabled) {
+        icon = require("@/assets/images/" + this.startIconName + ".svg");
       }
       return icon;
     },
-    isSideIconEnabled() {
-      return this.sideIcon.enabled;
+    isStartIconEnabled() {
+      // whether the start icon is enabled
+      return this.startIcon.enabled;
     },
     inputAreaClass() {
+      // // class for the input element
       return {
-        "pl-10": this.isSideIconEnabled,
+        "pl-10": this.isStartIconEnabled,
       };
     },
   },
   methods: {
     inputChange() {
+      // invoked on input change
       this.$emit("input", this.value);
     },
-    selectThisBox() {
-      this.$emit("box-selected", this.value);
+    startIconSelected() {
+      // invoked on start icon being selected
+      this.$emit("start-icon-selected", this.value);
     },
   },
-  emits: ["input", "update:value", "box-selected"],
+  emits: ["input", "update:value", "start-icon-selected"],
 };
 </script>
