@@ -45,7 +45,7 @@
         :buttonClass="addItemButtonClass"
         @click="removeSelectedItemIndex"
         v-tooltip.top="addItemButtonTooltip"
-        :disabled="isPublished"
+        :disabled="isInteractionDisabled"
       ></icon-button>
 
       <!-- delete item button -->
@@ -55,7 +55,7 @@
         @click="deleteSelectedItem"
         v-tooltip.left="deleteItemButtonTooltip"
         :buttonClass="deleteItemButtonClass"
-        :disabled="isPublished"
+        :disabled="isInteractionDisabled"
       ></icon-button>
     </div>
 
@@ -77,7 +77,7 @@
         class="p-2"
         v-model:timeObject="timeObject"
         :timeValid="timeExceedsVideoDuration"
-        :isDisabled="isPublished"
+        :isDisabled="isInteractionDisabled"
       ></time-input>
 
       <!-- input field for entering options  -->
@@ -101,7 +101,7 @@
           class="float-right"
           @click="addOption"
           :buttonClass="addOptionButtonClass"
-          :disabled="isPublished"
+          :disabled="isInteractionDisabled"
         ></icon-button>
       </div>
     </div>
@@ -147,13 +147,13 @@ export default {
       // styling classes for add item button
       addItemButtonClass: [
         "bg-primary-button hover:bg-primary-button-hover disabled:opacity-40",
-        { "cursor-not-allowed": this.isPublished },
+        { "cursor-not-allowed": this.isInteractionDisabled },
       ],
       // styling classes for add option button
       addOptionButtonClass: [
         `rounded-md font-bold p-5 h-2 w-auto bg-primary-button
         hover:bg-primary-button-hover disabled:opacity-50`,
-        { "cursor-not-allowed": this.isPublished },
+        { "cursor-not-allowed": this.isInteractionDisabled },
       ],
       deleteItemIconConfig: {
         // icon config for delete item button
@@ -187,8 +187,8 @@ export default {
       default: 0,
       type: Number,
     },
-    isPublished: {
-      // whether the plio has been published or not
+    isInteractionDisabled: {
+      // whether it is allowed to interact with the item editor
       default: false,
       type: Boolean,
     },
@@ -307,12 +307,13 @@ export default {
   computed: {
     deleteItemButtonClass() {
       // styling classes for delete item button
-      if (this.isPublished) return "disabled:opacity-40 cursor-not-allowed";
+      if (this.isInteractionDisabled) return "disabled:opacity-40 cursor-not-allowed";
       return undefined;
     },
     addOptionTooltip() {
       // tooltip for add option button
-      if (this.isPublished) return "You cannot add an option once the plio is published";
+      if (this.isInteractionDisabled)
+        return "You cannot add an option once the plio is published";
       return "Add an option";
     },
     deleteItemButtonTooltip() {
@@ -322,7 +323,7 @@ export default {
       // TODO: uncomment below code when a non-buggy tooltip is implemented
 
       // var itemType = "question"
-      // if (this.isPublished)
+      // if (this.isInteractionDisabled)
       //   return `You cannot delete a ${itemType} once the plio is published`
       // return "Delete this ${itemType}"
       return undefined;
@@ -331,7 +332,7 @@ export default {
       // tooltip for the smaller add item button
       // itemType is just "question" right now - parametrize when more types are supported
       var itemType = "question";
-      if (this.isPublished)
+      if (this.isInteractionDisabled)
         return `You cannot add a new ${itemType} once the plio is published`;
       return `Add a ${itemType}`;
     },
@@ -348,10 +349,10 @@ export default {
         enabled: true,
         name: "delete",
         class: "bg-red-500 cursor-pointer w-8 h-8 hover:bg-red-700 rounded-md",
-        tooltip: this.isPublished
+        tooltip: this.isInteractionDisabled
           ? "Cannot delete option once the plio is published"
           : "Delete this option",
-        isDisabled: this.isPublished ? true : false,
+        isDisabled: this.isInteractionDisabled,
       };
     },
     localItemList: {

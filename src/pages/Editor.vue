@@ -108,7 +108,7 @@
               :titleConfig="addItemTitleConfig"
               :buttonClass="addItemButtonClass"
               @click="addNewItem"
-              :disabled="isPublished"
+              :disabled="addItemDisabled"
               v-tooltip="addItemTooltip"
             ></icon-button>
           </div>
@@ -122,7 +122,7 @@
             :videoDuration="videoDuration"
             @delete-selected-item="deleteItemButtonClicked"
             @delete-option="deleteOption"
-            :isPublished="isPublished"
+            :isDisabled="isPublished"
           ></item-editor>
         </div>
       </div>
@@ -453,12 +453,16 @@ export default {
       // styling class for add item button
       // disabled the button if plio is published
       var classObject = [
-        { "cursor-not-allowed": this.isPublished },
+        { "cursor-not-allowed": this.addItemDisabled },
 
         `rounded-md font-bold p-5 h-12 w-96 bg-primary-button
         hover:bg-primary-button-hover disabled:opacity-50`,
       ];
       return classObject;
+    },
+    addItemDisabled() {
+      // whether adding item is disabled
+      return this.isPublished || !this.isVideoIdValid;
     },
     addItemTooltip() {
       // tooltip for the add item button
