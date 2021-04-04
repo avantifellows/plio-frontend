@@ -23,8 +23,7 @@ export default {
   },
 
   getAllPlios() {
-    // returns the list of all plios
-    return apiClient().get(process.env.VUE_APP_BACKEND_PLIOS_LIST);
+    return apiClient().get(process.env.VUE_APP_BACKEND_PLIOS);
   },
 
   createPlio() {

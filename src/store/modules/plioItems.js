@@ -17,7 +17,7 @@ const actions = {
     dispatch("startLoading", null, { root: true });
 
     const response = await PlioService.getAllPlios();
-    var allPlios = response.data["all_plios"];
+    var allPlios = response.data;
     commit("setPliosList", allPlios);
 
     dispatch("stopLoading", null, { root: true });

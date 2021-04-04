@@ -1,13 +1,13 @@
 <template>
   <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
-  <router-link :to="{ name: 'Player', params: { id: plio.plio_id } }" tag="div" class="plio">
+  <router-link :to="{ name: 'Player', params: { id: plio.uuid } }" tag="div" class="plio">
     <div class="title">
-      {{ plio.title }}
+      {{ plio.name }}
     </div>
     <div class="created_date">
-      <i>{{ $t("home.plio_thumbnail.created") }}: </i> {{ plio.created }}
+      <i>{{ $t("home.plio_thumbnail.created") }}: </i> {{ plio.created_at }}
     </div>
-    <div class="id">{{ $t("home.plio_thumbnail.id") }}: {{ plio.plio_id }}</div>
+    <div class="id">{{ $t("home.plio_thumbnail.id") }}: {{ plio.uuid }}</div>
   </router-link>
 </template>
 

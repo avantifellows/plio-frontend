@@ -2,7 +2,7 @@
   <div>
     <h3>{{ $t("home.plio_list_heading") }}</h3>
     <div class="plios">
-      <div v-for="plio in allPlios" :key="plio.plio_id" class="plios">
+      <div v-for="plio in allPlios" :key="plio.id" class="plios">
         <PlioThumbnail :plio="plio" />
       </div>
     </div>
@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapState } from "vuex";
 import PlioThumbnail from "@/components/UI/PlioThumbnail.vue";
 
 export default {
@@ -20,8 +20,8 @@ export default {
   },
   // namespaced helpers
   // https://vuex.vuejs.org/guide/modules.html#binding-helpers-with-namespace
-  computed: mapState('plioItems', ['allPlios']),
-  methods: mapActions('plioItems', ['fetchPlios']),
+  computed: mapState("plioItems", ["allPlios"]),
+  methods: mapActions("plioItems", ["fetchPlios"]),
   created() {
     this.fetchPlios();
   },
