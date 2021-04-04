@@ -16,8 +16,8 @@ const actions = {
     // exist here, it exists in the root store file "index.js"
     dispatch("startLoading", null, { root: true });
 
-    const response = await PlioService.getAllPlios();
-    var allPlios = response.data["all_plios"];
+    var allPlios = await PlioService.getAllPlios();
+    // var allPlios = data;
     commit("setPliosList", allPlios);
 
     dispatch("stopLoading", null, { root: true });
