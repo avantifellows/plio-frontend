@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const client = axios.create({
-  baseURL: process.env.VUE_APP_BACKEND_NEW,
+  baseURL: process.env.VUE_APP_BACKEND,
   withCredentials: false, //default
   headers: {
     Accept: "application/json",

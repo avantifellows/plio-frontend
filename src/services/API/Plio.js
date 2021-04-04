@@ -23,15 +23,7 @@ export default {
   },
 
   getAllPlios() {
-    // returns the list of all plios
-    return new Promise((resolve, reject) => {
-      apiClient()
-        .get(process.env.VUE_APP_BACKEND_PLIO_NEW)
-        .then((response) => {
-          if (response.status == 200) resolve(response.data);
-          else reject(response);
-        });
-    });
+    return apiClient().get(process.env.VUE_APP_BACKEND_PLIOS);
   },
 
   createPlio() {
