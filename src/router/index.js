@@ -4,6 +4,7 @@ import Test from "@/pages/Test.vue";
 import Editor from "@/pages/Editor.vue";
 import Player from "@/pages/Player.vue";
 import PhoneSignIn from "@/pages/PhoneSignIn";
+// import store from "../store";
 
 const routes = [
   {
@@ -23,6 +24,15 @@ const routes = [
     props: true,
   },
   {
+    // type: the type of component invoking this path (optional)
+    // id: the unique ID for the component invoking this path (optional)
+    path: "/login/:id?/:type?",
+    name: "PhoneSignIn",
+    component: PhoneSignIn,
+    props: true,
+    meta: { guest: true },
+  },
+  {
     path: "/play/:id",
     name: "Player",
     component: Player,
@@ -35,24 +45,14 @@ const routes = [
       experiment: route.query.experiment,
       id: route.params.id,
     }),
-  },
-  {
-    // type: the type of component invoking this path (optional)
-    // id: the unique ID for the component invoking this path (optional)
-    path: "/login/:id?/:type?",
-    name: "PhoneSignIn",
-    component: PhoneSignIn,
-    // passing props to route components
-    // https://router.vuejs.org/guide/essentials/passing-props.html#passing-props-to-route-components
-    props: true,
+    meta: { requiresAuth: true },
   },
   {
     path: "/experiment/:id",
     name: "ABTesting",
-    // lazy loading of routes
-    // https://router.vuejs.org/guide/advanced/lazy-loading.html#grouping-components-in-the-same-chunk
     component: () => import("@/pages/ABTesting"),
     props: true,
+    meta: { requiresAuth: true },
   },
   {
     path: "/404-not-found",
@@ -71,7 +71,46 @@ const routes = [
 
 const router = createRouter({
   history: createWebHashHistory(),
+  base: process.env.FRONTEND,
   routes,
 });
+
+/*
+Router auth logic start
+
+Commented code below that works on `isAuthenticated` state and before every route:
+1. Redirects user to home if user is already logged in and visiting a page that is intended for guest (route.meta.guest)
+2. Redirects user to login if user is not authenticated and visits a page that requires authentication (route.meta.requiresAuth)
+
+Uncomment the lines below when the existing login checks that uses local storage are disabled.
+*/
+
+// router.beforeEach((to, from, next) => {
+//     if (to.matched.some((record) => record.meta.requiresAuth)) {
+//         if (store.getters.isAuthenticated) {
+//             next();
+//             return;
+//         }
+//         next("/login");
+//     } else {
+//         next();
+//     }
+// });
+
+// router.beforeEach((to, from, next) => {
+//     if (to.matched.some((record) => record.meta.guest)) {
+//         if (store.getters.isAuthenticated) {
+//             next("/posts");
+//             return;
+//         }
+//         next();
+//     } else {
+//         next();
+//     }
+// });
+
+/*
+Router auth logic start
+*/
 
 export default router;

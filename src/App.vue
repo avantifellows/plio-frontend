@@ -72,7 +72,7 @@ import UserProperties from "@/services/Config/User.vue";
 import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import Toast from "@/components/UI/Alert/Toast.vue";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 import PlioService from "@/services/API/Plio.js";
 
 export default {
@@ -143,6 +143,7 @@ export default {
     },
   },
   computed: {
+    ...mapGetters(["isAuthenticated", "stateAuthToken"]),
     ...mapState(["pending", "isLoggedIn", "configs"]),
     hasLocalUserConfigs() {
       // whether the use configs have been set

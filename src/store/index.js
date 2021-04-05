@@ -1,5 +1,6 @@
 import { createStore } from "vuex";
 import plioItems from "./modules/plioItems";
+import auth from "./modules/auth";
 
 // Reference: https://medium.com/front-end-weekly/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
 const LOGIN_SUCCESS = "LOGIN_SUCCESS";
@@ -85,5 +86,6 @@ export default createStore({
   getters: {},
   modules: {
     plioItems,
+    auth,
   },
 });
