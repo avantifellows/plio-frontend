@@ -27,7 +27,7 @@ We use [vue3-google-oauth2](https://github.com/guruahn/vue3-google-oauth2) Vue p
 
 ### Set up Plio Backend API
 
-**Note**: If you're using the Plio backend, make sure you follow the steps mentioned in the Backend API setup guide.
+**Note**: If you're using the Plio backend, make sure you follow the steps mentioned in the [Backend API setup guide](https://github.com/avantifellows/plio-backend/blob/master/docs/REST-API.md).
 
 After your Backend API is correctly configured, retrieve the client id and client secret. Please note that you will now have two pairs of client id and secret:
 1. From Google Developer Console
