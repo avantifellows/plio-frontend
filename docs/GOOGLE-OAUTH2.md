@@ -1,6 +1,12 @@
 ## Google OAuth2
 We use [vue3-google-oauth2](https://github.com/guruahn/vue3-google-oauth2) Vue package to get the Google sign-in functionality working. This document covers step by step details on how to get the sign-in functionality running.
 
+  - [Set up Google OAuth2 Credentials](#set-up-google-oauth2-credentials)
+  - [Set up Plio Backend API](#set-up-plio-backend-api)
+  - [Testing](#testing)
+  - [In case of failure](#in-case-of-failure)
+  - [Additional Help](#additional-help)
+
 ### Set up Google OAuth2 Credentials
 1. Log into the [Google Developer Console](https://console.developers.google.com/)
 2. Click the **Select a Project** dropdown and select **New Project**
