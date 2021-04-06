@@ -125,10 +125,10 @@ export default {
       this.startLoading();
       PlioService.createPlio().then((response) => {
         this.stopLoading();
-        if (response.status == 200) {
+        if (response.status == 201) {
           this.$router.push({
             name: "Editor",
-            params: { plioId: response.data.plio_id },
+            params: { plioId: response.data.uuid },
           });
         } else {
           this.$refs.toast.show("error", "Error creating Plio", this.toastLife);

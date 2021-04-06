@@ -620,10 +620,8 @@ export default {
     },
     async loadPlio() {
       // fetch plio details
-      PlioService.getPlio(this.plioId).then((response) => {
-        var plioDetails = response.data.plioDetails;
+      await PlioService.getPlio(this.plioId).then((plioDetails) => {
         this.items = plioDetails.items || [];
-        this.videoId = plioDetails.video_id || "";
         this.videoURL = plioDetails.video_url || "";
         this.plioTitle = plioDetails.plio_title || "";
         this.status = plioDetails.status;
@@ -797,10 +795,10 @@ export default {
       // returns a metadata object which contains only the name of the source from where
       // the question is coming from.
       // currently the source is only "default" as questions will be created on the editor only
-      var metadata = {};
-      metadata["source"] = {};
-      metadata["source"]["name"] = "default";
-      return metadata;
+      var meta = {};
+      meta["source"] = {};
+      meta["source"]["name"] = "default";
+      return meta;
     },
     getDetailsForNewItem() {
       // barebones question structure
@@ -820,11 +818,10 @@ export default {
         this.showCannotAddItemDialog();
         return;
       }
-
       // create the newItem object
       newItem["time"] = newTimestamp;
       newItem["type"] = this.getItemTypeForNewItem();
-      newItem["metadata"] = this.getMetadataForNewItem();
+      newItem["meta"] = this.getMetadataForNewItem();
       newItem["details"] = this.getDetailsForNewItem();
 
       // push it into items, update the itemTimestamps and currentItemIndex
