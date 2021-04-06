@@ -21,4 +21,4 @@ Visit our [deployment guideline](docs/DEPLOYMENT.md) for setting up this reposit
 ## Contributing
 - [Pre-commit](docs/PRE-COMMIT.md)
 - [GitHub Workflows](docs/GITHUB-WORKFLOWS.md)
-- [Google OAuth2](docs/GOOGLE-OAUTH2.md)
+- [Google OAuth2](docs/oauth/GOOGLE-OAUTH2.md)
