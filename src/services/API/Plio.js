@@ -32,6 +32,7 @@ export default {
       plioDetails.plioTitle = plio.data.name;
       plioDetails.status = plio.data.status;
       plioDetails.updated_at = plio.data.updated_at;
+      plioDetails.plioDbId = plio.data.id;
       return plioDetails;
     });
   },
@@ -43,7 +44,7 @@ export default {
   createPlio() {
     // creates a new draft plio
     var newPlioData = {
-      created_by: 3,
+      created_by: 1,
     };
     return apiClient().post(process.env.VUE_APP_BACKEND_PLIOS, newPlioData);
   },

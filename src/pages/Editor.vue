@@ -622,7 +622,6 @@ export default {
       // fetch plio details
       await PlioService.getPlio(this.plioId).then((plioDetails) => {
         this.items = plioDetails.items || [];
-        this.videoId = "";
         this.videoURL = plioDetails.video_url || "";
         this.plioTitle = plioDetails.plio_title || "";
         this.status = plioDetails.status;
