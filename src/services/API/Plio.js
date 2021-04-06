@@ -32,7 +32,7 @@ export default {
       plioDetails.plioTitle = plio.data.name;
       plioDetails.status = plio.data.status;
       plioDetails.updated_at = plio.data.updated_at;
-      plioDetails.plioDbId = plio.data.id;
+      plioDetails.plioDBId = plio.data.id;
       return plioDetails;
     });
   },
