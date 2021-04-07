@@ -115,7 +115,7 @@
 
           <!--- item editor  -->
           <item-editor
-            v-if="hasAnyItems || currentItemIndex != null"
+            v-if="hasAnyItems && currentItemIndex != null"
             v-model:itemList="items"
             v-model:selectedItemIndex="currentItemIndex"
             @update:selectedItemIndex="navigateToItem"
@@ -156,6 +156,8 @@ import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import PlioService from "@/services/API/Plio.js";
+import ItemService from "@/services/API/Item.js";
+import QuestionService from "@/services/API/Question.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
@@ -234,6 +236,8 @@ export default {
       },
       // index of the option to be deleted; -1 means nothing to be deleted
       optionIndexToDelete: -1,
+      videoDBId: null, // store the DB id of video object linked to the plio
+      plioDBId: null, // store the DB id of plio object
     };
   },
   async created() {
@@ -628,6 +632,8 @@ export default {
         if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
           this.lastUpdated = new Date(plioDetails.updated_at);
         this.hasUnpublishedChanges = false;
+        this.videoDBId = plioDetails.videoDBId;
+        this.plioDBId = plioDetails.plioDBId;
       });
     },
     checkAndSavePlio() {
@@ -650,16 +656,17 @@ export default {
       this.startUploading();
       this.lastUpdated = new Date();
       var plioValue = {
-        video_id: this.videoId,
         video_url: this.videoURL,
         plio_title: this.plioTitle,
         video_duration: this.videoDuration,
         items: this.items,
         status: this.status,
         updated_at: this.lastUpdated,
+        videoDBId: this.videoDBId,
       };
       return PlioService.updatePlio(plioValue, this.plioId).then(() => {
         this.stopUploading();
+        return;
       });
     },
     publishPlio() {
@@ -742,7 +749,18 @@ export default {
       this.showDialogBox = true;
     },
     confirmPublish() {
+      this.showDialogBox = true;
       this.dialogTitle = this.publishInProgressDialogTitle;
+      this.dialogConfirmButtonConfig = {
+        enabled: false,
+        text: "",
+        class: "",
+      };
+      this.dialogCancelButtonConfig = {
+        enabled: false,
+        text: "",
+        class: "",
+      };
       // publish the plio or its changes
       this.publishPlio();
     },
@@ -811,24 +829,42 @@ export default {
     },
     addNewItem() {
       this.$refs.playerObj.player.pause();
-      // get all the data needed to create a new item
       var newItem = {};
+
+      // get a valid timestamp for adding a new item
       var newTimestamp = this.getTimestampForNewItem();
       if (newTimestamp == -1) {
         this.showCannotAddItemDialog();
         return;
       }
-      // create the newItem object
-      newItem["time"] = newTimestamp;
-      newItem["type"] = this.getItemTypeForNewItem();
-      newItem["meta"] = this.getMetadataForNewItem();
-      newItem["details"] = this.getDetailsForNewItem();
 
-      // push it into items, update the itemTimestamps and currentItemIndex
-      this.items.push(newItem);
-      this.itemTimestamps = this.getItemTimestamps(this.items);
-      this.currentItemIndex = this.itemTimestamps.indexOf(this.currentTimestamp);
-      this.markItemSelected(this.currentItemIndex);
+      // create item, then create the question, then update local states
+      ItemService.createItem({
+        plio: this.plioDBId,
+        type: this.getItemTypeForNewItem(),
+        time: newTimestamp,
+        meta: this.getMetadataForNewItem(),
+      })
+        .then((createdItem) => {
+          newItem = createdItem;
+
+          if (createdItem.type == "question") {
+            return QuestionService.createQuestion({
+              item: createdItem.id,
+              type: "mcq",
+              options: ["", ""],
+              correct_answer: "0",
+            });
+          }
+        })
+        .then((createdQuestion) => {
+          newItem.details = createdQuestion;
+          // push it into items, update the itemTimestamps and currentItemIndex
+          this.items.push(newItem);
+          this.itemTimestamps = this.getItemTimestamps(this.items);
+          this.currentItemIndex = this.itemTimestamps.indexOf(this.currentTimestamp);
+          this.markItemSelected(this.currentItemIndex);
+        });
     },
     deleteItemButtonClicked() {
       // invoked when the delete item button is clicked
