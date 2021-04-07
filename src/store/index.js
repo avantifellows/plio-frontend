@@ -1,8 +1,10 @@
-import { Store } from "vuex";
+import { createStore } from "vuex";
+import createPersistedState from "vuex-persistedstate";
 import plioItems from "./modules/plioItems";
 import auth from "./modules/auth";
 
-export default new Store({
+export default createStore({
+  plugins: [createPersistedState()],
   modules: {
     plioItems,
     auth,
