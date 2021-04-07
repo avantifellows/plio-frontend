@@ -17,7 +17,7 @@ We use [vue3-google-oauth2](https://github.com/guruahn/vue3-google-oauth2) Vue p
 7. Go to the **Credentials** tab, click on the **Create Credentials** popup and select **OAuth client ID** — Google also offers a wizard to help you make this decision if you'd like to use Google Auth in a different context
 8. The API Dashboard opens, click **Credentials** on the left Nav and switch to the **OAuth Consent Screen** tab — provide an application name and an optional logo.
 9. On the next screen select **Web application** as Application type and give it a name **Plio**
-10. Add `http://localhost:8080` into the **Authorized JavaScript origins** and use `http://localhost:8080/callback` for the **Authorized redirect URIs** and click the **Create** button
+10. Add `http://localhost:8080` into the **Authorized JavaScript origins** and click the **Create** button. To set up for staging and production environments, add the corresponding base urls to the authorized origin fields.
 11. Finally you will get a popup containing your **Client ID** and **Client Secret**. Copy these values.
 12. Update your `.env` file and enter the Client ID copied in step above:
     ```sh
