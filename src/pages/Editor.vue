@@ -15,7 +15,10 @@
           <div v-if="!isVideoIdValid" class="flex justify-center">
             <div class="flex relative justify-center">
               <img src="@/assets/images/plain.svg" />
-              <img src="@/assets/images/play.svg" class="absolute place-self-center" />
+              <img
+                src="@/assets/images/play.svg"
+                class="absolute place-self-center w-12 h-12"
+              />
             </div>
           </div>
           <div v-else>
@@ -115,7 +118,7 @@
 
           <!--- item editor  -->
           <item-editor
-            v-if="hasAnyItems || currentItemIndex != null"
+            v-if="hasAnyItems && currentItemIndex != null"
             v-model:itemList="items"
             v-model:selectedItemIndex="currentItemIndex"
             @update:selectedItemIndex="navigateToItem"
@@ -142,10 +145,6 @@
 </template>
 
 <script>
-// How precisely should the question pop-up logic
-// be measured. Time in milliseconds
-const POP_UP_PRECISION_TIME = 50;
-
 // what should the minimum time difference be
 // between any two items (seconds)
 const ITEM_VICINITY_TIME = 2;
@@ -155,7 +154,9 @@ import URL from "@/components/UI/Text/URL.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
-import PlioService from "@/services/API/Plio.js";
+import PlioAPIService from "@/services/API/Plio.js";
+import VideoFunctionalService from "@/services/Functional/Video.js";
+import ItemFunctionalService from "@/services/Functional/Item.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
@@ -256,7 +257,7 @@ export default {
   watch: {
     items: {
       handler() {
-        this.itemTimestamps = this.getItemTimestamps(this.items);
+        this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
         this.checkAndSavePlio();
       },
       deep: true,
@@ -271,7 +272,7 @@ export default {
     },
     videoURL(newVideoURL) {
       // invoked when the video link is updated
-      var linkValidation = this.isVideoLinkValid(newVideoURL);
+      var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
       this.videoInputValidation["isValid"] = linkValidation["valid"];
       if (!linkValidation["valid"]) return;
 
@@ -521,7 +522,7 @@ export default {
       // sort the items based on timestamp
       this.sortItems();
       // update itemTimestamps based on new sorted items
-      this.itemTimestamps = this.getItemTimestamps(this.items);
+      this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
       // update everything else
       this.currentItemIndex = this.itemTimestamps.indexOf(itemTimestamp);
       this.currentTimestamp = itemTimestamp;
@@ -529,28 +530,14 @@ export default {
       this.markItemSelected(this.currentItemIndex);
     },
     checkItemToSelect(timestamp) {
-      var itemSelected = false;
-      // checks if any item is to be marked selected for the given timestamp
-      this.itemTimestamps.every((itemTimestamp, index) => {
-        // if the seeker is within "POP_UP_PRECISION_TIME" of the
-        // specific item time, then mark the item as selected
-        if (
-          timestamp < itemTimestamp &&
-          timestamp >= itemTimestamp - POP_UP_PRECISION_TIME / 1000
-        ) {
-          // mark that some item has been selected at this timestamp
-          itemSelected = true;
-          this.markItemSelected(index);
-          // breaks the loop
-          return false;
-        } else {
-          // go on to check the next item
-          return true;
-        }
-      });
-      if (!itemSelected) {
-        this.markNoItemSelected();
-      }
+      // checks if an item is to be selected and marks/unmarks accordingly
+      var selectedItemIndex = ItemFunctionalService.checkItemPopup(
+        timestamp,
+        this.itemTimestamps
+      );
+      if (selectedItemIndex != -1) {
+        this.markItemSelected(selectedItemIndex);
+      } else this.markNoItemSelected();
     },
     updatePlayerTimestamp(timestamp) {
       // update player time to the given timestamp
@@ -608,19 +595,9 @@ export default {
       // invoked when the player is played from a paused state
       this.isItemSelected = false;
     },
-    getItemTimestamps(items) {
-      // returns the list of timestamps of the items
-      var positions = [];
-
-      items.forEach((item) => {
-        positions.push(item.time);
-      });
-
-      return positions;
-    },
     async loadPlio() {
       // fetch plio details
-      await PlioService.getPlio(this.plioId).then((plioDetails) => {
+      await PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
         this.items = plioDetails.items || [];
         this.videoURL = plioDetails.video_url || "";
         this.plioTitle = plioDetails.plio_title || "";
@@ -658,7 +635,7 @@ export default {
         status: this.status,
         updated_at: this.lastUpdated,
       };
-      return PlioService.updatePlio(plioValue, this.plioId).then(() => {
+      return PlioAPIService.updatePlio(plioValue, this.plioId).then(() => {
         this.stopUploading();
       });
     },
@@ -826,7 +803,7 @@ export default {
 
       // push it into items, update the itemTimestamps and currentItemIndex
       this.items.push(newItem);
-      this.itemTimestamps = this.getItemTimestamps(this.items);
+      this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
       this.currentItemIndex = this.itemTimestamps.indexOf(this.currentTimestamp);
       this.markItemSelected(this.currentItemIndex);
     },

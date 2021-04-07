@@ -1,7 +1,12 @@
 <template>
   <div>
     <!--- plyr instance -->
-    <div id="player" data-plyr-provider="youtube" :data-plyr-embed-id="videoId"></div>
+    <div
+      id="player"
+      data-plyr-provider="youtube"
+      :data-plyr-embed-id="videoId"
+      class="w-full"
+    ></div>
   </div>
 </template>
 

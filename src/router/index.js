@@ -2,7 +2,8 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "@/pages/Home.vue";
 import Test from "@/pages/Test.vue";
 import Editor from "@/pages/Editor.vue";
-import Player from "@/pages/Player.vue";
+// import Player from "@/pages/Player.vue";
+import NewPlayer from "@/pages/NewPlayer.vue";
 import PhoneSignIn from "@/pages/PhoneSignIn";
 
 const routes = [
@@ -25,7 +26,7 @@ const routes = [
   {
     path: "/play/:id",
     name: "Player",
-    component: Player,
+    component: NewPlayer,
     query: {
       src: "",
     },
