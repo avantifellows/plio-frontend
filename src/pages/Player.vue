@@ -148,7 +148,7 @@ export default {
   async created() {
     if (!this.userId) {
       this.$router.push({
-        name: "PhoneSignIn",
+        name: "Login",
         params: { id: this.id },
       });
     }

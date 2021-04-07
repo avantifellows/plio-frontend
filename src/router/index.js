@@ -3,7 +3,7 @@ import Home from "@/pages/Home.vue";
 import Test from "@/pages/Test.vue";
 import Editor from "@/pages/Editor.vue";
 import Player from "@/pages/Player.vue";
-import PhoneSignIn from "@/pages/PhoneSignIn";
+import Login from "@/pages/Login";
 import store from "../store";
 
 const routes = [
@@ -28,8 +28,8 @@ const routes = [
     // type: the type of component invoking this path (optional)
     // id: the unique ID for the component invoking this path (optional)
     path: "/login/:id?/:type?",
-    name: "PhoneSignIn",
-    component: PhoneSignIn,
+    name: "Login",
+    component: Login,
     props: true,
     meta: { guest: true },
   },
@@ -90,7 +90,7 @@ router.beforeEach((to, from, next) => {
       next();
       return;
     }
-    next({ name: "PhoneSignIn" });
+    next({ name: "Login" });
   } else {
     next();
   }

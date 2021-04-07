@@ -39,7 +39,7 @@
       <div class="grid col-start-7 sm:gap-1 sm:justify-items-center">
         <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
         <div v-if="!onLoginPage" class="text-lg sm:text-xl place-self-center">
-          <router-link v-if="!isAuthenticated" :to="{ name: 'PhoneSignIn' }">
+          <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
             <button
               class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain"
             >
@@ -116,7 +116,7 @@ export default {
     logoutUser() {
       // logs out the user
       this.unsetAuthToken().then(() => {
-        this.$router.push({ name: "PhoneSignIn" });
+        this.$router.push({ name: "Login" });
       });
     },
     createNewPlio() {
@@ -150,7 +150,7 @@ export default {
     },
     onLoginPage() {
       // whether the current page is the login page
-      return this.$route.name == "PhoneSignIn";
+      return this.$route.name == "Login";
     },
     showCreateButton() {
       // whether to show the Create button
