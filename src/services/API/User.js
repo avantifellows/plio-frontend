@@ -22,6 +22,12 @@ export default {
     });
   },
 
+  async getUserByAccessToken(token) {
+    return apiClient().post(process.env.VUE_APP_BACKEND + "/users/token", {
+      token,
+    });
+  },
+
   async convertSocialAuthToken(socialAuthToken) {
     return await axios.post(process.env.VUE_APP_BACKEND_AUTH_URL, {
       grant_type: "convert_token",

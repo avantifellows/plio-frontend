@@ -1,3 +1,5 @@
+import UserService from "@/services/API/User.js";
+
 // Reference: https://medium.com/front-end-weekly/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
 const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 // const LOGOUT = "LOGOUT";
@@ -8,24 +10,36 @@ const START_UPLOADING = "START_UPLOADING";
 const STOP_UPLOADING = "STOP_UPLOADING";
 
 const state = {
-  authToken: null,
+  accessToken: null,
   userId: localStorage.getItem("phone"),
   configs: localStorage.getItem("configs"),
   pending: false,
   uploading: false,
+  user: null,
 };
 
 const getters = {
-  isAuthenticated: (state) => !!state.authToken,
-  stateAuthToken: (state) => state.authToken,
+  isAuthenticated: (state) => !!state.accessToken,
 };
 
 const actions = {
-  async setAuthToken({ commit }, authToken) {
-    await commit("setAuthToken", authToken);
+  async setAccessToken({ commit, dispatch }, accessToken) {
+    await commit("setAccessToken", accessToken);
+    await UserService.getUserByAccessToken(accessToken.access_token).then(
+      (response) => {
+        dispatch("setUser", response.data);
+      }
+    );
   },
-  async unsetAuthToken({ commit }) {
-    commit("unsetAuthToken");
+  async unsetAccessToken({ commit, dispatch }) {
+    await commit("unsetAccessToken");
+    dispatch("unsetUser");
+  },
+  async setUser({ commit }, user) {
+    await commit("setUser", user);
+  },
+  async unsetUser({ commit }) {
+    await commit("unsetUser");
   },
   saveConfigs({ commit }, creds) {
     commit(START_LOADING); // show spinner
@@ -51,11 +65,17 @@ const actions = {
 };
 
 const mutations = {
-  setAuthToken(state, authToken) {
-    state.authToken = authToken;
+  setAccessToken(state, accessToken) {
+    state.accessToken = accessToken;
   },
-  unsetAuthToken(state) {
-    state.authToken = null;
+  unsetAccessToken(state) {
+    state.accessToken = null;
+  },
+  setUser(state, user) {
+    state.user = user;
+  },
+  unsetUser(state) {
+    state.user = null;
   },
   [LOGIN_SUCCESS](state) {
     state.userId = localStorage.getItem("phone");

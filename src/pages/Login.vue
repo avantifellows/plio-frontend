@@ -63,7 +63,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions('auth', ['login', 'setAuthToken']),
+    ...mapActions('auth', ['login', 'setAccessToken']),
     requestOtp() {
       UserService.requestOtp(this.formattedPhoneInput).then((response) => console.log(response));
       this.requestedOtp = true;
@@ -71,7 +71,7 @@ export default {
     login() {
       UserService.verifyOtp(this.formattedPhoneInput, this.otpInput)
         .then((response) => {
-          this.setAuthToken(response.data);
+          this.setAccessToken(response.data);
           this.$router.push({name: 'Home'});
         });
     },
@@ -120,7 +120,7 @@ export default {
         this.user = googleUser.getBasicProfile().getEmail();
         let socialAuthToken = googleUser.getAuthResponse();
         UserService.convertSocialAuthToken(socialAuthToken.access_token).then((response) => {
-          this.setAuthToken(response.data);
+          this.setAccessToken(response.data);
           this.$router.push({name: 'Home'});
         });
       } catch (error) {

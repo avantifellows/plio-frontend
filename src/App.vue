@@ -112,10 +112,10 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions('auth', ["unsetAuthToken", "startLoading", "stopLoading"]),
+    ...mapActions('auth', ["unsetAccessToken", "startLoading", "stopLoading"]),
     logoutUser() {
       // logs out the user
-      this.unsetAuthToken().then(() => {
+      this.unsetAccessToken().then(() => {
         this.$router.push({ name: "Login" });
       });
     },
@@ -142,8 +142,8 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('auth', ["isAuthenticated", "stateAuthToken"]),
-    ...mapState('auth', ["pending", "configs"]),
+    ...mapGetters('auth', ["isAuthenticated"]),
+    ...mapState('auth', ["accessToken", "pending", "configs", "user"]),
     hasLocalUserConfigs() {
       // whether the use configs have been set
       return this.configs != null;
