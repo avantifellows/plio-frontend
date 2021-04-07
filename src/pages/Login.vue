@@ -11,13 +11,16 @@
     </div>
     <div class="watch_plio mb-5">
       <button class="my-4" :disabled="isOtpSubmitDisabled" @click="requestOtp" v-if="!requestedOtp">
-        {{ $t("otp.learner.button") }}
+        {{ $t("login.learner.button_otp") }}
       </button>
       <button class="mt-4" id="submit" :disabled="isSubmitDisabled" @click="login" v-if="requestedOtp">
-        {{ $t("login.learner.button") }}
+        {{ $t("login.learner.button_submit") }}
       </button>
-      <div class="mt-1 resend-otp" v-if="requestedOtp">
-        {{ $t("otp.learner.button_resend") }}
+      <div class="mt-1 resend-otp" v-if="requestedOtp && !resentOtp" @click="resendOtp">
+        {{ $t("login.learner.button_resend") }}
+      </div>
+      <div class="mt-1 message-otp-resent" v-if="resentOtp">
+        {{ $t("login.learner.message_otp_resent") }}
       </div>
     </div>
     <button class="my-5 g-sign-in" @click="handleClickGoogleSignIn" :disabled="!Vue3GoogleOauth.isInit && Vue3GoogleOauth.isAuthorized">
@@ -46,6 +49,7 @@ export default {
       otpInput: "",
       user: '',
       requestedOtp: false,
+      resentOtp: false,
     };
   },
   computed: {
@@ -68,47 +72,15 @@ export default {
       UserService.requestOtp(this.formattedPhoneInput).then((response) => console.log(response));
       this.requestedOtp = true;
     },
+    resendOtp() {
+      UserService.requestOtp(this.formattedPhoneInput).then((response) => console.log(response));
+      this.resentOtp = true;
+    },
     login() {
       UserService.verifyOtp(this.formattedPhoneInput, this.otpInput)
         .then((response) => {
           this.setAccessToken(response.data);
           this.$router.push({name: 'Home'});
-        });
-    },
-    storePhone() {
-      // this component stores only the user ID in Vuex
-      // other aspects of the User like the user Config are pulled
-      // separately by other components as needed
-      const jsonResponse = JSON.stringify({ userId: this.phoneInput });
-
-      UserService.loginUser(jsonResponse)
-        .then((response) => console.log(response))
-        .then(() => {
-          this.login({
-            phone: this.phoneInput,
-          });
-        })
-        .then(() => {
-          // set user config locally
-          this.$refs.userProperties.saveLocalUserConfigs();
-
-          // set locale from user config
-          this.$refs.userProperties.setLocaleFromUserConfig();
-        })
-        .then(() => {
-          if (this.userId != null) {
-            if (this.id) {
-              if (this.type && this.type == "experiment") {
-                // redirect to experiment
-                this.$router.replace({ name: "ABTesting", params: { id: this.id } });
-              } else {
-                // redirect to plio
-                this.$router.replace({ name: "Player", params: { id: this.id } });
-              }
-            } else {
-              this.$router.replace({ name: "Home" });
-            }
-          }
         });
     },
     async handleClickGoogleSignIn(){
@@ -203,5 +175,8 @@ button:disabled:hover {
   color: #df7c3a;
   cursor: pointer;
   text-decoration: underline;
+}
+.message-otp-resent {
+    color: green;
 }
 </style>

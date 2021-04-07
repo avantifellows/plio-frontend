@@ -25,17 +25,14 @@ export default {
       id: "पहचान",
     },
   },
-  otp: {
-    learner: {
-      button: "OTP का अनुरोध करें",
-      button_resend: "OTP पुनः भेजें",
-    },
-  },
   login: {
     learner: {
       phone_prompt: "कृपया अपना मोबाइल नंबर डालें (केवल दस अंक)",
-      button: "प्लायो दिखाओ",
+      button_submit: "प्लायो दिखाओ",
       button_google_sign_in: "गूगल के साथ साइन इन करें",
+      button_otp: "OTP का अनुरोध करें",
+      button_resend: "OTP पुनः भेजें",
+      message_otp_resent: "OTP फिर भेजा गया है!",
     },
   },
   player: {
