@@ -1,5 +1,4 @@
 import { apiClient } from "@/services/API/RootClient.js";
-import axios from "axios";
 
 export default {
   postUserResponse(userResponse) {
@@ -29,7 +28,7 @@ export default {
   },
 
   async convertSocialAuthToken(socialAuthToken) {
-    return await axios.post(process.env.VUE_APP_BACKEND_AUTH_URL, {
+    return apiClient().post(process.env.VUE_APP_BACKEND_AUTH_URL, {
       grant_type: "convert_token",
       client_id: process.env.VUE_APP_BACKEND_API_CLIENT_ID,
       client_secret: process.env.VUE_APP_BACKEND_API_CLIENT_SECRET,
