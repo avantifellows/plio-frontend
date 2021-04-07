@@ -267,16 +267,12 @@ export default {
       // checks if an item is to be selected and marks/unmarks accordingly
       if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
         return;
-      console.log(this.lastCheckTimestamp);
-      console.log(timestamp);
       this.lastCheckTimestamp = timestamp;
       this.currentItemIndex = ItemFunctionalService.checkItemPopup(
         timestamp,
         this.itemTimestamps,
         POP_UP_PRECISION_TIME
       );
-      console.log("yesss");
-      console.log(this.currentItemIndex);
       if (this.currentItemIndex != null) {
         this.markItemSelected();
       }

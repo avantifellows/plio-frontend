@@ -18,7 +18,7 @@ export default {
         enabled: true,
         iconName: "times-solid",
         iconClass:
-          "text-red-600 bg-white h-5 w-5 sm:h-10 sm:w-10 shadow-none hover:bg-gray-200",
+          "text-red-600 bg-white h-5 w-5 sm:h-8 sm:w-8 md:h-10 md:w-10 shadow-none hover:bg-gray-200",
       };
     },
   },

@@ -2,7 +2,12 @@
   <div class="flex flex-col bg-white w-full h-full overflow-hidden">
     <div v-if="isItemQuestion" class="h-full flex flex-col shadow-inner">
       <item-question-header @close-question="closeModal"></item-question-header>
-      <div class="flex-grow shadow-inner overflow-y-auto"></div>
+      <item-question-body
+        class="flex-grow"
+        :questionText="questionText"
+        :options="questionOptions"
+        :correctAnswer="questionCorrectAnswer"
+      ></item-question-body>
       <item-question-footer
         @proceed-question="closeModal"
         class="place-self-end shadow-inner"
@@ -13,6 +18,7 @@
 
 <script>
 import ItemQuestionHeader from "@/components/Items/Question/Header";
+import ItemQuestionBody from "@/components/Items/Question/Body";
 import ItemQuestionFooter from "@/components/Items/Question/Footer";
 
 export default {
@@ -36,6 +42,7 @@ export default {
   components: {
     ItemQuestionHeader,
     ItemQuestionFooter,
+    ItemQuestionBody,
   },
   computed: {
     currentItem() {
@@ -47,15 +54,20 @@ export default {
       if (this.currentItem == undefined) return null;
       return this.currentItem["type"];
     },
-    isOptionCorrect(optionIndex) {
-      // where the selected option index is current
-      if (this.currentItem == undefined) return null;
-      return this.currentItem["details"]["correct_answer"] == optionIndex;
-    },
+    // isOptionCorrect(optionIndex) {
+    //   // where the selected option index is current
+    //   if (this.currentItem == undefined) return null;
+    //   return this.currentItem["details"]["correct_answer"] == optionIndex;
+    // },
     questionOptions() {
       // options for the question
       if (this.currentItem == undefined) return null;
       return this.currentItem["details"]["options"];
+    },
+    questionCorrectAnswer() {
+      // correct answer for the question
+      if (this.currentItem == undefined) return null;
+      return this.currentItem["details"]["correct_answer"];
     },
     questionText() {
       // text for the question
