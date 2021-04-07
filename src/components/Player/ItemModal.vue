@@ -11,6 +11,7 @@
       <item-question-footer
         @proceed-question="closeModal"
         class="place-self-end shadow-inner"
+        v-model:isFullscreen="localIsFullscreen"
       ></item-question-footer>
     </div>
   </div>
@@ -38,6 +39,11 @@ export default {
       default: null,
       type: Number,
     },
+    isFullscreen: {
+      // whether the modal is in fullscreen
+      default: false,
+      type: Boolean,
+    },
   },
   components: {
     ItemQuestionHeader,
@@ -45,6 +51,15 @@ export default {
     ItemQuestionBody,
   },
   computed: {
+    localIsFullscreen: {
+      // local copy of isFullscreen prop
+      get() {
+        return this.isFullscreen;
+      },
+      set(localIsFullscreen) {
+        this.$emit("update:isFullscreen", localIsFullscreen);
+      },
+    },
     currentItem() {
       // current item from the list of items
       return this.itemList[this.selectedItemIndex];
@@ -95,6 +110,6 @@ export default {
       this.$emit("close");
     },
   },
-  emits: ["close"],
+  emits: ["close", "update:isFullscreen"],
 };
 </script>

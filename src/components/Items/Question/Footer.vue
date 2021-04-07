@@ -1,12 +1,14 @@
 <template>
   <div class="flex w-full bg-white p-1 md:p-3 justify-between">
     <div class="place-self-start flex h-full">
+      <!-- revise button -->
       <icon-button
         :titleConfig="reviseButtonTitleConfig"
         :buttonClass="reviseButtonClass"
         @click="reviseClicked"
         v-if="!isAnswerSubmitted"
       ></icon-button>
+      <!-- icon to show correct/wrong option result -->
       <inline-svg
         :src="answerCorrectnessIcon"
         :class="answerCorrectnessIconClass"
@@ -14,7 +16,15 @@
         v-else
       ></inline-svg>
     </div>
+    <!-- button to enter/exit fullscreen -->
+    <icon-button
+      :iconConfig="fullscreenIconConfig"
+      :buttonClass="fullscreenButtonClass"
+      @click="toggleFullscreen"
+      v-if="!isAnswerSubmitted"
+    ></icon-button>
     <div class="place-self-end">
+      <!-- submit button -->
       <icon-button
         :titleConfig="submitButtonTitleConfig"
         :buttonClass="submitButtonClass"
@@ -22,6 +32,7 @@
         v-if="!isAnswerSubmitted"
         :isDisabled="isSubmitDisabled"
       ></icon-button>
+      <!-- proceed button -->
       <icon-button
         :titleConfig="proceedButtonTitleConfig"
         :buttonClass="proceedButtonClass"
@@ -52,8 +63,22 @@ export default {
       default: false,
       type: Boolean,
     },
+    isFullscreen: {
+      // whether the original modal is in fullscreen
+      default: false,
+      type: Boolean,
+    },
   },
   computed: {
+    localIsFullscreen: {
+      // local copy of isFullscreen prop
+      get() {
+        return this.isFullscreen;
+      },
+      set(localIsFullscreen) {
+        this.$emit("update:isFullscreen", localIsFullscreen);
+      },
+    },
     submitButtonTitleConfig() {
       // config for the text of the submit button
       return {
@@ -87,6 +112,25 @@ export default {
       // class for the proceed button
       return "hover:bg-gray-200 ring-green-500 p-1 pl-4 pr-4 sm:p-2 sm:pl-6 sm:pr-6 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl";
     },
+    fullscreenIconConfig() {
+      // icon config for the fullscreen button
+      return {
+        enabled: true,
+        iconName: this.fullscreenIconName,
+        iconClass: "h-5 w-5 sm:h-8 sm:w-8 md:h-10 md:w-10 shadow-none hover:bg-gray-200",
+      };
+    },
+    fullscreenButtonClass() {
+      // class for the fullscreen button
+      return "ring-transparent";
+    },
+    fullscreenIconName() {
+      // icon to show if the answer was correct or not
+      if (this.isFullscreen) {
+        return "exit-fullscreen";
+      }
+      return "enter-fullscreen";
+    },
     answerCorrectnessIcon() {
       // icon to show if the answer was correct or not
       var icon = require("@/assets/images/window-close-solid.svg");
@@ -109,15 +153,27 @@ export default {
   },
   methods: {
     submitClicked() {
+      // invoked when the submit button is clicked
       this.$emit("submit-question");
     },
     reviseClicked() {
+      // invoked when the revise button is clicked
       this.$emit("revise-question");
     },
     proceedClicked() {
+      // invoked when the proceed button is clicked
       this.$emit("proceed-question");
     },
+    toggleFullscreen() {
+      // invoked when the toggle fullscreen button is clicked
+      this.localIsFullscreen = !this.localIsFullscreen;
+    },
   },
-  emits: ["submit-question", "revise-question", "proceed-question"],
+  emits: [
+    "submit-question",
+    "revise-question",
+    "proceed-question",
+    "update:isFullscreen",
+  ],
 };
 </script>

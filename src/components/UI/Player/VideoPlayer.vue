@@ -73,6 +73,8 @@ export default {
       player.on("timeupdate", this.emitTimeUpdate);
       player.on("ready", this.emitReady);
       player.on("play", this.emitPlay);
+      player.on("enterfullscreen", this.emitEnterFullscreen);
+      player.on("exitfullscreen", this.emitExitFullscreen);
     },
     emitTimeUpdate() {
       // emit an event saying that the player time has been updated
@@ -88,6 +90,14 @@ export default {
       // emit an event indicating that the player has been played
       this.$emit("play", this.player);
     },
+    emitEnterFullscreen() {
+      // emit an event indicating that the player is entering fullscreen
+      this.$emit("enterfullscreen");
+    },
+    emitExitFullscreen() {
+      // emit an event indicating that the player is exiting fullscreen
+      this.$emit("exitfullscreen");
+    },
   },
   computed: {
     isVideoIdValid() {
@@ -95,6 +105,13 @@ export default {
       return this.videoId != null && this.videoId != "";
     },
   },
-  emits: ["update", "ready", "play", "update:currentTime"],
+  emits: [
+    "update",
+    "ready",
+    "play",
+    "update:currentTime",
+    "enterfullscreen",
+    "exitfullscreen",
+  ],
 };
 </script>

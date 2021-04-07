@@ -1,5 +1,6 @@
 <template>
   <div class="flex w-full bg-white justify-end p-1 md:p-3">
+    <!-- close button -->
     <icon-button
       :iconConfig="closeButtonIconConfig"
       @click="closeClicked"

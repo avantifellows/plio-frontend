@@ -1,10 +1,12 @@
 <template>
   <div class="overflow-y-scroll flex flex-col">
+    <!-- question text -->
     <p
       class="m-2 sm:m-4 mx-4 md:mx-6 xl:mx-10 font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
     >
       {{ questionText }}
     </p>
+    <!-- option container -->
     <div class="flex mx-4 md:mx-6 xl:mx-10">
       <ul>
         <li class="list-none">
@@ -13,6 +15,7 @@
             :key="optionIndex"
             class="m-2 sm:m-4 text-xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl"
           >
+            <!-- each option is defined here -->
             <!-- adding <label> so that touch input is just
                   not limited to the radio button -->
             <label class="flex content-center">

@@ -12,6 +12,8 @@
         @play="playerPlayed"
         @ready="playerReady"
         @update="videoTimestampUpdated"
+        @enterfullscreen="playerEntersFullscreen"
+        @exitfullscreen="playerExitsFullscreen"
         class="w-full z-0"
       ></video-player>
       <!-- item modal component -->
@@ -23,6 +25,7 @@
         :itemList="items"
         :height="playerHeight"
         @close="closeItemModal"
+        v-model:isFullscreen="isFullscreen"
       ></item-modal>
     </div>
   </div>
@@ -125,7 +128,14 @@ export default {
       ],
       playerHeight: 0, // height of the player - updated once the player is ready
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
+      isFullscreen: false, // is the player in fullscreen
     };
+  },
+  watch: {
+    isFullscreen(newIsFullscreen) {
+      if (newIsFullscreen) this.$refs.videoPlayer.player.fullscreen.enter();
+      else this.$refs.videoPlayer.player.fullscreen.exit();
+    },
   },
   async created() {
     // redirect to login page if unauthenticated
@@ -286,6 +296,14 @@ export default {
       if (modal != undefined) {
         document.getElementsByClassName("plyr")[0].appendChild(modal);
       }
+    },
+    playerEntersFullscreen() {
+      // invoked when the player enters fullscreen
+      this.isFullscreen = true;
+    },
+    playerExitsFullscreen() {
+      // invoked when the player exits fullscreen
+      this.isFullscreen = false;
     },
   },
 };
