@@ -10,6 +10,7 @@
       ></item-question-body>
       <item-question-footer
         @proceed-question="closeModal"
+        @revise-question="emitRevise"
         class="place-self-end shadow-inner"
         v-model:isFullscreen="localIsFullscreen"
       ></item-question-footer>
@@ -109,7 +110,11 @@ export default {
       // close the modal
       this.$emit("close");
     },
+    emitRevise() {
+      // invoked when the revise button is clicked
+      this.$emit("revise-question");
+    },
   },
-  emits: ["close", "update:isFullscreen"],
+  emits: ["close", "update:isFullscreen", "revise-question"],
 };
 </script>

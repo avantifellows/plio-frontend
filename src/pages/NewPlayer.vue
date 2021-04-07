@@ -14,6 +14,7 @@
         @update="videoTimestampUpdated"
         @enterfullscreen="playerEntersFullscreen"
         @exitfullscreen="playerExitsFullscreen"
+        :currentTime="currentTimestamp"
         class="w-full z-0"
       ></video-player>
       <!-- item modal component -->
@@ -25,6 +26,7 @@
         :itemList="items"
         :height="playerHeight"
         @close="closeItemModal"
+        @revise-question="reviseQuestion"
         v-model:isFullscreen="isFullscreen"
       ></item-modal>
     </div>
@@ -129,6 +131,7 @@ export default {
       playerHeight: 0, // height of the player - updated once the player is ready
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       isFullscreen: false, // is the player in fullscreen
+      currentTimestamp: null, // tracks the current timestamp in the video
     };
   },
   watch: {
@@ -197,6 +200,16 @@ export default {
     },
   },
   methods: {
+    reviseQuestion() {
+      // after revise is clicked, take the user either to the beginning
+      // of the video if the question is the first item else to the end of
+      // the previous item
+      this.$refs.videoPlayer.player.currentTime =
+        this.currentItemIndex == 0
+          ? 0
+          : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
+      this.playPlayer();
+    },
     async fetchPlioCreateSession() {
       // fetches plio details and creates a new session
       await PlioAPIService.getPlio(this.id)
@@ -209,7 +222,15 @@ export default {
     },
     closeItemModal() {
       // invoked when the modal is to be closed
+      this.playPlayer();
+    },
+    playPlayer() {
+      // plays the video player
       this.$refs.videoPlayer.player.play();
+    },
+    pausePlayer() {
+      // pauses the video player
+      this.$refs.videoPlayer.player.pause();
     },
     createSession() {
       // creates new user-plio session
@@ -289,7 +310,7 @@ export default {
     },
     markItemSelected() {
       // mark the item at the currentItemIndex as selected
-      this.$refs.videoPlayer.player.pause();
+      this.pausePlayer();
 
       // if the video is in fullscreen mode, show the modal on top of it
       var modal = document.getElementById("modal");
