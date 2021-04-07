@@ -4,13 +4,14 @@ import Test from "@/pages/Test.vue";
 import Editor from "@/pages/Editor.vue";
 import Player from "@/pages/Player.vue";
 import PhoneSignIn from "@/pages/PhoneSignIn";
-// import store from "../store";
+import store from "../store";
 
 const routes = [
   {
     path: "/",
     name: "Home",
     component: Home,
+    meta: { requiresAuth: true },
   },
   {
     path: "/test",
@@ -78,39 +79,37 @@ const router = createRouter({
 /*
 Router auth logic start
 
-Commented code below that works on `isAuthenticated` state and before every route:
+The code below works on `isAuthenticated` state and before every route:
 1. Redirects user to home if user is already logged in and visiting a page that is intended for guest (route.meta.guest)
 2. Redirects user to login if user is not authenticated and visits a page that requires authentication (route.meta.requiresAuth)
-
-Uncomment the lines below when the existing login checks that uses local storage are disabled.
 */
 
-// router.beforeEach((to, from, next) => {
-//     if (to.matched.some((record) => record.meta.requiresAuth)) {
-//         if (store.getters.isAuthenticated) {
-//             next();
-//             return;
-//         }
-//         next("/login");
-//     } else {
-//         next();
-//     }
-// });
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (store.getters["auth/isAuthenticated"]) {
+      next();
+      return;
+    }
+    next({ name: "PhoneSignIn" });
+  } else {
+    next();
+  }
+});
 
-// router.beforeEach((to, from, next) => {
-//     if (to.matched.some((record) => record.meta.guest)) {
-//         if (store.getters.isAuthenticated) {
-//             next("/posts");
-//             return;
-//         }
-//         next();
-//     } else {
-//         next();
-//     }
-// });
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.guest)) {
+    if (store.getters["auth/isAuthenticated"]) {
+      next({ name: "Home" });
+      return;
+    }
+    next();
+  } else {
+    next();
+  }
+});
 
 /*
-Router auth logic start
+Router auth logic end
 */
 
 export default router;

@@ -49,7 +49,7 @@ export default {
     };
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn", "userId"]),
+    ...mapState('auth', ["userId"]),
     isOtpSubmitDisabled: function () {
       if (!this.phoneInput) return true;
       return this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g) == null;
@@ -62,11 +62,6 @@ export default {
       return '+91' + this.phoneInput;
     },
   },
-  created() {
-    if (this.isLoggedIn) {
-      this.$router.replace({ name: "Home" });
-    }
-  },
   methods: {
     ...mapActions('auth', ['login', 'setAuthToken']),
     requestOtp() {
@@ -77,8 +72,7 @@ export default {
       UserService.verifyOtp(this.formattedPhoneInput, this.otpInput)
         .then((response) => {
           this.setAuthToken(response.data);
-        //   this.$router.push({name: 'Home'});
-          this.$router.push({name: '404'});
+          this.$router.push({name: 'Home'});
         });
     },
     storePhone() {
@@ -127,8 +121,7 @@ export default {
         let socialAuthToken = googleUser.getAuthResponse();
         UserService.convertSocialAuthToken(socialAuthToken.access_token).then((response) => {
           this.setAuthToken(response.data);
-        //   this.$router.push({name: 'Home'});
-          this.$router.push({name: '404'});
+          this.$router.push({name: 'Home'});
         });
       } catch (error) {
         console.error(error);

@@ -9,7 +9,6 @@ const STOP_UPLOADING = "STOP_UPLOADING";
 
 const state = {
   authToken: null,
-  isLoggedIn: false,
   userId: localStorage.getItem("phone"),
   configs: localStorage.getItem("configs"),
   pending: false,
@@ -54,14 +53,11 @@ const actions = {
 const mutations = {
   setAuthToken(state, authToken) {
     state.authToken = authToken;
-    state.isLoggedIn = true;
   },
   unsetAuthToken(state) {
     state.authToken = null;
-    state.isLoggedIn = false;
   },
   [LOGIN_SUCCESS](state) {
-    state.isLoggedIn = true;
     state.userId = localStorage.getItem("phone");
   },
   [CONFIG_SUCCESS](state) {

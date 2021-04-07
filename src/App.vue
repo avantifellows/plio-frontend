@@ -17,7 +17,7 @@
 
       <!-- page heading -->
       <div
-        v-if="isLoggedIn"
+        v-if="isAuthenticated"
         class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center"
       >
         <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
@@ -39,14 +39,14 @@
       <div class="grid col-start-7 sm:gap-1 sm:justify-items-center">
         <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
         <div v-if="!onLoginPage" class="text-lg sm:text-xl place-self-center">
-          <router-link v-if="!isLoggedIn" :to="{ name: 'PhoneSignIn' }">
+          <router-link v-if="!isAuthenticated" :to="{ name: 'PhoneSignIn' }">
             <button
               class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain"
             >
               {{ $t("nav.login") }}
             </button>
           </router-link>
-          <a href="#" v-if="isLoggedIn" @click="logoutUser">
+          <a href="#" v-if="isAuthenticated" @click="logoutUser">
             <button
               class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2"
             >
@@ -102,7 +102,7 @@ export default {
     window.removeEventListener("beforeunload", this.onClose);
   },
   mounted() {
-    if (this.isLoggedIn && !this.hasLocalUserConfigs) {
+    if (this.isAuthenticated && !this.hasLocalUserConfigs) {
       // fetch user config for logged in users if not already present
       this.$refs.userProperties.saveLocalUserConfigs();
     }
@@ -143,7 +143,7 @@ export default {
   },
   computed: {
     ...mapGetters('auth', ["isAuthenticated", "stateAuthToken"]),
-    ...mapState('auth', ["pending", "isLoggedIn", "configs"]),
+    ...mapState('auth', ["pending", "configs"]),
     hasLocalUserConfigs() {
       // whether the use configs have been set
       return this.configs != null;
@@ -154,7 +154,7 @@ export default {
     },
     showCreateButton() {
       // whether to show the Create button
-      return this.isLoggedIn && this.$route.name == "Home";
+      return this.isAuthenticated && this.$route.name == "Home";
     },
     currentPageName() {
       // name of the current page as saved in assets/locales

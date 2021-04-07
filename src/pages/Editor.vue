@@ -287,7 +287,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(["uploading"]),
+    ...mapState('auth', ["uploading"]),
     correctOptionIndex() {
       // get the index of the correct answer from options list
       return this.items[this.currentItemIndex].details.correct_answer;
@@ -481,7 +481,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["startUploading", "stopUploading"]),
+    ...mapActions('auth', ["startUploading", "stopUploading"]),
     returnToHome() {
       // returns the user back to Home
       this.$router.push({ name: "Home" });

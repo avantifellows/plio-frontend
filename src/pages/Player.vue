@@ -645,7 +645,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(["userId"]),
+    ...mapState('auth', ["userId"]),
     playerOptions() {
       const options = {
         title: "This is an example video",

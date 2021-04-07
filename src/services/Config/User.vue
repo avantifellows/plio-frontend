@@ -4,10 +4,13 @@
 
 <script>
 import UserService from '@/services/API/User.js'
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
-  computed: mapState(['isLoggedIn', 'userId', 'configs']),
+  computed: {
+      ...mapState(['userId', 'configs']),
+      ...mapGetters(['isAuthenticated']),
+  },
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
@@ -34,7 +37,7 @@ export default {
     },
 
     updateLocale() {
-      if (this.isLoggedIn) {
+      if (this.isAuthenticated) {
         var userConfigs = JSON.parse(this.configs);
         // change the locale
         userConfigs["locale"] = this.$i18n.locale;
