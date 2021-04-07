@@ -25,9 +25,8 @@ const actions = {
   async setAuthToken({ commit }, authToken) {
     await commit("setAuthToken", authToken);
   },
-  async logout({ commit }) {
-    let authToken = null;
-    commit("logOut", authToken);
+  async unsetAuthToken({ commit }) {
+    commit("unsetAuthToken");
   },
   saveConfigs({ commit }, creds) {
     commit(START_LOADING); // show spinner
@@ -54,9 +53,12 @@ const actions = {
 
 const mutations = {
   setAuthToken(state, authToken) {
-    console.log("sinde mutation");
     state.authToken = authToken;
     state.isLoggedIn = true;
+  },
+  unsetAuthToken(state) {
+    state.authToken = null;
+    state.isLoggedIn = false;
   },
   [LOGIN_SUCCESS](state) {
     state.isLoggedIn = true;
@@ -76,9 +78,6 @@ const mutations = {
   },
   [STOP_UPLOADING](state) {
     state.uploading = false;
-  },
-  logOut(state) {
-    state.authToken = null;
   },
 };
 

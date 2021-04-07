@@ -77,7 +77,8 @@ export default {
       UserService.verifyOtp(this.formattedPhoneInput, this.otpInput)
         .then((response) => {
           this.setAuthToken(response.data);
-          this.$router.push({name: 'Home'});
+        //   this.$router.push({name: 'Home'});
+          this.$router.push({name: '404'});
         });
     },
     storePhone() {

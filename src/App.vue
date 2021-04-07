@@ -112,10 +112,10 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions('auth', ["logout", "startLoading", "stopLoading"]),
+    ...mapActions('auth', ["unsetAuthToken", "startLoading", "stopLoading"]),
     logoutUser() {
       // logs out the user
-      this.logout().then(() => {
+      this.unsetAuthToken().then(() => {
         this.$router.push({ name: "PhoneSignIn" });
       });
     },
