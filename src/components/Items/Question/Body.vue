@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-y-auto flex flex-col">
+  <div class="overflow-y-scroll flex flex-col">
     <p
       class="m-2 sm:m-4 mx-4 md:mx-6 xl:mx-10 font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
     >
@@ -23,10 +23,10 @@
                 name="questionOptions"
                 v-model="localSelectedOption"
                 :value="option"
-                class="place-self-center w-4 h-4 sm:w-5 sm:h-5"
+                class="place-self-center w-4 h-4 sm:w-6 sm:h-6 lg:w-10 lg:h-10"
                 @click="selectOption(optionIndex)"
               />
-              <div v-html="option" class="ml-2"></div>
+              <div v-html="option" class="ml-2 sm:ml-4 lg:ml-6"></div>
             </label>
           </div>
         </li>

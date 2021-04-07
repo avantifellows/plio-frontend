@@ -3,7 +3,7 @@
     <div v-if="isItemQuestion" class="h-full flex flex-col shadow-inner">
       <item-question-header @close-question="closeModal"></item-question-header>
       <item-question-body
-        class="flex-grow"
+        class="flex-grow overflow-y-scroll"
         :questionText="questionText"
         :options="questionOptions"
         :correctAnswer="questionCorrectAnswer"
