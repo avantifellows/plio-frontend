@@ -6,8 +6,11 @@
     <div class="mb-2">
       <input id="phone" class="form-control" v-model="phoneInput" type="tel" maxlength="10" />
     </div>
-    <div>
-      <input id="otp" class="form-control" v-model="otpInput" type="text" maxlength="6" v-if="requestedOtp" />
+    <div class="form-group">
+      <input id="otp" :class="{'is-invalid': invalidOtp}" class="form-control" v-model="otpInput" type="text" maxlength="6" v-if="requestedOtp" />
+      <small class="text-bold message-otp-invalid" v-if="invalidOtp">
+        {{ $t("login.learner.message_otp_invalid") }}
+      </small>
     </div>
     <div class="watch_plio mb-5">
       <button class="my-4" :disabled="isOtpSubmitDisabled" @click="requestOtp" v-if="!requestedOtp">
@@ -50,6 +53,7 @@ export default {
       user: '',
       requestedOtp: false,
       resentOtp: false,
+      invalidOtp: false,
     };
   },
   computed: {
@@ -71,16 +75,22 @@ export default {
     requestOtp() {
       UserService.requestOtp(this.formattedPhoneInput).then((response) => console.log(response));
       this.requestedOtp = true;
+      this.invalidOtp = false;
     },
     resendOtp() {
       UserService.requestOtp(this.formattedPhoneInput).then((response) => console.log(response));
       this.resentOtp = true;
+      this.invalidOtp = false;
     },
     login() {
       UserService.verifyOtp(this.formattedPhoneInput, this.otpInput)
         .then((response) => {
           this.setAccessToken(response.data);
           this.$router.push({name: 'Home'});
+        }).catch((error) => {
+          if (error.response.status == 401) {
+            this.invalidOtp = true;
+          }
         });
     },
     async handleClickGoogleSignIn(){
@@ -127,13 +137,21 @@ export default {
   transform: translate(-50%, -50%);
 }
 
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
 input.form-control {
-  margin: auto;
   max-width: 300px;
   font-size: 1.6em;
   border: 1px solid #aaa;
   border-radius: 4px;
   padding: 8px 10px;
+}
+
+input.form-control.is-invalid {
+  border-color: red;
 }
 
 button {
@@ -177,6 +195,10 @@ button:disabled:hover {
   text-decoration: underline;
 }
 .message-otp-resent {
-    color: green;
+  color: green;
+}
+.message-otp-invalid {
+  color: red;
+  font-weight: bold;
 }
 </style>

@@ -33,6 +33,7 @@ export default {
       button_otp: "OTP का अनुरोध करें",
       button_resend: "OTP पुनः भेजें",
       message_otp_resent: "OTP फिर भेजा गया है!",
+      message_otp_invalid: "गलत OTP! कृपया सही दर्ज करें",
     },
   },
   player: {

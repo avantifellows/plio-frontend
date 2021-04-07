@@ -33,6 +33,7 @@ export default {
       button_otp: "Request OTP",
       button_resend: "Resend OTP",
       message_otp_resent: "OTP has been sent again!",
+      message_otp_invalid: "Incorrect OTP! Please enter the correct one.",
     },
   },
   player: {
