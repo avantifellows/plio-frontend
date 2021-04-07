@@ -35,6 +35,7 @@ export default {
     learner: {
       phone_prompt: "कृपया अपना मोबाइल नंबर डालें (केवल दस अंक)",
       button: "प्लायो दिखाओ",
+      button_google_sign_in: "गूगल के साथ साइन इन करें",
     },
   },
   player: {

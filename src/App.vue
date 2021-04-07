@@ -112,7 +112,7 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions(["logout", "startLoading", "stopLoading"]),
+    ...mapActions('auth', ["logout", "startLoading", "stopLoading"]),
     logoutUser() {
       // logs out the user
       this.logout().then(() => {
@@ -137,14 +137,13 @@ export default {
     },
     onClose(event) {
       // invoked when trying to close the browser or changing pages
-      // console.log(event);
       event.preventDefault();
       event.returnValue = "";
     },
   },
   computed: {
-    ...mapGetters(["isAuthenticated", "stateAuthToken"]),
-    ...mapState(["pending", "isLoggedIn", "configs"]),
+    ...mapGetters('auth', ["isAuthenticated", "stateAuthToken"]),
+    ...mapState('auth', ["pending", "isLoggedIn", "configs"]),
     hasLocalUserConfigs() {
       // whether the use configs have been set
       return this.configs != null;

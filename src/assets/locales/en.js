@@ -35,6 +35,7 @@ export default {
     learner: {
       phone_prompt: "Please enter your mobile number (10 digits only)",
       button: "Watch Plio!",
+      button_google_sign_in: "Sign in with Google",
     },
   },
   player: {

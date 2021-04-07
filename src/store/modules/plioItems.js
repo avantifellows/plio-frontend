@@ -14,13 +14,13 @@ const actions = {
     // https://vuex.vuejs.org/api/#dispatch
     // we want to call the action 'startLoading' but this action doesn't
     // exist here, it exists in the root store file "index.js"
-    dispatch("startLoading", null, { root: true });
+    dispatch("auth/startLoading", null, { root: true });
 
     const response = await PlioService.getAllPlios();
     var allPlios = response.data;
     commit("setPliosList", allPlios);
 
-    dispatch("stopLoading", null, { root: true });
+    dispatch("auth/stopLoading", null, { root: true });
   },
 };
 const mutations = {
