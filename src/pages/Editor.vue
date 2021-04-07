@@ -59,6 +59,7 @@
           <icon-button
             :titleConfig="publishButtonTitleConfig"
             :class="publishButtonClass"
+            class="shadow-lg"
             v-tooltip.right="publishButtonTooltip"
             @click="publishButtonClicked"
           ></icon-button>
@@ -339,7 +340,7 @@ export default {
     },
     backButtonClass() {
       // classes for the back button
-      return "bg-gray-100 hover:bg-gray-200 rounded-md";
+      return "bg-gray-100 hover:bg-gray-200 rounded-md shadow-lg";
     },
     backButtonTitleConfig() {
       // config for text of back button
@@ -457,7 +458,7 @@ export default {
         { "cursor-not-allowed": this.addItemDisabled },
 
         `rounded-md font-bold p-5 h-12 w-96 bg-primary-button
-        hover:bg-primary-button-hover disabled:opacity-50`,
+        hover:bg-primary-button-hover disabled:opacity-50 shadow-lg`,
       ];
       return classObject;
     },
@@ -535,7 +536,7 @@ export default {
         timestamp,
         this.itemTimestamps
       );
-      if (selectedItemIndex != -1) {
+      if (selectedItemIndex != null) {
         this.markItemSelected(selectedItemIndex);
       } else this.markNoItemSelected();
     },

@@ -50,7 +50,7 @@
 
       <!-- delete item button -->
       <icon-button
-        class="rounded-xl bg-delete-button w-8 h-8"
+        class="rounded-xl bg-delete-button w-8 h-8 shadow-lg"
         :iconConfig="deleteItemIconConfig"
         @click="deleteSelectedItem"
         v-tooltip.left="deleteItemButtonTooltip"
@@ -129,7 +129,8 @@ export default {
         iconClass: "text-white h-5 w-5",
       },
       // styling classes for previous item button
-      previousItemButtonClass: "bg-primary-button hover:bg-primary-button-hover",
+      previousItemButtonClass:
+        "bg-primary-button hover:bg-primary-button-hover shadow-lg",
       nextItemIconConfig: {
         // icon config for next item button
         enabled: true,
@@ -137,7 +138,7 @@ export default {
         iconClass: "text-white h-5 w-5",
       },
       // styling classes for next item button
-      nextItemButtonClass: "bg-primary-button hover:bg-primary-button-hover",
+      nextItemButtonClass: "bg-primary-button hover:bg-primary-button-hover shadow-lg",
       addItemIconConfig: {
         // icon config for add item button
         enabled: true,
@@ -146,12 +147,12 @@ export default {
       },
       // styling classes for add item button
       addItemButtonClass: [
-        "bg-primary-button hover:bg-primary-button-hover disabled:opacity-40",
+        "bg-primary-button hover:bg-primary-button-hover disabled:opacity-40 shadow-lg",
         { "cursor-not-allowed": this.isInteractionDisabled },
       ],
       // styling classes for add option button
       addOptionButtonClass: [
-        `rounded-md font-bold p-5 h-2 w-auto bg-primary-button
+        `rounded-md font-bold p-5 h-2 w-auto bg-primary-button shadow-lg
         hover:bg-primary-button-hover disabled:opacity-50`,
         { "cursor-not-allowed": this.isInteractionDisabled },
       ],

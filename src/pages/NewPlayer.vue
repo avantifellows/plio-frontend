@@ -1,40 +1,45 @@
 <template>
-  <div>
+  <div class="bg-gray-200 h-screen p-2 lg:p-5">
     <!-- skeleton loading -->
     <video-skeleton v-if="!isVideoIdValid"></video-skeleton>
-    <div v-else class="flex relative">
+    <div v-else class="flex relative shadow-lg">
       <!-- video player component -->
       <video-player
         :videoId="videoId"
         :plyrConfig="plyrConfig"
         ref="videoPlayer"
+        id="videoPlayer"
         @play="playerPlayed"
         @ready="playerReady"
         @update="videoTimestampUpdated"
-        class="w-full"
+        class="w-full z-0"
       ></video-player>
       <!-- item modal component -->
       <item-modal
-        class="absolute"
-        v-if="showItemModal"
+        id="modal"
+        class="absolute z-10"
+        :class="{ hidden: !showItemModal }"
         :selectedItemIndex="currentItemIndex"
         :itemList="items"
+        :height="playerHeight"
+        @close="closeItemModal"
       ></item-modal>
     </div>
-    <!-- user properties component -->
-    <user-properties ref="userProperties"></user-properties>
   </div>
 </template>
 
 <script>
 import VideoPlayer from "@/components/UI/Player/VideoPlayer";
 import VideoSkeleton from "../components/UI/Skeletons/VideoSkeleton.vue";
-import UserProperties from "@/services/Config/User.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import { mapState } from "vuex";
 import ItemModal from "../components/Player/ItemModal.vue";
+
+// difference in seconds between consecutive checks for item pop-up
+var POP_UP_CHECKING_FREQUENCY = 0.1;
+var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 
 // Immediate TODO:
 // - show modals for each item
@@ -65,7 +70,11 @@ if (!Array.prototype.indexOf) {
 }
 
 export default {
-  components: { VideoPlayer, VideoSkeleton, UserProperties, ItemModal },
+  components: {
+    VideoPlayer,
+    VideoSkeleton,
+    ItemModal,
+  },
   data() {
     return {
       plyrConfig: {
@@ -114,6 +123,8 @@ export default {
         "pointer-events-none",
         "rounded-md",
       ],
+      playerHeight: 0, // height of the player - updated once the player is ready
+      lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
     };
   },
   async created() {
@@ -134,6 +145,13 @@ export default {
     if (this.$route.query.src) {
       this.source = this.$route.query.src;
     }
+
+    // add listener for screen size being changed
+    window.addEventListener("resize", this.setScreenProperties);
+  },
+  unmounted() {
+    // remove listeners
+    window.removeEventListener("resize", this.setScreenProperties);
   },
   props: {
     experiment: {
@@ -179,9 +197,17 @@ export default {
         .then(() => this.createSession())
         .catch((err) => this.handleQueryError(err));
     },
+    closeItemModal() {
+      // invoked when the modal is to be closed
+      this.$refs.videoPlayer.player.play();
+    },
     createSession() {
       // creates new user-plio session
       console.log(this.items[0].details.id);
+    },
+    setScreenProperties() {
+      // sets various properties based on the device screen
+      this.playerHeight = document.getElementById("videoPlayer").clientHeight;
     },
     handleQueryError(err) {
       // handles error encountered when fetching plio or creating new session
@@ -203,6 +229,7 @@ export default {
     playerReady(player) {
       // invoked when the player is ready
       this.showItemMarkersOnSlider(player);
+      this.setScreenProperties();
     },
     showItemMarkersOnSlider(player) {
       // show the markers for items on top of the video slider
@@ -238,26 +265,31 @@ export default {
     },
     checkItemToSelect(timestamp) {
       // checks if an item is to be selected and marks/unmarks accordingly
-      var selectedItemIndex = ItemFunctionalService.checkItemPopup(
-        timestamp,
-        this.itemTimestamps
-      );
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+        return;
+      console.log(this.lastCheckTimestamp);
       console.log(timestamp);
-      console.log(this.itemTimestamps);
-      if (selectedItemIndex != -1) {
-        this.markItemSelected(selectedItemIndex);
-      } else this.markNoItemSelected();
-    },
-    markItemSelected(itemIndex) {
-      // mark the item at the given index as selected
-      if (itemIndex != null) {
-        this.$refs.videoPlayer.player.pause();
-        this.currentItemIndex = itemIndex;
+      this.lastCheckTimestamp = timestamp;
+      this.currentItemIndex = ItemFunctionalService.checkItemPopup(
+        timestamp,
+        this.itemTimestamps,
+        POP_UP_PRECISION_TIME
+      );
+      console.log("yesss");
+      console.log(this.currentItemIndex);
+      if (this.currentItemIndex != null) {
+        this.markItemSelected();
       }
     },
-    markNoItemSelected() {
-      // mark that no item has been currently selected
-      this.currentItemIndex = null;
+    markItemSelected() {
+      // mark the item at the currentItemIndex as selected
+      this.$refs.videoPlayer.player.pause();
+
+      // if the video is in fullscreen mode, show the modal on top of it
+      var modal = document.getElementById("modal");
+      if (modal != undefined) {
+        document.getElementsByClassName("plyr")[0].appendChild(modal);
+      }
     },
   },
 };
