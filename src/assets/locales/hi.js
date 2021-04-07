@@ -25,6 +25,12 @@ export default {
       id: "पहचान",
     },
   },
+  otp: {
+    learner: {
+      button: "OTP का अनुरोध करें",
+      button_resend: "OTP पुनः भेजें",
+    },
+  },
   login: {
     learner: {
       phone_prompt: "कृपया अपना मोबाइल नंबर डालें (केवल दस अंक)",

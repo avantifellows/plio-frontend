@@ -25,6 +25,12 @@ export default {
       id: "ID",
     },
   },
+  otp: {
+    learner: {
+      button: "Request OTP",
+      button_resend: "Resend OTP",
+    },
+  },
   login: {
     learner: {
       phone_prompt: "Please enter your mobile number (10 digits only)",
