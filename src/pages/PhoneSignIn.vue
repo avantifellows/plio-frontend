@@ -15,7 +15,7 @@
 
 <script>
 import UserProperties from "@/services/Config/User.vue";
-import UserService from "@/services/API/User.js";
+import UserAPIService from "@/services/API/User.js";
 
 import { mapState, mapActions } from "vuex";
 
@@ -52,7 +52,7 @@ export default {
       // separately by other components as needed
       const jsonResponse = JSON.stringify({ userId: this.phoneInput });
 
-      UserService.loginUser(jsonResponse)
+      UserAPIService.loginUser(jsonResponse)
         .then((response) => console.log(response))
         .then(() => {
           this.login({
