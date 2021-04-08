@@ -438,7 +438,7 @@ export default {
       this.watchTime += PLYR_INTERVAL_TIME;
       // update retention
       var currentTime = Math.trunc(this.player.currentTime);
-      if (currentTime == null || currentTime != this.lastTimestampRetention) {
+      if (currentTime != this.lastTimestampRetention) {
         this.retention[currentTime] += 1;
         this.lastTimestampRetention = currentTime;
       }
