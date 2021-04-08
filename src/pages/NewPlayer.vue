@@ -47,15 +47,14 @@ var POP_UP_CHECKING_FREQUENCY = 0.1;
 var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 
 // Immediate TODO:
-// - show modals for each item
-// - pop-up modal at the right time
 // - fetch new session
 // - update retention, watch-time etc.
+// - question popping up as event track
 // - check if everything looks okay on desktop and on mobile
 // - log data function for periodic updates - can be in the form of
 // journey - still watching type - can use logic in older code then to reset them
 // - get events and session answers from past sessions
-// - support for resetting user where they left off in the video
+// - support for resetting user where they left off in the video based on last event discussed
 // - mark already answered question as green
 
 // supports indexOf for older browsers

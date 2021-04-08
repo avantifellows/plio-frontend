@@ -1,13 +1,17 @@
 <template>
   <div class="flex flex-col bg-white w-full h-full overflow-hidden">
+    <!-- question modal -->
     <div v-if="isItemQuestion" class="h-full flex flex-col shadow-inner">
+      <!-- header -->
       <item-question-header @close-question="closeModal"></item-question-header>
+      <!-- main question body -->
       <item-question-body
         class="flex-grow overflow-y-scroll"
         :questionText="questionText"
         :options="questionOptions"
         :correctAnswer="questionCorrectAnswer"
       ></item-question-body>
+      <!-- footer -->
       <item-question-footer
         @proceed-question="closeModal"
         @revise-question="emitRevise"
