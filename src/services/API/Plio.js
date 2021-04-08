@@ -5,17 +5,6 @@ import QuestionAPIService from "@/services/API/Question.js";
 import { pliosEndpoint, itemsEndpoint } from "@/services/API/Endpoints.js";
 
 export default {
-  getPlioDetails(plioId, userId) {
-    // returns the details for one plio-user session
-    return apiClient().get(
-      process.env.VUE_APP_BACKEND_PLIO_DETAILS +
-        "?plioId=" +
-        plioId +
-        "&userId=" +
-        userId
-    );
-  },
-
   async getPlio(plioId) {
     // returns the details for one plio
     return Promise.all([
@@ -41,6 +30,7 @@ export default {
   },
 
   getAllPlios() {
+    // returns all the plios created by the user
     return apiClient().get(pliosEndpoint);
   },
 
@@ -53,7 +43,7 @@ export default {
   },
 
   async updatePlio(plioValue, plioId) {
-    // handle items and questions being updated
+    // handle video, items and questions being updated
     plioValue.items.forEach((item) => {
       ItemAPIService.updateItem(item);
       QuestionAPIService.updateQuestion(item.details);
