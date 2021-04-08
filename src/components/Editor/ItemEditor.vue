@@ -4,9 +4,9 @@
     class="flex flex-col w-full h-full rounded-md main-container"
     v-if="localSelectedItemIndex != null"
   >
-    <div class="flex gap-1 flex-row w-full p-4 nav-bar justify-end">
+    <div class="flex gap-1 flex-row w-full p-4 justify-end">
       <!-- nav bar -->
-      <div class="mr-auto flex content-center">
+      <div class="mr-auto sm:flex content-center hidden">
         <p class="self-center editor-title">
           EDIT {{ localItemList[localSelectedItemIndex].type.toUpperCase() }}
         </p>
@@ -16,6 +16,7 @@
       <ItemDropDown
         :optionsList="itemOptionsList"
         v-model:selectedItemIndex="localSelectedItemIndex"
+        class="mr-auto sm:mr-0"
       ></ItemDropDown>
 
       <!-- previous item button -->
@@ -77,6 +78,7 @@
         class="p-2"
         v-model:timeObject="timeObject"
         :timeValid="timeExceedsVideoDuration"
+        :itemInVicinity="itemInVicinity"
         :isDisabled="isInteractionDisabled"
       ></time-input>
 
@@ -162,6 +164,7 @@ export default {
         iconClass: "text-white",
       },
       timeExceedsVideoDuration: false, //stores if the time entered by the user exceeds the total video duration
+      itemInVicinity: false, // stores if another item is in the vicinity of the current selected item
       dialogTitle: "", // title for the dialog box
       dialogDescription: "", // description for the dialog box
       showDialog: false, // whether to show the dialog box
@@ -302,6 +305,19 @@ export default {
         this.localSelectedItemIndex
       ].details.correct_answer = selectedOptionIndex;
     },
+    isTimestampValid(timestamp, itemIndex = null) {
+      // loop through time values of items to check if the user selected time
+      // is valid or not
+      // using for loop instead of forEach as forEach was running async
+      for (let index = 0; index < this.localItemList.length; index++) {
+        // don't check against the selected item itself
+        if (index == itemIndex || index == null) continue;
+        var val = this.localItemList[index].time;
+        if (val == timestamp || (timestamp <= val + 2 && timestamp >= val - 2))
+          return false;
+      }
+      return true;
+    },
   },
 
   computed: {
@@ -383,9 +399,9 @@ export default {
       var optionsList = [];
       this.localItemList.forEach((item, itemIndex) => {
         var currentItem = {};
-        currentItem["index"] = itemIndex;
+        currentItem["value"] = itemIndex;
         var itemType = this.capitalizeFirstLetter(item.type);
-        currentItem["label"] = `${itemType} ${itemIndex + 1}`;
+        currentItem["text"] = `${itemType} ${itemIndex + 1}`;
         optionsList.push(currentItem);
       });
 
@@ -420,10 +436,14 @@ export default {
       set(value) {
         // convert timeObject to seconds
         var timeInSeconds = this.convertISOTimeToSeconds(value);
+        // check for validity of the time
         if (timeInSeconds > this.videoDuration) {
           this.timeExceedsVideoDuration = true;
+        } else if (!this.isTimestampValid(timeInSeconds, this.localSelectedItemIndex)) {
+          this.itemInVicinity = true;
         } else {
           this.timeExceedsVideoDuration = false;
+          this.itemInVicinity = false;
           this.localItemList[this.localSelectedItemIndex].time = timeInSeconds || 0;
         }
       },
@@ -453,9 +473,6 @@ export default {
 </script>
 
 <style scoped>
-.nav-bar {
-  height: 10%;
-}
 .main-container {
   background: #f4eae1;
 }

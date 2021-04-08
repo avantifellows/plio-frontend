@@ -65,13 +65,24 @@
     </div>
 
     <!-- invalid input warning -->
-    <div v-if="isAnyInputInvalid" class="flex flex-row pl-2">
+    <div
+      v-if="isAnyInputInvalid || timeValid || itemInVicinity"
+      class="flex flex-row pl-2"
+    >
       <inline-svg
         :src="require('@/assets/images/times-solid.svg')"
         class="h-5 w-2.5 place-self-center text-red-600"
       ></inline-svg>
 
-      <p class="text-xs pl-2 place-self-center text-red-600">{{ invalidInputWarning }}</p>
+      <p v-if="isAnyInputInvalid" class="text-xs pl-2 place-self-center text-red-600">
+        {{ invalidInputWarning }}
+      </p>
+      <p v-else-if="timeValid" class="text-xs pl-2 place-self-center text-red-600">
+        {{ timeExceedsWarning }}
+      </p>
+      <p v-else-if="itemInVicinity" class="text-xs pl-2 place-self-center text-red-600">
+        {{ itemInVicinityWarning }}
+      </p>
     </div>
 
     <div v-if="timeValid" class="flex flex-row pl-2">
@@ -114,6 +125,7 @@ export default {
 
       invalidInputWarning: "Invalid time value",
       timeExceedsWarning: "The time entered exceeds the video duration",
+      itemInVicinityWarning: "Questions should be at least 2 seconds apart",
     };
   },
   components: {
@@ -152,6 +164,11 @@ export default {
     },
     isDisabled: {
       // whether to disable the time inputs or not
+      default: false,
+      type: Boolean,
+    },
+    itemInVicinity: {
+      // whether some other item is in the vicinity of the current item
       default: false,
       type: Boolean,
     },

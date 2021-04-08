@@ -521,8 +521,19 @@ export default {
     },
     itemMarkerTimestampDragEnd(itemIndex) {
       // invoked when the drag on the marker for an item is completed
+      var timeBeforeDragEnded = this.items[itemIndex].time;
       var itemTimestamp = this.itemTimestamps[itemIndex];
-      this.items[itemIndex]["time"] = itemTimestamp;
+
+      // check if the time after drag is valid and if not, set the item time
+      // back to the one before the drag
+      // else proceed with the new time
+      if (!this.isTimestampValid(itemTimestamp, itemIndex)) {
+        this.items[itemIndex]["time"] = timeBeforeDragEnded;
+        itemTimestamp = timeBeforeDragEnded;
+        this.showCannotAddItemDialog();
+      } else {
+        this.items[itemIndex]["time"] = itemTimestamp;
+      }
       // sort the items based on timestamp
       this.sortItems();
       // update itemTimestamps based on new sorted items
@@ -792,22 +803,22 @@ export default {
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
-    getTimestampForNewItem() {
+    isTimestampValid(timestamp, itemIndex = null) {
       // loop through itemTimestamps to check if the time where the user
-      // is trying to add an item is valid or not
+      // is trying to add/update an item is valid or not
       // using for loop instead of forEach as forEach was running async
 
-      // returning -1 to signify that the time chosen by the user is not valid
       for (let index = 0; index < this.itemTimestamps.length; index++) {
+        // don't check against the item itself
+        if (index == itemIndex || index == null) continue;
         var val = this.itemTimestamps[index];
         if (
-          val == this.currentTimestamp ||
-          (this.currentTimestamp <= val + ITEM_VICINITY_TIME &&
-            this.currentTimestamp >= val - ITEM_VICINITY_TIME)
+          val == timestamp ||
+          (timestamp <= val + ITEM_VICINITY_TIME && timestamp >= val - ITEM_VICINITY_TIME)
         )
-          return -1;
+          return false;
       }
-      return this.currentTimestamp;
+      return true;
     },
     getItemTypeForNewItem() {
       // returns the type of item being added when add item button is clicked
@@ -842,9 +853,8 @@ export default {
       // item and the question
       var newItem = {};
 
-      // get a valid timestamp for adding a new item
-      var newTimestamp = this.getTimestampForNewItem();
-      if (newTimestamp == -1) {
+      // check if the time where user is trying to add an item is valid or not
+      if (!this.isTimestampValid(this.currentTimestamp)) {
         this.showCannotAddItemDialog();
         return;
       }
@@ -853,13 +863,13 @@ export default {
       ItemAPIService.createItem({
         plio: this.plioDBId,
         type: this.getItemTypeForNewItem(),
-        time: newTimestamp,
+        time: this.currentTimestamp,
         meta: this.getMetadataForNewItem(),
       })
         .then((createdItem) => {
           // storing the newly created item into "newItem"
           newItem = createdItem;
-          if (createdItem.type == "question"){
+          if (createdItem.type == "question") {
             var questionDetails = this.getDetailsForNewQuestion();
             questionDetails.item = createdItem.id;
             return QuestionAPIService.createQuestion(questionDetails);
