@@ -73,7 +73,7 @@ import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import Toast from "@/components/UI/Alert/Toast.vue";
 import { mapActions, mapState } from "vuex";
-import PlioService from "@/services/API/Plio.js";
+import PlioAPIService from "@/services/API/Plio.js";
 
 export default {
   components: {
@@ -123,7 +123,7 @@ export default {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
       this.startLoading();
-      PlioService.createPlio().then((response) => {
+      PlioAPIService.createPlio().then((response) => {
         this.stopLoading();
         if (response.status == 201) {
           this.$router.push({

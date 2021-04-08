@@ -45,8 +45,8 @@ import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import StartButtonPointer from "@/components/UI/tutorial/StartButtonPointer.vue";
 import UserProperties from "@/services/Config/User.vue";
 
-import PlioService from "@/services/API/Plio.js";
-import UserService from "@/services/API/User.js";
+import PlioAPIService from "@/services/API/Plio.js";
+import UserAPIService from "@/services/API/User.js";
 import { mapState } from "vuex";
 
 // supports indexOf for older browsers
@@ -219,7 +219,7 @@ export default {
     },
 
     async fetchData() {
-      PlioService.getPlioDetails(this.id, this.userId)
+      PlioAPIService.getPlioDetails(this.id, this.userId)
         .then((res) => {
           var items = res.data.plioDetails.items;
           var questions = items;
@@ -356,7 +356,7 @@ export default {
       };
       const jsonResponse = JSON.stringify(student_response);
 
-      UserService.postUserResponse(jsonResponse)
+      UserAPIService.postUserResponse(jsonResponse)
         .then((data) => console.log(data))
         .catch((err) => console.log(err));
 
