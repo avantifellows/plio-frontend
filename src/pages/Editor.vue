@@ -156,6 +156,8 @@ import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import PlioAPIService from "@/services/API/Plio.js";
+import ItemAPIService from "@/services/API/Item.js";
+import QuestionAPIService from "@/services/API/Question.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
@@ -236,6 +238,8 @@ export default {
       },
       // index of the option to be deleted; -1 means nothing to be deleted
       optionIndexToDelete: -1,
+      videoDBId: null, // store the DB id of video object linked to the plio
+      plioDBId: null, // store the DB id of plio object
     };
   },
   async created() {
@@ -269,7 +273,8 @@ export default {
       });
       // handle item sorting and marker positioning
       // when time is changed from the time input boxes
-      this.handleTimeUpdateFromEditor();
+      // or when item is added using the add item button
+      this.checkAndFixItemOrder();
     },
     videoURL(newVideoURL) {
       // invoked when the video link is updated
@@ -501,7 +506,7 @@ export default {
         this.itemSelected(itemIndex);
       }
     },
-    handleTimeUpdateFromEditor() {
+    checkAndFixItemOrder() {
       // sort the items according to new timestamps
       // and reset the currentItemIndex
       if (this.currentItemIndex != null) {
@@ -606,6 +611,8 @@ export default {
         if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
           this.lastUpdated = new Date(plioDetails.updated_at);
         this.hasUnpublishedChanges = false;
+        this.videoDBId = plioDetails.videoDBId;
+        this.plioDBId = plioDetails.plioDBId;
       });
     },
     checkAndSavePlio() {
@@ -615,6 +622,9 @@ export default {
         this.hasUnpublishedChanges = true;
         return;
       }
+      // don't save plio if video URL is empty
+      if (!this.isVideoIdValid) return;
+
       this.changeInProgress = true;
       var time = new Date();
       // only update after a certain interval between last and current update
@@ -628,16 +638,17 @@ export default {
       this.startUploading();
       this.lastUpdated = new Date();
       var plioValue = {
-        video_id: this.videoId,
-        video_url: this.videoURL,
-        plio_title: this.plioTitle,
-        video_duration: this.videoDuration,
-        items: this.items,
+        name: this.plioTitle,
         status: this.status,
-        updated_at: this.lastUpdated,
+        created_by: 1,
+        items: this.items,
+        videoDBId: this.videoDBId,
+        url: this.videoURL,
+        duration: this.videoDuration,
       };
       return PlioAPIService.updatePlio(plioValue, this.plioId).then(() => {
         this.stopUploading();
+        return;
       });
     },
     publishPlio() {
@@ -720,7 +731,18 @@ export default {
       this.showDialogBox = true;
     },
     confirmPublish() {
+      this.showDialogBox = true;
       this.dialogTitle = this.publishInProgressDialogTitle;
+      this.dialogConfirmButtonConfig = {
+        enabled: false,
+        text: "",
+        class: "",
+      };
+      this.dialogCancelButtonConfig = {
+        enabled: false,
+        text: "",
+        class: "",
+      };
       // publish the plio or its changes
       this.publishPlio();
     },
@@ -769,6 +791,11 @@ export default {
       // returns the type of item being added when add item button is clicked
       return "question";
     },
+    getQuestionTypeForNewQuestion() {
+      // returns the type of question being added when add item button is clicked
+      // only "mcq" questions are supported as of now
+      return "mcq";
+    },
     getMetadataForNewItem() {
       // returns a metadata object which contains only the name of the source from where
       // the question is coming from.
@@ -778,35 +805,53 @@ export default {
       meta["source"]["name"] = "default";
       return meta;
     },
-    getDetailsForNewItem() {
+    getDetailsForNewQuestion() {
       // barebones question structure
       var details = {};
-      details["correct_answer"] = 0;
+      details["correct_answer"] = "0";
       details["text"] = "";
-      details["type"] = "mcq_single_answer";
+      details["type"] = this.getQuestionTypeForNewQuestion();
       details["options"] = ["", ""];
       return details;
     },
     addNewItem() {
       this.$refs.playerObj.player.pause();
-      // get all the data needed to create a new item
+      // newItem object will store the information of the newly created
+      // item and the question
       var newItem = {};
+
+      // get a valid timestamp for adding a new item
       var newTimestamp = this.getTimestampForNewItem();
       if (newTimestamp == -1) {
         this.showCannotAddItemDialog();
         return;
       }
-      // create the newItem object
-      newItem["time"] = newTimestamp;
-      newItem["type"] = this.getItemTypeForNewItem();
-      newItem["meta"] = this.getMetadataForNewItem();
-      newItem["details"] = this.getDetailsForNewItem();
 
-      // push it into items, update the itemTimestamps and currentItemIndex
-      this.items.push(newItem);
-      this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
-      this.currentItemIndex = this.itemTimestamps.indexOf(this.currentTimestamp);
-      this.markItemSelected(this.currentItemIndex);
+      // create item, then create the question, then update local states
+      ItemAPIService.createItem({
+        plio: this.plioDBId,
+        type: this.getItemTypeForNewItem(),
+        time: newTimestamp,
+        meta: this.getMetadataForNewItem(),
+      })
+        .then((createdItem) => {
+          // storing the newly created item into "newItem"
+          newItem = createdItem;
+          if (createdItem.type == "question") {
+            var questionDetails = this.getDetailsForNewQuestion();
+            questionDetails.item = createdItem.id;
+            return QuestionAPIService.createQuestion(questionDetails);
+          }
+        })
+        .then((createdQuestion) => {
+          // storing the newly created question into "newItem"
+          newItem.details = createdQuestion;
+          // push it into items, update the itemTimestamps and currentItemIndex
+          this.items.push(newItem);
+          this.itemTimestamps = this.getItemTimestamps(this.items);
+          this.currentItemIndex = this.itemTimestamps.indexOf(this.currentTimestamp);
+          this.markItemSelected(this.currentItemIndex);
+        });
     },
     deleteItemButtonClicked() {
       // invoked when the delete item button is clicked
@@ -832,7 +877,8 @@ export default {
     deleteSelectedItem() {
       // remove current item from the item list
       // set currentItemIndex to null to hide the item editor
-      this.items.splice(this.currentItemIndex, 1);
+      var itemToDelete = this.items.splice(this.currentItemIndex, 1);
+      ItemAPIService.deleteItem(itemToDelete[0].id);
       this.currentItemIndex = null;
       this.showDialogBox = false;
     },
