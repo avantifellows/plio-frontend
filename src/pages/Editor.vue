@@ -645,7 +645,7 @@ export default {
         return;
       }
       // don't save plio if video URL is empty
-      if (this.videoURL == "") return;
+      if (!this.isVideoIdValid) return;
 
       this.changeInProgress = true;
       var time = new Date();
@@ -832,7 +832,7 @@ export default {
       var details = {};
       details["correct_answer"] = "0";
       details["text"] = "";
-      details["type"] = "mcq_single_answer";
+      details["type"] = this.getQuestionTypeForNewQuestion();
       details["options"] = ["", ""];
       return details;
     },
@@ -859,16 +859,10 @@ export default {
         .then((createdItem) => {
           // storing the newly created item into "newItem"
           newItem = createdItem;
-
-          if (createdItem.type == "question") {
-            return QuestionAPIService.createQuestion({
-              item: createdItem.id,
-              text: this.getDetailsForNewQuestion().text,
-              type: this.getQuestionTypeForNewQuestion(),
-              options: this.getDetailsForNewQuestion().options,
-              correct_answer: this.getDetailsForNewQuestion().correct_answer,
-            });
-          }
+          var questionDetails = this.getDetailsForNewQuestion();
+          questionDetails.item = createdItem.id;
+          if (createdItem.type == "question")
+            return QuestionAPIService.createQuestion(questionDetails);
         })
         .then((createdQuestion) => {
           // storing the newly created question into "newItem"

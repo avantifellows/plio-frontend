@@ -53,12 +53,8 @@ export default {
   },
 
   async updatePlio(plioValue, plioId) {
-    // var cloneDeep = require("lodash.clonedeep");
-
     // handle items and questions being updated
     plioValue.items.forEach((item) => {
-      // pass a deepclone and not the reference
-      // var itemClone = cloneDeep(item);
       ItemAPIService.updateItem(item);
       QuestionAPIService.updateQuestion(item.details);
     });
