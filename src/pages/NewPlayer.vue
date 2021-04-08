@@ -25,9 +25,11 @@
         :selectedItemIndex="currentItemIndex"
         :itemList="items"
         :height="playerHeight"
+        v-model:isFullscreen="isFullscreen"
+        v-model:responseList="itemResponses"
         @close="closeItemModal"
         @revise-question="reviseQuestion"
-        v-model:isFullscreen="isFullscreen"
+        @submit-question="submitQuestion"
       ></item-modal>
     </div>
   </div>
@@ -56,13 +58,13 @@ const UPLOAD_INTERVAL = 10000;
 var UPLOAD_INTERVAL_TIMEOUT = null;
 
 // Immediate TODO:
-// - update retention, watch-time etc.
+// - submit option functionality
+// - show result correct or not
+// - if answered, don't let select option and show result
 // - question popping up as event track
 // - check if everything looks okay on desktop and on mobile
 // - log data function for periodic updates - can be in the form of
 // journey - still watching type - can use logic in older code then to reset them
-// - get events and session answers from past sessions
-// - support for resetting user where they left off in the video based on last event discussed
 // - mark already answered question as green
 
 // supports indexOf for older browsers
@@ -191,8 +193,9 @@ export default {
   },
   watch: {
     isFullscreen(newIsFullscreen) {
-      if (newIsFullscreen) this.$refs.videoPlayer.player.fullscreen.enter();
-      else this.$refs.videoPlayer.player.fullscreen.exit();
+      // track the fullscreen status
+      if (newIsFullscreen) this.player.fullscreen.enter();
+      else this.player.fullscreen.exit();
     },
   },
   async created() {
@@ -259,13 +262,16 @@ export default {
     },
     videoDuration() {
       // duration of the video
-      if (this.$refs.videoPlayer.player.duration)
-        return this.$refs.videoPlayer.player.duration;
+      if (this.player.duration) return this.player.duration;
       return null;
     },
     hasSessionStarted() {
       // whether the session has been defined and begun
       return this.sessionDBId != null;
+    },
+    player() {
+      // returns the player instance
+      return this.$refs.videoPlayer.player;
     },
   },
   methods: {
@@ -273,11 +279,18 @@ export default {
       // after revise is clicked, take the user either to the beginning
       // of the video if the question is the first item else to the end of
       // the previous item
-      this.$refs.videoPlayer.player.currentTime =
+      this.player.currentTime =
         this.currentItemIndex == 0
           ? 0
           : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
       this.playPlayer();
+    },
+    submitQuestion() {
+      // invoked when a question response is submitted
+      // update the session answer on server
+      SessionAPIService.updateSessionAnswer(this.itemResponses[this.currentItemIndex]);
+      // update the marker colors on the player
+      this.showItemMarkersOnSlider(this.player);
     },
     async fetchPlioCreateSession() {
       // fetches plio details and creates a new session
@@ -302,17 +315,16 @@ export default {
     },
     playPlayer() {
       // plays the video player
-      this.$refs.videoPlayer.player.play();
+      this.player.play();
     },
     pausePlayer() {
       // pauses the video player
-      this.$refs.videoPlayer.player.pause();
+      this.player.pause();
     },
     createSession() {
       // creates new user-plio session
       SessionAPIService.createSession(this.plioDBId, this.userId).then(
         (sessionDetails) => {
-          console.log(sessionDetails);
           this.sessionDBId = sessionDetails.id;
           // reset the user to where they left off if they are returning
           if (sessionDetails.last_event != null) {
@@ -331,6 +343,18 @@ export default {
 
           // set watch time
           this.watchTime = sessionDetails.watch_time;
+
+          // set item responses
+          sessionDetails.session_answers.forEach((sessionAnswer) => {
+            // removing the _id in keys like session_id, question_id
+            // so that we can directly update the answers without having to
+            // create another dictionary every time we want to upload
+            var itemResponse = {};
+            for (var key of Object.keys(sessionAnswer)) {
+              itemResponse[key.replace("_id", "")] = sessionAnswer[key];
+            }
+            this.itemResponses.push(itemResponse);
+          });
         }
       );
     },
@@ -378,13 +402,12 @@ export default {
     },
     playerPlayed() {
       // invoked when the play button of the player is clicked
-      console.log("here");
     },
     playerReady(player) {
       // invoked when the player is ready
       this.showItemMarkersOnSlider(player);
       this.setScreenProperties();
-      this.$refs.videoPlayer.player.currentTime = this.currentTimestamp;
+      this.player.currentTime = this.currentTimestamp;
       this.playPlayer();
     },
     showItemMarkersOnSlider(player) {
@@ -410,10 +433,7 @@ export default {
     },
     isItemResponseDone(itemIndex) {
       // whether the response to an item is complete
-      console.log(itemIndex);
-      return false;
-      // TODO: dummy response - update this after session answers has been incorporated
-      //   return this.itemResponses[itemIndex] != "";
+      return this.itemResponses[itemIndex].answer != null;
     },
     videoTimestampUpdated(timestamp) {
       // invoked when the current time in the video is updated
@@ -421,7 +441,7 @@ export default {
       // update watch time
       this.watchTime += PLYR_INTERVAL_TIME;
       // update retention
-      var currentTime = Math.trunc(this.$refs.videoPlayer.player.currentTime);
+      var currentTime = Math.trunc(this.player.currentTime);
       if (currentTime == null || currentTime != this.lastTimestampRetention) {
         this.retention[currentTime] += 1;
         this.lastTimestampRetention = currentTime;

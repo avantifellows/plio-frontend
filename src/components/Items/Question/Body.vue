@@ -1,19 +1,19 @@
 <template>
   <div class="overflow-y-scroll flex flex-col">
     <!-- question text -->
-    <p
-      class="m-2 sm:m-4 mx-4 md:mx-6 xl:mx-10 font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl"
-    >
+    <p class="m-2 sm:m-4 mx-4 md:mx-6 xl:mx-10 font-bold text-lg md:text-xl lg:text-2xl">
       {{ questionText }}
     </p>
     <!-- option container -->
+    <!-- v-model="localSelectedOption" -->
     <div class="flex mx-4 md:mx-6 xl:mx-10">
-      <ul>
+      <ul class="w-full">
         <li class="list-none">
           <div
             v-for="(option, optionIndex) in options"
             :key="optionIndex"
-            class="m-2 sm:m-4 text-xl sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl"
+            class="p-2 sm:p-4 mb-2 text-lg md:text-xl lg:text-2xl rounded-md"
+            :class="optionBackgroundClass(optionIndex)"
           >
             <!-- each option is defined here -->
             <!-- adding <label> so that touch input is just
@@ -24,12 +24,16 @@
               <input
                 type="radio"
                 name="questionOptions"
-                v-model="localSelectedOption"
                 :value="option"
                 class="place-self-center w-4 h-4 sm:w-6 sm:h-6 lg:w-10 lg:h-10"
                 @click="selectOption(optionIndex)"
+                :checked="isOptionChecked(optionIndex)"
+                :disabled="isAnswerSubmitted"
               />
-              <div v-html="option" class="ml-2 sm:ml-4 lg:ml-6"></div>
+              <div
+                v-html="option"
+                class="ml-2 sm:ml-4 lg:ml-6 h-full place-self-center"
+              ></div>
             </label>
           </div>
         </li>
@@ -53,36 +57,41 @@ export default {
     },
     correctAnswer: {
       // correct answer for the question
-      default: -1,
-      type: Number,
-    },
-    selectedOption: {
-      // index of the option to select
       default: null,
       type: Number,
     },
-    showSelectedOptionResult: {
-      // whether to show the selected option's result
+    selectedAnswer: {
+      // index of the answer
+      default: null,
+      type: Number,
+    },
+    selectedOption: {
+      // index of the option selected but not yet submitted
+      default: null,
+      type: Number,
+    },
+    isAnswerSubmitted: {
+      // whether the answer has been submitted
       default: false,
       type: Boolean,
     },
   },
-  computed: {
-    localSelectedOption: {
-      // local copy of the selectedOption prop
-      get() {
-        return this.selectedOption;
-      },
-      set(localSelectedOption) {
-        this.$emit("update:selectedOption", localSelectedOption);
-      },
-    },
-  },
   methods: {
     selectOption(optionIndex) {
+      // invoked when an option is selected
       this.$emit("option-selected", optionIndex);
     },
+    optionBackgroundClass(optionIndex) {
+      // returns the background class for the option
+      if (!this.isAnswerSubmitted) return {};
+      if (optionIndex == this.correctAnswer) return "text-white bg-green-500";
+      if (optionIndex == this.selectedAnswer) return "text-white bg-red-500";
+    },
+    isOptionChecked(optionIndex) {
+      // whether the given option index should be checked
+      return this.selectedOption == optionIndex;
+    },
   },
-  emits: ["update:selectedOption", "option-selected"],
+  emits: ["option-selected"],
 };
 </script>
