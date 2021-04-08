@@ -123,6 +123,8 @@
             @delete-selected-item="deleteItemButtonClicked"
             @delete-option="deleteOption"
             :isDisabled="isPublished"
+            @error-occurred="setErrorOccurred"
+            @error-resolved="setErrorResolved"
           ></item-editor>
         </div>
       </div>
@@ -238,6 +240,7 @@ export default {
       optionIndexToDelete: -1,
       videoDBId: null, // store the DB id of video object linked to the plio
       plioDBId: null, // store the DB id of plio object
+      anyErrorsPresent: false, // store if any errors are present or not
     };
   },
   async created() {
@@ -299,7 +302,12 @@ export default {
     },
     isPublishButtonEnabled() {
       // whether the publish button is enabled
-      if (!this.isPublished) return this.isVideoIdValid;
+
+      // enable publish button if video id is valid
+      // and no errors are present
+      if (!this.isPublished)
+        return (this.isVideoIdValid && !this.anyErrorsPresent);
+
       return this.hasUnpublishedChanges;
     },
     blurMainScreen() {
@@ -655,8 +663,8 @@ export default {
         this.hasUnpublishedChanges = true;
         return;
       }
-      // don't save plio if video URL is empty
-      if (!this.isVideoIdValid) return;
+      // don't save plio if video URL is empty or if any errors are present
+      if (this.anyErrorsPresent || !this.isVideoIdValid) return;
 
       this.changeInProgress = true;
       var time = new Date();
@@ -936,6 +944,14 @@ export default {
       this.optionIndexToDelete = optionIndex;
       this.dialogAction = "deleteOption";
       this.showDialogBox = true;
+    },
+    setErrorOccurred() {
+      // invoked when some error is present
+      this.anyErrorsPresent = true;
+    },
+    setErrorResolved() {
+      // invoked when erros have been resolved
+      this.anyErrorsPresent = false;
     },
   },
 };

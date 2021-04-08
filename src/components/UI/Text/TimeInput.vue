@@ -65,33 +65,14 @@
     </div>
 
     <!-- invalid input warning -->
-    <div
-      v-if="isAnyInputInvalid || timeValid || itemInVicinity"
-      class="flex flex-row pl-2"
-    >
-      <inline-svg
-        :src="require('@/assets/images/times-solid.svg')"
-        class="h-5 w-2.5 place-self-center text-red-600"
-      ></inline-svg>
-
-      <p v-if="isAnyInputInvalid" class="text-xs pl-2 place-self-center text-red-600">
-        {{ invalidInputWarning }}
-      </p>
-      <p v-else-if="timeValid" class="text-xs pl-2 place-self-center text-red-600">
-        {{ timeExceedsWarning }}
-      </p>
-      <p v-else-if="itemInVicinity" class="text-xs pl-2 place-self-center text-red-600">
-        {{ itemInVicinityWarning }}
-      </p>
-    </div>
-
-    <div v-if="timeValid" class="flex flex-row pl-2">
-      <inline-svg
-        :src="require('@/assets/images/times-solid.svg')"
-        class="h-5 w-2.5 place-self-center text-red-600"
-      ></inline-svg>
-
-      <p class="text-xs pl-2 place-self-center text-red-600">{{ timeExceedsWarning }}</p>
+    <div v-for="(isErrorActive, errorMessage) in preparedErrorStates" :key="errorMessage">
+      <div v-if="isErrorActive" class="flex flex-row pl-2">
+        <inline-svg
+          :src="require('@/assets/images/times-solid.svg')"
+          class="h-5 w-2.5 place-self-center text-red-600"
+        ></inline-svg>
+        <p class="text-xs pl-2 place-self-center text-red-600">{{ errorMessage }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -123,9 +104,14 @@ export default {
       localSecond: 0,
       localMillisecond: 0,
 
+      // warning messages for different kind of error states
       invalidInputWarning: "Invalid time value",
       timeExceedsWarning: "The time entered exceeds the video duration",
       itemInVicinityWarning: "Questions should be at least 2 seconds apart",
+      hourInputInvalidWarning: "Hour input is invalid",
+      minuteInputInvalidWarning: "Minute input is invalid",
+      secondInputInvalidWarning: "Second input is invalid",
+      milliSecondInputInvalidWarning: "Millisecond input is invalid",
     };
   },
   components: {
@@ -157,20 +143,25 @@ export default {
       },
       type: Object,
     },
-    timeValid: {
-      // whether the time entered by the user is invalid or not
-      default: false,
-      type: Boolean,
+    errorStates: {
+      // error states passed from the parent component
+      default: () => {},
+      type: Object,
     },
     isDisabled: {
       // whether to disable the time inputs or not
       default: false,
       type: Boolean,
     },
-    itemInVicinity: {
-      // whether some other item is in the vicinity of the current item
-      default: false,
-      type: Boolean,
+  },
+  watch: {
+    // if any error states change (occur or resolve), check for them
+    // make the appropriate emits
+    preparedErrorStates: {
+      handler() {
+        this.checkForErrors();
+      },
+      deep: true,
     },
   },
   methods: {
@@ -206,21 +197,40 @@ export default {
       }
       return true;
     },
+    checkForErrors() {
+      // iterate through all error states - if even one error is found active
+      // emit - an error occurred, else emit - error resolved
+
+      // eslint-disable-next-line no-unused-vars
+      for (const [_, isActive] of Object.entries(this.preparedErrorStates)) {
+        if (isActive) {
+          this.$emit("error-occurred");
+          return;
+        }
+      }
+      this.$emit("error-resolved");
+      return;
+    },
   },
   computed: {
+    preparedErrorStates() {
+      // prepare error state object by merging local error states and the error
+      // states coming in as props from the parent component
+      var localErrorStates = {};
+      localErrorStates[this.hourInputInvalidWarning] = this.isHourInputInvalid;
+      localErrorStates[this.minuteInputInvalidWarning] = this.isMinuteInputInvalid;
+      localErrorStates[this.secondInputInvalidWarning] = this.isSecondInputInvalid;
+      localErrorStates[
+        this.milliSecondInputInvalidWarning
+      ] = this.isMillisecondInputInvalid;
+
+      let mergedErrorStates = { ...localErrorStates, ...this.errorStates };
+      return mergedErrorStates;
+    },
     disabledInputTooltip() {
       // tooltip for time input box when it's disabled
       if (this.isDisabled) return "You cannot edit time in a published plio";
       return undefined;
-    },
-    isAnyInputInvalid() {
-      // is any input invalid
-      return (
-        this.isHourInputInvalid ||
-        this.isMinuteInputInvalid ||
-        this.isSecondInputInvalid ||
-        this.isMillisecondInputInvalid
-      );
     },
     defaultBoxClass() {
       // centering the text specifically for time boxes
@@ -326,6 +336,6 @@ export default {
       },
     },
   },
-  emits: ["update:timeObject"],
+  emits: ["update:timeObject", "error-occurred", "error-resolved"],
 };
 </script>

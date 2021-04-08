@@ -77,9 +77,10 @@
         :title="'Time for the question to appear'"
         class="p-2"
         v-model:timeObject="timeObject"
-        :timeValid="timeExceedsVideoDuration"
-        :itemInVicinity="itemInVicinity"
+        :errorStates="timeInputErrorStates"
         :isDisabled="isInteractionDisabled"
+        @error-occurred="$emit('error-occurred')"
+        @error-resolved="$emit('error-resolved')"
       ></time-input>
 
       <!-- input field for entering options  -->
@@ -171,6 +172,9 @@ export default {
       dialogAction: "", // action that invoked the dialog box
       // index of the option to be deleted; -1 means nothing to be deleted
       optionIndexToDelete: -1,
+      // warning messages for error states
+      timeExceedsWarning: "The time entered exceeds the video duration",
+      itemInVicinityWarning: "Questions should be at least 2 seconds apart",
     };
   },
 
@@ -321,6 +325,14 @@ export default {
   },
 
   computed: {
+    timeInputErrorStates() {
+      // create and pass an object containing info about the error message
+      // and if that error message is active or not
+      var errorStates = {};
+      errorStates[this.timeExceedsWarning] = this.timeExceedsVideoDuration;
+      errorStates[this.itemInVicinityWarning] = this.itemInVicinity;
+      return errorStates;
+    },
     deleteItemButtonClass() {
       // styling classes for delete item button
       if (this.isInteractionDisabled) return "disabled:opacity-40 cursor-not-allowed";
@@ -436,16 +448,19 @@ export default {
       set(value) {
         // convert timeObject to seconds
         var timeInSeconds = this.convertISOTimeToSeconds(value);
-        // check for validity of the time
-        if (timeInSeconds > this.videoDuration) {
-          this.timeExceedsVideoDuration = true;
-        } else if (!this.isTimestampValid(timeInSeconds, this.localSelectedItemIndex)) {
-          this.itemInVicinity = true;
-        } else {
-          this.timeExceedsVideoDuration = false;
-          this.itemInVicinity = false;
+        // check if the time entered exceeds the video duration
+        if (timeInSeconds > this.videoDuration)
+          this.timeExceedsVideoDuration = true
+        else this.timeExceedsVideoDuration = false
+
+        // check if any other item is in the vicinity of time entered by the user
+        if ( !this.isTimestampValid(timeInSeconds,this.localSelectedItemIndex) )
+          this.itemInVicinity = true
+        else this.itemInVicinity = false
+
+        // update the local time values if no error is present
+        if (!this.isAnyError)
           this.localItemList[this.localSelectedItemIndex].time = timeInSeconds || 0;
-        }
       },
     },
     options: {
@@ -461,6 +476,11 @@ export default {
       // get the index of the correct answer in the list of options
       return this.localItemList[this.localSelectedItemIndex].details.correct_answer;
     },
+    isAnyError() {
+      // returns if any error is present after checking individual error
+      // states that are defined
+      return this.timeExceedsVideoDuration || this.itemInVicinity;
+    },
   },
 
   emits: [
@@ -468,6 +488,8 @@ export default {
     "update:selectedItemIndex",
     "delete-selected-item",
     "delete-option",
+    "error-occurred",
+    "error-resolved",
   ],
 };
 </script>
