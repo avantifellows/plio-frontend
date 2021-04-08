@@ -43,7 +43,7 @@ import { mapState } from "vuex";
 import ItemModal from "../components/Player/ItemModal.vue";
 
 // difference in seconds between consecutive checks for item pop-up
-var POP_UP_CHECKING_FREQUENCY = 0.1;
+var POP_UP_CHECKING_FREQUENCY = 0.5;
 var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 
 // Immediate TODO:

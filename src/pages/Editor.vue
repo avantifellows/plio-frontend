@@ -169,6 +169,10 @@ import { mapActions, mapState } from "vuex";
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
 
+// difference in seconds between consecutive checks for item pop-up
+var POP_UP_CHECKING_FREQUENCY = 0.5;
+var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
+
 export default {
   name: "Editor",
   components: {
@@ -240,6 +244,7 @@ export default {
       optionIndexToDelete: -1,
       videoDBId: null, // store the DB id of video object linked to the plio
       plioDBId: null, // store the DB id of plio object
+      lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
     };
   },
   async created() {
@@ -537,9 +542,13 @@ export default {
     },
     checkItemToSelect(timestamp) {
       // checks if an item is to be selected and marks/unmarks accordingly
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+        return;
+      this.lastCheckTimestamp = timestamp;
       var selectedItemIndex = ItemFunctionalService.checkItemPopup(
         timestamp,
-        this.itemTimestamps
+        this.itemTimestamps,
+        POP_UP_PRECISION_TIME
       );
       if (selectedItemIndex != null) {
         this.markItemSelected(selectedItemIndex);
