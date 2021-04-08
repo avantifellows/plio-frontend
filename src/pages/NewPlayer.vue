@@ -239,6 +239,11 @@ export default {
       SessionAPIService.createSession(this.plioDBId, this.userId).then(
         (sessionDetails) => {
           console.log(sessionDetails);
+          // reset the user to where they left off if they are returning
+          if (sessionDetails.last_event != null) {
+            this.currentTimestamp = sessionDetails.last_event.player_time;
+          }
+          console.log(this.currentTimestamp);
         }
       );
     },
@@ -267,6 +272,8 @@ export default {
       // invoked when the player is ready
       this.showItemMarkersOnSlider(player);
       this.setScreenProperties();
+      this.$refs.videoPlayer.player.currentTime = this.currentTimestamp;
+      this.playPlayer();
     },
     showItemMarkersOnSlider(player) {
       // show the markers for items on top of the video slider
