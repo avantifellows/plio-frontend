@@ -52,7 +52,7 @@ var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 const PLYR_INTERVAL_TIME = 50;
 
 // upload data periodically
-const UPLOAD_INTERVAL = 1000;
+const UPLOAD_INTERVAL = 10000;
 var UPLOAD_INTERVAL_TIMEOUT = null;
 
 // Immediate TODO:
@@ -79,6 +79,50 @@ if (!Array.prototype.indexOf) {
     }
     return -1;
   };
+}
+
+// supports Array.prototype.fill for older browsers
+if (!Array.prototype.fill) {
+  Object.defineProperty(Array.prototype, "fill", {
+    value: function (value) {
+      // Steps 1-2.
+      if (this == null) {
+        throw new TypeError("this is null or not defined");
+      }
+
+      var O = Object(this);
+
+      // Steps 3-5.
+      var len = O.length >>> 0;
+
+      // Steps 6-7.
+      var start = arguments[1];
+      var relativeStart = start >> 0;
+
+      // Step 8.
+      var k =
+        relativeStart < 0
+          ? Math.max(len + relativeStart, 0)
+          : Math.min(relativeStart, len);
+
+      // Steps 9-10.
+      var end = arguments[2];
+      var relativeEnd = end === undefined ? len : end >> 0;
+
+      // Step 11.
+      var finalValue =
+        relativeEnd < 0 ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
+
+      // Step 12.
+      while (k < finalValue) {
+        O[k] = value;
+        k++;
+      }
+
+      // Step 13.
+      return O;
+    },
+  });
 }
 
 export default {
@@ -141,6 +185,8 @@ export default {
       currentTimestamp: null, // tracks the current timestamp in the video
       plioDBId: null, // id for this plio in the plio DB table
       sessionDBId: null, // id for this session in the plio DB table
+      retention: [], // array to store video retention value
+      lastTimestampRetention: null, // last recorded timestamp in the retention array
     };
   },
   watch: {
@@ -211,6 +257,16 @@ export default {
       // list of the timestamps for each of the items
       return ItemFunctionalService.getItemTimestamps(this.items);
     },
+    videoDuration() {
+      // duration of the video
+      if (this.$refs.videoPlayer.player.duration)
+        return this.$refs.videoPlayer.player.duration;
+      return null;
+    },
+    hasSessionStarted() {
+      // whether the session has been defined and begun
+      return this.sessionDBId != null;
+    },
   },
   methods: {
     reviseQuestion() {
@@ -236,7 +292,7 @@ export default {
         .catch((err) => this.handleQueryError(err));
     },
     logData() {
-      this.updateSession();
+      if (this.hasSessionStarted) this.updateSession();
       // periodically log data to the server
       UPLOAD_INTERVAL_TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL);
     },
@@ -262,6 +318,19 @@ export default {
           if (sessionDetails.last_event != null) {
             this.currentTimestamp = sessionDetails.last_event.player_time;
           }
+
+          // handle retention array
+          if (sessionDetails.retention == null || sessionDetails.retention == "") {
+            // retention array not set - create and set it
+            this.retention = this.createEmptyArray(sessionDetails.plio.video.duration);
+            this.updateSession();
+          } else {
+            // set retention value if it exists
+            this.retention = this.retentionStrToArray(sessionDetails.retention);
+          }
+
+          // set watch time
+          this.watchTime = sessionDetails.watch_time;
         }
       );
     },
@@ -271,8 +340,24 @@ export default {
         user: this.userId,
         plio: this.plioDBId,
         watch_time: this.watchTime,
+        retention: this.retentionArrayToStr(this.retention),
       };
-      return SessionAPIService.updateSession(this.sessionDBId, sessionDetails);
+      return SessionAPIService.updateSession(
+        this.sessionDBId,
+        sessionDetails
+      ).catch((err) => console.log(err));
+    },
+    createEmptyArray(length) {
+      // initiate array with empty values
+      return new Array(length).fill(0);
+    },
+    retentionStrToArray(retentionStr) {
+      // convert retention string to retention array
+      return retentionStr.split(",").map((value) => parseInt(value));
+    },
+    retentionArrayToStr(retentionArray) {
+      // convert retention array to retention string
+      return retentionArray.join(",");
     },
     setScreenProperties() {
       // sets various properties based on the device screen
@@ -335,6 +420,12 @@ export default {
       this.checkItemToSelect(timestamp);
       // update watch time
       this.watchTime += PLYR_INTERVAL_TIME;
+      // update retention
+      var currentTime = Math.trunc(this.$refs.videoPlayer.player.currentTime);
+      if (currentTime == null || currentTime != this.lastTimestampRetention) {
+        this.retention[currentTime] += 1;
+        this.lastTimestampRetention = currentTime;
+      }
     },
     checkItemToSelect(timestamp) {
       // checks if an item is to be selected and marks/unmarks accordingly
