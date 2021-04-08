@@ -315,7 +315,7 @@ export default {
       // using for loop instead of forEach as forEach was running async
       for (let index = 0; index < this.localItemList.length; index++) {
         // don't check against the selected item itself
-        if (index == itemIndex || index == null) continue;
+        if (index == itemIndex || itemIndex == null) continue;
         var val = this.localItemList[index].time;
         if (val == timestamp || (timestamp <= val + 2 && timestamp >= val - 2))
           return false;

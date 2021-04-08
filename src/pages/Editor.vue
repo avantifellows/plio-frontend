@@ -818,7 +818,7 @@ export default {
 
       for (let index = 0; index < this.itemTimestamps.length; index++) {
         // don't check against the item itself
-        if (index == itemIndex || index == null) continue;
+        if (index == itemIndex || itemIndex == null) continue;
         var val = this.itemTimestamps[index];
         if (
           val == timestamp ||
