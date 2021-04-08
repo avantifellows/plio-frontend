@@ -859,10 +859,11 @@ export default {
         .then((createdItem) => {
           // storing the newly created item into "newItem"
           newItem = createdItem;
-          if (createdItem.type == "question")
+          if (createdItem.type == "question"){
             var questionDetails = this.getDetailsForNewQuestion();
             questionDetails.item = createdItem.id;
             return QuestionAPIService.createQuestion(questionDetails);
+          }
         })
         .then((createdQuestion) => {
           // storing the newly created question into "newItem"
