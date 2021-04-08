@@ -113,6 +113,10 @@
 </template>
 
 <script>
+// what should the minimum time difference be
+// between any two items (seconds)
+const ITEM_VICINITY_TIME = 2;
+
 import IconButton from "../UI/Buttons/IconButton.vue";
 import ItemDropDown from "../UI/DropDownMenu/ItemDropDown.vue";
 import InputText from "../UI/Text/InputText.vue";
@@ -317,7 +321,8 @@ export default {
         // don't check against the selected item itself
         if (index == itemIndex || itemIndex == null) continue;
         var val = this.localItemList[index].time;
-        if (val == timestamp || (timestamp <= val + 2 && timestamp >= val - 2))
+        if (val == timestamp ||
+            (timestamp <= val + ITEM_VICINITY_TIME && timestamp >= val - ITEM_VICINITY_TIME))
           return false;
       }
       return true;
