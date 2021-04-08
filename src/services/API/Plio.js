@@ -24,7 +24,7 @@ export default {
       plioDetails.items = items.data;
       plioDetails.items.forEach((item) => {
         // convert to seconds
-        item.time = item.time / 1000;
+        // item.time = item.time / 1000;
         // convert str to int
         item.details.correct_answer = parseInt(item.details.correct_answer);
       });
