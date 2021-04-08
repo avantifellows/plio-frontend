@@ -40,15 +40,22 @@ import PlioAPIService from "@/services/API/Plio.js";
 import SessionAPIService from "@/services/API/Session.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
-import { mapState } from "vuex";
+// import { mapState } from "vuex";
 import ItemModal from "../components/Player/ItemModal.vue";
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
 var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 
+// The time period in which Plyr timeupdate event repeats
+// in milliseconds
+const PLYR_INTERVAL_TIME = 50;
+
+// upload data periodically
+const UPLOAD_INTERVAL = 1000;
+var UPLOAD_INTERVAL_TIMEOUT = null;
+
 // Immediate TODO:
-// - fetch new session
 // - update retention, watch-time etc.
 // - question popping up as event track
 // - check if everything looks okay on desktop and on mobile
@@ -132,7 +139,8 @@ export default {
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       isFullscreen: false, // is the player in fullscreen
       currentTimestamp: null, // tracks the current timestamp in the video
-      plioDBId: null, // id for this in the plio DB table
+      plioDBId: null, // id for this plio in the plio DB table
+      sessionDBId: null, // id for this session in the plio DB table
     };
   },
   watch: {
@@ -163,6 +171,10 @@ export default {
     // add listener for screen size being changed
     window.addEventListener("resize", this.setScreenProperties);
   },
+  beforeUnmount() {
+    // remove timeout
+    clearTimeout(UPLOAD_INTERVAL_TIMEOUT);
+  },
   unmounted() {
     // remove listeners
     window.removeEventListener("resize", this.setScreenProperties);
@@ -178,7 +190,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(["userId"]),
+    // ...mapState(["userId"]),
     isVideoIdValid() {
       // whether the video Id is valid
       return this.videoId != "";
@@ -220,7 +232,13 @@ export default {
           this.videoId = this.getVideoIDfromURL(plioDetails.video_url);
         })
         .then(() => this.createSession())
+        .then(() => this.logData())
         .catch((err) => this.handleQueryError(err));
+    },
+    logData() {
+      this.updateSession();
+      // periodically log data to the server
+      UPLOAD_INTERVAL_TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL);
     },
     closeItemModal() {
       // invoked when the modal is to be closed
@@ -239,13 +257,22 @@ export default {
       SessionAPIService.createSession(this.plioDBId, this.userId).then(
         (sessionDetails) => {
           console.log(sessionDetails);
+          this.sessionDBId = sessionDetails.id;
           // reset the user to where they left off if they are returning
           if (sessionDetails.last_event != null) {
             this.currentTimestamp = sessionDetails.last_event.player_time;
           }
-          console.log(this.currentTimestamp);
         }
       );
+    },
+    updateSession() {
+      // update the session data on the server
+      var sessionDetails = {
+        user: this.userId,
+        plio: this.plioDBId,
+        watch_time: this.watchTime,
+      };
+      return SessionAPIService.updateSession(this.sessionDBId, sessionDetails);
     },
     setScreenProperties() {
       // sets various properties based on the device screen
@@ -306,6 +333,8 @@ export default {
     videoTimestampUpdated(timestamp) {
       // invoked when the current time in the video is updated
       this.checkItemToSelect(timestamp);
+      // update watch time
+      this.watchTime += PLYR_INTERVAL_TIME;
     },
     checkItemToSelect(timestamp) {
       // checks if an item is to be selected and marks/unmarks accordingly

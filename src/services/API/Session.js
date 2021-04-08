@@ -13,4 +13,9 @@ export default {
         return response.data;
       });
   },
+
+  updateSession(sessionId, sessionDetails) {
+    // updates a session
+    return apiClient().put(sessionsEndpoint + sessionId + "/", sessionDetails);
+  },
 };
