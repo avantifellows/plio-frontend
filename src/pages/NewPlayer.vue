@@ -37,6 +37,7 @@
 import VideoPlayer from "@/components/UI/Player/VideoPlayer";
 import VideoSkeleton from "../components/UI/Skeletons/VideoSkeleton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
+import SessionAPIService from "@/services/API/Session.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import { mapState } from "vuex";
@@ -106,7 +107,7 @@ export default {
       source: "unknown", // source from where the plio was accessed - can be passed as param in the plio url
       componentProperties: {}, // properties of the plio player
       // TODO: dummy user ID
-      created_by: 1,
+      userId: 1,
       items: [], // holds the list of all items for this plio
       itemResponses: [], // holds the responses to each item
       videoSource: "youtube", // source for the video
@@ -131,6 +132,7 @@ export default {
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       isFullscreen: false, // is the player in fullscreen
       currentTimestamp: null, // tracks the current timestamp in the video
+      plioDBId: null, // id for this in the plio DB table
     };
   },
   watch: {
@@ -214,6 +216,7 @@ export default {
       await PlioAPIService.getPlio(this.id)
         .then((plioDetails) => {
           this.items = plioDetails.items || [];
+          this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.video_url);
         })
         .then(() => this.createSession())
@@ -233,7 +236,11 @@ export default {
     },
     createSession() {
       // creates new user-plio session
-      console.log(this.items[0].details.id);
+      SessionAPIService.createSession(this.plioDBId, this.userId).then(
+        (sessionDetails) => {
+          console.log(sessionDetails);
+        }
+      );
     },
     setScreenProperties() {
       // sets various properties based on the device screen
