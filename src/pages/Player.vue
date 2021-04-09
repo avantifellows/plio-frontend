@@ -310,6 +310,8 @@ export default {
       // fetches plio details and creates a new session
       await PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
+          // redirect to 404 if the plio is not published
+          if (plioDetails.status != "published") this.$router.push({ name: "404" });
           this.items = plioDetails.items || [];
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.video_url);
