@@ -71,7 +71,7 @@ const routes = [
 
 const router = createRouter({
   history: createWebHashHistory(),
-  base: process.env.FRONTEND,
+  base: process.env.VUE_APP_FRONTEND,
   routes,
 });
 
