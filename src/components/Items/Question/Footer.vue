@@ -1,20 +1,21 @@
 <template>
   <div class="flex w-full bg-white p-1 md:p-3 justify-between">
-    <div class="place-self-start flex h-full">
+    <div class="place-self-start flex h-full relative">
       <!-- revise button -->
+      <!-- using invisibility to hide buttons here instead of using class hidden
+           to ensure that the fullscreen button is at the center in mobile view -->
       <icon-button
         :titleConfig="reviseButtonTitleConfig"
         :buttonClass="reviseButtonClass"
         class="btn"
+        :class="{ invisible: isAnswerSubmitted }"
         @click="reviseClicked"
-        v-if="!isAnswerSubmitted"
       ></icon-button>
       <!-- icon to show correct/wrong option result -->
       <inline-svg
         :src="answerCorrectnessIcon"
         :class="answerCorrectnessIconClass"
-        class="w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 place-self-center"
-        v-else
+        class="w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 place-self-center ml-4 absolute"
       ></inline-svg>
     </div>
     <!-- button to enter/exit fullscreen -->
@@ -146,6 +147,7 @@ export default {
       return {
         "text-green-500": this.isAnswerCorrect,
         "text-red-500": !this.isAnswerCorrect,
+        invisible: !this.isAnswerSubmitted,
       };
     },
     isSubmitDisabled() {
