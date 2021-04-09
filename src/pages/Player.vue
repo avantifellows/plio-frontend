@@ -61,12 +61,6 @@ const PLYR_INTERVAL_TIME = 50;
 const UPLOAD_INTERVAL = 10000;
 var UPLOAD_INTERVAL_TIMEOUT = null;
 
-// Immediate TODO:
-// - track all events
-// - question popping up as event track
-// - within log data, track as event that they are just watching
-// - check if everything looks okay on desktop and on mobile
-
 // supports indexOf for older browsers
 if (!Array.prototype.indexOf) {
   Array.prototype.indexOf = function (elt /*, from*/) {
