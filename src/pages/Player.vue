@@ -195,7 +195,7 @@ export default {
     if (!this.userId) {
       this.$router.push({
         name: "PhoneSignIn",
-        params: { id: this.id },
+        params: { id: this.plioId },
       });
     }
     // load the systemwide component properties
@@ -225,7 +225,7 @@ export default {
       default: "",
       type: String,
     },
-    id: {
+    plioId: {
       default: "",
       type: String,
     },
@@ -308,7 +308,7 @@ export default {
     },
     async fetchPlioCreateSession() {
       // fetches plio details and creates a new session
-      await PlioAPIService.getPlio(this.id)
+      await PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
           this.items = plioDetails.items || [];
           this.plioDBId = plioDetails.plioDBId;
