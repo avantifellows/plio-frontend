@@ -73,8 +73,10 @@ export default {
       player.on("timeupdate", this.emitTimeUpdate);
       player.on("ready", this.emitReady);
       player.on("play", this.emitPlay);
+      player.on("pause", this.emitPause);
       player.on("enterfullscreen", this.emitEnterFullscreen);
       player.on("exitfullscreen", this.emitExitFullscreen);
+      player.on("seeked", this.emitSeeked);
     },
     emitTimeUpdate() {
       // emit an event saying that the player time has been updated
@@ -84,11 +86,19 @@ export default {
     },
     emitReady() {
       // emit an event indicating that the player instance is ready
-      this.$emit("ready", this.player);
+      this.$emit("ready");
     },
     emitPlay() {
       // emit an event indicating that the player has been played
-      this.$emit("play", this.player);
+      this.$emit("play");
+    },
+    emitSeeked() {
+      // emit an event indicating that a seek operation has ended
+      this.$emit("seeked");
+    },
+    emitPause() {
+      // emit an event indicating that the player has been paused
+      this.$emit("pause");
     },
     emitEnterFullscreen() {
       // emit an event indicating that the player is entering fullscreen
@@ -109,6 +119,7 @@ export default {
     "update",
     "ready",
     "play",
+    "pause",
     "update:currentTime",
     "enterfullscreen",
     "exitfullscreen",

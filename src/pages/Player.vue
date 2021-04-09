@@ -9,12 +9,14 @@
         :plyrConfig="plyrConfig"
         ref="videoPlayer"
         id="videoPlayer"
-        @play="playerPlayed"
+        :currentTime="currentTimestamp"
         @ready="playerReady"
+        @play="playerPlayed"
+        @pause="playerPaused"
+        @seeked="videoSeeked"
         @update="videoTimestampUpdated"
         @enterfullscreen="playerEntersFullscreen"
         @exitfullscreen="playerExitsFullscreen"
-        :currentTime="currentTimestamp"
         class="w-full z-0"
       ></video-player>
       <!-- item modal component -->
@@ -27,10 +29,11 @@
         :height="playerHeight"
         v-model:isFullscreen="isFullscreen"
         v-model:responseList="itemResponses"
-        @skip-question="closeItemModal"
-        @proceed-question="closeItemModal"
+        @skip-question="skipQuestion"
+        @proceed-question="proceedQuestion"
         @revise-question="reviseQuestion"
         @submit-question="submitQuestion"
+        @option-selected="optionSelected"
       ></item-modal>
     </div>
   </div>
@@ -41,6 +44,7 @@ import VideoPlayer from "@/components/UI/Player/VideoPlayer";
 import VideoSkeleton from "../components/UI/Skeletons/VideoSkeleton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import SessionAPIService from "@/services/API/Session.js";
+import EventAPIService from "@/services/API/Event.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 // import { mapState } from "vuex";
@@ -272,6 +276,17 @@ export default {
     },
   },
   methods: {
+    videoSeeked() {
+      // invoked when a seek operation ends
+      this.createEvent("video_seeked", { currentTime: this.player.currentTime });
+    },
+    optionSelected(optionIndex) {
+      // invoked when an option of a question is selected
+      this.createEvent("option_selected", {
+        itemIndex: this.currentItemIndex,
+        optionIndex: optionIndex,
+      });
+    },
     reviseQuestion() {
       // after revise is clicked, take the user either to the beginning
       // of the video if the question is the first item else to the end of
@@ -280,14 +295,31 @@ export default {
         this.currentItemIndex == 0
           ? 0
           : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
+      // create an event for the revise action
+      this.createEvent("question_revised", { itemIndex: this.currentItemIndex });
       this.playPlayer();
     },
     submitQuestion() {
       // invoked when a question response is submitted
       // update the session answer on server
       SessionAPIService.updateSessionAnswer(this.itemResponses[this.currentItemIndex]);
+      // create an event for the submit action
+      this.createEvent("question_answered", {
+        itemIndex: this.currentItemIndex,
+        answer: this.itemResponses[this.currentItemIndex].answer,
+      });
       // update the marker colors on the player
       this.showItemMarkersOnSlider(this.player);
+    },
+    skipQuestion() {
+      // invoked when the user skips the question
+      this.closeItemModal();
+      this.createEvent("question_skipped", { itemIndex: this.currentItemIndex });
+    },
+    proceedQuestion() {
+      // invoked when the user has answered the question and wishes to proceed
+      this.closeItemModal();
+      this.createEvent("question_proceed", { itemIndex: this.currentItemIndex });
     },
     async fetchPlioCreateSession() {
       // fetches plio details and creates a new session
@@ -302,8 +334,13 @@ export default {
         .catch((err) => this.handleQueryError(err));
     },
     logData() {
-      if (this.hasSessionStarted) this.updateSession();
-      // periodically log data to the server
+      // periodically logs data to the server
+      if (this.hasSessionStarted) {
+        // update session data
+        this.updateSession();
+        // create an event for the user watching the plio
+        this.createEvent("watching");
+      }
       UPLOAD_INTERVAL_TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL);
     },
     closeItemModal() {
@@ -399,10 +436,15 @@ export default {
     },
     playerPlayed() {
       // invoked when the play button of the player is clicked
+      this.createEvent("played");
     },
-    playerReady(player) {
+    playerPaused() {
+      // invoked when the pause button of the player is clicked
+      this.createEvent("paused");
+    },
+    playerReady() {
       // invoked when the player is ready
-      this.showItemMarkersOnSlider(player);
+      this.showItemMarkersOnSlider(this.player);
       this.setScreenProperties();
       this.player.currentTime = this.currentTimestamp;
       this.playPlayer();
@@ -456,6 +498,7 @@ export default {
       );
       if (this.currentItemIndex != null) {
         this.markItemSelected();
+        this.createEvent("item_opened", { itemIndex: this.currentItemIndex });
       }
     },
     markItemSelected() {
@@ -471,10 +514,24 @@ export default {
     playerEntersFullscreen() {
       // invoked when the player enters fullscreen
       this.isFullscreen = true;
+      this.createEvent("enter_fullscreen");
     },
     playerExitsFullscreen() {
       // invoked when the player exits fullscreen
       this.isFullscreen = false;
+      this.createEvent("exit_fullscreen");
+    },
+    createEvent(eventType, eventDetails = {}) {
+      // create a new event
+      if (!this.hasSessionStarted) return;
+      // create event only when the session has been initiated
+      var eventData = {
+        type: eventType,
+        details: eventDetails,
+        player_time: this.player.currentTime,
+        session: this.sessionDBId,
+      };
+      EventAPIService.createEvent(eventData);
     },
   },
 };
