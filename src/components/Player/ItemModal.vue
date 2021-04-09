@@ -65,11 +65,6 @@ export default {
       default: 0,
       type: Number,
     },
-    height: {
-      // height for the modal
-      default: null,
-      type: Number,
-    },
     isFullscreen: {
       // whether the modal is in fullscreen
       default: false,

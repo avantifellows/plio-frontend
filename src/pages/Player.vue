@@ -26,7 +26,6 @@
         :class="{ hidden: !showItemModal }"
         :selectedItemIndex="currentItemIndex"
         :itemList="items"
-        :height="playerHeight"
         v-model:isFullscreen="isFullscreen"
         v-model:responseList="itemResponses"
         @skip-question="skipQuestion"
