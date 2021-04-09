@@ -28,7 +28,7 @@
               @update="videoTimestampUpdated"
               @ready="playerReady"
               @play="playerPlayed"
-              ref="playerObj"
+              ref="videoPlayer"
             ></video-player>
 
             <!--- slider with question markers -->
@@ -288,7 +288,7 @@ export default {
       if (!linkValidation["valid"]) return;
 
       if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
-        this.$refs.playerObj.player.destroy();
+        this.player.destroy();
       }
       this.videoId = linkValidation["ID"];
       this.checkAndSavePlio();
@@ -300,6 +300,10 @@ export default {
   },
   computed: {
     ...mapState(["uploading"]),
+    player() {
+      // returns the player instance
+      return this.$refs.videoPlayer.player;
+    },
     correctOptionIndex() {
       // get the index of the correct answer from options list
       return this.items[this.currentItemIndex].details.correct_answer;
@@ -556,7 +560,7 @@ export default {
     },
     updatePlayerTimestamp(timestamp) {
       // update player time to the given timestamp
-      this.$refs.playerObj.player.currentTime = timestamp;
+      this.player.currentTime = timestamp;
     },
     sliderUpdated(timestamp) {
       // invoked when the time slider is updated
@@ -572,7 +576,7 @@ export default {
       // mark the item at the given index as selected
       if (itemIndex != null) {
         this.isItemSelected = true;
-        this.$refs.playerObj.player.pause();
+        this.player.pause();
         this.currentItemIndex = itemIndex;
       }
     },
@@ -592,10 +596,10 @@ export default {
       this.currentTimestamp = timestamp;
       this.checkItemToSelect(timestamp);
     },
-    playerReady(player) {
+    playerReady() {
       // set variables once the player instance is ready
-      this.videoDuration = player.duration;
-      if (!this.plioTitle) this.plioTitle = player.config.title;
+      this.videoDuration = this.player.duration;
+      if (!this.plioTitle) this.plioTitle = this.player.config.title;
     },
     isVideoLinkValid(link) {
       // checks if the link is valid
@@ -824,7 +828,7 @@ export default {
       return details;
     },
     addNewItem() {
-      this.$refs.playerObj.player.pause();
+      this.player.pause();
       // newItem object will store the information of the newly created
       // item and the question
       var newItem = {};
