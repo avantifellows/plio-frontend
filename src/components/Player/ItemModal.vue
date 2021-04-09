@@ -4,7 +4,7 @@
     <div v-if="isItemQuestion" class="h-full flex flex-col shadow-inner">
       <!-- header -->
       <item-question-header
-        @skip-question="closeModal"
+        @skip-question="skipQuestion"
         :isAnswerSubmitted="isAnswerSubmitted"
       ></item-question-header>
       <!-- main question body -->
@@ -25,7 +25,7 @@
         :isAnswerSubmitted="isAnswerSubmitted"
         :isAnswerCorrect="isAnswerCorrect"
         :isOptionSelected="isOptionSelected"
-        @proceed-question="closeModal"
+        @proceed-question="proceedQuestion"
         @revise-question="emitRevise"
         @submit-question="submitQuestion"
       ></item-question-footer>
@@ -157,9 +157,13 @@ export default {
     },
   },
   methods: {
-    closeModal() {
-      // close the modal
-      this.$emit("close");
+    skipQuestion() {
+      // skip the question
+      this.$emit("skip-question");
+    },
+    proceedQuestion() {
+      // proceed from the question
+      this.$emit("proceed-question");
     },
     emitRevise() {
       // invoked when the revise button is clicked
@@ -178,7 +182,8 @@ export default {
     },
   },
   emits: [
-    "close",
+    "skip-question",
+    "proceed-question",
     "update:isFullscreen",
     "revise-question",
     "update:responseList",

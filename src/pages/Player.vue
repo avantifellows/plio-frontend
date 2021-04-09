@@ -27,7 +27,8 @@
         :height="playerHeight"
         v-model:isFullscreen="isFullscreen"
         v-model:responseList="itemResponses"
-        @close="closeItemModal"
+        @skip-question="closeItemModal"
+        @proceed-question="closeItemModal"
         @revise-question="reviseQuestion"
         @submit-question="submitQuestion"
       ></item-modal>
