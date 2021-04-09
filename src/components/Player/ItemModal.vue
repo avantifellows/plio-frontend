@@ -138,11 +138,6 @@ export default {
       if (this.currentItem == undefined) return null;
       return this.currentItem["details"]["text"];
     },
-    questionType() {
-      // type for the question
-      if (this.currentItem == undefined) return null;
-      return this.currentItem["details"]["type"];
-    },
     isItemQuestion() {
       // whether the item is a Question
       return this.itemType == "question";

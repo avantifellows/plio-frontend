@@ -282,7 +282,7 @@ export default {
           : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
       // create an event for the revise action
       this.createEvent("question_revised", { itemIndex: this.currentItemIndex });
-      this.playPlayer();
+      this.closeItemModal();
     },
     submitQuestion() {
       // invoked when a question response is submitted
@@ -330,6 +330,7 @@ export default {
     },
     closeItemModal() {
       // invoked when the modal is to be closed
+      this.currentItemIndex = null;
       this.playPlayer();
     },
     playPlayer() {
