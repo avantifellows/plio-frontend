@@ -143,7 +143,7 @@ export default {
   },
   computed: {
     ...mapGetters('auth', ["isAuthenticated"]),
-    ...mapState('auth', ["accessToken", "pending", "configs", "user"]),
+    ...mapState('auth', ["pending", "configs"]),
     hasLocalUserConfigs() {
       // whether the use configs have been set
       return this.configs != null;

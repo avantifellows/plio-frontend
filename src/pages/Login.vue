@@ -49,7 +49,6 @@ export default {
     return {
       phoneInput: "",
       otpInput: "",
-      user: '',
       requestedOtp: false,
       resentOtp: false,
       invalidOtp: false,
@@ -70,7 +69,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions('auth', ['login', 'setAccessToken']),
+    ...mapActions('auth', ['setAccessToken']),
     requestOtp() {
       UserService.requestOtp(this.formattedPhoneInput).then((response) => console.log(response));
       this.requestedOtp = true;
@@ -98,7 +97,6 @@ export default {
         if (!googleUser) {
           return null;
         }
-        this.user = googleUser.getBasicProfile().getEmail();
         let socialAuthToken = googleUser.getAuthResponse();
         UserService.convertSocialAuthToken(socialAuthToken.access_token).then((response) => {
           this.setAccessToken(response.data);

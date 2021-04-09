@@ -80,8 +80,8 @@ const router = createRouter({
 Router auth logic start
 
 The code below works on `isAuthenticated` state and before every route:
-1. Redirects user to home if user is already logged in and visiting a page that is intended for guest (route.meta.guest)
-2. Redirects user to login if user is not authenticated and visits a page that requires authentication (route.meta.requiresAuth)
+1. Redirects user to login if user is not authenticated and visits a page that requires authentication (route.meta.requiresAuth)
+2. Redirects user to home if user is already logged in and visiting a page that is intended for guest (route.meta.guest)
 */
 
 router.beforeEach((to, from, next) => {
