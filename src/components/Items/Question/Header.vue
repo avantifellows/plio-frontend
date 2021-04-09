@@ -1,9 +1,9 @@
 <template>
   <div class="flex w-full bg-white justify-end p-1 md:p-3">
-    <!-- close button -->
+    <!-- skip button -->
     <icon-button
-      :iconConfig="closeButtonIconConfig"
-      @click="closeClicked"
+      :iconConfig="skipButtonIconConfig"
+      @click="skipClicked"
       :class="{ invisible: isAnswerSubmitted }"
     ></icon-button>
   </div>
@@ -14,7 +14,7 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 export default {
   components: { IconButton },
   computed: {
-    closeButtonIconConfig() {
+    skipButtonIconConfig() {
       return {
         enabled: true,
         iconName: "times-solid",
@@ -31,10 +31,10 @@ export default {
     },
   },
   methods: {
-    closeClicked() {
-      this.$emit("close-question");
+    skipClicked() {
+      this.$emit("skip-question");
     },
   },
-  emits: ["close-question"],
+  emits: ["skip-question"],
 };
 </script>

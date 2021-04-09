@@ -4,7 +4,7 @@
     <div v-if="isItemQuestion" class="h-full flex flex-col shadow-inner">
       <!-- header -->
       <item-question-header
-        @close-question="closeModal"
+        @skip-question="closeModal"
         :isAnswerSubmitted="isAnswerSubmitted"
       ></item-question-header>
       <!-- main question body -->
