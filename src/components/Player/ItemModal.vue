@@ -172,6 +172,7 @@ export default {
     optionSelected(optionIndex) {
       // invoked when an option is selected
       this.draftResponses[this.selectedItemIndex] = optionIndex;
+      this.$emit("option-selected", optionIndex);
     },
     submitQuestion() {
       // invoked when the response to the question has been submitted
@@ -188,6 +189,7 @@ export default {
     "revise-question",
     "update:responseList",
     "submit-question",
+    "option-selected",
   ],
 };
 </script>
