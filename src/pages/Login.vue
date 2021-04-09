@@ -13,10 +13,10 @@
       </small>
     </div>
     <div class="watch_plio mb-5">
-      <button class="my-4" :disabled="isOtpSubmitDisabled" @click="requestOtp" v-if="!requestedOtp">
+      <button class="my-4" :disabled="isRequestOtpDisabled" @click="requestOtp" v-if="!requestedOtp">
         {{ $t("login.learner.button_otp") }}
       </button>
-      <button class="mt-4" id="submit" :disabled="isSubmitDisabled" @click="login" v-if="requestedOtp">
+      <button class="mt-4" id="submit" :disabled="isSubmitDisabled" @click="phoneLogin" v-if="requestedOtp">
         {{ $t("login.learner.button_submit") }}
       </button>
       <div class="mt-1 resend-otp" v-if="requestedOtp && !resentOtp" @click="resendOtp">
@@ -56,13 +56,11 @@ export default {
   },
   computed: {
     ...mapState('auth', ["userId"]),
-    isOtpSubmitDisabled: function () {
-      if (!this.phoneInput) return true;
-      return this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g) == null;
+    isRequestOtpDisabled: function () {
+      return this.phoneInput && !this.isPhoneValid();
     },
     isSubmitDisabled: function () {
-      if (!this.otpInput) return true;
-      return this.otpInput.toString().match(/^\d{6}$/g) == null;
+      return this.otpInput && !this.isOtpValid();
     },
     formattedPhoneInput: function () {
       return '+91' + this.phoneInput;
@@ -70,17 +68,23 @@ export default {
   },
   methods: {
     ...mapActions('auth', ['setAccessToken']),
+    isPhoneValid() {
+        return this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g) != null
+    },
+    isOtpValid() {
+        return this.otpInput.toString().match(/^\d{6}$/g) != null;
+    },
     requestOtp() {
-      UserService.requestOtp(this.formattedPhoneInput).then((response) => console.log(response));
+      UserService.requestOtp(this.formattedPhoneInput);
       this.requestedOtp = true;
       this.invalidOtp = false;
     },
     resendOtp() {
-      UserService.requestOtp(this.formattedPhoneInput).then((response) => console.log(response));
+      UserService.requestOtp(this.formattedPhoneInput);
       this.resentOtp = true;
       this.invalidOtp = false;
     },
-    login() {
+    phoneLogin() {
       UserService.verifyOtp(this.formattedPhoneInput, this.otpInput)
         .then((response) => {
           this.setAccessToken(response.data);
