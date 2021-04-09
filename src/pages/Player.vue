@@ -46,7 +46,6 @@ import SessionAPIService from "@/services/API/Session.js";
 import EventAPIService from "@/services/API/Event.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
-// import { mapState } from "vuex";
 import ItemModal from "../components/Player/ItemModal.vue";
 
 // difference in seconds between consecutive checks for item pop-up
@@ -54,10 +53,10 @@ var POP_UP_CHECKING_FREQUENCY = 0.5;
 var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 
 // The time period in which Plyr timeupdate event repeats
-// in milliseconds
-const PLYR_INTERVAL_TIME = 50;
+// in seconds
+const PLYR_INTERVAL_TIME = 0.05;
 
-// upload data periodically
+// upload data periodically - period in milliseconds
 const UPLOAD_INTERVAL = 10000;
 var UPLOAD_INTERVAL_TIMEOUT = null;
 
@@ -149,7 +148,6 @@ export default {
 
         invertTime: false,
       },
-      //   isDataLoaded: false, // whether data has been fetched from the server
       videoId: "", // video Id for the Plio
       source: "unknown", // source from where the plio was accessed - can be passed as param in the plio url
       componentProperties: {}, // properties of the plio player
@@ -158,11 +156,11 @@ export default {
       items: [], // holds the list of all items for this plio
       itemResponses: [], // holds the responses to each item
       videoSource: "youtube", // source for the video
-      watchTime: 0, // keeps a count of the watch time for the plio by the user
+      watchTime: 0, // keeps a count of the watch time in seconds for the plio by the user
       currentItemIndex: null, // current item being displayed
       markerClass: [
         // class for the item marker displayed on top of the video slider
-        "bg-red-500",
+        "bg-red-600",
         "absolute",
         "z-10",
         "transform",
@@ -233,7 +231,6 @@ export default {
     },
   },
   computed: {
-    // ...mapState(["userId"]),
     isVideoIdValid() {
       // whether the video Id is valid
       return this.videoId != "";
@@ -253,11 +250,6 @@ export default {
     itemTimestamps() {
       // list of the timestamps for each of the items
       return ItemFunctionalService.getItemTimestamps(this.items);
-    },
-    videoDuration() {
-      // duration of the video
-      if (this.player.duration) return this.player.duration;
-      return null;
     },
     hasSessionStarted() {
       // whether the session has been defined and begun

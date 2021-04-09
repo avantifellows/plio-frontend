@@ -45,6 +45,8 @@ export default {
     };
   },
   created() {
+    // draftResponses holds the options which are not yet submitted
+    // it is instantiated here
     this.itemList.forEach(() => {
       this.draftResponses.push(null);
     });
@@ -56,7 +58,7 @@ export default {
       type: Array,
     },
     responseList: {
-      // list of items
+      // list of submitted responses to the items
       default: () => {},
       type: Array,
     },
@@ -140,11 +142,6 @@ export default {
       // type for the question
       if (this.currentItem == undefined) return null;
       return this.currentItem["details"]["type"];
-    },
-    questionId() {
-      // DB ID for the question
-      if (this.currentItem == undefined) return null;
-      return this.currentItem["details"]["id"];
     },
     isItemQuestion() {
       // whether the item is a Question

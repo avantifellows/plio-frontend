@@ -861,7 +861,7 @@ export default {
           newItem.details = createdQuestion;
           // push it into items, update the itemTimestamps and currentItemIndex
           this.items.push(newItem);
-          this.itemTimestamps = this.getItemTimestamps(this.items);
+          this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
           this.currentItemIndex = this.itemTimestamps.indexOf(this.currentTimestamp);
           this.markItemSelected(this.currentItemIndex);
         });

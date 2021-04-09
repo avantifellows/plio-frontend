@@ -5,7 +5,6 @@
       {{ questionText }}
     </p>
     <!-- option container -->
-    <!-- v-model="localSelectedOption" -->
     <div class="flex mx-4 md:mx-6 xl:mx-10">
       <ul class="w-full">
         <li class="list-none">
@@ -51,7 +50,7 @@ export default {
       type: String,
     },
     options: {
-      //  options for the question
+      // options for the question
       default: () => [],
       type: Array,
     },

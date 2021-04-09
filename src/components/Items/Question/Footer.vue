@@ -107,7 +107,7 @@ export default {
     proceedButtonTitleConfig() {
       // config for the text of the proceed button
       return {
-        value: "⟳ " + this.$t("player.question.proceed"),
+        value: this.$t("player.question.proceed"),
         class: "text-green-500 text-lg sm:text-xl lg:text-2xl font-bold",
       };
     },
@@ -128,7 +128,7 @@ export default {
       return "ring-transparent";
     },
     fullscreenIconName() {
-      // icon to show if the answer was correct or not
+      // icon to either enter/exit fullscreen
       if (this.isFullscreen) {
         return "exit-fullscreen";
       }
