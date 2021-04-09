@@ -22,8 +22,10 @@ export default {
   },
 
   async getUserByAccessToken(token) {
-    return apiClient().post(process.env.VUE_APP_BACKEND + "/users/token", {
-      token,
+    return apiClient().get(process.env.VUE_APP_BACKEND + "/users/token", {
+      params: {
+        token,
+      },
     });
   },
 
