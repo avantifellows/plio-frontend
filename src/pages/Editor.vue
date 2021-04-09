@@ -15,7 +15,10 @@
           <div v-if="!isVideoIdValid" class="flex justify-center">
             <div class="flex relative justify-center">
               <img src="@/assets/images/plain.svg" />
-              <img src="@/assets/images/play.svg" class="absolute place-self-center" />
+              <img
+                src="@/assets/images/play.svg"
+                class="absolute place-self-center w-12 h-12"
+              />
             </div>
           </div>
           <div v-else>
@@ -25,7 +28,7 @@
               @update="videoTimestampUpdated"
               @ready="playerReady"
               @play="playerPlayed"
-              ref="playerObj"
+              ref="videoPlayer"
             ></video-player>
 
             <!--- slider with question markers -->
@@ -56,6 +59,7 @@
           <icon-button
             :titleConfig="publishButtonTitleConfig"
             :class="publishButtonClass"
+            class="shadow-lg"
             v-tooltip.right="publishButtonTooltip"
             @click="publishButtonClicked"
           ></icon-button>
@@ -142,10 +146,6 @@
 </template>
 
 <script>
-// How precisely should the question pop-up logic
-// be measured. Time in milliseconds
-const POP_UP_PRECISION_TIME = 50;
-
 // what should the minimum time difference be
 // between any two items (seconds)
 const ITEM_VICINITY_TIME = 2;
@@ -158,6 +158,8 @@ import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
+import VideoFunctionalService from "@/services/Functional/Video.js";
+import ItemFunctionalService from "@/services/Functional/Item.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
@@ -166,6 +168,10 @@ import { mapActions, mapState } from "vuex";
 
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
+
+// difference in seconds between consecutive checks for item pop-up
+var POP_UP_CHECKING_FREQUENCY = 0.5;
+var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 
 export default {
   name: "Editor",
@@ -238,6 +244,7 @@ export default {
       optionIndexToDelete: -1,
       videoDBId: null, // store the DB id of video object linked to the plio
       plioDBId: null, // store the DB id of plio object
+      lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
     };
   },
   async created() {
@@ -260,7 +267,7 @@ export default {
   watch: {
     items: {
       handler() {
-        this.itemTimestamps = this.getItemTimestamps(this.items);
+        this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
         this.checkAndSavePlio();
       },
       deep: true,
@@ -276,12 +283,12 @@ export default {
     },
     videoURL(newVideoURL) {
       // invoked when the video link is updated
-      var linkValidation = this.isVideoLinkValid(newVideoURL);
+      var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
       this.videoInputValidation["isValid"] = linkValidation["valid"];
       if (!linkValidation["valid"]) return;
 
       if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
-        this.$refs.playerObj.player.destroy();
+        this.player.destroy();
       }
       this.videoId = linkValidation["ID"];
       this.checkAndSavePlio();
@@ -293,6 +300,10 @@ export default {
   },
   computed: {
     ...mapState(["uploading"]),
+    player() {
+      // returns the player instance
+      return this.$refs.videoPlayer.player;
+    },
     correctOptionIndex() {
       // get the index of the correct answer from options list
       return this.items[this.currentItemIndex].details.correct_answer;
@@ -343,7 +354,7 @@ export default {
     },
     backButtonClass() {
       // classes for the back button
-      return "bg-gray-100 hover:bg-gray-200 rounded-md";
+      return "bg-gray-100 hover:bg-gray-200 rounded-md shadow-lg";
     },
     backButtonTitleConfig() {
       // config for text of back button
@@ -461,7 +472,7 @@ export default {
         { "cursor-not-allowed": this.addItemDisabled },
 
         `rounded-md font-bold p-5 h-12 w-96 bg-primary-button
-        hover:bg-primary-button-hover disabled:opacity-50`,
+        hover:bg-primary-button-hover disabled:opacity-50 shadow-lg`,
       ];
       return classObject;
     },
@@ -526,7 +537,7 @@ export default {
       // sort the items based on timestamp
       this.sortItems();
       // update itemTimestamps based on new sorted items
-      this.itemTimestamps = this.getItemTimestamps(this.items);
+      this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
       // update everything else
       this.currentItemIndex = this.itemTimestamps.indexOf(itemTimestamp);
       this.currentTimestamp = itemTimestamp;
@@ -534,32 +545,22 @@ export default {
       this.markItemSelected(this.currentItemIndex);
     },
     checkItemToSelect(timestamp) {
-      var itemSelected = false;
-      // checks if any item is to be marked selected for the given timestamp
-      this.itemTimestamps.every((itemTimestamp, index) => {
-        // if the seeker is within "POP_UP_PRECISION_TIME" of the
-        // specific item time, then mark the item as selected
-        if (
-          timestamp < itemTimestamp &&
-          timestamp >= itemTimestamp - POP_UP_PRECISION_TIME / 1000
-        ) {
-          // mark that some item has been selected at this timestamp
-          itemSelected = true;
-          this.markItemSelected(index);
-          // breaks the loop
-          return false;
-        } else {
-          // go on to check the next item
-          return true;
-        }
-      });
-      if (!itemSelected) {
-        this.markNoItemSelected();
-      }
+      // checks if an item is to be selected and marks/unmarks accordingly
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+        return;
+      this.lastCheckTimestamp = timestamp;
+      var selectedItemIndex = ItemFunctionalService.checkItemPopup(
+        timestamp,
+        this.itemTimestamps,
+        POP_UP_PRECISION_TIME
+      );
+      if (selectedItemIndex != null) {
+        this.markItemSelected(selectedItemIndex);
+      } else this.markNoItemSelected();
     },
     updatePlayerTimestamp(timestamp) {
       // update player time to the given timestamp
-      this.$refs.playerObj.player.currentTime = timestamp;
+      this.player.currentTime = timestamp;
     },
     sliderUpdated(timestamp) {
       // invoked when the time slider is updated
@@ -575,7 +576,7 @@ export default {
       // mark the item at the given index as selected
       if (itemIndex != null) {
         this.isItemSelected = true;
-        this.$refs.playerObj.player.pause();
+        this.player.pause();
         this.currentItemIndex = itemIndex;
       }
     },
@@ -595,10 +596,10 @@ export default {
       this.currentTimestamp = timestamp;
       this.checkItemToSelect(timestamp);
     },
-    playerReady(player) {
+    playerReady() {
       // set variables once the player instance is ready
-      this.videoDuration = player.duration;
-      if (!this.plioTitle) this.plioTitle = player.config.title;
+      this.videoDuration = this.player.duration;
+      if (!this.plioTitle) this.plioTitle = this.player.config.title;
     },
     isVideoLinkValid(link) {
       // checks if the link is valid
@@ -612,16 +613,6 @@ export default {
     playerPlayed() {
       // invoked when the player is played from a paused state
       this.isItemSelected = false;
-    },
-    getItemTimestamps(items) {
-      // returns the list of timestamps of the items
-      var positions = [];
-
-      items.forEach((item) => {
-        positions.push(item.time);
-      });
-
-      return positions;
     },
     async loadPlio() {
       // fetch plio details
@@ -837,7 +828,7 @@ export default {
       return details;
     },
     addNewItem() {
-      this.$refs.playerObj.player.pause();
+      this.player.pause();
       // newItem object will store the information of the newly created
       // item and the question
       var newItem = {};
@@ -859,7 +850,7 @@ export default {
         .then((createdItem) => {
           // storing the newly created item into "newItem"
           newItem = createdItem;
-          if (createdItem.type == "question"){
+          if (createdItem.type == "question") {
             var questionDetails = this.getDetailsForNewQuestion();
             questionDetails.item = createdItem.id;
             return QuestionAPIService.createQuestion(questionDetails);
@@ -870,7 +861,7 @@ export default {
           newItem.details = createdQuestion;
           // push it into items, update the itemTimestamps and currentItemIndex
           this.items.push(newItem);
-          this.itemTimestamps = this.getItemTimestamps(this.items);
+          this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
           this.currentItemIndex = this.itemTimestamps.indexOf(this.currentTimestamp);
           this.markItemSelected(this.currentItemIndex);
         });

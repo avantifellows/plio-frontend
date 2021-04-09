@@ -43,15 +43,7 @@ export default {
     },
   },
   error: {
-    404: "You have copied a wrong link. Please go back and copy the link again. Contact your teacher for help.",
-    tutorial: "Watch this video to understand how to use Plio",
-    browser: {
-      heading: "Plio will only work on Google Chrome",
-      download: "Download Google Chrome by clicking the image above",
-      copy: "Copy the plio link and open it on Google Chrome",
-      watch_video: "Watch the video given above",
-      failsafe: "and answer the questions given in the Google Form link",
-    },
+    404: "Page Not Found",
   },
   generic: {
     or: "Or",

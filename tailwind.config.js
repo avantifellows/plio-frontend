@@ -19,6 +19,8 @@ module.exports = {
     extend: {
       // to use "disabled:opacity-50" with tailwind
       opacity: ["disabled"],
+      pointerEvents: ["disabled"],
+      cursor: ["disabled"],
     },
   },
   plugins: [],
