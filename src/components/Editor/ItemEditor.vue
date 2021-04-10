@@ -4,9 +4,9 @@
     class="flex flex-col w-full h-full rounded-md main-container"
     v-if="localSelectedItemIndex != null"
   >
-    <div class="flex gap-1 flex-row w-full p-4 nav-bar justify-end">
+    <div class="flex gap-1 flex-row w-full p-4 justify-end">
       <!-- nav bar -->
-      <div class="mr-auto flex content-center">
+      <div class="mr-auto sm:flex content-center hidden">
         <p class="self-center editor-title">
           EDIT {{ localItemList[localSelectedItemIndex].type.toUpperCase() }}
         </p>
@@ -16,6 +16,7 @@
       <ItemDropDown
         :optionsList="itemOptionsList"
         v-model:selectedItemIndex="localSelectedItemIndex"
+        class="mr-auto sm:mr-0"
       ></ItemDropDown>
 
       <!-- previous item button -->
@@ -76,8 +77,10 @@
         :title="'Time for the question to appear'"
         class="p-2"
         v-model:timeObject="timeObject"
-        :timeValid="timeExceedsVideoDuration"
+        :errorStates="timeInputErrorStates"
         :isDisabled="isInteractionDisabled"
+        @error-occurred="$emit('error-occurred')"
+        @error-resolved="$emit('error-resolved')"
       ></time-input>
 
       <!-- input field for entering options  -->
@@ -116,6 +119,7 @@ import InputText from "../UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
 import Toast from "@/components/UI/Alert/Toast";
+import ItemFunctionalService from "@/services/Functional/Item.js";
 
 export default {
   name: "ItemEditor",
@@ -163,12 +167,16 @@ export default {
         iconClass: "text-white",
       },
       timeExceedsVideoDuration: false, //stores if the time entered by the user exceeds the total video duration
+      itemInVicinity: false, // stores if another item is in the vicinity of the current selected item
       dialogTitle: "", // title for the dialog box
       dialogDescription: "", // description for the dialog box
       showDialog: false, // whether to show the dialog box
       dialogAction: "", // action that invoked the dialog box
       // index of the option to be deleted; -1 means nothing to be deleted
       optionIndexToDelete: -1,
+      // warning messages for error states
+      timeExceedsWarning: "The time entered exceeds the video duration",
+      itemInVicinityWarning: "Questions should be at least 2 seconds apart",
     };
   },
 
@@ -204,6 +212,25 @@ export default {
     Toast,
   },
   methods: {
+    checkTimeInputErrors(timeInput) {
+      // checks if the time entered in the timeinput box has
+      // any errors or not and toggles the respective variables
+
+      // check if the time entered exceeds the video duration
+      if (timeInput > this.videoDuration) this.timeExceedsVideoDuration = true;
+      else this.timeExceedsVideoDuration = false;
+
+      // check if any other item is in the vicinity of time entered by the user
+      if (
+        !ItemFunctionalService.isTimestampValid(
+          timeInput,
+          this.localItemTimestamps,
+          this.localSelectedItemIndex
+        )
+      )
+        this.itemInVicinity = true;
+      else this.itemInVicinity = false;
+    },
     removeSelectedItemIndex() {
       // resets the selectedItemIndex value to null
       // doing this makes the itemEditor invisible and the add item
@@ -306,6 +333,18 @@ export default {
   },
 
   computed: {
+    localItemTimestamps() {
+      // returns a list of timestamp values after extracting them from the items
+      return this.localItemList.map((value) => value.time);
+    },
+    timeInputErrorStates() {
+      // create and pass an object containing info about the error message
+      // and if that error message is active or not
+      var errorStates = {};
+      errorStates[this.timeExceedsWarning] = this.timeExceedsVideoDuration;
+      errorStates[this.itemInVicinityWarning] = this.itemInVicinity;
+      return errorStates;
+    },
     deleteItemButtonClass() {
       // styling classes for delete item button
       if (this.isInteractionDisabled) return "disabled:opacity-40 cursor-not-allowed";
@@ -384,9 +423,9 @@ export default {
       var optionsList = [];
       this.localItemList.forEach((item, itemIndex) => {
         var currentItem = {};
-        currentItem["index"] = itemIndex;
+        currentItem["value"] = itemIndex;
         var itemType = this.capitalizeFirstLetter(item.type);
-        currentItem["label"] = `${itemType} ${itemIndex + 1}`;
+        currentItem["text"] = `${itemType} ${itemIndex + 1}`;
         optionsList.push(currentItem);
       });
 
@@ -414,19 +453,23 @@ export default {
       // this object contains four keys - 'hour', 'minute', 'second'
       // and 'millisecond' - all are type Number
       get() {
-        // convert seconds to timeObject
+        // convert seconds to timeObject and
+        // check for any time input errors and toggle the respective error flags
+
         var itemTime = this.localItemList[this.localSelectedItemIndex].time;
-        return this.convertSecondsToISOTime(itemTime || 0);
+        this.checkTimeInputErrors(itemTime);
+        return this.convertSecondsToISOTime(itemTime);
       },
       set(value) {
-        // convert timeObject to seconds
+        // convert timeObject to seconds and
+        // check for any time input errors and toggle the respective error flags
+
         var timeInSeconds = this.convertISOTimeToSeconds(value);
-        if (timeInSeconds > this.videoDuration) {
-          this.timeExceedsVideoDuration = true;
-        } else {
-          this.timeExceedsVideoDuration = false;
-          this.localItemList[this.localSelectedItemIndex].time = timeInSeconds || 0;
-        }
+        this.checkTimeInputErrors(timeInSeconds);
+
+        // update the local time values if no error is present
+        if (!this.isAnyError)
+          this.localItemList[this.localSelectedItemIndex].time = timeInSeconds;
       },
     },
     options: {
@@ -442,6 +485,11 @@ export default {
       // get the index of the correct answer in the list of options
       return this.localItemList[this.localSelectedItemIndex].details.correct_answer;
     },
+    isAnyError() {
+      // returns if any error is present after checking individual error
+      // states that are defined
+      return this.timeExceedsVideoDuration || this.itemInVicinity;
+    },
   },
 
   emits: [
@@ -449,14 +497,13 @@ export default {
     "update:selectedItemIndex",
     "delete-selected-item",
     "delete-option",
+    "error-occurred",
+    "error-resolved",
   ],
 };
 </script>
 
 <style scoped>
-.nav-bar {
-  height: 10%;
-}
 .main-container {
   background: #f4eae1;
 }

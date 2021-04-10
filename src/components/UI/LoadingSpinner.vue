@@ -9,8 +9,8 @@
 
 <script>
 export default {
-  name: "LoadingSpinner"
-}
+  name: "LoadingSpinner",
+};
 </script>
 
 <style scoped>
@@ -54,5 +54,4 @@ export default {
     transform: rotate(360deg);
   }
 }
-
 </style>

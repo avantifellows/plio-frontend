@@ -127,6 +127,8 @@
             @delete-selected-item="deleteItemButtonClicked"
             @delete-option="deleteOption"
             :isDisabled="isPublished"
+            @error-occurred="setErrorOccurred"
+            @error-resolved="setErrorResolved"
           ></item-editor>
         </div>
       </div>
@@ -146,10 +148,6 @@
 </template>
 
 <script>
-// what should the minimum time difference be
-// between any two items (seconds)
-const ITEM_VICINITY_TIME = 2;
-
 import InputText from "@/components/UI/Text/InputText.vue";
 import URL from "@/components/UI/Text/URL.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
@@ -244,6 +242,7 @@ export default {
       optionIndexToDelete: -1,
       videoDBId: null, // store the DB id of video object linked to the plio
       plioDBId: null, // store the DB id of plio object
+      anyErrorsPresent: false, // store if any errors are present or not
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
     };
   },
@@ -280,6 +279,8 @@ export default {
       // when time is changed from the time input boxes
       // or when item is added using the add item button
       this.checkAndFixItemOrder();
+      if (this.items != null && this.currentItemIndex != null)
+        this.currentTimestamp = this.items[this.currentItemIndex].time;
     },
     videoURL(newVideoURL) {
       // invoked when the video link is updated
@@ -310,7 +311,11 @@ export default {
     },
     isPublishButtonEnabled() {
       // whether the publish button is enabled
-      if (!this.isPublished) return this.isVideoIdValid;
+
+      // enable publish button if video id is valid
+      // and no errors are present
+      if (!this.isPublished) return this.isVideoIdValid && !this.anyErrorsPresent;
+
       return this.hasUnpublishedChanges;
     },
     blurMainScreen() {
@@ -532,8 +537,25 @@ export default {
     },
     itemMarkerTimestampDragEnd(itemIndex) {
       // invoked when the drag on the marker for an item is completed
+      var timeBeforeDragEnded = this.items[itemIndex].time;
       var itemTimestamp = this.itemTimestamps[itemIndex];
-      this.items[itemIndex]["time"] = itemTimestamp;
+
+      // check if the time after drag is valid and if not, set the item time
+      // back to the one before the drag
+      // else proceed with the new time
+      if (
+        !ItemFunctionalService.isTimestampValid(
+          itemTimestamp,
+          this.itemTimestamps,
+          itemIndex
+        )
+      ) {
+        this.items[itemIndex]["time"] = timeBeforeDragEnded;
+        itemTimestamp = timeBeforeDragEnded;
+        this.showCannotAddItemDialog();
+      } else {
+        this.items[itemIndex]["time"] = itemTimestamp;
+      }
       // sort the items based on timestamp
       this.sortItems();
       // update itemTimestamps based on new sorted items
@@ -619,7 +641,7 @@ export default {
       await PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
         this.items = plioDetails.items || [];
         this.videoURL = plioDetails.video_url || "";
-        this.plioTitle = plioDetails.plio_title || "";
+        this.plioTitle = plioDetails.plioTitle || "";
         this.status = plioDetails.status;
         if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
           this.lastUpdated = new Date(plioDetails.updated_at);
@@ -635,8 +657,8 @@ export default {
         this.hasUnpublishedChanges = true;
         return;
       }
-      // don't save plio if video URL is empty
-      if (!this.isVideoIdValid) return;
+      // don't save plio if video URL is empty or if any errors are present
+      if (this.anyErrorsPresent || !this.isVideoIdValid) return;
 
       this.changeInProgress = true;
       var time = new Date();
@@ -783,23 +805,6 @@ export default {
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
-    getTimestampForNewItem() {
-      // loop through itemTimestamps to check if the time where the user
-      // is trying to add an item is valid or not
-      // using for loop instead of forEach as forEach was running async
-
-      // returning -1 to signify that the time chosen by the user is not valid
-      for (let index = 0; index < this.itemTimestamps.length; index++) {
-        var val = this.itemTimestamps[index];
-        if (
-          val == this.currentTimestamp ||
-          (this.currentTimestamp <= val + ITEM_VICINITY_TIME &&
-            this.currentTimestamp >= val - ITEM_VICINITY_TIME)
-        )
-          return -1;
-      }
-      return this.currentTimestamp;
-    },
     getItemTypeForNewItem() {
       // returns the type of item being added when add item button is clicked
       return "question";
@@ -833,9 +838,13 @@ export default {
       // item and the question
       var newItem = {};
 
-      // get a valid timestamp for adding a new item
-      var newTimestamp = this.getTimestampForNewItem();
-      if (newTimestamp == -1) {
+      // check if the time where user is trying to add an item is valid or not
+      if (
+        !ItemFunctionalService.isTimestampValid(
+          this.currentTimestamp,
+          this.itemTimestamps
+        )
+      ) {
         this.showCannotAddItemDialog();
         return;
       }
@@ -844,7 +853,7 @@ export default {
       ItemAPIService.createItem({
         plio: this.plioDBId,
         type: this.getItemTypeForNewItem(),
-        time: newTimestamp,
+        time: this.currentTimestamp,
         meta: this.getMetadataForNewItem(),
       })
         .then((createdItem) => {
@@ -917,6 +926,14 @@ export default {
       this.optionIndexToDelete = optionIndex;
       this.dialogAction = "deleteOption";
       this.showDialogBox = true;
+    },
+    setErrorOccurred() {
+      // invoked when some error is present
+      this.anyErrorsPresent = true;
+    },
+    setErrorResolved() {
+      // invoked when erros have been resolved
+      this.anyErrorsPresent = false;
     },
   },
 };

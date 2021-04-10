@@ -1,21 +1,23 @@
 <template>
-  <Dropdown
-    v-model="localSelectedItemIndex"
-    :options="optionsList"
-    optionLabel="label"
-    optionValue="index"
-  >
-  </Dropdown>
+  <div>
+    <select
+      v-model="localSelectedItemIndex"
+      class="border border-gray-300 rounded-xl bg-primary-button text-white px-2 shadow-lg focus:outline-none focus:ring-1 focus:ring-white font-bold text-md py-1"
+    >
+      <option
+        v-for="(option, optionIndex) in optionsList"
+        :value="option.value"
+        :key="optionIndex"
+      >
+        {{ option.text }}
+      </option>
+    </select>
+  </div>
 </template>
 
 <script>
-import Dropdown from "primevue/dropdown";
-
 export default {
   name: "ItemDropDown",
-  components: {
-    Dropdown,
-  },
   props: {
     optionsList: {
       default: () => [],
