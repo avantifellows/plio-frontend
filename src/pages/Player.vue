@@ -435,7 +435,8 @@ export default {
       this.showItemMarkersOnSlider(this.player);
       this.setScreenProperties();
       this.player.currentTime = this.currentTimestamp;
-      this.playPlayer();
+      // Disabling autoplay because of bug - issue #157
+      // this.playPlayer();
     },
     showItemMarkersOnSlider(player) {
       // show the markers for items on top of the video slider
