@@ -105,9 +105,6 @@ export default {
       localMillisecond: 0,
 
       // warning messages for different kind of error states
-      invalidInputWarning: "Invalid time value",
-      timeExceedsWarning: "The time entered exceeds the video duration",
-      itemInVicinityWarning: "Questions should be at least 2 seconds apart",
       hourInputInvalidWarning: "Hour input is invalid",
       minuteInputInvalidWarning: "Minute input is invalid",
       secondInputInvalidWarning: "Second input is invalid",

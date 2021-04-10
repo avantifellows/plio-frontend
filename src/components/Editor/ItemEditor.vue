@@ -319,11 +319,11 @@ export default {
       // using for loop instead of forEach as forEach was running async
       for (let index = 0; index < this.localItemList.length; index++) {
         // don't check against the selected item itself
-        if (index == itemIndex || itemIndex == null) continue;
+        if (itemIndex == null || index == itemIndex) continue;
         var val = this.localItemList[index].time;
-        if (val == timestamp ||
-            (timestamp <= val + ITEM_VICINITY_TIME && timestamp >= val - ITEM_VICINITY_TIME))
-          return false;
+        if (
+            timestamp <= val + ITEM_VICINITY_TIME && timestamp >= val - ITEM_VICINITY_TIME
+          ) return false;
       }
       return true;
     },
@@ -465,7 +465,7 @@ export default {
 
         // update the local time values if no error is present
         if (!this.isAnyError)
-          this.localItemList[this.localSelectedItemIndex].time = timeInSeconds || 0;
+          this.localItemList[this.localSelectedItemIndex].time = timeInSeconds;
       },
     },
     options: {

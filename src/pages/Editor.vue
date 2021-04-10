@@ -647,7 +647,7 @@ export default {
       await PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
         this.items = plioDetails.items || [];
         this.videoURL = plioDetails.video_url || "";
-        this.plioTitle = plioDetails.plio_title || "";
+        this.plioTitle = plioDetails.plioTitle || "";
         this.status = plioDetails.status;
         if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
           this.lastUpdated = new Date(plioDetails.updated_at);
@@ -818,10 +818,9 @@ export default {
 
       for (let index = 0; index < this.itemTimestamps.length; index++) {
         // don't check against the item itself
-        if (index == itemIndex || itemIndex == null) continue;
+        if (itemIndex == null || index == itemIndex) continue;
         var val = this.itemTimestamps[index];
         if (
-          val == timestamp ||
           (timestamp <= val + ITEM_VICINITY_TIME && timestamp >= val - ITEM_VICINITY_TIME)
         )
           return false;
