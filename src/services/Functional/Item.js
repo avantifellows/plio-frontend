@@ -48,7 +48,7 @@ export default {
 
     for (let index = 0; index < itemTimestamps.length; index++) {
       // don't check against the item itself
-      if (itemIndex == null || index == itemIndex) continue;
+      if (itemIndex != null && index == itemIndex) continue;
 
       var val = itemTimestamps[index];
 
