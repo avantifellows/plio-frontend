@@ -120,13 +120,6 @@ export default {
   components: {
     InputText,
   },
-  created() {
-    // when the component is created, initialise the local time values
-    this.localHour = this.timeObject.hour;
-    this.localMinute = this.timeObject.minute;
-    this.localSecond = this.timeObject.second;
-    this.localMillisecond = this.timeObject.millisecond;
-  },
   props: {
     config: {
       // which box to show can be controlled
@@ -183,6 +176,16 @@ export default {
         this.localSecond = this.timeObject.second;
         this.localMillisecond = this.timeObject.millisecond;
       }
+    },
+    timeObject: {
+      handler() {
+        // update the local values if the user selects a different item than the current selected one
+        this.localHour = this.timeObject.hour;
+        this.localMinute = this.timeObject.minute;
+        this.localSecond = this.timeObject.second;
+        this.localMillisecond = this.timeObject.millisecond;
+      },
+      deep: true,
     },
   },
   methods: {
