@@ -458,7 +458,7 @@ export default {
 
         var itemTime = this.localItemList[this.localSelectedItemIndex].time;
         this.checkTimeInputErrors(itemTime);
-        return this.convertSecondsToISOTime(itemTime || 0);
+        return this.convertSecondsToISOTime(itemTime);
       },
       set(value) {
         // convert timeObject to seconds and
