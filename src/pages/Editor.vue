@@ -279,6 +279,8 @@ export default {
       // when time is changed from the time input boxes
       // or when item is added using the add item button
       this.checkAndFixItemOrder();
+      if (this.items != null && this.currentItemIndex != null)
+        this.currentTimestamp = this.items[this.currentItemIndex].time;
     },
     videoURL(newVideoURL) {
       // invoked when the video link is updated

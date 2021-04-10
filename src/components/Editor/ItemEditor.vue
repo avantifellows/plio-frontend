@@ -212,6 +212,25 @@ export default {
     Toast,
   },
   methods: {
+    checkTimeInputErrors(timeInput) {
+      // checks if the time entered in the timeinput box has
+      // any errors or not and toggles the respective variables
+
+      // check if the time entered exceeds the video duration
+      if (timeInput > this.videoDuration) this.timeExceedsVideoDuration = true;
+      else this.timeExceedsVideoDuration = false;
+
+      // check if any other item is in the vicinity of time entered by the user
+      if (
+        !ItemFunctionalService.isTimestampValid(
+          timeInput,
+          this.localItemTimestamps,
+          this.localSelectedItemIndex
+        )
+      )
+        this.itemInVicinity = true;
+      else this.itemInVicinity = false;
+    },
     removeSelectedItemIndex() {
       // resets the selectedItemIndex value to null
       // doing this makes the itemEditor invisible and the add item
@@ -434,27 +453,19 @@ export default {
       // this object contains four keys - 'hour', 'minute', 'second'
       // and 'millisecond' - all are type Number
       get() {
-        // convert seconds to timeObject
+        // convert seconds to timeObject and
+        // check for any time input errors and toggle the respective error flags
+
         var itemTime = this.localItemList[this.localSelectedItemIndex].time;
+        this.checkTimeInputErrors(itemTime);
         return this.convertSecondsToISOTime(itemTime || 0);
       },
       set(value) {
-        // convert timeObject to seconds
-        var timeInSeconds = this.convertISOTimeToSeconds(value);
-        // check if the time entered exceeds the video duration
-        if (timeInSeconds > this.videoDuration) this.timeExceedsVideoDuration = true;
-        else this.timeExceedsVideoDuration = false;
+        // convert timeObject to seconds and
+        // check for any time input errors and toggle the respective error flags
 
-        // check if any other item is in the vicinity of time entered by the user
-        if (
-          !ItemFunctionalService.isTimestampValid(
-            timeInSeconds,
-            this.localItemTimestamps,
-            this.localSelectedItemIndex
-          )
-        )
-          this.itemInVicinity = true;
-        else this.itemInVicinity = false;
+        var timeInSeconds = this.convertISOTimeToSeconds(value);
+        this.checkTimeInputErrors(timeInSeconds);
 
         // update the local time values if no error is present
         if (!this.isAnyError)

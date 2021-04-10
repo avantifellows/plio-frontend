@@ -123,6 +123,7 @@ export default {
     "update:currentTime",
     "enterfullscreen",
     "exitfullscreen",
+    "seeked",
   ],
 };
 </script>
