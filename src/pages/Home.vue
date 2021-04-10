@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="container">
+  <div id="app">
     <PlioList />
   </div>
 </template>
@@ -23,16 +23,3 @@ export default {
   computed: mapState(["isLoggedIn"]),
 };
 </script>
-
-<style>
-body {
-  background: #ffffff;
-  line-height: 1.6;
-}
-.container {
-  max-width: 1100px;
-  margin: auto;
-  overflow: auto;
-  padding: 0 2 rem;
-}
-</style>

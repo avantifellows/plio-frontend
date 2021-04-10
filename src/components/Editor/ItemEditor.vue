@@ -51,7 +51,7 @@
 
       <!-- delete item button -->
       <icon-button
-        class="rounded-xl bg-delete-button w-8 h-8"
+        class="rounded-xl bg-delete-button w-8 h-8 shadow-lg"
         :iconConfig="deleteItemIconConfig"
         @click="deleteSelectedItem"
         v-tooltip.left="deleteItemButtonTooltip"
@@ -113,16 +113,13 @@
 </template>
 
 <script>
-// what should the minimum time difference be
-// between any two items (seconds)
-const ITEM_VICINITY_TIME = 2;
-
 import IconButton from "../UI/Buttons/IconButton.vue";
 import ItemDropDown from "../UI/DropDownMenu/ItemDropDown.vue";
 import InputText from "../UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
 import Toast from "@/components/UI/Alert/Toast";
+import ItemFunctionalService from "@/services/Functional/Item.js";
 
 export default {
   name: "ItemEditor",
@@ -136,7 +133,8 @@ export default {
         iconClass: "text-white h-5 w-5",
       },
       // styling classes for previous item button
-      previousItemButtonClass: "bg-primary-button hover:bg-primary-button-hover",
+      previousItemButtonClass:
+        "bg-primary-button hover:bg-primary-button-hover shadow-lg",
       nextItemIconConfig: {
         // icon config for next item button
         enabled: true,
@@ -144,7 +142,7 @@ export default {
         iconClass: "text-white h-5 w-5",
       },
       // styling classes for next item button
-      nextItemButtonClass: "bg-primary-button hover:bg-primary-button-hover",
+      nextItemButtonClass: "bg-primary-button hover:bg-primary-button-hover shadow-lg",
       addItemIconConfig: {
         // icon config for add item button
         enabled: true,
@@ -153,12 +151,12 @@ export default {
       },
       // styling classes for add item button
       addItemButtonClass: [
-        "bg-primary-button hover:bg-primary-button-hover disabled:opacity-40",
+        "bg-primary-button hover:bg-primary-button-hover disabled:opacity-40 shadow-lg",
         { "cursor-not-allowed": this.isInteractionDisabled },
       ],
       // styling classes for add option button
       addOptionButtonClass: [
-        `rounded-md font-bold p-5 h-2 w-auto bg-primary-button
+        `rounded-md font-bold p-5 h-2 w-auto bg-primary-button shadow-lg
         hover:bg-primary-button-hover disabled:opacity-50`,
         { "cursor-not-allowed": this.isInteractionDisabled },
       ],
@@ -313,23 +311,13 @@ export default {
         this.localSelectedItemIndex
       ].details.correct_answer = selectedOptionIndex;
     },
-    isTimestampValid(timestamp, itemIndex = null) {
-      // loop through time values of items to check if the user selected time
-      // is valid or not
-      // using for loop instead of forEach as forEach was running async
-      for (let index = 0; index < this.localItemList.length; index++) {
-        // don't check against the selected item itself
-        if (itemIndex == null || index == itemIndex) continue;
-        var val = this.localItemList[index].time;
-        if (
-            timestamp <= val + ITEM_VICINITY_TIME && timestamp >= val - ITEM_VICINITY_TIME
-          ) return false;
-      }
-      return true;
-    },
   },
 
   computed: {
+    localItemTimestamps() {
+      // returns a list of timestamp values after extracting them from the items
+      return this.localItemList.map((value) => value.time);
+    },
     timeInputErrorStates() {
       // create and pass an object containing info about the error message
       // and if that error message is active or not
@@ -454,14 +442,19 @@ export default {
         // convert timeObject to seconds
         var timeInSeconds = this.convertISOTimeToSeconds(value);
         // check if the time entered exceeds the video duration
-        if (timeInSeconds > this.videoDuration)
-          this.timeExceedsVideoDuration = true
-        else this.timeExceedsVideoDuration = false
+        if (timeInSeconds > this.videoDuration) this.timeExceedsVideoDuration = true;
+        else this.timeExceedsVideoDuration = false;
 
         // check if any other item is in the vicinity of time entered by the user
-        if ( !this.isTimestampValid(timeInSeconds,this.localSelectedItemIndex) )
-          this.itemInVicinity = true
-        else this.itemInVicinity = false
+        if (
+          !ItemFunctionalService.isTimestampValid(
+            timeInSeconds,
+            this.localItemTimestamps,
+            this.localSelectedItemIndex
+          )
+        )
+          this.itemInVicinity = true;
+        else this.itemInVicinity = false;
 
         // update the local time values if no error is present
         if (!this.isAnyError)

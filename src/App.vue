@@ -30,7 +30,7 @@
       >
         <icon-button
           :titleConfig="createButtonTextConfig"
-          class="rounded-md"
+          class="rounded-md shadow-lg"
           @click="createNewPlio"
         ></icon-button>
       </div>

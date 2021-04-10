@@ -1,53 +1,64 @@
 <template>
-  <div>
-    <div class="player_container" v-if="dataLoaded && isBrowserSupported">
-      <LoadingSpinner v-if="!hasPlyrLoaded"></LoadingSpinner>
-
-      <div id="player" data-plyr-provider="youtube" :data-plyr-embed-id="videoId"></div>
-      <div v-for="plioQuestion in plioQuestions" :key="plioQuestion.id.toString()">
-        <PlioQuestion
-          :plioQuestion="plioQuestion"
-          :ref="'position' + plioQuestion.id.toString()"
-          :isTutorialComplete="isTutorialComplete"
-          :tutorialProgress="tutorialProgress"
-          :progressBarInfo="progressBarInfo"
-          @answer-submitted="submitAnswer"
-          @question-skipped="skipQuestion"
-          @clicked-revise="reviseQuestion"
-          @update-journey="updateJourney"
-          @question-completed="recordAnswer"
-        >
-        </PlioQuestion>
-      </div>
-
-      <div class="error" v-if="!isFullscreen">
-        <button class="btn start-button" @click="startVideo" id="start-button">
-          {{ $t("player.start") }}
-        </button>
-        <start-button-pointer v-if="!isTutorialComplete && !tutorialProgress['start']">
-        </start-button-pointer>
-      </div>
+  <div class="bg-gray-200 h-screen p-2 lg:p-5">
+    <!-- skeleton loading -->
+    <video-skeleton v-if="!isVideoIdValid"></video-skeleton>
+    <div v-else class="flex relative shadow-lg">
+      <!-- video player component -->
+      <video-player
+        :videoId="videoId"
+        :plyrConfig="plyrConfig"
+        ref="videoPlayer"
+        id="videoPlayer"
+        :currentTime="currentTimestamp"
+        @ready="playerReady"
+        @play="playerPlayed"
+        @pause="playerPaused"
+        @seeked="videoSeeked"
+        @update="videoTimestampUpdated"
+        @enterfullscreen="playerEntersFullscreen"
+        @exitfullscreen="playerExitsFullscreen"
+        class="w-full z-0"
+      ></video-player>
+      <!-- item modal component -->
+      <item-modal
+        id="modal"
+        class="absolute z-10"
+        :class="{ hidden: !showItemModal }"
+        :selectedItemIndex="currentItemIndex"
+        :itemList="items"
+        v-model:isFullscreen="isFullscreen"
+        v-model:responseList="itemResponses"
+        @skip-question="skipQuestion"
+        @proceed-question="proceedQuestion"
+        @revise-question="reviseQuestion"
+        @submit-question="submitQuestion"
+        @option-selected="optionSelected"
+      ></item-modal>
     </div>
-    <Error
-      type="browser_error"
-      :value="browserErrorHandlingValue"
-      v-if="!isBrowserSupported"
-    ></Error>
-    <user-properties ref="userProperties"></user-properties>
   </div>
 </template>
 
 <script>
-import Plyr from "plyr";
-import PlioQuestion from "@/components/Items/PlioQuestion.vue";
-import Error from "@/pages/Error.vue";
-import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
-import StartButtonPointer from "@/components/UI/tutorial/StartButtonPointer.vue";
-import UserProperties from "@/services/Config/User.vue";
-
+import VideoPlayer from "@/components/UI/Player/VideoPlayer";
+import VideoSkeleton from "../components/UI/Skeletons/VideoSkeleton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
-import UserAPIService from "@/services/API/User.js";
-import { mapState } from "vuex";
+import SessionAPIService from "@/services/API/Session.js";
+import EventAPIService from "@/services/API/Event.js";
+import VideoFunctionalService from "@/services/Functional/Video.js";
+import ItemFunctionalService from "@/services/Functional/Item.js";
+import ItemModal from "../components/Player/ItemModal.vue";
+
+// difference in seconds between consecutive checks for item pop-up
+var POP_UP_CHECKING_FREQUENCY = 0.5;
+var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
+
+// The time period in which Plyr timeupdate event repeats
+// in seconds
+const PLYR_INTERVAL_TIME = 0.05;
+
+// upload data periodically - period in milliseconds
+const UPLOAD_INTERVAL = 10000;
+var UPLOAD_INTERVAL_TIMEOUT = null;
 
 // supports indexOf for older browsers
 if (!Array.prototype.indexOf) {
@@ -65,686 +76,451 @@ if (!Array.prototype.indexOf) {
   };
 }
 
-// The time period in which Plyr timeupdate event repeats
-// in milliseconds
-const INTERVAL_TIME = 50;
+// supports Array.prototype.fill for older browsers
+if (!Array.prototype.fill) {
+  Object.defineProperty(Array.prototype, "fill", {
+    value: function (value) {
+      // Steps 1-2.
+      if (this == null) {
+        throw new TypeError("this is null or not defined");
+      }
 
-// How precisely should the question pop-up logic
-// be measured. Time in milliseconds
-const POP_UP_PRECISION_TIME = 500;
+      var O = Object(this);
 
-// upload to s3 after a fixed interval of time
-const UPLOAD_INTERVAL = 45000;
-var TIMEOUT = null;
+      // Steps 3-5.
+      var len = O.length >>> 0;
 
-// wait this much time (secs) then show error page
-// if browser is not supported
-const BROWSER_CHECK_TIME = 10;
+      // Steps 6-7.
+      var start = arguments[1];
+      var relativeStart = start >> 0;
 
-// how many seconds to step back (currentTime) when a user comes back to
-// a plio for a new session
-const STEP_BACK_TIME = 5;
+      // Step 8.
+      var k =
+        relativeStart < 0
+          ? Math.max(len + relativeStart, 0)
+          : Math.min(relativeStart, len);
 
-// This buffer time is because currentTime and duration cannot be
-// exactly equal. Hence taking a ballpark of 2 seconds
-const COMPLETED_BUFFER_TIME = 2;
+      // Steps 9-10.
+      var end = arguments[2];
+      var relativeEnd = end === undefined ? len : end >> 0;
+
+      // Step 11.
+      var finalValue =
+        relativeEnd < 0 ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
+
+      // Step 12.
+      while (k < finalValue) {
+        O[k] = value;
+        k++;
+      }
+
+      // Step 13.
+      return O;
+    },
+  });
+}
 
 export default {
-  name: "Player",
+  components: {
+    VideoPlayer,
+    VideoSkeleton,
+    ItemModal,
+  },
+  data() {
+    return {
+      plyrConfig: {
+        controls: [
+          "play",
+          "play-large",
+          "progress",
+          "current-time",
+          "mute",
+          "volume",
+          "fullscreen",
+        ],
+
+        ratio: "16:7",
+
+        keyboard: {
+          focused: false,
+          global: false,
+        },
+
+        invertTime: false,
+      },
+      videoId: "", // video Id for the Plio
+      source: "unknown", // source from where the plio was accessed - can be passed as param in the plio url
+      componentProperties: {}, // properties of the plio player
+      // TODO: dummy user ID
+      userId: 1,
+      items: [], // holds the list of all items for this plio
+      itemResponses: [], // holds the responses to each item
+      videoSource: "youtube", // source for the video
+      watchTime: 0, // keeps a count of the watch time in seconds for the plio by the user
+      currentItemIndex: null, // current item being displayed
+      markerClass: [
+        // class for the item marker displayed on top of the video slider
+        "bg-red-600",
+        "absolute",
+        "z-10",
+        "transform",
+        "translate",
+        "-translate-x-2/4",
+        "translate-y-4",
+        "py-1.5",
+        "px-1",
+        "bottom-full",
+        "pointer-events-none",
+        "rounded-md",
+      ],
+      playerHeight: 0, // height of the player - updated once the player is ready
+      lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
+      isFullscreen: false, // is the player in fullscreen
+      currentTimestamp: null, // tracks the current timestamp in the video
+      plioDBId: null, // id for this plio in the plio DB table
+      sessionDBId: null, // id for this session in the plio DB table
+      retention: [], // array to store video retention value
+      lastTimestampRetention: null, // last recorded timestamp in the retention array
+    };
+  },
+  watch: {
+    isFullscreen(newIsFullscreen) {
+      // track the fullscreen status
+      if (newIsFullscreen) this.player.fullscreen.enter();
+      else this.player.fullscreen.exit();
+    },
+  },
+  async created() {
+    // redirect to login page if unauthenticated
+    if (!this.userId) {
+      this.$router.push({
+        name: "PhoneSignIn",
+        params: { id: this.plioId },
+      });
+    }
+    // load the systemwide component properties
+    this.componentProperties = require("@/services/Config/" + "Player.json");
+
+    // load plio details
+    await this.fetchPlioCreateSession();
+
+    // update source for the plio
+    if (this.$route.query.src) {
+      this.source = this.$route.query.src;
+    }
+
+    // add listener for screen size being changed
+    window.addEventListener("resize", this.setScreenProperties);
+  },
+  beforeUnmount() {
+    // remove timeout
+    clearTimeout(UPLOAD_INTERVAL_TIMEOUT);
+  },
+  unmounted() {
+    // remove listeners
+    window.removeEventListener("resize", this.setScreenProperties);
+  },
   props: {
     experiment: {
       default: "",
       type: String,
     },
-    id: {
+    plioId: {
       default: "",
       type: String,
     },
   },
-
-  data() {
-    return {
-      plioQuestions: [],
-      dataLoaded: null,
-      videoId: null,
-      watchTime: 0,
-      answers: [],
-      times: [],
-      plioId: null,
-      source: "unknown",
-      isFullscreen: true,
-      supportedBrowsers: [
-        "Chrome",
-        "Chrome Mobile",
-        "Firefox",
-        "Firefox Mobile",
-        "Microsoft Edge",
-      ],
-      isBrowserSupported: true,
-      browserErrorHandlingValue: {
-        failsafeType: "g-form",
-        failsafeUrl: "",
-        youtubeId: "",
-      },
-      journey: [],
-      hasVideoPlayed: -1, // Three possible values: -1(don't know), 0(didn't play), 1(played)
-      sessionId: 0,
-      hasPlyrLoaded: false,
-      retention: [],
-      previousPlayerTime: 0,
-      configs: {},
-      isTutorialComplete: false,
-      tutorialProgress: {},
-      isTutorialUploadRequired: false,
-      isModalOnScreen: false,
-      componentProperties: {},
-      progressBarInfo: {
-        config: {},
-        progressPercent: 0,
-        totalQuestions: 0,
-      },
-    };
+  computed: {
+    isVideoIdValid() {
+      // whether the video Id is valid
+      return this.videoId != "";
+    },
+    hasAnyItems() {
+      // whether there are any itesm
+      return this.items.length != 0;
+    },
+    isAnyItemActive() {
+      // whether any item is currently active
+      return this.currentItemIndex != null;
+    },
+    showItemModal() {
+      // whether the item modal needs to be shown
+      return this.hasAnyItems && this.isAnyItemActive;
+    },
+    itemTimestamps() {
+      // list of the timestamps for each of the items
+      return ItemFunctionalService.getItemTimestamps(this.items);
+    },
+    hasSessionStarted() {
+      // whether the session has been defined and begun
+      return this.sessionDBId != null;
+    },
+    player() {
+      // returns the player instance
+      return this.$refs.videoPlayer.player;
+    },
   },
-  async created() {
-    if (!this.userId) {
-      this.$router.push({
-        name: "PhoneSignIn",
-        params: { id: this.id },
-      });
-    }
-
-    console.log("Setting student id to: " + this.userId);
-
-    // load the systemwide component properties
-    this.componentProperties = require("@/services/Config/" + "Player.json");
-
-    // load plio details
-    await this.fetchData();
-
-    if (this.$route.query.src) {
-      this.source = this.$route.query.src;
-    }
-  },
-
-  components: {
-    PlioQuestion,
-    Error,
-    LoadingSpinner,
-    StartButtonPointer,
-    UserProperties,
-  },
-
   methods: {
-    getCurrentDateTime() {
-      /*
-      Returns current date-time in format
-      YYYY-MM-DD HH:MM:S
-      return: string
-      */
-
-      var today = new Date();
-      var date =
-        today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
-      var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-      var dateTime = date + " " + time;
-      return dateTime;
+    videoSeeked() {
+      // invoked when a seek operation ends
+      this.createEvent("video_seeked", { currentTime: this.player.currentTime });
     },
-
-    waitFor(conditionFunction) {
-      const poll = (resolve) => {
-        if (conditionFunction()) resolve();
-        else setTimeout(() => poll(resolve), 400);
-      };
-      return new Promise(poll);
+    optionSelected(optionIndex) {
+      // invoked when an option of a question is selected
+      this.createEvent("option_selected", {
+        itemIndex: this.currentItemIndex,
+        optionIndex: optionIndex,
+      });
     },
-
-    logData() {
-      if (this.plioId != undefined && this.player.playing) this.uploadJson();
-      TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL);
+    reviseQuestion() {
+      // after revise is clicked, take the user either to the beginning
+      // of the video if the question is the first item else to the end of
+      // the previous item
+      this.player.currentTime =
+        this.currentItemIndex == 0
+          ? 0
+          : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
+      // create an event for the revise action
+      this.createEvent("question_revised", { itemIndex: this.currentItemIndex });
+      this.closeItemModal();
     },
-
-    startVideo() {
-      var x = document.getElementById("start-button");
-      x.classList.remove("start-button");
-      x.classList.add("start-button-active");
-      setTimeout(() => {
-        this.player.fullscreen.enter();
-        this.waitFor(
-          () => this.player.fullscreen.active === true && this.isModalOnScreen === false
-        ).then(() => this.player.play());
-      }, 400);
-
-      this.tutorialProgress["start"] = true;
-      this.isTutorialUploadRequired = !this.isTutorialComplete;
+    submitQuestion() {
+      // invoked when a question response is submitted
+      // update the session answer on server
+      SessionAPIService.updateSessionAnswer(this.itemResponses[this.currentItemIndex]);
+      // create an event for the submit action
+      this.createEvent("question_answered", {
+        itemIndex: this.currentItemIndex,
+        answer: this.itemResponses[this.currentItemIndex].answer,
+      });
+      // update the marker colors on the player
+      this.showItemMarkersOnSlider(this.player);
     },
-
-    async fetchData() {
-      PlioAPIService.getPlioDetails(this.id, this.userId)
-        .then((res) => {
-          var items = res.data.plioDetails.items;
-          var questions = items;
-          this.videoId = res.data.videoId;
-          this.plioId = res.data.plioId;
-          this.browserErrorHandlingValue.failsafeUrl = res.data.plioDetails.failsafe;
-          this.browserErrorHandlingValue.youtubeId =
-            "https://www.youtube.com/embed/" + this.videoId;
-          this.isFullscreen = false;
-          this.sessionId = res.data.sessionId;
-          this.browser = res.data.userAgent["browser"]["family"];
-          this.userConfigs = res.data.userConfigs;
-          this.isTutorialComplete = this.userConfigs.tutorial.isComplete;
-          this.tutorialProgress = this.userConfigs.tutorial.progress;
-
-          // fetching plio config and verifying it with the component-properties.json
-          if ("plioConfig" in res.data && "player" in res.data.plioConfig) {
-            this.plioPlayerConfig = res.data.plioConfig["player"];
-          } else this.plioPlayerConfig = {};
-
-          for (const [feature, details] of Object.entries(this.componentProperties)) {
-            this.plioPlayerConfig[feature] = details;
-          }
-
-          this.progressBarInfo["config"] = {};
-          if ("progress_bar" in this.plioPlayerConfig)
-            this.progressBarInfo["config"] = this.plioPlayerConfig["progress_bar"];
-
-          this.progressBarInfo["progressPercent"] = 0;
-
-          questions.forEach((question, index) => {
-            let plioQuestion = {
-              id: index.toString(),
-              item: question,
-              userAnswerIndex: -1,
-              state: "notshown",
-            };
-            this.plioQuestions.push(plioQuestion);
-
-            // set empty answer for each question
-            this.answers.push(plioQuestion.userAnswerIndex);
-          });
-
-          this.progressBarInfo["totalQuestions"] = this.plioQuestions.length;
-
-          // set the global list of time values
-          this.times = res.data.times;
-
-          // merge the previous session data
-          if (res.data.sessionData != "") {
-            this.answers = res.data.sessionData.answers;
-
-            questions.forEach((question, index) => {
-              this.plioQuestions[index].userAnswerIndex = this.answers[index];
-              this.plioQuestions[index].state =
-                this.answers[index] == -1 ? "notshown" : "answered";
-
-              if (this.plioQuestions[index].state == "answered") {
-                this.progressBarInfo["progressPercent"] += 1;
-              }
-            });
-
-            this.journey = res.data.sessionData.journey;
-
-            this.previousPlayerTime = 0;
-            if (this.journey.length > 0) {
-              this.previousPlayerTime = this.journey[this.journey.length - 1][
-                "player_time"
-              ];
-            }
-
-            this.watchTime = res.data.sessionData["watch-time"];
-            this.retention = res.data.sessionData.retention;
-            if (questions.length > 0) {
-              var currCompletion = this.progressBarInfo["progressPercent"];
-              this.progressBarInfo["progressPercent"] = Math.ceil(
-                (currCompletion / questions.length) * 100
-              );
-            }
-          }
+    skipQuestion() {
+      // invoked when the user skips the question
+      this.closeItemModal();
+      this.createEvent("question_skipped", { itemIndex: this.currentItemIndex });
+    },
+    proceedQuestion() {
+      // invoked when the user has answered the question and wishes to proceed
+      this.closeItemModal();
+      this.createEvent("question_proceed", { itemIndex: this.currentItemIndex });
+    },
+    async fetchPlioCreateSession() {
+      // fetches plio details and creates a new session
+      await PlioAPIService.getPlio(this.plioId)
+        .then((plioDetails) => {
+          // redirect to 404 if the plio is not published
+          if (plioDetails.status != "published") this.$router.push({ name: "404" });
+          this.items = plioDetails.items || [];
+          this.plioDBId = plioDetails.plioDBId;
+          this.videoId = this.getVideoIDfromURL(plioDetails.video_url);
         })
-        .then((this.dataLoaded = true))
-        .then(
-          () =>
-            (this.player = new Plyr("#player", {
-              controls: [
-                "play",
-                "play-large",
-                "progress",
-                "current-time",
-                "mute",
-                "volume",
-                "fullscreen",
-              ],
-
-              keyboard: {
-                focused: false,
-                global: false,
-              },
-
-              invertTime: false,
-              clickToPlay: false,
-            }))
-        )
-        .then(() => this.setPlayerProperties(this.player))
-        .then(() => this.uploadJson())
+        .then(() => this.createSession())
         .then(() => this.logData())
         .catch((err) => this.handleQueryError(err));
     },
+    logData() {
+      // periodically logs data to the server
+      if (this.hasSessionStarted) {
+        // update session data
+        this.updateSession();
+        // create an event for the user watching the plio
+        this.createEvent("watching");
+      }
+      UPLOAD_INTERVAL_TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL);
+    },
+    closeItemModal() {
+      // invoked when the modal is to be closed
+      this.currentItemIndex = null;
+      this.playPlayer();
+    },
+    playPlayer() {
+      // plays the video player
+      this.player.play();
+    },
+    pausePlayer() {
+      // pauses the video player
+      this.player.pause();
+    },
+    createSession() {
+      // creates new user-plio session
+      SessionAPIService.createSession(this.plioDBId, this.userId).then(
+        (sessionDetails) => {
+          this.sessionDBId = sessionDetails.id;
+          // reset the user to where they left off if they are returning
+          if (sessionDetails.last_event != null) {
+            this.currentTimestamp = sessionDetails.last_event.player_time;
+          }
 
+          // handle retention array
+          if (sessionDetails.retention == null || sessionDetails.retention == "") {
+            // retention array not set - create and set it
+            this.retention = this.createEmptyArray(sessionDetails.plio.video.duration);
+            this.updateSession();
+          } else {
+            // set retention value if it exists
+            this.retention = this.retentionStrToArray(sessionDetails.retention);
+          }
+
+          // set watch time
+          this.watchTime = sessionDetails.watch_time;
+
+          // set item responses
+          sessionDetails.session_answers.forEach((sessionAnswer) => {
+            // removing the _id in keys like session_id, question_id
+            // so that we can directly update the answers without having to
+            // create another dictionary every time we want to upload
+            var itemResponse = {};
+            for (var key of Object.keys(sessionAnswer)) {
+              itemResponse[key.replace("_id", "")] = sessionAnswer[key];
+            }
+            this.itemResponses.push(itemResponse);
+          });
+        }
+      );
+    },
+    updateSession() {
+      // update the session data on the server
+      var sessionDetails = {
+        user: this.userId,
+        plio: this.plioDBId,
+        watch_time: this.watchTime,
+        retention: this.retentionArrayToStr(this.retention),
+      };
+      return SessionAPIService.updateSession(
+        this.sessionDBId,
+        sessionDetails
+      ).catch((err) => console.log(err));
+    },
+    createEmptyArray(length) {
+      // initiate array with empty values
+      return new Array(length).fill(0);
+    },
+    retentionStrToArray(retentionStr) {
+      // convert retention string to retention array
+      return retentionStr.split(",").map((value) => parseInt(value));
+    },
+    retentionArrayToStr(retentionArray) {
+      // convert retention array to retention string
+      return retentionArray.join(",");
+    },
+    setScreenProperties() {
+      // sets various properties based on the device screen
+      this.playerHeight = document.getElementById("videoPlayer").clientHeight;
+    },
     handleQueryError(err) {
+      // handles error encountered when fetching plio or creating new session
       if (err.response && err.response.status == 404) {
         this.$router.push({ name: "404" });
       } else {
         console.log(err);
       }
     },
+    getVideoIDfromURL(videoURL) {
+      // gets the video Id from the YouTube URL
+      var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(videoURL);
+      return linkValidation["ID"];
+    },
+    playerPlayed() {
+      // invoked when the play button of the player is clicked
+      this.createEvent("played");
+    },
+    playerPaused() {
+      // invoked when the pause button of the player is clicked
+      this.createEvent("paused");
+    },
+    playerReady() {
+      // invoked when the player is ready
+      this.showItemMarkersOnSlider(this.player);
+      this.setScreenProperties();
+      this.player.currentTime = this.currentTimestamp;
+      this.playPlayer();
+    },
+    showItemMarkersOnSlider(player) {
+      // show the markers for items on top of the video slider
+      var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
+      this.items.forEach((item, index) => {
+        // Add marker to player seek bar
+        var marker = document.createElement("SPAN");
+        marker.setAttribute("id", "marker");
 
-    // upload responses to S3
-    uploadJson() {
-      const student_response = {
-        response: {
-          answers: this.answers,
-          "watch-time": this.watchTime,
-          "user-id": this.userId,
-          "plio-id": this.plioId,
-          "session-id": this.sessionId,
-          source: this.source,
-          retention: this.retention,
-          "has-video-played": this.hasVideoPlayed,
-          journey: this.journey,
-          experiment: this.experiment,
-        },
+        // set marker style
+        if (this.isItemResponseDone(index)) {
+          this.markerClass[0] = "bg-green-600";
+        } else this.markerClass[0] = "bg-red-600";
+
+        marker.classList.add(...this.markerClass);
+
+        // set marker position
+        var positionPercent = (100 * item.time) / player.duration;
+        marker.style.setProperty("left", `${positionPercent}%`);
+        plyrProgressBar.appendChild(marker);
+      });
+    },
+    isItemResponseDone(itemIndex) {
+      // whether the response to an item is complete
+      return this.itemResponses[itemIndex].answer != null;
+    },
+    videoTimestampUpdated(timestamp) {
+      // invoked when the current time in the video is updated
+      this.checkItemToSelect(timestamp);
+      // update watch time
+      this.watchTime += PLYR_INTERVAL_TIME;
+      // update retention
+      var currentTime = Math.trunc(this.player.currentTime);
+      if (currentTime != this.lastTimestampRetention) {
+        this.retention[currentTime] += 1;
+        this.lastTimestampRetention = currentTime;
+      }
+    },
+    checkItemToSelect(timestamp) {
+      // checks if an item is to be selected and marks/unmarks accordingly
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+        return;
+      this.lastCheckTimestamp = timestamp;
+      this.currentItemIndex = ItemFunctionalService.checkItemPopup(
+        timestamp,
+        this.itemTimestamps,
+        POP_UP_PRECISION_TIME
+      );
+      if (this.currentItemIndex != null) {
+        this.markItemSelected();
+        this.createEvent("item_opened", { itemIndex: this.currentItemIndex });
+      }
+    },
+    markItemSelected() {
+      // mark the item at the currentItemIndex as selected
+      this.pausePlayer();
+
+      // if the video is in fullscreen mode, show the modal on top of it
+      var modal = document.getElementById("modal");
+      if (modal != undefined) {
+        document.getElementsByClassName("plyr")[0].appendChild(modal);
+      }
+    },
+    playerEntersFullscreen() {
+      // invoked when the player enters fullscreen
+      this.isFullscreen = true;
+      this.createEvent("enter_fullscreen");
+    },
+    playerExitsFullscreen() {
+      // invoked when the player exits fullscreen
+      this.isFullscreen = false;
+      this.createEvent("exit_fullscreen");
+    },
+    createEvent(eventType, eventDetails = {}) {
+      // create a new event
+      if (!this.hasSessionStarted) return;
+      // create event only when the session has been initiated
+      var eventData = {
+        type: eventType,
+        details: eventDetails,
+        player_time: this.player.currentTime,
+        session: this.sessionDBId,
       };
-      const jsonResponse = JSON.stringify(student_response);
-
-      UserAPIService.postUserResponse(jsonResponse)
-        .then((data) => console.log(data))
-        .catch((err) => console.log(err));
-
-      if (this.isTutorialUploadRequired) {
-        this.userConfigs["tutorial"]["isComplete"] = this.isTutorialComplete;
-        this.userConfigs["tutorial"]["progress"] = this.tutorialProgress;
-
-        // update user config remotely and locally
-        this.$refs.userProperties.updateUserConfigs(this.userConfigs);
-
-        if (this.isTutorialComplete) this.isTutorialUploadRequired = false;
-      }
+      EventAPIService.createEvent(eventData);
     },
-
-    updateJourney(logEvent, details = {}) {
-      // handle the case when fullscreen has been clicked but Plyr has not
-      // yet loaded -> this.player.currentTime = NaN
-      var player_time = this.hasPlyrLoaded ? this.player.currentTime : 0;
-
-      this.journey.push({
-        event: logEvent,
-        details: details,
-        system_time: String(this.getCurrentDateTime()),
-        player_time: String(player_time),
-      });
-
-      if (logEvent == "option-selected") {
-        this.tutorialProgress["options"] = true;
-        this.isTutorialUploadRequired = true;
-      }
-    },
-
-    recordAnswer(plioQuestion, answer, newProgressBarInfo) {
-      // this function is called when the close button is clicked
-      // Update state to "answered"
-      plioQuestion["state"] = "answered";
-
-      this.progressBarInfo["progressPercent"] = newProgressBarInfo["progressPercent"];
-
-      this.tutorialProgress["close"] = true;
-      this.isTutorialUploadRequired = true;
-      this.isTutorialComplete = true;
-
-      // convert answer from option text to index
-      answer = plioQuestion.item.details.options.indexOf(answer);
-
-      // update answer for this question
-      plioQuestion.userAnswerIndex = answer;
-
-      var currQuesIndex = Number(plioQuestion.id);
-
-      // Checking if the object is empty or not.
-      // If empty, push the answer. Otherwise don't.
-      if (Object.keys(this.answers[currQuesIndex]).length === 0) {
-        this.answers[currQuesIndex] = answer;
-      }
-
-      this.updateJourney("question-submitted", {
-        question: currQuesIndex,
-        option: answer,
-      });
-
-      // update response on S3
-      this.uploadJson();
-
-      // logging for testing
-      console.log("Answer sent");
-
-      // start playing whenever the user submits an answer
-      this.player.play();
-
-      this.isModalOnScreen = false;
-    },
-
-    submitAnswer() {
-      // this function is called when the submit button is clicked
-      this.tutorialProgress["submit"] = true;
-      this.isTutorialUploadRequired = true;
-      this.uploadJson();
-    },
-
-    skipQuestion(plioQuestion) {
-      var currQuesIndex = Number(plioQuestion.id);
-
-      this.updateJourney("question-skipped", {
-        question: currQuesIndex,
-      });
-
-      // update response on S3
-      this.uploadJson();
-
-      // logging for testing
-      console.log("Answer skipped");
-
-      // start playing if the user skips the answer
-      this.player.play();
-      this.isModalOnScreen = false;
-    },
-
-    reviseQuestion(plioQuestion) {
-      // Extract where the current question lies in the list of all questions
-      var currQuesIndex = Number(plioQuestion.id);
-
-      this.updateJourney("question-revised", {
-        question: currQuesIndex,
-      });
-
-      // update response on S3
-      this.uploadJson();
-
-      // after revise is clicked, make the user land just next to the marker
-      // and not on the marker so that question pops up again
-      this.player.currentTime =
-        currQuesIndex == 0
-          ? 0
-          : this.times[currQuesIndex - 1] + POP_UP_PRECISION_TIME / 1000;
-
-      this.player.play();
-
-      // logging for testing
-      console.log("Answer revised");
-      this.isModalOnScreen = false;
-    },
-
-    listenToPlayButtons() {
-      var status = this.player.playing ? "played" : "paused";
-
-      this.updateJourney(status);
-      this.uploadJson();
-    },
-
-    checkBrowserSupport() {
-      /* This logic works because for as long as BROWSER_CHECK_TIME,
-         the progress bar will stay inactive, so the user will not be
-         able to seek forward or backward -> hence player.currentTime
-         cannot be changed via user.
-
-         If the video plays or not plays, the user cannot influence it
-         (as long as "BROWSER_CHECK_TIME"). */
-
-      if (this.hasVideoPlayed == -1 && this.player.playing) {
-        const timeBefore = Math.round(this.player.currentTime * 100) / 100;
-
-        setTimeout(() => {
-          const timeAfter = Math.round(this.player.currentTime * 100) / 100;
-
-          if (timeAfter == timeBefore) {
-            // browser unsupported -> show error page
-            this.isBrowserSupported = false;
-            this.hasVideoPlayed = 0;
-          } else this.hasVideoPlayed = 1;
-          this.uploadJson();
-
-          var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
-          plyrProgressBar.firstChild.removeAttribute("disabled");
-        }, BROWSER_CHECK_TIME * 1000);
-      }
-    },
-
-    async setPlayerProperties(player) {
-      player.on("ready", () => {
-        // start playing from 5 seconds before where the user left off in previous session
-        if (this.previousPlayerTime > STEP_BACK_TIME) {
-          this.player.currentTime = this.previousPlayerTime - STEP_BACK_TIME;
-        }
-
-        // start from beginning if video was watched till the end in the last session
-        if (this.player.duration - this.previousPlayerTime <= COMPLETED_BUFFER_TIME) {
-          this.player.currentTime = 0;
-        }
-
-        var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
-        this.plioQuestions.forEach(function (plioQuestion) {
-          // Add marker to player seek bar
-          var marker = document.createElement("SPAN");
-          marker.setAttribute("id", "marker");
-          marker.classList.add("tooltip");
-
-          if (plioQuestion.state == "answered") {
-            marker.classList.add("tooltip-answered");
-          }
-
-          var pos_percent = (100 * plioQuestion.item.time) / player.duration;
-          marker.style.setProperty("left", `${pos_percent}%`);
-          plyrProgressBar.appendChild(marker);
-        });
-
-        // mark Plyr as loaded
-        this.hasPlyrLoaded = true;
-
-        // disabling plyrProgressBar
-        if (!this.supportedBrowsers.includes(this.browser))
-          plyrProgressBar.firstChild.disabled = true;
-
-        // initializing the retention array with zeros
-        if (this.retention.length == 0) {
-          this.retention = Array(this.player.duration).fill(0);
-        }
-
-        // Adding on-click listeners to the two play buttons
-        // one big play button in the middle, and one near the
-        // progress bar
-        const play_buttons = document.querySelectorAll("[data-plyr='play']");
-        play_buttons[0].addEventListener("click", this.listenToPlayButtons, false);
-
-        play_buttons[1].addEventListener("click", this.listenToPlayButtons, false);
-      });
-
-      player.on("play", (event) => {
-        const instance = event.detail.plyr;
-
-        if (!instance.fullscreen.active) instance.fullscreen.enter();
-
-        if (!this.supportedBrowsers.includes(this.browser)) {
-          this.checkBrowserSupport();
-        } else {
-          this.hasVideoPlayed = 1;
-        }
-      });
-
-      player.on("enterfullscreen", () => {
-        this.isFullscreen = true;
-        screen.orientation.lock("landscape");
-
-        this.updateJourney("enter-fullscreen");
-        this.uploadJson();
-      });
-
-      player.on("seeked", () => {
-        this.updateJourney("seeked");
-      });
-
-      player.on("exitfullscreen", () => {
-        this.isFullscreen = false;
-        this.player.pause();
-
-        this.updateJourney("exit-fullscreen");
-        this.uploadJson();
-      });
-
-      // Keep checking when to pop up the question
-      setInterval(() => {
-        this.plioQuestions.forEach(async (plioQuestion) => {
-          var question = plioQuestion.item;
-          var t = question.time;
-
-          if (
-            // if the seeker is within "POP_UP_PRECISION_TIME" of the specific question time
-            // then fire this logic
-            this.player.currentTime >= t &&
-            this.player.currentTime < t + POP_UP_PRECISION_TIME / 1000
-          ) {
-            var id = plioQuestion.id;
-            this.$refs["position" + id.toString()].openModal();
-            while (!document.querySelector(".modal")) {
-              await new Promise((r) => setTimeout(r, 500));
-            }
-            var modal = document.getElementsByClassName("modal")[0];
-            if (modal != undefined) {
-              this.player.pause();
-              this.isModalOnScreen = true;
-
-              document.getElementsByClassName("plyr")[0].appendChild(modal);
-
-              if (plioQuestion["state"] == "notshown")
-                plioQuestion["state"] = "unanswered";
-            }
-          }
-        });
-      }, POP_UP_PRECISION_TIME);
-
-      var prevTime = -1;
-      player.on("timeupdate", async () => {
-        // Update watch time if the video is playing
-        if (this.player.playing) {
-          this.watchTime += INTERVAL_TIME;
-        }
-
-        // Record how many times a particular second was visited
-        var currTime = Math.trunc(this.player.currentTime);
-        if (currTime != prevTime) {
-          this.retention[currTime] += 1;
-          prevTime = currTime;
-        }
-      });
-    },
-  },
-  computed: {
-    ...mapState(["userId"]),
-    playerOptions() {
-      const options = {
-        title: "This is an example video",
-        playsinline: true,
-        volume: 0,
-        controls: ["play", "play-large"],
-        debug: false,
-      };
-      return options;
-    },
-  },
-  mounted() {
-    // Store in data
-  },
-  beforeUnmount() {
-    clearTimeout(TIMEOUT);
   },
 };
 </script>
-
-<style>
-.player_container {
-  max-width: 800px;
-  margin: auto;
-  position: relative;
-}
-
-.btn {
-  background-color: #4caf50; /* Green */
-  border: none;
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  text-decoration: none;
-  margin: 2px;
-  transition-duration: 0.4s;
-  cursor: pointer;
-  height: auto;
-  align-self: center;
-  font-weight: 700;
-  font-size: 1.5rem;
-}
-
-.start-button {
-  margin: 2em;
-  box-shadow: -5px 9px #402e0e, -5px 9px #402e0e, -1px 1px #402e0e;
-}
-
-.start-button-active {
-  background-color: #437044; /* Green */
-  box-shadow: -3px 5px #402e0e, -3px 3px #402e0e, -3px 0px #402e0e;
-  transform: translate(-4px, 4px);
-}
-
-.tooltip {
-  background: red;
-  border-radius: 3px;
-  bottom: 100%;
-  padding: 5px 3px;
-  pointer-events: none;
-  position: absolute;
-  transform: translate(-50%, 14px);
-  z-index: 2;
-}
-
-.tooltip-answered {
-  background: green;
-  border-radius: 3px;
-  bottom: 100%;
-  padding: 5px 3px;
-  pointer-events: none;
-  position: absolute;
-  transform: translate(-50%, 14px);
-  z-index: 2;
-}
-
-.error {
-  position: absolute;
-  top: 0;
-  right: 0;
-  text-align: left;
-  display: flex;
-  justify-content: center;
-  bottom: 0;
-  left: 0;
-  background-color: rgba(255, 255, 255, 0.8);
-  flex-direction: column;
-  align-items: center;
-}
-
-.hand-pointer {
-  font-size: 4em;
-  animation: point 1s ease-in-out infinite alternate;
-}
-
-@keyframes point {
-  100% {
-    transform: translateY(-30px);
-  }
-}
-</style>

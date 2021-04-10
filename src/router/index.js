@@ -23,7 +23,7 @@ const routes = [
     props: true,
   },
   {
-    path: "/play/:id",
+    path: "/play/:plioId",
     name: "Player",
     component: Player,
     query: {
@@ -33,7 +33,7 @@ const routes = [
     // https://router.vuejs.org/guide/essentials/passing-props.html#passing-props-to-route-components
     props: (route) => ({
       experiment: route.query.experiment,
-      id: route.params.id,
+      plioId: route.params.plioId,
     }),
   },
   {
