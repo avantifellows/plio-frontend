@@ -1,4 +1,4 @@
-// what should the minimum time difference be
+// what should the minimum time difference
 // between any two items (seconds)
 const ITEM_VICINITY_TIME = 2;
 
@@ -48,7 +48,7 @@ export default {
 
     for (let index = 0; index < itemTimestamps.length; index++) {
       // don't check against the item itself
-      if (itemIndex == null || index == itemIndex) continue;
+      if (itemIndex != null && index == itemIndex) continue;
 
       var val = itemTimestamps[index];
 
