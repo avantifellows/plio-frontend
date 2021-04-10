@@ -1,4 +1,4 @@
-// what should the minimum time difference be
+// what should the minimum time difference
 // between any two items (seconds)
 const ITEM_VICINITY_TIME = 2;
 
