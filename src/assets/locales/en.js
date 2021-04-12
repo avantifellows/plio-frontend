@@ -28,7 +28,12 @@ export default {
   login: {
     learner: {
       phone_prompt: "Please enter your mobile number (10 digits only)",
-      button: "Watch Plio!",
+      button_submit: "Watch Plio!",
+      button_google_sign_in: "Sign in with Google",
+      button_otp: "Request OTP",
+      button_resend: "Resend OTP",
+      message_otp_resent: "OTP has been sent again!",
+      message_otp_invalid: "Incorrect OTP! Please enter the correct one.",
     },
   },
   player: {

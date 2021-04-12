@@ -148,7 +148,7 @@ export default {
   async created() {
     if (!this.userId) {
       this.$router.push({
-        name: "PhoneSignIn",
+        name: "Login",
         params: { id: this.id },
       });
     }
@@ -645,7 +645,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(["userId"]),
+    ...mapState('auth', ["userId"]),
     playerOptions() {
       const options = {
         title: "This is an example video",

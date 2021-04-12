@@ -17,7 +17,7 @@
 
       <!-- page heading -->
       <div
-        v-if="isLoggedIn"
+        v-if="isAuthenticated"
         class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center"
       >
         <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
@@ -39,14 +39,14 @@
       <div class="grid col-start-7 sm:gap-1 sm:justify-items-center">
         <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
         <div v-if="!onLoginPage" class="text-lg sm:text-xl place-self-center">
-          <router-link v-if="!isLoggedIn" :to="{ name: 'PhoneSignIn' }">
+          <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
             <button
               class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain"
             >
               {{ $t("nav.login") }}
             </button>
           </router-link>
-          <a href="#" v-if="isLoggedIn" @click="logoutUser">
+          <a href="#" v-if="isAuthenticated" @click="logoutUser">
             <button
               class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2"
             >
@@ -102,7 +102,7 @@ export default {
     window.removeEventListener("beforeunload", this.onClose);
   },
   mounted() {
-    if (this.isLoggedIn && !this.hasLocalUserConfigs) {
+    if (this.isAuthenticated && !this.hasLocalUserConfigs) {
       // fetch user config for logged in users if not already present
       this.$refs.userProperties.saveLocalUserConfigs();
     }
@@ -112,11 +112,11 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions(["logout", "startLoading", "stopLoading"]),
+    ...mapActions('auth', ["unsetAccessToken", "startLoading", "stopLoading"]),
     logoutUser() {
       // logs out the user
-      this.logout().then(() => {
-        this.$router.push({ name: "PhoneSignIn" });
+      this.unsetAccessToken().then(() => {
+        this.$router.push({ name: "Login" });
       });
     },
     createNewPlio() {
@@ -137,25 +137,24 @@ export default {
     },
     onClose(event) {
       // invoked when trying to close the browser or changing pages
-      // console.log(event);
       event.preventDefault();
       event.returnValue = "";
     },
   },
   computed: {
-    ...mapGetters(["isAuthenticated", "stateAuthToken"]),
-    ...mapState(["pending", "isLoggedIn", "configs"]),
+    ...mapGetters('auth', ["isAuthenticated"]),
+    ...mapState('auth', ["pending", "configs"]),
     hasLocalUserConfigs() {
       // whether the use configs have been set
       return this.configs != null;
     },
     onLoginPage() {
       // whether the current page is the login page
-      return this.$route.name == "PhoneSignIn";
+      return this.$route.name == "Login";
     },
     showCreateButton() {
       // whether to show the Create button
-      return this.isLoggedIn && this.$route.name == "Home";
+      return this.isAuthenticated && this.$route.name == "Home";
     },
     currentPageName() {
       // name of the current page as saved in assets/locales
