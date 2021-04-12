@@ -116,7 +116,6 @@
               v-tooltip="addItemTooltip"
             ></icon-button>
           </div>
-
           <!--- item editor  -->
           <item-editor
             v-if="hasAnyItems && currentItemIndex != null"
@@ -126,7 +125,7 @@
             :videoDuration="videoDuration"
             @delete-selected-item="deleteItemButtonClicked"
             @delete-option="deleteOption"
-            :isDisabled="isPublished"
+            :isInteractionDisabled="isPublished"
             @error-occurred="setErrorOccurred"
             @error-resolved="setErrorResolved"
           ></item-editor>
@@ -143,7 +142,6 @@
       @confirm="dialogConfirmed"
       @cancel="dialogCancelled"
     ></dialog-box>
-    <toast class="mt-20" ref="toast"></toast>
   </div>
 </template>
 
@@ -161,7 +159,6 @@ import ItemFunctionalService from "@/services/Functional/Item.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
-import Toast from "@/components/UI/Alert/Toast";
 import { mapActions, mapState } from "vuex";
 
 // used for deep cloning objects
@@ -182,7 +179,6 @@ export default {
     IconButton,
     SimpleBadge,
     DialogBox,
-    Toast,
   },
   props: {
     plioId: {
@@ -300,7 +296,7 @@ export default {
     },
   },
   computed: {
-    ...mapState('auth', ["uploading"]),
+    ...mapState("auth", ["uploading"]),
     player() {
       // returns the player instance
       return this.$refs.videoPlayer.player;
@@ -502,7 +498,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions('auth', ["startUploading", "stopUploading"]),
+    ...mapActions("auth", ["startUploading", "stopUploading"]),
     returnToHome() {
       // returns the user back to Home
       this.$router.push({ name: "Home" });
@@ -765,6 +761,28 @@ export default {
       // show the dialogue
       this.showDialogBox = true;
     },
+    showCannotDeleteOptionDialog() {
+      // set up the dialog properties when user tries to delete an option
+      // for a question with only 2 options
+      this.dialogTitle = "Cannot delete the option";
+      this.dialogDescription = "A question must have at least 2 options";
+      this.dialogConfirmButtonConfig = {
+        enabled: true,
+        text: "Got it!",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+      };
+      this.dialogCancelButtonConfig = {
+        enabled: false,
+        text: "",
+        class: "",
+      };
+
+      // carry out the closeDialog action when dialog is closed
+      this.dialogAction = "closeDialog";
+      // show the dialogue
+      this.showDialogBox = true;
+    },
     confirmPublish() {
       this.showDialogBox = true;
       this.dialogTitle = this.publishInProgressDialogTitle;
@@ -790,7 +808,7 @@ export default {
       // there should always be at least 2 options, allow deletion only
       // if the number of options is >= 3
       if (this.items[this.currentItemIndex].details.options.length < 3) {
-        this.$refs.toast.show("error", "A question must have at least 2 options", 3000);
+        this.showCannotDeleteOptionDialog();
         return;
       }
 
