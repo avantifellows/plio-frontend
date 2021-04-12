@@ -116,7 +116,6 @@
               v-tooltip="addItemTooltip"
             ></icon-button>
           </div>
-
           <!--- item editor  -->
           <item-editor
             v-if="hasAnyItems && currentItemIndex != null"
@@ -126,7 +125,7 @@
             :videoDuration="videoDuration"
             @delete-selected-item="deleteItemButtonClicked"
             @delete-option="deleteOption"
-            :isDisabled="isPublished"
+            :isInteractionDisabled="isPublished"
             @error-occurred="setErrorOccurred"
             @error-resolved="setErrorResolved"
           ></item-editor>
