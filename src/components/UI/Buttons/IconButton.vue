@@ -1,8 +1,9 @@
 <template>
   <button
     type="button"
-    class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold shadow-lg focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2"
     :class="buttonClass"
+    class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2"
+    :disabled="isDisabled"
   >
     <div class="flex w-full justify-center">
       <inline-svg
@@ -48,6 +49,10 @@ export default {
     buttonClass: {
       type: [String, Object],
       default: () => {},
+    },
+    isDisabled: {
+      type: Boolean,
+      default: false,
     },
   },
   computed: {

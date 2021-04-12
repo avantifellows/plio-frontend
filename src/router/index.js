@@ -34,7 +34,7 @@ const routes = [
     meta: { guest: true },
   },
   {
-    path: "/play/:id",
+    path: "/play/:plioId",
     name: "Player",
     component: Player,
     query: {
@@ -44,7 +44,7 @@ const routes = [
     // https://router.vuejs.org/guide/essentials/passing-props.html#passing-props-to-route-components
     props: (route) => ({
       experiment: route.query.experiment,
-      id: route.params.id,
+      plioId: route.params.plioId,
     }),
     meta: { requiresAuth: true },
   },
@@ -72,7 +72,7 @@ const routes = [
 
 const router = createRouter({
   history: createWebHashHistory(),
-  base: process.env.FRONTEND,
+  base: process.env.VUE_APP_FRONTEND,
   routes,
 });
 
@@ -80,8 +80,8 @@ const router = createRouter({
 Router auth logic start
 
 The code below works on `isAuthenticated` state and before every route:
-1. Redirects user to home if user is already logged in and visiting a page that is intended for guest (route.meta.guest)
-2. Redirects user to login if user is not authenticated and visits a page that requires authentication (route.meta.requiresAuth)
+1. Redirects user to login if user is not authenticated and visits a page that requires authentication (route.meta.requiresAuth)
+2. Redirects user to home if user is already logged in and visiting a page that is intended for guest (route.meta.guest)
 */
 
 router.beforeEach((to, from, next) => {

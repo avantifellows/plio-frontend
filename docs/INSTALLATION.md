@@ -50,7 +50,7 @@ Follow the steps below to set up the repo for development
     ```sh
     cp .env.example .env
     ```
-5. Update environment variables in your `.env` file based on your environment.
+5. Update environment variables in your `.env` file based on your environment. You can read the docs mentioned at [Contributing](../README.md#contributing) to understand more about the environment variables and their significance.
 6. Run the vue ui
     ```sh
     vue ui

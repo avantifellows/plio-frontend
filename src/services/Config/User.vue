@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import UserService from '@/services/API/User.js'
+import UserAPIService from '@/services/API/User.js'
 import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
@@ -14,14 +14,13 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions(['saveConfigs']),
+    ...mapActions(["saveConfigs"]),
 
     saveLocalUserConfigs() {
-      UserService.getUserConfig(this.userId)
-      .then((response) => {
+      UserAPIService.getUserConfig(this.userId).then((response) => {
         this.saveConfigs({
           configs: JSON.stringify(response.data), // save user config locally
-        })
+        });
       });
     },
 
@@ -53,21 +52,21 @@ export default {
         configs: userConfigs,
       });
 
-      UserService.updateUserConfig(jsonUserConfig)
-      .then((response) => {
-        if (response.status == 200) {
-          console.log("Config updated successfully");
-        } else {
-          console.log("Error with config update");
-        }
-      })
-      .then(() =>
-        this.saveConfigs({
-          // update user config locally
-          configs: JSON.stringify(userConfigs),
+      UserAPIService.updateUserConfig(jsonUserConfig)
+        .then((response) => {
+          if (response.status == 200) {
+            console.log("Config updated successfully");
+          } else {
+            console.log("Error with config update");
+          }
         })
-      )
-      .catch((err) => console.log(err));
+        .then(() =>
+          this.saveConfigs({
+            // update user config locally
+            configs: JSON.stringify(userConfigs),
+          })
+        )
+        .catch((err) => console.log(err));
     },
   },
 };

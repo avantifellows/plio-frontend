@@ -30,7 +30,7 @@
       >
         <icon-button
           :titleConfig="createButtonTextConfig"
-          class="rounded-md"
+          class="rounded-md shadow-lg"
           @click="createNewPlio"
         ></icon-button>
       </div>
@@ -73,7 +73,7 @@ import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import Toast from "@/components/UI/Alert/Toast.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
-import PlioService from "@/services/API/Plio.js";
+import PlioAPIService from "@/services/API/Plio.js";
 
 export default {
   components: {
@@ -123,12 +123,12 @@ export default {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
       this.startLoading();
-      PlioService.createPlio().then((response) => {
+      PlioAPIService.createPlio().then((response) => {
         this.stopLoading();
-        if (response.status == 200) {
+        if (response.status == 201) {
           this.$router.push({
             name: "Editor",
-            params: { plioId: response.data.plio_id },
+            params: { plioId: response.data.uuid },
           });
         } else {
           this.$refs.toast.show("error", "Error creating Plio", this.toastLife);
@@ -143,7 +143,7 @@ export default {
   },
   computed: {
     ...mapGetters('auth', ["isAuthenticated"]),
-    ...mapState('auth', ["accessToken", "pending", "configs", "user"]),
+    ...mapState('auth', ["pending", "configs"]),
     hasLocalUserConfigs() {
       // whether the use configs have been set
       return this.configs != null;
