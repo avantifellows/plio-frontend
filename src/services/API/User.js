@@ -9,13 +9,13 @@ export default {
   },
 
   requestOtp(mobile) {
-    return apiClient().post(process.env.VUE_APP_BACKEND + "/otp/request", {
+    return apiClient().post(process.env.VUE_APP_BACKEND + "/otp/request/", {
       mobile,
     });
   },
 
   verifyOtp(mobile, otp) {
-    return apiClient().post(process.env.VUE_APP_BACKEND + "/otp/verify", {
+    return apiClient().post(process.env.VUE_APP_BACKEND + "/otp/verify/", {
       mobile,
       otp,
     });
@@ -37,10 +37,6 @@ export default {
       backend: "google-oauth2",
       token: socialAuthToken,
     });
-  },
-
-  loginUser(userCreds) {
-    return apiClient().post(process.env.VUE_APP_BACKEND_LOGIN_USER, userCreds);
   },
 
   getUserConfig(userId) {
