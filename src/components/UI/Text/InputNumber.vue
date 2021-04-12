@@ -25,7 +25,7 @@
       <!-- left icon -->
       <div
         v-if="isStartIconEnabled"
-        class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center text-xl w-5 inset-y-1/4 left-1.5"
+        class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center w-5 inset-y-1/4 left-1.5"
         @click="startIconSelected"
         :class="startIconClass"
       >
@@ -34,7 +34,7 @@
 
       <!-- input text area -->
       <input
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-blue-300 focus:shadow-outline w-full"
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md focus:outline-none focus:ring focus:shadow-outline w-full"
         name="placeholder"
         :placeholder="placeholder"
         v-model="localValue"
