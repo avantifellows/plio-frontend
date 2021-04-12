@@ -5,3 +5,6 @@ export const questionsEndpoint = "/questions/";
 export const sessionsEndpoint = "/sessions/";
 export const sessionAnswersEndpoint = "/session-answers/";
 export const eventsEndpoint = "/events/";
+export const otpRequestEndpoint = "/otp/request/";
+export const otpVerifyEndpoint = "/otp/verify/";
+export const userFromTokenEndpoint = "/users/token";
