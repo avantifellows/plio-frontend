@@ -9,12 +9,12 @@
         class="mt-2"
         v-model:value="phoneInput"
         :validation="phoneInputValidation"
-        maxLength="10"
+        :maxLength="10"
       ></input-number>
       <input-number
         v-model:value="otpInput"
         :validation="otpInputValidation"
-        maxLength="6"
+        :maxLength="6"
         v-if="requestedOtp"
       ></input-number>
       <icon-button
