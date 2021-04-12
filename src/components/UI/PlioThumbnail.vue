@@ -1,6 +1,10 @@
 <template>
   <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
-  <router-link :to="{ name: 'Player', params: { id: plio.uuid } }" tag="div" class="plio">
+  <router-link
+    :to="{ name: 'Player', params: { plioId: plio.uuid } }"
+    tag="div"
+    class="plio"
+  >
     <div class="title">
       {{ plio.name }}
     </div>

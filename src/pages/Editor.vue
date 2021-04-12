@@ -15,7 +15,10 @@
           <div v-if="!isVideoIdValid" class="flex justify-center">
             <div class="flex relative justify-center">
               <img src="@/assets/images/plain.svg" />
-              <img src="@/assets/images/play.svg" class="absolute place-self-center" />
+              <img
+                src="@/assets/images/play.svg"
+                class="absolute place-self-center w-12 h-12"
+              />
             </div>
           </div>
           <div v-else>
@@ -25,7 +28,7 @@
               @update="videoTimestampUpdated"
               @ready="playerReady"
               @play="playerPlayed"
-              ref="playerObj"
+              ref="videoPlayer"
             ></video-player>
 
             <!--- slider with question markers -->
@@ -56,6 +59,7 @@
           <icon-button
             :titleConfig="publishButtonTitleConfig"
             :class="publishButtonClass"
+            class="shadow-lg"
             v-tooltip.right="publishButtonTooltip"
             @click="publishButtonClicked"
           ></icon-button>
@@ -115,7 +119,7 @@
 
           <!--- item editor  -->
           <item-editor
-            v-if="hasAnyItems || currentItemIndex != null"
+            v-if="hasAnyItems && currentItemIndex != null"
             v-model:itemList="items"
             v-model:selectedItemIndex="currentItemIndex"
             @update:selectedItemIndex="navigateToItem"
@@ -123,6 +127,8 @@
             @delete-selected-item="deleteItemButtonClicked"
             @delete-option="deleteOption"
             :isDisabled="isPublished"
+            @error-occurred="setErrorOccurred"
+            @error-resolved="setErrorResolved"
           ></item-editor>
         </div>
       </div>
@@ -142,20 +148,16 @@
 </template>
 
 <script>
-// How precisely should the question pop-up logic
-// be measured. Time in milliseconds
-const POP_UP_PRECISION_TIME = 50;
-
-// what should the minimum time difference be
-// between any two items (seconds)
-const ITEM_VICINITY_TIME = 2;
-
 import InputText from "@/components/UI/Text/InputText.vue";
 import URL from "@/components/UI/Text/URL.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
-import PlioService from "@/services/API/Plio.js";
+import PlioAPIService from "@/services/API/Plio.js";
+import ItemAPIService from "@/services/API/Item.js";
+import QuestionAPIService from "@/services/API/Question.js";
+import VideoFunctionalService from "@/services/Functional/Video.js";
+import ItemFunctionalService from "@/services/Functional/Item.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
@@ -164,6 +166,10 @@ import { mapActions, mapState } from "vuex";
 
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
+
+// difference in seconds between consecutive checks for item pop-up
+var POP_UP_CHECKING_FREQUENCY = 0.5;
+var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 
 export default {
   name: "Editor",
@@ -234,6 +240,10 @@ export default {
       },
       // index of the option to be deleted; -1 means nothing to be deleted
       optionIndexToDelete: -1,
+      videoDBId: null, // store the DB id of video object linked to the plio
+      plioDBId: null, // store the DB id of plio object
+      anyErrorsPresent: false, // store if any errors are present or not
+      lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
     };
   },
   async created() {
@@ -256,7 +266,7 @@ export default {
   watch: {
     items: {
       handler() {
-        this.itemTimestamps = this.getItemTimestamps(this.items);
+        this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
         this.checkAndSavePlio();
       },
       deep: true,
@@ -267,16 +277,19 @@ export default {
       });
       // handle item sorting and marker positioning
       // when time is changed from the time input boxes
-      this.handleTimeUpdateFromEditor();
+      // or when item is added using the add item button
+      this.checkAndFixItemOrder();
+      if (this.items != null && this.currentItemIndex != null)
+        this.currentTimestamp = this.items[this.currentItemIndex].time;
     },
     videoURL(newVideoURL) {
       // invoked when the video link is updated
-      var linkValidation = this.isVideoLinkValid(newVideoURL);
+      var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
       this.videoInputValidation["isValid"] = linkValidation["valid"];
       if (!linkValidation["valid"]) return;
 
       if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
-        this.$refs.playerObj.player.destroy();
+        this.player.destroy();
       }
       this.videoId = linkValidation["ID"];
       this.checkAndSavePlio();
@@ -288,13 +301,21 @@ export default {
   },
   computed: {
     ...mapState('auth', ["uploading"]),
+    player() {
+      // returns the player instance
+      return this.$refs.videoPlayer.player;
+    },
     correctOptionIndex() {
       // get the index of the correct answer from options list
       return this.items[this.currentItemIndex].details.correct_answer;
     },
     isPublishButtonEnabled() {
       // whether the publish button is enabled
-      if (!this.isPublished) return this.isVideoIdValid;
+
+      // enable publish button if video id is valid
+      // and no errors are present
+      if (!this.isPublished) return this.isVideoIdValid && !this.anyErrorsPresent;
+
       return this.hasUnpublishedChanges;
     },
     blurMainScreen() {
@@ -338,7 +359,7 @@ export default {
     },
     backButtonClass() {
       // classes for the back button
-      return "bg-gray-100 hover:bg-gray-200 rounded-md";
+      return "bg-gray-100 hover:bg-gray-200 rounded-md shadow-lg";
     },
     backButtonTitleConfig() {
       // config for text of back button
@@ -456,7 +477,7 @@ export default {
         { "cursor-not-allowed": this.addItemDisabled },
 
         `rounded-md font-bold p-5 h-12 w-96 bg-primary-button
-        hover:bg-primary-button-hover disabled:opacity-50`,
+        hover:bg-primary-button-hover disabled:opacity-50 shadow-lg`,
       ];
       return classObject;
     },
@@ -499,7 +520,7 @@ export default {
         this.itemSelected(itemIndex);
       }
     },
-    handleTimeUpdateFromEditor() {
+    checkAndFixItemOrder() {
       // sort the items according to new timestamps
       // and reset the currentItemIndex
       if (this.currentItemIndex != null) {
@@ -516,12 +537,29 @@ export default {
     },
     itemMarkerTimestampDragEnd(itemIndex) {
       // invoked when the drag on the marker for an item is completed
+      var timeBeforeDragEnded = this.items[itemIndex].time;
       var itemTimestamp = this.itemTimestamps[itemIndex];
-      this.items[itemIndex]["time"] = itemTimestamp;
+
+      // check if the time after drag is valid and if not, set the item time
+      // back to the one before the drag
+      // else proceed with the new time
+      if (
+        !ItemFunctionalService.isTimestampValid(
+          itemTimestamp,
+          this.itemTimestamps,
+          itemIndex
+        )
+      ) {
+        this.items[itemIndex]["time"] = timeBeforeDragEnded;
+        itemTimestamp = timeBeforeDragEnded;
+        this.showCannotAddItemDialog();
+      } else {
+        this.items[itemIndex]["time"] = itemTimestamp;
+      }
       // sort the items based on timestamp
       this.sortItems();
       // update itemTimestamps based on new sorted items
-      this.itemTimestamps = this.getItemTimestamps(this.items);
+      this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
       // update everything else
       this.currentItemIndex = this.itemTimestamps.indexOf(itemTimestamp);
       this.currentTimestamp = itemTimestamp;
@@ -529,32 +567,22 @@ export default {
       this.markItemSelected(this.currentItemIndex);
     },
     checkItemToSelect(timestamp) {
-      var itemSelected = false;
-      // checks if any item is to be marked selected for the given timestamp
-      this.itemTimestamps.every((itemTimestamp, index) => {
-        // if the seeker is within "POP_UP_PRECISION_TIME" of the
-        // specific item time, then mark the item as selected
-        if (
-          timestamp < itemTimestamp &&
-          timestamp >= itemTimestamp - POP_UP_PRECISION_TIME / 1000
-        ) {
-          // mark that some item has been selected at this timestamp
-          itemSelected = true;
-          this.markItemSelected(index);
-          // breaks the loop
-          return false;
-        } else {
-          // go on to check the next item
-          return true;
-        }
-      });
-      if (!itemSelected) {
-        this.markNoItemSelected();
-      }
+      // checks if an item is to be selected and marks/unmarks accordingly
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+        return;
+      this.lastCheckTimestamp = timestamp;
+      var selectedItemIndex = ItemFunctionalService.checkItemPopup(
+        timestamp,
+        this.itemTimestamps,
+        POP_UP_PRECISION_TIME
+      );
+      if (selectedItemIndex != null) {
+        this.markItemSelected(selectedItemIndex);
+      } else this.markNoItemSelected();
     },
     updatePlayerTimestamp(timestamp) {
       // update player time to the given timestamp
-      this.$refs.playerObj.player.currentTime = timestamp;
+      this.player.currentTime = timestamp;
     },
     sliderUpdated(timestamp) {
       // invoked when the time slider is updated
@@ -570,7 +598,7 @@ export default {
       // mark the item at the given index as selected
       if (itemIndex != null) {
         this.isItemSelected = true;
-        this.$refs.playerObj.player.pause();
+        this.player.pause();
         this.currentItemIndex = itemIndex;
       }
     },
@@ -590,10 +618,10 @@ export default {
       this.currentTimestamp = timestamp;
       this.checkItemToSelect(timestamp);
     },
-    playerReady(player) {
+    playerReady() {
       // set variables once the player instance is ready
-      this.videoDuration = player.duration;
-      if (!this.plioTitle) this.plioTitle = player.config.title;
+      this.videoDuration = this.player.duration;
+      if (!this.plioTitle) this.plioTitle = this.player.config.title;
     },
     isVideoLinkValid(link) {
       // checks if the link is valid
@@ -608,26 +636,18 @@ export default {
       // invoked when the player is played from a paused state
       this.isItemSelected = false;
     },
-    getItemTimestamps(items) {
-      // returns the list of timestamps of the items
-      var positions = [];
-
-      items.forEach((item) => {
-        positions.push(item.time);
-      });
-
-      return positions;
-    },
     async loadPlio() {
       // fetch plio details
-      await PlioService.getPlio(this.plioId).then((plioDetails) => {
+      await PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
         this.items = plioDetails.items || [];
         this.videoURL = plioDetails.video_url || "";
-        this.plioTitle = plioDetails.plio_title || "";
+        this.plioTitle = plioDetails.plioTitle || "";
         this.status = plioDetails.status;
         if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
           this.lastUpdated = new Date(plioDetails.updated_at);
         this.hasUnpublishedChanges = false;
+        this.videoDBId = plioDetails.videoDBId;
+        this.plioDBId = plioDetails.plioDBId;
       });
     },
     checkAndSavePlio() {
@@ -637,6 +657,9 @@ export default {
         this.hasUnpublishedChanges = true;
         return;
       }
+      // don't save plio if video URL is empty or if any errors are present
+      if (this.anyErrorsPresent || !this.isVideoIdValid) return;
+
       this.changeInProgress = true;
       var time = new Date();
       // only update after a certain interval between last and current update
@@ -650,16 +673,17 @@ export default {
       this.startUploading();
       this.lastUpdated = new Date();
       var plioValue = {
-        video_id: this.videoId,
-        video_url: this.videoURL,
-        plio_title: this.plioTitle,
-        video_duration: this.videoDuration,
-        items: this.items,
+        name: this.plioTitle,
         status: this.status,
-        updated_at: this.lastUpdated,
+        created_by: 1,
+        items: this.items,
+        videoDBId: this.videoDBId,
+        url: this.videoURL,
+        duration: this.videoDuration,
       };
-      return PlioService.updatePlio(plioValue, this.plioId).then(() => {
+      return PlioAPIService.updatePlio(plioValue, this.plioId).then(() => {
         this.stopUploading();
+        return;
       });
     },
     publishPlio() {
@@ -742,7 +766,18 @@ export default {
       this.showDialogBox = true;
     },
     confirmPublish() {
+      this.showDialogBox = true;
       this.dialogTitle = this.publishInProgressDialogTitle;
+      this.dialogConfirmButtonConfig = {
+        enabled: false,
+        text: "",
+        class: "",
+      };
+      this.dialogCancelButtonConfig = {
+        enabled: false,
+        text: "",
+        class: "",
+      };
       // publish the plio or its changes
       this.publishPlio();
     },
@@ -770,26 +805,14 @@ export default {
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
-    getTimestampForNewItem() {
-      // loop through itemTimestamps to check if the time where the user
-      // is trying to add an item is valid or not
-      // using for loop instead of forEach as forEach was running async
-
-      // returning -1 to signify that the time chosen by the user is not valid
-      for (let index = 0; index < this.itemTimestamps.length; index++) {
-        var val = this.itemTimestamps[index];
-        if (
-          val == this.currentTimestamp ||
-          (this.currentTimestamp <= val + ITEM_VICINITY_TIME &&
-            this.currentTimestamp >= val - ITEM_VICINITY_TIME)
-        )
-          return -1;
-      }
-      return this.currentTimestamp;
-    },
     getItemTypeForNewItem() {
       // returns the type of item being added when add item button is clicked
       return "question";
+    },
+    getQuestionTypeForNewQuestion() {
+      // returns the type of question being added when add item button is clicked
+      // only "mcq" questions are supported as of now
+      return "mcq";
     },
     getMetadataForNewItem() {
       // returns a metadata object which contains only the name of the source from where
@@ -800,35 +823,57 @@ export default {
       meta["source"]["name"] = "default";
       return meta;
     },
-    getDetailsForNewItem() {
+    getDetailsForNewQuestion() {
       // barebones question structure
       var details = {};
-      details["correct_answer"] = 0;
+      details["correct_answer"] = "0";
       details["text"] = "";
-      details["type"] = "mcq_single_answer";
+      details["type"] = this.getQuestionTypeForNewQuestion();
       details["options"] = ["", ""];
       return details;
     },
     addNewItem() {
-      this.$refs.playerObj.player.pause();
-      // get all the data needed to create a new item
+      this.player.pause();
+      // newItem object will store the information of the newly created
+      // item and the question
       var newItem = {};
-      var newTimestamp = this.getTimestampForNewItem();
-      if (newTimestamp == -1) {
+
+      // check if the time where user is trying to add an item is valid or not
+      if (
+        !ItemFunctionalService.isTimestampValid(
+          this.currentTimestamp,
+          this.itemTimestamps
+        )
+      ) {
         this.showCannotAddItemDialog();
         return;
       }
-      // create the newItem object
-      newItem["time"] = newTimestamp;
-      newItem["type"] = this.getItemTypeForNewItem();
-      newItem["meta"] = this.getMetadataForNewItem();
-      newItem["details"] = this.getDetailsForNewItem();
 
-      // push it into items, update the itemTimestamps and currentItemIndex
-      this.items.push(newItem);
-      this.itemTimestamps = this.getItemTimestamps(this.items);
-      this.currentItemIndex = this.itemTimestamps.indexOf(this.currentTimestamp);
-      this.markItemSelected(this.currentItemIndex);
+      // create item, then create the question, then update local states
+      ItemAPIService.createItem({
+        plio: this.plioDBId,
+        type: this.getItemTypeForNewItem(),
+        time: this.currentTimestamp,
+        meta: this.getMetadataForNewItem(),
+      })
+        .then((createdItem) => {
+          // storing the newly created item into "newItem"
+          newItem = createdItem;
+          if (createdItem.type == "question") {
+            var questionDetails = this.getDetailsForNewQuestion();
+            questionDetails.item = createdItem.id;
+            return QuestionAPIService.createQuestion(questionDetails);
+          }
+        })
+        .then((createdQuestion) => {
+          // storing the newly created question into "newItem"
+          newItem.details = createdQuestion;
+          // push it into items, update the itemTimestamps and currentItemIndex
+          this.items.push(newItem);
+          this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
+          this.currentItemIndex = this.itemTimestamps.indexOf(this.currentTimestamp);
+          this.markItemSelected(this.currentItemIndex);
+        });
     },
     deleteItemButtonClicked() {
       // invoked when the delete item button is clicked
@@ -854,7 +899,8 @@ export default {
     deleteSelectedItem() {
       // remove current item from the item list
       // set currentItemIndex to null to hide the item editor
-      this.items.splice(this.currentItemIndex, 1);
+      var itemToDelete = this.items.splice(this.currentItemIndex, 1);
+      ItemAPIService.deleteItem(itemToDelete[0].id);
       this.currentItemIndex = null;
       this.showDialogBox = false;
     },
@@ -880,6 +926,14 @@ export default {
       this.optionIndexToDelete = optionIndex;
       this.dialogAction = "deleteOption";
       this.showDialogBox = true;
+    },
+    setErrorOccurred() {
+      // invoked when some error is present
+      this.anyErrorsPresent = true;
+    },
+    setErrorResolved() {
+      // invoked when erros have been resolved
+      this.anyErrorsPresent = false;
     },
   },
 };

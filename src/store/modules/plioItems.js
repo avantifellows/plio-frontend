@@ -1,4 +1,4 @@
-import PlioService from "@/services/API/Plio.js";
+import PlioAPIService from "@/services/API/Plio.js";
 
 const namespaced = true;
 // namespacing modules
@@ -16,7 +16,7 @@ const actions = {
     // exist here, it exists in the root store file "index.js"
     dispatch("auth/startLoading", null, { root: true });
 
-    const response = await PlioService.getAllPlios();
+    const response = await PlioAPIService.getAllPlios();
     var allPlios = response.data;
     commit("setPliosList", allPlios);
 
