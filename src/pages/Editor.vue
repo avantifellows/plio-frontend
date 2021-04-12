@@ -300,7 +300,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(["uploading"]),
+    ...mapState('auth', ["uploading"]),
     player() {
       // returns the player instance
       return this.$refs.videoPlayer.player;
@@ -502,7 +502,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["startUploading", "stopUploading"]),
+    ...mapActions('auth', ["startUploading", "stopUploading"]),
     returnToHome() {
       // returns the user back to Home
       this.$router.push({ name: "Home" });

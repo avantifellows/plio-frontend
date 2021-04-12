@@ -25,7 +25,9 @@
         "vue-i18n": "^9.0.0",
         "vue-inline-svg": "^3.0.0-beta.2",
         "vue-router": "^4.0.0-beta.12",
-        "vuex": "^4.0.0-beta.4"
+        "vue3-google-oauth2": "^1.0.4",
+        "vuex": "^4.0.0-beta.4",
+        "vuex-persistedstate": "^4.0.0-beta.3"
     },
     "devDependencies": {
         "@tailwindcss/postcss7-compat": "^2.0.4",

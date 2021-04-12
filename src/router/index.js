@@ -3,13 +3,15 @@ import Home from "@/pages/Home.vue";
 import Test from "@/pages/Test.vue";
 import Editor from "@/pages/Editor.vue";
 import Player from "@/pages/Player.vue";
-import PhoneSignIn from "@/pages/PhoneSignIn";
+import Login from "@/pages/Login";
+import store from "../store";
 
 const routes = [
   {
     path: "/",
     name: "Home",
     component: Home,
+    meta: { requiresAuth: true },
   },
   {
     path: "/test",
@@ -21,6 +23,15 @@ const routes = [
     name: "Editor",
     component: Editor,
     props: true,
+  },
+  {
+    // type: the type of component invoking this path (optional)
+    // id: the unique ID for the component invoking this path (optional)
+    path: "/login/:id?/:type?",
+    name: "Login",
+    component: Login,
+    props: true,
+    meta: { guest: true },
   },
   {
     path: "/play/:plioId",
@@ -35,24 +46,14 @@ const routes = [
       experiment: route.query.experiment,
       plioId: route.params.plioId,
     }),
-  },
-  {
-    // type: the type of component invoking this path (optional)
-    // id: the unique ID for the component invoking this path (optional)
-    path: "/login/:id?/:type?",
-    name: "PhoneSignIn",
-    component: PhoneSignIn,
-    // passing props to route components
-    // https://router.vuejs.org/guide/essentials/passing-props.html#passing-props-to-route-components
-    props: true,
+    meta: { requiresAuth: true },
   },
   {
     path: "/experiment/:id",
     name: "ABTesting",
-    // lazy loading of routes
-    // https://router.vuejs.org/guide/advanced/lazy-loading.html#grouping-components-in-the-same-chunk
     component: () => import("@/pages/ABTesting"),
     props: true,
+    meta: { requiresAuth: true },
   },
   {
     path: "/404-not-found",
@@ -71,7 +72,44 @@ const routes = [
 
 const router = createRouter({
   history: createWebHashHistory(),
+  base: process.env.VUE_APP_FRONTEND,
   routes,
 });
+
+/*
+Router auth logic start
+
+The code below works on `isAuthenticated` state and before every route:
+1. Redirects user to login if user is not authenticated and visits a page that requires authentication (route.meta.requiresAuth)
+2. Redirects user to home if user is already logged in and visiting a page that is intended for guest (route.meta.guest)
+*/
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (store.getters["auth/isAuthenticated"]) {
+      next();
+      return;
+    }
+    next({ name: "Login" });
+  } else {
+    next();
+  }
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.guest)) {
+    if (store.getters["auth/isAuthenticated"]) {
+      next({ name: "Home" });
+      return;
+    }
+    next();
+  } else {
+    next();
+  }
+});
+
+/*
+Router auth logic end
+*/
 
 export default router;

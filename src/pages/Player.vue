@@ -194,7 +194,7 @@ export default {
     // redirect to login page if unauthenticated
     if (!this.userId) {
       this.$router.push({
-        name: "PhoneSignIn",
+        name: "Login",
         params: { id: this.plioId },
       });
     }

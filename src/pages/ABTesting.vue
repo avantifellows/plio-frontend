@@ -18,21 +18,13 @@ export default {
   },
 
   created() {
-    if (!this.isLoggedIn) {
-      this.$router.push({
-        name: "PhoneSignIn",
-        params: { id: this.id, type: "experiment" },
-      });
-    } else {
-      // get variant and redirect user
-      this.getAssignment();
-    }
+    this.getAssignment();
   },
-  computed: mapState(["isLoggedIn", "userId"]),
+  computed: mapState('auth', ['userId']),
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions(["saveConfigs"]),
+    ...mapActions('auth', ['saveConfigs']),
     getAssignment() {
       ExperimentAPIService.getExperimentAssignment(this.id, this.userId)
         .then((res) => {
