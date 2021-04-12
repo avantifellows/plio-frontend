@@ -94,13 +94,15 @@ import { mapState, mapActions } from "vuex";
 
 export default {
   props: {
-    redirect: {
+    redirectTo: {
+      // name of the route to redirect to after the login
       type: String,
       default: "",
     },
     params: {
+      // params of the route to redirect to after the login
       type: String,
-      default: "",
+      default: "{}",
     },
   },
   components: {
@@ -108,45 +110,53 @@ export default {
   },
   data() {
     return {
-      phoneInput: "",
-      otpInput: "",
-      requestedOtp: false,
-      resentOtp: false,
-      invalidOtp: false,
-      redirectParams: JSON.parse(this.params),
+      phoneInput: "", // phone input text
+      otpInput: "", // otp input text
+      requestedOtp: false, // whether the user has requested OTP once
+      resentOtp: false, // whether the user has requested to resend OTP
+      invalidOtp: false, // whether the OTP is invalid
+      redirectParams: JSON.parse(this.params), // params for the route to be redirected to
     };
   },
   computed: {
     ...mapState("auth", ["userId"]),
     isRequestOtpEnabled: function () {
+      // whether the user can request for OTP
       return this.phoneInput && this.isPhoneValid();
     },
     isSubmitEnabled: function () {
+      // whether the submit button for OTP is valid
       return this.otpInput && this.isOtpValid();
     },
     formattedPhoneInput: function () {
+      // append default country code
       return "+91" + this.phoneInput;
     },
   },
   methods: {
     ...mapActions("auth", ["setAccessToken"]),
     isPhoneValid() {
+      // whether the phone number entered by the user is valid
       return this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g) != null;
     },
     isOtpValid() {
+      // whether the OTP entered by the user is valid
       return this.otpInput.toString().match(/^\d{6}$/g) != null;
     },
     requestOtp() {
+      // requests OTP for the first time
       UserService.requestOtp(this.formattedPhoneInput);
       this.requestedOtp = true;
       this.invalidOtp = false;
     },
     resendOtp() {
+      // resends OTP on user request
       UserService.requestOtp(this.formattedPhoneInput);
       this.resentOtp = true;
       this.invalidOtp = false;
     },
     phoneLogin() {
+      // invoked for logging in with Phone
       UserService.verifyOtp(this.formattedPhoneInput, this.otpInput)
         .then((response) => {
           this.setAccessToken(response.data);
@@ -159,6 +169,7 @@ export default {
         });
     },
     async googleLogin() {
+      // invoked for logging in with Google
       try {
         const googleUser = await this.$gAuth.signIn();
         if (!googleUser) {
@@ -178,13 +189,13 @@ export default {
     },
     routeAfterLogin() {
       // route user to the relevant page after login is complete
-      if (!this.redirect) {
+      if (this.redirectTo != "") {
         // there is no other page to redirect the user to
         // redirect to the home page
         this.$router.push({ name: "Home" });
       }
       // redirect to the relevant page with its params
-      this.$router.push({ name: this.redirect, params: this.redirectParams });
+      this.$router.push({ name: this.redirectTo, params: this.redirectParams });
     },
   },
 };

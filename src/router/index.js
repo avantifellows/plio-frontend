@@ -92,7 +92,7 @@ router.beforeEach((to, from, next) => {
     }
     next({
       name: "Login",
-      params: { redirect: to.name, params: JSON.stringify(to.params) },
+      params: { redirectTo: to.name, params: JSON.stringify(to.params) },
     });
   } else {
     next();
