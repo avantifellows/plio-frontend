@@ -13,10 +13,10 @@
       </small>
     </div>
     <div class="watch_plio mb-5">
-      <button class="my-4" :disabled="isRequestOtpDisabled" @click="requestOtp" v-if="!requestedOtp">
+      <button class="my-4" :disabled="!isRequestOtpEnabled" @click="requestOtp" v-if="!requestedOtp">
         {{ $t("login.learner.button_otp") }}
       </button>
-      <button class="mt-4" id="submit" :disabled="isSubmitDisabled" @click="phoneLogin" v-if="requestedOtp">
+      <button class="mt-4" id="submit" :disabled="!isSubmitEnabled" @click="phoneLogin" v-if="requestedOtp">
         {{ $t("login.learner.button_submit") }}
       </button>
       <div class="mt-1 resend-otp" v-if="requestedOtp && !resentOtp" @click="resendOtp">
@@ -56,11 +56,11 @@ export default {
   },
   computed: {
     ...mapState('auth', ["userId"]),
-    isRequestOtpDisabled: function () {
-      return this.phoneInput && !this.isPhoneValid();
+    isRequestOtpEnabled: function () {
+      return this.phoneInput && this.isPhoneValid();
     },
-    isSubmitDisabled: function () {
-      return this.otpInput && !this.isOtpValid();
+    isSubmitEnabled: function () {
+      return this.otpInput && this.isOtpValid();
     },
     formattedPhoneInput: function () {
       return '+91' + this.phoneInput;
