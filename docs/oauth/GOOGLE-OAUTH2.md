@@ -13,7 +13,7 @@ We use [vue3-google-oauth2](https://github.com/guruahn/vue3-google-oauth2) Vue p
 3. Enter the name of the project **Plio**
 4. Once the project is created (takes a few seconds), use the project selector again and select **Plio**
 5. Now you have to add available APIs. Select and open **Library** in the left menu.
-6. Open and Enable **Google+ API** and **Google Analytics API**
+6. Open and Enable **Google+ API**
 7. Go to the **Credentials** tab, click on the **Create Credentials** popup and select **OAuth client ID** — Google also offers a wizard to help you make this decision if you'd like to use Google Auth in a different context
 8. The API Dashboard opens, click **Credentials** on the left Nav and switch to the **OAuth Consent Screen** tab — provide an application name and an optional logo.
 9. On the next screen select **Web application** as Application type and give it a name **Plio**
