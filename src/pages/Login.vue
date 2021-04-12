@@ -183,6 +183,7 @@ export default {
         // redirect to the home page
         this.$router.push({ name: "Home" });
       }
+      // redirect to the relevant page with its params
       this.$router.push({ name: this.redirect, params: this.redirectParams });
     },
   },
