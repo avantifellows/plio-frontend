@@ -39,6 +39,7 @@
         :placeholder="placeholder"
         v-model="localValue"
         @input="inputChange"
+        @keypress="keyPress"
         :class="[inputAreaClass, boxStyling]"
         :min="min"
         :max="max"
@@ -101,6 +102,11 @@ export default {
       // boxes
       default: () => {},
       type: Object,
+    },
+    maxLength: {
+      // maximum length for the input
+      default: null,
+      type: Number,
     },
   },
   computed: {
@@ -176,6 +182,14 @@ export default {
     inputChange() {
       // invoked on input change
       this.$emit("input", this.value);
+    },
+    keyPress(event) {
+      // invoked when a key is pressed
+      if (this.maxLength != null) {
+        if (this.localValue.length == this.maxLength) {
+          event.preventDefault();
+        }
+      }
     },
     startIconSelected() {
       // invoked on start icon being selected
