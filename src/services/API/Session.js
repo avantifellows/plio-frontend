@@ -25,13 +25,13 @@ export default {
 
   updateSession(sessionId, sessionDetails) {
     // updates a session
-    return apiClient().put(sessionsEndpoint + sessionId + "/", sessionDetails);
+    return apiClient().put(sessionsEndpoint + sessionId, sessionDetails);
   },
 
   updateSessionAnswer(sessionAnswerDetails) {
     // updates a session's answer
     return apiClient().put(
-      sessionAnswersEndpoint + sessionAnswerDetails.id + "/",
+      sessionAnswersEndpoint + sessionAnswerDetails.id,
       sessionAnswerDetails
     );
   },

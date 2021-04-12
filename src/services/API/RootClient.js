@@ -14,6 +14,11 @@ const client = axios.create({
 
 client.interceptors.request.use(
   (config) => {
+    if (config.url[config.url.length - 1] !== "/") {
+      config.url += "/";
+    }
+    config.url = config.url.replace(/([^:])(\/{2,})/g, "$1/");
+
     // set auth header
     if (store.state.auth && store.state.auth.accessToken) {
       config.headers.Authorization = `Bearer ${store.state.auth.accessToken.access_token}`;

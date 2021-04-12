@@ -8,7 +8,7 @@ export default {
   async getPlio(plioId) {
     // returns the details for one plio
     return Promise.all([
-      apiClient().get(pliosEndpoint + plioId + "/"),
+      apiClient().get(pliosEndpoint + plioId),
       apiClient().get(itemsEndpoint + "?plio=" + plioId),
     ]).then(([plio, items]) => {
       // preparing plio details to be consumed by
@@ -69,7 +69,7 @@ export default {
         resolve();
       }
     }).then(() => {
-      apiClient().put(pliosEndpoint + plioId + "/", plioValue);
+      apiClient().put(pliosEndpoint + plioId, plioValue);
     });
   },
 };
