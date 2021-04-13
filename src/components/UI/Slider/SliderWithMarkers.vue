@@ -41,8 +41,6 @@ export default {
     };
   },
   created() {
-    // set marker colors when instantiated
-    // this.setDisabledMarkerColor();
     this.$nextTick(() => {
       this.setScreenProperties();
       window.addEventListener("resize", this.handleScreenSizeChange);

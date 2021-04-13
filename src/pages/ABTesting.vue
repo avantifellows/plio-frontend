@@ -35,11 +35,7 @@ export default {
           this.userConfigs = res.data.config;
           this.plioId = res.data.plioId;
         })
-        .then(() =>
-          this.saveConfigs({
-            configs: JSON.stringify(this.userConfigs),
-          })
-        )
+        .then(() => this.saveConfigs(JSON.stringify(this.userConfigs)))
         .then(() => {
           console.log("Assignment: " + this.assignment);
           this.$router.replace({

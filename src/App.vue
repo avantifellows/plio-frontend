@@ -147,7 +147,7 @@ export default {
     ...mapState("auth", ["configs"]),
     ...mapState("sync", ["pending"]),
     hasLocalUserConfigs() {
-      // whether the use configs have been set
+      // whether the user configs have been set
       return this.configs != null;
     },
     onLoginPage() {

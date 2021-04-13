@@ -1,4 +1,4 @@
-import UserService from "@/services/API/User.js";
+import UserAPIService from "@/services/API/User.js";
 
 // Reference: https://medium.com/front-end-weekly/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
 const state = {
@@ -15,7 +15,7 @@ const getters = {
 const actions = {
   async setAccessToken({ commit, dispatch }, accessToken) {
     await commit("setAccessToken", accessToken);
-    await UserService.getUserByAccessToken(accessToken.access_token).then(
+    await UserAPIService.getUserByAccessToken(accessToken.access_token).then(
       (response) => {
         dispatch("setUser", response.data);
       }
@@ -31,10 +31,10 @@ const actions = {
   async unsetUser({ commit }) {
     await commit("unsetUser");
   },
-  saveConfigs({ commit, dispatch }, creds) {
+  saveConfigs({ commit, dispatch }, configs) {
     dispatch("sync/startLoading", null, { root: true });
     return new Promise((resolve) => {
-      localStorage.setItem("configs", creds.configs);
+      localStorage.setItem("configs", configs);
       dispatch("sync/stopLoading", null, { root: true });
       commit("saveConfigs");
       resolve();
