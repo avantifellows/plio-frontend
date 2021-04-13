@@ -8,6 +8,12 @@ import store from "../store";
 
 const routes = [
   {
+    path: "/",
+    redirect: {
+      name: "Login",
+    },
+  },
+  {
     path: "/:org?/home",
     name: "Home",
     component: Home,
@@ -60,13 +66,6 @@ const routes = [
     name: "404",
     component: () => import("@/pages/Error"),
     props: { type: "404" },
-  },
-  {
-    // Refer to: https://stackoverflow.com/a/64186073/7870587
-    path: "/:pathMatch(.*)*",
-    redirect: {
-      name: "404",
-    },
   },
 ];
 

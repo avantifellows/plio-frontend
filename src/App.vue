@@ -55,7 +55,7 @@
           </a>
         </div>
         <div class="flex">
-            <div class="place-self-center">
+            <div class="place-self-center" v-if="this.isAuthenticated">
                 <WorkspaceSwitcher id="locale" class="flex justify-center"></WorkspaceSwitcher>
             </div>
             <div class="place-self-center">
