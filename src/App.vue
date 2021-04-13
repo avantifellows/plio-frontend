@@ -152,11 +152,11 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
-    ...mapState("auth", ["configs"]),
+    ...mapState("auth", ["configs", "user"]),
     ...mapState("sync", ["pending"]),
     showWorkspaceSwitcher() {
       // whether to show workspace switcher
-      return this.isAuthenticated && this.onHomePage;
+      return this.isAuthenticated && this.onHomePage && this.user.organizations.length;
     },
     hasLocalUserConfigs() {
       // whether the user configs have been set
