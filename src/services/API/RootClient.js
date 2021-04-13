@@ -24,9 +24,8 @@ client.interceptors.request.use(
       if (store.state.auth.accessToken) {
         config.headers.Authorization = `Bearer ${store.state.auth.accessToken.access_token}`;
       }
+      config.headers.Organization = store.state.auth.activeWorkspace;
     }
-
-    config.headers.Organization = store.state.auth.activeWorkspace;
     return config;
   },
   (error) => {
