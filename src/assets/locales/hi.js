@@ -27,7 +27,7 @@ export default {
   },
   login: {
     learner: {
-      phone_prompt: "कृपया अपना मोबाइल नंबर डालें (केवल दस अंक)",
+      phone_prompt: "कृपया अपना मोबाइल नंबर डालें",
       button_submit: "प्लायो दिखाओ",
       button_google_sign_in: "गूगल के साथ साइन इन करें",
       button_otp: "OTP का अनुरोध करें",
