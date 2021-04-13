@@ -4,8 +4,6 @@ import UserService from "@/services/API/User.js";
 const state = {
   accessToken: null,
   configs: localStorage.getItem("configs"),
-  pending: false,
-  uploading: false,
   user: null,
   userId: null,
 };
@@ -33,26 +31,14 @@ const actions = {
   async unsetUser({ commit }) {
     await commit("unsetUser");
   },
-  saveConfigs({ commit }, creds) {
-    commit("startLoading");
+  saveConfigs({ commit, dispatch }, creds) {
+    dispatch("sync/startLoading", null, { root: true });
     return new Promise((resolve) => {
       localStorage.setItem("configs", creds.configs);
-      commit("stopLoading");
+      dispatch("sync/stopLoading", null, { root: true });
       commit("saveConfigs");
       resolve();
     });
-  },
-  startLoading({ commit }) {
-    commit("startLoading");
-  },
-  stopLoading({ commit }) {
-    commit("stopLoading");
-  },
-  startUploading({ commit }) {
-    commit("startUploading");
-  },
-  stopUploading({ commit }) {
-    commit("stopUploading");
   },
 };
 
@@ -73,18 +59,6 @@ const mutations = {
   },
   saveConfigs(state) {
     state.configs = localStorage.getItem("configs");
-  },
-  startLoading(state) {
-    state.pending = true;
-  },
-  stopLoading(state) {
-    state.pending = false;
-  },
-  startUploading(state) {
-    state.uploading = true;
-  },
-  stopUploading(state) {
-    state.uploading = false;
   },
 };
 

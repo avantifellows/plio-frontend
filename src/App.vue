@@ -112,7 +112,8 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions('auth', ["unsetAccessToken", "startLoading", "stopLoading"]),
+    ...mapActions("auth", ["unsetAccessToken"]),
+    ...mapActions("sync", ["startLoading", "stopLoading"]),
     logoutUser() {
       // logs out the user
       this.unsetAccessToken().then(() => {
@@ -142,8 +143,8 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('auth', ["isAuthenticated"]),
-    ...mapState('auth', ["pending", "configs"]),
+    ...mapGetters("auth", ["isAuthenticated", "configs"]),
+    ...mapState("sync", ["pending"]),
     hasLocalUserConfigs() {
       // whether the use configs have been set
       return this.configs != null;

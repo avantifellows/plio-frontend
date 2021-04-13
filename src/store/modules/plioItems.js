@@ -12,15 +12,13 @@ const actions = {
   async fetchPlios({ commit, dispatch }) {
     // dispatch root actions in namespaced modules
     // https://vuex.vuejs.org/api/#dispatch
-    // we want to call the action 'startLoading' but this action doesn't
-    // exist here, it exists in the root store file "index.js"
-    dispatch("auth/startLoading", null, { root: true });
+    dispatch("sync/startLoading", null, { root: true });
 
     const response = await PlioAPIService.getAllPlios();
     var allPlios = response.data;
     commit("setPliosList", allPlios);
 
-    dispatch("auth/stopLoading", null, { root: true });
+    dispatch("sync/stopLoading", null, { root: true });
   },
 };
 const mutations = {
