@@ -101,14 +101,14 @@ export default {
     // remove the listener for the event of closing of the browser
     window.removeEventListener("beforeunload", this.onClose);
   },
-  mounted() {
-    if (this.isAuthenticated && !this.hasLocalUserConfigs) {
-      // fetch user config for logged in users if not already present
-      this.$refs.userProperties.saveLocalUserConfigs();
-    }
-    // set locale based on their config
-    this.$refs.userProperties.setLocaleFromUserConfig();
-  },
+  // mounted() {
+  //   if (this.isAuthenticated && !this.hasLocalUserConfigs) {
+  //     // fetch user config for logged in users if not already present
+  //     this.$refs.userProperties.saveLocalUserConfigs();
+  //   }
+  //   // set locale based on their config
+  //   this.$refs.userProperties.setLocaleFromUserConfig();
+  // },
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
