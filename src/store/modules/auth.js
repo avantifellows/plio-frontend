@@ -15,6 +15,7 @@ const state = {
   pending: false,
   uploading: false,
   user: null,
+  activeWorkspace: null,
 };
 
 const getters = {
@@ -39,6 +40,12 @@ const actions = {
   },
   async unsetUser({ commit }) {
     await commit("unsetUser");
+  },
+  async setActiveWorkspace({ commit }, activeWorkspace) {
+    await commit("setActiveWorkspace", activeWorkspace);
+  },
+  async unsetActiveWorkspace({ commit }) {
+    await commit("unsetActiveWorkspace");
   },
   saveConfigs({ commit }, creds) {
     commit(START_LOADING); // show spinner
@@ -75,6 +82,12 @@ const mutations = {
   },
   unsetUser(state) {
     state.user = null;
+  },
+  setActiveWorkspace(state, activeWorkspace) {
+    state.activeWorkspace = activeWorkspace;
+  },
+  unsetActiveWorkspace(state) {
+    state.activeWorkspace = null;
   },
   [LOGIN_SUCCESS](state) {
     state.userId = localStorage.getItem("phone");

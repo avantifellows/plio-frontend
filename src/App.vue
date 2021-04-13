@@ -54,8 +54,13 @@
             </button>
           </a>
         </div>
-        <div class="place-self-center">
-          <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
+        <div class="flex">
+            <div class="place-self-center">
+                <WorkspaceSwitcher id="locale" class="flex justify-center"></WorkspaceSwitcher>
+            </div>
+            <div class="place-self-center">
+                <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
+            </div>
         </div>
       </div>
       <user-properties ref="userProperties"></user-properties>
@@ -67,6 +72,7 @@
 </template>
 
 <script>
+import WorkspaceSwitcher from "@/components/UI/WorkspaceSwitcher.vue";
 import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
 import UserProperties from "@/services/Config/User.vue";
 import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
@@ -77,6 +83,7 @@ import PlioAPIService from "@/services/API/Plio.js";
 
 export default {
   components: {
+    WorkspaceSwitcher,
     LocaleSwitcher,
     UserProperties,
     LoadingSpinner,
@@ -143,7 +150,7 @@ export default {
   },
   computed: {
     ...mapGetters('auth', ["isAuthenticated"]),
-    ...mapState('auth', ["pending", "configs"]),
+    ...mapState('auth', ["pending", "configs", "activeWorkspace"]),
     hasLocalUserConfigs() {
       // whether the use configs have been set
       return this.configs != null;
