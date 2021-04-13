@@ -220,6 +220,10 @@ export default {
       default: "",
       type: String,
     },
+    org: {
+      default: "",
+      type: String,
+    },
   },
   computed: {
     isVideoIdValid() {

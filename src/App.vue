@@ -137,7 +137,7 @@ export default {
         if (response.status == 201) {
           this.$router.push({
             name: "Editor",
-            params: { plioId: response.data.uuid },
+            params: { plioId: response.data.uuid, org: this.activeWorkspace },
           });
         } else {
           this.$refs.toast.show("error", "Error creating Plio", this.toastLife);
@@ -152,7 +152,7 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
-    ...mapState("auth", ["configs", "user"]),
+    ...mapState("auth", ["configs", "user", "activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     showWorkspaceSwitcher() {
       // whether to show workspace switcher

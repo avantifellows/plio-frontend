@@ -184,6 +184,10 @@ export default {
       default: "",
       type: String,
     },
+    org: {
+      default: "",
+      type: String,
+    },
   },
   data() {
     return {
@@ -427,7 +431,9 @@ export default {
       if (this.plioId == "") {
         return "";
       }
-      return process.env.VUE_APP_FRONTEND + "/#/play/" + this.plioId;
+      var baseURL = process.env.VUE_APP_FRONTEND + "/#";
+      if (this.org != "") baseURL += "/" + this.org;
+      return baseURL + "/play/" + this.plioId;
     },
     isVideoIdValid() {
       // whether the video Id is valid
