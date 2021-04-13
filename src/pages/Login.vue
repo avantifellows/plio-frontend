@@ -72,7 +72,7 @@
 import UserProperties from "@/services/Config/User.vue";
 import UserService from "@/services/API/User.js";
 
-import { mapState, mapActions } from "vuex";
+import { mapActions } from "vuex";
 import InputNumber from "../components/UI/Text/InputNumber.vue";
 import IconButton from "../components/UI/Buttons/IconButton.vue";
 
