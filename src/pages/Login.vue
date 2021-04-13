@@ -1,96 +1,76 @@
 <template>
-  <div class="container">
-    <div class="lead_text">
-      <p>{{ $t("login.learner.phone_prompt") }}</p>
-    </div>
-    <div class="mb-2">
-      <input
-        id="phone"
-        class="form-control"
-        v-model="phoneInput"
-        type="tel"
-        maxlength="10"
-      />
-    </div>
-    <div class="form-group">
-      <input
-        id="otp"
-        :class="{ 'is-invalid': invalidOtp }"
-        class="form-control"
-        v-model="otpInput"
-        type="text"
-        maxlength="6"
+  <div class="sm:grid sm:grid-cols-4 md:grid-cols-3 p-10">
+    <!-- main grid with the login functionality -->
+    <div
+      class="flex flex-col w-full sm:col-start-2 sm:col-span-2 md:col-start-2 md:col-span-1"
+    >
+      <!-- prompt to enter phone number -->
+      <p class="text-center font-bold text-lg lg:text-xl xl:text-2xl">
+        {{ $t("login.learner.phone_prompt") }}
+      </p>
+      <!-- input box to enter phone number -->
+      <input-number
+        class="mt-2"
+        v-model:value="phoneInput"
+        :validation="phoneInputValidation"
+        :maxLength="10"
+      ></input-number>
+      <!-- input box to enter OTP -->
+      <input-number
+        class="mt-2"
+        v-model:value="otpInput"
+        :validation="otpInputValidation"
+        :maxLength="6"
         v-if="requestedOtp"
-      />
-      <small class="text-bold message-otp-invalid" v-if="invalidOtp">
-        {{ $t("login.learner.message_otp_invalid") }}
-      </small>
-    </div>
-    <div class="watch_plio mb-5">
-      <button
-        class="my-4"
-        :disabled="!isRequestOtpEnabled"
+      ></input-number>
+      <!-- button to request for OTP -->
+      <icon-button
+        class="mt-2"
         @click="requestOtp"
+        :titleConfig="requestOTPTitleConfig"
+        :buttonClass="requestOTPButtonClass"
         v-if="!requestedOtp"
-      >
-        {{ $t("login.learner.button_otp") }}
-      </button>
-      <button
-        class="mt-4"
-        id="submit"
-        :disabled="!isSubmitEnabled"
+        :isDisabled="!isRequestOtpEnabled"
+      ></icon-button>
+      <!-- button to submit OTP -->
+      <icon-button
+        class="mt-2"
         @click="phoneLogin"
+        :titleConfig="submitOTPTitleConfig"
+        :buttonClass="submitOTPButtonClass"
         v-if="requestedOtp"
-      >
-        {{ $t("login.learner.button_submit") }}
-      </button>
-      <div class="mt-1 resend-otp" v-if="requestedOtp && !resentOtp" @click="resendOtp">
-        {{ $t("login.learner.button_resend") }}
-      </div>
-      <div class="mt-1 message-otp-resent" v-if="resentOtp">
+        :disabled="!isSubmitOTPEnabled"
+      ></icon-button>
+      <!-- button to request resending OTP -->
+      <icon-button
+        @click="resendOtp"
+        :titleConfig="resendOTPTitleConfig"
+        :buttonClass="resendOTPButtonClass"
+        class="mt-2"
+        v-if="requestedOtp && !resentOtp"
+      ></icon-button>
+      <!-- text to show when OTP has been resent -->
+      <p v-if="resentOtp" class="text-center mt-2">
         {{ $t("login.learner.message_otp_resent") }}
-      </div>
+      </p>
+      <p class="text-center text-2xl sm:text-4xl my-10">OR</p>
+      <!-- google sign in button -->
+      <icon-button
+        :iconConfig="googleButtonIconConfig"
+        :titleConfig="googleButtonTitleConfig"
+        :buttonClass="googleButtonClass"
+        @click="googleLogin"
+      ></icon-button>
     </div>
-    <button class="my-5 g-sign-in" @click="googleLogin">
-      <span
-        ><svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="18"
-          viewBox="0 0 18 18"
-          aria-hidden="true"
-        >
-          <title>Google</title>
-          <g fill="none" fill-rule="evenodd">
-            <path
-              fill="#4285F4"
-              d="M17.64 9.2045c0-.6381-.0573-1.2518-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2581h2.9087c1.7018-1.5668 2.6836-3.874 2.6836-6.615z"
-            ></path>
-            <path
-              fill="#34A853"
-              d="M9 18c2.43 0 4.4673-.806 5.9564-2.1805l-2.9087-2.2581c-.8059.54-1.8368.859-3.0477.859-2.344 0-4.3282-1.5831-5.036-3.7104H.9574v2.3318C2.4382 15.9832 5.4818 18 9 18z"
-            ></path>
-            <path
-              fill="#FBBC05"
-              d="M3.964 10.71c-.18-.54-.2822-1.1168-.2822-1.71s.1023-1.17.2823-1.71V4.9582H.9573A8.9965 8.9965 0 0 0 0 9c0 1.4523.3477 2.8268.9573 4.0418L3.964 10.71z"
-            ></path>
-            <path
-              fill="#EA4335"
-              d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.346l2.5813-2.5814C13.4632.8918 11.426 0 9 0 5.4818 0 2.4382 2.0168.9573 4.9582L3.964 7.29C4.6718 5.1627 6.6559 3.5795 9 3.5795z"
-            ></path>
-          </g></svg
-      ></span>
-      <span>&nbsp;&nbsp;{{ $t("login.learner.button_google_sign_in") }}</span>
-    </button>
-    <user-properties ref="userProperties"></user-properties>
   </div>
 </template>
 
 <script>
-import UserProperties from "@/services/Config/User.vue";
 import UserService from "@/services/API/User.js";
 
 import { mapState, mapActions } from "vuex";
+import InputNumber from "../components/UI/Text/InputNumber.vue";
+import IconButton from "../components/UI/Buttons/IconButton.vue";
 
 export default {
   props: {
@@ -106,7 +86,8 @@ export default {
     },
   },
   components: {
-    UserProperties,
+    InputNumber,
+    IconButton,
   },
   data() {
     return {
@@ -120,17 +101,85 @@ export default {
   },
   computed: {
     ...mapState("auth", ["userId"]),
-    isRequestOtpEnabled: function () {
+    phoneInputValidation() {
+      // validation config for the phone text input
+      return {
+        enabled: true,
+        isValid: this.isRequestOtpEnabled,
+        validMessage: "Phone number is valid",
+        invalidMessage: "Phone number is invalid",
+      };
+    },
+    otpInputValidation() {
+      // validation config for the otp text input
+      return {
+        enabled: true,
+        isValid: this.isSubmitOTPEnabled,
+        validMessage: "",
+        invalidMessage: "OTP should be 6 digits long",
+      };
+    },
+    isRequestOtpEnabled() {
       // whether the user can request for OTP
       return this.phoneInput && this.isPhoneValid();
     },
-    isSubmitEnabled: function () {
+    isSubmitOTPEnabled() {
       // whether the submit button for OTP is valid
       return this.otpInput && this.isOtpValid();
     },
-    formattedPhoneInput: function () {
+    formattedPhoneInput() {
       // append default country code
       return "+91" + this.phoneInput;
+    },
+    requestOTPTitleConfig() {
+      // title config for the request OTP button
+      return {
+        value: "Request OTP",
+      };
+    },
+    requestOTPButtonClass() {
+      // class for the request OTP button
+      return "bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed ring-primary rounded-md py-2";
+    },
+    submitOTPTitleConfig() {
+      // title config for the submit OTP button
+      return {
+        value: "Submit OTP",
+        class: "text-white",
+      };
+    },
+    submitOTPButtonClass() {
+      // class for the submit OTP button
+      return "bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed ring-green-500 rounded-md py-2";
+    },
+    resendOTPTitleConfig() {
+      // title config for the resend OTP button
+      return {
+        value: "Resend OTP",
+      };
+    },
+    resendOTPButtonClass() {
+      // class for the resend OTP button
+      return "bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed ring-primary rounded-md py-2";
+    },
+    googleButtonIconConfig() {
+      // config for the icon of the google sign in button
+      return {
+        enabled: true,
+        iconName: "google",
+        iconClass: "h-5 w-5",
+      };
+    },
+    googleButtonTitleConfig() {
+      // config for the title of the google sign in button
+      return {
+        value: "Sign in with Google",
+        class: "text-gray-600 ml-2",
+      };
+    },
+    googleButtonClass() {
+      // class for the google sign in button
+      return "bg-gray-100 hover:bg-gray-200 ring-gray-200 rounded-md py-4";
     },
   },
   methods: {
@@ -159,8 +208,7 @@ export default {
       // invoked for logging in with Phone
       UserService.verifyOtp(this.formattedPhoneInput, this.otpInput)
         .then((response) => {
-          this.setAccessToken(response.data);
-          this.routeAfterLogin();
+          this.setAccessToken(response.data).then(() => this.routeAfterLogin());
         })
         .catch((error) => {
           if (error.response.status == 401) {
@@ -178,8 +226,7 @@ export default {
         let socialAuthToken = googleUser.getAuthResponse();
         UserService.convertSocialAuthToken(socialAuthToken.access_token).then(
           (response) => {
-            this.setAccessToken(response.data);
-            this.routeAfterLogin();
+            this.setAccessToken(response.data).then(() => this.routeAfterLogin());
           }
         );
       } catch (error) {
@@ -189,93 +236,15 @@ export default {
     },
     routeAfterLogin() {
       // route user to the relevant page after login is complete
-      if (this.redirectTo != "") {
+      if (this.redirectTo == "") {
         // there is no other page to redirect the user to
         // redirect to the home page
-        this.$router.push({ name: "Home" });
+        this.$router.replace({ name: "Home" });
+      } else {
+        // redirect to the relevant page with its params
+        this.$router.replace({ name: this.redirectTo, params: this.redirectParams });
       }
-      // redirect to the relevant page with its params
-      this.$router.push({ name: this.redirectTo, params: this.redirectParams });
     },
   },
 };
 </script>
-
-<style scoped>
-.lead_text {
-  font-size: 1.6em;
-  font-weight: bold;
-}
-
-.container {
-  position: fixed;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-input.form-control {
-  max-width: 300px;
-  font-size: 1.6em;
-  border: 1px solid #aaa;
-  border-radius: 4px;
-  padding: 8px 10px;
-}
-
-input.form-control.is-invalid {
-  border-color: red;
-}
-
-button {
-  background-color: #df7c3a;
-  border: none;
-  color: white;
-  padding: 10px 32px;
-  text-align: center;
-  border-radius: 5px;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-button.g-sign-in {
-  border: 1px solid #df7c3a;
-  background-color: white;
-  color: #df7c3a;
-  outline: none;
-}
-
-button.g-sign-in:hover {
-  background-color: #df7c3a;
-  color: white;
-}
-
-button:disabled {
-  background-color: grey;
-}
-
-button:disabled:hover {
-  cursor: pointer;
-}
-.resend-otp {
-  color: #df7c3a;
-  cursor: pointer;
-  text-decoration: underline;
-}
-.message-otp-resent {
-  color: green;
-}
-.message-otp-invalid {
-  color: red;
-  font-weight: bold;
-}
-</style>
