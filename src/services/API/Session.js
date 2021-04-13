@@ -5,12 +5,11 @@ import {
 } from "@/services/API/Endpoints.js";
 
 export default {
-  createSession(plioId, userId) {
+  createSession(plioId) {
     // creates a new session
     return apiClient()
       .post(sessionsEndpoint, {
         plio: plioId,
-        user: userId,
       })
       .then((response) => {
         // convert string answers to int
