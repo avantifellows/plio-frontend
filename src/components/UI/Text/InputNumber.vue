@@ -185,10 +185,8 @@ export default {
     },
     keyPress(event) {
       // invoked when a key is pressed
-      if (this.maxLength != null) {
-        if (this.localValue.length == this.maxLength) {
-          event.preventDefault();
-        }
+      if (this.maxLength != null && this.localValue.length == this.maxLength) {
+        event.preventDefault();
       }
     },
     startIconSelected() {
