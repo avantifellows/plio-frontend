@@ -157,7 +157,7 @@ export default {
     },
     isValid() {
       // whether the input is valid
-      return this.isValidationEnabled && this.validation["isValid"];
+      return this.validation["isValid"];
     },
     validationColorClass() {
       // https://v3.vuejs.org/guide/class-and-style.html#class-and-style-bindings

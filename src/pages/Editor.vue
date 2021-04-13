@@ -9,7 +9,6 @@
       <div class="flex flex-col ml-5 mr-5">
         <!--- plio link -->
         <URL :link="plioLink" class="justify-center m-4"></URL>
-
         <div class="justify-center">
           <!--- video preview -->
           <div v-if="!isVideoIdValid" class="flex justify-center">
@@ -296,7 +295,6 @@ export default {
     },
   },
   computed: {
-    ...mapState("auth", ["userId"]),
     ...mapState("sync", ["uploading"]),
     player() {
       // returns the player instance
@@ -672,7 +670,6 @@ export default {
       var plioValue = {
         name: this.plioTitle,
         status: this.status,
-        created_by: this.userId,
         items: this.items,
         videoDBId: this.videoDBId,
         url: this.videoURL,
