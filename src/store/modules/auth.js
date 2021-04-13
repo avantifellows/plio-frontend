@@ -15,7 +15,7 @@ const state = {
   pending: false,
   uploading: false,
   user: null,
-  activeWorkspace: null,
+  activeWorkspace: "",
 };
 
 const getters = {
