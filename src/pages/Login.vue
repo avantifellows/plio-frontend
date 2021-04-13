@@ -12,6 +12,7 @@
         :maxLength="10"
       ></input-number>
       <input-number
+        class="mt-2"
         v-model:value="otpInput"
         :validation="otpInputValidation"
         :maxLength="6"
