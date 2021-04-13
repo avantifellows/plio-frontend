@@ -20,8 +20,10 @@ client.interceptors.request.use(
     config.url = config.url.replace(/([^:])(\/{2,})/g, "$1/");
 
     // set auth header
-    if (store.state.auth != null && store.state.auth.accessToken) {
-      config.headers.Authorization = `Bearer ${store.state.auth.accessToken.access_token}`;
+    if (store.state.auth != null) {
+      if (store.state.auth.accessToken) {
+        config.headers.Authorization = `Bearer ${store.state.auth.accessToken.access_token}`;
+      }
     }
 
     config.headers.Organization = store.state.auth.activeWorkspace;
