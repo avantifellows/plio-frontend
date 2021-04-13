@@ -17,6 +17,7 @@ const routes = [
     name: "Editor",
     component: Editor,
     props: true,
+    meta: { requiresAuth: true },
   },
   {
     // type: the type of component invoking this path (optional)

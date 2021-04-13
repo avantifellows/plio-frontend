@@ -191,13 +191,6 @@ export default {
     },
   },
   async created() {
-    // redirect to login page if unauthenticated
-    if (!this.userId) {
-      this.$router.push({
-        name: "Login",
-        params: { id: this.plioId },
-      });
-    }
     // load the systemwide component properties
     this.componentProperties = require("@/services/Config/" + "Player.json");
 
