@@ -12,6 +12,10 @@ const client = axios.create({
   headers,
 });
 
+// the interceptor below is doing the following things:
+// 1. Add trailing slash to every API call (if it's not there)
+// 2. Set access token to the API calls
+// 3. Set Organization HTTP header for workspace settings
 client.interceptors.request.use(
   (config) => {
     if (config.url[config.url.length - 1] !== "/") {

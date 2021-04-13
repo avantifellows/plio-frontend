@@ -87,7 +87,7 @@ const mutations = {
     state.activeWorkspace = activeWorkspace;
   },
   unsetActiveWorkspace(state) {
-    state.activeWorkspace = null;
+    state.activeWorkspace = "";
   },
   [LOGIN_SUCCESS](state) {
     state.userId = localStorage.getItem("phone");

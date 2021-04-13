@@ -67,6 +67,13 @@ const routes = [
     component: () => import("@/pages/Error"),
     props: { type: "404" },
   },
+  {
+    // Refer to: https://stackoverflow.com/a/64186073/7870587
+    path: "/:pathMatch(.*)*",
+    redirect: {
+      name: "404",
+    },
+  },
 ];
 
 const router = createRouter({
@@ -123,7 +130,7 @@ router.beforeEach((to, from, next) => {
     store.dispatch("auth/setActiveWorkspace", to.params.org);
     if (!orgShortcodes.includes(to.params.org)) {
       // redirect to default page without organization id
-      store.dispatch("auth/setActiveWorkspace", to.params.org);
+      store.dispatch("auth/unsetActiveWorkspace");
       next({ name: to.name });
     } else {
       next();

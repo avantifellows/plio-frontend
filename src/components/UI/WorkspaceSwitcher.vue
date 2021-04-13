@@ -4,7 +4,6 @@
       <option value="">Personal Workspace</option>
       <option v-for="workspace in this.workspaces" :key="workspace.id" :value="workspace.shortcode">{{workspace.name}}</option>
     </select>
-    <user-properties ref="userProperties"></user-properties>
   </div>
 </template>
 
