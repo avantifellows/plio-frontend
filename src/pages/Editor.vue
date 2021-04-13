@@ -296,7 +296,8 @@ export default {
     },
   },
   computed: {
-    ...mapState("auth", ["uploading"]),
+    ...mapState("auth", ["userId"]),
+    ...mapState("sync", ["uploading"]),
     player() {
       // returns the player instance
       return this.$refs.videoPlayer.player;
@@ -498,7 +499,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions("auth", ["startUploading", "stopUploading"]),
+    ...mapActions("sync", ["startUploading", "stopUploading"]),
     returnToHome() {
       // returns the user back to Home
       this.$router.push({ name: "Home" });
@@ -671,7 +672,7 @@ export default {
       var plioValue = {
         name: this.plioTitle,
         status: this.status,
-        created_by: 1,
+        created_by: this.userId,
         items: this.items,
         videoDBId: this.videoDBId,
         url: this.videoURL,

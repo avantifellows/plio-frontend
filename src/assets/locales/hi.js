@@ -1,7 +1,7 @@
 export default {
   nav: {
     home: "होम",
-    login: "लॉगिन",
+    login: "",
     logout: "लॉगआउट",
     editor: "एडिटर",
     abtesting: "",

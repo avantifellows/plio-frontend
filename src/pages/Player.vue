@@ -48,6 +48,8 @@ import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import ItemModal from "../components/Player/ItemModal.vue";
 
+import { mapState } from "vuex";
+
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
 var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
@@ -151,8 +153,6 @@ export default {
       videoId: "", // video Id for the Plio
       source: "unknown", // source from where the plio was accessed - can be passed as param in the plio url
       componentProperties: {}, // properties of the plio player
-      // TODO: dummy user ID
-      userId: 1,
       items: [], // holds the list of all items for this plio
       itemResponses: [], // holds the responses to each item
       videoSource: "youtube", // source for the video
@@ -191,13 +191,6 @@ export default {
     },
   },
   async created() {
-    // redirect to login page if unauthenticated
-    if (!this.userId) {
-      this.$router.push({
-        name: "Login",
-        params: { id: this.plioId },
-      });
-    }
     // load the systemwide component properties
     this.componentProperties = require("@/services/Config/" + "Player.json");
 
@@ -231,6 +224,7 @@ export default {
     },
   },
   computed: {
+    ...mapState("auth", ["userId"]),
     isVideoIdValid() {
       // whether the video Id is valid
       return this.videoId != "";
@@ -311,7 +305,7 @@ export default {
       await PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
           // redirect to 404 if the plio is not published
-          if (plioDetails.status != "published") this.$router.push({ name: "404" });
+          if (plioDetails.status != "published") this.$router.replace({ name: "404" });
           this.items = plioDetails.items || [];
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.video_url);
@@ -412,7 +406,7 @@ export default {
     handleQueryError(err) {
       // handles error encountered when fetching plio or creating new session
       if (err.response && err.response.status == 404) {
-        this.$router.push({ name: "404" });
+        this.$router.replace({ name: "404" });
       } else {
         console.log(err);
       }

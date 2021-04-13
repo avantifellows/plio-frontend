@@ -3,13 +3,13 @@
 </template>
 
 <script>
-import UserAPIService from '@/services/API/User.js'
-import { mapState, mapGetters, mapActions } from 'vuex'
+import UserAPIService from "@/services/API/User.js";
+import { mapState, mapGetters, mapActions } from "vuex";
 
 export default {
   computed: {
-      ...mapState('auth', ['userId', 'configs']),
-      ...mapGetters('auth', ['isAuthenticated']),
+    ...mapState("auth", ["userId", "configs"]),
+    ...mapGetters("auth", ["isAuthenticated"]),
   },
   methods: {
     // object spread operator
@@ -18,9 +18,7 @@ export default {
 
     saveLocalUserConfigs() {
       UserAPIService.getUserConfig(this.userId).then((response) => {
-        this.saveConfigs({
-          configs: JSON.stringify(response.data), // save user config locally
-        });
+        this.saveConfigs(JSON.stringify(response.data)); // save user config locally
       });
     },
 
@@ -60,12 +58,7 @@ export default {
             console.log("Error with config update");
           }
         })
-        .then(() =>
-          this.saveConfigs({
-            // update user config locally
-            configs: JSON.stringify(userConfigs),
-          })
-        )
+        .then(() => this.saveConfigs(JSON.stringify(userConfigs))) // update user config locally
         .catch((err) => console.log(err));
     },
   },

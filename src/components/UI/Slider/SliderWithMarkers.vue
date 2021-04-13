@@ -40,16 +40,7 @@ export default {
       clickAfterDragEnded: false, // indicates whether a marker click was invoked right after it was dragged
     };
   },
-  watch: {
-    // watch whenever "isDragDisabled" changes and update the marker
-    // colors accordingly
-    isDragDisabled() {
-      this.setDisabledMarkerColor();
-    },
-  },
   created() {
-    // set marker colors when instantiated
-    this.setDisabledMarkerColor();
     this.$nextTick(() => {
       this.setScreenProperties();
       window.addEventListener("resize", this.handleScreenSizeChange);
@@ -91,18 +82,6 @@ export default {
     },
   },
   methods: {
-    setDisabledMarkerColor() {
-      // set marker color to orange if plio is published else set it to
-      // default
-      if (this.isDragDisabled) this.setMarkerColor("#F78000");
-      else this.setMarkerColor("#10b981");
-    },
-    setMarkerColor(hexCode) {
-      // sets the incoming hexcode as the
-      // color of the slider thumb(marker)
-      let root = document.documentElement;
-      root.style.setProperty("--marker-color", hexCode);
-    },
     handleScreenSizeChange() {
       // invoked when the screen size is changing
       this.setScreenProperties();
@@ -160,11 +139,11 @@ export default {
           "w-full": markerActive,
           "z-0": markerActive,
           "z-20": !markerActive,
-          "marker-slider-thumb-inactive": !markerActive,
+          "marker-slider-thumb-inactive": !markerActive && !this.isDragDisabled,
+          "marker-slider-thumb-inactive-disabled": !markerActive && this.isDragDisabled,
           "bg-red-500": markerActive,
         },
         "w-6",
-        "bg-green-500",
       ];
     },
     getMarkerSlideMin(markerIndex) {
@@ -258,10 +237,6 @@ export default {
 </script>
 
 <style lang="postcss" scoped>
-:root {
-  --marker-color: "#10b981";
-}
-
 .slider {
   @apply appearance-none h-2 cursor-pointer bg-gray-300 focus:outline-none;
 }
@@ -273,10 +248,16 @@ export default {
   @apply appearance-none w-6 h-6 rounded-full bg-red-500 mt-8;
 }
 .marker-slider-thumb-inactive::-webkit-slider-thumb {
-  background-color: var(--marker-color);
+  @apply bg-green-500;
 }
 .marker-slider-thumb-inactive::-moz-slider-thumb {
   @apply bg-green-500;
+}
+.marker-slider-thumb-inactive-disabled::-webkit-slider-thumb {
+  @apply bg-primary;
+}
+.marker-slider-thumb-inactive-disabled::-moz-slider-thumb {
+  @apply bg-primary;
 }
 .main-slider-thumb::-webkit-slider-thumb {
   @apply appearance-none w-6 h-6 rounded-full bg-blue-500;
