@@ -15,6 +15,11 @@
         />
       </router-link>
 
+      <!-- workspace switcher -->
+      <div class="place-self-center hidden sm:flex" v-if="this.isAuthenticated">
+        <WorkspaceSwitcher id="locale" class="flex justify-center"></WorkspaceSwitcher>
+      </div>
+
       <!-- page heading -->
       <div
         v-if="isAuthenticated"
@@ -35,9 +40,9 @@
         ></icon-button>
       </div>
 
-      <!-- logout and locale switcher -->
       <div class="grid col-start-7 sm:gap-1 sm:justify-items-center">
         <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
+        <!-- logout -->
         <div v-if="!onLoginPage" class="text-lg sm:text-xl place-self-center">
           <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
             <button
@@ -54,16 +59,9 @@
             </button>
           </a>
         </div>
-        <div class="flex">
-          <div class="place-self-center" v-if="this.isAuthenticated">
-            <WorkspaceSwitcher
-              id="locale"
-              class="flex justify-center"
-            ></WorkspaceSwitcher>
-          </div>
-          <div class="place-self-center">
-            <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
-          </div>
+        <!-- locale switcher -->
+        <div class="place-self-center">
+          <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
         </div>
       </div>
       <user-properties ref="userProperties"></user-properties>
