@@ -117,7 +117,7 @@ export default {
     logoutUser() {
       // logs out the user
       this.unsetAccessToken().then(() => {
-        this.$router.push({ name: "Login" });
+        this.$router.replace({ name: "Login" });
       });
     },
     createNewPlio() {
@@ -143,7 +143,8 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("auth", ["isAuthenticated", "configs"]),
+    ...mapGetters("auth", ["isAuthenticated"]),
+    ...mapState("auth", ["configs"]),
     ...mapState("sync", ["pending"]),
     hasLocalUserConfigs() {
       // whether the use configs have been set

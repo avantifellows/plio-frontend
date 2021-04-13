@@ -96,10 +96,13 @@ export default {
       requestedOtp: false, // whether the user has requested OTP once
       resentOtp: false, // whether the user has requested to resend OTP
       invalidOtp: false, // whether the OTP is invalid
-      redirectParams: JSON.parse(this.params), // params for the route to be redirected to
     };
   },
   computed: {
+    redirectParams() {
+      // params for the route to be redirected to
+      return JSON.parse(this.params);
+    },
     phoneInputValidation() {
       // validation config for the phone text input
       return {

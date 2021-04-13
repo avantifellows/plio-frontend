@@ -305,7 +305,7 @@ export default {
       await PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
           // redirect to 404 if the plio is not published
-          if (plioDetails.status != "published") this.$router.push({ name: "404" });
+          if (plioDetails.status != "published") this.$router.replace({ name: "404" });
           this.items = plioDetails.items || [];
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.video_url);
@@ -406,7 +406,7 @@ export default {
     handleQueryError(err) {
       // handles error encountered when fetching plio or creating new session
       if (err.response && err.response.status == 404) {
-        this.$router.push({ name: "404" });
+        this.$router.replace({ name: "404" });
       } else {
         console.log(err);
       }
