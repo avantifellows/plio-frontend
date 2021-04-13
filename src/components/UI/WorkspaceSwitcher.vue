@@ -1,8 +1,14 @@
 <template>
   <div>
-    <select v-model="selectedWorkspace" @change="this.updateActiveWorkspace">
+    <select v-model="selectedWorkspace" @change="updateActiveWorkspace">
       <option value="">Personal Workspace</option>
-      <option v-for="workspace in this.workspaces" :key="workspace.id" :value="workspace.shortcode">{{workspace.name}}</option>
+      <option
+        v-for="workspace in workspaces"
+        :key="workspace.id"
+        :value="workspace.shortcode"
+      >
+        {{ workspace.name }}
+      </option>
     </select>
   </div>
 </template>
@@ -13,25 +19,25 @@ import { mapActions, mapState } from "vuex";
 export default {
   name: "WorkspaceSwitcher",
   computed: {
-    ...mapState('auth', ["activeWorkspace", "user"]),
+    ...mapState("auth", ["activeWorkspace", "user"]),
     workspaces() {
-        return this.user ? this.user.organizations : [];
+      return this.user ? this.user.organizations : [];
     },
   },
   data() {
     return {
       selectedWorkspace: "",
-    }
+    };
   },
   methods: {
-    ...mapActions('auth', ['setActiveWorkspace']),
+    ...mapActions("auth", ["setActiveWorkspace"]),
     updateActiveWorkspace() {
       this.setActiveWorkspace(this.selectedWorkspace);
-      this.$router.push({name: 'Home', params: { org: this.activeWorkspace }});
-    }
+      this.$router.push({ name: "Home", params: { org: this.activeWorkspace } });
+    },
   },
   mounted() {
     this.selectedWorkspace = this.activeWorkspace;
-  }
+  },
 };
 </script>

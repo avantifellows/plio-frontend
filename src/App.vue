@@ -16,7 +16,7 @@
       </router-link>
 
       <!-- workspace switcher -->
-      <div class="place-self-center hidden sm:flex" v-if="this.isAuthenticated">
+      <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
         <WorkspaceSwitcher id="locale" class="flex justify-center"></WorkspaceSwitcher>
       </div>
 
@@ -154,6 +154,10 @@ export default {
     ...mapGetters("auth", ["isAuthenticated"]),
     ...mapState("auth", ["configs"]),
     ...mapState("sync", ["pending"]),
+    showWorkspaceSwitcher() {
+      // whether to show workspace switcher
+      return this.isAuthenticated && this.onHomePage;
+    },
     hasLocalUserConfigs() {
       // whether the user configs have been set
       return this.configs != null;
@@ -161,6 +165,10 @@ export default {
     onLoginPage() {
       // whether the current page is the login page
       return this.$route.name == "Login";
+    },
+    onHomePage() {
+      // whether the current page is the home page
+      return this.$route.name == "Home";
     },
     showCreateButton() {
       // whether to show the Create button
