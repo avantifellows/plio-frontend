@@ -105,7 +105,6 @@ export default {
     };
   },
   computed: {
-    ...mapState("auth", ["userId"]),
     phoneInputValidation() {
       // validation config for the phone text input
       return {

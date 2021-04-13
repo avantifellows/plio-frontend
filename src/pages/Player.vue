@@ -48,6 +48,8 @@ import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import ItemModal from "../components/Player/ItemModal.vue";
 
+import { mapState } from "vuex";
+
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
 var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
@@ -151,8 +153,6 @@ export default {
       videoId: "", // video Id for the Plio
       source: "unknown", // source from where the plio was accessed - can be passed as param in the plio url
       componentProperties: {}, // properties of the plio player
-      // TODO: dummy user ID
-      userId: 1,
       items: [], // holds the list of all items for this plio
       itemResponses: [], // holds the responses to each item
       videoSource: "youtube", // source for the video
@@ -231,6 +231,7 @@ export default {
     },
   },
   computed: {
+    ...mapState("auth", ["userId"]),
     isVideoIdValid() {
       // whether the video Id is valid
       return this.videoId != "";

@@ -1,7 +1,6 @@
 import UserService from "@/services/API/User.js";
 
 // Reference: https://medium.com/front-end-weekly/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
-const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 const CONFIG_SUCCESS = "CONFIG_SUCCESS";
 const START_LOADING = "START_LOADING";
 const STOP_LOADING = "STOP_LOADING";
@@ -10,11 +9,11 @@ const STOP_UPLOADING = "STOP_UPLOADING";
 
 const state = {
   accessToken: null,
-  userId: localStorage.getItem("phone"),
   configs: localStorage.getItem("configs"),
   pending: false,
   uploading: false,
   user: null,
+  userId: null,
 };
 
 const getters = {
@@ -72,12 +71,11 @@ const mutations = {
   },
   setUser(state, user) {
     state.user = user;
+    state.userId = user.id;
   },
   unsetUser(state) {
     state.user = null;
-  },
-  [LOGIN_SUCCESS](state) {
-    state.userId = localStorage.getItem("phone");
+    state.userId = null;
   },
   [CONFIG_SUCCESS](state) {
     state.configs = localStorage.getItem("configs");
