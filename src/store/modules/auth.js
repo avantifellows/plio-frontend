@@ -1,12 +1,6 @@
 import UserService from "@/services/API/User.js";
 
 // Reference: https://medium.com/front-end-weekly/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
-const CONFIG_SUCCESS = "CONFIG_SUCCESS";
-const START_LOADING = "START_LOADING";
-const STOP_LOADING = "STOP_LOADING";
-const START_UPLOADING = "START_UPLOADING";
-const STOP_UPLOADING = "STOP_UPLOADING";
-
 const state = {
   accessToken: null,
   configs: localStorage.getItem("configs"),
@@ -40,25 +34,25 @@ const actions = {
     await commit("unsetUser");
   },
   saveConfigs({ commit }, creds) {
-    commit(START_LOADING); // show spinner
+    commit("startLoading");
     return new Promise((resolve) => {
       localStorage.setItem("configs", creds.configs);
-      commit(STOP_LOADING);
-      commit(CONFIG_SUCCESS);
+      commit("stopLoading");
+      commit("saveConfigs");
       resolve();
     });
   },
   startLoading({ commit }) {
-    commit(START_LOADING);
+    commit("startLoading");
   },
   stopLoading({ commit }) {
-    commit(STOP_LOADING);
+    commit("stopLoading");
   },
   startUploading({ commit }) {
-    commit(START_UPLOADING);
+    commit("startUploading");
   },
   stopUploading({ commit }) {
-    commit(STOP_UPLOADING);
+    commit("stopUploading");
   },
 };
 
@@ -77,19 +71,19 @@ const mutations = {
     state.user = null;
     state.userId = null;
   },
-  [CONFIG_SUCCESS](state) {
+  saveConfigs(state) {
     state.configs = localStorage.getItem("configs");
   },
-  [START_LOADING](state) {
+  startLoading(state) {
     state.pending = true;
   },
-  [STOP_LOADING](state) {
+  stopLoading(state) {
     state.pending = false;
   },
-  [START_UPLOADING](state) {
+  startUploading(state) {
     state.uploading = true;
   },
-  [STOP_UPLOADING](state) {
+  stopUploading(state) {
     state.uploading = false;
   },
 };
