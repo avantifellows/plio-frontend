@@ -9,7 +9,9 @@ export default {
     // returns the details for one plio
     return Promise.all([
       apiClient().get(pliosEndpoint + plioId),
-      apiClient().get(itemsEndpoint + "?plio=" + plioId),
+      apiClient().get(itemsEndpoint, {
+        params: { plio: plioId },
+      }),
     ]).then(([plio, items]) => {
       // preparing plio details to be consumed by
       // the components
