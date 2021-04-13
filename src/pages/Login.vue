@@ -238,7 +238,8 @@ export default {
     },
     routeAfterLogin() {
       // route user to the relevant page after login is complete
-      if (this.redirectTo == "") {
+      console.log(this.redirectTo);
+      if (this.redirectTo == "" || this.redirectTo == "/") {
         // there is no other page to redirect the user to
         // redirect to the home page
         this.$router.replace({ name: "Home" });

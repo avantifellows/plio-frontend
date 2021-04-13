@@ -119,8 +119,8 @@ Router auth logic end
 // set organization in vuex state if the route org parameter is in vuex user organizations array
 router.beforeEach((to, from, next) => {
   if (
-    to.params.org !== "undefined" &&
-    to.params.org !== "" &&
+    to.params.org != undefined &&
+    to.params.org != "" &&
     store.getters["auth/isAuthenticated"]
   ) {
     let orgShortcodes = store.state.auth.user.organizations.map(
