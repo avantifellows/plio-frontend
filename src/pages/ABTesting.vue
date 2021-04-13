@@ -20,11 +20,11 @@ export default {
   created() {
     this.getAssignment();
   },
-  computed: mapState('auth', ['userId']),
+  computed: mapState("auth", ["userId"]),
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions('auth', ['saveConfigs']),
+    ...mapActions("auth", ["saveConfigs"]),
     getAssignment() {
       ExperimentAPIService.getExperimentAssignment(this.id, this.userId)
         .then((res) => {
@@ -35,14 +35,10 @@ export default {
           this.userConfigs = res.data.config;
           this.plioId = res.data.plioId;
         })
-        .then(() =>
-          this.saveConfigs({
-            configs: JSON.stringify(this.userConfigs),
-          })
-        )
+        .then(() => this.saveConfigs(JSON.stringify(this.userConfigs)))
         .then(() => {
           console.log("Assignment: " + this.assignment);
-          this.$router.push({
+          this.$router.replace({
             name: "Player",
             params: { id: this.plioId },
             query: { experiment: this.id },
@@ -53,7 +49,7 @@ export default {
 
     handleQueryError(err) {
       if (err.response && err.response.status == 404) {
-        this.$router.push({ name: "404" });
+        this.$router.replace({ name: "404" });
       } else {
         console.log(err);
       }

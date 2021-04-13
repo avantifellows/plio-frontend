@@ -68,7 +68,7 @@
 <script>
 import UserService from "@/services/API/User.js";
 
-import { mapState, mapActions } from "vuex";
+import { mapActions } from "vuex";
 import InputNumber from "../components/UI/Text/InputNumber.vue";
 import IconButton from "../components/UI/Buttons/IconButton.vue";
 
@@ -96,11 +96,13 @@ export default {
       requestedOtp: false, // whether the user has requested OTP once
       resentOtp: false, // whether the user has requested to resend OTP
       invalidOtp: false, // whether the OTP is invalid
-      redirectParams: JSON.parse(this.params), // params for the route to be redirected to
     };
   },
   computed: {
-    ...mapState("auth", ["userId"]),
+    redirectParams() {
+      // params for the route to be redirected to
+      return JSON.parse(this.params);
+    },
     phoneInputValidation() {
       // validation config for the phone text input
       return {

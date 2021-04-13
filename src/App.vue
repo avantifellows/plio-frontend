@@ -101,22 +101,23 @@ export default {
     // remove the listener for the event of closing of the browser
     window.removeEventListener("beforeunload", this.onClose);
   },
-  mounted() {
-    if (this.isAuthenticated && !this.hasLocalUserConfigs) {
-      // fetch user config for logged in users if not already present
-      this.$refs.userProperties.saveLocalUserConfigs();
-    }
-    // set locale based on their config
-    this.$refs.userProperties.setLocaleFromUserConfig();
-  },
+  // mounted() {
+  //   if (this.isAuthenticated && !this.hasLocalUserConfigs) {
+  //     // fetch user config for logged in users if not already present
+  //     this.$refs.userProperties.saveLocalUserConfigs();
+  //   }
+  //   // set locale based on their config
+  //   this.$refs.userProperties.setLocaleFromUserConfig();
+  // },
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions('auth', ["unsetAccessToken", "startLoading", "stopLoading"]),
+    ...mapActions("auth", ["unsetAccessToken"]),
+    ...mapActions("sync", ["startLoading", "stopLoading"]),
     logoutUser() {
       // logs out the user
       this.unsetAccessToken().then(() => {
-        this.$router.push({ name: "Login" });
+        this.$router.replace({ name: "Login" });
       });
     },
     createNewPlio() {
@@ -142,10 +143,11 @@ export default {
     },
   },
   computed: {
-    ...mapGetters('auth', ["isAuthenticated"]),
-    ...mapState('auth', ["pending", "configs"]),
+    ...mapGetters("auth", ["isAuthenticated"]),
+    ...mapState("auth", ["configs"]),
+    ...mapState("sync", ["pending"]),
     hasLocalUserConfigs() {
-      // whether the use configs have been set
+      // whether the user configs have been set
       return this.configs != null;
     },
     onLoginPage() {
