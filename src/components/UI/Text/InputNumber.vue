@@ -121,11 +121,11 @@ export default {
     },
     isValidationEnabled() {
       // whether input validation is on
-      return this.validation["enabled"];
+      return this.validation["enabled"] && this.validationMessage != "";
     },
     isValid() {
       // whether the input is valid
-      return this.isValidationEnabled && this.validation["isValid"];
+      return this.validation["isValid"];
     },
     validationColorClass() {
       // https://v3.vuejs.org/guide/class-and-style.html#class-and-style-bindings
@@ -185,10 +185,8 @@ export default {
     },
     keyPress(event) {
       // invoked when a key is pressed
-      if (this.maxLength != null) {
-        if (this.localValue.length == this.maxLength) {
-          event.preventDefault();
-        }
+      if (this.maxLength != null && this.localValue.length == this.maxLength) {
+        event.preventDefault();
       }
     },
     startIconSelected() {

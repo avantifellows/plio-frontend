@@ -1,9 +1,9 @@
 <template>
   <div class="sm:grid sm:grid-cols-4 md:grid-cols-3 p-10">
-    <!-- dummy grid to position the main grid correctly -->
-    <div class="sm:col-span-1"></div>
     <!-- main grid with the login functionality -->
-    <div class="flex flex-col w-full sm:col-span-2 md:col-span-1">
+    <div
+      class="flex flex-col w-full sm:col-start-2 sm:col-span-2 md:col-start-2 md:col-span-1"
+    >
       <!-- prompt to enter phone number -->
       <p class="text-center font-bold text-lg lg:text-xl xl:text-2xl">
         {{ $t("login.learner.phone_prompt") }}
@@ -23,7 +23,7 @@
         :maxLength="6"
         v-if="requestedOtp"
       ></input-number>
-      <!-- input box to request for OTP -->
+      <!-- button to request for OTP -->
       <icon-button
         class="mt-2"
         @click="requestOtp"
@@ -32,16 +32,16 @@
         v-if="!requestedOtp"
         :isDisabled="!isRequestOtpEnabled"
       ></icon-button>
-      <!-- input box to submit OTP -->
+      <!-- button to submit OTP -->
       <icon-button
         class="mt-2"
         @click="phoneLogin"
         :titleConfig="submitOTPTitleConfig"
         :buttonClass="submitOTPButtonClass"
         v-if="requestedOtp"
-        :disabled="!isSubmitEnabled"
+        :disabled="!isSubmitOTPEnabled"
       ></icon-button>
-      <!-- input box to request resending OTP -->
+      <!-- button to request resending OTP -->
       <icon-button
         @click="resendOtp"
         :titleConfig="resendOTPTitleConfig"
@@ -62,14 +62,10 @@
         @click="googleLogin"
       ></icon-button>
     </div>
-    <!-- dummy grid to position the main grid correctly -->
-    <div class="sm:col-span-1"></div>
-    <user-properties ref="userProperties"></user-properties>
   </div>
 </template>
 
 <script>
-import UserProperties from "@/services/Config/User.vue";
 import UserService from "@/services/API/User.js";
 
 import { mapActions } from "vuex";
@@ -90,7 +86,6 @@ export default {
     },
   },
   components: {
-    UserProperties,
     InputNumber,
     IconButton,
   },
@@ -118,16 +113,16 @@ export default {
       // validation config for the otp text input
       return {
         enabled: true,
-        isValid: this.isSubmitEnabled,
-        validMessage: "OTP is valid",
-        invalidMessage: "OTP is invalid",
+        isValid: this.isSubmitOTPEnabled,
+        validMessage: "",
+        invalidMessage: "OTP should be 6 digits long",
       };
     },
     isRequestOtpEnabled() {
       // whether the user can request for OTP
       return this.phoneInput && this.isPhoneValid();
     },
-    isSubmitEnabled() {
+    isSubmitOTPEnabled() {
       // whether the submit button for OTP is valid
       return this.otpInput && this.isOtpValid();
     },
@@ -243,10 +238,10 @@ export default {
       if (this.redirectTo == "") {
         // there is no other page to redirect the user to
         // redirect to the home page
-        this.$router.push({ name: "Home" });
+        this.$router.replace({ name: "Home" });
       } else {
         // redirect to the relevant page with its params
-        this.$router.push({ name: this.redirectTo, params: this.redirectParams });
+        this.$router.replace({ name: this.redirectTo, params: this.redirectParams });
       }
     },
   },
