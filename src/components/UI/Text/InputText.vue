@@ -153,7 +153,7 @@ export default {
     },
     isValidationEnabled() {
       // whether input validation is on
-      return this.validation["enabled"];
+      return this.validation["enabled"] && this.validationMessage != "";
     },
     isValid() {
       // whether the input is valid
