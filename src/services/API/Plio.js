@@ -8,8 +8,10 @@ export default {
   async getPlio(plioId) {
     // returns the details for one plio
     return Promise.all([
-      apiClient().get(pliosEndpoint + plioId + "/"),
-      apiClient().get(itemsEndpoint + "?plio=" + plioId),
+      apiClient().get(pliosEndpoint + plioId),
+      apiClient().get(itemsEndpoint, {
+        params: { plio: plioId },
+      }),
     ]).then(([plio, items]) => {
       // preparing plio details to be consumed by
       // the components
@@ -29,9 +31,22 @@ export default {
     });
   },
 
-  getAllPlios() {
+  getAllPlios(userId = null) {
     // returns all the plios created by the user
-    return apiClient().get(pliosEndpoint);
+    if (userId == null) return apiClient().get(pliosEndpoint);
+    else
+      return apiClient().get(pliosEndpoint, {
+        params: { user: userId },
+      });
+  },
+
+  getAllPlioIds(userId = null) {
+    var url = pliosEndpoint + "list_uuid";
+    if (userId == null) return apiClient().get(url);
+    else
+      return apiClient().get(url, {
+        params: { user: userId },
+      });
   },
 
   createPlio() {
