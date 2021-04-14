@@ -303,7 +303,7 @@ export default {
     },
     async fetchPlioCreateSession() {
       // fetches plio details and creates a new session
-      await PlioAPIService.getPlio(this.plioId)
+      await PlioAPIService.getPlio(this.plioId, true)
         .then((plioDetails) => {
           // redirect to 404 if the plio is not published
           if (plioDetails.status != "published") this.$router.replace({ name: "404" });

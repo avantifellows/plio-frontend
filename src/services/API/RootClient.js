@@ -1,5 +1,6 @@
 import axios from "axios";
 import store from "../../store";
+import Router from "../../router";
 
 let headers = {
   Accept: "application/json",
@@ -15,7 +16,7 @@ const client = axios.create({
 // the interceptor below is doing the following things:
 // 1. Add trailing slash to every API call (if it's not there)
 // 2. Set access token to the API calls
-// 3. Set Organization HTTP header for workspace settings
+// 3. Retrieve organization id from current route and update activeWorkspace in vuex store. Then set Organization HTTP header for workspace.
 client.interceptors.request.use(
   (config) => {
     if (config.url[config.url.length - 1] !== "/") {
@@ -27,6 +28,13 @@ client.interceptors.request.use(
     if (store.state.auth != null) {
       if (store.state.auth.accessToken) {
         config.headers.Authorization = `Bearer ${store.state.auth.accessToken.access_token}`;
+      }
+
+      let currentRoute = Router.currentRoute.value;
+      if (currentRoute.params.org != undefined) {
+        store.dispatch("auth/setActiveWorkspace", currentRoute.params.org);
+      } else {
+        store.dispatch("auth/unsetActiveWorkspace");
       }
       config.headers.Organization = store.state.auth.activeWorkspace;
     }

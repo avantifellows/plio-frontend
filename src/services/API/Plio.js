@@ -5,10 +5,15 @@ import QuestionAPIService from "@/services/API/Question.js";
 import { pliosEndpoint, itemsEndpoint } from "@/services/API/Endpoints.js";
 
 export default {
-  async getPlio(plioId) {
+  async getPlio(plioId, playMode = false) {
     // returns the details for one plio
+    let plioEndpoint = pliosEndpoint + plioId;
+    if (playMode) {
+      plioEndpoint += "/play";
+    }
+
     return Promise.all([
-      apiClient().get(pliosEndpoint + plioId),
+      apiClient().get(plioEndpoint),
       apiClient().get(itemsEndpoint, {
         params: { plio: plioId },
       }),

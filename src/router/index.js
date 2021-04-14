@@ -112,30 +112,4 @@ router.beforeEach((to, from, next) => {
   }
 });
 
-/*
-Router auth logic end
-*/
-
-// set organization in vuex state if the route org parameter is in vuex user organizations array
-router.beforeEach((to, from, next) => {
-  if (
-    to.params.org != undefined &&
-    to.params.org != "" &&
-    store.getters["auth/isAuthenticated"]
-  ) {
-    let orgShortcodes = store.state.auth.user.organizations.map(
-      (organization) => organization.shortcode
-    );
-    store.dispatch("auth/setActiveWorkspace", to.params.org);
-    if (!orgShortcodes.includes(to.params.org)) {
-      // redirect to default page without organization id
-      store.dispatch("auth/unsetActiveWorkspace");
-      next({ name: to.name });
-    } else {
-      next();
-    }
-  } else {
-    next();
-  }
-});
 export default router;
