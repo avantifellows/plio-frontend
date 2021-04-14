@@ -40,33 +40,20 @@ export default {
     });
   },
 
-  getAllPlios(userId = null) {
-    // returns all the plios created by the user if userId is present
-    // else returns all the plios
-    if (userId == null) return apiClient().get(pliosEndpoint);
-    else
-      return apiClient().get(pliosEndpoint, {
-        params: { user: userId },
-      });
+  getAllPlios() {
+    // returns all the plios created by the user
+    return apiClient().get(pliosEndpoint);
   },
 
-  getAllPlioIds(userId = null) {
+  getAllPlioIds() {
     // returns a flat list of plio uuids
-    // created by userId (if available)
-    var url = pliosEndpoint + "list_uuid";
-    if (userId == null) return apiClient().get(url);
-    else
-      return apiClient().get(url, {
-        params: { user: userId },
-      });
+    // created by the user
+    return apiClient().get(pliosEndpoint + "list_uuid");
   },
 
   createPlio() {
     // creates a new draft plio
-    var newPlioData = {
-      created_by: 1,
-    };
-    return apiClient().post(pliosEndpoint, newPlioData);
+    return apiClient().post(pliosEndpoint);
   },
 
   async updatePlio(plioValue, plioId) {

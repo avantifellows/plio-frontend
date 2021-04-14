@@ -5,7 +5,7 @@
     >
       <!-- top left logo -->
       <router-link
-        :to="{ name: 'Home' }"
+        :to="{ name: 'Home', params: { org: activeWorkspace } }"
         class="h-14 w-11 justify-self-start place-self-center"
       >
         <img
@@ -17,7 +17,7 @@
 
       <!-- workspace switcher -->
       <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
-        <WorkspaceSwitcher id="locale" class="flex justify-center"></WorkspaceSwitcher>
+        <WorkspaceSwitcher class="flex justify-center"></WorkspaceSwitcher>
       </div>
 
       <!-- page heading -->

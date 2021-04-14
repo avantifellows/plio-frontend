@@ -16,7 +16,7 @@
 
       <!-- plio title -->
       <div>
-        <p class="text-xl font-bold">{{ title }}</p>
+        <p class="text-l sm:text-xl font-bold w-64 sm:w-auto">{{ title }}</p>
       </div>
 
       <!-- plio link -->
@@ -66,10 +66,20 @@ import URL from "@/components/UI/Text/URL.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
+import { mapState } from "vuex";
 
 export default {
   name: "PlioThumbnail",
-  props: ["plioId"],
+  props: {
+    plioId: {
+      default: "",
+      type: String,
+    },
+    org: {
+      default: "",
+      type: String,
+    },
+  },
   components: {
     URL,
     IconButton,
@@ -124,6 +134,7 @@ export default {
   },
 
   computed: {
+    ...mapState("auth", ["activeWorkspace"]),
     playButtonTooltip() {
       return this.isPublished ? "Play this plio" : "Cannot play a draft plio";
     },
@@ -161,7 +172,9 @@ export default {
       if (this.plioId == "") {
         return "";
       }
-      return process.env.VUE_APP_FRONTEND + "/#/play/" + this.plioId;
+      var baseURL = process.env.VUE_APP_FRONTEND + "/#";
+      if (this.org != "") baseURL += "/" + this.org;
+      return baseURL + "/play/" + this.plioId;
     },
   },
 
@@ -174,10 +187,16 @@ export default {
       });
     },
     playPlio() {
-      this.$router.push({ name: "Player", params: { plioId: this.plioId } });
+      this.$router.push({
+        name: "Player",
+        params: { plioId: this.plioId, org: this.activeWorkspace },
+      });
     },
     editPlio() {
-      this.$router.push({ name: "Editor", params: { plioId: this.plioId } });
+      this.$router.push({
+        name: "Editor",
+        params: { plioId: this.plioId, org: this.activeWorkspace },
+      });
     },
     duplicatePlio() {},
   },
