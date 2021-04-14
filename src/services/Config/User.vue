@@ -8,8 +8,8 @@ import { mapState, mapGetters, mapActions } from "vuex";
 
 export default {
   computed: {
-    ...mapState(["userId", "configs"]),
-    ...mapGetters(["isAuthenticated"]),
+    ...mapState("auth", ["userId", "configs"]),
+    ...mapGetters("auth", ["isAuthenticated"]),
   },
   methods: {
     // object spread operator

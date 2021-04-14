@@ -20,10 +20,18 @@ export default {
   },
   // namespaced helpers
   // https://vuex.vuejs.org/guide/modules.html#binding-helpers-with-namespace
-  computed: mapState("plioItems", ["allPlios"]),
+  computed: {
+    ...mapState("plioItems", ["allPlios"]),
+    ...mapState("auth", ["activeWorkspace"]),
+  },
   methods: mapActions("plioItems", ["fetchPlios"]),
   created() {
     this.fetchPlios();
+  },
+  watch: {
+    activeWorkspace() {
+      this.fetchPlios();
+    },
   },
 };
 </script>

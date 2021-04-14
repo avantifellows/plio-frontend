@@ -5,12 +5,11 @@ import {
 } from "@/services/API/Endpoints.js";
 
 export default {
-  createSession(plioId, userId) {
+  createSession(plioId) {
     // creates a new session
     return apiClient()
       .post(sessionsEndpoint, {
         plio: plioId,
-        user: userId,
       })
       .then((response) => {
         // convert string answers to int
@@ -25,13 +24,13 @@ export default {
 
   updateSession(sessionId, sessionDetails) {
     // updates a session
-    return apiClient().put(sessionsEndpoint + sessionId + "/", sessionDetails);
+    return apiClient().put(sessionsEndpoint + sessionId, sessionDetails);
   },
 
   updateSessionAnswer(sessionAnswerDetails) {
     // updates a session's answer
     return apiClient().put(
-      sessionAnswersEndpoint + sessionAnswerDetails.id + "/",
+      sessionAnswersEndpoint + sessionAnswerDetails.id,
       sessionAnswerDetails
     );
   },

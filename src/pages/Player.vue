@@ -48,8 +48,6 @@ import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import ItemModal from "../components/Player/ItemModal.vue";
 
-import { mapState } from "vuex";
-
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
 var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
@@ -222,9 +220,12 @@ export default {
       default: "",
       type: String,
     },
+    org: {
+      default: "",
+      type: String,
+    },
   },
   computed: {
-    ...mapState("auth", ["userId"]),
     isVideoIdValid() {
       // whether the video Id is valid
       return this.videoId != "";
@@ -302,7 +303,7 @@ export default {
     },
     async fetchPlioCreateSession() {
       // fetches plio details and creates a new session
-      await PlioAPIService.getPlio(this.plioId)
+      await PlioAPIService.getPlio(this.plioId, true)
         .then((plioDetails) => {
           // redirect to 404 if the plio is not published
           if (plioDetails.status != "published") this.$router.replace({ name: "404" });
@@ -339,45 +340,42 @@ export default {
     },
     createSession() {
       // creates new user-plio session
-      SessionAPIService.createSession(this.plioDBId, this.userId).then(
-        (sessionDetails) => {
-          this.sessionDBId = sessionDetails.id;
-          // reset the user to where they left off if they are returning
-          if (sessionDetails.last_event != null) {
-            this.currentTimestamp = sessionDetails.last_event.player_time;
-          }
-
-          // handle retention array
-          if (sessionDetails.retention == null || sessionDetails.retention == "") {
-            // retention array not set - create and set it
-            this.retention = this.createEmptyArray(sessionDetails.plio.video.duration);
-            this.updateSession();
-          } else {
-            // set retention value if it exists
-            this.retention = this.retentionStrToArray(sessionDetails.retention);
-          }
-
-          // set watch time
-          this.watchTime = sessionDetails.watch_time;
-
-          // set item responses
-          sessionDetails.session_answers.forEach((sessionAnswer) => {
-            // removing the _id in keys like session_id, question_id
-            // so that we can directly update the answers without having to
-            // create another dictionary every time we want to upload
-            var itemResponse = {};
-            for (var key of Object.keys(sessionAnswer)) {
-              itemResponse[key.replace("_id", "")] = sessionAnswer[key];
-            }
-            this.itemResponses.push(itemResponse);
-          });
+      SessionAPIService.createSession(this.plioDBId).then((sessionDetails) => {
+        this.sessionDBId = sessionDetails.id;
+        // reset the user to where they left off if they are returning
+        if (sessionDetails.last_event != null) {
+          this.currentTimestamp = sessionDetails.last_event.player_time;
         }
-      );
+
+        // handle retention array
+        if (sessionDetails.retention == null || sessionDetails.retention == "") {
+          // retention array not set - create and set it
+          this.retention = this.createEmptyArray(sessionDetails.plio.video.duration);
+          this.updateSession();
+        } else {
+          // set retention value if it exists
+          this.retention = this.retentionStrToArray(sessionDetails.retention);
+        }
+
+        // set watch time
+        this.watchTime = sessionDetails.watch_time;
+
+        // set item responses
+        sessionDetails.session_answers.forEach((sessionAnswer) => {
+          // removing the _id in keys like session_id, question_id
+          // so that we can directly update the answers without having to
+          // create another dictionary every time we want to upload
+          var itemResponse = {};
+          for (var key of Object.keys(sessionAnswer)) {
+            itemResponse[key.replace("_id", "")] = sessionAnswer[key];
+          }
+          this.itemResponses.push(itemResponse);
+        });
+      });
     },
     updateSession() {
       // update the session data on the server
       var sessionDetails = {
-        user: this.userId,
         plio: this.plioDBId,
         watch_time: this.watchTime,
         retention: this.retentionArrayToStr(this.retention),

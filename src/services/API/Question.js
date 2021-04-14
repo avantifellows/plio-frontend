@@ -14,7 +14,7 @@ export default {
   updateQuestion(questionDetails) {
     // API to update a question in the DB
     return apiClient().put(
-      questionsEndpoint + questionDetails.id + "/",
+      questionsEndpoint + questionDetails.id,
       questionDetails
     );
   },

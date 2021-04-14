@@ -9,7 +9,6 @@
       <div class="flex flex-col ml-5 mr-5">
         <!--- plio link -->
         <URL :link="plioLink" class="justify-center m-4"></URL>
-
         <div class="justify-center">
           <!--- video preview -->
           <div v-if="!isVideoIdValid" class="flex justify-center">
@@ -185,6 +184,10 @@ export default {
       default: "",
       type: String,
     },
+    org: {
+      default: "",
+      type: String,
+    },
   },
   data() {
     return {
@@ -296,7 +299,6 @@ export default {
     },
   },
   computed: {
-    ...mapState("auth", ["userId"]),
     ...mapState("sync", ["uploading"]),
     player() {
       // returns the player instance
@@ -429,7 +431,9 @@ export default {
       if (this.plioId == "") {
         return "";
       }
-      return process.env.VUE_APP_FRONTEND + "/#/play/" + this.plioId;
+      var baseURL = process.env.VUE_APP_FRONTEND + "/#";
+      if (this.org != "") baseURL += "/" + this.org;
+      return baseURL + "/play/" + this.plioId;
     },
     isVideoIdValid() {
       // whether the video Id is valid
@@ -635,17 +639,19 @@ export default {
     },
     async loadPlio() {
       // fetch plio details
-      await PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
-        this.items = plioDetails.items || [];
-        this.videoURL = plioDetails.video_url || "";
-        this.plioTitle = plioDetails.plioTitle || "";
-        this.status = plioDetails.status;
-        if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
-          this.lastUpdated = new Date(plioDetails.updated_at);
-        this.hasUnpublishedChanges = false;
-        this.videoDBId = plioDetails.videoDBId;
-        this.plioDBId = plioDetails.plioDBId;
-      });
+      await PlioAPIService.getPlio(this.plioId)
+        .then((plioDetails) => {
+          this.items = plioDetails.items || [];
+          this.videoURL = plioDetails.video_url || "";
+          this.plioTitle = plioDetails.plioTitle || "";
+          this.status = plioDetails.status;
+          if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
+            this.lastUpdated = new Date(plioDetails.updated_at);
+          this.hasUnpublishedChanges = false;
+          this.videoDBId = plioDetails.videoDBId;
+          this.plioDBId = plioDetails.plioDBId;
+        })
+        .catch(() => this.$router.replace({ name: "404" }));
     },
     checkAndSavePlio() {
       // ensures that requests are made after a minimum time interval
@@ -672,7 +678,6 @@ export default {
       var plioValue = {
         name: this.plioTitle,
         status: this.status,
-        created_by: this.userId,
         items: this.items,
         videoDBId: this.videoDBId,
         url: this.videoURL,

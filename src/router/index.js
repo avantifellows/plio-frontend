@@ -8,12 +8,18 @@ import store from "../store";
 const routes = [
   {
     path: "/",
+    redirect: {
+      name: "Login",
+    },
+  },
+  {
+    path: "/:org?/home",
     name: "Home",
     component: Home,
     meta: { requiresAuth: true },
   },
   {
-    path: "/edit/:plioId",
+    path: "/:org?/edit/:plioId",
     name: "Editor",
     component: Editor,
     props: true,
@@ -29,7 +35,7 @@ const routes = [
     meta: { guest: true },
   },
   {
-    path: "/play/:plioId",
+    path: "/:org?/play/:plioId",
     name: "Player",
     component: Player,
     query: {
@@ -44,7 +50,7 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: "/experiment/:id",
+    path: "/:org?/experiment/:id",
     name: "ABTesting",
     component: () => import("@/pages/ABTesting"),
     props: true,
@@ -109,5 +115,19 @@ router.beforeEach((to, from, next) => {
 /*
 Router auth logic end
 */
+
+// set organization in vuex state if the route org parameter is in vuex user organizations array
+router.beforeEach((to, from, next) => {
+  if (!store.getters["auth/isAuthenticated"]) {
+    next();
+    return;
+  }
+  if (to.params.org != "" && to.params.org != undefined) {
+    store.dispatch("auth/setActiveWorkspace", to.params.org);
+  } else {
+    store.dispatch("auth/unsetActiveWorkspace");
+  }
+  next();
+});
 
 export default router;

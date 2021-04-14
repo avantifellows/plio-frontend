@@ -15,6 +15,11 @@
         />
       </router-link>
 
+      <!-- workspace switcher -->
+      <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
+        <WorkspaceSwitcher id="locale" class="flex justify-center"></WorkspaceSwitcher>
+      </div>
+
       <!-- page heading -->
       <div
         v-if="isAuthenticated"
@@ -35,9 +40,9 @@
         ></icon-button>
       </div>
 
-      <!-- logout and locale switcher -->
       <div class="grid col-start-7 sm:gap-1 sm:justify-items-center">
         <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
+        <!-- logout -->
         <div v-if="!onLoginPage" class="text-lg sm:text-xl place-self-center">
           <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
             <button
@@ -54,6 +59,7 @@
             </button>
           </a>
         </div>
+        <!-- locale switcher -->
         <div class="place-self-center">
           <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
         </div>
@@ -67,6 +73,7 @@
 </template>
 
 <script>
+import WorkspaceSwitcher from "@/components/UI/WorkspaceSwitcher.vue";
 import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
 import UserProperties from "@/services/Config/User.vue";
 import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
@@ -77,6 +84,7 @@ import PlioAPIService from "@/services/API/Plio.js";
 
 export default {
   components: {
+    WorkspaceSwitcher,
     LocaleSwitcher,
     UserProperties,
     LoadingSpinner,
@@ -129,7 +137,7 @@ export default {
         if (response.status == 201) {
           this.$router.push({
             name: "Editor",
-            params: { plioId: response.data.uuid },
+            params: { plioId: response.data.uuid, org: this.activeWorkspace },
           });
         } else {
           this.$refs.toast.show("error", "Error creating Plio", this.toastLife);
@@ -144,8 +152,12 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
-    ...mapState("auth", ["configs"]),
+    ...mapState("auth", ["configs", "user", "activeWorkspace"]),
     ...mapState("sync", ["pending"]),
+    showWorkspaceSwitcher() {
+      // whether to show workspace switcher
+      return this.isAuthenticated && this.onHomePage && this.user.organizations.length;
+    },
     hasLocalUserConfigs() {
       // whether the user configs have been set
       return this.configs != null;
@@ -153,6 +165,10 @@ export default {
     onLoginPage() {
       // whether the current page is the login page
       return this.$route.name == "Login";
+    },
+    onHomePage() {
+      // whether the current page is the home page
+      return this.$route.name == "Home";
     },
     showCreateButton() {
       // whether to show the Create button
