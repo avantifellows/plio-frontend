@@ -122,12 +122,9 @@ router.beforeEach((to, from, next) => {
     next();
     return;
   }
-  console.log(to);
   if (to.params.org != "" && to.params.org != undefined) {
-    console.log("here");
     store.dispatch("auth/setActiveWorkspace", to.params.org);
   } else {
-    console.log("no here");
     store.dispatch("auth/unsetActiveWorkspace");
   }
   next();
