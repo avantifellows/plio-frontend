@@ -5,10 +5,19 @@ import QuestionAPIService from "@/services/API/Question.js";
 import { pliosEndpoint, itemsEndpoint } from "@/services/API/Endpoints.js";
 
 export default {
-  async getPlio(plioId) {
+  async getPlio(plioId, playMode = false) {
     // returns the details for one plio
+    // playMode = true means that the plio is being fetched
+    // to be played - in which case all public plios are accessible
+    // to everyone. if playMode = false, a user can only get the
+    // plios that they have created
+    let plioEndpoint = pliosEndpoint + plioId;
+    if (playMode) {
+      plioEndpoint += "/play";
+    }
+
     return Promise.all([
-      apiClient().get(pliosEndpoint + plioId),
+      apiClient().get(plioEndpoint),
       apiClient().get(itemsEndpoint, {
         params: { plio: plioId },
       }),
@@ -87,7 +96,7 @@ export default {
         resolve();
       }
     }).then(() => {
-      apiClient().put(pliosEndpoint + plioId + "/", plioValue);
+      apiClient().put(pliosEndpoint + plioId, plioValue);
     });
   },
 };

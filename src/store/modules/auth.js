@@ -5,6 +5,7 @@ const state = {
   accessToken: null,
   configs: localStorage.getItem("configs"),
   user: null,
+  activeWorkspace: "",
   userId: null,
 };
 
@@ -31,6 +32,13 @@ const actions = {
   async unsetUser({ commit }) {
     await commit("unsetUser");
   },
+  async setActiveWorkspace({ commit }, activeWorkspace) {
+    await commit("setActiveWorkspace", activeWorkspace);
+  },
+  async unsetActiveWorkspace({ commit }) {
+    await commit("unsetActiveWorkspace");
+  },
+
   saveConfigs({ commit, dispatch }, configs) {
     dispatch("sync/startLoading", null, { root: true });
     return new Promise((resolve) => {
@@ -56,6 +64,12 @@ const mutations = {
   unsetUser(state) {
     state.user = null;
     state.userId = null;
+  },
+  setActiveWorkspace(state, activeWorkspace) {
+    state.activeWorkspace = activeWorkspace;
+  },
+  unsetActiveWorkspace(state) {
+    state.activeWorkspace = "";
   },
   saveConfigs(state) {
     state.configs = localStorage.getItem("configs");

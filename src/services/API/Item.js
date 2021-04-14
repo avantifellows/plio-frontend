@@ -13,10 +13,10 @@ export default {
 
   updateItem(itemDetails) {
     // API to update an item in the DB
-    return apiClient().put(itemsEndpoint + itemDetails.id + "/", itemDetails);
+    return apiClient().put(itemsEndpoint + itemDetails.id, itemDetails);
   },
 
   deleteItem(itemId) {
-    return apiClient().delete(itemsEndpoint + itemId + "/");
+    return apiClient().delete(itemsEndpoint + itemId);
   },
 };

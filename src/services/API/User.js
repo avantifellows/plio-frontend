@@ -6,13 +6,6 @@ import {
 } from "@/services/API/Endpoints.js";
 
 export default {
-  postUserResponse(userResponse) {
-    return apiClient().post(
-      process.env.VUE_APP_BACKEND_UPDATE_ENTRY,
-      userResponse
-    );
-  },
-
   requestOtp(mobile) {
     return apiClient().post(process.env.VUE_APP_BACKEND + otpRequestEndpoint, {
       mobile,

@@ -1,7 +1,7 @@
 <template>
   <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
   <router-link
-    :to="{ name: 'Player', params: { plioId: plio.uuid } }"
+    :to="{ name: 'Player', params: { plioId: plio.uuid, org: activeWorkspace} }"
     tag="div"
     class="plio"
   >
@@ -16,9 +16,14 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 export default {
   name: "PlioThumbnail",
   props: ["plio"],
+  computed: {
+    ...mapState("auth", ["activeWorkspace"]),
+  },
 };
 </script>
 
