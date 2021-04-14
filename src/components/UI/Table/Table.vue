@@ -1,59 +1,77 @@
 <template>
   <!-- search -->
-  <div>
-    <form id="search">Search <input name="query" v-model="filterKey" /></form>
+  <div class="p-8">
+    <div class="bg-white flex items-center rounded-full shadow-md border-2 max-w-sm">
+      <form id="search" class="w-full">
+        <input
+          class="rounded-l-full w-full py-4 px-6 text-gray-700 leading-tight focus:outline-none"
+          placeholder="Search"
+          name="query"
+          v-model="filterKey"
+        />
+      </form>
+
+      <div class="p-4">
+        <icon-button
+          class="w-8 h-8"
+          :iconConfig="searchIconConfig"
+          :buttonClass="searchButtonClass"
+        ></icon-button>
+      </div>
+    </div>
   </div>
 
   <!-- table -->
-  <div class="container mx-auto shadow-xl max-w-6xl">
-    <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-      <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
-        <table class="table-auto min-w-full leading-normal">
-          <!-- headers -->
-          <thead>
-            <tr>
-              <th
-                v-for="key in columns"
-                @click="sortBy(key)"
-                :key="key"
-                class="px-5 py-2 bg-white border-b-8 border-gray-200 text-gray-800 text-left text-md uppercase font-medium w-1/3"
-              >
-                <div class="flex justify-center">
-                  <div class="p-1">
-                    {{ capitalize(key) }}
+  <!-- structure inspired from https://tailwindui.com/components/application-ui/lists/tables  -->
+  <div class="flex flex-col mx-10">
+    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-200">
+              <tr>
+                <th
+                  v-for="key in columns"
+                  @click="sortBy(key)"
+                  :key="key"
+                  scope="col"
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-5"
+                >
+                  <div class="flex">
+                    <div class="p-1 my-auto">
+                      {{ capitalize(key) }}
+                    </div>
+                    <div class="p-1 my-auto">
+                      <inline-svg
+                        :src="require('@/assets/images/chevron-down-solid.svg')"
+                        class="h-3 w-3 my-1"
+                      ></inline-svg>
+                    </div>
                   </div>
-                  <div class="p-1 my-auto">
-                    <inline-svg
-                      :src="require('@/assets/images/chevron-down-solid.svg')"
-                      class="h-3 w-3 my-1"
-                    ></inline-svg>
-                  </div>
-                </div>
-              </th>
-            </tr>
-          </thead>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-for="entry in filteredData" :key="entry">
+                <td
+                  v-for="columnName in columns"
+                  :key="columnName"
+                  class="px-6 py-4 whitespace-normal"
+                >
+                  <div class="flex items-center">
+                    <div v-if="isComponent(entry[columnName])" class="text-left">
+                      <PlioListItem :plioId="entry[columnName].value"> </PlioListItem>
+                    </div>
 
-          <!-- table body -->
-          <tbody>
-            <tr v-for="entry in filteredData" :key="entry">
-              <td
-                v-for="columnName in columns"
-                :key="columnName"
-                class="px-5 py-5 border-b-4 border-gray-200 bg-white text-2xl"
-              >
-                <div>
-                  <div v-if="isComponent(entry[columnName])" class="text-left">
-                    <PlioListItem :plioId="entry[columnName].value"> </PlioListItem>
+                    <div v-else class="sm:text-lg text-sm font-medium text-gray-900">
+                      {{ entry[columnName] }}
+                    </div>
                   </div>
-
-                  <div v-else class="text-center">
-                    {{ entry[columnName] }}
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -61,6 +79,7 @@
 
 <script>
 import PlioListItem from "@/components/UI/ListItems/PlioListItem.vue";
+import IconButton from "@/components/UI/Buttons/IconButton.vue";
 
 export default {
   props: {
@@ -69,12 +88,19 @@ export default {
   },
   components: {
     PlioListItem,
+    IconButton,
   },
   data() {
     return {
       sortKey: "",
       filterKey: "",
       sortOrders: {},
+      searchIconConfig: {
+        enabled: true,
+        iconName: "search-solid",
+        iconClass: "text-yellow-600 h-5 w-5",
+      },
+      searchButtonClass: "",
     };
   },
 

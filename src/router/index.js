@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import Home from "@/pages/Home.vue";
 import Editor from "@/pages/Editor.vue";
 import Player from "@/pages/Player.vue";
 import Login from "@/pages/Login";
@@ -10,17 +9,9 @@ const routes = [
   {
     path: "/",
     name: "Home",
-    component: Home,
-    meta: { requiresAuth: true },
-  },
-  //////////////////////////////
-  {
-    path: "/newHome",
-    name: "NewHome",
     component: NewHome,
     meta: { requiresAuth: true },
   },
-  //////////////////////////////
   {
     path: "/edit/:plioId",
     name: "Editor",
