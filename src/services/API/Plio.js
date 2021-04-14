@@ -32,7 +32,8 @@ export default {
   },
 
   getAllPlios(userId = null) {
-    // returns all the plios created by the user
+    // returns all the plios created by the user if userId is present
+    // else returns all the plios
     if (userId == null) return apiClient().get(pliosEndpoint);
     else
       return apiClient().get(pliosEndpoint, {
@@ -41,6 +42,8 @@ export default {
   },
 
   getAllPlioIds(userId = null) {
+    // returns a flat list of plio uuids
+    // created by userId (if available)
     var url = pliosEndpoint + "list_uuid";
     if (userId == null) return apiClient().get(url);
     else
