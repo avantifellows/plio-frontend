@@ -1,6 +1,5 @@
 import axios from "axios";
 import store from "../../store";
-import Router from "../../router";
 
 let headers = {
   Accept: "application/json",
