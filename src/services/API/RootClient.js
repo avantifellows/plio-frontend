@@ -29,13 +29,6 @@ client.interceptors.request.use(
       if (store.state.auth.accessToken) {
         config.headers.Authorization = `Bearer ${store.state.auth.accessToken.access_token}`;
       }
-
-      let currentRoute = Router.currentRoute.value;
-      if (currentRoute.params.org != undefined) {
-        store.dispatch("auth/setActiveWorkspace", currentRoute.params.org);
-      } else {
-        store.dispatch("auth/unsetActiveWorkspace");
-      }
       config.headers.Organization = store.state.auth.activeWorkspace;
     }
     return config;
