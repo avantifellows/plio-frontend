@@ -35,4 +35,11 @@ export default {
       sessionAnswerDetails
     );
   },
+
+  getUniqueUsersCount(plioId) {
+    // get the count of unique users who watched the given plio
+    return apiClient().get(sessionsEndpoint + "unique_users", {
+      params: { plio: plioId },
+    });
+  },
 };
