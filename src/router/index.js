@@ -4,6 +4,7 @@ import Editor from "@/pages/Editor.vue";
 import Player from "@/pages/Player.vue";
 import Login from "@/pages/Login";
 import store from "../store";
+import NewHome from "@/pages/NewHome.vue";
 
 const routes = [
   {
@@ -12,6 +13,14 @@ const routes = [
     component: Home,
     meta: { requiresAuth: true },
   },
+  //////////////////////////////
+  {
+    path: "/newHome",
+    name: "NewHome",
+    component: NewHome,
+    meta: { requiresAuth: true },
+  },
+  //////////////////////////////
   {
     path: "/edit/:plioId",
     name: "Editor",
