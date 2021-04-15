@@ -111,7 +111,7 @@ export default {
   },
   mounted() {
     // set locale based on their config
-    if (this.isAuthenticated) this.$refs.userConfig.setLocaleFromUserConfig();
+    this.$refs.userConfig.setLocaleFromUserConfig();
   },
   methods: {
     // object spread operator
