@@ -1,9 +1,9 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import Home from "@/pages/Home.vue";
 import Editor from "@/pages/Editor.vue";
 import Player from "@/pages/Player.vue";
 import Login from "@/pages/Login";
 import store from "../store";
-import NewHome from "@/pages/NewHome.vue";
 
 const routes = [
   {
@@ -15,7 +15,7 @@ const routes = [
   {
     path: "/:org?/home",
     name: "Home",
-    component: NewHome,
+    component: Home,
     meta: { requiresAuth: true },
   },
   {

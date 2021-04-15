@@ -158,8 +158,7 @@ export default {
       return badgeClass;
     },
     updatedAt() {
-      var humanReadableDate = new Date(this.plioDetails.updated_at).toDateString();
-      return humanReadableDate;
+      return new Date(this.plioDetails.updated_at).toDateString();
     },
     status() {
       return this.plioDetails.status;
