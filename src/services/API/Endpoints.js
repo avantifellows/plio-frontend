@@ -8,3 +8,5 @@ export const eventsEndpoint = "/events/";
 export const otpRequestEndpoint = "/otp/request/";
 export const otpVerifyEndpoint = "/otp/verify/";
 export const userFromTokenEndpoint = "/users/token";
+export const usersEndpoint = "/users/";
+export const userConfigEndpoint = "/config/";
