@@ -62,13 +62,13 @@
         @click="googleLogin"
       ></icon-button>
     </div>
-    <!-- <user-config ref="userConfig"></user-config> -->
+    <user-config ref="userConfig"></user-config>
   </div>
 </template>
 
 <script>
 import UserAPIService from "@/services/API/User.js";
-import UserConfig from "@/services/Config/User.js";
+import UserConfig from "@/services/Config/User.vue";
 import InputNumber from "../components/UI/Text/InputNumber.vue";
 import IconButton from "../components/UI/Buttons/IconButton.vue";
 import { mapActions } from "vuex";
@@ -89,6 +89,7 @@ export default {
   components: {
     InputNumber,
     IconButton,
+    UserConfig,
   },
   data() {
     return {

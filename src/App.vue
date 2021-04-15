@@ -75,7 +75,7 @@
 <script>
 import WorkspaceSwitcher from "@/components/UI/WorkspaceSwitcher.vue";
 import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
-import UserConfig from "@/services/Config/User.js";
+import UserConfig from "@/services/Config/User.vue";
 import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import Toast from "@/components/UI/Alert/Toast.vue";

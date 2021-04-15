@@ -1,3 +1,8 @@
+<template>
+  <div></div>
+</template>
+
+<script>
 import UserAPIService from "@/services/API/User.js";
 import { mapState, mapGetters, mapActions } from "vuex";
 
@@ -9,7 +14,7 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions(["saveConfig"]),
+    ...mapActions("auth", ["saveConfig"]),
 
     saveLocalUserConfig() {
       // fetch user config and save locally
@@ -24,8 +29,7 @@ export default {
         var userConfig = this.config;
         if (userConfig != null) {
           userConfig = JSON.parse(userConfig);
-          this.$i18n.locale =
-            userConfig["locale"] || process.env.VUE_APP_I18N_LOCALE;
+          this.$i18n.locale = userConfig["locale"] || process.env.VUE_APP_I18N_LOCALE;
           clearInterval(redirectId);
         }
       }, 10);
@@ -45,7 +49,7 @@ export default {
 
     updateUserConfig(userConfig) {
       // update user config on the server
-      UserAPIService.updateUserConfig(userConfig)
+      UserAPIService.updateUserConfig(this.userId, userConfig)
         .then((response) => {
           if (response.status == 200) {
             console.log("Config updated successfully");
@@ -58,3 +62,4 @@ export default {
     },
   },
 };
+</script>

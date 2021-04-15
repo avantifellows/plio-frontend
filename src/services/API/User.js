@@ -53,7 +53,7 @@ export default {
 
   updateUserConfig(userId, userConfig) {
     // updates the config for the given user ID
-    apiClient().patch(usersEndpoint + userId + userConfigEndpoint, {
+    return apiClient().patch(usersEndpoint + userId + userConfigEndpoint, {
       config: userConfig,
     });
   },
