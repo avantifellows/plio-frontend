@@ -154,10 +154,6 @@ export default {
       // whether to show workspace switcher
       return this.isAuthenticated && this.onHomePage && this.user.organizations.length;
     },
-    hasLocalUserConfig() {
-      // whether the user config have been set
-      return this.config != null;
-    },
     onLoginPage() {
       // whether the current page is the login page
       return this.$route.name == "Login";

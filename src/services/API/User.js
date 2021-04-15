@@ -10,14 +10,14 @@ import {
 export default {
   requestOtp(mobile) {
     // request OTP for login
-    return apiClient().post(process.env.VUE_APP_BACKEND + otpRequestEndpoint, {
+    return apiClient().post(otpRequestEndpoint, {
       mobile,
     });
   },
 
   verifyOtp(mobile, otp) {
     // verify OTP for login
-    return apiClient().post(process.env.VUE_APP_BACKEND + otpVerifyEndpoint, {
+    return apiClient().post(otpVerifyEndpoint, {
       mobile,
       otp,
     });
@@ -25,14 +25,11 @@ export default {
 
   async getUserByAccessToken(token) {
     // get user details from their access token
-    return apiClient().get(
-      process.env.VUE_APP_BACKEND + userFromTokenEndpoint,
-      {
-        params: {
-          token,
-        },
-      }
-    );
+    return apiClient().get(userFromTokenEndpoint, {
+      params: {
+        token,
+      },
+    });
   },
 
   async convertSocialAuthToken(socialAuthToken) {
