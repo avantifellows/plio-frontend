@@ -3,16 +3,20 @@ import {
   otpRequestEndpoint,
   otpVerifyEndpoint,
   userFromTokenEndpoint,
+  usersEndpoint,
+  userConfigEndpoint,
 } from "@/services/API/Endpoints.js";
 
 export default {
   requestOtp(mobile) {
+    // request OTP for login
     return apiClient().post(process.env.VUE_APP_BACKEND + otpRequestEndpoint, {
       mobile,
     });
   },
 
   verifyOtp(mobile, otp) {
+    // verify OTP for login
     return apiClient().post(process.env.VUE_APP_BACKEND + otpVerifyEndpoint, {
       mobile,
       otp,
@@ -20,6 +24,7 @@ export default {
   },
 
   async getUserByAccessToken(token) {
+    // get user details from their access token
     return apiClient().get(
       process.env.VUE_APP_BACKEND + userFromTokenEndpoint,
       {
@@ -42,15 +47,14 @@ export default {
   },
 
   getUserConfig(userId) {
-    return apiClient().get(
-      process.env.VUE_APP_BACKEND_USER_CONFIG + "?user-id=" + userId
-    );
+    // retrieves the config for the given user ID
+    return apiClient().get(usersEndpoint + userId + userConfigEndpoint);
   },
 
-  updateUserConfig(userConfig) {
-    return apiClient().post(
-      process.env.VUE_APP_BACKEND_UPDATE_USER_CONFIG,
-      userConfig
-    );
+  updateUserConfig(userId, userConfig) {
+    // updates the config for the given user ID
+    apiClient().patch(usersEndpoint + userId + userConfigEndpoint, {
+      config: userConfig,
+    });
   },
 };

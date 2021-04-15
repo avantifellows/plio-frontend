@@ -12,7 +12,7 @@ export default {
   data() {
     return {
       assignment: null,
-      userConfigs: {},
+      userConfig: {},
       plioId: null,
     };
   },
@@ -24,7 +24,7 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions("auth", ["saveConfigs"]),
+    ...mapActions("auth", ["saveConfig"]),
     getAssignment() {
       ExperimentAPIService.getExperimentAssignment(this.id, this.userId)
         .then((res) => {
@@ -32,10 +32,10 @@ export default {
           // same as assignment for now as we might conduct interface
           // level changes where assignment won't be the same as plio ID
           this.assignment = res.data.assignment;
-          this.userConfigs = res.data.config;
+          this.userConfig = res.data.config;
           this.plioId = res.data.plioId;
         })
-        .then(() => this.saveConfigs(JSON.stringify(this.userConfigs)))
+        .then(() => this.saveConfig(JSON.stringify(this.userConfig)))
         .then(() => {
           console.log("Assignment: " + this.assignment);
           this.$router.replace({

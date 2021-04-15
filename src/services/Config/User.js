@@ -1,56 +1,51 @@
-<template>
-  <div></div>
-</template>
-
-<script>
 import UserAPIService from "@/services/API/User.js";
 import { mapState, mapGetters, mapActions } from "vuex";
 
 export default {
   computed: {
-    ...mapState("auth", ["userId", "configs"]),
+    ...mapState("auth", ["userId", "config"]),
     ...mapGetters("auth", ["isAuthenticated"]),
   },
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions(["saveConfigs"]),
+    ...mapActions(["saveConfig"]),
 
-    saveLocalUserConfigs() {
+    saveLocalUserConfig() {
+      // fetch user config and save locally
       UserAPIService.getUserConfig(this.userId).then((response) => {
-        this.saveConfigs(JSON.stringify(response.data)); // save user config locally
+        this.saveConfig(JSON.stringify(response.data)); // save user config locally
       });
     },
 
     setLocaleFromUserConfig() {
+      // set the system locale from the user config
       var redirectId = setInterval(() => {
-        var userConfigs = this.configs;
-        if (userConfigs != null) {
-          userConfigs = JSON.parse(userConfigs);
-          this.$i18n.locale = userConfigs["locale"] || process.env.VUE_APP_I18N_LOCALE;
+        var userConfig = this.config;
+        if (userConfig != null) {
+          userConfig = JSON.parse(userConfig);
+          this.$i18n.locale =
+            userConfig["locale"] || process.env.VUE_APP_I18N_LOCALE;
           clearInterval(redirectId);
         }
-      }, 500);
+      }, 10);
     },
 
     updateLocale() {
+      // update the locale to the local and remote configs
       if (this.isAuthenticated) {
-        var userConfigs = JSON.parse(this.configs);
+        var userConfig = JSON.parse(this.config);
         // change the locale
-        userConfigs["locale"] = this.$i18n.locale;
+        userConfig["locale"] = this.$i18n.locale;
 
         // update user config remotely and locally
-        this.updateUserConfigs(userConfigs);
+        this.updateUserConfig(userConfig);
       }
     },
 
-    updateUserConfigs(userConfigs) {
-      const jsonUserConfig = JSON.stringify({
-        "user-id": this.userId,
-        configs: userConfigs,
-      });
-
-      UserAPIService.updateUserConfig(jsonUserConfig)
+    updateUserConfig(userConfig) {
+      // update user config on the server
+      UserAPIService.updateUserConfig(userConfig)
         .then((response) => {
           if (response.status == 200) {
             console.log("Config updated successfully");
@@ -58,9 +53,8 @@ export default {
             console.log("Error with config update");
           }
         })
-        .then(() => this.saveConfigs(JSON.stringify(userConfigs))) // update user config locally
+        .then(() => this.saveConfig(JSON.stringify(userConfig))) // update user config locally
         .catch((err) => console.log(err));
     },
   },
 };
-</script>

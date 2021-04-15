@@ -3,7 +3,7 @@ import UserAPIService from "@/services/API/User.js";
 // Reference: https://medium.com/front-end-weekly/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
 const state = {
   accessToken: null,
-  configs: localStorage.getItem("configs"),
+  config: localStorage.getItem("config"),
   user: null,
   activeWorkspace: "",
   userId: null,
@@ -11,6 +11,7 @@ const state = {
 
 const getters = {
   isAuthenticated: (state) => !!state.accessToken,
+  locale: (state) => state.config.locale,
 };
 
 const actions = {
@@ -39,12 +40,12 @@ const actions = {
     await commit("unsetActiveWorkspace");
   },
 
-  saveConfigs({ commit, dispatch }, configs) {
+  saveConfig({ commit, dispatch }, config) {
     dispatch("sync/startLoading", null, { root: true });
     return new Promise((resolve) => {
-      localStorage.setItem("configs", configs);
+      localStorage.setItem("config", config);
       dispatch("sync/stopLoading", null, { root: true });
-      commit("saveConfigs");
+      commit("saveConfig");
       resolve();
     });
   },
@@ -71,8 +72,8 @@ const mutations = {
   unsetActiveWorkspace(state) {
     state.activeWorkspace = "";
   },
-  saveConfigs(state) {
-    state.configs = localStorage.getItem("configs");
+  saveConfig(state) {
+    state.config = localStorage.getItem("config");
   },
 };
 
