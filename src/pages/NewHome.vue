@@ -1,5 +1,5 @@
 <template>
-  <Table :data="tableData" :columns="tableColumns"> </Table>
+  <Table :data="tableData" :columns="tableColumns" :org="org"> </Table>
 </template>
 
 <script>
@@ -13,6 +13,17 @@ export default {
   components: {
     Table,
   },
+  props: {
+    org: {
+      default: "",
+      type: String,
+    },
+  },
+  watch: {
+    activeWorkspace() {
+      this.fetchAllPlioIds();
+    },
+  },
   data() {
     return {
       searchQuery: "",
@@ -24,11 +35,11 @@ export default {
     await this.fetchAllPlioIds();
   },
   computed: {
-    ...mapState("auth", ["userId"]),
+    ...mapState("auth", ["activeWorkspace"]),
   },
   methods: {
     async fetchAllPlioIds() {
-      await PlioAPIService.getAllPlioIds(this.userId).then((response) => {
+      await PlioAPIService.getAllPlioIds().then((response) => {
         this.prepareTableData(response.data);
       });
     },
