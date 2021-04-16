@@ -40,15 +40,11 @@ export default {
     });
   },
 
-  getAllPlios() {
-    // returns all the plios created by the user
-    return apiClient().get(pliosEndpoint);
-  },
+  getAllPlios(uuidOnly = false) {
+    var url = uuidOnly ? pliosEndpoint + "list_uuid" : pliosEndpoint;
 
-  getAllPlioIds() {
-    // returns a flat list of plio uuids
-    // created by the user
-    return apiClient().get(pliosEndpoint + "list_uuid");
+    // returns all the plios (or just the flat list of uuids) created by the user
+    return apiClient().get(url);
   },
 
   createPlio() {

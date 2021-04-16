@@ -40,7 +40,8 @@ export default {
   },
   methods: {
     async fetchAllPlioIds() {
-      await PlioAPIService.getAllPlioIds().then((response) => {
+      var uuidOnly = true;
+      await PlioAPIService.getAllPlios(uuidOnly).then((response) => {
         this.prepareTableData(response.data);
       });
     },
