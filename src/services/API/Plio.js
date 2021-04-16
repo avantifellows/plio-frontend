@@ -86,4 +86,9 @@ export default {
       apiClient().put(pliosEndpoint + plioId, plioValue);
     });
   },
+
+  duplicatePlio(plioId) {
+    // create a clone of plioId plio
+    return apiClient().post(pliosEndpoint + plioId + "/duplicate");
+  },
 };

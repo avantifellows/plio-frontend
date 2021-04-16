@@ -1,6 +1,6 @@
 <template>
-  <PlioListItemSkeleton v-if="!isDataLoaded" />
-  <div v-else class="rounded-sm p-2">
+  <PlioListItemSkeleton v-if="pending" class="w-full" />
+  <div v-else class="rounded-sm p-2 w-auto">
     <div class="grid grid-flow-row auto-rows-min gap-2">
       <!-- last updated date -->
       <div class="flex flex-row justify-start gap-3">
@@ -15,8 +15,11 @@
       </div>
 
       <!-- plio title -->
-      <div>
-        <p class="text-l sm:text-xl font-bold w-64 sm:w-auto">{{ title }}</p>
+      <div
+        class="text-base sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold truncate"
+        :class="{ 'opacity-50': isUntitled }"
+      >
+        {{ title }}
       </div>
 
       <!-- plio link -->
@@ -53,7 +56,7 @@
           :titleConfig="duplicateButtonTitleConfig"
           :iconConfig="duplicateButtonIconConfig"
           :buttonClass="duplicateButtonClass"
-          @click="duplicatePlio"
+          @click="duplicateThenRoute"
         ></icon-button>
       </div>
     </div>
@@ -62,20 +65,24 @@
 
 <script>
 import PlioAPIService from "@/services/API/Plio.js";
+import ItemAPIService from "@/services/API/Item.js";
+import QuestionAPIService from "@/services/API/Question.js";
 import URL from "@/components/UI/Text/URL.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 export default {
   name: "PlioThumbnail",
   props: {
     plioId: {
+      // the id of the plio to render
       default: "",
       type: String,
     },
     org: {
+      // the active workspace
       default: "",
       type: String,
     },
@@ -89,6 +96,7 @@ export default {
 
   data() {
     return {
+      // button, icon config and styling classes
       plioDetails: {},
       playButtonTitleConfig: {
         value: "Play",
@@ -124,17 +132,25 @@ export default {
       duplicateButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10",
       urlStyleClass: "text-xs font-bold text-yellow-600",
       urlCopyButtonClass: "text-yellow-600",
-      isDataLoaded: false,
+
+      // stores the id of the newly created duplicated plio
+      duplicatedPlioId: null,
     };
   },
 
+  mounted() {
+    // start loading when the component is mounted
+    // as data is being fetched
+    this.startLoading();
+  },
+
   async created() {
-    this.isDataLoaded = false;
     await this.loadPlio();
   },
 
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
+    ...mapState("sync", ["pending"]),
     playButtonTooltip() {
       return this.isPublished ? "Play this plio" : "Cannot play a draft plio";
     },
@@ -158,13 +174,16 @@ export default {
       return badgeClass;
     },
     updatedAt() {
+      // human readable date string
       return new Date(this.plioDetails.updated_at).toDateString();
     },
     status() {
+      // status of the plio - draft or published
       return this.plioDetails.status;
     },
     title() {
-      return this.plioDetails.plioTitle;
+      // title of the plio. "Untitled" if no title is present
+      return this.plioDetails.plioTitle || "Untitled";
     },
     plioLink() {
       // prepare the link for the plio from the plio ID
@@ -175,29 +194,89 @@ export default {
       if (this.org != "") baseURL += "/" + this.org;
       return baseURL + "/play/" + this.plioId;
     },
+    isUntitled() {
+      // if the plio is untitled or not
+      return this.title == "Untitled";
+    },
   },
 
   methods: {
+    ...mapActions("sync", ["startLoading", "stopLoading"]),
     async loadPlio() {
+      // fetch the details of the plio
       await PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
-        this.isDataLoaded = true;
+        this.startLoading();
         this.plioDetails = plioDetails;
-        this.$emit("fetched", this.plioDetails);
+
+        // prepare data to emit to the parent component
+        var dataToEmit = {
+          status: this.status,
+          updateAt: this.updatedAt,
+          title: this.title,
+          plioLink: this.plioLink,
+        };
+
+        this.$emit("fetched", dataToEmit);
+        this.stopLoading();
       });
     },
     playPlio() {
+      // invoked when play button is clicked
       this.$router.push({
         name: "Player",
         params: { plioId: this.plioId, org: this.activeWorkspace },
       });
     },
     editPlio() {
+      // invoked when edit button is clicked
       this.$router.push({
         name: "Editor",
         params: { plioId: this.plioId, org: this.activeWorkspace },
       });
     },
-    duplicatePlio() {},
+    async duplicatePlio() {
+      // invoked when duplicate button is clicked
+
+      // 1. Duplicate the plio, save the id of the duplicated plio
+      // 2. Iterate through items and questions, duplicate each one of them
+      // 3. Link the duplicated items and questions to the newly created plio
+
+      this.startLoading();
+      var newPlio = await PlioAPIService.duplicatePlio(this.plioId);
+      var newPlioDBId = newPlio.data.id;
+      this.duplicatedPlioId = newPlio.data.uuid;
+
+      await Promise.all(
+        this.plioDetails.items.map(async (item) => {
+          // duplicate item and update it to link the item to the plio
+          var newItem = await ItemAPIService.duplicateItem(item.id);
+          var newItemDBId = newItem.data.id;
+          await ItemAPIService.updateItem({
+            id: newItemDBId,
+            plio: newPlioDBId,
+            time: item.time,
+          });
+
+          // duplicate question and update it to link the item to the question
+          var newQuestion = await QuestionAPIService.duplicateQuestion(item.details.id);
+          var newQuestionDBId = newQuestion.data.id;
+          await QuestionAPIService.updateQuestion({
+            id: newQuestionDBId,
+            item: newItemDBId,
+          });
+        })
+      );
+    },
+
+    async duplicateThenRoute() {
+      // duplicate the plio and when it's done, route to the editor
+      await this.duplicatePlio();
+      this.stopLoading();
+      this.$router.push({
+        name: "Editor",
+        params: { plioId: this.duplicatedPlioId, org: this.activeWorkspace },
+      });
+    },
   },
   emits: ["fetched"],
 };

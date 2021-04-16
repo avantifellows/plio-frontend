@@ -1,5 +1,6 @@
 <template>
-  <Table :data="tableData" :columns="tableColumns" :org="org"> </Table>
+  <Table :data="tableData" :columns="tableColumns" :org="org" :tableTitle="'All Plios'">
+  </Table>
 </template>
 
 <script>
@@ -27,7 +28,7 @@ export default {
   data() {
     return {
       searchQuery: "",
-      tableColumns: ["name", "no. of learners", "% completion", "% accuracy"],
+      tableColumns: ["name", "no. of learners"],
       tableData: [],
     };
   },
@@ -63,14 +64,6 @@ export default {
             case "no. of learners":
               tableRow[column] = await SessionAPIService.getUniqueUsersCount(plioId);
               tableRow[column] = tableRow[column].data;
-              break;
-
-            case "% completion":
-              tableRow[column] = "30%"; // TODO - dummy value
-              break;
-
-            case "% accuracy":
-              tableRow[column] = "55%"; // TODO - dummy value
               break;
           }
         }

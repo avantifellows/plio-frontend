@@ -19,4 +19,9 @@ export default {
   deleteItem(itemId) {
     return apiClient().delete(itemsEndpoint + itemId);
   },
+
+  duplicateItem(itemId) {
+    // Create a clone of itemId
+    return apiClient().post(itemsEndpoint + itemId + "/duplicate");
+  },
 };

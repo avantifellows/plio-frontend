@@ -1,115 +1,116 @@
 <template>
-  <!-- search -->
-  <div class="p-4 mx-10">
-    <div class="bg-white flex items-center rounded-full shadow-md border-2 max-w-sm">
-      <form id="search" class="w-full">
-        <input
-          class="rounded-l-full w-full py-4 px-6 text-gray-700 leading-tight focus:outline-none"
-          placeholder="Search"
-          name="query"
-          v-model="filterKey"
-        />
-      </form>
+  <div class="flex flex-col mx-2 xsm:mx-4 sm:mx-6 md:mx-8 lg:mx-10 xl:mx-14">
+    <!-- nav bar for table -->
+    <div class="flex flex-col xsm:flex-row justify-between pt-4">
+      <!-- table title -->
+      <div
+        class="flex flex-row gap-2 text-base sm:text-lg md:text-xl xl:text-2xl font-bold p-2 items-center"
+      >
+        <p>{{ tableTitle }}</p>
+        <p>({{ totalItemsInTable }})</p>
+        <inline-svg
+          v-if="pending"
+          :src="require('@/assets/images/spinner-solid.svg')"
+          class="animate-spin h-4 object-scale-down"
+        ></inline-svg>
+      </div>
+      <!-- table search -->
+      <div
+        class="bg-white flex items-center rounded-full shadow-md border-2 w-full xsm:w-1/2 sm:w-1/3 float-right mb-2 mt-2"
+      >
+        <form id="search" class="w-full px-4">
+          <input
+            class="w-full text-gray-700 leading-tight focus:outline-none"
+            placeholder="Search"
+            name="query"
+            v-model="filterKey"
+          />
+        </form>
 
-      <div class="p-4">
-        <icon-button
-          class="w-8 h-8"
-          :iconConfig="searchIconConfig"
-          :buttonClass="searchButtonClass"
-        ></icon-button>
+        <div class="p-1">
+          <icon-button
+            class="w-8 h-8"
+            :iconConfig="searchIconConfig"
+            :buttonClass="searchButtonClass"
+          ></icon-button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- table -->
-  <!-- structure inspired from https://tailwindui.com/components/application-ui/lists/tables  -->
-  <div class="flex flex-col mx-10">
-    <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-      <div class="py-2 align-middle inline-block min-w-full px-4 sm:px-6 lg:px-8">
-        <div class="shadow overflow-hidden border-b border-gray-200 rounded-lg">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-200">
-              <tr>
-                <th
-                  v-for="(columnName, columnIndex) in columns"
-                  @click="sortBy(columnName)"
-                  :key="columnName"
-                  scope="col"
-                  class="sm:px-6 sm:py-3 px-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider"
-                  :class="{
-                    'hidden sm:table-cell': columnIndex != 0,
-                  }"
-                >
-                  <div class="flex">
-                    <div class="p-1 my-auto">
-                      {{ capitalize(columnName) }}
+    <!-- table -->
+    <!-- structure inspired from https://tailwindui.com/components/application-ui/lists/tables  -->
+    <div class="flex flex-col">
+      <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+          <div
+            class="shadow overflow-hidden border-b border-gray-200 rounded-lg border-l border-r"
+          >
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-200">
+                <!-- table headers -->
+                <tr>
+                  <th
+                    v-for="(columnName, columnIndex) in columns"
+                    @click="sortBy(columnName)"
+                    :key="columnName"
+                    scope="col"
+                    class="sm:px-6 sm:py-3 px-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider"
+                    :class="{
+                      'hidden sm:table-cell': columnIndex != 0,
+                    }"
+                  >
+                    <div class="flex">
+                      <div
+                        class="p-1 my-auto whitespace-nowrap md:text-base xl:text-lg cursor-pointer"
+                      >
+                        {{ capitalize(columnName) }}
+                      </div>
+                      <div class="p-1 my-auto cursor-pointer">
+                        <inline-svg
+                          :src="require('@/assets/images/chevron-down-solid.svg')"
+                          class="h-3 w-3 my-1 transition ease duration-800"
+                          :class="{
+                            'transform rotate-180': sortOrders[columnName] == -1,
+                          }"
+                        ></inline-svg>
+                      </div>
                     </div>
-                    <div class="p-1 my-auto">
-                      <inline-svg
-                        :src="require('@/assets/images/chevron-down-solid.svg')"
-                        class="h-3 w-3 my-1"
-                      ></inline-svg>
-                    </div>
-                  </div>
-                </th>
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <!-- table values -->
+                <tr v-for="(entry, entryIndex) in filteredData" :key="entry">
+                  <td
+                    v-for="(columnName, columnIndex) in columns"
+                    :key="columnName"
+                    class="sm:px-6 sm:py-3 px-3 py-1.5 whitespace-normal"
+                    :class="{
+                      'hidden sm:table-cell': columnIndex != 0,
+                    }"
+                  >
+                    <div class="flex">
+                      <div v-if="isComponent(entry[columnName])" class="w-full">
+                        <PlioListItem
+                          :plioId="entry[columnName].value"
+                          :org="org"
+                          @fetched="savePlioDetails(entryIndex, $event)"
+                        >
+                        </PlioListItem>
+                      </div>
 
-                <th
-                  scope="col"
-                  class="sm:px-6 sm:py-3 px-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider table-cell sm:hidden"
-                >
-                  <div class="flex">
-                    <div class="p-1 my-auto">
-                      <p>Details</p>
+                      <div
+                        v-else
+                        class="text-sm sm:text-lg xl:text-2xl font-medium text-gray-900"
+                      >
+                        {{ entry[columnName] }}
+                      </div>
                     </div>
-                    <div class="p-1 my-auto">
-                      <inline-svg
-                        :src="require('@/assets/images/chevron-down-solid.svg')"
-                        class="h-3 w-3 my-1"
-                      ></inline-svg>
-                    </div>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="entry in filteredData" :key="entry">
-                <td
-                  v-for="(columnName, columnIndex) in columns"
-                  :key="columnName"
-                  class="sm:px-6 sm:py-3 px-3 py-1.5 whitespace-normal"
-                  :class="{
-                    'hidden sm:table-cell': columnIndex != 0,
-                  }"
-                >
-                  <div class="flex">
-                    <div v-if="isComponent(entry[columnName])" class="">
-                      <PlioListItem :plioId="entry[columnName].value" :org="org">
-                      </PlioListItem>
-                    </div>
-
-                    <div v-else class="sm:text-lg text-sm font-medium text-gray-900">
-                      {{ entry[columnName] }}
-                    </div>
-                  </div>
-                </td>
-
-                <td
-                  class="sm:px-6 sm:py-3 px-3 py-1.5 whitespace-normal table-cell sm:hidden"
-                >
-                  <div class="flex flex-col">
-                    <div
-                      v-for="(columnName, columnIndex) in columns"
-                      :key="columnName"
-                      class="sm:text-lg text-sm font-medium text-gray-900 min-w-max"
-                      :class="{ hidden: columnIndex == 0 }"
-                    >
-                      {{ capitalize(columnName) }} : {{ entry[columnName] }}
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -119,6 +120,7 @@
 <script>
 import PlioListItem from "@/components/UI/ListItems/PlioListItem.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import { mapState, mapActions } from "vuex";
 
 export default {
   props: {
@@ -128,16 +130,33 @@ export default {
       default: "",
       type: String,
     },
+    tableTitle: {
+      // title to be given to the table
+      default: "",
+      type: String,
+    },
   },
   components: {
     PlioListItem,
     IconButton,
   },
+  mounted() {
+    this.startLoading();
+  },
+  watch: {
+    // as soon as filteredData changes, stop loading
+    filteredData: {
+      deep: true,
+      handler() {
+        this.stopLoading();
+      },
+    },
+  },
   data() {
     return {
-      sortKey: "",
-      filterKey: "",
-      sortOrders: {},
+      sortKey: "", // the key (table column) to sort the table on
+      filterKey: "", // the string to use when filtering the results
+      sortOrders: {}, // store the sorting orders of all columns of the table - asc or desc
       searchIconConfig: {
         enabled: true,
         iconName: "search-solid",
@@ -152,35 +171,30 @@ export default {
   },
 
   computed: {
+    ...mapState("sync", ["pending"]),
+    totalItemsInTable() {
+      // total rows present in the table
+      return this.filteredData.length || 0;
+    },
     filteredData() {
-      // TODO - sorting and filtering
+      // contains the filtered data after applying sorting or searching to the raw data
 
-      // const sortKey = this.sortKey;
-      // const filterKey = this.filterKey && this.filterKey.toLowerCase();
-      // const order = this.sortOrders[sortKey] || 1;
       let data = this.data;
-      // if (filterKey) {
-      //   data = data.filter(function (row) {
-      //     return Object.keys(row).some(function (key) {
-      //       return String(row[key]).toLowerCase().indexOf(filterKey) > -1;
-      //     });
-      //   });
-      // }
-      // if (sortKey) {
-      //   data = data.slice().sort(function (a, b) {
-      //     a = a[sortKey];
-      //     b = b[sortKey];
-      //     return (a === b ? 0 : a > b ? 1 : -1) * order;
-      //   });
-      // }
+      data = this.filterBySearch(data);
+      data = this.filterBySort(data);
+
       return data;
     },
   },
   methods: {
+    ...mapActions("sync", ["startLoading", "stopLoading"]),
     isComponent(value) {
+      // if a particular entry in the table is a component or not
       return value.type == "component";
     },
     initialiseSortOrders() {
+      // initialise sorting orders for all table columns
+      // set it to 1 - ascending
       const columnSortOrders = {};
       this.columns.forEach(function (key) {
         columnSortOrders[key] = 1;
@@ -191,8 +205,54 @@ export default {
       return str.charAt(0).toUpperCase() + str.slice(1);
     },
     sortBy(key) {
+      // invoked when sorting arrows are clicked on a table column
       this.sortKey = key;
       this.sortOrders[key] = this.sortOrders[key] * -1;
+    },
+    savePlioDetails(entryIndex, plioDetails) {
+      // save the plio details after they are fetched from the PlioListItem
+      // this is done so that the searching/sorting can be done on the plios as well
+      if (this.filteredData != undefined && this.filteredData[entryIndex] != undefined) {
+        this.filteredData[entryIndex]["name"] = {
+          ...this.filteredData[entryIndex]["name"],
+          ...plioDetails,
+        };
+      }
+    },
+    filterBySearch(data) {
+      const filterKey = this.filterKey && this.filterKey.toLowerCase();
+      if (filterKey) {
+        data = data.filter((row) => {
+          return Object.keys(row).some((key) => {
+            var objectToFilter = row[key];
+            if (typeof objectToFilter === "object" && objectToFilter !== null) {
+              return Object.keys(objectToFilter).some((value) => {
+                return (
+                  String(objectToFilter[value]).toLowerCase().indexOf(filterKey) > -1
+                );
+              });
+            } else return String(objectToFilter).toLowerCase().indexOf(filterKey) > -1;
+          });
+        });
+      }
+      return data;
+    },
+    filterBySort(data) {
+      const sortKey = this.sortKey;
+      const order = this.sortOrders[sortKey] || 1;
+
+      if (sortKey) {
+        data = data.slice().sort(function (a, b) {
+          a = a[sortKey];
+          b = b[sortKey];
+          if (sortKey == "name") {
+            a = a["title"].toLowerCase();
+            b = b["title"].toLowerCase();
+          }
+          return (a === b ? 0 : a > b ? 1 : -1) * order;
+        });
+      }
+      return data;
     },
   },
 };
