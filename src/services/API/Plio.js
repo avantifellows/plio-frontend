@@ -40,17 +40,16 @@ export default {
     });
   },
 
-  getAllPlios() {
-    // returns all the plios created by the user
-    return apiClient().get(pliosEndpoint);
+  getAllPlios(uuidOnly = false) {
+    var url = uuidOnly ? pliosEndpoint + "list_uuid" : pliosEndpoint;
+
+    // returns all the plios (or just the flat list of uuids) created by the user
+    return apiClient().get(url);
   },
 
   createPlio() {
     // creates a new draft plio
-    var newPlioData = {
-      created_by: 1,
-    };
-    return apiClient().post(pliosEndpoint, newPlioData);
+    return apiClient().post(pliosEndpoint);
   },
 
   async updatePlio(plioValue, plioId) {
@@ -82,5 +81,18 @@ export default {
     }).then(() => {
       apiClient().put(pliosEndpoint + plioId, plioValue);
     });
+  },
+
+  duplicatePlio(plioId) {
+    // create a clone of plioId plio
+    return apiClient().post(pliosEndpoint + plioId + "/duplicate");
+  },
+
+  async getUniqueUsersCount(plioId) {
+    // get the count of unique users who watched the given plio
+    var response = await apiClient().get(
+      pliosEndpoint + plioId + "/unique_users"
+    );
+    return response.data;
   },
 };

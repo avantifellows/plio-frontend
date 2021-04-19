@@ -8,7 +8,8 @@
       <!--- preview grid -->
       <div class="flex flex-col ml-5 mr-5">
         <!--- plio link -->
-        <URL :link="plioLink" class="justify-center m-4"></URL>
+        <URL :link="plioLink" class="justify-center m-4" :isUnderlined="true"></URL>
+
         <div class="justify-center">
           <!--- video preview -->
           <div v-if="!isVideoIdValid" class="flex justify-center">
@@ -328,6 +329,7 @@ export default {
         "border-black text-black": !this.isPublished,
         "text-xs": true,
         "lg:text-base": true,
+        "px-4 py-2": true,
       };
       return badgeClass;
     },
