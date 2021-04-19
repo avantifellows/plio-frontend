@@ -3,31 +3,33 @@ import {
   otpRequestEndpoint,
   otpVerifyEndpoint,
   userFromTokenEndpoint,
+  usersEndpoint,
+  userConfigEndpoint,
 } from "@/services/API/Endpoints.js";
 
 export default {
   requestOtp(mobile) {
-    return apiClient().post(process.env.VUE_APP_BACKEND + otpRequestEndpoint, {
+    // request OTP for login
+    return apiClient().post(otpRequestEndpoint, {
       mobile,
     });
   },
 
   verifyOtp(mobile, otp) {
-    return apiClient().post(process.env.VUE_APP_BACKEND + otpVerifyEndpoint, {
+    // verify OTP for login
+    return apiClient().post(otpVerifyEndpoint, {
       mobile,
       otp,
     });
   },
 
   async getUserByAccessToken(token) {
-    return apiClient().get(
-      process.env.VUE_APP_BACKEND + userFromTokenEndpoint,
-      {
-        params: {
-          token,
-        },
-      }
-    );
+    // get user details from their access token
+    return apiClient().get(userFromTokenEndpoint, {
+      params: {
+        token,
+      },
+    });
   },
 
   async convertSocialAuthToken(socialAuthToken) {
@@ -42,15 +44,14 @@ export default {
   },
 
   getUserConfig(userId) {
-    return apiClient().get(
-      process.env.VUE_APP_BACKEND_USER_CONFIG + "?user-id=" + userId
-    );
+    // retrieves the config for the given user ID
+    return apiClient().get(usersEndpoint + userId + userConfigEndpoint);
   },
 
-  updateUserConfig(userConfig) {
-    return apiClient().post(
-      process.env.VUE_APP_BACKEND_UPDATE_USER_CONFIG,
-      userConfig
-    );
+  updateUserConfig(userId, userConfig) {
+    // updates the config for the given user ID
+    return apiClient().patch(usersEndpoint + userId + userConfigEndpoint, {
+      config: userConfig,
+    });
   },
 };
