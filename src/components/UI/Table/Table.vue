@@ -7,7 +7,7 @@
         class="flex flex-row gap-2 text-base sm:text-lg md:text-xl xl:text-2xl font-bold p-2 items-center"
       >
         <p>{{ tableTitle }}</p>
-        <p>({{ totalItemsInTable }})</p>
+        <p v-if="!pending">({{ totalItemsInTable }})</p>
         <inline-svg
           v-if="pending"
           :src="require('@/assets/images/spinner-solid.svg')"
@@ -52,7 +52,7 @@
                     @click="sortBy(columnName)"
                     :key="columnName"
                     scope="col"
-                    class="sm:px-6 sm:py-3 px-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider"
+                    class="sm:px-6 sm:py-3 px-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider w-2/3"
                     :class="setColumnHeaderStyleClass(columnIndex)"
                   >
                     <div class="flex">
@@ -111,11 +111,11 @@
     <!-- create plio button -->
     <div
       v-if="isTableEmpty"
-      class="bg-primary border border-2 shadow-lg rounded-2xl p-4 bg-white w-64 m-auto mt-32"
+      class="bg-primary hover:bg-primary-hover border border-2 shadow-lg rounded-2xl bg-white w-64 m-auto mt-32"
     >
       <icon-button
         :titleConfig="createButtonTextConfig"
-        class="rounded-md mx-auto"
+        class="rounded-md mx-auto p-4"
         @click="createNewPlio"
       ></icon-button>
     </div>
