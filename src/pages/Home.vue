@@ -2,7 +2,7 @@
   <Table :data="tableData" :columns="tableColumns" :tableTitle="'All Plios'"> </Table>
   <!-- no plios exist warning -->
   <div
-    v-if="showNoPliosCreatedWarning"
+    v-if="hasAnyPlios"
     class="bg-white w-full m-auto mt-32 text-2xl font-semibold tracking-tighter text-center px-8"
   >
     {{ noPliosCreatedWarning }}
@@ -40,7 +40,7 @@ export default {
         name: { type: "component", value: "" },
         "no. of learners": "-",
       }),
-      showNoPliosCreatedWarning: false,
+      hasAnyPlios: false,
       noPliosCreatedWarning: "No plios exist! Use the button above to create a plio",
     };
   },
@@ -58,8 +58,8 @@ export default {
       var uuidOnly = true;
       await PlioAPIService.getAllPlios(uuidOnly).then((response) => {
         // if no plios exist, show the warning else hide the warning
-        if (response.data.length <= 0) this.showNoPliosCreatedWarning = true;
-        else this.showNoPliosCreatedWarning = false;
+        if (response.data.length <= 0) this.hasAnyPlios = true;
+        else this.hasAnyPlios = false;
 
         this.prepareTableData(response.data);
       });

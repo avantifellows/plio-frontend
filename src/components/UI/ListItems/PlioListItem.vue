@@ -138,7 +138,7 @@ export default {
 
   async created() {
     // load the plio only if the plio id is not empty
-    if (this.plioId != "") await this.loadPlio();
+    if (this.isPlioIdValid) await this.loadPlio();
   },
 
   computed: {
@@ -191,6 +191,9 @@ export default {
     isUntitled() {
       // if the plio is untitled or not
       return this.title == "Untitled";
+    },
+    isPlioIdValid() {
+      return this.plioId != "";
     },
   },
 
