@@ -161,7 +161,7 @@ export default {
     },
     showCreateButton() {
       // whether to show the Create button
-      return this.isAuthenticated && this.$route.name == "Home";
+      return this.isAuthenticated && this.$route.name == "Home" && this.isUserApproved;
     },
     currentPageName() {
       // name of the current page as saved in assets/locales
@@ -172,7 +172,12 @@ export default {
       return pageName;
     },
     coverBackground() {
+      // whether to apply opacity to the background
       return this.showAlertDialog;
+    },
+    isUserApproved() {
+      // whether the user is an approved user or in waitlist
+      return this.user.status == "approved";
     },
   },
 };

@@ -1,11 +1,29 @@
 <template>
-  <Table :data="tableData" :columns="tableColumns" :tableTitle="'All Plios'"> </Table>
-  <!-- no plios exist warning -->
-  <div
-    v-if="hasAnyPlios"
-    class="bg-white w-full m-auto mt-32 text-2xl font-semibold tracking-tighter text-center px-8"
-  >
-    {{ noPliosCreatedWarning }}
+  <div>
+    <div v-if="!isUserApproved" class="flex flex-col w-full h-full mt-10">
+      <div class="flex justify-center">
+        <inline-svg
+          :src="confirmIcon"
+          class="h-12 w-12 sm:h-20 sm:w-20 place-self-center text-green-600"
+        ></inline-svg>
+      </div>
+      <div class="mt-10">
+        <p class="text-center text-lg sm:text-2xl">
+          You have been added to the waitlist <br />
+          You will hear from us soon
+        </p>
+      </div>
+    </div>
+    <div v-else>
+      <Table :data="tableData" :columns="tableColumns" :tableTitle="'All Plios'"> </Table>
+      <!-- no plios exist warning -->
+      <div
+        v-if="hasAnyPlios"
+        class="bg-white w-full m-auto mt-32 text-2xl font-semibold tracking-tighter text-center px-8"
+      >
+        {{ noPliosCreatedWarning }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -42,6 +60,7 @@ export default {
       }),
       hasAnyPlios: false,
       noPliosCreatedWarning: "No plios exist! Use the button above to create a plio",
+      confirmIcon: require("@/assets/images/check-circle-regular.svg"),
     };
   },
   async created() {
@@ -50,7 +69,11 @@ export default {
     await this.fetchAllPlioIds();
   },
   computed: {
-    ...mapState("auth", ["activeWorkspace"]),
+    ...mapState("auth", ["activeWorkspace", "user"]),
+    isUserApproved() {
+      // whether the user is an approved user or in waitlist
+      return this.user.status == "approved";
+    },
   },
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
