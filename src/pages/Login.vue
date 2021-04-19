@@ -62,15 +62,16 @@
         @click="googleLogin"
       ></icon-button>
     </div>
+    <user-config ref="userConfig"></user-config>
   </div>
 </template>
 
 <script>
-import UserService from "@/services/API/User.js";
-
-import { mapActions } from "vuex";
+import UserAPIService from "@/services/API/User.js";
+import UserConfig from "@/services/Config/User.vue";
 import InputNumber from "../components/UI/Text/InputNumber.vue";
 import IconButton from "../components/UI/Buttons/IconButton.vue";
+import { mapActions } from "vuex";
 
 export default {
   props: {
@@ -88,6 +89,7 @@ export default {
   components: {
     InputNumber,
     IconButton,
+    UserConfig,
   },
   data() {
     return {
@@ -196,19 +198,19 @@ export default {
     },
     requestOtp() {
       // requests OTP for the first time
-      UserService.requestOtp(this.formattedPhoneInput);
+      UserAPIService.requestOtp(this.formattedPhoneInput);
       this.requestedOtp = true;
       this.invalidOtp = false;
     },
     resendOtp() {
       // resends OTP on user request
-      UserService.requestOtp(this.formattedPhoneInput);
+      UserAPIService.requestOtp(this.formattedPhoneInput);
       this.resentOtp = true;
       this.invalidOtp = false;
     },
     phoneLogin() {
       // invoked for logging in with Phone
-      UserService.verifyOtp(this.formattedPhoneInput, this.otpInput)
+      UserAPIService.verifyOtp(this.formattedPhoneInput, this.otpInput)
         .then((response) => {
           this.setAccessToken(response.data).then(() => this.routeAfterLogin());
         })
@@ -226,7 +228,7 @@ export default {
           return null;
         }
         let socialAuthToken = googleUser.getAuthResponse();
-        UserService.convertSocialAuthToken(socialAuthToken.access_token).then(
+        UserAPIService.convertSocialAuthToken(socialAuthToken.access_token).then(
           (response) => {
             this.setAccessToken(response.data).then(() => this.routeAfterLogin());
           }
@@ -237,6 +239,10 @@ export default {
       }
     },
     routeAfterLogin() {
+      // fetch the user config and save it locally
+      this.$refs.userConfig.saveLocalUserConfig();
+      // set the system locale
+      this.$refs.userConfig.setLocaleFromUserConfig();
       // route user to the relevant page after login is complete
       if (this.redirectTo == "" || this.redirectTo == "/") {
         // there is no other page to redirect the user to

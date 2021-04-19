@@ -64,7 +64,7 @@
           <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
         </div>
       </div>
-      <user-properties ref="userProperties"></user-properties>
+      <user-config ref="userConfig"></user-config>
     </div>
     <toast ref="toast"></toast>
     <router-view />
@@ -74,7 +74,7 @@
 <script>
 import WorkspaceSwitcher from "@/components/UI/WorkspaceSwitcher.vue";
 import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
-import UserProperties from "@/services/Config/User.vue";
+import UserConfig from "@/services/Config/User.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import Toast from "@/components/UI/Alert/Toast.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
@@ -84,7 +84,7 @@ export default {
   components: {
     WorkspaceSwitcher,
     LocaleSwitcher,
-    UserProperties,
+    UserConfig,
     IconButton,
     Toast,
   },
@@ -106,14 +106,10 @@ export default {
     // remove the listener for the event of closing of the browser
     window.removeEventListener("beforeunload", this.onClose);
   },
-  // mounted() {
-  //   if (this.isAuthenticated && !this.hasLocalUserConfigs) {
-  //     // fetch user config for logged in users if not already present
-  //     this.$refs.userProperties.saveLocalUserConfigs();
-  //   }
-  //   // set locale based on their config
-  //   this.$refs.userProperties.setLocaleFromUserConfig();
-  // },
+  mounted() {
+    // set locale based on their config
+    this.$refs.userConfig.setLocaleFromUserConfig();
+  },
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
@@ -149,15 +145,11 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
-    ...mapState("auth", ["configs", "user", "activeWorkspace"]),
+    ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     showWorkspaceSwitcher() {
       // whether to show workspace switcher
       return this.isAuthenticated && this.onHomePage && this.user.organizations.length;
-    },
-    hasLocalUserConfigs() {
-      // whether the user configs have been set
-      return this.configs != null;
     },
     onLoginPage() {
       // whether the current page is the login page
