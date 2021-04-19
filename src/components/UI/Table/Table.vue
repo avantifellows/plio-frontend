@@ -17,6 +17,7 @@
       <!-- table search -->
       <div
         class="bg-white flex items-center rounded-full shadow-md border-2 w-full xsm:w-1/2 sm:w-1/3 float-right mb-2 mt-2"
+        :class="disabledElementClass"
       >
         <form id="search" class="w-full px-4">
           <input
@@ -26,7 +27,7 @@
           />
         </form>
 
-        <div class="p-1">
+        <div class="p-2 pr-3">
           <inline-svg
             :src="require('@/assets/images/search-solid.svg')"
             class="text-yellow-600 h-5 w-5"
@@ -53,7 +54,7 @@
                     :key="columnName"
                     scope="col"
                     class="sm:px-6 sm:py-3 px-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider w-2/3"
-                    :class="setColumnHeaderStyleClass(columnIndex)"
+                    :class="getColumnHeaderStyleClass(columnIndex)"
                   >
                     <div class="flex">
                       <div
@@ -65,7 +66,7 @@
                         <inline-svg
                           :src="require('@/assets/images/chevron-down-solid.svg')"
                           class="h-3 w-3 my-1 transition ease duration-800"
-                          :class="setSortIconStyleClass(columnName)"
+                          :class="getSortIconStyleClass(columnName)"
                         ></inline-svg>
                       </div>
                     </div>
@@ -107,25 +108,11 @@
         </div>
       </div>
     </div>
-
-    <!-- create plio button -->
-    <div
-      v-if="isTableEmpty"
-      class="bg-primary hover:bg-primary-hover border border-2 shadow-lg rounded-2xl bg-white w-64 m-auto mt-32"
-    >
-      <icon-button
-        :titleConfig="createButtonTextConfig"
-        class="rounded-md mx-auto p-4"
-        @click="createNewPlio"
-      ></icon-button>
-    </div>
   </div>
 </template>
 
 <script>
 import PlioListItem from "@/components/UI/ListItems/PlioListItem.vue";
-import PlioAPIService from "@/services/API/Plio.js";
-import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { mapState, mapActions } from "vuex";
 
 export default {
@@ -144,7 +131,6 @@ export default {
   },
   components: {
     PlioListItem,
-    IconButton,
   },
   mounted() {
     this.startLoading();
@@ -168,11 +154,6 @@ export default {
         iconName: "search-solid",
         iconClass: "text-yellow-600 h-5 w-5",
       },
-      searchButtonClass: "",
-      createButtonTextConfig: {
-        value: "Create a new Plio",
-        class: "text-lg md:text-xl lg:text-2xl text-white",
-      },
     };
   },
 
@@ -187,11 +168,16 @@ export default {
       return this.filteredData.length || 0;
     },
     isTableEmpty() {
-      return this.totalItemsInTable == 0;
+      return this.totalItemsInTable == 0 && this.searchFilterKey == "";
     },
     filteredData() {
       // contains the filtered data after applying sorting or searching to the raw data
       return this.orderBySort(this.filterBySearch(this.data));
+    },
+    disabledElementClass() {
+      return {
+        "pointer-events-none": this.pending,
+      };
     },
   },
   methods: {
@@ -270,31 +256,15 @@ export default {
       }
       return data;
     },
-    setColumnHeaderStyleClass(columnIndex) {
+    getColumnHeaderStyleClass(columnIndex) {
       return {
         "hidden sm:table-cell": columnIndex != 0,
       };
     },
-    setSortIconStyleClass(columnName) {
+    getSortIconStyleClass(columnName) {
       return {
         "transform rotate-180": this.sortOrders[columnName] == -1,
       };
-    },
-    createNewPlio() {
-      // invoked when the user clicks on Create
-      // creates a new draft plio and redirects the user to the editor
-      this.startLoading();
-      PlioAPIService.createPlio().then((response) => {
-        this.stopLoading();
-        if (response.status == 201) {
-          this.$router.push({
-            name: "Editor",
-            params: { plioId: response.data.uuid, org: this.activeWorkspace },
-          });
-        } else {
-          this.$refs.toast.show("error", "Error creating Plio", this.toastLife);
-        }
-      });
     },
   },
 };

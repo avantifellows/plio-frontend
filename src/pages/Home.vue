@@ -1,5 +1,12 @@
 <template>
   <Table :data="tableData" :columns="tableColumns" :tableTitle="'All Plios'"> </Table>
+  <!-- no plios exist warning -->
+  <div
+    v-if="showNoPliosCreatedWarning"
+    class="bg-white w-full m-auto mt-32 text-2xl font-semibold tracking-tighter text-center px-8"
+  >
+    {{ noPliosCreatedWarning }}
+  </div>
 </template>
 
 <script>
@@ -30,12 +37,16 @@ export default {
       tableData: [],
       // dummy table data - to show skeletons when data is being loaded
       dummyTableData: Array(5).fill({
-        name: { type: "component", value: "dummy" },
+        name: { type: "component", value: "" },
         "no. of learners": "-",
       }),
+      showNoPliosCreatedWarning: false,
+      noPliosCreatedWarning: "No plios exist! Use the button above to create a plio",
     };
   },
   async created() {
+    // feed the dummy data to show skeletons before loading the actual data
+    this.tableData = this.dummyTableData;
     await this.fetchAllPlioIds();
   },
   computed: {
@@ -46,12 +57,15 @@ export default {
     async fetchAllPlioIds() {
       var uuidOnly = true;
       await PlioAPIService.getAllPlios(uuidOnly).then((response) => {
+        // if no plios exist, show the warning else hide the warning
+        if (response.data.length <= 0) this.showNoPliosCreatedWarning = true;
+        else this.showNoPliosCreatedWarning = false;
+
         this.prepareTableData(response.data);
       });
     },
 
     async prepareTableData(plioIdList) {
-      this.tableData = this.dummyTableData;
       var tableData = [];
       for (let plioIndex = 0; plioIndex < plioIdList.length; plioIndex++) {
         const plioId = plioIdList[plioIndex];
@@ -79,7 +93,8 @@ export default {
     },
   },
   unmounted() {
-    // remove all plio details when user navigates away from the home page
+    // remove all plio details from the store
+    // when user navigates away from the home page
     this.purgeAllPlios();
   },
 };

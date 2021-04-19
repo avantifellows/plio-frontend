@@ -1,5 +1,5 @@
 <template>
-  <PlioListItemSkeleton v-if="pending || isDummyPlio" class="w-full" />
+  <PlioListItemSkeleton v-if="pending" class="w-full" />
   <div v-else class="rounded-sm p-2 w-auto">
     <div class="grid grid-flow-row auto-rows-min gap-2">
       <!-- last updated date -->
@@ -78,8 +78,7 @@ export default {
   props: {
     plioId: {
       // the id of the plio to render
-      // default is "dummy"
-      default: "dummy",
+      default: "",
       type: String,
     },
   },
@@ -138,10 +137,8 @@ export default {
   },
 
   async created() {
-    // load the plio only if the plio is not a dummy one
-    if (!this.isDummyPlio) {
-      await this.loadPlio();
-    }
+    // load the plio only if the plio id is not empty
+    if (this.plioId != "") await this.loadPlio();
   },
 
   computed: {
@@ -194,9 +191,6 @@ export default {
     isUntitled() {
       // if the plio is untitled or not
       return this.title == "Untitled";
-    },
-    isDummyPlio() {
-      return this.plioId == "dummy";
     },
   },
 
