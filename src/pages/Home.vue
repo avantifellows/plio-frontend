@@ -1,13 +1,11 @@
 <template>
-  <Table :data="tableData" :columns="tableColumns" :org="org" :tableTitle="'All Plios'">
-  </Table>
+  <Table :data="tableData" :columns="tableColumns" :tableTitle="'All Plios'"> </Table>
 </template>
 
 <script>
 import Table from "@/components/UI/Table/Table.vue";
 import PlioAPIService from "@/services/API/Plio.js";
-import SessionAPIService from "@/services/API/Session.js";
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 export default {
   name: "Home",
@@ -30,6 +28,11 @@ export default {
       searchQuery: "",
       tableColumns: ["name", "no. of learners"],
       tableData: [],
+      // dummy table data - to show skeletons when data is being loaded
+      dummyTableData: Array(5).fill({
+        name: { type: "component", value: "dummy" },
+        "no. of learners": "-",
+      }),
     };
   },
   async created() {
@@ -39,6 +42,7 @@ export default {
     ...mapState("auth", ["activeWorkspace"]),
   },
   methods: {
+    ...mapActions("plioItems", ["purgeAllPlios"]),
     async fetchAllPlioIds() {
       var uuidOnly = true;
       await PlioAPIService.getAllPlios(uuidOnly).then((response) => {
@@ -47,6 +51,7 @@ export default {
     },
 
     async prepareTableData(plioIdList) {
+      this.tableData = this.dummyTableData;
       var tableData = [];
       for (let plioIndex = 0; plioIndex < plioIdList.length; plioIndex++) {
         const plioId = plioIdList[plioIndex];
@@ -63,8 +68,7 @@ export default {
               break;
 
             case "no. of learners":
-              tableRow[column] = await SessionAPIService.getUniqueUsersCount(plioId);
-              tableRow[column] = tableRow[column].data;
+              tableRow[column] = await PlioAPIService.getUniqueUsersCount(plioId);
               break;
           }
         }
@@ -73,10 +77,10 @@ export default {
       }
       this.tableData = tableData;
     },
-
-    countUniqueUsers(plioId) {
-      return SessionAPIService.getUniqueUsersCount(plioId);
-    },
+  },
+  unmounted() {
+    // remove all plio details when user navigates away from the home page
+    this.purgeAllPlios();
   },
 };
 </script>

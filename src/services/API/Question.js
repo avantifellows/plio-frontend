@@ -19,8 +19,10 @@ export default {
     );
   },
 
-  duplicateQuestion(questionId) {
-    // create a clone of question with questionId
-    return apiClient().post(questionsEndpoint + questionId + "/duplicate");
+  duplicateQuestion(questionId, itemId) {
+    // create a clone of questionId and link it to the provided "itemId"
+    return apiClient().post(questionsEndpoint + questionId + "/duplicate/", {
+      itemId: itemId,
+    });
   },
 };

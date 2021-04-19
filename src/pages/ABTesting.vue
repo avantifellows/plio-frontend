@@ -4,7 +4,7 @@
 
 <script>
 import ExperimentAPIService from "@/services/API/Experiment.js";
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 
 export default {
   name: "ABTesting",
@@ -20,12 +20,13 @@ export default {
   created() {
     this.getAssignment();
   },
+  computed: mapState("auth", ["userId"]),
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions("auth", ["saveConfigs"]),
     getAssignment() {
-      ExperimentAPIService.getExperimentAssignment(this.id)
+      ExperimentAPIService.getExperimentAssignment(this.id, this.userId)
         .then((res) => {
           // separately seting plio ID although it will be the
           // same as assignment for now as we might conduct interface

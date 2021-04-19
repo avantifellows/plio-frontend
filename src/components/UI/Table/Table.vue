@@ -22,17 +22,15 @@
           <input
             class="w-full text-gray-700 leading-tight focus:outline-none"
             placeholder="Search"
-            name="query"
-            v-model="filterKey"
+            v-model="searchFilterKey"
           />
         </form>
 
         <div class="p-1">
-          <icon-button
-            class="w-8 h-8"
-            :iconConfig="searchIconConfig"
-            :buttonClass="searchButtonClass"
-          ></icon-button>
+          <inline-svg
+            :src="require('@/assets/images/search-solid.svg')"
+            class="text-yellow-600 h-5 w-5"
+          ></inline-svg>
         </div>
       </div>
     </div>
@@ -55,9 +53,7 @@
                     :key="columnName"
                     scope="col"
                     class="sm:px-6 sm:py-3 px-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider"
-                    :class="{
-                      'hidden sm:table-cell': columnIndex != 0,
-                    }"
+                    :class="setColumnHeaderStyleClass(columnIndex)"
                   >
                     <div class="flex">
                       <div
@@ -69,9 +65,7 @@
                         <inline-svg
                           :src="require('@/assets/images/chevron-down-solid.svg')"
                           class="h-3 w-3 my-1 transition ease duration-800"
-                          :class="{
-                            'transform rotate-180': sortOrders[columnName] == -1,
-                          }"
+                          :class="setSortIconStyleClass(columnName)"
                         ></inline-svg>
                       </div>
                     </div>
@@ -93,7 +87,6 @@
                       <div v-if="isComponent(entry[columnName])" class="w-full">
                         <PlioListItem
                           :plioId="entry[columnName].value"
-                          :org="org"
                           @fetched="savePlioDetails(entryIndex, $event)"
                         >
                         </PlioListItem>
@@ -114,11 +107,24 @@
         </div>
       </div>
     </div>
+
+    <!-- create plio button -->
+    <div
+      v-if="isTableEmpty"
+      class="bg-primary border border-2 shadow-lg rounded-2xl p-4 bg-white w-64 m-auto mt-32"
+    >
+      <icon-button
+        :titleConfig="createButtonTextConfig"
+        class="rounded-md mx-auto"
+        @click="createNewPlio"
+      ></icon-button>
+    </div>
   </div>
 </template>
 
 <script>
 import PlioListItem from "@/components/UI/ListItems/PlioListItem.vue";
+import PlioAPIService from "@/services/API/Plio.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { mapState, mapActions } from "vuex";
 
@@ -155,7 +161,7 @@ export default {
   data() {
     return {
       sortKey: "", // the key (table column) to sort the table on
-      filterKey: "", // the string to use when filtering the results
+      searchFilterKey: "", // the string to use when filtering the results
       sortOrders: {}, // store the sorting orders of all columns of the table - asc or desc
       searchIconConfig: {
         enabled: true,
@@ -163,6 +169,10 @@ export default {
         iconClass: "text-yellow-600 h-5 w-5",
       },
       searchButtonClass: "",
+      createButtonTextConfig: {
+        value: "Create a new Plio",
+        class: "text-lg md:text-xl lg:text-2xl text-white",
+      },
     };
   },
 
@@ -176,14 +186,12 @@ export default {
       // total rows present in the table
       return this.filteredData.length || 0;
     },
+    isTableEmpty() {
+      return this.totalItemsInTable == 0;
+    },
     filteredData() {
       // contains the filtered data after applying sorting or searching to the raw data
-
-      let data = this.data;
-      data = this.filterBySearch(data);
-      data = this.filterBySort(data);
-
-      return data;
+      return this.orderBySort(this.filterBySearch(this.data));
     },
   },
   methods: {
@@ -206,12 +214,17 @@ export default {
     },
     sortBy(key) {
       // invoked when sorting arrows are clicked on a table column
+      // sortOrder value can be 1(ascending) or -1(descending)
+      // everytime this method is involed, sortOrder for the "key" is toggled
       this.sortKey = key;
       this.sortOrders[key] = this.sortOrders[key] * -1;
     },
     savePlioDetails(entryIndex, plioDetails) {
       // save the plio details after they are fetched from the PlioListItem
-      // this is done so that the searching/sorting can be done on the plios as well
+
+      // to enable the search functionality on things like plio title, status, date etc,
+      // those details need to be stored in the filteredData object and that too, inside the "name"
+      // key as that key contains the details of plios
       if (this.filteredData != undefined && this.filteredData[entryIndex] != undefined) {
         this.filteredData[entryIndex]["name"] = {
           ...this.filteredData[entryIndex]["name"],
@@ -220,32 +233,35 @@ export default {
       }
     },
     filterBySearch(data) {
-      const filterKey = this.filterKey && this.filterKey.toLowerCase();
-      if (filterKey) {
+      const searchFilterKey = this.searchFilterKey && this.searchFilterKey.toLowerCase();
+      if (searchFilterKey) {
         data = data.filter((row) => {
           return Object.keys(row).some((key) => {
             var objectToFilter = row[key];
             if (typeof objectToFilter === "object" && objectToFilter !== null) {
               return Object.keys(objectToFilter).some((value) => {
                 return (
-                  String(objectToFilter[value]).toLowerCase().indexOf(filterKey) > -1
+                  String(objectToFilter[value]).toLowerCase().indexOf(searchFilterKey) >
+                  -1
                 );
               });
-            } else return String(objectToFilter).toLowerCase().indexOf(filterKey) > -1;
+            } else
+              return String(objectToFilter).toLowerCase().indexOf(searchFilterKey) > -1;
           });
         });
       }
       return data;
     },
-    filterBySort(data) {
+    orderBySort(data) {
       const sortKey = this.sortKey;
-      const order = this.sortOrders[sortKey] || 1;
+      const order = this.sortOrders[sortKey];
 
       if (sortKey) {
         data = data.slice().sort(function (a, b) {
           a = a[sortKey];
           b = b[sortKey];
           if (sortKey == "name") {
+            // to apply sorting on the plio title
             a = a["title"].toLowerCase();
             b = b["title"].toLowerCase();
           }
@@ -253,6 +269,32 @@ export default {
         });
       }
       return data;
+    },
+    setColumnHeaderStyleClass(columnIndex) {
+      return {
+        "hidden sm:table-cell": columnIndex != 0,
+      };
+    },
+    setSortIconStyleClass(columnName) {
+      return {
+        "transform rotate-180": this.sortOrders[columnName] == -1,
+      };
+    },
+    createNewPlio() {
+      // invoked when the user clicks on Create
+      // creates a new draft plio and redirects the user to the editor
+      this.startLoading();
+      PlioAPIService.createPlio().then((response) => {
+        this.stopLoading();
+        if (response.status == 201) {
+          this.$router.push({
+            name: "Editor",
+            params: { plioId: response.data.uuid, org: this.activeWorkspace },
+          });
+        } else {
+          this.$refs.toast.show("error", "Error creating Plio", this.toastLife);
+        }
+      });
     },
   },
 };

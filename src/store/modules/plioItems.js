@@ -5,24 +5,24 @@ const namespaced = true;
 // https://vuex.vuejs.org/guide/modules.html#namespacing
 
 const state = {
-  allPlios: [],
+  allPlioDetails: {},
 };
 const getters = {};
 const actions = {
-  async fetchPlios({ commit, dispatch }) {
-    // dispatch root actions in namespaced modules
-    // https://vuex.vuejs.org/api/#dispatch
-    dispatch("sync/startLoading", null, { root: true });
+  async fetchPlio({ commit }, plioId) {
+    const response = await PlioAPIService.getPlio(plioId);
+    commit("setPlioDetails", { plioId: plioId, plioDetails: response });
+  },
 
-    const response = await PlioAPIService.getAllPlios();
-    var allPlios = response.data;
-    commit("setPliosList", allPlios);
-
-    dispatch("sync/stopLoading", null, { root: true });
+  purgeAllPlios({ commit }) {
+    commit("purseAllPlios");
   },
 };
 const mutations = {
-  setPliosList: (state, plioItems) => (state.allPlios = plioItems),
+  setPlioDetails: (state, data) => {
+    state.allPlioDetails[data.plioId] = data.plioDetails;
+  },
+  purgeAllPlios: (state) => (state.allPlioDetails = {}),
 };
 
 export default {

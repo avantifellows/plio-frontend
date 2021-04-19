@@ -87,4 +87,12 @@ export default {
     // create a clone of plioId plio
     return apiClient().post(pliosEndpoint + plioId + "/duplicate");
   },
+
+  async getUniqueUsersCount(plioId) {
+    // get the count of unique users who watched the given plio
+    var response = await apiClient().get(
+      pliosEndpoint + plioId + "/unique_users"
+    );
+    return response.data;
+  },
 };

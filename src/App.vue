@@ -5,7 +5,7 @@
     >
       <!-- top left logo -->
       <router-link
-        :to="{ name: 'Home', params: { org: activeWorkspace } }"
+        :to="{ name: 'Home' }"
         class="h-14 w-11 justify-self-start place-self-center"
       >
         <img
@@ -66,7 +66,6 @@
       </div>
       <user-properties ref="userProperties"></user-properties>
     </div>
-    <loading-spinner v-if="pending"></loading-spinner>
     <toast ref="toast"></toast>
     <router-view />
   </div>
@@ -76,7 +75,6 @@
 import WorkspaceSwitcher from "@/components/UI/WorkspaceSwitcher.vue";
 import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
 import UserProperties from "@/services/Config/User.vue";
-import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import Toast from "@/components/UI/Alert/Toast.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
@@ -87,7 +85,6 @@ export default {
     WorkspaceSwitcher,
     LocaleSwitcher,
     UserProperties,
-    LoadingSpinner,
     IconButton,
     Toast,
   },
@@ -183,7 +180,7 @@ export default {
       return pageName;
     },
     coverBackground() {
-      return this.pending || this.showAlertDialog;
+      return this.showAlertDialog;
     },
   },
 };

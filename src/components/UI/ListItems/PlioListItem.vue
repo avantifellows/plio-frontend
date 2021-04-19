@@ -1,5 +1,5 @@
 <template>
-  <PlioListItemSkeleton v-if="pending" class="w-full" />
+  <PlioListItemSkeleton v-if="pending || isDummyPlio" class="w-full" />
   <div v-else class="rounded-sm p-2 w-auto">
     <div class="grid grid-flow-row auto-rows-min gap-2">
       <!-- last updated date -->
@@ -78,12 +78,8 @@ export default {
   props: {
     plioId: {
       // the id of the plio to render
-      default: "",
-      type: String,
-    },
-    org: {
-      // the active workspace
-      default: "",
+      // default is "dummy"
+      default: "dummy",
       type: String,
     },
   },
@@ -132,9 +128,6 @@ export default {
       duplicateButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10",
       urlStyleClass: "text-xs font-bold text-yellow-600",
       urlCopyButtonClass: "text-yellow-600",
-
-      // stores the id of the newly created duplicated plio
-      duplicatedPlioId: null,
     };
   },
 
@@ -145,12 +138,16 @@ export default {
   },
 
   async created() {
-    await this.loadPlio();
+    // load the plio only if the plio is not a dummy one
+    if (!this.isDummyPlio) {
+      await this.loadPlio();
+    }
   },
 
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
+    ...mapState("plioItems", ["allPlioDetails"]),
     playButtonTooltip() {
       return this.isPublished ? "Play this plio" : "Cannot play a draft plio";
     },
@@ -191,34 +188,35 @@ export default {
         return "";
       }
       var baseURL = process.env.VUE_APP_FRONTEND + "/#";
-      if (this.org != "") baseURL += "/" + this.org;
+      if (this.activeWorkspace != "") baseURL += "/" + this.activeWorkspace;
       return baseURL + "/play/" + this.plioId;
     },
     isUntitled() {
       // if the plio is untitled or not
       return this.title == "Untitled";
     },
+    isDummyPlio() {
+      return this.plioId == "dummy";
+    },
   },
 
   methods: {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
+    ...mapActions("plioItems", ["fetchPlio"]),
     async loadPlio() {
-      // fetch the details of the plio
-      await PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
-        this.startLoading();
-        this.plioDetails = plioDetails;
+      // fetch the details of the plio if they don't exist in the store
+      if (!(this.plioId in this.allPlioDetails)) await this.fetchPlio(this.plioId);
 
-        // prepare data to emit to the parent component
-        var dataToEmit = {
-          status: this.status,
-          updateAt: this.updatedAt,
-          title: this.title,
-          plioLink: this.plioLink,
-        };
+      this.plioDetails = this.allPlioDetails[this.plioId];
+      var dataToEmit = {
+        status: this.status,
+        updateAt: this.updatedAt,
+        title: this.title,
+        plioLink: this.plioLink,
+      };
 
-        this.$emit("fetched", dataToEmit);
-        this.stopLoading();
-      });
+      this.$emit("fetched", dataToEmit);
+      this.stopLoading();
     },
     playPlio() {
       // invoked when play button is clicked
@@ -244,37 +242,27 @@ export default {
       this.startLoading();
       var newPlio = await PlioAPIService.duplicatePlio(this.plioId);
       var newPlioDBId = newPlio.data.id;
-      this.duplicatedPlioId = newPlio.data.uuid;
 
       await Promise.all(
         this.plioDetails.items.map(async (item) => {
           // duplicate item and update it to link the item to the plio
-          var newItem = await ItemAPIService.duplicateItem(item.id);
-          var newItemDBId = newItem.data.id;
-          await ItemAPIService.updateItem({
-            id: newItemDBId,
-            plio: newPlioDBId,
-            time: item.time,
-          });
+          var newItem = await ItemAPIService.duplicateItem(item.id, newPlioDBId);
 
           // duplicate question and update it to link the item to the question
-          var newQuestion = await QuestionAPIService.duplicateQuestion(item.details.id);
-          var newQuestionDBId = newQuestion.data.id;
-          await QuestionAPIService.updateQuestion({
-            id: newQuestionDBId,
-            item: newItemDBId,
-          });
+          await QuestionAPIService.duplicateQuestion(item.details.id, newItem.data.id);
         })
       );
+      return newPlio.data.uuid;
     },
 
     async duplicateThenRoute() {
       // duplicate the plio and when it's done, route to the editor
-      await this.duplicatePlio();
-      this.stopLoading();
-      this.$router.push({
-        name: "Editor",
-        params: { plioId: this.duplicatedPlioId, org: this.activeWorkspace },
+      await this.duplicatePlio().then((duplicatedPlioId) => {
+        this.stopLoading();
+        this.$router.push({
+          name: "Editor",
+          params: { plioId: duplicatedPlioId, org: this.activeWorkspace },
+        });
       });
     },
   },

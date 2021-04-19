@@ -20,8 +20,10 @@ export default {
     return apiClient().delete(itemsEndpoint + itemId);
   },
 
-  duplicateItem(itemId) {
-    // Create a clone of itemId
-    return apiClient().post(itemsEndpoint + itemId + "/duplicate");
+  duplicateItem(itemId, plioDBId) {
+    // Create a clone of itemId and link it to the prodided "plioDBId"
+    return apiClient().post(itemsEndpoint + itemId + "/duplicate/", {
+      plioId: plioDBId,
+    });
   },
 };
