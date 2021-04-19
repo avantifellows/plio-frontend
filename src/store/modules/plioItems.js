@@ -15,7 +15,7 @@ const actions = {
   },
 
   purgeAllPlios({ commit }) {
-    commit("purseAllPlios");
+    commit("purgeAllPlios");
   },
 };
 const mutations = {

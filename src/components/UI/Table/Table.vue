@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col mx-2 xsm:mx-4 sm:mx-6 md:mx-8 lg:mx-10 xl:mx-14">
     <!-- nav bar for table -->
-    <div class="flex flex-col xsm:flex-row justify-between pt-4">
+    <div class="flex flex-col xsm:flex-row justify-between pt-4" v-if="!isTableEmpty">
       <!-- table title -->
       <div
         class="flex flex-row gap-2 text-base sm:text-lg md:text-xl xl:text-2xl font-bold p-2 items-center"
@@ -37,7 +37,7 @@
 
     <!-- table -->
     <!-- structure inspired from https://tailwindui.com/components/application-ui/lists/tables  -->
-    <div class="flex flex-col">
+    <div class="flex flex-col" v-if="!isTableEmpty">
       <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
           <div
