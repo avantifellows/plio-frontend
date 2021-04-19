@@ -18,4 +18,11 @@ export default {
       questionDetails
     );
   },
+
+  duplicateQuestion(questionId, itemId) {
+    // create a clone of questionId and link it to the provided "itemId"
+    return apiClient().post(questionsEndpoint + questionId + "/duplicate/", {
+      itemId: itemId,
+    });
+  },
 };

@@ -1,3 +1,5 @@
+const defaultTheme = require("tailwindcss/defaultTheme");
+
 module.exports = {
   purge: ["./public/index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   darkMode: false, // or 'media' or 'class'
@@ -14,6 +16,10 @@ module.exports = {
       "primary-button-hover": "#db7506",
       "delete-button": "#E80000",
     }),
+    screens: {
+      xsm: "360px",
+      ...defaultTheme.screens,
+    },
   },
   variants: {
     extend: {

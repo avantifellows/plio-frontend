@@ -17,7 +17,7 @@
 
       <!-- workspace switcher -->
       <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
-        <WorkspaceSwitcher id="locale" class="flex justify-center"></WorkspaceSwitcher>
+        <WorkspaceSwitcher class="flex justify-center"></WorkspaceSwitcher>
       </div>
 
       <!-- page heading -->
@@ -66,7 +66,6 @@
       </div>
       <user-config ref="userConfig"></user-config>
     </div>
-    <loading-spinner v-if="pending"></loading-spinner>
     <toast ref="toast"></toast>
     <router-view />
   </div>
@@ -76,7 +75,6 @@
 import WorkspaceSwitcher from "@/components/UI/WorkspaceSwitcher.vue";
 import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
 import UserConfig from "@/services/Config/User.vue";
-import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import Toast from "@/components/UI/Alert/Toast.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
@@ -87,7 +85,6 @@ export default {
     WorkspaceSwitcher,
     LocaleSwitcher,
     UserConfig,
-    LoadingSpinner,
     IconButton,
     Toast,
   },
@@ -176,7 +173,7 @@ export default {
     },
     coverBackground() {
       // whether to apply opacity to the background
-      return this.pending || this.showAlertDialog;
+      return this.showAlertDialog;
     },
     isUserApproved() {
       // whether the user is an approved user or in waitlist

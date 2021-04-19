@@ -77,6 +77,10 @@ export default {
       player.on("enterfullscreen", this.emitEnterFullscreen);
       player.on("exitfullscreen", this.emitExitFullscreen);
       player.on("seeked", this.emitSeeked);
+
+      // allow user to interact with the youtube iframe elements
+      var plyr_poster = document.getElementById("plyr__poster");
+      plyr_poster.remove();
     },
     emitTimeUpdate() {
       // emit an event saying that the player time has been updated
@@ -127,3 +131,8 @@ export default {
   ],
 };
 </script>
+<style lang="scss">
+.plyr__poster {
+  z-index: -1 !important;
+}
+</style>
