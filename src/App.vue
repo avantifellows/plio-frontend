@@ -113,6 +113,7 @@ export default {
   },
   watch: {
     pending(value) {
+      // start or finish progress bar depending on the value of "pending"
       if (value) this.$Progress.start();
       else this.$Progress.finish();
     },
