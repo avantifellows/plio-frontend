@@ -6,7 +6,7 @@ RUN npm install
 
 # development stage
 FROM base-stage as development-stage
-CMD ["npm", "run", "serve"]
+CMD npm run serve -- --port ${APP_PORT}
 
 # build stage
 FROM base-stage as build-stage
