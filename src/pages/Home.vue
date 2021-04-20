@@ -72,7 +72,7 @@ export default {
     ...mapState("auth", ["activeWorkspace", "user"]),
     isUserApproved() {
       // whether the user is an approved user or in waitlist
-      return this.user.status == "approved";
+      return this.user != null && this.user.status == "approved" ? true : false;
     },
   },
   methods: {

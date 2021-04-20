@@ -69,6 +69,7 @@
     <toast ref="toast"></toast>
     <router-view />
   </div>
+  <vue-progress-bar></vue-progress-bar>
 </template>
 
 <script>
@@ -110,6 +111,12 @@ export default {
     // set locale based on their config
     this.$refs.userConfig.setLocaleFromUserConfig();
   },
+  watch: {
+    pending(value) {
+      if (value) this.$Progress.start();
+      else this.$Progress.finish();
+    },
+  },
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
@@ -124,9 +131,9 @@ export default {
     createNewPlio() {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
-      this.startLoading();
+      this.$Progress.start();
       PlioAPIService.createPlio().then((response) => {
-        this.stopLoading();
+        this.$Progress.finish();
         if (response.status == 201) {
           this.$router.push({
             name: "Editor",
@@ -177,7 +184,7 @@ export default {
     },
     isUserApproved() {
       // whether the user is an approved user or in waitlist
-      return this.user.status == "approved";
+      return this.user != null && this.user.status == "approved" ? true : false;
     },
   },
 };
