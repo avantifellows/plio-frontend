@@ -360,7 +360,7 @@ export default {
     },
     backButtonClass() {
       // classes for the back button
-      return "bg-gray-100 hover:bg-gray-200 rounded-md shadow-lg";
+      return "bg-gray-100 hover:bg-gray-200 rounded-md shadow-lg ring-primary";
     },
     backButtonTitleConfig() {
       // config for text of back button
@@ -383,9 +383,13 @@ export default {
     },
     publishButtonClass() {
       // class for the publish button
-      return {
-        "opacity-50 cursor-not-allowed pointer-events-none": !this.isPublishButtonEnabled,
-      };
+      return [
+        {
+          "opacity-50 cursor-not-allowed pointer-events-none": !this
+            .isPublishButtonEnabled,
+        },
+        `rounded-md ring-green-500`,
+      ];
     },
     publishButtonTooltip() {
       // tooltip text for publish button
@@ -479,7 +483,7 @@ export default {
       var classObject = [
         { "cursor-not-allowed": this.addItemDisabled },
 
-        `rounded-md font-bold p-5 h-12 w-96 bg-primary-button
+        `rounded-md font-bold p-5 h-12 w-96 bg-primary-button ring-primary
         hover:bg-primary-button-hover disabled:opacity-50 shadow-lg`,
       ];
       return classObject;
