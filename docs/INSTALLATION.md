@@ -34,7 +34,7 @@ Follow the steps below to set up the repo for development
     git clone https://github.com/avantifellows/plio-frontend.git
     cd plio-frontend
     ```
-2. Make sure Docker is installed and docker version is running fine.
+2. For **DEVELOPMENT PURPOSE** only, make sure Docker Desktop application is running and docker version is giving a proper output.
     ```sh
     docker --version
     ```

@@ -1,8 +1,15 @@
-# build stage
-FROM node:lts-alpine as build-stage
+# base stage
+FROM node:lts-alpine as base-stage
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
+
+# development stage
+FROM base-stage as development-stage
+CMD ["npm", "run", "serve"]
+
+# build stage
+FROM base-stage as build-stage
 COPY . .
 RUN npm run build
 
