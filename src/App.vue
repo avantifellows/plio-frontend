@@ -185,7 +185,7 @@ export default {
     },
     isUserApproved() {
       // whether the user is an approved user or in waitlist
-      return this.user != null && this.user.status == "approved" ? true : false;
+      return this.user != null && this.user.status == "approved"
     },
   },
 };
