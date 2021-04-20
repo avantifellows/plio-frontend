@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import i18n from "./services/Localisation/i18n.js";
 import PrimeVue from "primevue/config";
 import InlineSvg from "vue-inline-svg";
+import VueProgressBar from "@aacassandra/vue3-progressbar";
 
 import "primevue/resources/themes/saga-blue/theme.css";
 import "primevue/resources/primevue.min.css";
@@ -25,6 +26,20 @@ const gAuthOptions = {
   fetch_basic_profile: false,
 };
 
+const vueProgressBarOptions = {
+  color: "#F78000",
+  failedColor: "#874b4b",
+  thickness: "10px",
+  transition: {
+    speed: "0.2s",
+    opacity: "0.6s",
+    termination: 300,
+  },
+  autoRevert: true,
+  location: "top",
+  inverse: false,
+};
+
 const app = createApp(App).use(store).use(router);
 
 app.component("font-awesome-icon", FontAwesomeIcon);
@@ -34,5 +49,6 @@ app.use(i18n);
 app.use(PrimeVue, { ripple: true });
 app.use(ToastService);
 app.use(GAuth, gAuthOptions);
+app.use(VueProgressBar, vueProgressBarOptions);
 app.directive("tooltip", Tooltip);
 app.mount("#app");
