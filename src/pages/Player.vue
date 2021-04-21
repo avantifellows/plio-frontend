@@ -47,6 +47,7 @@ import EventAPIService from "@/services/API/Event.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import ItemModal from "../components/Player/ItemModal.vue";
+import { useToast } from "vue-toastification";
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
@@ -179,6 +180,8 @@ export default {
       sessionDBId: null, // id for this session in the plio DB table
       retention: [], // array to store video retention value
       lastTimestampRetention: null, // last recorded timestamp in the retention array
+      toast: useToast(), // use the toast component
+      genericWarning: "Something went wrong. Please try again!",
     };
   },
   watch: {
@@ -406,6 +409,7 @@ export default {
       if (err.response && err.response.status == 404) {
         this.$router.replace({ name: "404" });
       } else {
+        this.toast.warning(this.genericWarning);
         console.log(err);
       }
     },
