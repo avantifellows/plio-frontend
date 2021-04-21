@@ -1,5 +1,6 @@
 import axios from "axios";
 import store from "../../store";
+import ErrorHandling from "@/services/Functional/ErrorHandling.js";
 
 let headers = {
   Accept: "application/json",
@@ -34,6 +35,18 @@ client.interceptors.request.use(
   },
   (error) => {
     // handle the error
+    ErrorHandling.handleAPIErrors(error);
+    return Promise.reject(error);
+  }
+);
+
+// handle errors in responses for API requests
+client.interceptors.response.use(
+  (config) => {
+    return config;
+  },
+  (error) => {
+    ErrorHandling.handleAPIErrors(error);
     return Promise.reject(error);
   }
 );

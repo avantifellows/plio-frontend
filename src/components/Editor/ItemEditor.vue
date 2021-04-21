@@ -419,7 +419,6 @@ export default {
       // along with the index to actually let the component choose which
       // label to show (using a v-model). This combination of "index", "label"
       // can be used by some other parent component as well.
-      // TODO: ditch the primevue implementation
       var optionsList = [];
       this.localItemList.forEach((item, itemIndex) => {
         var currentItem = {};
