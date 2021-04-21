@@ -16,17 +16,16 @@
       >
       </inline-svg>
     </button>
-    <toast class="mt-20" ref="toast"></toast>
   </div>
 </template>
 
 <script>
-import Toast from "@/components/UI/Alert/Toast.vue";
+import { useToast } from "vue-toastification";
 
 export default {
   data() {
     return {
-      toastLife: 3000,
+      toast: useToast(), // use the toast component
     };
   },
   props: {
@@ -46,9 +45,7 @@ export default {
       type: [String, Object],
     },
   },
-  components: {
-    Toast,
-  },
+  components: {},
   computed: {
     urlTextClass() {
       return [
@@ -68,11 +65,8 @@ export default {
       hiddenElement.select();
       var success = document.execCommand("copy");
       document.body.removeChild(hiddenElement);
-      if (success) {
-        this.$refs.toast.show("success", "URL Copied Successfully", this.toastLife);
-      } else {
-        this.$refs.toast.show("error", "Error while copying", this.toastLife);
-      }
+      if (success) this.toast.success("URL Copied Successfully");
+      else this.toast.error("Error while copying");
 
       this.$emit("copied", success);
     },

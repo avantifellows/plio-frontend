@@ -66,7 +66,6 @@
       </div>
       <user-config ref="userConfig"></user-config>
     </div>
-    <toast ref="toast"></toast>
     <router-view />
   </div>
 </template>
@@ -76,9 +75,9 @@ import WorkspaceSwitcher from "@/components/UI/WorkspaceSwitcher.vue";
 import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
 import UserConfig from "@/services/Config/User.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
-import Toast from "@/components/UI/Alert/Toast.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import PlioAPIService from "@/services/API/Plio.js";
+import { useToast } from "vue-toastification";
 
 export default {
   components: {
@@ -86,7 +85,6 @@ export default {
     LocaleSwitcher,
     UserConfig,
     IconButton,
-    Toast,
   },
   data() {
     return {
@@ -94,8 +92,8 @@ export default {
         value: "Create",
         class: "text-lg md:text-xl lg:text-2xl text-white",
       },
-      toastLife: 3000,
       showAlertDialog: false,
+      toast: useToast(), // use the toast component
     };
   },
   created() {
@@ -133,7 +131,7 @@ export default {
             params: { plioId: response.data.uuid, org: this.activeWorkspace },
           });
         } else {
-          this.$refs.toast.show("error", "Error creating Plio", this.toastLife);
+          this.toast.error("Error creating Plio");
         }
       });
     },
