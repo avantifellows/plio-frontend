@@ -53,4 +53,4 @@ Follow the steps below to set up the repo for development
     ```
 7.  Your frontend app should be accessible at http://localhost:8080.
 
-    **NOTE** - To install and set up the Plio Backend, follow the steps outlined [here](https://github.com/avantifellows/plio-backend#readme)
+    **NOTE** - To install and set up the Plio Backend, follow the steps outlined [here](https://github.com/avantifellows/plio-backend#readme).
