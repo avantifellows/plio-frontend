@@ -1,13 +1,15 @@
 ## Installation
 
 - [Pre-requisites](#pre-requisites)
-  - [Development](#development)
+  - [Docker](#docker)
+  - [Pre-commit](#pre-commit)
 - [Installation steps](#installation-steps)
 
 ### Pre-requisites
-1. Install [nodeJs](https://nodejs.org/en/), [vue-cli](https://cli.vuejs.org/guide/installation.html) and [yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable).
+#### Docker
+Download docker for your operating system: https://docs.docker.com/get-docker/
 
-#### Development
+#### Pre-commit
 1. Install pre-commit
     Use `pip` to install pre-commit
     ```sh
@@ -32,29 +34,23 @@ Follow the steps below to set up the repo for development
     git clone https://github.com/avantifellows/plio-frontend.git
     cd plio-frontend
     ```
-2. Install the dependencies
-    #### Development
+2. For **DEVELOPMENT PURPOSE** only, make sure Docker Desktop application is running and docker version is giving a proper output.
     ```sh
-    npm install
+    docker --version
     ```
-
-    #### Production
-    ```sh
-    npm install --production
-    ```
-3. For **development** only, run the following command to install pre-commit
-    ```sh
-    pre-commit install
-    ```
-4. Set up your `.env` file by copying `.env.example` file
+3. Set up your `.env` file by copying `.env.example` file
     ```sh
     cp .env.example .env
     ```
-5. Update environment variables in your `.env` file based on your environment. You can read the docs mentioned at [Contributing](../README.md#contributing) to understand more about the environment variables and their significance.
-6. Run the vue ui
+4. Update environment variables in your `.env` file based on your environment. For all available settings, see our [Environment variables guide](ENV.md).
+5. Build the docker image and run the containers using just one command:
     ```sh
-    vue ui
+    docker-compose up -d --build
     ```
-   This will start a local server from where the project can be served locally, or deployed to dev/staging.
+6. For **development** only, run the following command to install pre-commit
+    ```sh
+    pre-commit install
+    ```
+7.  Your frontend app should be accessible at http://localhost:8080.
 
-   **NOTE** - The project will be up and running with this method but you'll have to start the backend service and the API layer service locally as well to get it working fully.
+    **NOTE** - The project will be up and running with this method but you'll have to start the backend service and the API layer service locally as well to get it working fully.

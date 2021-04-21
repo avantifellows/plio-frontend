@@ -1,0 +1,16 @@
+version: '3.7'
+
+services: # the different images that will be running as containers
+  web: # service name
+    build:
+      context: . # build the image for the web service from the dockerfile in parent directory.
+      target: development-stage # docker-compose is only run for the local setup
+    volumes:
+      - .:/app # map data and files from parent directory in host to plio directory in docker container
+      - /app/node_modules # we need to mount the node_modules folder because the volume is not mounted during the build.
+    env_file: # file where env variables are stored. Used as best practice so as not to expose secret keys
+      - .env # name of the env file
+    image: plio-frontend # name of the image
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    restart: "on-failure"

@@ -80,7 +80,7 @@ export default {
 
       // allow user to interact with the youtube iframe elements
       var plyr_poster = document.getElementById("plyr__poster");
-      plyr_poster.remove();
+      if (plyr_poster != null) plyr_poster.remove();
     },
     emitTimeUpdate() {
       // emit an event saying that the player time has been updated
