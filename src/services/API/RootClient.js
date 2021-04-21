@@ -35,7 +35,6 @@ client.interceptors.request.use(
   },
   (error) => {
     // handle the error
-    ErrorHandling.handleAPIErrors(error);
     return Promise.reject(error);
   }
 );

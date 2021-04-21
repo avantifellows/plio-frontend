@@ -181,7 +181,7 @@ export default {
       retention: [], // array to store video retention value
       lastTimestampRetention: null, // last recorded timestamp in the retention array
       toast: useToast(), // use the toast component
-      somethingWentWrongWarning: "Something went wrong. Please try again!",
+      genericWarning: "Something went wrong. Please try again!",
     };
   },
   watch: {
@@ -409,7 +409,7 @@ export default {
       if (err.response && err.response.status == 404) {
         this.$router.replace({ name: "404" });
       } else {
-        this.toast.warning(this.somethingWentWrongWarning);
+        this.toast.warning(this.genericWarning);
         console.log(err);
       }
     },

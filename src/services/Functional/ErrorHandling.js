@@ -3,8 +3,9 @@ const toast = useToast();
 
 export default {
   handleAPIErrors(error) {
-    // TODO - Add more types of errors here
-    if (error.message == "Network Error")
-      toast.error("A network error occurred.");
+    if (!error.status) {
+      // https://github.com/axios/axios/issues/383
+      toast.error("Please check your internet connection.");
+    }
   },
 };

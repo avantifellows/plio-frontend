@@ -101,7 +101,7 @@ export default {
       invalidOtp: false, // whether the OTP is invalid
       toast: useToast(), // use the toast component
       wrongOTPWarning: "Incorrect OTP entered. Please try again!", // Warning to show when entered OTP is incorrect
-      somethingWentWrongWarning: "Something went wrong. Please try again!",
+      genericWarning: "Something went wrong. Please try again!",
     };
   },
   computed: {
@@ -241,7 +241,7 @@ export default {
           }
         );
       } catch (error) {
-        this.toast.warning(this.somethingWentWrongWarning);
+        this.toast.warning(this.genericWarning);
         console.error(error);
         return null;
       }

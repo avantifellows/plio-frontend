@@ -45,7 +45,6 @@ export default {
       type: [String, Object],
     },
   },
-  components: {},
   computed: {
     urlTextClass() {
       return [
