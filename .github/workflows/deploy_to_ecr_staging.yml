@@ -37,9 +37,27 @@ jobs:
         ECR_REPOSITORY: plio-frontend-staging
         IMAGE_TAG: ${{ github.sha }}
         IMAGE_TAG_LATEST: latest
+        VUE_APP_BACKEND: ${{ secrets.VUE_APP_BACKEND }}
+        VUE_APP_BACKEND_AUTH_URL: ${{ secrets.VUE_APP_BACKEND_AUTH_URL }}
+        VUE_APP_FRONTEND: ${{ secrets.VUE_APP_FRONTEND }}
+        VUE_APP_I18N_LOCALE: ${{ secrets.VUE_APP_I18N_LOCALE }}
+        VUE_APP_I18N_FALLBACK_LOCALE: ${{ secrets.VUE_APP_I18N_FALLBACK_LOCALE }}
+        VUE_APP_GOOGLE_CLIENT_ID: ${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }}
+        VUE_APP_BACKEND_API_CLIENT_ID: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }}
+        VUE_APP_BACKEND_API_CLIENT_SECRET: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}
       run: |
         # Build a docker container and push it to ECR
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_LATEST . --target production-stage
+        docker build \
+        --target production-stage \
+        --build-arg VUE_APP_BACKEND=$VUE_APP_BACKEND \
+        --build-arg VUE_APP_BACKEND_AUTH_URL=$VUE_APP_BACKEND_AUTH_URL \
+        --build-arg VUE_APP_FRONTEND=$VUE_APP_FRONTEND \
+        --build-arg VUE_APP_I18N_LOCALE=$VUE_APP_I18N_LOCALE \
+        --build-arg VUE_APP_I18N_FALLBACK_LOCALE=$VUE_APP_I18N_FALLBACK_LOCALE \
+        --build-arg VUE_APP_GOOGLE_CLIENT_ID=$VUE_APP_GOOGLE_CLIENT_ID \
+        --build-arg VUE_APP_BACKEND_API_CLIENT_ID=$VUE_APP_BACKEND_API_CLIENT_ID \
+        --build-arg VUE_APP_BACKEND_API_CLIENT_SECRET=$VUE_APP_BACKEND_API_CLIENT_SECRET \
+        -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_LATEST .
         echo "Pushing image to ECR..."
         docker push $ECR_REGISTRY/$ECR_REPOSITORY --all-tags
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
