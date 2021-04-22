@@ -79,11 +79,8 @@ jobs:
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      env:
-        SERVICE_NAME: plio-frontend-staging
-        CLUSTER_NAME: plio-staging-cluster
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: $SERVICE_NAME
-        cluster: $CLUSTER_NAME
+        service: plio-frontend-staging
+        cluster: plio-staging-cluster
         wait-for-service-stability: true
