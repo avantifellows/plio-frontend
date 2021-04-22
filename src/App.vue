@@ -5,7 +5,7 @@
     >
       <!-- top left logo -->
       <router-link
-        :to="{ name: 'Home' }"
+        :to="{ name: 'Home', params: { org: activeWorkspace } }"
         class="h-14 w-11 justify-self-start place-self-center"
       >
         <img
@@ -183,7 +183,7 @@ export default {
     },
     isUserApproved() {
       // whether the user is an approved user or in waitlist
-      return this.user != null && this.user.status == "approved"
+      return this.user != null && this.user.status == "approved";
     },
   },
 };
