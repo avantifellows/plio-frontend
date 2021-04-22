@@ -72,6 +72,7 @@ import UserConfig from "@/services/Config/User.vue";
 import InputNumber from "../components/UI/Text/InputNumber.vue";
 import IconButton from "../components/UI/Buttons/IconButton.vue";
 import { mapActions } from "vuex";
+import { useToast } from "vue-toastification";
 
 export default {
   props: {
@@ -98,6 +99,9 @@ export default {
       requestedOtp: false, // whether the user has requested OTP once
       resentOtp: false, // whether the user has requested to resend OTP
       invalidOtp: false, // whether the OTP is invalid
+      toast: useToast(), // use the toast component
+      wrongOTPWarning: "Incorrect OTP entered. Please try again!", // Warning to show when entered OTP is incorrect
+      genericWarning: "Something went wrong. Please try again!",
     };
   },
   computed: {
@@ -216,7 +220,10 @@ export default {
         })
         .catch((error) => {
           if (error.response.status == 401) {
+            // show wrong OTP warning and reset the OTP input text box
             this.invalidOtp = true;
+            this.toast.error(this.wrongOTPWarning);
+            this.otpInput = "";
           }
         });
     },
@@ -234,6 +241,7 @@ export default {
           }
         );
       } catch (error) {
+        this.toast.warning(this.genericWarning);
         console.error(error);
         return null;
       }

@@ -108,7 +108,6 @@
         ></icon-button>
       </div>
     </div>
-    <toast ref="toast"></toast>
   </div>
 </template>
 
@@ -118,7 +117,6 @@ import ItemDropDown from "../UI/DropDownMenu/ItemDropDown.vue";
 import InputText from "../UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
-import Toast from "@/components/UI/Alert/Toast";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 
 export default {
@@ -209,7 +207,6 @@ export default {
     InputText,
     TimeInput,
     Textarea,
-    Toast,
   },
   methods: {
     checkTimeInputErrors(timeInput) {
@@ -419,7 +416,6 @@ export default {
       // along with the index to actually let the component choose which
       // label to show (using a v-model). This combination of "index", "label"
       // can be used by some other parent component as well.
-      // TODO: ditch the primevue implementation
       var optionsList = [];
       this.localItemList.forEach((item, itemIndex) => {
         var currentItem = {};

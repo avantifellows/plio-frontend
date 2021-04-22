@@ -17,7 +17,7 @@
 
       <!-- workspace switcher -->
       <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
-        <WorkspaceSwitcher id="locale" class="flex justify-center"></WorkspaceSwitcher>
+        <WorkspaceSwitcher class="flex justify-center"></WorkspaceSwitcher>
       </div>
 
       <!-- page heading -->
@@ -66,30 +66,26 @@
       </div>
       <user-config ref="userConfig"></user-config>
     </div>
-    <loading-spinner v-if="pending"></loading-spinner>
-    <toast ref="toast"></toast>
     <router-view />
   </div>
+  <vue-progress-bar></vue-progress-bar>
 </template>
 
 <script>
 import WorkspaceSwitcher from "@/components/UI/WorkspaceSwitcher.vue";
 import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
 import UserConfig from "@/services/Config/User.vue";
-import LoadingSpinner from "@/components/UI/LoadingSpinner.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
-import Toast from "@/components/UI/Alert/Toast.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import PlioAPIService from "@/services/API/Plio.js";
+import { useToast } from "vue-toastification";
 
 export default {
   components: {
     WorkspaceSwitcher,
     LocaleSwitcher,
     UserConfig,
-    LoadingSpinner,
     IconButton,
-    Toast,
   },
   data() {
     return {
@@ -97,8 +93,8 @@ export default {
         value: "Create",
         class: "text-lg md:text-xl lg:text-2xl text-white",
       },
-      toastLife: 3000,
       showAlertDialog: false,
+      toast: useToast(), // use the toast component
     };
   },
   created() {
@@ -112,6 +108,13 @@ export default {
   mounted() {
     // set locale based on their config
     this.$refs.userConfig.setLocaleFromUserConfig();
+  },
+  watch: {
+    pending(value) {
+      // start or finish progress bar depending on the value of "pending"
+      if (value) this.$Progress.start();
+      else this.$Progress.finish();
+    },
   },
   methods: {
     // object spread operator
@@ -127,16 +130,16 @@ export default {
     createNewPlio() {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
-      this.startLoading();
+      this.$Progress.start();
       PlioAPIService.createPlio().then((response) => {
-        this.stopLoading();
+        this.$Progress.finish();
         if (response.status == 201) {
           this.$router.push({
             name: "Editor",
             params: { plioId: response.data.uuid, org: this.activeWorkspace },
           });
         } else {
-          this.$refs.toast.show("error", "Error creating Plio", this.toastLife);
+          this.toast.error("Error creating Plio");
         }
       });
     },
@@ -164,7 +167,7 @@ export default {
     },
     showCreateButton() {
       // whether to show the Create button
-      return this.isAuthenticated && this.$route.name == "Home";
+      return this.isAuthenticated && this.$route.name == "Home" && this.isUserApproved;
     },
     currentPageName() {
       // name of the current page as saved in assets/locales
@@ -175,7 +178,12 @@ export default {
       return pageName;
     },
     coverBackground() {
-      return this.pending || this.showAlertDialog;
+      // whether to apply opacity to the background
+      return this.showAlertDialog;
+    },
+    isUserApproved() {
+      // whether the user is an approved user or in waitlist
+      return this.user != null && this.user.status == "approved"
     },
   },
 };

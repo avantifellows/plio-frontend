@@ -8,7 +8,8 @@
       <!--- preview grid -->
       <div class="flex flex-col ml-5 mr-5">
         <!--- plio link -->
-        <URL :link="plioLink" class="justify-center m-4"></URL>
+        <URL :link="plioLink" class="justify-center m-4" :isUnderlined="true"></URL>
+
         <div class="justify-center">
           <!--- video preview -->
           <div v-if="!isVideoIdValid" class="flex justify-center">
@@ -328,6 +329,7 @@ export default {
         "border-black text-black": !this.isPublished,
         "text-xs": true,
         "lg:text-base": true,
+        "px-4 py-2": true,
       };
       return badgeClass;
     },
@@ -358,7 +360,7 @@ export default {
     },
     backButtonClass() {
       // classes for the back button
-      return "bg-gray-100 hover:bg-gray-200 rounded-md shadow-lg";
+      return "bg-gray-100 hover:bg-gray-200 rounded-md shadow-lg ring-primary";
     },
     backButtonTitleConfig() {
       // config for text of back button
@@ -381,9 +383,13 @@ export default {
     },
     publishButtonClass() {
       // class for the publish button
-      return {
-        "opacity-50 cursor-not-allowed pointer-events-none": !this.isPublishButtonEnabled,
-      };
+      return [
+        {
+          "opacity-50 cursor-not-allowed pointer-events-none": !this
+            .isPublishButtonEnabled,
+        },
+        `rounded-md ring-green-500`,
+      ];
     },
     publishButtonTooltip() {
       // tooltip text for publish button
@@ -477,7 +483,7 @@ export default {
       var classObject = [
         { "cursor-not-allowed": this.addItemDisabled },
 
-        `rounded-md font-bold p-5 h-12 w-96 bg-primary-button
+        `rounded-md font-bold p-5 h-12 w-96 bg-primary-button ring-primary
         hover:bg-primary-button-hover disabled:opacity-50 shadow-lg`,
       ];
       return classObject;
