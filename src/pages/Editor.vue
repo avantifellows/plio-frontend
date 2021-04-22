@@ -512,7 +512,7 @@ export default {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
     returnToHome() {
       // returns the user back to Home
-      this.$router.push({ name: "Home" });
+      this.$router.push({ name: "Home", params: { org: this.org } });
     },
     capitalize(string) {
       // capitalize first letter of string and return
