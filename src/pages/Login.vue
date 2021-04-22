@@ -53,7 +53,7 @@
       <p v-if="resentOtp" class="text-center mt-2">
         {{ $t("login.learner.message_otp_resent") }}
       </p>
-      <p class="text-center text-2xl sm:text-4xl my-10">OR try with</p>
+      <p class="text-center text-2xl sm:text-4xl my-10">OR use</p>
       <!-- google sign in button -->
       <icon-button
         :iconConfig="googleButtonIconConfig"
