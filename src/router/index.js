@@ -130,4 +130,8 @@ router.beforeEach((to, from, next) => {
   next();
 });
 
+// function restrictUnapprovedUser(to, from, next) {
+//   if
+// }
+
 export default router;

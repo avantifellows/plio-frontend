@@ -36,7 +36,7 @@
 <script>
 import Table from "@/components/UI/Table/Table.vue";
 import PlioAPIService from "@/services/API/Plio.js";
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapGetters } from "vuex";
 
 export default {
   name: "Home",
@@ -75,11 +75,8 @@ export default {
     if (this.isUserApproved) await this.fetchAllPlioIds();
   },
   computed: {
-    ...mapState("auth", ["activeWorkspace", "user"]),
-    isUserApproved() {
-      // whether the user is an approved user or in waitlist
-      return this.user != null && this.user.status == "approved";
-    },
+    ...mapState("auth", ["activeWorkspace"]),
+    ...mapGetters("auth", ["isUserApproved"]),
   },
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
