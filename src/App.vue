@@ -5,7 +5,7 @@
     >
       <!-- top left logo -->
       <router-link
-        :to="{ name: 'Home' }"
+        :to="{ name: 'Home', params: { org: activeWorkspace } }"
         class="h-14 w-11 justify-self-start place-self-center"
       >
         <img
@@ -150,12 +150,17 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("auth", ["isAuthenticated"]),
+    ...mapGetters("auth", ["isAuthenticated", "isUserApproved"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     showWorkspaceSwitcher() {
       // whether to show workspace switcher
-      return this.isAuthenticated && this.onHomePage && this.user.organizations.length;
+      return (
+        this.isAuthenticated &&
+        this.onHomePage &&
+        this.user.organizations.length &&
+        this.isUserApproved
+      );
     },
     onLoginPage() {
       // whether the current page is the login page
@@ -180,10 +185,6 @@ export default {
     coverBackground() {
       // whether to apply opacity to the background
       return this.showAlertDialog;
-    },
-    isUserApproved() {
-      // whether the user is an approved user or in waitlist
-      return this.user != null && this.user.status == "approved"
     },
   },
 };

@@ -12,6 +12,8 @@ const state = {
 const getters = {
   isAuthenticated: (state) => !!state.accessToken,
   locale: (state) => state.config.locale,
+  isUserApproved: (state) =>
+    state.user != null && state.user.status == "approved",
 };
 
 const actions = {

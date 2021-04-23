@@ -15,10 +15,16 @@
       </div>
     </div>
     <div v-else>
-      <Table :data="tableData" :columns="tableColumns" :tableTitle="'All Plios'"> </Table>
+      <Table
+        v-if="hasAnyPlios"
+        :data="tableData"
+        :columns="tableColumns"
+        :tableTitle="'All Plios'"
+      >
+      </Table>
       <!-- no plios exist warning -->
       <div
-        v-if="hasAnyPlios"
+        v-else
         class="bg-white w-full m-auto mt-32 text-2xl font-semibold tracking-tighter text-center px-8"
       >
         {{ noPliosCreatedWarning }}
@@ -30,7 +36,7 @@
 <script>
 import Table from "@/components/UI/Table/Table.vue";
 import PlioAPIService from "@/services/API/Plio.js";
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapGetters } from "vuex";
 
 export default {
   name: "Home",
@@ -44,8 +50,8 @@ export default {
     },
   },
   watch: {
-    activeWorkspace() {
-      this.fetchAllPlioIds();
+    async activeWorkspace() {
+      if (this.isUserApproved) await this.fetchAllPlioIds();
     },
   },
   data() {
@@ -66,14 +72,11 @@ export default {
   async created() {
     // feed the dummy data to show skeletons before loading the actual data
     this.tableData = this.dummyTableData;
-    await this.fetchAllPlioIds();
+    if (this.isUserApproved) await this.fetchAllPlioIds();
   },
   computed: {
-    ...mapState("auth", ["activeWorkspace", "user"]),
-    isUserApproved() {
-      // whether the user is an approved user or in waitlist
-      return this.user != null && this.user.status == "approved";
-    },
+    ...mapState("auth", ["activeWorkspace"]),
+    ...mapGetters("auth", ["isUserApproved"]),
   },
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
@@ -81,8 +84,8 @@ export default {
       var uuidOnly = true;
       await PlioAPIService.getAllPlios(uuidOnly).then((response) => {
         // if no plios exist, show the warning else hide the warning
-        if (response.data.length <= 0) this.hasAnyPlios = true;
-        else this.hasAnyPlios = false;
+        if (response.data.length <= 0) this.hasAnyPlios = false;
+        else this.hasAnyPlios = true;
 
         this.prepareTableData(response.data);
       });

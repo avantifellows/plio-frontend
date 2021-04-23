@@ -106,7 +106,7 @@
 
         <div class="flex justify-center py-2 mt-10">
           <!-- big add item button -->
-          <div class="flex-initial" v-if="currentItemIndex == null">
+          <div class="w-2/3" v-if="currentItemIndex == null">
             <icon-button
               :iconConfig="addItemIconConfig"
               :titleConfig="addItemTitleConfig"
@@ -483,7 +483,7 @@ export default {
       var classObject = [
         { "cursor-not-allowed": this.addItemDisabled },
 
-        `rounded-md font-bold p-5 h-12 w-96 bg-primary-button ring-primary
+        `rounded-md font-bold p-5 h-12 w-full bg-primary-button ring-primary
         hover:bg-primary-button-hover disabled:opacity-50 shadow-lg`,
       ];
       return classObject;
@@ -512,7 +512,7 @@ export default {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
     returnToHome() {
       // returns the user back to Home
-      this.$router.push({ name: "Home" });
+      this.$router.push({ name: "Home", params: { org: this.org } });
     },
     capitalize(string) {
       // capitalize first letter of string and return
