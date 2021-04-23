@@ -1,7 +1,7 @@
 <template>
   <div class="flex gap-2">
     <!-- URL link -->
-    <p class="place-self-center" :class="urlTextClass">
+    <p class="place-self-center whitespace-nowrap tracking-tighter" :class="urlTextClass">
       {{ link }}
     </p>
     <!-- copy button -->
