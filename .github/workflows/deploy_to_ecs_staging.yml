@@ -2,7 +2,7 @@
 
 on:
   push:
-    branches: [ "feature/deployment" ]
+    branches: [ "editor-layou" ]
 
 name: Deploy to ECR - staging
 
