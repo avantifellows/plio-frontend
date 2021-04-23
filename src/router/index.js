@@ -23,6 +23,7 @@ const routes = [
     name: "Editor",
     component: Editor,
     props: true,
+    beforeEnter: restrictUnapprovedUser,
     meta: { requiresAuth: true },
   },
   {
@@ -129,5 +130,13 @@ router.beforeEach((to, from, next) => {
   }
   next();
 });
+
+function restrictUnapprovedUser(to, from, next) {
+  if (store.getters["auth/isUserApproved"]) {
+    next();
+    return;
+  }
+  next({ name: "Home", params: { org: to.params.org }, replace: true });
+}
 
 export default router;
