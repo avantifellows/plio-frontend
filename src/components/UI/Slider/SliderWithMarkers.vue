@@ -24,6 +24,8 @@
       @mouseover="markerSliderSelected(markerIndex)"
       @change="markerSliderChangeOver(markerIndex)"
       @input="markerSliderUpdated(markerIndex)"
+      @touchstart="markerSliderTouched(markerIndex, $event)"
+      @touchend="markerSliderTouchEnd(markerIndex)"
       @mouseout="markerSliderUnselected"
       @click="updateValueFromMarker(markerIndex)"
     />
@@ -119,6 +121,19 @@ export default {
     markerSliderSelected(markerIndex) {
       // invoked when a marker has been selected
       if (!this.isDragDisabled) this.activeMarkerIndex = markerIndex;
+    },
+    markerSliderTouched(markerIndex, event) {
+      if (
+        (this.activeMarkerIndex == null || this.activeMarkerIndex != markerIndex) &&
+        event.cancelable
+      )
+        event.preventDefault();
+      this.clickAfterDragEnded = false;
+      this.updateValueFromMarker(markerIndex);
+      this.markerSliderSelected(markerIndex);
+    },
+    markerSliderTouchEnd() {
+      this.clickAfterDragEnded = false;
     },
     markerSliderChangeOver(markerIndex) {
       // invoked when the marker slider value change is done
