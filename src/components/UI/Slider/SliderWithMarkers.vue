@@ -24,8 +24,7 @@
       @mouseover="markerSliderSelected(markerIndex)"
       @change="markerSliderChangeOver(markerIndex)"
       @input="markerSliderUpdated(markerIndex)"
-      @touchstart="markerSliderTouched(markerIndex, $event)"
-      @touchend="markerSliderTouchEnd(markerIndex)"
+      @touchstart="markerSliderTouched(markerIndex)"
       @mouseout="markerSliderUnselected"
       @click="updateValueFromMarker(markerIndex)"
     />
@@ -40,6 +39,8 @@ export default {
       sliderWidth: null, // width of the slider
       markerWidth: null, // width of one marker
       clickAfterDragEnded: false, // indicates whether a marker click was invoked right after it was dragged
+      touched: false, // whether a touch event has been initiated
+      touchValue: null, // the current position where the touch event took place
     };
   },
   created() {
@@ -116,24 +117,22 @@ export default {
     },
     markerSliderUpdated(markerIndex) {
       // invoked when the marker slider value is changing while being dragged
+      if (this.touched && !this.localMarkerPositions[markerIndex]) {
+        this.localMarkerPositions[markerIndex] = this.touchValue;
+        this.touched = false;
+      }
       this.$emit("marker-drag", markerIndex);
     },
     markerSliderSelected(markerIndex) {
       // invoked when a marker has been selected
       if (!this.isDragDisabled) this.activeMarkerIndex = markerIndex;
     },
-    markerSliderTouched(markerIndex, event) {
-      if (
-        (this.activeMarkerIndex == null || this.activeMarkerIndex != markerIndex) &&
-        event.cancelable
-      )
-        event.preventDefault();
+    markerSliderTouched(markerIndex) {
+      this.touched = true;
+      this.touchValue = this.localMarkerPositions[markerIndex];
       this.clickAfterDragEnded = false;
       this.updateValueFromMarker(markerIndex);
       this.markerSliderSelected(markerIndex);
-    },
-    markerSliderTouchEnd() {
-      this.clickAfterDragEnded = false;
     },
     markerSliderChangeOver(markerIndex) {
       // invoked when the marker slider value change is done
