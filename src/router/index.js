@@ -1,6 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "@/pages/Home.vue";
-import Test from "@/pages/Test.vue";
 import Editor from "@/pages/Editor.vue";
 import Player from "@/pages/Player.vue";
 import Login from "@/pages/Login";
@@ -12,11 +11,6 @@ const routes = [
     redirect: {
       name: "Login",
     },
-  },
-  {
-    path: "/test",
-    name: "Test",
-    component: Test,
   },
   {
     path: "/:org?/home",

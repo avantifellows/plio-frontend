@@ -25,6 +25,7 @@
       @change="markerSliderChangeOver(markerIndex)"
       @input="markerSliderUpdated(markerIndex)"
       @touchstart="markerSliderTouched(markerIndex)"
+      @touchend="markerSliderUnselected"
       @mouseout="markerSliderUnselected"
       @click="updateValueFromMarker(markerIndex)"
     />
@@ -40,7 +41,7 @@ export default {
       markerWidth: null, // width of one marker
       clickAfterDragEnded: false, // indicates whether a marker click was invoked right after it was dragged
       touched: false, // whether a touch event has been initiated
-      touchValue: null, // the current position where the touch event took place
+      touchPosition: null, // the current position where the touch event took place
     };
   },
   created() {
@@ -118,7 +119,7 @@ export default {
     markerSliderUpdated(markerIndex) {
       // invoked when the marker slider value is changing while being dragged
       if (this.touched && !this.localMarkerPositions[markerIndex]) {
-        this.localMarkerPositions[markerIndex] = this.touchValue;
+        this.localMarkerPositions[markerIndex] = this.touchPosition;
         this.touched = false;
       }
       this.$emit("marker-drag", markerIndex);
@@ -129,7 +130,7 @@ export default {
     },
     markerSliderTouched(markerIndex) {
       this.touched = true;
-      this.touchValue = this.localMarkerPositions[markerIndex];
+      this.touchPosition = this.localMarkerPositions[markerIndex];
       this.clickAfterDragEnded = false;
       this.updateValueFromMarker(markerIndex);
       this.markerSliderSelected(markerIndex);
@@ -155,7 +156,6 @@ export default {
           "z-20": !markerActive,
           "marker-slider-thumb-inactive": !markerActive && !this.isDragDisabled,
           "marker-slider-thumb-inactive-disabled": !markerActive && this.isDragDisabled,
-          "bg-red-500": markerActive,
         },
         "w-6",
       ];
