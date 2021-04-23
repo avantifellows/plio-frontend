@@ -1,5 +1,7 @@
 <template>
-  <div class="flex w-full bg-white p-1 md:p-3 justify-between">
+  <div
+    class="flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end border-t border-gray-200"
+  >
     <div class="place-self-start flex h-full">
       <!-- revise button -->
       <icon-button
@@ -18,7 +20,7 @@
       ></inline-svg>
     </div>
     <!-- button to enter/exit fullscreen -->
-    <div>
+    <div class="hidden breakpoint-500:block">
       <icon-button
         :titleConfig="fullscreenButtonTitleConfig"
         :buttonClass="fullscreenButtonClass"
@@ -92,29 +94,29 @@ export default {
     },
     submitButtonClass() {
       // class for the submit button
-      return "bg-green-500 hover:bg-green-600 ring-green-500 p-1 pl-4 pr-4 sm:p-2 sm:pl-6 sm:pr-6 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none";
+      return "bg-green-500 hover:bg-green-700 ring-green-500 p-1 pl-4 pr-4 sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none";
     },
     reviseButtonTitleConfig() {
       // config for the text of the revise button
       return {
         value: "⟳ " + this.$t("player.question.revise"),
-        class: "text-blue-500 text-md sm:text-xl lg:text-2xl font-bold",
+        class: "text-white text-md sm:text-xl lg:text-2xl font-bold",
       };
     },
     reviseButtonClass() {
       // class for the revise button
-      return "hover:bg-gray-200 ring-blue-500 p-1 pl-4 pr-4 sm:p-2 sm:pl-6 sm:pr-6 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl";
+      return "bg-blue-500 hover:bg-blue-700 ring-blue-500 p-1 pl-4 pr-4 sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl";
     },
     proceedButtonTitleConfig() {
       // config for the text of the proceed button
       return {
         value: this.$t("player.question.proceed"),
-        class: "text-green-500 text-md sm:text-xl lg:text-2xl font-bold",
+        class: "text-white text-md sm:text-xl lg:text-2xl font-bold",
       };
     },
     proceedButtonClass() {
       // class for the proceed button
-      return "hover:bg-gray-200 ring-green-500 p-1 pl-4 pr-4 sm:p-2 sm:pl-6 sm:pr-6 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl";
+      return "bg-green-500 hover:bg-green-700 ring-green-500 p-1 pl-4 pr-4 sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl";
     },
     fullscreenButtonTitleConfig() {
       // config for the text of the fullscreen toggle button

@@ -18,6 +18,7 @@ module.exports = {
     }),
     screens: {
       xsm: "360px",
+      "breakpoint-500": "500px",
       ...defaultTheme.screens,
     },
   },
