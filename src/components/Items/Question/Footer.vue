@@ -18,7 +18,7 @@
       ></inline-svg>
     </div>
     <!-- button to enter/exit fullscreen -->
-    <div class="hidden breakpoint-500:block">
+    <div class="hidden bp-50:block">
       <icon-button
         :titleConfig="fullscreenButtonTitleConfig"
         :buttonClass="fullscreenButtonClass"
