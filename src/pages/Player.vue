@@ -484,9 +484,9 @@ export default {
     },
     isItemResponseDone(itemIndex) {
       // whether the response to an item is complete
-      // if (this.itemResponses && this.itemResponses[itemIndex])
-      return this.itemResponses[itemIndex].answer != null;
-      // return false;
+      if (this.itemResponses && this.itemResponses[itemIndex])
+        return this.itemResponses[itemIndex].answer != null;
+      return false;
     },
     videoTimestampUpdated(timestamp) {
       // invoked when the current time in the video is updated
