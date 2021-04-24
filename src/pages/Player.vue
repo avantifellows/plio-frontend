@@ -3,6 +3,20 @@
     <!-- skeleton loading -->
     <video-skeleton v-if="!isVideoIdValid"></video-skeleton>
     <div v-else class="flex relative shadow-lg">
+      <!-- fullscreen button overlay -->
+      <div
+        v-if="showItemModal"
+        class="z-50 absolute bp-500:hidden w-full h-full bg-transparent"
+      >
+        <div class="opacity-90 w-full h-full absolute bg-white"></div>
+        <div class="flex w-full h-full">
+          <icon-button
+            :titleConfig="fullscreenButtonTitleConfig"
+            :buttonClass="fullscreenButtonClass"
+            @click="goFullscreen"
+          ></icon-button>
+        </div>
+      </div>
       <!-- video player component -->
       <video-player
         :videoId="videoId"
@@ -47,6 +61,7 @@ import EventAPIService from "@/services/API/Event.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import ItemModal from "../components/Player/ItemModal.vue";
+import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 
 // difference in seconds between consecutive checks for item pop-up
@@ -126,6 +141,7 @@ export default {
     VideoPlayer,
     VideoSkeleton,
     ItemModal,
+    IconButton,
   },
   data() {
     return {
@@ -256,6 +272,17 @@ export default {
     player() {
       // returns the player instance
       return this.$refs.videoPlayer.player;
+    },
+    fullscreenButtonTitleConfig() {
+      // config for the text of the fullscreen toggle button
+      return {
+        value: "Go Fullscreen",
+        class: "text-white text-lg font-bold",
+      };
+    },
+    fullscreenButtonClass() {
+      // class for the fullscreen button
+      return `ring-2 ring-red-100 bg-primary-button hover:bg-primary-button-hover p-4 rounded-md shadow-xl place-self-center animate-bounce m-auto`;
     },
   },
   methods: {
@@ -457,7 +484,9 @@ export default {
     },
     isItemResponseDone(itemIndex) {
       // whether the response to an item is complete
-      return this.itemResponses[itemIndex].answer != null;
+      if (this.itemResponses && this.itemResponses[itemIndex])
+        return this.itemResponses[itemIndex].answer != null;
+      return false;
     },
     videoTimestampUpdated(timestamp) {
       // invoked when the current time in the video is updated
@@ -517,6 +546,9 @@ export default {
         session: this.sessionDBId,
       };
       EventAPIService.createEvent(eventData);
+    },
+    goFullscreen() {
+      this.isFullscreen = true;
     },
   },
 };
