@@ -10,7 +10,7 @@
           <icon-button
             :titleConfig="fullscreenButtonTitleConfig"
             :buttonClass="fullscreenButtonClass"
-            @click="toggleFullscreen"
+            @click="goFullscreen"
           ></icon-button>
         </div>
       </div>
@@ -273,16 +273,9 @@ export default {
     fullscreenButtonTitleConfig() {
       // config for the text of the fullscreen toggle button
       return {
-        value: this.fullscreenToggleText,
+        value: "Go Fullscreen",
         class: "text-white text-lg font-bold",
       };
-    },
-    fullscreenToggleText() {
-      // text to show for the fullscreen button
-      if (this.isFullscreen) {
-        return "Exit Fullscreen";
-      }
-      return "Fullscreen";
     },
     fullscreenButtonClass() {
       // class for the fullscreen button
@@ -549,7 +542,7 @@ export default {
       };
       EventAPIService.createEvent(eventData);
     },
-    toggleFullscreen() {
+    goFullscreen() {
       this.isFullscreen = true;
     },
   },

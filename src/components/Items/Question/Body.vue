@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-y-scroll flex flex-col py-4 shadow-inner">
+  <div class="overflow-y-scroll flex flex-col py-4">
     <!-- question text -->
     <p
       class="m-2 sm:m-4 mx-4 md:mx-6 xl:mx-10 font-bold text-lg md:text-xl lg:text-2xl leading-tight"
@@ -13,7 +13,7 @@
           <div
             v-for="(option, optionIndex) in options"
             :key="optionIndex"
-            class="border p-2 pl-4 text-lg md:text-xl lg:text-2xl rounded-md mr-5"
+            class="border p-2 pl-4 text-lg md:text-xl lg:text-2xl rounded-md mx-5"
             :class="optionBackgroundClass(optionIndex)"
           >
             <!-- each option is defined here -->

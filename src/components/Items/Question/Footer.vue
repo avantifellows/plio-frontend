@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end border-t border-gray-200"
-  >
+  <div class="flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end">
     <div class="place-self-start flex h-full">
       <!-- revise button -->
       <icon-button
@@ -138,7 +136,7 @@ export default {
     },
     answerCorrectnessIcon() {
       // icon to show if the answer was correct or not
-      var icon = require("@/assets/images/window-close-solid.svg");
+      var icon = require("@/assets/images/times-circle-solid.svg");
       if (this.isAnswerCorrect) {
         icon = require("@/assets/images/check-circle-regular.svg");
       }
