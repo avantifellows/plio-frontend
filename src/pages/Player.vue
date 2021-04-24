@@ -6,7 +6,7 @@
       <!-- fullscreen button overlay -->
       <div
         v-if="showItemModal"
-        class="z-50 absolute bp-50:hidden w-full h-full bg-transparent"
+        class="z-50 absolute bp-500:hidden w-full h-full bg-transparent"
       >
         <div class="opacity-90 w-full h-full absolute bg-white"></div>
         <div class="flex w-full h-full">
