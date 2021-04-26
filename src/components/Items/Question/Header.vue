@@ -1,10 +1,10 @@
 <template>
-  <div class="flex w-full bg-white justify-end p-1 md:p-3">
+  <div class="flex w-full bg-white justify-end p-1 md:p-3 pr-3 py-3">
     <!-- skip button -->
     <icon-button
       :iconConfig="skipButtonIconConfig"
       @click="skipClicked"
-      :class="{ invisible: isAnswerSubmitted }"
+      :class="{ hidden: isAnswerSubmitted }"
     ></icon-button>
   </div>
 </template>

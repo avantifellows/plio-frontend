@@ -1,17 +1,19 @@
 <template>
-  <div class="overflow-y-scroll flex flex-col">
+  <div class="overflow-y-scroll flex flex-col py-4">
     <!-- question text -->
-    <p class="m-2 sm:m-4 mx-4 md:mx-6 xl:mx-10 font-bold text-lg md:text-xl lg:text-2xl">
+    <p
+      class="m-2 sm:m-4 mx-4 md:mx-6 xl:mx-10 font-bold text-lg md:text-xl lg:text-2xl leading-tight"
+    >
       {{ questionText }}
     </p>
     <!-- option container -->
     <div class="flex mx-4 md:mx-6 xl:mx-10">
       <ul class="w-full">
-        <li class="list-none">
+        <li class="list-none gap-1 flex flex-col">
           <div
             v-for="(option, optionIndex) in options"
             :key="optionIndex"
-            class="p-2 sm:p-4 mb-2 text-lg md:text-xl lg:text-2xl rounded-md"
+            class="border p-2 pl-4 text-lg md:text-xl lg:text-2xl rounded-md mx-5"
             :class="optionBackgroundClass(optionIndex)"
           >
             <!-- each option is defined here -->
@@ -24,14 +26,14 @@
                 type="radio"
                 name="questionOptions"
                 :value="option"
-                class="place-self-center w-4 h-4 sm:w-6 sm:h-6 lg:w-10 lg:h-10"
+                class="place-self-center w-4"
                 @click="selectOption(optionIndex)"
                 :checked="isOptionChecked(optionIndex)"
                 :disabled="isAnswerSubmitted"
               />
               <div
                 v-html="option"
-                class="ml-2 sm:ml-4 lg:ml-6 h-full place-self-center"
+                class="ml-2 h-full place-self-center leading-tight"
               ></div>
             </label>
           </div>
