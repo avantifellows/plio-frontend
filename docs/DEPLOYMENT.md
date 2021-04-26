@@ -38,7 +38,7 @@ Setting up staging environment on AWS is pretty straightforward.
    5. Proceed to create target group. You will see target group in the list.
 5. Go to Load Balancers.
    1. Create a new load balancer.
-   2. Select Network Load Balancer option.
+   2. Select Network Load Balancer (NLB) option.
    3. Name the LB as `plio-frontend-staging`.
    4. Select the `plio-staging-vpc` for the load balancer.
    5. In the subnet mappings, check the first desired zone and use Elastic IP under IPv4 settings for that subnet.
@@ -67,7 +67,7 @@ Setting up staging environment on AWS is pretty straightforward.
    11. Deployment type to be `rolling update`.
    12. Keep other values as default.
    13. Use the Cluster VPC and the subnet that you configured with Elastic IP.
-   14. Auto-assign public IP to have `ENABLED`.
+   14. Auto-assign public IP to have `ENABLED`. Otherwise, it makes the task accessible only through VPC and not public.
    15. Under load balancing, select the Network Load Balancing option and select the `plio-frontend-staging` load balancer.
    16. Inside "Container to Load Balancer", click on Add to load balancer option and select `plio-frontend-staging` in the target group.
    17. For auto-scaling, go with "Do not adjust the service's desired count" for staging.
@@ -86,3 +86,8 @@ Setting up staging environment on AWS is pretty straightforward.
 Setting up a production environment on AWS is same as staging. Take care of the following things:
 1. Rename all services to have `plio-frontend-production` or similar naming convention.
 2. Go with auto-scaling option when creating a new service from ECS.
+
+
+#### Continuous Delivery process
+![Overview of Continuous Delivery process](./images/aws-gh-cd.png)
+An overview of how continuous delivery cycle works in Plio with GitHub action and Amazon ECR & ECS.
