@@ -2,30 +2,22 @@
 
 on:
   push:
-    branches: ["feature/deployment"]
+    branches: ["release"]
 
-name: Deploy to ECR - staging
+name: Deploy to ECR - production
 
 jobs:
   deploy:
-    env:
-      client_id: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }}
-      client_secret: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}
     name: Deploy
     runs-on: ubuntu-latest
 
     environment:
-      name: Staging
-      url: "http://staging-app.plio.in"
+      name: Production
+      url: "http://app.plio.in"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Logging
-        run: |
-          echo $client_id
-          echo $client_secret
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -42,7 +34,7 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: plio-frontend-staging
+          ECR_REPOSITORY: plio-frontend-production
           IMAGE_TAG: ${{ github.sha }}
           VUE_APP_BACKEND: ${{ secrets.VUE_APP_BACKEND }}
           VUE_APP_BACKEND_AUTH_URL: ${{ secrets.VUE_APP_BACKEND_AUTH_URL }}
@@ -71,20 +63,20 @@ jobs:
 
       - name: Download task definition
         run: |
-          aws ecs describe-task-definition --task-definition plio-frontend-staging --query taskDefinition > task-definition.json
+          aws ecs describe-task-definition --task-definition plio-frontend-production --query taskDefinition > task-definition.json
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: plio-frontend-staging
+          container-name: plio-frontend-production
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: plio-frontend-staging
-          cluster: plio-staging-cluster
+          service: plio-frontend-production
+          cluster: plio-production-cluster
           wait-for-service-stability: true
