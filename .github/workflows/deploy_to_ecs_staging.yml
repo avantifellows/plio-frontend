@@ -9,8 +9,8 @@ name: Deploy to ECR - staging
 jobs:
   deploy:
     env:
-      client_id: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }}
-      client_secret: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}
+      clientid: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }}
+      clientsecret: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}
     name: Deploy
     runs-on: ubuntu-latest
 
@@ -23,9 +23,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Logging
-        run: |
-          echo $client_id
-          echo $client_secret
+        run: echo $clientid
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
