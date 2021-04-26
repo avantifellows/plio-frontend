@@ -53,6 +53,10 @@ export default {
     async activeWorkspace() {
       if (this.isUserApproved) await this.fetchAllPlioIds();
     },
+    isUserApproved(value) {
+      // fetch plios again if user approval status changes
+      if (value) this.fetchAllPlioIds();
+    },
   },
   data() {
     return {

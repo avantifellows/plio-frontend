@@ -45,6 +45,9 @@ const actions = {
   async saveConfig({ commit }, config) {
     await commit("saveConfig", config);
   },
+  updateUserStatus({ commit }, status) {
+    commit("updateUserStatus", status);
+  },
 };
 
 const mutations = {
@@ -70,6 +73,9 @@ const mutations = {
   },
   saveConfig(state, config) {
     state.config = config;
+  },
+  updateUserStatus(state, status) {
+    state.user.status = status;
   },
 };
 
