@@ -36,8 +36,9 @@ Setting up staging environment on AWS is pretty straightforward.
    1. Create a new target group.
    2. Choose target type to be `IP addresses`.
    3. Name the target group as `plio-frontend-staging`.
-   4. Select the `plio-staging-vpc` for the target group VPC.
-   5. Proceed to create target group. You will see target group in the list.
+   4. Set the protocol to `TCP` and port to `80`.
+   5. Select the `plio-staging-vpc` for the target group VPC.
+   6. Proceed to create target group. You will see target group in the list.
 5. Go to Load Balancers.
    1. Create a new load balancer.
    2. Select Network Load Balancer option. We use NLB for easy support of web socket connections.
