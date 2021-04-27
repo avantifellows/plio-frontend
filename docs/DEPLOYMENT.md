@@ -47,13 +47,14 @@ Setting up staging environment on AWS is pretty straightforward.
    6. Under listeners and routing, select the target group `plio-frontend-staging` for TCP port 80.
    7. Proceed to create load balancer. You will see load balancer in the list.
 6. Go to ECR and create a new repository named `plio-frontend-staging`.
-7. Now go to ECS and create a new task definition with name `plio-frontend-staging`.
+7. Now go to ECS and create a new task definition, select Fargate and use the name `plio-frontend-staging`.
    1. Set the task role as `ecsTaskExecutionRole`.
    2. Set the task memory and task CPU based on your needs.
    3. Create a new container with name `plio-frontend-staging`.
-   4. Enter port `80` in the port mapping field.
-   5. Save the container definition and the task definition.
-   6. You will see the new task definition within the list.
+   4. In the image field, you can just type in `image_arn`. This is not a valid entry and just a placeholder for now as it'll be replaced by the actual image ARN once the GitHub workflow triggers.
+   5. Enter port `80` in the port mapping field.
+   6. Save the container definition and the task definition.
+   7. You will see the new task definition within the list.
 8. Under ECS, go to clusters and create a new cluster with name `plio-staging-cluster`. (skip this step if you've already created a VPC when setting up backend repository)
    1. Use `Networking only` option. We will go with serverless deployment so that we don't worry about managing our own server instances.
    2. Don't create a new VPC for your cluster. We'll use the VPC created in previous step in the next step of creating a service.
@@ -61,17 +62,17 @@ Setting up staging environment on AWS is pretty straightforward.
    4. You will see the new cluster within the list of clusters.
 9.  Get into `plio-staging-cluster` and create a new service.
    1. Set launch type to Fargate. We'll use serverless deployments for Plio.
-   2. Name the service as `plio-staging-frontend`.
+   2. Name the service as `plio-frontend-staging`.
    3. Under task definition, select `plio-frontend-staging` and use latest revision.
    4. Set the number of tasks to be one.
    5. Service type to be `REPLICA`.
    6. Minimum healthy percentage should be 100 and maximum percent to be 200. Minimum healthy percentage defines the percentage of tasks that should be running at all times. Maximum percent defines how many additional tasks the service can create in parallel to running tasks, before killing the running tasks.
-   7.  Deployment type to be `rolling update`.
-   8.  Keep other values as default.
-   9.  Use the Cluster VPC and the subnet that you configured with Elastic IP.
+   7. Deployment type to be `rolling update`.
+   8. Keep other values as default.
+   9. Use the Cluster VPC and the subnet that you configured with Elastic IP.
    10. Auto-assign public IP to have `ENABLED`. Otherwise, it makes the task accessible only through VPC and not public.
    11. Under load balancing, select the Network Load Balancing option and select the `plio-frontend-staging` load balancer.
-   12. Inside "Container to Load Balancer", click on Add to load balancer option and select `plio-frontend-staging` in the target group.
+   12. Inside "Container to Load Balancer", click on `Add to load balancer option` and select `plio-frontend-staging` in the target group.
    13. For auto-scaling, go with "Do not adjust the service's desired count" for staging.
    14. Review and create service.
 10. Next, go to your GitHub repository and create a new environment from settings tab.
