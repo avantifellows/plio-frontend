@@ -4,7 +4,7 @@ on:
   release:
     types: [published]
 
-name: Deploy to ECR - production
+name: Deploy to ECR - Production
 
 jobs:
   deploy:
