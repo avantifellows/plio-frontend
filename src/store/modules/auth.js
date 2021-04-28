@@ -7,6 +7,8 @@ const state = {
   user: null,
   activeWorkspace: "",
   userId: null,
+  isReAuthenticating: false,
+  reAuthenticationCall: null,
 };
 
 const getters = {
@@ -41,9 +43,17 @@ const actions = {
   async unsetActiveWorkspace({ commit }) {
     await commit("unsetActiveWorkspace");
   },
-
   async saveConfig({ commit }, config) {
     await commit("saveConfig", config);
+  },
+  setReAuthenticationState({ commit }, isReAuthenticating) {
+    commit("setReAuthenticationState", isReAuthenticating);
+  },
+  setReAuthenticationCall({ commit }, reAuthenticationCall) {
+    commit("setReAuthenticationCall", reAuthenticationCall);
+  },
+  unsetReAuthenticationCall({ commit }) {
+    commit("unsetReAuthenticationCall");
   },
 };
 
@@ -70,6 +80,15 @@ const mutations = {
   },
   saveConfig(state, config) {
     state.config = config;
+  },
+  setReAuthenticationState(state, isReAuthenticating) {
+    state.isReAuthenticating = isReAuthenticating;
+  },
+  setReAuthenticationCall(state, reAuthenticationCall) {
+    state.reAuthenticationCall = reAuthenticationCall;
+  },
+  unsetReAuthenticationCall(state) {
+    state.reAuthenticationCall = null;
   },
 };
 

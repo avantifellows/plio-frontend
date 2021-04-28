@@ -5,7 +5,10 @@ import {
   userFromTokenEndpoint,
   usersEndpoint,
   userConfigEndpoint,
+  convertTokenEndpoint,
+  refreshTokenEndpoint,
 } from "@/services/API/Endpoints.js";
+import store from "../../store";
 
 export default {
   requestOtp(mobile) {
@@ -34,13 +37,16 @@ export default {
 
   async convertSocialAuthToken(socialAuthToken) {
     // converts token from social auth to internal token
-    return apiClient().post(process.env.VUE_APP_BACKEND_AUTH_URL, {
-      grant_type: "convert_token",
-      client_id: process.env.VUE_APP_BACKEND_API_CLIENT_ID,
-      client_secret: process.env.VUE_APP_BACKEND_API_CLIENT_SECRET,
-      backend: "google-oauth2",
-      token: socialAuthToken,
-    });
+    return apiClient().post(
+      process.env.VUE_APP_BACKEND_AUTH_URL + convertTokenEndpoint,
+      {
+        grant_type: "convert_token",
+        client_id: process.env.VUE_APP_BACKEND_API_CLIENT_ID,
+        client_secret: process.env.VUE_APP_BACKEND_API_CLIENT_SECRET,
+        backend: "google-oauth2",
+        token: socialAuthToken,
+      }
+    );
   },
 
   getUserConfig(userId) {
@@ -53,5 +59,18 @@ export default {
     return apiClient().patch(usersEndpoint + userId + userConfigEndpoint, {
       config: userConfig,
     });
+  },
+
+  refreshAccessToken() {
+    // uses the stored refresh token to request for a new access token
+    return apiClient().post(
+      process.env.VUE_APP_BACKEND_AUTH_URL + refreshTokenEndpoint,
+      {
+        grant_type: "refresh_token",
+        client_id: process.env.VUE_APP_BACKEND_API_CLIENT_ID,
+        client_secret: process.env.VUE_APP_BACKEND_API_CLIENT_SECRET,
+        refresh_token: store.state.auth.accessToken.refresh_token,
+      }
+    );
   },
 };
