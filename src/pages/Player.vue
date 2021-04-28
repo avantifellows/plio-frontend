@@ -433,7 +433,7 @@ export default {
     },
     handleQueryError(err) {
       // handles error encountered when fetching plio or creating new session
-      if (err.response && err.response.status == 404) {
+      if (err.response && [404, 400].includes(err.response.status)) {
         this.$router.replace({ name: "404" });
       } else {
         this.toast.warning(this.genericWarning);

@@ -2,7 +2,12 @@ import axios from "axios";
 import store from "../../store";
 import ErrorHandling from "@/services/Functional/ErrorHandling.js";
 import UserFunctionalService from "@/services/Functional/User.js";
-import { refreshTokenEndpoint } from "@/services/API/Endpoints.js";
+import {
+  refreshTokenEndpoint,
+  convertTokenEndpoint,
+  otpVerifyEndpoint,
+  otpRequestEndpoint,
+} from "@/services/API/Endpoints.js";
 
 let headers = {
   Accept: "application/json",
@@ -15,6 +20,14 @@ const client = axios.create({
   headers,
 });
 
+// list of all the authentication related URLs
+const authEndpoints = [
+  refreshTokenEndpoint,
+  otpRequestEndpoint,
+  otpVerifyEndpoint,
+  convertTokenEndpoint,
+];
+
 // the interceptor below is doing the following things:
 // 1. Add trailing slash to every API call (if it's not there)
 // 2. Set access token to the API calls
@@ -26,12 +39,9 @@ client.interceptors.request.use(
     }
     config.url = config.url.replace(/([^:])(\/{2,})/g, "$1/");
 
-    const refreshTokenURL =
-      process.env.VUE_APP_BACKEND_AUTH_URL + refreshTokenEndpoint;
-
     // set auth header
     if (store.state.auth != null) {
-      if (store.state.auth.accessToken && config.url != refreshTokenURL) {
+      if (store.state.auth.accessToken && config.url != refreshTokenEndpoint) {
         // set the auth header only when the access token is present
         // and the call is not being made is NOT the refresh token call
         config.headers.Authorization = `
@@ -50,11 +60,27 @@ client.interceptors.request.use(
 // handle errors in responses for API requests
 client.interceptors.response.use(
   (config) => {
+    // cancel the axios response if the user is not logged in
+    // and do it only for the requests that are not related to authentication
+    if (
+      store.state.auth.loginStatus == false &&
+      !authEndpoints.includes(config.config.url)
+    )
+      throw new axios.Cancel("User is not logged in");
+
+    // auth related requests can pass through
     return config;
   },
   (error) => {
     const status = error.response ? error.response.status : null;
-    // handle not authorized errors here
+
+    // If refresh token is invalid (400 BAD REQUEST) then log out the user
+    if (error.config.url == refreshTokenEndpoint && status === 400) {
+      store.dispatch("auth/logoutUser");
+      return Promise.reject(error);
+    }
+
+    // Handle expired/deleted access token here
     if (status === 401) {
       // re authenticate the user, and until that is happenining, pause all other
       // requests. Once the user is authenticated, release all the paused requests

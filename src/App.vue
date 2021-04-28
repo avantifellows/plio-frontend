@@ -68,6 +68,16 @@
     </div>
     <router-view />
   </div>
+  <dialog-box
+    class="fixed top-1/3 left-0 right-0 ml-auto mr-auto"
+    v-if="showDialogBox"
+    :title="dialogTitle"
+    :description="dialogDescription"
+    :confirmButtonConfig="dialogConfirmButtonConfig"
+    :cancelButtonConfig="dialogCancelButtonConfig"
+    @confirm="dialogConfirmed"
+    @cancel="dialogCancelled"
+  ></dialog-box>
   <vue-progress-bar></vue-progress-bar>
 </template>
 
@@ -79,6 +89,7 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import PlioAPIService from "@/services/API/Plio.js";
 import { useToast } from "vue-toastification";
+import DialogBox from "@/components/UI/Alert/DialogBox";
 
 export default {
   components: {
@@ -86,6 +97,7 @@ export default {
     LocaleSwitcher,
     UserConfig,
     IconButton,
+    DialogBox,
   },
   data() {
     return {
@@ -93,8 +105,13 @@ export default {
         value: "Create",
         class: "text-lg md:text-xl lg:text-2xl text-white",
       },
-      showAlertDialog: false,
+      showDialogBox: false, // to show the dialog box or not
       toast: useToast(), // use the toast component
+      dialogTitle: "", // title for the dialog box
+      dialogDescription: "", // description for the dialog box
+      dialogConfirmButtonConfig: {}, // config for the confirm button of the dialog box
+      dialogCancelButtonConfig: {}, // config for the cancel button of the dialog box
+      dialogAction: "", // action that needs be performed on interaction with the dialogbox
     };
   },
   created() {
@@ -114,6 +131,11 @@ export default {
       // start or finish progress bar depending on the value of "pending"
       if (value) this.$Progress.start();
       else this.$Progress.finish();
+    },
+    loginStatus(newValue, oldValue) {
+      // if user was logged in before but has been logged out now
+      // show a popup telling the user that they're logged out
+      if (oldValue && !newValue) this.showUserLoggedOutDialog();
     },
   },
   methods: {
@@ -148,10 +170,45 @@ export default {
       event.preventDefault();
       event.returnValue = "";
     },
+    showUserLoggedOutDialog() {
+      // set up the dialog properties when the user has been logged out by the system
+      this.dialogTitle = "You've been logged out";
+      this.dialogDescription = "Click the button below to log in again";
+      this.dialogConfirmButtonConfig = {
+        enabled: true,
+        text: "Login",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+      };
+      this.dialogCancelButtonConfig = {
+        enabled: false,
+        text: "",
+        class: "",
+      };
+
+      // carry out the loginAgain action when dialog is closed
+      this.dialogAction = "loginAgain";
+      // show the dialogue
+      this.showDialogBox = true;
+      // logout the user
+      this.$router.replace({ name: "404" });
+    },
+    dialogConfirmed() {
+      // invoked when the confirm button of the dialog box is clicked
+      this.showDialogBox = false;
+      this.dialogDescription = "";
+      // close the dialog box when user clicks the button
+      if (this.dialogAction == "loginAgain") {
+        this.logoutUser();
+        this.showDialogBox = false;
+      }
+      // reset the dialog action value
+      this.dialogAction = "";
+    },
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated", "isUserApproved"]),
-    ...mapState("auth", ["config", "user", "activeWorkspace"]),
+    ...mapState("auth", ["config", "user", "activeWorkspace", "loginStatus"]),
     ...mapState("sync", ["pending"]),
     showWorkspaceSwitcher() {
       // whether to show workspace switcher
@@ -184,7 +241,7 @@ export default {
     },
     coverBackground() {
       // whether to apply opacity to the background
-      return this.showAlertDialog;
+      return this.showDialogBox;
     },
   },
 };

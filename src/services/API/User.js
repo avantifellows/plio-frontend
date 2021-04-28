@@ -38,14 +38,15 @@ export default {
   async convertSocialAuthToken(socialAuthToken) {
     // converts token from social auth to internal token
     return apiClient().post(
-      process.env.VUE_APP_BACKEND_AUTH_URL + convertTokenEndpoint,
+      convertTokenEndpoint,
       {
         grant_type: "convert_token",
         client_id: process.env.VUE_APP_BACKEND_API_CLIENT_ID,
         client_secret: process.env.VUE_APP_BACKEND_API_CLIENT_SECRET,
         backend: "google-oauth2",
         token: socialAuthToken,
-      }
+      },
+      { baseURL: process.env.VUE_APP_BACKEND_AUTH_URL }
     );
   },
 
@@ -64,13 +65,14 @@ export default {
   refreshAccessToken() {
     // uses the stored refresh token to request for a new access token
     return apiClient().post(
-      process.env.VUE_APP_BACKEND_AUTH_URL + refreshTokenEndpoint,
+      refreshTokenEndpoint,
       {
         grant_type: "refresh_token",
         client_id: process.env.VUE_APP_BACKEND_API_CLIENT_ID,
         client_secret: process.env.VUE_APP_BACKEND_API_CLIENT_SECRET,
         refresh_token: store.state.auth.accessToken.refresh_token,
-      }
+      },
+      { baseURL: process.env.VUE_APP_BACKEND_AUTH_URL }
     );
   },
 };

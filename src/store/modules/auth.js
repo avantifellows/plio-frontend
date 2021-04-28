@@ -9,6 +9,7 @@ const state = {
   userId: null,
   isReAuthenticating: false,
   reAuthenticationCall: null,
+  loginStatus: false,
 };
 
 const getters = {
@@ -21,6 +22,7 @@ const getters = {
 const actions = {
   async setAccessToken({ commit, dispatch }, accessToken) {
     await commit("setAccessToken", accessToken);
+    commit("loginUser");
     await UserAPIService.getUserByAccessToken(accessToken.access_token).then(
       (response) => {
         dispatch("setUser", response.data);
@@ -54,6 +56,9 @@ const actions = {
   },
   unsetReAuthenticationCall({ commit }) {
     commit("unsetReAuthenticationCall");
+  },
+  logoutUser({ commit }) {
+    commit("logoutUser");
   },
 };
 
@@ -89,6 +94,12 @@ const mutations = {
   },
   unsetReAuthenticationCall(state) {
     state.reAuthenticationCall = null;
+  },
+  logoutUser(state) {
+    state.loginStatus = false;
+  },
+  loginUser(state) {
+    state.loginStatus = true;
   },
 };
 
