@@ -190,7 +190,7 @@ export default {
       this.dialogAction = "loginAgain";
       // show the dialogue
       this.showDialogBox = true;
-      // logout the user
+      // route to the 404 page
       this.$router.replace({ name: "404" });
     },
     dialogConfirmed() {
