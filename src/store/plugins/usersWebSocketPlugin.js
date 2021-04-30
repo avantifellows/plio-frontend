@@ -17,7 +17,6 @@ export default function createUsersWebSocket() {
       let user = JSON.parse(event.data).user;
       store.dispatch("auth/updateUserStatus", user.status, { root: true });
       store.dispatch("auth/setUser", user, { root: true });
-      store.dispatch("sync/stopLoading", null, { root: true });
     };
 
     UsersWebsocket.onclose = () => {
