@@ -3,7 +3,7 @@
 on:
   push:
     pull_request:
-    branches: ["master"]
+    branches: ["websocket+store"]
 
 name: Deploy to ECR - Staging
 
