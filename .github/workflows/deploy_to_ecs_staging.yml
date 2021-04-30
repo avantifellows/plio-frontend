@@ -1,9 +1,8 @@
 # This workflow will build and push a new container image to Amazon ECR
 
 on:
-  pull_request:
   push:
-    branches: ["websocket+store"]
+    branches: ["master"]
 
 name: Deploy to ECR - Staging
 
