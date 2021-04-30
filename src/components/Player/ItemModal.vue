@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col bg-white w-full h-full overflow-hidden">
     <!-- question modal -->
-    <div v-if="isItemQuestion" class="h-full flex flex-col shadow-inner">
+    <div v-if="isItemQuestion" class="h-full flex flex-col shadow-inner justify-center">
       <!-- header -->
       <item-question-header
         @skip-question="skipQuestion"
@@ -9,7 +9,6 @@
       ></item-question-header>
       <!-- main question body -->
       <item-question-body
-        class="flex-grow overflow-y-scroll"
         :questionText="questionText"
         :options="questionOptions"
         :correctAnswer="questionCorrectAnswer"
@@ -20,7 +19,7 @@
       ></item-question-body>
       <!-- footer -->
       <item-question-footer
-        class="place-self-end shadow-inner"
+        class="place-self-end"
         v-model:isFullscreen="localIsFullscreen"
         :isAnswerSubmitted="isAnswerSubmitted"
         :isAnswerCorrect="isAnswerCorrect"
