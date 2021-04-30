@@ -1,4 +1,5 @@
 import { usersEndpoint } from "@/services/API/Endpoints.js";
+const RECONNECT_TIME = 2000;
 
 export default function createUsersWebSocket() {
   return function connect(store) {
@@ -18,10 +19,10 @@ export default function createUsersWebSocket() {
     };
 
     UsersWebsocket.onclose = () => {
-      console.log("Websocket has been closed. Reconnecting in 2 seconds");
+      console.log("Websocket has been closed. Reconnecting again!");
       setTimeout(() => {
         connect(store);
-      }, 2000);
+      }, RECONNECT_TIME);
     };
 
     UsersWebsocket.onerror = (error) => {
