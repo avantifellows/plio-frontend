@@ -4,7 +4,9 @@ const RECONNECT_TIME = 2000;
 export default function createUsersWebSocket() {
   return function connect(store) {
     var UsersWebsocket = new WebSocket(
-      process.env.VUE_APP_BACKEND_WEBSOCKET + usersEndpoint
+      process.env.VUE_APP_BACKEND_WEBSOCKET +
+        usersEndpoint +
+        store.state.auth.userId
     );
 
     UsersWebsocket.onopen = () => {
