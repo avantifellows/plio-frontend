@@ -2,7 +2,7 @@
 
 on:
   push:
-    branches: ["websocket+store"]
+    branches: [websocket+store]
 
 name: Deploy to ECR - Staging
 
