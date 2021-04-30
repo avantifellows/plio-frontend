@@ -27,7 +27,7 @@ export default function createUsersWebSocket() {
 
     UsersWebsocket.onerror = (error) => {
       console.log("Websocket - an error occurred. Closing socket");
-      console.log(error);
+      // console.log(error);
       UsersWebsocket.close();
     };
   };
