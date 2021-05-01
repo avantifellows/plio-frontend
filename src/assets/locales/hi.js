@@ -20,6 +20,13 @@ export default {
   },
   home: {
     create_button: "प्लायो बनाओ",
+    create_button_empty: "नया प्लायो बनाए",
+    waitlist: {
+      1: "आपको प्रतीक्षा सूची में डाल दिया गया है",
+      2: "हम जल्द ही आपको संपर्क करेंगे",
+    },
+    all_plios: "सारे प्लायो",
+    no_plios: "चलिए एक नया प्लायो बनाते हैं",
   },
   login: {
     learner: {

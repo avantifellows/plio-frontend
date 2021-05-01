@@ -9,8 +9,8 @@
       </div>
       <div class="mt-10">
         <p class="text-center text-lg sm:text-2xl">
-          You have been added to the waitlist <br />
-          You will hear from us soon
+          {{ $t("home.waitlist.1") }} <br />
+          {{ $t("home.waitlist.2") }}
         </p>
       </div>
     </div>
@@ -23,25 +23,39 @@
       >
       </Table>
       <!-- no plios exist warning -->
-      <div
-        v-else
-        class="bg-white w-full m-auto mt-32 text-2xl font-semibold tracking-tighter text-center px-8"
-      >
-        {{ noPliosCreatedWarning }}
+      <div v-else class="flex flex-col bg-white w-full m-auto mt-32 px-8">
+        <inline-svg
+          :src="noPliosIcon"
+          class="w-50 h-50 opacity-50 place-self-center m-10"
+        ></inline-svg>
+        <p class="text-center text-md sm:text-lg md:text-xl lg:text-2xl">
+          {{ $t("home.no_plios") }}
+        </p>
+        <!-- create plio button -->
+        <icon-button
+          :titleConfig="createButtonTextConfig"
+          :buttonClass="createButtonClass"
+          class="rounded-md shadow-lg mt-4 place-self-center"
+          @click="createNewPlio"
+        ></icon-button>
       </div>
     </div>
+    <vue-progress-bar></vue-progress-bar>
   </div>
 </template>
 
 <script>
 import Table from "@/components/UI/Table/Table.vue";
+import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import { mapState, mapActions, mapGetters } from "vuex";
+import { useToast } from "vue-toastification";
 
 export default {
   name: "Home",
   components: {
     Table,
+    IconButton,
   },
   props: {
     org: {
@@ -60,17 +74,18 @@ export default {
   },
   data() {
     return {
-      searchQuery: "",
-      tableColumns: ["name", "no. of learners"],
+      searchQuery: "", // string being queried in the search bar
+      tableColumns: ["name", "no. of learners"], // columns for the table
       tableData: [],
       // dummy table data - to show skeletons when data is being loaded
       dummyTableData: Array(5).fill({
         name: { type: "component", value: "" },
         "no. of learners": "-",
       }),
-      hasAnyPlios: false,
-      noPliosCreatedWarning: "No plios exist! Use the button above to create a plio",
+      hasAnyPlios: false, // whether there are any plios
       confirmIcon: require("@/assets/images/check-circle-regular.svg"),
+      noPliosIcon: require("@/assets/images/create.svg"),
+      toast: useToast(), // use the toast component
     };
   },
   async created() {
@@ -81,6 +96,17 @@ export default {
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapGetters("auth", ["isUserApproved"]),
+    createButtonTextConfig() {
+      // config for the text of the main create button
+      return {
+        value: this.$t("home.create_button_empty"),
+        class: "text-lg md:text-xl lg:text-2xl text-white",
+      };
+    },
+    createButtonClass() {
+      // class for the create button
+      return "bg-primary hover:bg-primary-hover rounded-lg h-14 w-40 sm:h-20 sm:w-60 ring-primary px-2";
+    },
   },
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
@@ -92,6 +118,23 @@ export default {
         else this.hasAnyPlios = true;
 
         this.prepareTableData(response.data);
+      });
+    },
+
+    createNewPlio() {
+      // invoked when the user clicks on Create
+      // creates a new draft plio and redirects the user to the editor
+      this.$Progress.start();
+      PlioAPIService.createPlio().then((response) => {
+        this.$Progress.finish();
+        if (response.status == 201) {
+          this.$router.push({
+            name: "Editor",
+            params: { plioId: response.data.uuid, org: this.activeWorkspace },
+          });
+        } else {
+          this.toast.error("Error creating Plio");
+        }
       });
     },
 

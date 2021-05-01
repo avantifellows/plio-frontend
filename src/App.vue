@@ -29,16 +29,17 @@
       <!-- create plio button -->
       <div
         v-if="showCreateButton"
-        class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1 bg-primary hover:bg-primary-hover rounded-lg"
+        class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1"
       >
         <icon-button
           :titleConfig="createButtonTextConfig"
+          :buttonClass="createButtonClass"
           class="rounded-md shadow-lg"
           @click="createNewPlio"
         ></icon-button>
       </div>
 
-      <div class="grid col-start-6 col-end-8 justify-items-end sm:gap-1 sm:col-start-7">
+      <div class="grid col-start-6 col-end-8 justify-items-end sm:col-start-7">
         <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
         <!-- logout -->
         <div v-if="!onLoginPage" class="text-lg sm:text-xl">
@@ -153,6 +154,10 @@ export default {
         value: this.$t("home.create_button"),
         class: "text-lg md:text-xl lg:text-2xl text-white",
       };
+    },
+    createButtonClass() {
+      // class for the create button
+      return "bg-primary hover:bg-primary-hover rounded-lg ring-primary px-2";
     },
     showWorkspaceSwitcher() {
       // whether to show workspace switcher

@@ -20,6 +20,13 @@ export default {
   },
   home: {
     create_button: "Create",
+    create_button_empty: "Create a plio",
+    waitlist: {
+      1: "You have been added to the waitlist",
+      2: "You will hear from us soon",
+    },
+    all_plios: "All Plios",
+    no_plios: "Go ahead and create a plio",
   },
   login: {
     learner: {
