@@ -13,9 +13,9 @@ export default createStore({
   plugins: [
     createPersistedState({
       storage: {
-        getItem: (key) => ls.get(key),
-        setItem: (key, value) => ls.set(key, value),
-        removeItem: (key) => ls.remove(key),
+        getItem: (key) => localStorage.get(key),
+        setItem: (key, value) => localStorage.set(key, value),
+        removeItem: (key) => localStorage.remove(key),
       },
     }),
   ],
