@@ -19,7 +19,7 @@
         v-if="hasAnyPlios"
         :data="tableData"
         :columns="tableColumns"
-        :tableTitle="'All Plios'"
+        :tableTitle="tableTitle"
       >
       </Table>
       <!-- no plios exist warning -->
@@ -106,6 +106,10 @@ export default {
     createButtonClass() {
       // class for the create button
       return "bg-primary hover:bg-primary-hover rounded-lg h-14 w-40 sm:h-20 sm:w-60 ring-primary px-2";
+    },
+    tableTitle() {
+      // title for the table of all plios
+      return this.$t("home.all_plios");
     },
   },
   methods: {

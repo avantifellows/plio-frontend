@@ -59,7 +59,7 @@
           </a>
         </div>
         <!-- locale switcher -->
-        <div>
+        <div :class="{ 'self-center': !isAuthenticated }">
           <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
         </div>
       </div>

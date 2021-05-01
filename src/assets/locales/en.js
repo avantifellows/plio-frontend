@@ -27,16 +27,42 @@ export default {
     },
     all_plios: "All Plios",
     no_plios: "Go ahead and create a plio",
+    table: {
+      columns: {
+        name: "name",
+      },
+      component: {
+        buttons: {
+          play: "Play",
+          edit: "Edit",
+          duplicate: "Duplicate",
+        },
+      },
+    },
   },
   login: {
-    learner: {
-      phone_prompt: "Please enter your mobile number",
-      button_submit: "Watch Plio!",
-      button_google_sign_in: "Sign in with Google",
-      button_otp: "Request OTP",
-      button_resend: "Resend OTP",
-      message_otp_resent: "OTP has been sent again!",
-      message_otp_invalid: "Incorrect OTP! Please enter the correct one.",
+    phone: {
+      prompt: "Please enter your mobile number",
+      validation: {
+        valid: "",
+        invalid: "Phone number is invalid",
+      },
+    },
+    otp: {
+      request: "Request OTP",
+      validation: {
+        valid: "",
+        invalid: "OTP should be 6 digits long",
+      },
+      submit: "Submit OTP",
+      incorrect: "Incorrect OTP entered. Please try again!",
+      resend: "Resend OTP",
+      resent: "OTP has been sent again",
+    },
+    or: "OR",
+    google: {
+      button: "Sign in with Google",
+      error: "Something went wrong. Please try again!",
     },
   },
   player: {

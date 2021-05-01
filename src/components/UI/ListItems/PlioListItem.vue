@@ -93,32 +93,18 @@ export default {
     return {
       // button, icon config and styling classes
       plioDetails: {},
-      playButtonTitleConfig: {
-        value: "Play",
-        class: "p-2 text-primary font-semibold",
-      },
       playButtonIconConfig: {
         enabled: false,
         iconName: "",
         iconClass: "",
       },
       playButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10",
-
-      editButtonTitleConfig: {
-        value: "Edit",
-        class: "p-2 text-primary font-semibold",
-      },
       editButtonIconConfig: {
         enabled: false,
         iconName: "",
         iconClass: "",
       },
       editButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10",
-
-      duplicateButtonTitleConfig: {
-        value: "Duplicate",
-        class: "p-2 text-primary font-semibold",
-      },
       duplicateButtonIconConfig: {
         enabled: false,
         iconName: "",
@@ -145,10 +131,33 @@ export default {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     ...mapState("plioItems", ["allPlioDetails"]),
+    playButtonTitleConfig() {
+      // title config for the play button
+      return {
+        value: this.$t("home.table.component.buttons.play"),
+        class: "p-2 text-primary font-semibold",
+      };
+    },
+    editButtonTitleConfig() {
+      // title config for the play button
+      return {
+        value: this.$t("home.table.component.buttons.edit"),
+        class: "p-2 text-primary font-semibold",
+      };
+    },
+    duplicateButtonTitleConfig() {
+      // title config for the duplicate button
+      return {
+        value: this.$t("home.table.component.buttons.duplicate"),
+        class: "p-2 text-primary font-semibold",
+      };
+    },
     playButtonTooltip() {
+      // tooltip for the play button
       return this.isPublished ? "Play this plio" : "Cannot play a draft plio";
     },
     isPublished() {
+      // whether the plio was published
       return this.status == "published";
     },
     statusBadgeTooltip() {

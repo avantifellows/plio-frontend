@@ -27,16 +27,42 @@ export default {
     },
     all_plios: "सारे प्लायो",
     no_plios: "चलिए एक नया प्लायो बनाते हैं",
+    table: {
+      columns: {
+        name: "नाम",
+      },
+      component: {
+        buttons: {
+          play: "चलाओ",
+          edit: "संपादन",
+          duplicate: "नक़ल",
+        },
+      },
+    },
   },
   login: {
-    learner: {
-      phone_prompt: "कृपया अपना मोबाइल नंबर डालें",
-      button_submit: "प्लायो दिखाओ",
-      button_google_sign_in: "गूगल के साथ साइन इन करें",
-      button_otp: "OTP का अनुरोध करें",
-      button_resend: "OTP पुनः भेजें",
-      message_otp_resent: "OTP फिर भेजा गया है!",
-      message_otp_invalid: "गलत OTP! कृपया सही दर्ज करें",
+    phone: {
+      prompt: "कृपया अपना मोबाइल नंबर डालें",
+      validation: {
+        valid: "",
+        invalid: "फ़ोन नंबर अमान्य है",
+      },
+    },
+    otp: {
+      request: "OTP भेजो",
+      validation: {
+        valid: "",
+        invalid: "OTP 6 अंको का होना चाहिए",
+      },
+      submit: "OTP जमा करो",
+      incorrect: "OTP गलत दर्ज किया गया है कृपया दोबारा कोशिश करें",
+      resend: "OTP दोबारा भेजो",
+      resent: "OTP फिर भेजा गया है",
+    },
+    or: "या फिर",
+    google: {
+      button: "गूगल से साइन इन करें",
+      error: "कुछ दिक्कत आ गयी कृपया दोबारा कोशिश करें",
     },
   },
   player: {
