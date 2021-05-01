@@ -19,11 +19,7 @@ export default {
     },
   },
   home: {
-    plio_list_heading: "Plios",
-    plio_thumbnail: {
-      created: "Created",
-      id: "ID",
-    },
+    create_button: "Create",
   },
   login: {
     learner: {

@@ -1,8 +1,6 @@
 <template>
   <div :class="{ 'opacity-50 pointer-events-none': coverBackground }">
-    <div
-      class="grid grid-cols-6 sm:grid-cols-7 gap-2 border-b-2 pt-2 border-solid bg-white pl-2 pr-2"
-    >
+    <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
       <!-- top left logo -->
       <router-link
         :to="{ name: 'Home', params: { org: activeWorkspace } }"
@@ -40,10 +38,10 @@
         ></icon-button>
       </div>
 
-      <div class="grid col-start-7 sm:gap-1 sm:justify-items-center">
+      <div class="grid col-start-6 col-end-8 justify-items-end sm:gap-1 sm:col-start-7">
         <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
         <!-- logout -->
-        <div v-if="!onLoginPage" class="text-lg sm:text-xl place-self-center">
+        <div v-if="!onLoginPage" class="text-lg sm:text-xl">
           <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
             <button
               class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain"
@@ -60,7 +58,7 @@
           </a>
         </div>
         <!-- locale switcher -->
-        <div class="place-self-center">
+        <div>
           <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
         </div>
       </div>
@@ -89,11 +87,7 @@ export default {
   },
   data() {
     return {
-      createButtonTextConfig: {
-        value: "Create",
-        class: "text-lg md:text-xl lg:text-2xl text-white",
-      },
-      showAlertDialog: false,
+      showAlertDialog: false, // whether to show the dialog box
       toast: useToast(), // use the toast component
     };
   },
@@ -153,6 +147,13 @@ export default {
     ...mapGetters("auth", ["isAuthenticated", "isUserApproved"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("sync", ["pending"]),
+    createButtonTextConfig() {
+      // config for the text of the main create button
+      return {
+        value: this.$t("home.create_button"),
+        class: "text-lg md:text-xl lg:text-2xl text-white",
+      };
+    },
     showWorkspaceSwitcher() {
       // whether to show workspace switcher
       return (

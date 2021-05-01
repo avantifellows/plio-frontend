@@ -19,11 +19,7 @@ export default {
     },
   },
   home: {
-    plio_list_heading: "सारे प्लायो",
-    plio_thumbnail: {
-      created: "कब बना",
-      id: "पहचान",
-    },
+    create_button: "प्लायो बनाओ",
   },
   login: {
     learner: {
