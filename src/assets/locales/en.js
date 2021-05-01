@@ -66,14 +66,14 @@ export default {
     },
   },
   player: {
-    start: "Start",
     question: {
       submit: "Submit",
       revise: "Revise",
       proceed: "Proceed",
     },
-    tutorial: {
-      mcq: "Choose any one",
+    fullscreen: {
+      enter: "Go Fullscreen",
+      exit: "Exit Fullscreen",
     },
   },
   error: {

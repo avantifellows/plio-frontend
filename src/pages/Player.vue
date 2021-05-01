@@ -276,7 +276,7 @@ export default {
     fullscreenButtonTitleConfig() {
       // config for the text of the fullscreen toggle button
       return {
-        value: "Go Fullscreen",
+        value: this.$t("player.fullscreen.enter"),
         class: "text-white text-lg font-bold",
       };
     },

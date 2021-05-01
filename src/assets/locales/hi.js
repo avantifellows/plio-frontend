@@ -66,14 +66,14 @@ export default {
     },
   },
   player: {
-    start: "शुरू करें",
     question: {
       submit: "सबमिट करें",
       revise: "पुनः देखें",
       proceed: "आगे बढ़ें",
     },
-    tutorial: {
-      mcq: "कोई एक चुने",
+    fullscreen: {
+      enter: "पूर्ण स्क्रीन में प्रवेश",
+      exit: "पूर्ण स्क्रीन से निकास",
     },
   },
   error: {
