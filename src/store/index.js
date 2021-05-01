@@ -7,7 +7,7 @@ import SecureLS from "secure-ls";
 
 // encrypt and decrypt the localStorage
 // github.com/robinvdvleuten/vuex-persistedstate#encrypted-local-storage
-var ls = new SecureLS({ isCompression: false });
+var localStorage = new SecureLS({ isCompression: false });
 
 export default createStore({
   plugins: [
