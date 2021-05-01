@@ -60,6 +60,9 @@ const actions = {
   logoutUser({ commit }) {
     commit("logoutUser");
   },
+  updateUserStatus({ commit }, status) {
+    commit("updateUserStatus", status);
+  },
 };
 
 const mutations = {
@@ -100,6 +103,9 @@ const mutations = {
   },
   loginUser(state) {
     state.loginStatus = true;
+  },
+  updateUserStatus(state, status) {
+    state.user.status = status;
   },
 };
 

@@ -1,0 +1,85 @@
+# This workflow will build and push a new container image to Amazon ECR
+
+on:
+  pull_request:
+  push:
+    branches: ["master"]
+
+name: Deploy to ECR - Staging
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    environment:
+      name: Staging
+      url: "http://staging-app.plio.in"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: plio-frontend-staging
+          IMAGE_TAG: ${{ github.sha }}
+          VUE_APP_BACKEND: ${{ secrets.VUE_APP_BACKEND }}
+          VUE_APP_BACKEND_AUTH_URL: ${{ secrets.VUE_APP_BACKEND_AUTH_URL }}
+          VUE_APP_FRONTEND: ${{ secrets.VUE_APP_FRONTEND }}
+          VUE_APP_I18N_LOCALE: ${{ secrets.VUE_APP_I18N_LOCALE }}
+          VUE_APP_I18N_FALLBACK_LOCALE: ${{ secrets.VUE_APP_I18N_FALLBACK_LOCALE }}
+          VUE_APP_GOOGLE_CLIENT_ID: ${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }}
+          VUE_APP_BACKEND_API_CLIENT_ID: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }}
+          VUE_APP_BACKEND_API_CLIENT_SECRET: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}
+          VUE_APP_BACKEND_WEBSOCKET: ${{ secrets.VUE_APP_BACKEND_WEBSOCKET }}
+        run: |
+          # Build a docker container and push it to ECR
+          docker build \
+          --target production-stage \
+          --build-arg VUE_APP_BACKEND=$VUE_APP_BACKEND \
+          --build-arg VUE_APP_BACKEND_AUTH_URL=$VUE_APP_BACKEND_AUTH_URL \
+          --build-arg VUE_APP_FRONTEND=$VUE_APP_FRONTEND \
+          --build-arg VUE_APP_I18N_LOCALE=$VUE_APP_I18N_LOCALE \
+          --build-arg VUE_APP_I18N_FALLBACK_LOCALE=$VUE_APP_I18N_FALLBACK_LOCALE \
+          --build-arg VUE_APP_GOOGLE_CLIENT_ID=$VUE_APP_GOOGLE_CLIENT_ID \
+          --build-arg VUE_APP_BACKEND_API_CLIENT_ID=$VUE_APP_BACKEND_API_CLIENT_ID \
+          --build-arg VUE_APP_BACKEND_API_CLIENT_SECRET=$VUE_APP_BACKEND_API_CLIENT_SECRET \
+          --build-arg VUE_APP_BACKEND_WEBSOCKET=$VUE_APP_BACKEND_WEBSOCKET \
+          -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          echo "Pushing image to ECR..."
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition plio-frontend-staging --query taskDefinition > task-definition.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: plio-frontend-staging
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: plio-frontend-staging
+          cluster: plio-staging-cluster
+          wait-for-service-stability: true
