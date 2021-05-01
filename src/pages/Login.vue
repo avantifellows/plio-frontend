@@ -102,9 +102,9 @@ export default {
   },
   data() {
     return {
-      phoneInput: "9999999999", // phone input text
+      phoneInput: "", // phone input text
       otpInput: "", // otp input text
-      requestedOtp: true, // whether the user has requested OTP once
+      requestedOtp: false, // whether the user has requested OTP once
       resentOtp: false, // whether the user has requested to resend OTP
       invalidOtp: false, // whether the OTP is invalid
       toast: useToast(), // use the toast component
