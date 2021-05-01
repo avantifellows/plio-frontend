@@ -1,7 +1,7 @@
 <template>
   <div class="flex gap-2">
     <!-- URL link -->
-    <p class="place-self-center whitespace-nowrap tracking-tighter" :class="urlTextClass">
+    <p class="place-self-center whitespace-nowrap" :class="urlTextClass">
       {{ link }}
     </p>
     <!-- copy button -->
@@ -37,11 +37,11 @@ export default {
       type: Boolean,
     },
     urlStyleClass: {
-      default: "text-md lg:text-lg h-full",
+      default: "text-sm sm:text-md lg:text-lg h-full text-yellow-600 font-bold",
       type: [String, Object],
     },
     urlCopyButtonClass: {
-      default: "",
+      default: "text-yellow-600",
       type: [String, Object],
     },
   },

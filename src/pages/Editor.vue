@@ -8,7 +8,12 @@
       <!--- preview grid -->
       <div class="flex flex-col ml-5 mr-5">
         <!--- plio link -->
-        <URL :link="plioLink" class="justify-center m-4" :isUnderlined="true"></URL>
+        <URL
+          :link="plioLink"
+          class="justify-center m-4"
+          :urlStyleClass="urlStyleClass"
+          :isUnderlined="true"
+        ></URL>
 
         <div class="justify-center">
           <!--- video preview -->
@@ -301,6 +306,10 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading"]),
+    urlStyleClass() {
+      // style for the URL
+      return "text-sm sm:text-md lg:text-lg h-full text-yellow-600 font-bold tracking-tighter";
+    },
     player() {
       // returns the player instance
       return this.$refs.videoPlayer.player;

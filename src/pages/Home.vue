@@ -75,12 +75,12 @@ export default {
   data() {
     return {
       searchQuery: "", // string being queried in the search bar
-      tableColumns: ["name", "no. of learners"], // columns for the table
+      tableColumns: ["name", "number of learners"], // columns for the table
       tableData: [],
       // dummy table data - to show skeletons when data is being loaded
       dummyTableData: Array(5).fill({
         name: { type: "component", value: "" },
-        "no. of learners": "-",
+        "number of learners": "-",
       }),
       hasAnyPlios: false, // whether there are any plios
       confirmIcon: require("@/assets/images/check-circle-regular.svg"),
@@ -133,7 +133,7 @@ export default {
             params: { plioId: response.data.uuid, org: this.activeWorkspace },
           });
         } else {
-          this.toast.error("Error creating Plio");
+          this.toast.error(this.$t("error.create_plio"));
         }
       });
     },
@@ -154,7 +154,7 @@ export default {
               };
               break;
 
-            case "no. of learners":
+            case "number of learners":
               tableRow[column] = await PlioAPIService.getUniqueUsersCount(plioId);
               break;
           }

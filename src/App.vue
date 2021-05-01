@@ -134,7 +134,7 @@ export default {
             params: { plioId: response.data.uuid, org: this.activeWorkspace },
           });
         } else {
-          this.toast.error("Error creating Plio");
+          this.toast.error(this.$t("error.create_plio"));
         }
       });
     },

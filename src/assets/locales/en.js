@@ -52,6 +52,7 @@ export default {
   },
   error: {
     404: "Page Not Found",
+    create_plio: "Error creating Plio",
   },
   generic: {
     or: "Or",

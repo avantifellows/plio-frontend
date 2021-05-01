@@ -125,7 +125,7 @@ export default {
         iconClass: "",
       },
       duplicateButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10",
-      urlStyleClass: "text-xs font-bold text-yellow-600",
+      urlStyleClass: "text-sm font-bold text-yellow-600",
       urlCopyButtonClass: "text-yellow-600",
     };
   },
