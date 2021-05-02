@@ -8,7 +8,7 @@ import {
   convertTokenEndpoint,
   refreshTokenEndpoint,
 } from "@/services/API/Endpoints.js";
-import store from "../../store";
+import store from "@/store";
 
 export default {
   requestOtp(mobile) {

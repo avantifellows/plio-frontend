@@ -343,7 +343,6 @@ export default {
         })
         .then(() => this.createSession())
         .then(() => this.logData())
-        .catch((err) => this.handleQueryError(err));
     },
     logData() {
       // periodically logs data to the server
@@ -430,15 +429,6 @@ export default {
     setScreenProperties() {
       // sets various properties based on the device screen
       this.playerHeight = document.getElementById("videoPlayer").clientHeight;
-    },
-    handleQueryError(err) {
-      // handles error encountered when fetching plio or creating new session
-      if (err.response && [404, 400].includes(err.response.status)) {
-        this.$router.replace({ name: "404" });
-      } else {
-        this.toast.warning(this.genericWarning);
-        console.log(err);
-      }
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL

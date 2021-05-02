@@ -8,8 +8,7 @@ const state = {
   activeWorkspace: "",
   userId: null,
   isReAuthenticating: false,
-  reAuthenticationCall: null,
-  loginStatus: false,
+  reAuthenticationPromise: null,
 };
 
 const getters = {
@@ -22,7 +21,6 @@ const getters = {
 const actions = {
   async setAccessToken({ commit, dispatch }, accessToken) {
     await commit("setAccessToken", accessToken);
-    commit("loginUser");
     await UserAPIService.getUserByAccessToken(accessToken.access_token).then(
       (response) => {
         dispatch("setUser", response.data);
@@ -51,14 +49,11 @@ const actions = {
   setReAuthenticationState({ commit }, isReAuthenticating) {
     commit("setReAuthenticationState", isReAuthenticating);
   },
-  setReAuthenticationCall({ commit }, reAuthenticationCall) {
-    commit("setReAuthenticationCall", reAuthenticationCall);
+  setreAuthenticationPromise({ commit }, reAuthenticationPromise) {
+    commit("setreAuthenticationPromise", reAuthenticationPromise);
   },
-  unsetReAuthenticationCall({ commit }) {
-    commit("unsetReAuthenticationCall");
-  },
-  logoutUser({ commit }) {
-    commit("logoutUser");
+  unsetreAuthenticationPromise({ commit }) {
+    commit("unsetreAuthenticationPromise");
   },
   updateUserStatus({ commit }, status) {
     commit("updateUserStatus", status);
@@ -92,17 +87,11 @@ const mutations = {
   setReAuthenticationState(state, isReAuthenticating) {
     state.isReAuthenticating = isReAuthenticating;
   },
-  setReAuthenticationCall(state, reAuthenticationCall) {
-    state.reAuthenticationCall = reAuthenticationCall;
+  setreAuthenticationPromise(state, reAuthenticationPromise) {
+    state.reAuthenticationPromise = reAuthenticationPromise;
   },
-  unsetReAuthenticationCall(state) {
-    state.reAuthenticationCall = null;
-  },
-  logoutUser(state) {
-    state.loginStatus = false;
-  },
-  loginUser(state) {
-    state.loginStatus = true;
+  unsetreAuthenticationPromise(state) {
+    state.reAuthenticationPromise = null;
   },
   updateUserStatus(state, status) {
     state.user.status = status;

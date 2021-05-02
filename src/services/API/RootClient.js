@@ -63,7 +63,7 @@ client.interceptors.response.use(
     // cancel the axios response if the user is not logged in
     // and do it only for the requests that are not related to authentication
     if (
-      store.state.auth.loginStatus == false &&
+      store.getters["auth/isAuthenticated"] == false &&
       !authEndpoints.includes(config.config.url)
     )
       throw new axios.Cancel("User is not logged in");
@@ -76,20 +76,22 @@ client.interceptors.response.use(
 
     // If refresh token is invalid (400 BAD REQUEST) then log out the user
     if (error.config.url == refreshTokenEndpoint && status === 400) {
-      store.dispatch("auth/logoutUser");
-      return Promise.reject(error);
+      store.dispatch("auth/unsetAccessToken");
+      throw new axios.Cancel("User has been logged out");
     }
 
     // Handle expired/deleted access token here
     if (status === 401) {
-      // re authenticate the user, and until that is happenining, pause all other
+      // reauthenticate the user, and until that is happenining, pause all other
       // requests. Once the user is authenticated, release all the paused requests
       // with the new token attached to the header
-      return UserFunctionalService.reAuthenticate(store).then(() => {
-        error.config.headers["Authorization"] = `
+      return UserFunctionalService.reAuthenticate(store)
+        .then(() => {
+          error.config.headers["Authorization"] = `
             Bearer ${store.state.auth.accessToken.access_token}`;
-        return client.request(error.config);
-      });
+          return client.request(error.config);
+        })
+        .catch((error) => console.log(error));
     }
 
     ErrorHandling.handleAPIErrors(error);
