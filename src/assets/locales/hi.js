@@ -12,11 +12,24 @@ export default {
     video_input: {
       placeholder: "यूट्यूब वीडियो का लिंक यहाँ लिखें",
       title: "यूट्यूब वीडियो का लिंक",
+      validation: {
+        valid: "",
+        invalid: "गलत लिंक",
+      },
     },
     plio_title: {
       placeholder: "प्लायो का नाम यहाँ लिखें ",
       title: "प्लायो का नाम",
     },
+    buttons: {
+      home: "होम",
+      publish: {
+        draft: "प्लायो प्रकाशित करो",
+        published: "प्रकाशित करो",
+      },
+      add_question: "नया सवाल बनाएं",
+    },
+    updated: "अपडेटेड ऐट",
   },
   home: {
     create_button: "प्लायो बनाओ",
@@ -81,6 +94,9 @@ export default {
     create_plio: "प्लायो बनाते हुए कुछ गड़बड़ हो गयी",
   },
   generic: {
-    or: "या फिर",
+    status: {
+      draft: "प्रारूप",
+      published: "प्रकाशित",
+    },
   },
 };

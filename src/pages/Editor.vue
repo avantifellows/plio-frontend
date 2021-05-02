@@ -77,7 +77,7 @@
           <div class="flex w-full justify-between">
             <!--- publish/draft badge -->
             <simple-badge
-              :text="capitalize(status)"
+              :text="statusBadge"
               :badgeClass="statusBadgeClass"
               v-tooltip.top="statusBadgeTooltip"
             ></simple-badge>
@@ -201,13 +201,6 @@ export default {
       videoDuration: 0,
       videoId: "", // ID of the YouTube video
       status: "draft", // whether the plio is in draft/publish mode
-      videoInputValidation: {
-        // video link validation display config
-        enabled: true,
-        isValid: false,
-        validMessage: "Link is valid",
-        invalidMessage: "Invalid Link",
-      },
       isItemSelected: false, // indicated if an item has been selected currently
       plioTitle: "", // title for the current plio
       currentTimestamp: 0, // current timestamp
@@ -241,7 +234,7 @@ export default {
       },
       addItemTitleConfig: {
         // config for title of add item button
-        value: "Add a question",
+        value: this.$t("editor.buttons.add_question"),
       },
       // index of the option to be deleted; -1 means nothing to be deleted
       optionIndexToDelete: -1,
@@ -306,6 +299,19 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading"]),
+    statusBadge() {
+      // text for the status badge
+      return this.$t(`generic.status.${this.status}`);
+    },
+    videoInputValidation() {
+      // video link validation display config
+      return {
+        enabled: this.videoURL,
+        isValid: false,
+        validMessage: this.$t("editor.video_input.validation.valid"),
+        invalidMessage: this.$t("editor.video_input.validation.invalid"),
+      };
+    },
     urlStyleClass() {
       // style for the URL
       return "text-sm sm:text-md lg:text-lg h-full text-yellow-600 font-bold tracking-tighter";
@@ -351,7 +357,7 @@ export default {
     syncStatusText() {
       // text to show the sync status
       if (this.uploading) return "Updating...";
-      else return "Updated at: " + this.lastUpdatedStr;
+      else return this.$t("editor.updated") + ": " + this.lastUpdatedStr;
     },
     syncStatusClass() {
       // class for the sync status text
@@ -374,7 +380,7 @@ export default {
     backButtonTitleConfig() {
       // config for text of back button
       return {
-        value: "Home",
+        value: this.$t("editor.buttons.home"),
         class: "p-4 text-primary font-bold",
       };
     },
@@ -387,8 +393,8 @@ export default {
     },
     publishButtonText() {
       // text for the publish button
-      if (!this.isPublished) return "Publish Plio";
-      return "Publish Changes";
+      if (!this.isPublished) return this.$t("editor.buttons.publish.draft");
+      return this.$t("editor.buttons.publish.published");
     },
     publishButtonClass() {
       // class for the publish button
@@ -522,10 +528,6 @@ export default {
     returnToHome() {
       // returns the user back to Home
       this.$router.push({ name: "Home", params: { org: this.org } });
-    },
-    capitalize(string) {
-      // capitalize first letter of string and return
-      return string.charAt(0).toUpperCase() + string.slice(1);
     },
     navigateToItem(itemIndex) {
       if (itemIndex == null) return;

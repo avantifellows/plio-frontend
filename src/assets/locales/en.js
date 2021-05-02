@@ -12,11 +12,24 @@ export default {
     video_input: {
       placeholder: "Enter link to the YouTube video",
       title: "YouTube video link",
+      validation: {
+        valid: "",
+        invalid: "Invalid Link",
+      },
     },
     plio_title: {
       placeholder: "Enter the name of the Plio",
       title: "Plio Title",
     },
+    buttons: {
+      home: "Home",
+      publish: {
+        draft: "Publish Plio",
+        published: "Publish Changes",
+      },
+      add_question: "Add a question",
+    },
+    updated: "Updated at",
   },
   home: {
     create_button: "Create",
@@ -81,6 +94,9 @@ export default {
     create_plio: "Error creating Plio",
   },
   generic: {
-    or: "Or",
+    status: {
+      draft: "Draft",
+      published: "Published",
+    },
   },
 };
