@@ -26,7 +26,7 @@
         @click="updateSelectedItemIndex(localSelectedItemIndex - 1)"
         :buttonClass="previousItemButtonClass"
         :disabled="isFirstItem"
-        v-tooltip.top="'Move to previous question'"
+        v-tooltip="previousItemTooltip"
       ></icon-button>
 
       <!-- next item button -->
@@ -36,7 +36,7 @@
         @click="updateSelectedItemIndex(localSelectedItemIndex + 1)"
         :buttonClass="nextItemButtonClass"
         :disabled="isLastItem"
-        v-tooltip.top="'Move to next question'"
+        v-tooltip="nextItemTooltip"
       ></icon-button>
 
       <!-- add item button -->
@@ -79,6 +79,7 @@
         v-model:timeObject="timeObject"
         :errorStates="timeInputErrorStates"
         :isDisabled="isInteractionDisabled"
+        :disabledTooltip="timeDisabledTooltip"
         @error-occurred="$emit('error-occurred')"
         @error-resolved="$emit('error-resolved')"
       ></time-input>
@@ -262,8 +263,8 @@ export default {
     getCorrectOptionTooltip(optionIndex) {
       // returns the tooltip for the correct option button for the given option index
       if (this.isOptionMarkedCorrect(optionIndex))
-        return "This option has marked as the correct option for this question";
-      return "Mark this option as the correct option for this question";
+        return this.$t("tooltip.editor.item_editor.correct_option.marked");
+      return this.$t("tooltip.editor.item_editor.correct_option.unmarked");
     },
     isOptionMarkedCorrect(optionIndex) {
       // whether the given option index is the right option
@@ -330,6 +331,18 @@ export default {
   },
 
   computed: {
+    timeDisabledTooltip() {
+      // tooltip for the time input box when it is disabled
+      return this.$t("tooltip.time_input");
+    },
+    previousItemTooltip() {
+      // tooltip for the previous item button
+      return this.$t("tooltip.editor.item_editor.buttons.previous");
+    },
+    nextItemTooltip() {
+      // tooltip for the next item button
+      return this.$t("tooltip.editor.item_editor.buttons.next");
+    },
     getOptionInputPlaceholder() {
       // placeholder for the option input
       return this.$t("editor.item_editor.option_input.placeholder");
@@ -366,8 +379,8 @@ export default {
     addOptionTooltip() {
       // tooltip for add option button
       if (this.isInteractionDisabled)
-        return "You cannot add an option once the plio is published";
-      return "Add an option";
+        return this.$t("tooltip.editor.item_editor.buttons.add_option.disabled");
+      return this.$t("tooltip.editor.item_editor.buttons.add_option.enabled");
     },
     deleteItemButtonTooltip() {
       // tooltip text for delete item button
@@ -386,8 +399,10 @@ export default {
       // itemType is just "question" right now - parametrize when more types are supported
       var itemType = "question";
       if (this.isInteractionDisabled)
-        return `You cannot add a new ${itemType} once the plio is published`;
-      return `Add a ${itemType}`;
+        return this.$t(
+          `tooltip.editor.item_editor.buttons.add_item.${itemType}.disabled`
+        );
+      return this.$t(`tooltip.editor.item_editor.buttons.add_item.${itemType}.enabled`);
     },
     addOptionButtonTitleConfig() {
       // title config for add option button

@@ -48,6 +48,7 @@
           :titleConfig="editButtonTitleConfig"
           :iconConfig="editButtonIconConfig"
           :buttonClass="editButtonClass"
+          v-tooltip="editButtonTooltip"
           @click="editPlio"
         ></icon-button>
 
@@ -57,6 +58,7 @@
           :iconConfig="duplicateButtonIconConfig"
           :buttonClass="duplicateButtonClass"
           @click="duplicateThenRoute"
+          v-tooltip="duplicateButtonTooltip"
         ></icon-button>
       </div>
     </div>
@@ -159,7 +161,15 @@ export default {
     },
     playButtonTooltip() {
       // tooltip for the play button
-      return this.isPublished ? "Play this plio" : "Cannot play a draft plio";
+      return this.$t(`tooltip.home.table.component.buttons.play.${this.status}`);
+    },
+    editButtonTooltip() {
+      // tooltip for the edit button
+      return this.$t("tooltip.home.table.component.buttons.edit");
+    },
+    duplicateButtonTooltip() {
+      // tooltip for the duplicate button
+      return this.$t("tooltip.home.table.component.buttons.duplicate");
     },
     isPublished() {
       // whether the plio was published
@@ -167,9 +177,8 @@ export default {
     },
     statusBadgeTooltip() {
       // tooltip for the status badge
-      if (!this.isPublished)
-        return "This plio is currently in draft mode and only accessible to you. To make it publicly accessible, publish the plio";
-      return "This plio has been published and is publicly accessible";
+      if (!this.isPublished) return this.$t("tooltip.editor.status.draft");
+      return this.$t("tooltip.editor.status.published");
     },
     statusBadgeClass() {
       // class for the status badge

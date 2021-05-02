@@ -7,7 +7,7 @@
     <!-- copy button -->
     <button
       @click="copyToClipboard()"
-      v-tooltip="'Copy link'"
+      v-tooltip="this.$t('tooltip.url')"
       :class="urlCopyButtonClass"
     >
       <inline-svg

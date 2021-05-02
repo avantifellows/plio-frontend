@@ -355,9 +355,8 @@ export default {
     },
     statusBadgeTooltip() {
       // tooltip for the status badge
-      if (!this.isPublished)
-        return "This plio is currently in draft mode and only accessible to you. To make it publicly accessible, publish the plio";
-      return "This plio has been published and is publicly accessible";
+      if (!this.isPublished) return this.$t("tooltip.editor.status.draft");
+      return this.$t("tooltip.editor.status.published");
     },
     syncStatusText() {
       // text to show the sync status
@@ -414,11 +413,13 @@ export default {
     publishButtonTooltip() {
       // tooltip text for publish button
       if (!this.isPublished) {
-        if (!this.isPublishButtonEnabled) return "Enter a valid video URL first";
-        return "Click to publish the plio";
+        if (!this.isPublishButtonEnabled)
+          return this.$t("tooltip.editor.publish.draft.disabled");
+        return this.$t("tooltip.editor.publish.draft.enabled");
       }
-      if (!this.isPublishButtonEnabled) return "No unpublished changes yet";
-      return "Click to publish your changes";
+      if (!this.isPublishButtonEnabled)
+        return this.$t("tooltip.editor.publish.published.disabled");
+      return this.$t("tooltip.editor.publish.published.enabled");
     },
     lastUpdatedStr() {
       // lastUpdated as a human readable string
@@ -506,9 +507,8 @@ export default {
     },
     addItemTooltip() {
       // tooltip for the add item button
-      if (this.isPublished)
-        return "Adding new questions in a published plio is not allowed";
-      return "Click here to add a question";
+      if (this.isPublished) return this.$t("tooltip.editor.add_item.published");
+      return this.$t("tooltip.editor.add_item.draft");
     },
     videoLinkInputStyling() {
       // styling classes for the video link input box
@@ -516,7 +516,7 @@ export default {
     },
     videoLinkTooltip() {
       // tooltip for the video link input box
-      if (this.isPublished) return "You cannot edit the video URL in a published plio";
+      if (this.isPublished) return this.$t("tooltip.editor.video_input.published");
       return undefined;
     },
   },

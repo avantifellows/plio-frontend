@@ -171,4 +171,68 @@ export default {
     no: "No",
     got_it: "Got it",
   },
+  tooltip: {
+    url: "Copy link",
+    time_input: "You cannot edit the time in a published plio",
+    editor: {
+      publish: {
+        published: {
+          enabled: "Click to publish your changes",
+          disabled: "No unpublished changes yet",
+        },
+        draft: {
+          enabled: "Click to publish the plio",
+          disabled: "Enter a valid video URL first",
+        },
+      },
+      status: {
+        published: "This plio has been published and is publicly accessible",
+        draft:
+          "This plio is currently in draft mode and only accessible to you. To make it publicly accessible, publish the plio",
+      },
+      video_input: {
+        published: "You cannot edit the video URL in a published plio",
+      },
+      add_item: {
+        published: "Adding new questions in a published plio is not allowed",
+        draft: "Click here to add a question",
+      },
+      item_editor: {
+        buttons: {
+          previous: "Move to the previous question",
+          next: "Move to the next question",
+          add_item: {
+            question: {
+              disabled:
+                "You cannot add a new question once the plio is published",
+              enabled: "Add a question",
+            },
+          },
+          add_option: {
+            disabled: "You cannot add an option once the plio is published",
+            enabled: "Add an option",
+          },
+        },
+        correct_option: {
+          marked:
+            "This option has marked as the correct option for this question",
+          unmarked: "Mark this option as the correct option for this question",
+        },
+      },
+    },
+    home: {
+      table: {
+        component: {
+          buttons: {
+            play: {
+              published: "Play this plio",
+              draft: "Cannot play a draft plio",
+            },
+            edit: "Edit this Plio",
+            duplicate: "Duplicate this Plio",
+          },
+        },
+      },
+    },
+  },
 };
