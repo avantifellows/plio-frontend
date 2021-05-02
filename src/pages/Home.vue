@@ -75,12 +75,12 @@ export default {
   data() {
     return {
       searchQuery: "", // string being queried in the search bar
-      tableColumns: ["name", "number of learners"], // columns for the table
+      tableColumns: ["name", "number_of_learners"], // columns for the table
       tableData: [],
       // dummy table data - to show skeletons when data is being loaded
       dummyTableData: Array(5).fill({
         name: { type: "component", value: "" },
-        "number of learners": "-",
+        number_of_learners: "-",
       }),
       hasAnyPlios: false, // whether there are any plios
       confirmIcon: require("@/assets/images/check-circle-regular.svg"),
@@ -158,7 +158,7 @@ export default {
               };
               break;
 
-            case "number of learners":
+            case "number_of_learners":
               tableRow[column] = await PlioAPIService.getUniqueUsersCount(plioId);
               break;
           }

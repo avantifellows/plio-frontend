@@ -299,6 +299,11 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading"]),
+    itemType() {
+      // type of the current item - null if no item is selected
+      if (!this.isItemSelected) return null;
+      return this.items[this.currentItemIndex].type;
+    },
     statusBadge() {
       // text for the status badge
       return this.$t(`generic.status.${this.status}`);
@@ -464,33 +469,25 @@ export default {
       // title for the dialog box that appears when publishing a
       // draft plio or publishing changes to a published plio
       if (this.isPublished) {
-        return "Are you sure you want to publish your changes?";
+        return this.$t("editor.dialog.publish.published.title");
       }
-      return "Are you sure you want to publish the plio?";
-    },
-    deleteItemDialogTitle() {
-      // show this warning before deleting an item
-      return "Are you sure you want to delete this?";
-    },
-    deleteItemDialogDescription() {
-      // show this description before deleting an item
-      return "This will permanently delete this item";
+      return this.$t("editor.dialog.publish.draft.title");
     },
     publishDialogDescription() {
       // description for the dialog box that appears when publishing a
       // draft plio or publishing changes to a published plio
       if (this.isPublished) {
-        return "The plio will be permananently changed once you publish the changes";
+        return this.$t("editor.dialog.publish.published.description");
       }
-      return "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question";
+      return this.$t("editor.dialog.publish.draft.description");
     },
     publishInProgressDialogTitle() {
       // title for the dialog box that appears when the
       // publishing for a plio is in progress
       if (this.isPublished) {
-        return "Publishing the changes..";
+        return this.$t("editor.dialog.publishing.published.title");
       }
-      return "Publishing the plio...";
+      return this.$t("editor.dialog.publishing.draft.title");
     },
     addItemButtonClass() {
       // styling class for add item button
@@ -723,13 +720,13 @@ export default {
       this.dialogDescription = this.publishDialogDescription;
       this.dialogConfirmButtonConfig = {
         enabled: true,
-        text: "Yes",
+        text: this.$t("generic.yes"),
         class:
           "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
-        text: "No",
+        text: this.$t("generic.no"),
         class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
       };
       // closing the dialog executes this action
@@ -764,12 +761,11 @@ export default {
     showCannotAddItemDialog() {
       // set up the dialog properties when user tries to add an item
       // at an invalid time
-      this.dialogTitle = "Cannot add a new question here";
-      this.dialogDescription =
-        "Questions should be at least 2 seconds apart. Please choose a different time for the question";
+      this.dialogTitle = this.$t("editor.dialog.cannot_add_question.title");
+      this.dialogDescription = this.$t("editor.dialog.cannot_add_question.description");
       this.dialogConfirmButtonConfig = {
         enabled: true,
-        text: "Got it!",
+        text: this.$t("generic.got_it"),
         class:
           "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
@@ -787,11 +783,11 @@ export default {
     showCannotDeleteOptionDialog() {
       // set up the dialog properties when user tries to delete an option
       // for a question with only 2 options
-      this.dialogTitle = "Cannot delete the option";
-      this.dialogDescription = "A question must have at least 2 options";
+      this.dialogTitle = this.$t("editor.dialog.cannot_delete_option.title");
+      this.dialogDescription = this.$t("editor.dialog.cannot_delete_option.description");
       this.dialogConfirmButtonConfig = {
         enabled: true,
-        text: "Got it!",
+        text: this.$t("generic.got_it"),
         class:
           "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
@@ -919,17 +915,19 @@ export default {
     deleteItemButtonClicked() {
       // invoked when the delete item button is clicked
       // set dialog properties
-      this.dialogTitle = this.deleteItemDialogTitle;
-      this.dialogDescription = this.deleteItemDialogDescription;
+      this.dialogTitle = this.$t(`editor.dialog.delete_item.${this.itemType}.title`);
+      this.dialogDescription = this.$t(
+        `editor.dialog.delete_item.${this.itemType}.description`
+      );
       this.dialogConfirmButtonConfig = {
         enabled: true,
-        text: "Yes",
+        text: this.$t("generic.yes"),
         class:
           "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
-        text: "No",
+        text: this.$t("generic.no"),
         class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
       };
       // set the action to be carried out
@@ -948,17 +946,17 @@ export default {
     deleteOption(optionIndex) {
       // invoked when delete option button is clicked
       // set dialog properties
-      this.dialogTitle = "Are you sure you want to delete this option?";
+      this.dialogTitle = this.$t("editor.dialog.delete_option.title");
       this.dialogDescription = "";
       this.dialogConfirmButtonConfig = {
         enabled: true,
-        text: "Yes",
+        text: this.$t("generic.yes"),
         class: `bg-primary-button hover:bg-primary-button-hover
           focus:outline-none focus:ring-0`,
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
-        text: "No",
+        text: this.$t("generic.no"),
         class: `bg-white hover:bg-gray-100 focus:outline-none
           text-primary`,
       };

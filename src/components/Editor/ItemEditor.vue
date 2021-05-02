@@ -8,7 +8,7 @@
       <!-- nav bar -->
       <div class="mr-auto sm:flex content-center hidden">
         <p class="self-center editor-title">
-          EDIT {{ localItemList[localSelectedItemIndex].type.toUpperCase() }}
+          {{ getHeading(localItemList[localSelectedItemIndex].type) }}
         </p>
       </div>
 
@@ -64,8 +64,8 @@
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
       <!-- question input box : expandable -->
       <Textarea
-        :placeholder="'Enter the question text here'"
-        :title="'Question'"
+        :placeholder="questionInputPlaceholder"
+        :title="questionInputTitle"
         v-model:value="questionText"
         ref="questionText"
         class="p-2"
@@ -74,7 +74,7 @@
 
       <!-- time input HH : MM : SS : mmm -->
       <time-input
-        :title="'Time for the question to appear'"
+        :title="timeInputTitle"
         class="p-2"
         v-model:timeObject="timeObject"
         :errorStates="timeInputErrorStates"
@@ -86,8 +86,8 @@
       <!-- input field for entering options  -->
       <input-text
         v-for="(option, optionIndex) in options"
-        :placeholder="'Enter Option'"
-        :title="'Option ' + (optionIndex + 1)"
+        :placeholder="getOptionInputPlaceholder"
+        :title="getOptionInputTitle(optionIndex)"
         class="p-2"
         v-model:value="options[optionIndex]"
         :key="optionIndex"
@@ -166,10 +166,6 @@ export default {
       },
       timeExceedsVideoDuration: false, //stores if the time entered by the user exceeds the total video duration
       itemInVicinity: false, // stores if another item is in the vicinity of the current selected item
-      dialogTitle: "", // title for the dialog box
-      dialogDescription: "", // description for the dialog box
-      showDialog: false, // whether to show the dialog box
-      dialogAction: "", // action that invoked the dialog box
       // index of the option to be deleted; -1 means nothing to be deleted
       optionIndexToDelete: -1,
       // warning messages for error states
@@ -209,6 +205,14 @@ export default {
     Textarea,
   },
   methods: {
+    getHeading(itemType) {
+      // heading for the current item
+      return this.$t(`editor.item_editor.heading.${itemType}`);
+    },
+    getOptionInputTitle(optionIndex) {
+      // title for the placeholder input
+      return this.$t("editor.item_editor.option_input.title") + " " + (optionIndex + 1);
+    },
     checkTimeInputErrors(timeInput) {
       // checks if the time entered in the timeinput box has
       // any errors or not and toggles the respective variables
@@ -272,10 +276,6 @@ export default {
         "border-4": this.isOptionMarkedCorrect(optionIndex),
       };
     },
-    capitalizeFirstLetter(str) {
-      // capitalize the first letter of a given string
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    },
     updateSelectedItemIndex(index) {
       // updates the current item selected
       this.localSelectedItemIndex = index;
@@ -330,6 +330,22 @@ export default {
   },
 
   computed: {
+    getOptionInputPlaceholder() {
+      // placeholder for the option input
+      return this.$t("editor.item_editor.option_input.placeholder");
+    },
+    questionInputTitle() {
+      // title for the textarea for the question text
+      return this.$t("editor.item_editor.question_input.title");
+    },
+    questionInputPlaceholder() {
+      // placeholder for the textarea for the question text
+      return this.$t("editor.item_editor.question_input.placeholder");
+    },
+    timeInputTitle() {
+      // title for the timestamp input
+      return this.$t("editor.item_editor.time_input.title");
+    },
     localItemTimestamps() {
       // returns a list of timestamp values after extracting them from the items
       return this.localItemList.map((value) => value.time);
@@ -376,7 +392,7 @@ export default {
     addOptionButtonTitleConfig() {
       // title config for add option button
       return {
-        value: "Add another option",
+        value: this.$t("editor.item_editor.buttons.add_option"),
         class: "p-4 text-white rounded-md font-bold",
       };
     },
@@ -420,7 +436,7 @@ export default {
       this.localItemList.forEach((item, itemIndex) => {
         var currentItem = {};
         currentItem["value"] = itemIndex;
-        var itemType = this.capitalizeFirstLetter(item.type);
+        var itemType = this.$t(`editor.item_editor.dropdown.${item.type}`);
         currentItem["text"] = `${itemType} ${itemIndex + 1}`;
         optionsList.push(currentItem);
       });

@@ -8,7 +8,7 @@
 
         <!-- status badge -->
         <simple-badge
-          :text="status"
+          :text="statusBadge"
           :badgeClass="statusBadgeClass"
           v-tooltip.top="statusBadgeTooltip"
         ></simple-badge>
@@ -131,6 +131,11 @@ export default {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     ...mapState("plioItems", ["allPlioDetails"]),
+    statusBadge() {
+      // text for the status badge
+      if (this.status == undefined) return null;
+      return this.$t(`generic.status.${this.status}`);
+    },
     playButtonTitleConfig() {
       // title config for the play button
       return {

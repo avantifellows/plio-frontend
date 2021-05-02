@@ -60,7 +60,7 @@
                       <div
                         class="p-1 my-auto whitespace-nowrap md:text-base xl:text-lg cursor-pointer"
                       >
-                        {{ capitalize(columnName) }}
+                        {{ tableColumnName(columnName) }}
                       </div>
                       <div class="p-1 my-auto cursor-pointer">
                         <inline-svg
@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import PlioListItem from "@/components/UI/ListItems/PlioListItem.vue";
+import PlioListItem from "@/components/Items/ListItems/PlioListItem.vue";
 import { mapState, mapActions } from "vuex";
 
 export default {
@@ -182,6 +182,10 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
+    tableColumnName(columnName) {
+      // name of the column in the table
+      return this.$t(`home.table.columns.${columnName}`);
+    },
     isComponent(value) {
       // if a particular entry in the table is a component or not
       return value.type == "component";

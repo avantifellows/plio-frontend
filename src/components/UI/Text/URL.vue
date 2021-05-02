@@ -64,8 +64,8 @@ export default {
       hiddenElement.select();
       var success = document.execCommand("copy");
       document.body.removeChild(hiddenElement);
-      if (success) this.toast.success("URL Copied Successfully");
-      else this.toast.error("Error while copying");
+      if (success) this.toast.success(this.$t("success.copying"));
+      else this.toast.error(this.$t("error.copying"));
 
       this.$emit("copied", success);
     },
