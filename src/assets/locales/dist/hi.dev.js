@@ -1,4 +1,10 @@
-export default {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true,
+});
+exports["default"] = void 0;
+var _default = {
   nav: {
     home: "होम",
     login: "",
@@ -24,8 +30,8 @@ export default {
     buttons: {
       home: "होम",
       publish: {
-        draft: "प्लायो प्रकाशित करें",
-        published: "परिवर्तन प्रकाशित करें",
+        draft: "प्लायो प्रकाशित करो",
+        published: "प्रकाशित करो",
       },
       add_question: "नया सवाल बनाएं",
     },
@@ -107,16 +113,12 @@ export default {
         name: "नाम",
         number_of_learners: "दर्शको की संख्या",
       },
-      plio_list_item: {
+      component: {
         buttons: {
           play: "चलाओ",
           edit: "संपादन",
           duplicate: "नक़ल",
         },
-        empty_title_placeholder: "कोई नाम नहीं",
-      },
-      search: {
-        placeholder: "कुछ ढूंढिए",
       },
     },
   },
@@ -134,7 +136,7 @@ export default {
         valid: "",
         invalid: "OTP 6 अंको का होना चाहिए",
       },
-      submit: "OTP जमा करें",
+      submit: "OTP जमा करो",
       incorrect: "OTP गलत दर्ज किया गया है कृपया दोबारा कोशिश करें",
       resend: "OTP दोबारा भेजो",
       resent: "OTP फिर भेजा गया है",
@@ -152,8 +154,8 @@ export default {
       proceed: "आगे बढ़ें",
     },
     fullscreen: {
-      enter: "पूर्ण स्क्रीन में प्रवेश करें",
-      exit: "पूर्ण स्क्रीन से निकास लें ",
+      enter: "पूर्ण स्क्रीन में प्रवेश",
+      exit: "पूर्ण स्क्रीन से निकास",
     },
   },
   error: {
@@ -177,71 +179,18 @@ export default {
   },
   tooltip: {
     url: "लिंक को कापी करे",
-    time_input: "आप किसी प्रकाशित प्लायो में समय संपादित नहीं कर सकते",
     editor: {
-      publish: {
-        published: {
-          enabled: "अपने परिवर्तन प्रकाशित करने के लिए क्लिक करें",
-          disabled: "अभी तक कोई अप्रकाशित परिवर्तन नहीं हुआ है",
-        },
-        draft: {
-          enabled: "प्लायो प्रकाशित करने के लिए क्लिक करें",
-          disabled: "पहले एक मान्य वीडियो लिंक दर्ज करें",
-        },
-      },
-      status: {
-        published:
-          "इस प्लायो को प्रकाशित किया जा चूका है और इसे किसी को भी भेजा जा सकता है",
-        draft:
-          "यह प्लाओ अभी एक प्रारूप है और केवल आप इसे देख सकते हैं। इसे किसी को भी भेजने के लिए इस प्लायो को प्रकाशित करें",
-      },
+      published: "",
+      status: "",
       video_input: {
         published: "आप प्रकाशित प्लायो में वीडियो लिंक को संपादित नहीं कर सकते",
       },
       add_item: {
-        published: "आप एक प्रकाशित प्लायो में नए प्रश्न नहीं जोड़ सकते",
+        published:
+          "प्रकाशित प्लायो में नए प्रश्नों को जोड़ने की अनुमति नहीं है",
         draft: "प्रश्न जोड़ने के लिए यहां क्लिक करें",
-      },
-      item_editor: {
-        buttons: {
-          previous: "पिछले प्रश्न पर जाएं",
-          next: "अगले सवाल पर जाएं",
-          add_item: {
-            question: {
-              disabled:
-                "प्लायो के प्रकाशित होने के बाद आप एक नया प्रश्न नहीं जोड़ सकते",
-              enabled: "एक प्रश्न जोड़ें",
-            },
-          },
-          add_option: {
-            disabled:
-              "प्लायो के प्रकाशित होने के बाद आप एक नया विकल्प नहीं जोड़ सकते",
-            enabled: "एक विकल्प जोड़ें",
-          },
-          delete_option: {
-            disabled: "प्लायो प्रकाशित होने के बाद विकल्प नहीं हटा सकते",
-            enabled: "इस विकल्प को हटा दें",
-          },
-        },
-        correct_option: {
-          marked: "इस विकल्प को इस प्रश्न के लिए सही विकल्प चुना गया है",
-          unmarked: "इस प्रश्न के लिए इस विकल्प को सही विकल्प चुने",
-        },
-      },
-    },
-    home: {
-      table: {
-        plio_list_item: {
-          buttons: {
-            play: {
-              published: "इस प्लेओ को देखें",
-              draft: "किसी भी प्रारूप प्लेओ को देखा नहीं जा सकता",
-            },
-            edit: "इस प्लायो को संपादित करें",
-            duplicate: "इसके जैसा एक और प्लायो बनाएं",
-          },
-        },
       },
     },
   },
 };
+exports["default"] = _default;

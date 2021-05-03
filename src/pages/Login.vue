@@ -6,7 +6,7 @@
     >
       <!-- prompt to enter phone number -->
       <p class="text-center font-bold text-lg lg:text-xl xl:text-2xl">
-        {{ $t("login.learner.phone_prompt") }}
+        {{ $t("login.phone.prompt") }}
       </p>
       <!-- input box to enter phone number -->
       <input-number
@@ -51,9 +51,9 @@
       ></icon-button>
       <!-- text to show when OTP has been resent -->
       <p v-if="resentOtp" class="text-center mt-2">
-        {{ $t("login.learner.message_otp_resent") }}
+        {{ $t("login.otp.resent") }}
       </p>
-      <p class="text-center text-2xl sm:text-4xl my-10">OR</p>
+      <p class="text-center text-2xl sm:text-4xl my-10">{{ $t("login.or") }}</p>
       <!-- google sign in button -->
       <icon-button
         :iconConfig="googleButtonIconConfig"
@@ -92,6 +92,14 @@ export default {
     IconButton,
     UserConfig,
   },
+  watch: {
+    isRequestOtpEnabled() {
+      if (!this.isRequestOtpEnabled) {
+        this.requestedOtp = false;
+        this.resentOtp = false;
+      }
+    },
+  },
   data() {
     return {
       phoneInput: "", // phone input text
@@ -100,8 +108,6 @@ export default {
       resentOtp: false, // whether the user has requested to resend OTP
       invalidOtp: false, // whether the OTP is invalid
       toast: useToast(), // use the toast component
-      wrongOTPWarning: "Incorrect OTP entered. Please try again!", // Warning to show when entered OTP is incorrect
-      genericWarning: "Something went wrong. Please try again!",
     };
   },
   computed: {
@@ -112,19 +118,19 @@ export default {
     phoneInputValidation() {
       // validation config for the phone text input
       return {
-        enabled: true,
+        enabled: this.phoneInput,
         isValid: this.isRequestOtpEnabled,
-        validMessage: "Phone number is valid",
-        invalidMessage: "Phone number is invalid",
+        validMessage: this.$t("login.phone.validation.valid"),
+        invalidMessage: this.$t("login.phone.validation.invalid"),
       };
     },
     otpInputValidation() {
       // validation config for the otp text input
       return {
-        enabled: true,
+        enabled: this.otpInput,
         isValid: this.isSubmitOTPEnabled,
-        validMessage: "",
-        invalidMessage: "OTP should be 6 digits long",
+        validMessage: this.$t("login.otp.validation.valid"),
+        invalidMessage: this.$t("login.otp.validation.invalid"),
       };
     },
     isRequestOtpEnabled() {
@@ -142,7 +148,7 @@ export default {
     requestOTPTitleConfig() {
       // title config for the request OTP button
       return {
-        value: "Request OTP",
+        value: this.$t("login.otp.request"),
       };
     },
     requestOTPButtonClass() {
@@ -152,7 +158,7 @@ export default {
     submitOTPTitleConfig() {
       // title config for the submit OTP button
       return {
-        value: "Submit OTP",
+        value: this.$t("login.otp.submit"),
         class: "text-white",
       };
     },
@@ -163,7 +169,7 @@ export default {
     resendOTPTitleConfig() {
       // title config for the resend OTP button
       return {
-        value: "Resend OTP",
+        value: this.$t("login.otp.resend"),
       };
     },
     resendOTPButtonClass() {
@@ -181,7 +187,7 @@ export default {
     googleButtonTitleConfig() {
       // config for the title of the google sign in button
       return {
-        value: "Sign in with Google",
+        value: this.$t("login.google.button"),
         class: "text-gray-600 ml-2",
       };
     },
@@ -222,7 +228,7 @@ export default {
           if (error.response.status == 401) {
             // show wrong OTP warning and reset the OTP input text box
             this.invalidOtp = true;
-            this.toast.error(this.wrongOTPWarning);
+            this.toast.error(this.$t("login.otp.incorrect"));
             this.otpInput = "";
           }
         });
@@ -241,7 +247,7 @@ export default {
           }
         );
       } catch (error) {
-        this.toast.warning(this.genericWarning);
+        this.toast.warning(this.$t("login.google.error"));
         console.error(error);
         return null;
       }

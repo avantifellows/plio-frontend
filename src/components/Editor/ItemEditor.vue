@@ -8,7 +8,7 @@
       <!-- nav bar -->
       <div class="mr-auto sm:flex content-center hidden">
         <p class="self-center editor-title">
-          EDIT {{ localItemList[localSelectedItemIndex].type.toUpperCase() }}
+          {{ getHeading(localItemList[localSelectedItemIndex].type) }}
         </p>
       </div>
 
@@ -26,7 +26,7 @@
         @click="updateSelectedItemIndex(localSelectedItemIndex - 1)"
         :buttonClass="previousItemButtonClass"
         :disabled="isFirstItem"
-        v-tooltip.top="'Move to previous question'"
+        v-tooltip="previousItemTooltip"
       ></icon-button>
 
       <!-- next item button -->
@@ -36,7 +36,7 @@
         @click="updateSelectedItemIndex(localSelectedItemIndex + 1)"
         :buttonClass="nextItemButtonClass"
         :disabled="isLastItem"
-        v-tooltip.top="'Move to next question'"
+        v-tooltip="nextItemTooltip"
       ></icon-button>
 
       <!-- add item button -->
@@ -64,8 +64,8 @@
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
       <!-- question input box : expandable -->
       <Textarea
-        :placeholder="'Enter the question text here'"
-        :title="'Question'"
+        :placeholder="questionInputPlaceholder"
+        :title="questionInputTitle"
         v-model:value="questionText"
         ref="questionText"
         class="p-2"
@@ -74,11 +74,12 @@
 
       <!-- time input HH : MM : SS : mmm -->
       <time-input
-        :title="'Time for the question to appear'"
+        :title="timeInputTitle"
         class="p-2"
         v-model:timeObject="timeObject"
         :errorStates="timeInputErrorStates"
         :isDisabled="isInteractionDisabled"
+        :disabledTooltip="timeDisabledTooltip"
         @error-occurred="$emit('error-occurred')"
         @error-resolved="$emit('error-resolved')"
       ></time-input>
@@ -86,8 +87,8 @@
       <!-- input field for entering options  -->
       <input-text
         v-for="(option, optionIndex) in options"
-        :placeholder="'Enter Option'"
-        :title="'Option ' + (optionIndex + 1)"
+        :placeholder="optionInputPlaceholder"
+        :title="getOptionInputTitle(optionIndex)"
         class="p-2"
         v-model:value="options[optionIndex]"
         :key="optionIndex"
@@ -166,10 +167,6 @@ export default {
       },
       timeExceedsVideoDuration: false, //stores if the time entered by the user exceeds the total video duration
       itemInVicinity: false, // stores if another item is in the vicinity of the current selected item
-      dialogTitle: "", // title for the dialog box
-      dialogDescription: "", // description for the dialog box
-      showDialog: false, // whether to show the dialog box
-      dialogAction: "", // action that invoked the dialog box
       // index of the option to be deleted; -1 means nothing to be deleted
       optionIndexToDelete: -1,
       // warning messages for error states
@@ -209,6 +206,14 @@ export default {
     Textarea,
   },
   methods: {
+    getHeading(itemType) {
+      // heading for the current item
+      return this.$t(`editor.item_editor.heading.${itemType}`);
+    },
+    getOptionInputTitle(optionIndex) {
+      // title for the placeholder input
+      return this.$t("editor.item_editor.option_input.title") + " " + (optionIndex + 1);
+    },
     checkTimeInputErrors(timeInput) {
       // checks if the time entered in the timeinput box has
       // any errors or not and toggles the respective variables
@@ -258,8 +263,8 @@ export default {
     getCorrectOptionTooltip(optionIndex) {
       // returns the tooltip for the correct option button for the given option index
       if (this.isOptionMarkedCorrect(optionIndex))
-        return "This option has marked as the correct option for this question";
-      return "Mark this option as the correct option for this question";
+        return this.$t("tooltip.editor.item_editor.correct_option.marked");
+      return this.$t("tooltip.editor.item_editor.correct_option.unmarked");
     },
     isOptionMarkedCorrect(optionIndex) {
       // whether the given option index is the right option
@@ -271,10 +276,6 @@ export default {
         "border-green-500": this.isOptionMarkedCorrect(optionIndex),
         "border-4": this.isOptionMarkedCorrect(optionIndex),
       };
-    },
-    capitalizeFirstLetter(str) {
-      // capitalize the first letter of a given string
-      return str.charAt(0).toUpperCase() + str.slice(1);
     },
     updateSelectedItemIndex(index) {
       // updates the current item selected
@@ -330,6 +331,34 @@ export default {
   },
 
   computed: {
+    timeDisabledTooltip() {
+      // tooltip for the time input box when it is disabled
+      return this.$t("tooltip.time_input");
+    },
+    previousItemTooltip() {
+      // tooltip for the previous item button
+      return this.$t("tooltip.editor.item_editor.buttons.previous");
+    },
+    nextItemTooltip() {
+      // tooltip for the next item button
+      return this.$t("tooltip.editor.item_editor.buttons.next");
+    },
+    optionInputPlaceholder() {
+      // placeholder for the option input
+      return this.$t("editor.item_editor.option_input.placeholder");
+    },
+    questionInputTitle() {
+      // title for the textarea for the question text
+      return this.$t("editor.item_editor.question_input.title");
+    },
+    questionInputPlaceholder() {
+      // placeholder for the textarea for the question text
+      return this.$t("editor.item_editor.question_input.placeholder");
+    },
+    timeInputTitle() {
+      // title for the timestamp input
+      return this.$t("editor.item_editor.time_input.title");
+    },
     localItemTimestamps() {
       // returns a list of timestamp values after extracting them from the items
       return this.localItemList.map((value) => value.time);
@@ -350,8 +379,8 @@ export default {
     addOptionTooltip() {
       // tooltip for add option button
       if (this.isInteractionDisabled)
-        return "You cannot add an option once the plio is published";
-      return "Add an option";
+        return this.$t("tooltip.editor.item_editor.buttons.add_option.disabled");
+      return this.$t("tooltip.editor.item_editor.buttons.add_option.enabled");
     },
     deleteItemButtonTooltip() {
       // tooltip text for delete item button
@@ -370,13 +399,15 @@ export default {
       // itemType is just "question" right now - parametrize when more types are supported
       var itemType = "question";
       if (this.isInteractionDisabled)
-        return `You cannot add a new ${itemType} once the plio is published`;
-      return `Add a ${itemType}`;
+        return this.$t(
+          `tooltip.editor.item_editor.buttons.add_item.${itemType}.disabled`
+        );
+      return this.$t(`tooltip.editor.item_editor.buttons.add_item.${itemType}.enabled`);
     },
     addOptionButtonTitleConfig() {
       // title config for add option button
       return {
-        value: "Add another option",
+        value: this.$t("editor.item_editor.buttons.add_option"),
         class: "p-4 text-white rounded-md font-bold",
       };
     },
@@ -387,8 +418,8 @@ export default {
         name: "delete",
         class: "bg-red-500 cursor-pointer w-8 h-8 hover:bg-red-700 rounded-md",
         tooltip: this.isInteractionDisabled
-          ? "Cannot delete option once the plio is published"
-          : "Delete this option",
+          ? this.$t("tooltip.editor.item_editor.buttons.delete_option.disabled")
+          : this.$t("tooltip.editor.item_editor.buttons.delete_option.enabled"),
         isDisabled: this.isInteractionDisabled,
       };
     },
@@ -420,7 +451,7 @@ export default {
       this.localItemList.forEach((item, itemIndex) => {
         var currentItem = {};
         currentItem["value"] = itemIndex;
-        var itemType = this.capitalizeFirstLetter(item.type);
+        var itemType = this.$t(`editor.item_editor.dropdown.${item.type}`);
         currentItem["text"] = `${itemType} ${itemIndex + 1}`;
         optionsList.push(currentItem);
       });

@@ -197,7 +197,6 @@ export default {
       retention: [], // array to store video retention value
       lastTimestampRetention: null, // last recorded timestamp in the retention array
       toast: useToast(), // use the toast component
-      genericWarning: "Something went wrong. Please try again!",
     };
   },
   watch: {
@@ -276,7 +275,7 @@ export default {
     fullscreenButtonTitleConfig() {
       // config for the text of the fullscreen toggle button
       return {
-        value: "Go Fullscreen",
+        value: this.$t("player.fullscreen.enter"),
         class: "text-white text-lg font-bold",
       };
     },
@@ -436,7 +435,7 @@ export default {
       if (err.response && err.response.status == 404) {
         this.$router.replace({ name: "404" });
       } else {
-        this.toast.warning(this.genericWarning);
+        this.toast.warning(this.$t("error.generic"));
         console.log(err);
       }
     },

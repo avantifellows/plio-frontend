@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-full bg-white justify-end p-1 md:p-3 pr-3 py-3">
+  <div class="flex w-full bg-white justify-end p-1 pr-3 md:pr-6">
     <!-- skip button -->
     <icon-button
       :iconConfig="skipButtonIconConfig"
@@ -19,7 +19,7 @@ export default {
         enabled: true,
         iconName: "times-solid",
         iconClass:
-          "text-red-600 bg-white h-5 w-5 sm:h-8 sm:w-8 md:h-10 md:w-10 shadow-none hover:bg-gray-200",
+          "text-red-600 bg-white h-5 w-5 sm:h-8 sm:w-8 md:h-8 md:w-8 shadow-none hover:bg-gray-200",
       };
     },
   },

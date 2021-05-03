@@ -8,7 +8,7 @@
 
         <!-- status badge -->
         <simple-badge
-          :text="status"
+          :text="statusBadge"
           :badgeClass="statusBadgeClass"
           v-tooltip.top="statusBadgeTooltip"
         ></simple-badge>
@@ -48,6 +48,7 @@
           :titleConfig="editButtonTitleConfig"
           :iconConfig="editButtonIconConfig"
           :buttonClass="editButtonClass"
+          v-tooltip="editButtonTooltip"
           @click="editPlio"
         ></icon-button>
 
@@ -57,6 +58,7 @@
           :iconConfig="duplicateButtonIconConfig"
           :buttonClass="duplicateButtonClass"
           @click="duplicateThenRoute"
+          v-tooltip="duplicateButtonTooltip"
         ></icon-button>
       </div>
     </div>
@@ -93,39 +95,25 @@ export default {
     return {
       // button, icon config and styling classes
       plioDetails: {},
-      playButtonTitleConfig: {
-        value: "Play",
-        class: "p-2 text-primary font-semibold",
-      },
       playButtonIconConfig: {
         enabled: false,
         iconName: "",
         iconClass: "",
       },
       playButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10",
-
-      editButtonTitleConfig: {
-        value: "Edit",
-        class: "p-2 text-primary font-semibold",
-      },
       editButtonIconConfig: {
         enabled: false,
         iconName: "",
         iconClass: "",
       },
       editButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10",
-
-      duplicateButtonTitleConfig: {
-        value: "Duplicate",
-        class: "p-2 text-primary font-semibold",
-      },
       duplicateButtonIconConfig: {
         enabled: false,
         iconName: "",
         iconClass: "",
       },
       duplicateButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10",
-      urlStyleClass: "text-xs font-bold text-yellow-600",
+      urlStyleClass: "text-sm font-bold text-yellow-600",
       urlCopyButtonClass: "text-yellow-600",
     };
   },
@@ -145,17 +133,52 @@ export default {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     ...mapState("plioItems", ["allPlioDetails"]),
+    statusBadge() {
+      // text for the status badge
+      if (this.status == undefined) return null;
+      return this.$t(`generic.status.${this.status}`);
+    },
+    playButtonTitleConfig() {
+      // title config for the play button
+      return {
+        value: this.$t("home.table.plio_list_item.buttons.play"),
+        class: "p-2 text-primary font-semibold",
+      };
+    },
+    editButtonTitleConfig() {
+      // title config for the play button
+      return {
+        value: this.$t("home.table.plio_list_item.buttons.edit"),
+        class: "p-2 text-primary font-semibold",
+      };
+    },
+    duplicateButtonTitleConfig() {
+      // title config for the duplicate button
+      return {
+        value: this.$t("home.table.plio_list_item.buttons.duplicate"),
+        class: "p-2 text-primary font-semibold",
+      };
+    },
     playButtonTooltip() {
-      return this.isPublished ? "Play this plio" : "Cannot play a draft plio";
+      // tooltip for the play button
+      return this.$t(`tooltip.home.table.plio_list_item.buttons.play.${this.status}`);
+    },
+    editButtonTooltip() {
+      // tooltip for the edit button
+      return this.$t("tooltip.home.table.plio_list_item.buttons.edit");
+    },
+    duplicateButtonTooltip() {
+      // tooltip for the duplicate button
+      return this.$t("tooltip.home.table.plio_list_item.buttons.duplicate");
     },
     isPublished() {
+      // whether the plio was published
       return this.status == "published";
     },
     statusBadgeTooltip() {
       // tooltip for the status badge
-      if (!this.isPublished)
-        return "This plio is currently in draft mode and only accessible to you. To make it publicly accessible, publish the plio";
-      return "This plio has been published and is publicly accessible";
+      if (!this.isPublished) return this.$t("tooltip.editor.status.draft");
+      return this.$t("tooltip.editor.status.published");
     },
     statusBadgeClass() {
       // class for the status badge
@@ -177,7 +200,10 @@ export default {
     },
     title() {
       // title of the plio. "Untitled" if no title is present
-      return this.plioDetails.plioTitle || "Untitled";
+      return (
+        this.plioDetails.plioTitle ||
+        this.$t("home.table.plio_list_item.empty_title_placeholder")
+      );
     },
     plioLink() {
       // prepare the link for the plio from the plio ID
@@ -190,7 +216,7 @@ export default {
     },
     isUntitled() {
       // if the plio is untitled or not
-      return this.title == "Untitled";
+      return !this.plioDetails.plioTitle;
     },
     isPlioIdValid() {
       return this.plioId != "";
