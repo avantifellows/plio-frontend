@@ -24,7 +24,6 @@ export default createStore({
         setItem: (key, value) => localStorage.set(key, value),
         removeItem: (key) => localStorage.remove(key),
       },
-      fetchBeforeUse: true,
     }),
     createUsersWebSocket(),
   ],
