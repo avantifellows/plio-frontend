@@ -115,7 +115,7 @@ export default {
       // if user was logged in before but has been logged out now
       // show a popup telling the user that they're logged out
       if (!value) {
-        this.toast.error("You have been logged out!");
+        this.toast.error(this.$t("error.auto_logout"));
         this.logoutUser();
       }
     },

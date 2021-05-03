@@ -162,6 +162,7 @@ export default {
     generic: "Something went wrong. Please try again!",
     internet: "Please check your internet connection",
     copying: "Error while copying",
+    auto_logout: "You have been logged out!",
   },
   success: {
     copying: "URL Copied Successfully",
