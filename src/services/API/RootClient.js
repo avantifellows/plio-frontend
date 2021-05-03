@@ -2,7 +2,10 @@ import axios from "axios";
 import store from "../../store";
 import ErrorHandling from "@/services/Functional/ErrorHandling.js";
 import UserFunctionalService from "@/services/Functional/User.js";
-import { refreshTokenEndpoint } from "@/services/API/Endpoints.js";
+import {
+  refreshTokenEndpoint,
+  userFromTokenEndpoint,
+} from "@/services/API/Endpoints.js";
 
 let headers = {
   Accept: "application/json",
@@ -52,10 +55,17 @@ client.interceptors.response.use(
   (error) => {
     const status = error.response ? error.response.status : null;
 
-    // If refresh token is invalid (400 BAD REQUEST) then log out the user
+    // If refresh token is invalid (400 BAD REQUEST)
     if (error.config.url == refreshTokenEndpoint && status === 400) {
+      // unset the access token and log out the user
       store.dispatch("auth/unsetAccessToken");
-      return Promise.reject(error);
+
+      // set the re authentication status as false
+      store.dispatch("auth/setReAuthenticationState", false);
+
+      // return a never resolving/rejecting promise so no more API calls can occur
+      // https://github.com/axios/axios/issues/583#issuecomment-504317347
+      return new Promise(() => {});
     }
 
     // Handle expired/deleted access token here
@@ -65,8 +75,11 @@ client.interceptors.response.use(
       // with the new token attached to the header
       return UserFunctionalService.reAuthenticate(store)
         .then(() => {
-          error.config.headers["Authorization"] = `
-            Bearer ${store.state.auth.accessToken.access_token}`;
+          var newAccessToken = store.state.auth.accessToken.access_token;
+          error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
+
+          if (error.config.url == userFromTokenEndpoint + "/")
+            error.config.params["token"] = newAccessToken;
           return client.request(error.config);
         })
         .catch((error) => console.log(error));
