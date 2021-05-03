@@ -16,7 +16,7 @@ export default createStore({
       storage: {
         getItem: (key) => {
           try {
-            localStorage.get(key);
+            return localStorage.get(key);
           } catch (error) {
             console.log(error);
           }
