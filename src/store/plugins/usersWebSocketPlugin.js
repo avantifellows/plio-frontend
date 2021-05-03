@@ -3,7 +3,8 @@ const RECONNECT_TIME = 2000;
 
 export default function createUsersWebSocket() {
   return function connect(store, unsubscribeCallback) {
-    // unsubscribe a store subscription made in the previous call
+    // more details on "store.subscribe" and "unsubscribe" at this link
+    // https://vuex.vuejs.org/api/#subscribe
     if (unsubscribeCallback != null) unsubscribeCallback();
 
     var UsersWebsocket;
@@ -48,7 +49,8 @@ export default function createUsersWebSocket() {
     const unsubscribe = store.subscribe((mutation) => {
       // subscribe to store mutations
 
-      // if the user is set, make a new websocket connection and unsubscribe to the mutations
+      // if the user has been newly set, make a new websocket connection and
+      // unsubscribe to the mutations of the previous websocket connection
       if (mutation.type === "auth/setUser") connect(store, unsubscribe);
       // if the user has been unset, close the websocket
       else if (mutation.type === "auth/unsetUser") UsersWebsocket.close();

@@ -2,12 +2,7 @@ import axios from "axios";
 import store from "../../store";
 import ErrorHandling from "@/services/Functional/ErrorHandling.js";
 import UserFunctionalService from "@/services/Functional/User.js";
-import {
-  refreshTokenEndpoint,
-  convertTokenEndpoint,
-  otpVerifyEndpoint,
-  otpRequestEndpoint,
-} from "@/services/API/Endpoints.js";
+import { refreshTokenEndpoint } from "@/services/API/Endpoints.js";
 
 let headers = {
   Accept: "application/json",
@@ -19,14 +14,6 @@ const client = axios.create({
   withCredentials: false,
   headers,
 });
-
-// list of all the authentication related URLs
-const authEndpoints = [
-  refreshTokenEndpoint,
-  otpRequestEndpoint,
-  otpVerifyEndpoint,
-  convertTokenEndpoint,
-];
 
 // the interceptor below is doing the following things:
 // 1. Add trailing slash to every API call (if it's not there)
@@ -60,15 +47,6 @@ client.interceptors.request.use(
 // handle errors in responses for API requests
 client.interceptors.response.use(
   (config) => {
-    // cancel the axios response if the user is not logged in
-    // and do it only for the requests that are not related to authentication
-    if (
-      !store.getters["auth/isAuthenticated"] &&
-      !authEndpoints.includes(config.config.url)
-    )
-      throw new axios.Cancel("User is not logged in");
-
-    // auth related requests can pass through
     return config;
   },
   (error) => {

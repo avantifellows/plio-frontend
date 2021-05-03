@@ -9,9 +9,9 @@ export default {
     // set re-authentication as being in process
     store.dispatch("auth/setReAuthenticationState", true);
 
-    // start the refreshAccessToken call
+    // start the refreshAccessToken call and save that promise
+    // in a variable called "reAuthenticationPromise"
     const reAuthenticationPromise = UserAPIService.refreshAccessToken()
-      //  Save that promise in a variable called "reAuthenticationPromise"
       .then((response) => {
         // once the refreshAccessToken call resolves, set the new access token in store
         // set isReAuthenticating to false

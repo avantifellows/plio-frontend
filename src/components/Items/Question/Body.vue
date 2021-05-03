@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-y-scroll flex flex-col py-4">
+  <div class="overflow-y-auto flex flex-col py-4">
     <!-- question text -->
     <p
       class="m-2 sm:m-4 mx-4 md:mx-6 xl:mx-10 font-bold text-lg md:text-xl lg:text-2xl leading-tight"
