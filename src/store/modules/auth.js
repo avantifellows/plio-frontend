@@ -21,11 +21,7 @@ const getters = {
 const actions = {
   async setAccessToken({ commit, dispatch }, accessToken) {
     await commit("setAccessToken", accessToken);
-    await UserAPIService.getUserByAccessToken(accessToken.access_token).then(
-      (response) => {
-        dispatch("setUser", response.data);
-      }
-    );
+    await dispatch("fetchAndUpdateUser");
   },
   async unsetAccessToken({ commit, dispatch }) {
     await commit("unsetAccessToken");
@@ -49,14 +45,19 @@ const actions = {
   setReAuthenticationState({ commit }, isReAuthenticating) {
     commit("setReAuthenticationState", isReAuthenticating);
   },
-  setreAuthenticationPromise({ commit }, reAuthenticationPromise) {
-    commit("setreAuthenticationPromise", reAuthenticationPromise);
+  setReAuthenticationPromise({ commit }, reAuthenticationPromise) {
+    commit("setReAuthenticationPromise", reAuthenticationPromise);
   },
-  unsetreAuthenticationPromise({ commit }) {
-    commit("unsetreAuthenticationPromise");
+  unsetReAuthenticationPromise({ commit }) {
+    commit("unsetReAuthenticationPromise");
   },
   updateUserStatus({ commit }, status) {
     commit("updateUserStatus", status);
+  },
+  async fetchAndUpdateUser({ dispatch, state }) {
+    await UserAPIService.getUserByAccessToken(
+      state.accessToken.access_token
+    ).then((response) => dispatch("setUser", response.data));
   },
 };
 
@@ -87,10 +88,10 @@ const mutations = {
   setReAuthenticationState(state, isReAuthenticating) {
     state.isReAuthenticating = isReAuthenticating;
   },
-  setreAuthenticationPromise(state, reAuthenticationPromise) {
+  setReAuthenticationPromise(state, reAuthenticationPromise) {
     state.reAuthenticationPromise = reAuthenticationPromise;
   },
-  unsetreAuthenticationPromise(state) {
+  unsetReAuthenticationPromise(state) {
     state.reAuthenticationPromise = null;
   },
   updateUserStatus(state, status) {

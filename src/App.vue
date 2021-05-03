@@ -97,9 +97,10 @@ export default {
       toast: useToast(), // use the toast component
     };
   },
-  created() {
+  async created() {
     // place a listener for the event of closing of the browser
     window.addEventListener("beforeunload", this.onClose);
+    if (this.isAuthenticated) await this.fetchAndUpdateUser();
   },
   beforeUnmount() {
     // remove the listener for the event of closing of the browser
@@ -127,12 +128,12 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions("auth", ["unsetAccessToken"]),
+    ...mapActions("auth", ["unsetAccessToken", "fetchAndUpdateUser"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     logoutUser() {
       // logs out the user
       this.unsetAccessToken().then(() => {
-        this.$router.push({ name: "Login" });
+        this.$router.replace({ name: "Login" });
       });
     },
     createNewPlio() {

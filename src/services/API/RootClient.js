@@ -63,7 +63,7 @@ client.interceptors.response.use(
     // cancel the axios response if the user is not logged in
     // and do it only for the requests that are not related to authentication
     if (
-      store.getters["auth/isAuthenticated"] == false &&
+      !store.getters["auth/isAuthenticated"] &&
       !authEndpoints.includes(config.config.url)
     )
       throw new axios.Cancel("User is not logged in");
@@ -77,7 +77,7 @@ client.interceptors.response.use(
     // If refresh token is invalid (400 BAD REQUEST) then log out the user
     if (error.config.url == refreshTokenEndpoint && status === 400) {
       store.dispatch("auth/unsetAccessToken");
-      throw new axios.Cancel("User has been logged out");
+      return Promise.reject(error);
     }
 
     // Handle expired/deleted access token here

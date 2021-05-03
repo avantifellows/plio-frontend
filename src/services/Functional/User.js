@@ -9,10 +9,9 @@ export default {
     // set re-authentication as being in process
     store.dispatch("auth/setReAuthenticationState", true);
 
-    // start the refreshAccessToken call and save that promise in the variable
-    // "reAuthenticationPromise". Until that promise is resolved, store this promise
-    // into vuex and return from the function.
+    // start the refreshAccessToken call
     const reAuthenticationPromise = UserAPIService.refreshAccessToken()
+      //  Save that promise in a variable called "reAuthenticationPromise"
       .then((response) => {
         // once the refreshAccessToken call resolves, set the new access token in store
         // set isReAuthenticating to false
@@ -20,7 +19,7 @@ export default {
         // and resolve the promise so other waiting calls can proceed
         store.dispatch("auth/setAccessToken", response.data);
         store.dispatch("auth/setReAuthenticationState", false);
-        store.dispatch("auth/unsetreAuthenticationPromise");
+        store.dispatch("auth/unsetReAuthenticationPromise");
         return Promise.resolve(true);
       })
       .catch((error) => {
@@ -28,7 +27,10 @@ export default {
         store.dispatch("auth/setReAuthenticationState", false);
         return Promise.reject(error);
       });
-    store.dispatch("auth/setreAuthenticationPromise", reAuthenticationPromise);
+
+    // Until the promise stored in "reAuthenticationPromise" is resolved,
+    // store this promise into vuex and return from the function.
+    store.dispatch("auth/setReAuthenticationPromise", reAuthenticationPromise);
     return reAuthenticationPromise;
   },
 };
