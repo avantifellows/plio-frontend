@@ -60,7 +60,7 @@ client.interceptors.response.use(
       // unset the access token and log out the user
       store.dispatch("auth/unsetAccessToken");
 
-      // set the re authentication status as false
+      // set the reauthentication status as false
       store.dispatch("auth/setReAuthenticationState", false);
 
       // return a never resolving/rejecting promise so no more API calls can occur
@@ -76,10 +76,15 @@ client.interceptors.response.use(
       return UserFunctionalService.reAuthenticate(store)
         .then(() => {
           var newAccessToken = store.state.auth.accessToken.access_token;
+          // Add the new access token to the header of the request
           error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
 
-          if (error.config.url == userFromTokenEndpoint + "/")
+          // If the call is fetching a user from an access token, we need to update the
+          // request params with the new access token
+          if (error.config.url == userFromTokenEndpoint)
             error.config.params["token"] = newAccessToken;
+
+          // try the request again
           return client.request(error.config);
         })
         .catch((error) => console.log(error));
