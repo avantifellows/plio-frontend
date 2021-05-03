@@ -14,10 +14,17 @@ export default createStore({
   plugins: [
     createPersistedState({
       storage: {
-        getItem: (key) => localStorage.get(key),
+        getItem: (key) => {
+          try {
+            localStorage.get(key);
+          } catch (error) {
+            console.log(error);
+          }
+        },
         setItem: (key, value) => localStorage.set(key, value),
         removeItem: (key) => localStorage.remove(key),
       },
+      fetchBeforeUse: true,
     }),
     createUsersWebSocket(),
   ],
