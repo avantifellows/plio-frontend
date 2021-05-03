@@ -87,7 +87,7 @@
       <!-- input field for entering options  -->
       <input-text
         v-for="(option, optionIndex) in options"
-        :placeholder="getOptionInputPlaceholder"
+        :placeholder="optionInputPlaceholder"
         :title="getOptionInputTitle(optionIndex)"
         class="p-2"
         v-model:value="options[optionIndex]"
@@ -343,7 +343,7 @@ export default {
       // tooltip for the next item button
       return this.$t("tooltip.editor.item_editor.buttons.next");
     },
-    getOptionInputPlaceholder() {
+    optionInputPlaceholder() {
       // placeholder for the option input
       return this.$t("editor.item_editor.option_input.placeholder");
     },
@@ -418,8 +418,8 @@ export default {
         name: "delete",
         class: "bg-red-500 cursor-pointer w-8 h-8 hover:bg-red-700 rounded-md",
         tooltip: this.isInteractionDisabled
-          ? "Cannot delete option once the plio is published"
-          : "Delete this option",
+          ? this.$t("tooltip.editor.item_editor.buttons.delete_option.disabled")
+          : this.$t("tooltip.editor.item_editor.buttons.delete_option.enabled"),
         isDisabled: this.isInteractionDisabled,
       };
     },

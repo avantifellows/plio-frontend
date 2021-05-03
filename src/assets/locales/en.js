@@ -107,12 +107,16 @@ export default {
         name: "name",
         number_of_learners: "Number of Viewers",
       },
-      component: {
+      plio_list_item: {
         buttons: {
           play: "Play",
           edit: "Edit",
           duplicate: "Duplicate",
         },
+        empty_title_placeholder: "Untitled",
+      },
+      search: {
+        placeholder: "Search",
       },
     },
   },
@@ -121,7 +125,7 @@ export default {
       prompt: "Please enter your mobile number",
       validation: {
         valid: "",
-        invalid: "Phone number is invalid",
+        invalid: "Mobile number is invalid",
       },
     },
     otp: {
@@ -154,7 +158,7 @@ export default {
   },
   error: {
     404: "Page Not Found",
-    create_plio: "Error creating Plio",
+    create_plio: "Could not create Plio. Please try again",
     generic: "Something went wrong. Please try again!",
     internet: "Please check your internet connection",
     copying: "Error while copying",
@@ -194,7 +198,7 @@ export default {
         published: "You cannot edit the video URL in a published plio",
       },
       add_item: {
-        published: "Adding new questions in a published plio is not allowed",
+        published: "You cannot add new questions in a published plio",
         draft: "Click here to add a question",
       },
       item_editor: {
@@ -212,17 +216,21 @@ export default {
             disabled: "You cannot add an option once the plio is published",
             enabled: "Add an option",
           },
+          delete_option: {
+            disabled: "Cannot delete option once the plio is published",
+            enabled: "Delete this option",
+          },
         },
         correct_option: {
           marked:
-            "This option has marked as the correct option for this question",
+            "This option has been marked as the correct option for this question",
           unmarked: "Mark this option as the correct option for this question",
         },
       },
     },
     home: {
       table: {
-        component: {
+        plio_list_item: {
           buttons: {
             play: {
               published: "Play this plio",

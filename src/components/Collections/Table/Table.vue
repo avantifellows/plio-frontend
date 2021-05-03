@@ -22,7 +22,7 @@
         <form id="search" class="w-full px-4">
           <input
             class="w-full text-gray-700 leading-tight focus:outline-none"
-            placeholder="Search"
+            :placeholder="searchPlaceholder"
             v-model="searchFilterKey"
           />
         </form>
@@ -112,7 +112,7 @@
 </template>
 
 <script>
-import PlioListItem from "@/components/Items/ListItems/PlioListItem.vue";
+import PlioListItem from "@/components/Collections/ListItems/PlioListItem.vue";
 import { mapState, mapActions } from "vuex";
 
 export default {
@@ -163,6 +163,10 @@ export default {
 
   computed: {
     ...mapState("sync", ["pending"]),
+    searchPlaceholder() {
+      // placeholder for the search box
+      return this.$t("home.table.search.placeholder");
+    },
     totalItemsInTable() {
       // total rows present in the table
       return this.filteredData.length || 0;

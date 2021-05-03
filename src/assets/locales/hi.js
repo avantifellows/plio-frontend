@@ -107,12 +107,16 @@ export default {
         name: "नाम",
         number_of_learners: "दर्शको की संख्या",
       },
-      component: {
+      plio_list_item: {
         buttons: {
           play: "चलाओ",
           edit: "संपादन",
           duplicate: "नक़ल",
         },
+        empty_title_placeholder: "कोई नाम नहीं",
+      },
+      search: {
+        placeholder: "कुछ ढूंढिए",
       },
     },
   },
@@ -148,8 +152,8 @@ export default {
       proceed: "आगे बढ़ें",
     },
     fullscreen: {
-      enter: "पूर्ण स्क्रीन में प्रवेश",
-      exit: "पूर्ण स्क्रीन से निकास",
+      enter: "पूर्ण स्क्रीन में प्रवेश करें",
+      exit: "पूर्ण स्क्रीन से निकास लें ",
     },
   },
   error: {
@@ -195,8 +199,7 @@ export default {
         published: "आप प्रकाशित प्लायो में वीडियो लिंक को संपादित नहीं कर सकते",
       },
       add_item: {
-        published:
-          "प्रकाशित प्लायो में नए प्रश्नों को जोड़ने की अनुमति नहीं है",
+        published: "आप एक प्रकाशित प्लायो में नए प्रश्न नहीं जोड़ सकते",
         draft: "प्रश्न जोड़ने के लिए यहां क्लिक करें",
       },
       item_editor: {
@@ -215,6 +218,10 @@ export default {
               "प्लायो के प्रकाशित होने के बाद आप एक नया विकल्प नहीं जोड़ सकते",
             enabled: "एक विकल्प जोड़ें",
           },
+          delete_option: {
+            disabled: "प्लायो प्रकाशित होने के बाद विकल्प नहीं हटा सकते",
+            enabled: "इस विकल्प को हटा दें",
+          },
         },
         correct_option: {
           marked: "इस विकल्प को इस प्रश्न के लिए सही विकल्प चुना गया है",
@@ -224,7 +231,7 @@ export default {
     },
     home: {
       table: {
-        component: {
+        plio_list_item: {
           buttons: {
             play: {
               published: "इस प्लेओ को देखें",

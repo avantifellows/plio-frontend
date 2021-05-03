@@ -126,17 +126,17 @@ export default {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
       this.$Progress.start();
-      PlioAPIService.createPlio().then((response) => {
-        this.$Progress.finish();
-        if (response.status == 201) {
-          this.$router.push({
-            name: "Editor",
-            params: { plioId: response.data.uuid, org: this.activeWorkspace },
-          });
-        } else {
-          this.toast.error(this.$t("error.create_plio"));
-        }
-      });
+      PlioAPIService.createPlio()
+        .then((response) => {
+          this.$Progress.finish();
+          if (response.status == 201) {
+            this.$router.push({
+              name: "Editor",
+              params: { plioId: response.data.uuid, org: this.activeWorkspace },
+            });
+          }
+        })
+        .catch(() => this.toast.error(this.$t("error.create_plio")));
     },
     onClose(event) {
       // invoked when trying to close the browser or changing pages

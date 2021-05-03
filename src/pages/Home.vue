@@ -40,12 +40,11 @@
         ></icon-button>
       </div>
     </div>
-    <vue-progress-bar></vue-progress-bar>
   </div>
 </template>
 
 <script>
-import Table from "@/components/UI/Table/Table.vue";
+import Table from "@/components/Collections/Table/Table.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import { mapState, mapActions, mapGetters } from "vuex";
@@ -129,17 +128,17 @@ export default {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
       this.$Progress.start();
-      PlioAPIService.createPlio().then((response) => {
-        this.$Progress.finish();
-        if (response.status == 201) {
-          this.$router.push({
-            name: "Editor",
-            params: { plioId: response.data.uuid, org: this.activeWorkspace },
-          });
-        } else {
-          this.toast.error(this.$t("error.create_plio"));
-        }
-      });
+      PlioAPIService.createPlio()
+        .then((response) => {
+          this.$Progress.finish();
+          if (response.status == 201) {
+            this.$router.push({
+              name: "Editor",
+              params: { plioId: response.data.uuid, org: this.activeWorkspace },
+            });
+          }
+        })
+        .catch(() => this.toast.error(this.$t("error.create_plio")));
     },
 
     async prepareTableData(plioIdList) {

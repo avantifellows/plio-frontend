@@ -141,35 +141,35 @@ export default {
     playButtonTitleConfig() {
       // title config for the play button
       return {
-        value: this.$t("home.table.component.buttons.play"),
+        value: this.$t("home.table.plio_list_item.buttons.play"),
         class: "p-2 text-primary font-semibold",
       };
     },
     editButtonTitleConfig() {
       // title config for the play button
       return {
-        value: this.$t("home.table.component.buttons.edit"),
+        value: this.$t("home.table.plio_list_item.buttons.edit"),
         class: "p-2 text-primary font-semibold",
       };
     },
     duplicateButtonTitleConfig() {
       // title config for the duplicate button
       return {
-        value: this.$t("home.table.component.buttons.duplicate"),
+        value: this.$t("home.table.plio_list_item.buttons.duplicate"),
         class: "p-2 text-primary font-semibold",
       };
     },
     playButtonTooltip() {
       // tooltip for the play button
-      return this.$t(`tooltip.home.table.component.buttons.play.${this.status}`);
+      return this.$t(`tooltip.home.table.plio_list_item.buttons.play.${this.status}`);
     },
     editButtonTooltip() {
       // tooltip for the edit button
-      return this.$t("tooltip.home.table.component.buttons.edit");
+      return this.$t("tooltip.home.table.plio_list_item.buttons.edit");
     },
     duplicateButtonTooltip() {
       // tooltip for the duplicate button
-      return this.$t("tooltip.home.table.component.buttons.duplicate");
+      return this.$t("tooltip.home.table.plio_list_item.buttons.duplicate");
     },
     isPublished() {
       // whether the plio was published
@@ -200,7 +200,10 @@ export default {
     },
     title() {
       // title of the plio. "Untitled" if no title is present
-      return this.plioDetails.plioTitle || "Untitled";
+      return (
+        this.plioDetails.plioTitle ||
+        this.$t("home.table.plio_list_item.empty_title_placeholder")
+      );
     },
     plioLink() {
       // prepare the link for the plio from the plio ID
@@ -213,7 +216,7 @@ export default {
     },
     isUntitled() {
       // if the plio is untitled or not
-      return this.title == "Untitled";
+      return !this.plioDetails.plioTitle;
     },
     isPlioIdValid() {
       return this.plioId != "";
