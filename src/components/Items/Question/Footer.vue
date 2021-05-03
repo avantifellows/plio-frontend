@@ -130,9 +130,9 @@ export default {
     fullscreenToggleText() {
       // text to show for the fullscreen button
       if (this.isFullscreen) {
-        return "Exit Fullscreen";
+        return this.$t("player.fullscreen.exit");
       }
-      return "Fullscreen";
+      return this.$t("player.fullscreen.enter");
     },
     answerCorrectnessIcon() {
       // icon to show if the answer was correct or not

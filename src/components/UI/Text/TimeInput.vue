@@ -156,6 +156,11 @@ export default {
       default: false,
       type: Boolean,
     },
+    disabledTooltip: {
+      // tooltip to be used when this component is disabled
+      default: "",
+      type: String,
+    },
   },
   watch: {
     // if any error states change (occur or resolve), check for them
@@ -259,7 +264,7 @@ export default {
     },
     disabledInputTooltip() {
       // tooltip for time input box when it's disabled
-      if (this.isDisabled) return "You cannot edit time in a published plio";
+      if (this.isDisabled) return this.disabledTooltip;
       return undefined;
     },
     defaultBoxClass() {

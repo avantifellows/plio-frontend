@@ -34,7 +34,7 @@
 
       <!-- input text area -->
       <input
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md focus:outline-none focus:ring focus:shadow-outline w-full"
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md focus:outline-none focus:ring focus:shadow-outline ring-transparent w-full"
         name="placeholder"
         :placeholder="placeholder"
         v-model="localValue"

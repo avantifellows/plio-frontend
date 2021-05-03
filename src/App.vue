@@ -1,8 +1,6 @@
 <template>
   <div :class="{ 'opacity-50 pointer-events-none': coverBackground }">
-    <div
-      class="grid grid-cols-6 sm:grid-cols-7 gap-2 border-b-2 pt-2 border-solid bg-white pl-2 pr-2"
-    >
+    <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
       <!-- top left logo -->
       <router-link
         :to="{ name: 'Home', params: { org: activeWorkspace } }"
@@ -31,19 +29,20 @@
       <!-- create plio button -->
       <div
         v-if="showCreateButton"
-        class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1 bg-primary hover:bg-primary-hover rounded-lg"
+        class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1"
       >
         <icon-button
           :titleConfig="createButtonTextConfig"
+          :buttonClass="createButtonClass"
           class="rounded-md shadow-lg"
           @click="createNewPlio"
         ></icon-button>
       </div>
 
-      <div class="grid col-start-7 sm:gap-1 sm:justify-items-center">
+      <div class="grid col-start-6 col-end-8 justify-items-end sm:col-start-7">
         <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
         <!-- logout -->
-        <div v-if="!onLoginPage" class="text-lg sm:text-xl place-self-center">
+        <div v-if="!onLoginPage" class="text-lg sm:text-xl">
           <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
             <button
               class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain"
@@ -60,7 +59,7 @@
           </a>
         </div>
         <!-- locale switcher -->
-        <div class="place-self-center">
+        <div :class="{ 'self-center': !isAuthenticated }">
           <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
         </div>
       </div>
@@ -89,10 +88,6 @@ export default {
   },
   data() {
     return {
-      createButtonTextConfig: {
-        value: "Create",
-        class: "text-lg md:text-xl lg:text-2xl text-white",
-      },
       showDialogBox: false, // to show the dialog box or not
       toast: useToast(), // use the toast component
     };
@@ -140,17 +135,17 @@ export default {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
       this.$Progress.start();
-      PlioAPIService.createPlio().then((response) => {
-        this.$Progress.finish();
-        if (response.status == 201) {
-          this.$router.push({
-            name: "Editor",
-            params: { plioId: response.data.uuid, org: this.activeWorkspace },
-          });
-        } else {
-          this.toast.error("Error creating Plio");
-        }
-      });
+      PlioAPIService.createPlio()
+        .then((response) => {
+          this.$Progress.finish();
+          if (response.status == 201) {
+            this.$router.push({
+              name: "Editor",
+              params: { plioId: response.data.uuid, org: this.activeWorkspace },
+            });
+          }
+        })
+        .catch(() => this.toast.error(this.$t("error.create_plio")));
     },
     onClose(event) {
       // invoked when trying to close the browser or changing pages
@@ -162,6 +157,17 @@ export default {
     ...mapGetters("auth", ["isAuthenticated", "isUserApproved"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("sync", ["pending"]),
+    createButtonTextConfig() {
+      // config for the text of the main create button
+      return {
+        value: this.$t("home.create_button"),
+        class: "text-lg md:text-xl lg:text-2xl text-white",
+      };
+    },
+    createButtonClass() {
+      // class for the create button
+      return "bg-primary hover:bg-primary-hover rounded-lg ring-primary px-2";
+    },
     showWorkspaceSwitcher() {
       // whether to show workspace switcher
       return (

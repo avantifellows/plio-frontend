@@ -1,13 +1,13 @@
 <template>
   <div class="flex gap-2">
     <!-- URL link -->
-    <p class="place-self-center whitespace-nowrap tracking-tighter" :class="urlTextClass">
+    <p class="place-self-center whitespace-nowrap" :class="urlTextClass">
       {{ link }}
     </p>
     <!-- copy button -->
     <button
       @click="copyToClipboard()"
-      v-tooltip="'Copy link'"
+      v-tooltip="this.$t('tooltip.url')"
       :class="urlCopyButtonClass"
     >
       <inline-svg
@@ -37,11 +37,11 @@ export default {
       type: Boolean,
     },
     urlStyleClass: {
-      default: "text-md lg:text-lg h-full",
+      default: "text-sm sm:text-md lg:text-lg h-full text-yellow-600 font-bold",
       type: [String, Object],
     },
     urlCopyButtonClass: {
-      default: "",
+      default: "text-yellow-600",
       type: [String, Object],
     },
   },
@@ -64,8 +64,8 @@ export default {
       hiddenElement.select();
       var success = document.execCommand("copy");
       document.body.removeChild(hiddenElement);
-      if (success) this.toast.success("URL Copied Successfully");
-      else this.toast.error("Error while copying");
+      if (success) this.toast.success(this.$t("success.copying"));
+      else this.toast.error(this.$t("error.copying"));
 
       this.$emit("copied", success);
     },

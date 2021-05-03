@@ -197,7 +197,6 @@ export default {
       retention: [], // array to store video retention value
       lastTimestampRetention: null, // last recorded timestamp in the retention array
       toast: useToast(), // use the toast component
-      genericWarning: "Something went wrong. Please try again!",
     };
   },
   watch: {
@@ -276,7 +275,7 @@ export default {
     fullscreenButtonTitleConfig() {
       // config for the text of the fullscreen toggle button
       return {
-        value: "Go Fullscreen",
+        value: this.$t("player.fullscreen.enter"),
         class: "text-white text-lg font-bold",
       };
     },
@@ -342,7 +341,7 @@ export default {
           this.videoId = this.getVideoIDfromURL(plioDetails.video_url);
         })
         .then(() => this.createSession())
-        .then(() => this.logData())
+        .then(() => this.logData());
     },
     logData() {
       // periodically logs data to the server
