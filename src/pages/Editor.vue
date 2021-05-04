@@ -869,16 +869,14 @@ export default {
     },
     addNewItem() {
       this.player.pause();
+      const currentTimestamp = this.currentTimestamp;
       // newItem object will store the information of the newly created
       // item and the question
       var newItem = {};
 
       // check if the time where user is trying to add an item is valid or not
       if (
-        !ItemFunctionalService.isTimestampValid(
-          this.currentTimestamp,
-          this.itemTimestamps
-        )
+        !ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)
       ) {
         this.showCannotAddItemDialog();
         return;
@@ -888,7 +886,7 @@ export default {
       ItemAPIService.createItem({
         plio: this.plioDBId,
         type: this.getItemTypeForNewItem(),
-        time: this.currentTimestamp,
+        time: currentTimestamp,
         meta: this.getMetadataForNewItem(),
       })
         .then((createdItem) => {
@@ -906,7 +904,7 @@ export default {
           // push it into items, update the itemTimestamps and currentItemIndex
           this.items.push(newItem);
           this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
-          this.currentItemIndex = this.itemTimestamps.indexOf(this.currentTimestamp);
+          this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
           this.markItemSelected(this.currentItemIndex);
         });
     },
