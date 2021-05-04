@@ -7,6 +7,8 @@ const state = {
   user: null,
   activeWorkspace: "",
   userId: null,
+  isReAuthenticating: false,
+  reAuthenticationPromise: null,
 };
 
 const getters = {
@@ -19,11 +21,7 @@ const getters = {
 const actions = {
   async setAccessToken({ commit, dispatch }, accessToken) {
     await commit("setAccessToken", accessToken);
-    await UserAPIService.getUserByAccessToken(accessToken.access_token).then(
-      (response) => {
-        dispatch("setUser", response.data);
-      }
-    );
+    await dispatch("fetchAndUpdateUser");
   },
   async unsetAccessToken({ commit, dispatch }) {
     await commit("unsetAccessToken");
@@ -41,12 +39,25 @@ const actions = {
   async unsetActiveWorkspace({ commit }) {
     await commit("unsetActiveWorkspace");
   },
-
   async saveConfig({ commit }, config) {
     await commit("saveConfig", config);
   },
+  setReAuthenticationState({ commit }, isReAuthenticating) {
+    commit("setReAuthenticationState", isReAuthenticating);
+  },
+  setReAuthenticationPromise({ commit }, reAuthenticationPromise) {
+    commit("setReAuthenticationPromise", reAuthenticationPromise);
+  },
+  unsetReAuthenticationPromise({ commit }) {
+    commit("unsetReAuthenticationPromise");
+  },
   updateUserStatus({ commit }, status) {
     commit("updateUserStatus", status);
+  },
+  async fetchAndUpdateUser({ dispatch, state }) {
+    await UserAPIService.getUserByAccessToken(
+      state.accessToken.access_token
+    ).then((response) => dispatch("setUser", response.data));
   },
 };
 
@@ -73,6 +84,15 @@ const mutations = {
   },
   saveConfig(state, config) {
     state.config = config;
+  },
+  setReAuthenticationState(state, isReAuthenticating) {
+    state.isReAuthenticating = isReAuthenticating;
+  },
+  setReAuthenticationPromise(state, reAuthenticationPromise) {
+    state.reAuthenticationPromise = reAuthenticationPromise;
+  },
+  unsetReAuthenticationPromise(state) {
+    state.reAuthenticationPromise = null;
   },
   updateUserStatus(state, status) {
     state.user.status = status;

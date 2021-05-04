@@ -341,8 +341,7 @@ export default {
           this.videoId = this.getVideoIDfromURL(plioDetails.video_url);
         })
         .then(() => this.createSession())
-        .then(() => this.logData())
-        .catch((err) => this.handleQueryError(err));
+        .then(() => this.logData());
     },
     logData() {
       // periodically logs data to the server
@@ -429,15 +428,6 @@ export default {
     setScreenProperties() {
       // sets various properties based on the device screen
       this.playerHeight = document.getElementById("videoPlayer").clientHeight;
-    },
-    handleQueryError(err) {
-      // handles error encountered when fetching plio or creating new session
-      if (err.response && err.response.status == 404) {
-        this.$router.replace({ name: "404" });
-      } else {
-        this.toast.warning(this.$t("error.generic"));
-        console.log(err);
-      }
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL

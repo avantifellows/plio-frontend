@@ -657,19 +657,17 @@ export default {
     },
     async loadPlio() {
       // fetch plio details
-      await PlioAPIService.getPlio(this.plioId)
-        .then((plioDetails) => {
-          this.items = plioDetails.items || [];
-          this.videoURL = plioDetails.video_url || "";
-          this.plioTitle = plioDetails.plioTitle || "";
-          this.status = plioDetails.status;
-          if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
-            this.lastUpdated = new Date(plioDetails.updated_at);
-          this.hasUnpublishedChanges = false;
-          this.videoDBId = plioDetails.videoDBId;
-          this.plioDBId = plioDetails.plioDBId;
-        })
-        .catch(() => this.$router.replace({ name: "404" }));
+      await PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
+        this.items = plioDetails.items || [];
+        this.videoURL = plioDetails.video_url || "";
+        this.plioTitle = plioDetails.plioTitle || "";
+        this.status = plioDetails.status;
+        if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
+          this.lastUpdated = new Date(plioDetails.updated_at);
+        this.hasUnpublishedChanges = false;
+        this.videoDBId = plioDetails.videoDBId;
+        this.plioDBId = plioDetails.plioDBId;
+      });
     },
     checkAndSavePlio() {
       // ensures that requests are made after a minimum time interval

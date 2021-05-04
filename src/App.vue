@@ -88,13 +88,14 @@ export default {
   },
   data() {
     return {
-      showAlertDialog: false, // whether to show the dialog box
+      showDialogBox: false, // to show the dialog box or not
       toast: useToast(), // use the toast component
     };
   },
-  created() {
+  async created() {
     // place a listener for the event of closing of the browser
     window.addEventListener("beforeunload", this.onClose);
+    if (this.isAuthenticated) await this.fetchAndUpdateUser();
   },
   beforeUnmount() {
     // remove the listener for the event of closing of the browser
@@ -110,11 +111,19 @@ export default {
       if (value) this.$Progress.start();
       else this.$Progress.finish();
     },
+    isAuthenticated(value) {
+      // if user was logged in before but has been logged out now
+      // show a popup telling the user that they're logged out
+      if (!value) {
+        this.toast.error(this.$t("error.auto_logout"));
+        this.logoutUser();
+      }
+    },
   },
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions("auth", ["unsetAccessToken"]),
+    ...mapActions("auth", ["unsetAccessToken", "fetchAndUpdateUser"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     logoutUser() {
       // logs out the user
@@ -190,7 +199,7 @@ export default {
     },
     coverBackground() {
       // whether to apply opacity to the background
-      return this.showAlertDialog;
+      return this.showDialogBox;
     },
   },
 };
