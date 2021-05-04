@@ -277,7 +277,11 @@ export default {
       // when time is changed from the time input boxes
       // or when item is added using the add item button
       this.checkAndFixItemOrder();
-      if (this.items != null && this.currentItemIndex != null)
+      if (
+        this.items != null &&
+        this.currentItemIndex != null &&
+        this.currentItemIndex != -1
+      )
         this.currentTimestamp = this.items[this.currentItemIndex].time;
     },
     videoURL(newVideoURL) {
@@ -538,7 +542,7 @@ export default {
     checkAndFixItemOrder() {
       // sort the items according to new timestamps
       // and reset the currentItemIndex
-      if (this.currentItemIndex != null) {
+      if (this.currentItemIndex != null && this.currentItemIndex != -1) {
         var currentItem = this.items[this.currentItemIndex];
         this.sortItems();
         this.currentItemIndex = this.items.indexOf(currentItem);
@@ -871,16 +875,14 @@ export default {
     },
     addNewItem() {
       this.player.pause();
+      const currentTimestamp = this.currentTimestamp;
       // newItem object will store the information of the newly created
       // item and the question
       var newItem = {};
 
       // check if the time where user is trying to add an item is valid or not
       if (
-        !ItemFunctionalService.isTimestampValid(
-          this.currentTimestamp,
-          this.itemTimestamps
-        )
+        !ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)
       ) {
         this.showCannotAddItemDialog();
         return;
@@ -890,7 +892,7 @@ export default {
       ItemAPIService.createItem({
         plio: this.plioDBId,
         type: this.getItemTypeForNewItem(),
-        time: this.currentTimestamp,
+        time: currentTimestamp,
         meta: this.getMetadataForNewItem(),
       })
         .then((createdItem) => {
@@ -908,7 +910,7 @@ export default {
           // push it into items, update the itemTimestamps and currentItemIndex
           this.items.push(newItem);
           this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
-          this.currentItemIndex = this.itemTimestamps.indexOf(this.currentTimestamp);
+          this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
           this.markItemSelected(this.currentItemIndex);
         });
     },
