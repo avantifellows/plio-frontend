@@ -161,14 +161,17 @@ export default {
     },
     playButtonTooltip() {
       // tooltip for the play button
+      if (!this.status) return "";
       return this.$t(`tooltip.home.table.plio_list_item.buttons.play.${this.status}`);
     },
     editButtonTooltip() {
       // tooltip for the edit button
+      if (!this.status) return "";
       return this.$t("tooltip.home.table.plio_list_item.buttons.edit");
     },
     duplicateButtonTooltip() {
       // tooltip for the duplicate button
+      if (!this.status) return "";
       return this.$t("tooltip.home.table.plio_list_item.buttons.duplicate");
     },
     isPublished() {

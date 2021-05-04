@@ -1,6 +1,11 @@
 import axios from "axios";
 import store from "../../store";
 import ErrorHandling from "@/services/Functional/ErrorHandling.js";
+import UserFunctionalService from "@/services/Functional/User.js";
+import {
+  refreshTokenEndpoint,
+  userFromTokenEndpoint,
+} from "@/services/API/Endpoints.js";
 
 let headers = {
   Accept: "application/json",
@@ -26,8 +31,11 @@ client.interceptors.request.use(
 
     // set auth header
     if (store.state.auth != null) {
-      if (store.state.auth.accessToken) {
-        config.headers.Authorization = `Bearer ${store.state.auth.accessToken.access_token}`;
+      if (store.state.auth.accessToken && config.url != refreshTokenEndpoint) {
+        // set the auth header only when the access token is present
+        // and the call is not being made is NOT the refresh token call
+        config.headers.Authorization = `
+          Bearer ${store.state.auth.accessToken.access_token}`;
       }
       config.headers.Organization = store.state.auth.activeWorkspace;
     }
@@ -45,6 +53,43 @@ client.interceptors.response.use(
     return config;
   },
   (error) => {
+    const status = error.response ? error.response.status : null;
+
+    // If refresh token is invalid (400 BAD REQUEST)
+    if (error.config.url == refreshTokenEndpoint && status === 400) {
+      // unset the access token and log out the user
+      store.dispatch("auth/unsetAccessToken");
+
+      // set the reauthentication status as false
+      store.dispatch("auth/setReAuthenticationState", false);
+
+      // return a never resolving/rejecting promise so no more API calls can occur
+      // https://github.com/axios/axios/issues/583#issuecomment-504317347
+      return new Promise(() => {});
+    }
+
+    // Handle expired/deleted access token here
+    if (status === 401) {
+      // reauthenticate the user, and until that is happenining, pause all other
+      // requests. Once the user is authenticated, release all the paused requests
+      // with the new token attached to the header
+      return UserFunctionalService.reAuthenticate(store)
+        .then(() => {
+          var newAccessToken = store.state.auth.accessToken.access_token;
+          // Add the new access token to the header of the request
+          error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
+
+          // If the call is fetching a user from an access token, we need to update the
+          // request params with the new access token
+          if (error.config.url == userFromTokenEndpoint)
+            error.config.params["token"] = newAccessToken;
+
+          // try the request again
+          return client.request(error.config);
+        })
+        .catch((error) => console.log(error));
+    }
+
     ErrorHandling.handleAPIErrors(error);
     return Promise.reject(error);
   }
