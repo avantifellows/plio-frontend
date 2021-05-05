@@ -5,7 +5,7 @@ on:
   push:
     branches: ["master"]
 
-name: Deploy to ECR - Staging
+name: Deploy to ECS - staging
 
 jobs:
   deploy:
