@@ -10,9 +10,6 @@ Plio enables educators to teach better through videos. Educators can overlay que
 
 This repo contains code for the frontend, in VueJS.
 
-
-
-
 ## Installation
 To set up this project, visit the [installation steps](docs/INSTALLATION.md).
 
