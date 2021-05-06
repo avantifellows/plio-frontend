@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "@/pages/Home.vue";
 import Editor from "@/pages/Editor.vue";
 import Player from "@/pages/Player.vue";
+import Dashboard from "@/pages/Dashboard.vue";
 import Login from "@/pages/Login";
 import store from "../store";
 
@@ -48,6 +49,14 @@ const routes = [
       experiment: route.query.experiment,
       plioId: route.params.plioId,
     }),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/:org?/analyse/:plioId",
+    name: "Dashboard",
+    component: Dashboard,
+    props: true,
+    beforeEnter: restrictUnapprovedUser,
     meta: { requiresAuth: true },
   },
   {

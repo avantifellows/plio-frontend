@@ -94,11 +94,11 @@
                       class="absolute w-full flex justify-center"
                       :class="tableCellOverlayClass(entryIndex, columnIndex)"
                     >
-                      <!-- @click="playPlio" -->
                       <icon-button
                         :titleConfig="analyseButtonTitleConfig"
                         :buttonClass="analyseButtonClass"
                         :isDisabled="!isPublished(entryIndex)"
+                        @click="analysePlio(entryIndex)"
                         v-tooltip="analyseButtonTooltip(entryIndex)"
                       ></icon-button>
                     </div>
@@ -211,6 +211,12 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startLoading"]),
+    analysePlio(entryIndex) {
+      this.$router.push({
+        name: "Dashboard",
+        params: { plioId: this.filteredData[entryIndex]["name"]["value"], org: this.org },
+      });
+    },
     analyseButtonTooltip(rowIndex) {
       // tooltip for the analyse button
       if (!this.isPublished(rowIndex))
