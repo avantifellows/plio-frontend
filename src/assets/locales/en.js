@@ -105,7 +105,7 @@ export default {
     table: {
       columns: {
         name: "name",
-        number_of_learners: "Number of Viewers",
+        number_of_viewers: "Number of Viewers",
       },
       plio_list_item: {
         buttons: {
@@ -117,6 +117,9 @@ export default {
       },
       search: {
         placeholder: "Search",
+      },
+      buttons: {
+        analyse: "Analyse Plio",
       },
     },
   },
@@ -239,6 +242,12 @@ export default {
             },
             edit: "Edit this Plio",
             duplicate: "Duplicate this Plio",
+          },
+        },
+        buttons: {
+          analyse_plio: {
+            disabled: "This plio is not published yet",
+            enabled: "Look at the data for the plio",
           },
         },
       },

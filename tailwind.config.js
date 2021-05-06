@@ -27,7 +27,9 @@ module.exports = {
       // to use "disabled:opacity-50" with tailwind
       opacity: ["disabled"],
       pointerEvents: ["disabled"],
-      cursor: ["disabled"],
+      cursor: ["disabled", "hover"],
+      backgroundColor: ["active"],
+      display: ["hover"],
     },
   },
   plugins: [],

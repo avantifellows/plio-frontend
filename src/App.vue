@@ -124,7 +124,6 @@ export default {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions("auth", ["unsetAccessToken", "fetchAndUpdateUser"]),
-    ...mapActions("sync", ["startLoading", "stopLoading"]),
     logoutUser() {
       // logs out the user
       this.unsetAccessToken().then(() => {

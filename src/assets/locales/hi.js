@@ -105,7 +105,7 @@ export default {
     table: {
       columns: {
         name: "नाम",
-        number_of_learners: "दर्शको की संख्या",
+        number_of_viewers: "दर्शको की संख्या",
       },
       plio_list_item: {
         buttons: {
@@ -117,6 +117,9 @@ export default {
       },
       search: {
         placeholder: "कुछ ढूंढिए",
+      },
+      buttons: {
+        analyse: "प्लायो का विश्लेषण करें",
       },
     },
   },
@@ -240,6 +243,12 @@ export default {
             },
             edit: "इस प्लायो को संपादित करें",
             duplicate: "इसके जैसा एक और प्लायो बनाएं",
+          },
+        },
+        buttons: {
+          analyse_plio: {
+            disabled: "यह प्लायो अभी तक प्रकाशित नहीं है",
+            enabled: "प्लायो के डेटा को देखें",
           },
         },
       },

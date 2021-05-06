@@ -45,7 +45,7 @@
             class="shadow overflow-hidden border-b border-gray-200 rounded-lg border-l border-r"
           >
             <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-200">
+              <thead class="bg-gray-300">
                 <!-- table headers -->
                 <tr>
                   <th
@@ -53,7 +53,7 @@
                     @click="sortBy(columnName)"
                     :key="columnName"
                     scope="col"
-                    class="sm:px-6 sm:py-3 px-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider w-2/3"
+                    class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider w-2/3"
                     :class="getColumnHeaderStyleClass(columnIndex)"
                   >
                     <div class="flex">
@@ -75,16 +75,35 @@
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
                 <!-- table values -->
-                <tr v-for="(entry, entryIndex) in filteredData" :key="entry">
+                <tr
+                  v-for="(entry, entryIndex) in filteredData"
+                  :key="entry"
+                  :class="tableRowClass"
+                  @mouseover="tableRowHoverOn(entryIndex)"
+                  @mouseout="tableRowHoverOff"
+                >
+                  <!-- <div class="absolute">yoyo</div> -->
                   <td
                     v-for="(columnName, columnIndex) in columns"
                     :key="columnName"
-                    class="sm:px-6 sm:py-3 px-3 py-1.5 whitespace-normal"
-                    :class="{
-                      'hidden sm:table-cell': columnIndex != 0,
-                    }"
+                    class="sm:py-3 py-1.5 whitespace-normal flex relative"
+                    :class="getColumnHeaderStyleClass(columnIndex)"
                   >
-                    <div class="flex">
+                    <!-- analyse button -->
+                    <div
+                      class="absolute w-full flex justify-center"
+                      :class="tableCellOverlayClass(entryIndex, columnIndex)"
+                    >
+                      <!-- @click="playPlio" -->
+                      <icon-button
+                        :titleConfig="analyseButtonTitleConfig"
+                        :buttonClass="analyseButtonClass"
+                        :isDisabled="!isPublished(entryIndex)"
+                        v-tooltip="analyseButtonTooltip(entryIndex)"
+                      ></icon-button>
+                    </div>
+                    <!-- column content -->
+                    <div class="flex w-full">
                       <div v-if="isComponent(entry[columnName])" class="w-full">
                         <PlioListItem
                           :plioId="entry[columnName].value"
@@ -113,6 +132,7 @@
 
 <script>
 import PlioListItem from "@/components/Collections/ListItems/PlioListItem.vue";
+import IconButton from "@/components/UI/Buttons/IconButton";
 import { mapState, mapActions } from "vuex";
 
 export default {
@@ -131,18 +151,7 @@ export default {
   },
   components: {
     PlioListItem,
-  },
-  mounted() {
-    this.startLoading();
-  },
-  watch: {
-    // as soon as filteredData changes, stop loading
-    filteredData: {
-      deep: true,
-      handler() {
-        this.stopLoading();
-      },
-    },
+    IconButton,
   },
   data() {
     return {
@@ -154,15 +163,31 @@ export default {
         iconName: "search-solid",
         iconClass: "text-yellow-600 h-5 w-5",
       },
+      selectedRowIndex: null, // index of the row currently in focus / being hovered on
     };
   },
 
   created() {
     this.initialiseSortOrders();
+    this.startLoading();
   },
 
   computed: {
     ...mapState("sync", ["pending"]),
+    analyseButtonTitleConfig() {
+      // title config for the analyse button
+      return {
+        value: this.$t("home.table.buttons.analyse"),
+        class: "p-4 text-white text-lg md:text-xl font-semibold",
+      };
+    },
+    analyseButtonClass() {
+      return "bg-red-500 hover:bg-red-700 rounded-md shadow-md h-10 md:h-12 ring-red-500 -mt-2";
+    },
+    tableRowClass() {
+      // class for each row of the table
+      return "hover:bg-gray-100 hover:cursor-pointer active:bg-blue-200 sm:active:bg-gray-100";
+    },
     searchPlaceholder() {
       // placeholder for the search box
       return this.$t("home.table.search.placeholder");
@@ -185,7 +210,41 @@ export default {
     },
   },
   methods: {
-    ...mapActions("sync", ["startLoading", "stopLoading"]),
+    ...mapActions("sync", ["startLoading"]),
+    analyseButtonTooltip(rowIndex) {
+      // tooltip for the analyse button
+      if (!this.isPublished(rowIndex))
+        return this.$t(`tooltip.home.table.buttons.analyse_plio.disabled`);
+      return this.$t(`tooltip.home.table.buttons.analyse_plio.enabled`);
+    },
+    isPublished(rowIndex) {
+      return this.filteredData[rowIndex]["name"]["status"] == "published";
+    },
+    tableRowHoverOn(rowIndex) {
+      if (!this.pending) this.selectedRowIndex = rowIndex;
+    },
+    tableRowHoverOff() {
+      this.selectedRowIndex = null;
+    },
+    isRowSelected(rowIndex) {
+      return this.selectedRowIndex == rowIndex;
+    },
+    tableCellOverlayClass(entryIndex, columnIndex) {
+      return {
+        hidden:
+          !this.isLastColumn(columnIndex) ||
+          !this.isRowSelected(entryIndex) ||
+          this.pending,
+      };
+    },
+    isLastColumn(columnIndex) {
+      // whether the given column index is the last column index
+      return columnIndex == this.columns.length - 1;
+    },
+    isFirstColumn(columnIndex) {
+      // whether the given column index is the first column index
+      return columnIndex == 0;
+    },
     tableColumnName(columnName) {
       // name of the column in the table
       return this.$t(`home.table.columns.${columnName}`);
@@ -266,7 +325,8 @@ export default {
     },
     getColumnHeaderStyleClass(columnIndex) {
       return {
-        "hidden sm:table-cell": columnIndex != 0,
+        "hidden sm:table-cell": !this.isFirstColumn(columnIndex),
+        "sm:px-6 px-3": this.isFirstColumn(columnIndex),
       };
     },
     getSortIconStyleClass(columnName) {
