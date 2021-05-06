@@ -1,5 +1,6 @@
 import axios from "axios";
-import store from "../../store";
+import store from "@/store";
+import router from "@/router";
 import ErrorHandling from "@/services/Functional/ErrorHandling.js";
 import UserFunctionalService from "@/services/Functional/User.js";
 import {
@@ -88,6 +89,11 @@ client.interceptors.response.use(
           return client.request(error.config);
         })
         .catch((error) => console.log(error));
+    }
+
+    if (status === 404) {
+      router.replace({ name: "404" });
+      return Promise.reject(error);
     }
 
     ErrorHandling.handleAPIErrors(error);

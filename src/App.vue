@@ -63,7 +63,6 @@
           <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
         </div>
       </div>
-      <user-config ref="userConfig"></user-config>
     </div>
     <router-view />
   </div>
@@ -73,7 +72,7 @@
 <script>
 import WorkspaceSwitcher from "@/components/UI/WorkspaceSwitcher.vue";
 import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
-import UserConfig from "@/services/Config/User.vue";
+import UserConfigService from "@/services/Config/User.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import PlioAPIService from "@/services/API/Plio.js";
@@ -83,7 +82,6 @@ export default {
   components: {
     WorkspaceSwitcher,
     LocaleSwitcher,
-    UserConfig,
     IconButton,
   },
   data() {
@@ -103,7 +101,7 @@ export default {
   },
   mounted() {
     // set locale based on their config
-    this.$refs.userConfig.setLocaleFromUserConfig();
+    UserConfigService.setLocaleFromUserConfig();
   },
   watch: {
     pending(value) {
@@ -119,11 +117,27 @@ export default {
         this.logoutUser();
       }
     },
+    onHomePage(value) {
+      // when coming to homepage from some other page, it's possible that the
+      // active workspace set was not the one in which the current user belongs
+      // This logic will check if the current user actually belongs to the activeWorkspace
+      // set in the store. If not, then redirect to personal workspace
+      if (value && this.isAuthenticated) {
+        var isUserInWorkspace = this.user.organizations.some((org) => {
+          return org.shortcode == this.activeWorkspace;
+        });
+        if (!isUserInWorkspace) this.$router.replace({ name: "Home" });
+      }
+    },
   },
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions("auth", ["unsetAccessToken", "fetchAndUpdateUser"]),
+    ...mapActions("auth", [
+      "unsetAccessToken",
+      "fetchAndUpdateUser",
+      "unsetActiveWorkspace",
+    ]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     logoutUser() {
       // logs out the user
