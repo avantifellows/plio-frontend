@@ -6,16 +6,23 @@ import {
   refreshTokenEndpoint,
   userFromTokenEndpoint,
 } from "@/services/API/Endpoints.js";
+import cubejs from "@cubejs-client/core";
 
 let headers = {
   Accept: "application/json",
   "Content-Type": "application/json",
 };
 
+// backend API client
 const client = axios.create({
   baseURL: process.env.VUE_APP_BACKEND,
   withCredentials: false,
   headers,
+});
+
+// analytics API
+const analyticsClient = cubejs(process.env.VUE_APP_CUBEJS_AUTH_TOKEN, {
+  apiUrl: process.env.VUE_APP_CUBEJS_API_URL,
 });
 
 // the interceptor below is doing the following things:
@@ -97,4 +104,8 @@ client.interceptors.response.use(
 
 export function apiClient() {
   return client;
+}
+
+export function analyticsAPIClient() {
+  return analyticsClient;
 }

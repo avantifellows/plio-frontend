@@ -1,8 +1,13 @@
-import { apiClient } from "@/services/API/RootClient.js";
+import { apiClient, analyticsAPIClient } from "@/services/API/RootClient.js";
 import VideoAPIService from "@/services/API/Video.js";
 import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
-import { pliosEndpoint, itemsEndpoint } from "@/services/API/Endpoints.js";
+import {
+  pliosEndpoint,
+  itemsEndpoint,
+  listPliosEndpoint,
+  duplicatePlioEndpoint,
+} from "@/services/API/Endpoints.js";
 
 export default {
   async getPlio(plioId, playMode = false) {
@@ -41,7 +46,7 @@ export default {
   },
 
   getAllPlios(uuidOnly = false) {
-    var url = uuidOnly ? pliosEndpoint + "list_uuid" : pliosEndpoint;
+    var url = uuidOnly ? pliosEndpoint + listPliosEndpoint : pliosEndpoint;
 
     // returns all the plios (or just the flat list of uuids) created by the user
     return apiClient().get(url);
@@ -85,14 +90,30 @@ export default {
 
   duplicatePlio(plioId) {
     // create a clone of plioId plio
-    return apiClient().post(pliosEndpoint + plioId + "/duplicate");
+    return apiClient().post(pliosEndpoint + plioId + duplicatePlioEndpoint);
   },
 
   async getUniqueUsersCount(plioId) {
     // get the count of unique users who watched the given plio
-    var response = await apiClient().get(
-      pliosEndpoint + plioId + "/unique_users"
-    );
-    return response.data;
+    // refer to this example: https://cube.dev/blog/vue-dashboard-tutorial-using-cubejs/
+
+    // this is the query in the CubeJS Data Schema which is automatically
+    // converted to SQL by CubeJS: https://cube.dev/docs/getting-started-cubejs-schema
+    var uniqueUsersQuery = {
+      measures: ["Session.uniqueUsers"],
+      filters: [
+        {
+          member: "Plio.uuid",
+          operator: "equals",
+          values: [plioId],
+        },
+      ],
+    };
+    // https://cube.dev/docs/@cubejs-client-core#result-set
+    var resultSet = await analyticsAPIClient().load(uniqueUsersQuery);
+    // https://cube.dev/docs/@cubejs-client-core#result-set-series-names
+    var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
+    // https://cube.dev/docs/@cubejs-client-core#result-set-chart-pivot
+    return resultSet.chartPivot()[0][resultKey];
   },
 };

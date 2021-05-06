@@ -13,10 +13,10 @@ Token related URL at backend repo which can be used to convert the OAuth2 token 
 Base URL to connect to any configured websocket listeners on the backend
 
 ### Plio analytics
-#### `CUBEJS_AUTH_TOKEN`
+#### `VUE_APP_CUBEJS_AUTH_TOKEN`
 Auth token for the analytics REST API - can be empty for local development.
 
-#### `CUBEJS_API_URL`
+#### `VUE_APP_CUBEJS_API_URL`
 Base url for the analytics REST API.
 
 ### Plio Backend API
