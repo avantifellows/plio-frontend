@@ -118,8 +118,8 @@ export default {
       }
     },
     onHomePage(value) {
-      // when coming to homepage from some other page, it's possible that the
-      // active workspace set was not the one in which the current user belongs
+      // when coming to homepage from some other page, it's possible that the current user
+      // does not belong to the active workspace that was set on the page before.
       // This logic will check if the current user actually belongs to the activeWorkspace
       // set in the store. If not, then redirect to personal workspace
       if (value && this.isAuthenticated) {
@@ -133,11 +133,7 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions("auth", [
-      "unsetAccessToken",
-      "fetchAndUpdateUser",
-      "unsetActiveWorkspace",
-    ]),
+    ...mapActions("auth", ["unsetAccessToken", "fetchAndUpdateUser"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     logoutUser() {
       // logs out the user
