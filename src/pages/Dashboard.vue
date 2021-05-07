@@ -52,6 +52,7 @@ export default {
   },
   computed: {
     videoThumbnailURL() {
+      // link to the thumbnail for the video linked to the plio
       return `https://img.youtube.com/vi/${this.videoID}/sddefault.jpg`;
     },
   },

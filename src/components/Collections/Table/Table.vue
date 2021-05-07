@@ -83,18 +83,17 @@
                   @mouseout="tableRowHoverOff"
                   @touchstart="tableRowTouchOn(entryIndex)"
                 >
-                  <!-- <div class="absolute">yoyo</div> -->
                   <td
                     v-for="(columnName, columnIndex) in columns"
                     :key="columnName"
                     class="sm:py-3 py-1.5 whitespace-normal flex relative"
                     :class="getColumnHeaderStyleClass(columnIndex)"
                   >
-                    <!-- analyse button -->
                     <div
                       class="absolute w-full flex justify-center"
                       :class="tableCellOverlayClass(entryIndex, columnIndex)"
                     >
+                      <!-- analyse button -->
                       <icon-button
                         :titleConfig="analyseButtonTitleConfig"
                         :buttonClass="analyseButtonClass"
@@ -166,7 +165,10 @@ export default {
       },
       selectedRowIndex: null, // index of the row currently in focus / being hovered on
       isHoverOn: false, // whether a row is being hovered on
-      isRowTouchOn: false, // whether the touch event of a row has been triggered
+      isTouchMode: false, // whether touch events are accepted
+      // classes for the analyse button
+      analyseButtonClass:
+        "bg-red-500 hover:bg-red-700 rounded-md shadow-md h-10 md:h-12 ring-red-500 -mt-2",
     };
   },
 
@@ -183,9 +185,6 @@ export default {
         value: this.$t("home.table.buttons.analyse"),
         class: "p-4 text-white text-lg md:text-xl font-semibold",
       };
-    },
-    analyseButtonClass() {
-      return "bg-red-500 hover:bg-red-700 rounded-md shadow-md h-10 md:h-12 ring-red-500 -mt-2";
     },
     tableRowClass() {
       // class for each row of the table
@@ -220,15 +219,18 @@ export default {
   methods: {
     ...mapActions("sync", ["startLoading"]),
     tableRowTouchOn(rowIndex) {
-      this.isRowTouchOn = true;
+      // invoked when a touch event is triggered for a row in the table
+      // redirects to the dashboard page for the selected plio
+
+      // mark that touch events are valid
+      this.isTouchMode = true;
       if (this.isPublished(rowIndex) && !this.pending) {
-        this.$router.push({
-          name: "Dashboard",
-          params: { plioId: this.filteredData[rowIndex]["name"]["value"], org: this.org },
-        });
+        // only redirect to the dashboard if the plio is published
+        this.analysePlio(rowIndex);
       }
     },
     analysePlio(rowIndex) {
+      // redirects to the dashboard page for the selected plio
       this.$router.push({
         name: "Dashboard",
         params: { plioId: this.filteredData[rowIndex]["name"]["value"], org: this.org },
@@ -241,22 +243,29 @@ export default {
       return this.$t(`tooltip.home.table.buttons.analyse_plio.enabled`);
     },
     isPublished(rowIndex) {
+      // whether the plio in the given row is published
       return this.filteredData[rowIndex]["name"]["status"] == "published";
     },
     tableRowHoverOn(rowIndex) {
-      if (!this.pending && !this.isRowTouchOn) {
+      // triggered upon hovering over a row
+      if (!this.pending && !this.isTouchMode) {
+        // only set these variables if touch events are not supported
         this.selectedRowIndex = rowIndex;
         this.isHoverOn = true;
       }
     },
     tableRowHoverOff() {
+      // triggered when the hover over a row is exited
+      // unset variables when hover is removed
       this.selectedRowIndex = null;
       this.isHoverOn = false;
     },
     isRowSelected(rowIndex) {
+      // whether the given row index is selected
       return this.selectedRowIndex == rowIndex;
     },
     tableCellOverlayClass(entryIndex, columnIndex) {
+      // class for each cell of the table
       return {
         hidden:
           !this.isLastColumn(columnIndex) ||
