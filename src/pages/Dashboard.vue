@@ -1,11 +1,11 @@
 <template>
-  <div class="flex flex-col mx-40 mt-10">
-    <div class="grid grid-cols-5">
+  <div class="flex flex-col mx-6 sm:mx-24 md:mx-32 lg:mx-40 mt-6 md:mt-8 lg:mt-10">
+    <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
       <!-- thumbnail -->
       <div>
         <img :src="videoThumbnailURL" />
       </div>
-      <div class="col-span-4 flex">
+      <div class="col-span-2 md:col-span-3 lg:col-span-4 flex">
         <!-- publish date -->
         <div></div>
         <!-- title -->
