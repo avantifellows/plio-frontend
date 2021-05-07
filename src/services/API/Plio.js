@@ -8,7 +8,7 @@ import {
   listPliosEndpoint,
   duplicatePlioEndpoint,
 } from "@/services/API/Endpoints.js";
-import { uniqueUsersQuery } from "./Queries/Plio.js";
+import { uniqueUsersQuery } from "@/services/API/Queries/Plio.js";
 
 export default {
   async getPlio(plioId, playMode = false) {
