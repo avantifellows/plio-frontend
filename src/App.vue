@@ -118,11 +118,9 @@ export default {
       }
     },
     onHomePage(value) {
-      // when coming to homepage from some other page, it's possible that the current user
-      // does not belong to the active workspace that was set on the page before.
-      // This logic will check if the current user actually belongs to the activeWorkspace
-      // set in the store. If not, then redirect to personal workspace
-      if (value && this.isAuthenticated) {
+      // check if the current user actually belongs to the activeWorkspace
+      // set in the store. If not, then redirect to the personal workspace
+      if (value) {
         var isUserInWorkspace = this.user.organizations.some((org) => {
           return org.shortcode == this.activeWorkspace;
         });

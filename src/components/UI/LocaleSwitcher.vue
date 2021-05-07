@@ -14,6 +14,7 @@ export default {
   name: "LocaleSwitcher",
   methods: {
     updateLocale() {
+      // update the locale to the local and remote configs
       UserConfigService.updateLocale();
     },
   },
