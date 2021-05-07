@@ -223,7 +223,7 @@ export default {
       // redirects to the dashboard page for the selected plio
 
       // mark that touch events are valid
-      this.isTouchMode = true;
+      if (!this.isTouchMode) this.isTouchMode = true;
       if (this.isPublished(rowIndex) && !this.pending) {
         // only redirect to the dashboard if the plio is published
         this.analysePlio(rowIndex);
