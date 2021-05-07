@@ -81,6 +81,7 @@
                   :class="tableRowClass"
                   @mouseover="tableRowHoverOn(entryIndex)"
                   @mouseout="tableRowHoverOff"
+                  @touchstart="tableRowTouchOn(entryIndex)"
                 >
                   <!-- <div class="absolute">yoyo</div> -->
                   <td
@@ -164,6 +165,8 @@ export default {
         iconClass: "text-yellow-600 h-5 w-5",
       },
       selectedRowIndex: null, // index of the row currently in focus / being hovered on
+      isHoverOn: false, // whether a row is being hovered on
+      isRowTouchOn: false, // whether the touch event of a row has been triggered
     };
   },
 
@@ -186,7 +189,12 @@ export default {
     },
     tableRowClass() {
       // class for each row of the table
-      return "hover:bg-gray-100 hover:cursor-pointer active:bg-blue-200 sm:active:bg-gray-100";
+      return [
+        {
+          "hover:bg-gray-100 hover:cursor-pointer": this.isHoverOn,
+        },
+        `active:bg-gray-100`,
+      ];
     },
     searchPlaceholder() {
       // placeholder for the search box
@@ -211,10 +219,19 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startLoading"]),
-    analysePlio(entryIndex) {
+    tableRowTouchOn(rowIndex) {
+      this.isRowTouchOn = true;
+      if (this.isPublished(rowIndex) && !this.pending) {
+        this.$router.push({
+          name: "Dashboard",
+          params: { plioId: this.filteredData[rowIndex]["name"]["value"], org: this.org },
+        });
+      }
+    },
+    analysePlio(rowIndex) {
       this.$router.push({
         name: "Dashboard",
-        params: { plioId: this.filteredData[entryIndex]["name"]["value"], org: this.org },
+        params: { plioId: this.filteredData[rowIndex]["name"]["value"], org: this.org },
       });
     },
     analyseButtonTooltip(rowIndex) {
@@ -227,10 +244,14 @@ export default {
       return this.filteredData[rowIndex]["name"]["status"] == "published";
     },
     tableRowHoverOn(rowIndex) {
-      if (!this.pending) this.selectedRowIndex = rowIndex;
+      if (!this.pending && !this.isRowTouchOn) {
+        this.selectedRowIndex = rowIndex;
+        this.isHoverOn = true;
+      }
     },
     tableRowHoverOff() {
       this.selectedRowIndex = null;
+      this.isHoverOn = false;
     },
     isRowSelected(rowIndex) {
       return this.selectedRowIndex == rowIndex;
