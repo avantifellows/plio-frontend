@@ -4,6 +4,7 @@ export default {
     login: "",
     logout: "लॉगआउट",
     editor: "एडिटर",
+    dashboard: "डैशबोर्ड",
     abtesting: "",
     player: "",
     404: "एरर",
