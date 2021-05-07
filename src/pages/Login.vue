@@ -62,13 +62,12 @@
         @click="googleLogin"
       ></icon-button>
     </div>
-    <user-config ref="userConfig"></user-config>
   </div>
 </template>
 
 <script>
 import UserAPIService from "@/services/API/User.js";
-import UserConfig from "@/services/Config/User.vue";
+import UserConfigService from "@/services/Config/User.js";
 import InputNumber from "../components/UI/Text/InputNumber.vue";
 import IconButton from "../components/UI/Buttons/IconButton.vue";
 import { mapActions } from "vuex";
@@ -90,7 +89,6 @@ export default {
   components: {
     InputNumber,
     IconButton,
-    UserConfig,
   },
   watch: {
     isRequestOtpEnabled() {
@@ -254,9 +252,9 @@ export default {
     },
     routeAfterLogin() {
       // fetch the user config and save it locally
-      this.$refs.userConfig.saveLocalUserConfig();
+      UserConfigService.saveLocalUserConfig();
       // set the system locale
-      this.$refs.userConfig.setLocaleFromUserConfig();
+      UserConfigService.setLocaleFromUserConfig();
       // route user to the relevant page after login is complete
       if (this.redirectTo == "" || this.redirectTo == "/") {
         // there is no other page to redirect the user to

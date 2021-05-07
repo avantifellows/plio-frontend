@@ -63,7 +63,6 @@
           <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
         </div>
       </div>
-      <user-config ref="userConfig"></user-config>
     </div>
     <router-view />
   </div>
@@ -73,7 +72,7 @@
 <script>
 import WorkspaceSwitcher from "@/components/UI/WorkspaceSwitcher.vue";
 import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
-import UserConfig from "@/services/Config/User.vue";
+import UserConfigService from "@/services/Config/User.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
 import PlioAPIService from "@/services/API/Plio.js";
@@ -83,7 +82,6 @@ export default {
   components: {
     WorkspaceSwitcher,
     LocaleSwitcher,
-    UserConfig,
     IconButton,
   },
   data() {
@@ -103,7 +101,7 @@ export default {
   },
   mounted() {
     // set locale based on their config
-    this.$refs.userConfig.setLocaleFromUserConfig();
+    UserConfigService.setLocaleFromUserConfig();
   },
   watch: {
     pending(value) {
@@ -117,6 +115,16 @@ export default {
       if (!value) {
         this.toast.error(this.$t("error.auto_logout"));
         this.logoutUser();
+      }
+    },
+    onHomePage(value) {
+      // check if the current user actually belongs to the activeWorkspace
+      // set in the store. If not, then redirect to the personal workspace
+      if (value) {
+        var isUserInWorkspace = this.user.organizations.some((org) => {
+          return org.shortcode == this.activeWorkspace;
+        });
+        if (!isUserInWorkspace) this.$router.replace({ name: "Home" });
       }
     },
   },
