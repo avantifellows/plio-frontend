@@ -8,6 +8,7 @@ import {
   listPliosEndpoint,
   duplicatePlioEndpoint,
 } from "@/services/API/Endpoints.js";
+import { uniqueUsersQuery } from "./Queries/Plio.js";
 
 export default {
   async getPlio(plioId, playMode = false) {
@@ -96,21 +97,8 @@ export default {
   async getUniqueUsersCount(plioId) {
     // get the count of unique users who watched the given plio
     // refer to this example: https://cube.dev/blog/vue-dashboard-tutorial-using-cubejs/
-
-    // this is the query in the CubeJS Data Schema which is automatically
-    // converted to SQL by CubeJS: https://cube.dev/docs/getting-started-cubejs-schema
-    var uniqueUsersQuery = {
-      measures: ["Session.uniqueUsers"],
-      filters: [
-        {
-          member: "Plio.uuid",
-          operator: "equals",
-          values: [plioId],
-        },
-      ],
-    };
     // https://cube.dev/docs/@cubejs-client-core#result-set
-    var resultSet = await analyticsAPIClient().load(uniqueUsersQuery);
+    var resultSet = await analyticsAPIClient().load(uniqueUsersQuery(plioId));
     // https://cube.dev/docs/@cubejs-client-core#result-set-series-names
     var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
     // https://cube.dev/docs/@cubejs-client-core#result-set-chart-pivot
