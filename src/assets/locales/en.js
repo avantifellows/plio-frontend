@@ -114,7 +114,6 @@ export default {
           edit: "Edit",
           duplicate: "Duplicate",
         },
-        empty_title_placeholder: "Untitled",
       },
       search: {
         placeholder: "Search",
@@ -179,6 +178,9 @@ export default {
     yes: "Yes",
     no: "No",
     got_it: "Got it",
+    placeholders: {
+      empty_title_placeholder: "Untitled",
+    },
   },
   tooltip: {
     url: "Copy link",
@@ -252,6 +254,12 @@ export default {
           },
         },
       },
+    },
+  },
+  dashboard: {
+    updated: "Last published on",
+    buttons: {
+      edit: "Edit Plio",
     },
   },
 };

@@ -114,7 +114,6 @@ export default {
           edit: "संपादन",
           duplicate: "नक़ल",
         },
-        empty_title_placeholder: "कोई नाम नहीं",
       },
       search: {
         placeholder: "कुछ ढूंढिए",
@@ -179,6 +178,9 @@ export default {
     yes: "हाँ",
     no: "नहीं",
     got_it: "समझ आ गया",
+    placeholders: {
+      empty_title_placeholder: "कोई नाम नहीं",
+    },
   },
   tooltip: {
     url: "लिंक को कापी करे",
@@ -253,6 +255,12 @@ export default {
           },
         },
       },
+    },
+  },
+  dashboard: {
+    updated: "सबसे हाल ही में प्रकाशित हुआ",
+    buttons: {
+      edit: "प्लायो को संपादित करें",
     },
   },
 };

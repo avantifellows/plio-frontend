@@ -12,7 +12,7 @@
           :link="plioLink"
           class="justify-center m-4"
           :urlStyleClass="urlStyleClass"
-          :isUnderlined="true"
+          isUnderlined="true"
         ></URL>
 
         <div class="justify-center">

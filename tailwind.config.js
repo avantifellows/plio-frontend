@@ -8,6 +8,7 @@ module.exports = {
       colors: {
         primary: "#F78000",
         "primary-hover": "#db7506",
+        peach: "#F4EAE1",
       },
     },
     backgroundColor: (theme) => ({
