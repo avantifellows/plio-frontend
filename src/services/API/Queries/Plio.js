@@ -25,3 +25,16 @@ export function averageWatchTimeQuery(plioId) {
     ],
   };
 }
+
+export function numQuestionsAnsweredQuery(plioId) {
+  return {
+    measures: ["AggregateSessionMetrics.numQuestionsAnswered"],
+    filters: [
+      {
+        member: "Plio.uuid",
+        operator: "equals",
+        values: [plioId],
+      },
+    ],
+  };
+}

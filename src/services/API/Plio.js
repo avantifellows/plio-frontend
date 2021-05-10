@@ -11,6 +11,7 @@ import {
 import {
   uniqueUsersQuery,
   averageWatchTimeQuery,
+  numQuestionsAnsweredQuery,
 } from "@/services/API/Queries/Plio.js";
 
 export default {
@@ -113,9 +114,18 @@ export default {
     var resultSet = await analyticsAPIClient().load(
       averageWatchTimeQuery(plioId)
     );
-    // https://cube.dev/docs/@cubejs-client-core#result-set-series-names
+    // extract the average watch time value
     var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
-    // https://cube.dev/docs/@cubejs-client-core#result-set-chart-pivot
+    return resultSet.chartPivot()[0][resultKey];
+  },
+
+  async getNumQuestionsAnswered(plioId) {
+    // get the average watch time for the given plio
+    var resultSet = await analyticsAPIClient().load(
+      numQuestionsAnsweredQuery(plioId)
+    );
+    // extract the value for number of questions answered
+    var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
     return resultSet.chartPivot()[0][resultKey];
   },
 };

@@ -166,23 +166,19 @@ export default {
     },
     averageWatchTime() {
       if (!this.numberOfViewers) return 0;
-      return Math.round(this.plioAnalytics["average-watch-time"]) || "-";
+      return this.formatTime(Math.round(this.plioAnalytics["average-watch-time"])) || "-";
     },
     accuracy() {
-      if (!this.numberOfViewers) return 0;
       return 57;
     },
     completionRate() {
-      if (!this.numberOfViewers) return 0;
       return 34;
     },
     oneMinuteRetention() {
-      if (!this.numberOfViewers) return 0;
       return 30;
     },
     numQuestionsAnswered() {
-      if (!this.numberOfViewers) return 0;
-      return 3;
+      return this.plioAnalytics["num-questions-answered"] || "-";
     },
     editButtonTextConfig() {
       // config for the text of the edit plio button
@@ -247,6 +243,17 @@ export default {
       this.loadPlio();
       this.loadAnalytics();
     },
+    formatTime(timeInSeconds) {
+      if (timeInSeconds == null || isNaN(timeInSeconds)) return null;
+      var hours = Math.floor(timeInSeconds / 3600);
+      var minutes = Math.floor((timeInSeconds % 3600) / 60);
+      var seconds = timeInSeconds % 60;
+      var formattedTime = "";
+      if (hours != 0) formattedTime += `${hours} hrs`;
+      if (minutes != 0) formattedTime += ` ${minutes} mins`;
+      if (seconds != 0) formattedTime += ` ${seconds} secs`;
+      return formattedTime.trim();
+    },
     loadPlio() {
       // fetch plio details
       PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
@@ -264,6 +271,9 @@ export default {
       this.plioAnalytics["average-watch-time"] = await PlioAPIService.getAverageWatchTime(
         this.plioId
       );
+      this.plioAnalytics[
+        "num-questions-answered"
+      ] = await PlioAPIService.getNumQuestionsAnswered(this.plioId);
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL
