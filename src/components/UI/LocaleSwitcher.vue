@@ -1,20 +1,22 @@
 <template>
   <div>
-    <select v-model="$i18n.locale" @change="$refs.userConfig.updateLocale">
+    <select v-model="$i18n.locale" @change="updateLocale">
       <option value="en">English</option>
       <option value="hi">हिंदी</option>
     </select>
-    <user-config ref="userConfig"></user-config>
   </div>
 </template>
 
 <script>
-import UserConfig from "@/services/Config/User.vue";
+import UserConfigService from "@/services/Config/User.js";
 
 export default {
   name: "LocaleSwitcher",
-  components: {
-    UserConfig,
+  methods: {
+    updateLocale() {
+      // update the locale to the local and remote configs
+      UserConfigService.updateLocale();
+    },
   },
 };
 </script>

@@ -1,5 +1,5 @@
 import axios from "axios";
-import store from "../../store";
+import store from "@/store";
 import ErrorHandling from "@/services/API/ErrorHandling.js";
 import UserFunctionalService from "@/services/Functional/User.js";
 import {
@@ -60,6 +60,10 @@ client.interceptors.response.use(
     return config;
   },
   (error) => {
+    // logging the error
+    console.log(error);
+
+    // error status
     const status = error.response ? error.response.status : null;
 
     // If refresh token is invalid (400 BAD REQUEST)

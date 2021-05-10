@@ -8,7 +8,10 @@ import {
   listPliosEndpoint,
   duplicatePlioEndpoint,
 } from "@/services/API/Endpoints.js";
-import { uniqueUsersQuery, averageWatchTimeQuery } from "./Queries/Plio.js";
+import {
+  uniqueUsersQuery,
+  averageWatchTimeQuery,
+} from "@/services/API/Queries/Plio.js";
 
 export default {
   async getPlio(plioId, playMode = false) {
