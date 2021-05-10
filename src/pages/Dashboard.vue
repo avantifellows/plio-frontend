@@ -48,7 +48,9 @@
       <div class="grid grid-cols-2 sm:flex sm:flex-col col-span-2">
         <div class="flex flex-col items-center sm:items-start">
           <p class="text-yellow-900 text-xsm bp-420:text-xs bp-500:text-sm">VIEWERS</p>
-          <p class="text-yellow-900 text-xl lg:text-2xl xl:text-3xl font-bold">2271</p>
+          <p class="text-yellow-900 text-xl lg:text-2xl xl:text-3xl font-bold">
+            {{ numberOfViewers }}
+          </p>
         </div>
         <div class="flex flex-col items-center sm:items-start sm:mt-10">
           <p class="text-yellow-900 text-xsm bp-420:text-xs bp-500:text-sm">
@@ -57,7 +59,7 @@
           <p
             class="text-yellow-900 text-center sm:text-left text-xl lg:text-2xl xl:text-3xl font-bold"
           >
-            5 mins 40 secs
+            {{ averageWatchTime }}
           </p>
         </div>
       </div>
@@ -67,7 +69,7 @@
             <p
               class="w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900"
             >
-              35%
+              {{ completionRate }} %
             </p>
             <p class="w-full text-center text-xs md:text-sm text-yellow-900 mt-2">
               COMPLETED
@@ -78,7 +80,7 @@
               <p
                 class="w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900"
               >
-                40%
+                {{ oneMinuteRetention }}%
               </p>
               <p class="w-full text-center text-xs md:text-sm text-yellow-900 mt-2">
                 RETENTION AT 1 MINUTE
@@ -91,7 +93,7 @@
             <p
               class="w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900"
             >
-              57%
+              {{ accuracy }}%
             </p>
             <p class="w-full text-center text-xs md:text-sm text-yellow-900 mt-2">
               ACCURACY
@@ -102,7 +104,7 @@
               <p
                 class="w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900"
               >
-                3
+                {{ numQuestionsAnswered }}
               </p>
               <p class="w-full text-center text-xs md:text-sm text-yellow-900 mt-2">
                 QUESTIONS ANSWERED
@@ -151,13 +153,37 @@ export default {
       urlStyleClass:
         " sm:tracking-normal text-xs bp-500:text-sm md:text-md lg:text-lg font-bold text-yellow-600", // style for the text of the url component
       urlCopyButtonClass: "text-yellow-600", // style for the copy button of the url component
+      plioAnalytics: {}, // holds all the analytics data for the plio
     };
   },
   async created() {
     // fetch plio details
-    await this.loadPlio();
+    await this.fetchData();
   },
   computed: {
+    numberOfViewers() {
+      return this.plioAnalytics["viewers"] || 0;
+    },
+    averageWatchTime() {
+      if (!this.numberOfViewers) return 0;
+      return "5 mins 40 secs";
+    },
+    accuracy() {
+      if (!this.numberOfViewers) return 0;
+      return 57;
+    },
+    completionRate() {
+      if (!this.numberOfViewers) return 0;
+      return 34;
+    },
+    oneMinuteRetention() {
+      if (!this.numberOfViewers) return 0;
+      return 30;
+    },
+    numQuestionsAnswered() {
+      if (!this.numberOfViewers) return 0;
+      return 3;
+    },
     editButtonTextConfig() {
       // config for the text of the edit plio button
       return {
@@ -217,15 +243,24 @@ export default {
     },
   },
   methods: {
-    async loadPlio() {
+    async fetchData() {
+      this.loadPlio();
+      this.loadAnalytics();
+    },
+    loadPlio() {
       // fetch plio details
-      await PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
+      PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
         if (plioDetails.status != "published") this.$router.replace({ name: "404" });
         this.items = plioDetails.items || [];
         this.videoID = this.getVideoIDfromURL(plioDetails.video_url);
         this.plioTitle = plioDetails.plioTitle;
         this.lastUpdated = new Date(plioDetails.updated_at);
       });
+    },
+    async loadAnalytics() {
+      this.plioAnalytics["viewers"] = await PlioAPIService.getUniqueUsersCount(
+        this.plioId
+      );
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL
