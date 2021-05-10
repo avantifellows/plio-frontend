@@ -69,7 +69,7 @@
             <p
               class="w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900"
             >
-              {{ completionRate }} %
+              {{ completionRate }}
             </p>
             <p class="w-full text-center text-xs md:text-sm text-yellow-900 mt-2">
               COMPLETED
@@ -93,7 +93,7 @@
             <p
               class="w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900"
             >
-              {{ accuracy }}%
+              {{ accuracy }}
             </p>
             <p class="w-full text-center text-xs md:text-sm text-yellow-900 mt-2">
               ACCURACY
@@ -117,7 +117,7 @@
     <icon-button
       :titleConfig="downloadCSVButtonTextConfig"
       :buttonClass="downloadCSVButtonClass"
-      class="rounded-md shadow-lg bp-500:mb-8 sm:mb-20 md:mb-4"
+      class="rounded-md shadow-lg bp-500:mb-8 sm:mb-20 md:mb-7"
       @click="downloadCSV"
     ></icon-button>
   </div>
@@ -169,10 +169,12 @@ export default {
       return this.formatTime(Math.round(this.plioAnalytics["average-watch-time"])) || "-";
     },
     accuracy() {
-      return 57;
+      return "57%";
     },
     completionRate() {
-      return 34;
+      if ("percent-complete" in this.plioAnalytics)
+        return this.plioAnalytics["percent-complete"] + "%";
+      return "-";
     },
     oneMinuteRetention() {
       return 30;
@@ -274,6 +276,9 @@ export default {
       this.plioAnalytics[
         "num-questions-answered"
       ] = await PlioAPIService.getNumQuestionsAnswered(this.plioId);
+      this.plioAnalytics["percent-complete"] = await PlioAPIService.getPercentComplete(
+        this.plioId
+      );
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL

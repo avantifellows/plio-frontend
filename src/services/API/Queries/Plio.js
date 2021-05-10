@@ -38,3 +38,16 @@ export function numQuestionsAnsweredQuery(plioId) {
     ],
   };
 }
+
+export function percentageCompleteQuery(plioId) {
+  return {
+    measures: ["AggregateSessionMetrics.completionPercentage"],
+    filters: [
+      {
+        member: "Plio.uuid",
+        operator: "equals",
+        values: [plioId],
+      },
+    ],
+  };
+}
