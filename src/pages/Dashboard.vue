@@ -128,6 +128,7 @@ import PlioAPIService from "@/services/API/Plio.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import URL from "@/components/UI/Text/URL";
 import IconButton from "@/components/UI/Buttons/IconButton";
+import { mapActions, mapState } from "vuex";
 
 export default {
   props: {
@@ -158,9 +159,11 @@ export default {
   },
   async created() {
     // fetch plio details
+    this.startLoading();
     await this.fetchData();
   },
   computed: {
+    ...mapState("sync", ["pending"]),
     numberOfViewers() {
       return this.plioAnalytics["viewers"] || 0;
     },
@@ -169,7 +172,9 @@ export default {
       return this.formatTime(Math.round(this.plioAnalytics["average-watch-time"])) || "-";
     },
     accuracy() {
-      return "57%";
+      if (this.pending) return "-";
+      if ("accuracy" in this.plioAnalytics) return this.plioAnalytics["accuracy"] + "%";
+      return "0%";
     },
     completionRate() {
       if ("percent-complete" in this.plioAnalytics)
@@ -241,6 +246,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions("sync", ["startLoading", "stopLoading"]),
     async fetchData() {
       this.loadPlio();
       this.loadAnalytics();
@@ -279,6 +285,8 @@ export default {
       this.plioAnalytics["percent-complete"] = await PlioAPIService.getPercentComplete(
         this.plioId
       );
+      this.plioAnalytics["accuracy"] = await PlioAPIService.getAccuracy(this.plioId);
+      this.stopLoading();
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL

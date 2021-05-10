@@ -51,3 +51,18 @@ export function percentageCompleteQuery(plioId) {
     ],
   };
 }
+
+export function accuracyQuery(plioId) {
+  return {
+    measures: ["AggregateSessionMetrics.accuracy"],
+    timeDimensions: [],
+    order: {},
+    filters: [
+      {
+        member: "Plio.uuid",
+        operator: "equals",
+        values: [plioId],
+      },
+    ],
+  };
+}
