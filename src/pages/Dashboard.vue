@@ -165,30 +165,36 @@ export default {
   computed: {
     ...mapState("sync", ["pending"]),
     numberOfViewers() {
+      if (this.pending) return "-";
       return this.plioAnalytics["viewers"] || 0;
     },
     averageWatchTime() {
-      if (!this.numberOfViewers) return 0;
-      return this.formatTime(Math.round(this.plioAnalytics["average-watch-time"])) || "-";
+      if (this.pending) return "-";
+      return this.formatTime(Math.round(this.plioAnalytics["average-watch-time"] || 0));
     },
     accuracy() {
       if (this.pending) return "-";
-      if ("accuracy" in this.plioAnalytics) return this.plioAnalytics["accuracy"] + "%";
+      if (this.plioAnalytics["accuracy"] != null)
+        return this.plioAnalytics["accuracy"] + "%";
       return "0%";
     },
     completionRate() {
-      if ("percent-complete" in this.plioAnalytics)
+      if (this.pending) return "-";
+      if (this.plioAnalytics["percent-complete"] != null)
         return this.plioAnalytics["percent-complete"] + "%";
-      return "-";
+      return "0%";
     },
     oneMinuteRetention() {
       if (this.pending) return "-";
-      if ("1-min-retention" in this.plioAnalytics)
+      if (this.plioAnalytics["1-min-retention"] != null)
         return this.plioAnalytics["1-min-retention"] + "%";
       return "0%";
     },
     numQuestionsAnswered() {
-      return this.plioAnalytics["num-questions-answered"] || "-";
+      if (this.pending) return "-";
+      if (this.plioAnalytics["num-questions-answered"] != null)
+        return this.plioAnalytics["num-questions-answered"];
+      return "0%";
     },
     editButtonTextConfig() {
       // config for the text of the edit plio button
@@ -256,6 +262,7 @@ export default {
     },
     formatTime(timeInSeconds) {
       if (timeInSeconds == null || isNaN(timeInSeconds)) return null;
+      if (!timeInSeconds) return "0 secs";
       var hours = Math.floor(timeInSeconds / 3600);
       var minutes = Math.floor((timeInSeconds % 3600) / 60);
       var seconds = timeInSeconds % 60;
