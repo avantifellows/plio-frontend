@@ -80,7 +80,7 @@
               <p
                 class="w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900"
               >
-                {{ oneMinuteRetention }}%
+                {{ oneMinuteRetention }}
               </p>
               <p class="w-full text-center text-xs md:text-sm text-yellow-900 mt-2">
                 RETENTION AT 1 MINUTE
@@ -182,7 +182,10 @@ export default {
       return "-";
     },
     oneMinuteRetention() {
-      return 30;
+      if (this.pending) return "-";
+      if ("1-min-retention" in this.plioAnalytics)
+        return this.plioAnalytics["1-min-retention"] + "%";
+      return "0%";
     },
     numQuestionsAnswered() {
       return this.plioAnalytics["num-questions-answered"] || "-";
@@ -286,6 +289,9 @@ export default {
         this.plioId
       );
       this.plioAnalytics["accuracy"] = await PlioAPIService.getAccuracy(this.plioId);
+      this.plioAnalytics["1-min-retention"] = await PlioAPIService.getOneMinuteRetention(
+        this.plioId
+      );
       this.stopLoading();
     },
     getVideoIDfromURL(videoURL) {

@@ -14,6 +14,7 @@ import {
   numQuestionsAnsweredQuery,
   percentageCompleteQuery,
   accuracyQuery,
+  oneMinuteRetentionQuery,
 } from "@/services/API/Queries/Plio.js";
 
 export default {
@@ -144,6 +145,16 @@ export default {
   async getAccuracy(plioId) {
     // get the average watch time for the given plio
     var resultSet = await analyticsAPIClient().load(accuracyQuery(plioId));
+    // extract the value for number of questions answered
+    var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
+    return resultSet.chartPivot()[0][resultKey];
+  },
+
+  async getOneMinuteRetention(plioId) {
+    // get the average watch time for the given plio
+    var resultSet = await analyticsAPIClient().load(
+      oneMinuteRetentionQuery(plioId)
+    );
     // extract the value for number of questions answered
     var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
     return resultSet.chartPivot()[0][resultKey];

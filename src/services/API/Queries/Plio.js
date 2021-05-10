@@ -66,3 +66,18 @@ export function accuracyQuery(plioId) {
     ],
   };
 }
+
+export function oneMinuteRetentionQuery(plioId) {
+  return {
+    measures: ["GroupedSessionRetention.averageOneMinuteRetention"],
+    timeDimensions: [],
+    order: {},
+    filters: [
+      {
+        member: "Plio.uuid",
+        operator: "equals",
+        values: [plioId],
+      },
+    ],
+  };
+}
