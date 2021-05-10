@@ -118,9 +118,22 @@ export default {
       },
       search: {
         placeholder: "Search",
+        no_results_found:
+          "No results found. Please try searching something else.",
       },
       buttons: {
         analyse: "Analyse Plio",
+      },
+    },
+    paginator: {
+      first: "First page",
+      last: "Last page",
+      next: "Next page",
+      previous: "Previous page",
+      description: {
+        to: "to",
+        of: " of",
+        results: "results",
       },
     },
   },

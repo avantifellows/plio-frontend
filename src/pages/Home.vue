@@ -15,15 +15,28 @@
       </div>
     </div>
     <div v-else>
+      <!-- table -->
       <Table
         v-if="hasAnyPlios"
         :data="tableData"
         :columns="tableColumns"
         :tableTitle="tableTitle"
+        @search-plios="fetchPliosBySearchString"
+        @reset-search-string="resetSearchString"
       >
       </Table>
+
+      <!-- pagination nav bar -->
+      <Paginator
+        v-if="hasAnyPlios && totaNumberOfPlios"
+        :totalItems="totaNumberOfPlios"
+        :pageSize="numberOfPliosPerPage"
+        @page-selected="fetchPage"
+      >
+      </Paginator>
+
       <!-- no plios exist warning -->
-      <div v-else class="flex flex-col bg-white w-full m-auto mt-32 px-8">
+      <div v-if="!hasAnyPlios" class="flex flex-col bg-white w-full m-auto mt-32 px-8">
         <inline-svg
           :src="noPliosIcon"
           class="w-50 h-50 opacity-50 place-self-center m-10"
@@ -47,6 +60,7 @@
 import Table from "@/components/Collections/Table/Table.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
+import Paginator from "@/components/UI/Navigation/Paginator.vue";
 import { mapState, mapActions, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 
@@ -55,6 +69,7 @@ export default {
   components: {
     Table,
     IconButton,
+    Paginator,
   },
   props: {
     org: {
@@ -73,7 +88,6 @@ export default {
   },
   data() {
     return {
-      searchQuery: "", // string being queried in the search bar
       tableColumns: ["name", "number_of_viewers"], // columns for the table
       tableData: [],
       // dummy table data - to show skeletons when data is being loaded
@@ -85,6 +99,9 @@ export default {
       confirmIcon: require("@/assets/images/check-circle-regular.svg"),
       noPliosIcon: require("@/assets/images/create.svg"),
       toast: useToast(), // use the toast component
+      totaNumberOfPlios: null, // total number of plios that the user has access to
+      numberOfPliosPerPage: 5, // number of plios to show on one page (default: 5)
+      searchString: "", // the search string to filter the plios on
     };
   },
   async created() {
@@ -94,6 +111,7 @@ export default {
   },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
+    ...mapState("sync", ["pending"]),
     ...mapGetters("auth", ["isUserApproved"]),
     createButtonTextConfig() {
       // config for the text of the main create button
@@ -113,15 +131,45 @@ export default {
   },
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
+    ...mapActions("sync", ["startLoading", "stopLoading"]),
+    async resetSearchString() {
+      // reset the search string to ""
+      // fetch all the plios again
+      if (this.searchString != "") {
+        this.startLoading();
+        await this.fetchAllPlioIds();
+        this.stopLoading();
+        this.searchString = "";
+      }
+    },
     async fetchAllPlioIds() {
       var uuidOnly = true;
       await PlioAPIService.getAllPlios(uuidOnly).then((response) => {
         // if no plios exist, show the warning else hide the warning
-        if (response.data.length <= 0) this.hasAnyPlios = false;
-        else this.hasAnyPlios = true;
-
-        this.prepareTableData(response.data);
+        if (response.data.count <= 0) {
+          // if not plios exist, show the warning
+          this.hasAnyPlios = false;
+        } else {
+          // if plios exist
+          this.hasAnyPlios = true; // hide the warning and show the table
+          this.totaNumberOfPlios = response.data.count; // set total number of plios and show the paginator
+          this.numberOfPliosPerPage = response.data.page_size; // set the page size
+          this.prepareTableData(response.data.results); // prepare the data for the table
+        }
       });
+    },
+
+    async fetchPage(pageNumber) {
+      // fetch the plio uuids at the given page number
+      // (also filter with a search string if present)
+      this.startLoading();
+      var uuidOnly = true;
+      await PlioAPIService.getAllPlios(uuidOnly, pageNumber, this.searchString).then(
+        (response) => {
+          // when fetched, feed the new data into the table
+          this.prepareTableData(response.data.results);
+        }
+      );
     },
 
     createNewPlio() {
@@ -166,6 +214,22 @@ export default {
         tableData.push(tableRow);
       }
       this.tableData = tableData;
+      if (this.pending) this.stopLoading();
+    },
+
+    async fetchPliosBySearchString(searchString) {
+      // filter and fetch plios using a search string and populate the table and paginator again
+      this.searchString = searchString;
+      this.startLoading();
+
+      var uuidOnly = true;
+      await PlioAPIService.getAllPlios(uuidOnly, undefined, this.searchString).then(
+        (response) => {
+          this.totaNumberOfPlios = response.data.count; // set total number of plios
+          this.numberOfPliosPerPage = response.data.page_size; // set the page size
+          this.prepareTableData(response.data.results); // prepare the data for the table
+        }
+      );
     },
   },
   unmounted() {

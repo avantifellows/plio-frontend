@@ -1,13 +1,10 @@
 <template>
   <div class="flex flex-col mx-2 xsm:mx-4 sm:mx-6 md:mx-8 lg:mx-10 xl:mx-14">
-    <!-- nav bar for table -->
-    <div class="flex flex-col xsm:flex-row justify-between pt-4" v-if="!isTableEmpty">
+    <!-- nav bar for table : table title and search bar -->
+    <div class="flex flex-col xsm:flex-row justify-between pt-4">
       <!-- table title -->
-      <div
-        class="flex flex-row gap-2 text-base sm:text-lg md:text-xl xl:text-2xl font-bold p-2 items-center"
-      >
+      <div :class="tableTitleClass">
         <p>{{ tableTitle }}</p>
-        <p v-if="!pending">({{ totalItemsInTable }})</p>
         <inline-svg
           v-if="pending"
           :src="require('@/assets/images/spinner-solid.svg')"
@@ -15,30 +12,33 @@
         ></inline-svg>
       </div>
       <!-- table search -->
-      <div
-        class="bg-white flex items-center rounded-full shadow-md border-2 w-full xsm:w-1/2 sm:w-1/3 float-right mb-2 mt-2"
-        :class="disabledElementClass"
-      >
-        <form id="search" class="w-full px-4">
-          <input
-            class="w-full text-gray-700 leading-tight focus:outline-none"
-            :placeholder="searchPlaceholder"
-            v-model="searchFilterKey"
-          />
-        </form>
-
-        <div class="p-2 pr-3">
-          <inline-svg
-            :src="require('@/assets/images/search-solid.svg')"
-            class="text-yellow-600 h-5 w-5"
-          ></inline-svg>
-        </div>
+      <div :class="[disabledElementClass, searchContainerClass]">
+        <input
+          :class="searchInputBoxClass"
+          type="text"
+          :placeholder="searchPlaceholder"
+          v-model="searchString"
+        />
+        <inline-svg
+          v-if="isSearchStringPresent"
+          :src="require('@/assets/images/times-light.svg')"
+          class="w-10 hover:stroke-2"
+          @click="resetSearchString"
+        ></inline-svg>
+        <button :class="searchButtonClass" @click="search">
+          <span class="w-auto flex justify-end items-center">
+            <inline-svg
+              :src="require('@/assets/images/search-solid.svg')"
+              class="h-5 w-5"
+            ></inline-svg>
+          </span>
+        </button>
       </div>
     </div>
 
     <!-- table -->
     <!-- structure inspired from https://tailwindui.com/components/application-ui/lists/tables  -->
-    <div class="flex flex-col" v-if="!isTableEmpty">
+    <div class="flex flex-col">
       <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
           <div
@@ -121,6 +121,16 @@
                     </div>
                   </td>
                 </tr>
+                <!-- no search results warning -->
+                <tr v-if="isSearchStringPresent && isTableEmpty">
+                  <td :colspan="columns.length" class="text-center">
+                    <div
+                      class="text-xl tracking-tight font-extrabold text-gray-900 sm:text-2xl md:text-3xl inline-flex p-6"
+                    >
+                      {{ $t("home.table.search.no_results_found") }}
+                    </div>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -156,19 +166,25 @@ export default {
   data() {
     return {
       sortKey: "", // the key (table column) to sort the table on
-      searchFilterKey: "", // the string to use when filtering the results
       sortOrders: {}, // store the sorting orders of all columns of the table - asc or desc
-      searchIconConfig: {
-        enabled: true,
-        iconName: "search-solid",
-        iconClass: "text-yellow-600 h-5 w-5",
-      },
+      searchString: "", // the string to use when filtering the results
       selectedRowIndex: null, // index of the row currently in focus / being hovered on
       isHoverOn: false, // whether a row is being hovered on
       isTouchMode: false, // whether touch events are accepted
       // classes for the analyse button
       analyseButtonClass:
         "bg-red-500 hover:bg-red-700 rounded-md shadow-md h-10 md:h-12 ring-red-500 -mt-2",
+      // classes for the table title
+      tableTitleClass:
+        "flex flex-row gap-2 text-base sm:text-lg md:text-xl xl:text-2xl font-bold p-2 items-center",
+      // classes for the search bar container
+      searchContainerClass:
+        "bg-white rounded-md flex shadow-md border border-grey-light w-full xsm:w-2/3 sm:w-2/3 md:w-1/3 float-right mb-2 mt-2",
+      // classes for search bar input box
+      searchInputBoxClass: "w-full text-gray-700 leading-tight p-2 focus:outline-none",
+      // classes for search bar button
+      searchButtonClass:
+        "bg-grey-lightest border-grey border-l shadow hover:bg-primary-button p-4 text-primary hover:text-white",
     };
   },
 
@@ -177,8 +193,29 @@ export default {
     this.startLoading();
   },
 
+  watch: {
+    searchString(value) {
+      // emit a message whenever the search string is reset to "" by the user
+      if (value == "") this.$emit("reset-search-string");
+    },
+  },
+
   computed: {
     ...mapState("sync", ["pending"]),
+    searchPlaceholder() {
+      // placeholder for the search box
+      return this.$t("home.table.search.placeholder");
+    },
+    disabledElementClass() {
+      // class for elements that need to be disabled
+      return {
+        "pointer-events-none": this.pending,
+      };
+    },
+    isSearchStringPresent() {
+      // if a string is present in the search bar
+      return this.searchString != "";
+    },
     analyseButtonTitleConfig() {
       // title config for the analyse button
       return {
@@ -195,29 +232,24 @@ export default {
         `active:bg-gray-100`,
       ];
     },
-    searchPlaceholder() {
-      // placeholder for the search box
-      return this.$t("home.table.search.placeholder");
-    },
     totalItemsInTable() {
       // total rows present in the table
       return this.filteredData.length || 0;
     },
     isTableEmpty() {
-      return this.totalItemsInTable == 0 && this.searchFilterKey == "";
+      return this.totalItemsInTable == 0;
     },
     filteredData() {
-      // contains the filtered data after applying sorting or searching to the raw data
-      return this.orderBySort(this.filterBySearch(this.data));
-    },
-    disabledElementClass() {
-      return {
-        "pointer-events-none": this.pending,
-      };
+      // contains the filtered data after applying sorting
+      return this.orderBySort(this.data);
     },
   },
   methods: {
     ...mapActions("sync", ["startLoading"]),
+    resetSearchString() {
+      // reset the search string to an empty string
+      this.searchString = "";
+    },
     tableRowTouchOn(rowIndex) {
       // invoked when a touch event is triggered for a row in the table
       // redirects to the dashboard page for the selected plio
@@ -311,35 +343,14 @@ export default {
     savePlioDetails(entryIndex, plioDetails) {
       // save the plio details after they are fetched from the PlioListItem
 
-      // to enable the search functionality on things like plio title, status, date etc,
-      // those details need to be stored in the filteredData object and that too, inside the "name"
-      // key as that key contains the details of plios
+      // Each plio's details are being stored in the filteredData object and that too,
+      // inside the "name" key as that key contains the details of plios
       if (this.filteredData != undefined && this.filteredData[entryIndex] != undefined) {
         this.filteredData[entryIndex]["name"] = {
           ...this.filteredData[entryIndex]["name"],
           ...plioDetails,
         };
       }
-    },
-    filterBySearch(data) {
-      const searchFilterKey = this.searchFilterKey && this.searchFilterKey.toLowerCase();
-      if (searchFilterKey) {
-        data = data.filter((row) => {
-          return Object.keys(row).some((key) => {
-            var objectToFilter = row[key];
-            if (typeof objectToFilter === "object" && objectToFilter !== null) {
-              return Object.keys(objectToFilter).some((value) => {
-                return (
-                  String(objectToFilter[value]).toLowerCase().indexOf(searchFilterKey) >
-                  -1
-                );
-              });
-            } else
-              return String(objectToFilter).toLowerCase().indexOf(searchFilterKey) > -1;
-          });
-        });
-      }
-      return data;
     },
     orderBySort(data) {
       const sortKey = this.sortKey;
@@ -370,6 +381,12 @@ export default {
         "transform rotate-180": this.sortOrders[columnName] == -1,
       };
     },
+    search() {
+      // emit the search string whenever the user presses the search icon
+      this.$emit("search-plios", this.searchString);
+    },
   },
+
+  emits: ["search-plios", "reset-search-string"],
 };
 </script>

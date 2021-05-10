@@ -118,9 +118,21 @@ export default {
       },
       search: {
         placeholder: "कुछ ढूंढिए",
+        no_results_found: "कोई वास्तु नहीं मिला। कृपया दोबारा कोशिश करें",
       },
       buttons: {
         analyse: "प्लायो का विश्लेषण करें",
+      },
+    },
+    paginator: {
+      first: "पहला पेज",
+      last: "आखरी पेज",
+      next: "अगला पेज",
+      previous: "पिछला पेज",
+      description: {
+        to: "से",
+        of: ",",
+        results: "वस्तुओं में से",
       },
     },
   },
