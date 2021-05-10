@@ -1,6 +1,6 @@
 import axios from "axios";
 import store from "../../store";
-import ErrorHandling from "@/services/Functional/ErrorHandling.js";
+import ErrorHandling from "@/services/API/ErrorHandling.js";
 import UserFunctionalService from "@/services/Functional/User.js";
 import {
   refreshTokenEndpoint,

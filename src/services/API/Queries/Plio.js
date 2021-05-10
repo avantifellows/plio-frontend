@@ -13,3 +13,16 @@ export function uniqueUsersQuery(plioId) {
     ],
   };
 }
+
+export function averageWatchTimeQuery(plioId) {
+  return {
+    measures: ["GroupedSession.averageWatchTime"],
+    filters: [
+      {
+        member: "Plio.uuid",
+        operator: "equals",
+        values: [plioId],
+      },
+    ],
+  };
+}

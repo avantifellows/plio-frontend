@@ -166,7 +166,7 @@ export default {
     },
     averageWatchTime() {
       if (!this.numberOfViewers) return 0;
-      return "5 mins 40 secs";
+      return Math.round(this.plioAnalytics["average-watch-time"]) || "-";
     },
     accuracy() {
       if (!this.numberOfViewers) return 0;
@@ -259,6 +259,9 @@ export default {
     },
     async loadAnalytics() {
       this.plioAnalytics["viewers"] = await PlioAPIService.getUniqueUsersCount(
+        this.plioId
+      );
+      this.plioAnalytics["average-watch-time"] = await PlioAPIService.getAverageWatchTime(
         this.plioId
       );
     },

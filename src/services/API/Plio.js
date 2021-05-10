@@ -8,7 +8,7 @@ import {
   listPliosEndpoint,
   duplicatePlioEndpoint,
 } from "@/services/API/Endpoints.js";
-import { uniqueUsersQuery } from "./Queries/Plio.js";
+import { uniqueUsersQuery, averageWatchTimeQuery } from "./Queries/Plio.js";
 
 export default {
   async getPlio(plioId, playMode = false) {
@@ -99,6 +99,17 @@ export default {
     // refer to this example: https://cube.dev/blog/vue-dashboard-tutorial-using-cubejs/
     // https://cube.dev/docs/@cubejs-client-core#result-set
     var resultSet = await analyticsAPIClient().load(uniqueUsersQuery(plioId));
+    // https://cube.dev/docs/@cubejs-client-core#result-set-series-names
+    var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
+    // https://cube.dev/docs/@cubejs-client-core#result-set-chart-pivot
+    return resultSet.chartPivot()[0][resultKey];
+  },
+
+  async getAverageWatchTime(plioId) {
+    // get the average watch time for the given plio
+    var resultSet = await analyticsAPIClient().load(
+      averageWatchTimeQuery(plioId)
+    );
     // https://cube.dev/docs/@cubejs-client-core#result-set-series-names
     var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
     // https://cube.dev/docs/@cubejs-client-core#result-set-chart-pivot
