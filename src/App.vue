@@ -42,7 +42,7 @@
       <div class="grid col-start-6 col-end-8 justify-items-end sm:col-start-7">
         <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
         <!-- logout -->
-        <div v-if="!onLoginPage" class="text-lg sm:text-xl">
+        <div v-if="showLogout" class="text-lg sm:text-xl">
           <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
             <button
               class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain"
@@ -59,7 +59,7 @@
           </a>
         </div>
         <!-- locale switcher -->
-        <div :class="{ 'self-center': !isAuthenticated }">
+        <div class="self-center">
           <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
         </div>
       </div>
@@ -156,6 +156,10 @@ export default {
     ...mapGetters("auth", ["isAuthenticated", "isUserApproved"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("sync", ["pending"]),
+    showLogout() {
+      // whether to show the logout button
+      return this.onHomePage;
+    },
     createButtonTextConfig() {
       // config for the text of the main create button
       return {

@@ -260,6 +260,7 @@ export default {
     updated: "Last published on",
     buttons: {
       edit: "Edit Plio",
+      download_csv: "Download CSV",
     },
   },
 };
