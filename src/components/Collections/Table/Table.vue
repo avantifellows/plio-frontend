@@ -202,16 +202,6 @@ export default {
 
   computed: {
     ...mapState("sync", ["pending"]),
-    searchPlaceholder() {
-      // placeholder for the search box
-      return this.$t("home.table.search.placeholder");
-    },
-    disabledElementClass() {
-      // class for elements that need to be disabled
-      return {
-        "pointer-events-none": this.pending,
-      };
-    },
     isSearchStringPresent() {
       // if a string is present in the search bar
       return this.searchString != "";
@@ -232,6 +222,10 @@ export default {
         `active:bg-gray-100`,
       ];
     },
+    searchPlaceholder() {
+      // placeholder for the search box
+      return this.$t("home.table.search.placeholder");
+    },
     totalItemsInTable() {
       // total rows present in the table
       return this.filteredData.length || 0;
@@ -242,6 +236,12 @@ export default {
     filteredData() {
       // contains the filtered data after applying sorting
       return this.orderBySort(this.data);
+    },
+    disabledElementClass() {
+      // class for elements that need to be disabled
+      return {
+        "pointer-events-none": this.pending,
+      };
     },
   },
   methods: {

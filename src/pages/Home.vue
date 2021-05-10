@@ -31,7 +31,7 @@
         v-if="hasAnyPlios && totaNumberOfPlios"
         :totalItems="totaNumberOfPlios"
         :pageSize="numberOfPliosPerPage"
-        @page-selected="fetchPage"
+        @page-selected="fetchPliosByPage"
       >
       </Paginator>
 
@@ -159,7 +159,7 @@ export default {
       });
     },
 
-    async fetchPage(pageNumber) {
+    async fetchPliosByPage(pageNumber) {
       // fetch the plio uuids at the given page number
       // (also filter with a search string if present)
       this.startLoading();

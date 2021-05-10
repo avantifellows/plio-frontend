@@ -48,6 +48,8 @@ export default {
 
   getAllPlios(uuidOnly = false, pageNumber = undefined, searchString = "") {
     // returns all the plios (or just the flat list of uuids) created by the user
+    // also fetches the plios at a given page number [if applicable]
+    // also filters and fetches the plios that match the given search string [if applicable]
     var url = uuidOnly ? pliosEndpoint + listPliosEndpoint : pliosEndpoint;
 
     var queryParams = {};
