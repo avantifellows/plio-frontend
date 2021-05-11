@@ -7,6 +7,7 @@ import {
   itemsEndpoint,
   listPliosEndpoint,
   duplicatePlioEndpoint,
+  plioDataDumpEndpoint,
 } from "@/services/API/Endpoints.js";
 import {
   uniqueUsersQuery,
@@ -99,6 +100,13 @@ export default {
   duplicatePlio(plioId) {
     // create a clone of plioId plio
     return apiClient().post(pliosEndpoint + plioId + duplicatePlioEndpoint);
+  },
+
+  getPlioDataDump(plioId) {
+    // get the data dump for the plio
+    return apiClient().get(pliosEndpoint + plioId + plioDataDumpEndpoint, {
+      responseType: "blob",
+    });
   },
 
   async getUniqueUsersCount(plioId) {

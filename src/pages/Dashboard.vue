@@ -115,10 +115,10 @@
       </div>
     </div>
     <icon-button
-      :titleConfig="downloadCSVButtonTextConfig"
-      :buttonClass="downloadCSVButtonClass"
+      :titleConfig="downloadReportButtonTextConfig"
+      :buttonClass="downloadReportButtonClass"
       class="rounded-md shadow-lg bp-500:mb-8 sm:mb-20 md:mb-7"
-      @click="downloadCSV"
+      @click="downloadReport"
     ></icon-button>
   </div>
 </template>
@@ -155,6 +155,10 @@ export default {
         " sm:tracking-normal text-xs bp-500:text-sm md:text-md lg:text-lg font-bold text-yellow-600", // style for the text of the url component
       urlCopyButtonClass: "text-yellow-600", // style for the copy button of the url component
       plioAnalytics: {}, // holds all the analytics data for the plio
+      json_data: [
+        ["Tony Peña", "New York", "United AB", "1978-03-15"],
+        ["Tony Peña", "New York", "United BC", "1978-03-15"],
+      ],
     };
   },
   async created() {
@@ -207,16 +211,16 @@ export default {
       // class for the edit plio button
       return "bg-yellow-400 hover:bg-yellow-500 rounded-lg ring-primary px-2";
     },
-    downloadCSVButtonTextConfig() {
-      // config for the text of the download csv button
+    downloadReportButtonTextConfig() {
+      // config for the text of the download report button
       return {
-        value: this.$t("dashboard.buttons.download_csv"),
-        class: "text-sm sm:text-md md:text-lg text-white p-2",
+        value: this.$t("dashboard.buttons.download_report"),
+        class: "text-sm sm:text-lg text-white p-2 sm:p-4",
       };
     },
-    downloadCSVButtonClass() {
-      // class for the download csv button
-      return "bg-primary hover:bg-primary-hover rounded-lg ring-primary px-2 w-full bp-420:w-40";
+    downloadReportButtonClass() {
+      // class for the download report button
+      return "bg-primary hover:bg-primary-hover rounded-lg ring-primary px-2 w-full bp-420:w-60";
     },
     plioLink() {
       // get the link for the plio from the plio ID
@@ -313,8 +317,14 @@ export default {
         params: { plioId: this.plioId, org: this.org },
       });
     },
-    downloadCSV() {
-      // download raw CSV data for the given plio
+    downloadReport() {
+      // downloads a zip file containing the report for the plio
+      PlioAPIService.getPlioDataDump(this.plioId).then((response) => {
+        var link = document.createElement("a");
+        link.href = window.URL.createObjectURL(new Blob([response.data]));
+        link.download = `plio-data-${this.plioId}.zip`;
+        link.click();
+      });
     },
   },
 };

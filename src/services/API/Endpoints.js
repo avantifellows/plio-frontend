@@ -1,4 +1,7 @@
 export const pliosEndpoint = "/plios/",
+  listPliosEndpoint = "list_uuid/",
+  duplicatePlioEndpoint = "/duplicate/",
+  plioDataDumpEndpoint = "/download_data/",
   itemsEndpoint = "/items/",
   videosEndpoint = "/videos/",
   questionsEndpoint = "/questions/",
@@ -11,6 +14,4 @@ export const pliosEndpoint = "/plios/",
   usersEndpoint = "/users/",
   userConfigEndpoint = "/config/",
   convertTokenEndpoint = "/convert-token/",
-  refreshTokenEndpoint = "/token/",
-  listPliosEndpoint = "list_uuid/",
-  duplicatePlioEndpoint = "/duplicate/";
+  refreshTokenEndpoint = "/token/";

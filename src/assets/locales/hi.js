@@ -261,7 +261,7 @@ export default {
     updated: "सबसे हाल ही में प्रकाशित हुआ",
     buttons: {
       edit: "प्लायो को संपादित करें",
-      download_csv: "CSV डाउनलोड करें",
+      download_report: "रिपोर्ट डाउनलोड करें",
     },
   },
 };
