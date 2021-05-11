@@ -1,4 +1,5 @@
 import UserAPIService from "@/services/API/User.js";
+import AnalyticsAPIService from "@/services/API/Analytics.js";
 
 // Reference: https://medium.com/front-end-weekly/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
 const state = {
@@ -9,6 +10,7 @@ const state = {
   userId: null,
   isReAuthenticating: false,
   reAuthenticationPromise: null,
+  analyticsAccessToken: null,
 };
 
 const getters = {
@@ -59,6 +61,11 @@ const actions = {
       state.accessToken.access_token
     ).then((response) => dispatch("setUser", response.data));
   },
+  async getAnalyticsAccessToken({ commit }) {
+    AnalyticsAPIService.getAnalyticsAccessToken().then((response) =>
+      commit("setAnalyticsAccessToken", response.data)
+    );
+  },
 };
 
 const mutations = {
@@ -96,6 +103,9 @@ const mutations = {
   },
   updateUserStatus(state, status) {
     state.user.status = status;
+  },
+  setAnalyticsAccessToken(state, accessToken) {
+    state.analyticsAccessToken = accessToken.access_token;
   },
 };
 

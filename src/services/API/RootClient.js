@@ -21,9 +21,15 @@ const client = axios.create({
 });
 
 // analytics API client
-const analyticsClient = cubejs(process.env.VUE_APP_CUBEJS_AUTH_TOKEN, {
-  apiUrl: process.env.VUE_APP_CUBEJS_API_URL,
-});
+const analyticsClient = cubejs(
+  async () => {
+    if (store.state.auth.analyticsAccessToken === null) {
+      await store.dispatch("auth/getAnalyticsAccessToken");
+    }
+    return store.state.auth.analyticsAccessToken;
+  },
+  { apiUrl: process.env.VUE_APP_CUBEJS_API_URL }
+);
 
 // the interceptor below is doing the following things:
 // 1. Add trailing slash to every API call (if it's not there)
