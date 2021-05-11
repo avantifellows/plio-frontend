@@ -8,7 +8,7 @@
       <!-- previous button -->
       <button
         @click="setAndRouteToPage(paginatorDetails.currentPage - 1)"
-        :class="mobilePreviousButtonClass"
+        :class="[previousButtonClass, 'rounded-md']"
         :disabled="isFirstPage"
       >
         {{ $t("home.paginator.previous") }}
@@ -16,7 +16,7 @@
       <!-- next button -->
       <button
         @click="setAndRouteToPage(paginatorDetails.currentPage + 1)"
-        :class="mobileNextButtonClass"
+        :class="[nextButtonClass, 'rounded-md']"
         :disabled="isLastPage"
       >
         {{ $t("home.paginator.next") }}
@@ -39,7 +39,7 @@
           <span class="font-medium">{{ paginatorDetails.endItemIndex + 1 }}</span>
           {{ $t("home.paginator.description.of") }}
           <span class="font-medium">{{ totalItems }}</span>
-          {{ " " + $t("home.paginator.description.results") }}
+          {{ " " + $t("home.paginator.description.plios") }}
         </p>
       </div>
 
@@ -49,7 +49,7 @@
           <!-- "First" button -->
           <button
             @click="setAndRouteToPage(1)"
-            :class="firstButtonClass"
+            :class="[previousButtonClass, 'rounded-l-md']"
             :disabled="isFirstPage"
           >
             {{ $t("home.paginator.first") }}
@@ -86,7 +86,7 @@
           <!-- "Last" button -->
           <button
             @click="setAndRouteToPage(paginatorDetails.totalPages)"
-            :class="lastButtonClass"
+            :class="[nextButtonClass, 'rounded-r-md']"
             :disabled="isLastPage"
           >
             {{ $t("home.paginator.last") }}
@@ -107,6 +107,9 @@ export default {
       // contails all the details that will be used to navigate
       // and render the paginator
       paginatorDetails: {},
+      // styling class for the skeleton buttons
+      skeletonButtonClass:
+        "items-center px-6 py-4 mx-1 border border-gray-300 bg-gray-300",
     };
   },
 
@@ -160,12 +163,12 @@ export default {
     },
     setAndRouteToPage(pageNumber) {
       // route to the selected page and update the paginator details accordingly
-      this.$emit("page-selected", pageNumber);
+      this.$emit("page-selected", { pageNumber: pageNumber });
       this.paginatorDetails = this.paginate(pageNumber);
     },
 
     paginate(currentPage) {
-      // takes in a pagenumber as an argument and calculates the paginator details
+      // takes in the page number as argument and calculates the paginator details
       // that are used for rendering the paginator nav bar
 
       // inspired from
@@ -213,7 +216,7 @@ export default {
       );
 
       // create an array of page numbers to be shown in the navigation bar
-      let pageNumbers = Array.from(Array(endPageNumber + 1 - startPageNumber).keys()).map(
+      let pageNumbers = Array.from(Array(endPageNumber - startPageNumber + 1).keys()).map(
         (i) => startPageNumber + i
       );
 
@@ -246,69 +249,30 @@ export default {
       // if the current page is the last page or not
       return this.paginatorDetails.currentPage === this.paginatorDetails.totalPages;
     },
-    firstButtonClass() {
-      // styling class for the "First" button
-      return [
-        {
-          "opacity-50 cursor-not-allowed": this.isFirstPage,
-          "animate-pulse bg-gray-300 text-opacity-0 hover:bg-gray-300": this.pending,
-        },
-        `relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300
-          bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none`,
-      ];
-    },
     previousButtonClass() {
-      // styling class for the "Previous" button
       return [
         {
           "opacity-50 cursor-not-allowed": this.isFirstPage,
-          "animate-pulse bg-gray-300 text-opacity-0 hover:bg-gray-300": this.pending,
+          "sm:animate-pulse sm:bg-gray-300 sm:text-opacity-0 sm:hover:bg-gray-300": this
+            .pending,
         },
-        `relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm
-          font-medium text-gray-700 hover:bg-gray-50 focus:outline-none`,
+        `relative inline-flex items-center px-4 sm:px-2 py-2 border border-gray-300
+          bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-500
+          focus:outline-none active:bg-primary-button`,
       ];
     },
-    mobilePreviousButtonClass() {
-      // styling class for the "Previous" button in mobile screens
-      return [
-        { "opacity-50 cursor-not-allowed": this.isFirstPage },
-        `relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium
-          rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none active:bg-primary-button`,
-      ];
-    },
+
     nextButtonClass() {
-      // styling class for the "Next" button
       return [
         {
           "opacity-50 cursor-not-allowed": this.isLastPage,
-          "animate-pulse bg-gray-300 text-opacity-0 hover:bg-gray-300": this.pending,
+          "sm:animate-pulse sm:bg-gray-300 sm:text-opacity-0 sm:hover:bg-gray-300": this
+            .pending,
         },
-        `relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm
-          font-medium text-gray-700 hover:bg-gray-50 focus:outline-none`,
+        `relative inline-flex items-center px-4 sm:px-2 py-2 border border-gray-300
+          bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-500
+          focus:outline-none active:bg-primary-button`,
       ];
-    },
-    mobileNextButtonClass() {
-      // styling class for the "Next" button in mobile screens
-      return [
-        { "opacity-50 cursor-not-allowed": this.isLastPage },
-        `ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm
-          font-medium rounded-md text-gray-700 bg-white hover:text-gray-500 focus:outline-none active:bg-primary-button`,
-      ];
-    },
-    lastButtonClass() {
-      // styling class for the "Last" button
-      return [
-        {
-          "opacity-50 cursor-not-allowed": this.isLastPage,
-          "animate-pulse bg-gray-300 text-opacity-0 hover:bg-gray-300": this.pending,
-        },
-        `relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300
-          bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none`,
-      ];
-    },
-    skeletonButtonClass() {
-      // styling class for the skeleton buttons
-      return `items-center px-6 py-4 mx-1 border border-gray-300 bg-gray-300`;
     },
   },
 

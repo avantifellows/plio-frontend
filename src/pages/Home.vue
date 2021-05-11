@@ -17,26 +17,26 @@
     <div v-else>
       <!-- table -->
       <Table
-        v-if="hasAnyPlios"
+        v-if="showTable"
         :data="tableData"
         :columns="tableColumns"
         :tableTitle="tableTitle"
-        @search-plios="fetchPliosBySearchString"
+        @search-plios="fetchPlioIds($event)"
         @reset-search-string="resetSearchString"
       >
       </Table>
 
       <!-- pagination nav bar -->
       <Paginator
-        v-if="hasAnyPlios && totaNumberOfPlios"
-        :totalItems="totaNumberOfPlios"
+        v-if="showTable"
+        :totalItems="totalNumberOfPlios"
         :pageSize="numberOfPliosPerPage"
-        @page-selected="fetchPliosByPage"
+        @page-selected="fetchPlioIds($event)"
       >
       </Paginator>
 
       <!-- no plios exist warning -->
-      <div v-if="!hasAnyPlios" class="flex flex-col bg-white w-full m-auto mt-32 px-8">
+      <div v-if="!showTable" class="flex flex-col bg-white w-full m-auto mt-32 px-8">
         <inline-svg
           :src="noPliosIcon"
           class="w-50 h-50 opacity-50 place-self-center m-10"
@@ -79,11 +79,11 @@ export default {
   },
   watch: {
     async activeWorkspace() {
-      if (this.isUserApproved) await this.fetchAllPlioIds();
+      if (this.isUserApproved) await this.fetchPlioIds();
     },
     isUserApproved(value) {
       // fetch plios again if user approval status changes
-      if (value) this.fetchAllPlioIds();
+      if (value) this.fetchPlioIds();
     },
   },
   data() {
@@ -95,11 +95,11 @@ export default {
         name: { type: "component", value: "" },
         number_of_viewers: "-",
       }),
-      hasAnyPlios: true, // whether there are any plios
+      showTable: true, // whether to show the table or not
       confirmIcon: require("@/assets/images/check-circle-regular.svg"),
       noPliosIcon: require("@/assets/images/create.svg"),
       toast: useToast(), // use the toast component
-      totaNumberOfPlios: null, // total number of plios that the user has access to
+      totalNumberOfPlios: 0, // total number of plios for the user
       numberOfPliosPerPage: 5, // number of plios to show on one page (default: 5)
       searchString: "", // the search string to filter the plios on
     };
@@ -107,7 +107,7 @@ export default {
   async created() {
     // feed the dummy data to show skeletons before loading the actual data
     this.tableData = this.dummyTableData;
-    if (this.isUserApproved) await this.fetchAllPlioIds();
+    if (this.isUserApproved) await this.fetchPlioIds();
   },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
@@ -136,38 +136,38 @@ export default {
       // reset the search string to ""
       // fetch all the plios again
       if (this.searchString != "") {
-        this.startLoading();
-        await this.fetchAllPlioIds();
-        this.stopLoading();
         this.searchString = "";
+        await this.fetchPlioIds();
       }
     },
-    async fetchAllPlioIds() {
-      var uuidOnly = true;
-      await PlioAPIService.getAllPlios(uuidOnly).then((response) => {
-        // if no plios exist, show the warning else hide the warning
-        if (response.data.count <= 0) {
-          // if not plios exist, show the warning
-          this.hasAnyPlios = false;
-        } else {
-          // if plios exist
-          this.hasAnyPlios = true; // hide the warning and show the table
-          this.totaNumberOfPlios = response.data.count; // set total number of plios and show the paginator
-          this.numberOfPliosPerPage = response.data.page_size; // set the page size
-          this.prepareTableData(response.data.results); // prepare the data for the table
-        }
-      });
-    },
 
-    async fetchPliosByPage(pageNumber) {
-      // fetch the plio uuids at the given page number
-      // (also filter with a search string if present)
-      this.startLoading();
+    async fetchPlioIds(params = undefined) {
+      if (!this.pending) this.startLoading();
       var uuidOnly = true;
+
+      //if params contain a searchString or pageNumber, save it into a variable,
+      //else save the variable as undefined
+      var searchString =
+        params != undefined && "searchString" in params ? params.searchString : undefined;
+
+      var pageNumber =
+        params != undefined && "pageNumber" in params ? params.pageNumber : undefined;
+
+      // if the params contain a valid searchString, update the local searchString variable
+      if (searchString != undefined && searchString != "")
+        this.searchString = searchString;
+
       await PlioAPIService.getAllPlios(uuidOnly, pageNumber, this.searchString).then(
         (response) => {
-          // when fetched, feed the new data into the table
-          this.prepareTableData(response.data.results);
+          // to handle the case when the user lands on the homepage for the first time
+          // if no plios exist, then hide the table else show it
+          if (params == undefined) {
+            if (response.data.count <= 0) this.showTable = false;
+            else this.showTable = true;
+          }
+          this.totalNumberOfPlios = response.data.count; // set total number of plios and show the paginator
+          this.numberOfPliosPerPage = response.data.page_size; // set the page size
+          this.prepareTableData(response.data.results); // prepare the data for the table
         }
       );
     },
@@ -216,22 +216,8 @@ export default {
       this.tableData = tableData;
       if (this.pending) this.stopLoading();
     },
-
-    async fetchPliosBySearchString(searchString) {
-      // filter and fetch plios using a search string and populate the table and paginator again
-      this.searchString = searchString;
-      this.startLoading();
-
-      var uuidOnly = true;
-      await PlioAPIService.getAllPlios(uuidOnly, undefined, this.searchString).then(
-        (response) => {
-          this.totaNumberOfPlios = response.data.count; // set total number of plios
-          this.numberOfPliosPerPage = response.data.page_size; // set the page size
-          this.prepareTableData(response.data.results); // prepare the data for the table
-        }
-      );
-    },
   },
+
   unmounted() {
     // remove all plio details from the store
     // when user navigates away from the home page

@@ -118,7 +118,7 @@ export default {
       },
       search: {
         placeholder: "कुछ ढूंढिए",
-        no_results_found: "कोई वास्तु नहीं मिला। कृपया दोबारा कोशिश करें",
+        no_plios_found: "कोई पलायो नहीं मिला",
       },
       buttons: {
         analyse: "प्लायो का विश्लेषण करें",
@@ -132,7 +132,7 @@ export default {
       description: {
         to: "से",
         of: ",",
-        results: "वस्तुओं में से",
+        plios: "पलायों में से",
       },
     },
   },

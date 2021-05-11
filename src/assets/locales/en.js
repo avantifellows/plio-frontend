@@ -118,8 +118,7 @@ export default {
       },
       search: {
         placeholder: "Search",
-        no_results_found:
-          "No results found. Please try searching something else.",
+        no_plios_found: "No Plios Found",
       },
       buttons: {
         analyse: "Analyse Plio",
@@ -133,7 +132,7 @@ export default {
       description: {
         to: "to",
         of: " of",
-        results: "results",
+        plios: "plios",
       },
     },
   },

@@ -12,19 +12,26 @@
         ></inline-svg>
       </div>
       <!-- table search -->
+
+      <!-- search bar container -->
       <div :class="[disabledElementClass, searchContainerClass]">
+        <!-- search bar input -->
         <input
           :class="searchInputBoxClass"
           type="text"
           :placeholder="searchPlaceholder"
           v-model="searchString"
         />
+
+        <!-- 'x' icon to clear the search string -->
         <inline-svg
           v-if="isSearchStringPresent"
           :src="require('@/assets/images/times-light.svg')"
           class="w-10 hover:stroke-2"
           @click="resetSearchString"
         ></inline-svg>
+
+        <!-- search button to perform the search when clicked -->
         <button :class="searchButtonClass" @click="search">
           <span class="w-auto flex justify-end items-center">
             <inline-svg
@@ -127,7 +134,7 @@
                     <div
                       class="text-xl tracking-tight font-extrabold text-gray-900 sm:text-2xl md:text-3xl inline-flex p-6"
                     >
-                      {{ $t("home.table.search.no_results_found") }}
+                      {{ $t("home.table.search.no_plios_found") }}
                     </div>
                   </td>
                 </tr>
@@ -195,7 +202,7 @@ export default {
 
   watch: {
     searchString(value) {
-      // emit a message whenever the search string is reset to "" by the user
+      // emit a message whenever the search string becomes empty
       if (value == "") this.$emit("reset-search-string");
     },
   },
@@ -247,7 +254,8 @@ export default {
   methods: {
     ...mapActions("sync", ["startLoading"]),
     resetSearchString() {
-      // reset the search string to an empty string
+      // start loading reset the search string to an empty string
+      this.startLoading();
       this.searchString = "";
     },
     tableRowTouchOn(rowIndex) {
@@ -383,7 +391,7 @@ export default {
     },
     search() {
       // emit the search string whenever the user presses the search icon
-      this.$emit("search-plios", this.searchString);
+      this.$emit("search-plios", { searchString: this.searchString });
     },
   },
 
