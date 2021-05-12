@@ -38,6 +38,7 @@ const actions = {
   async unsetAccessToken({ commit, dispatch }) {
     await commit("unsetAccessToken");
     dispatch("unsetUser");
+    dispatch("unsetAnalyticsAccessToken");
   },
   async setUser({ commit }, user) {
     await commit("setUser", user);
@@ -75,6 +76,9 @@ const actions = {
     await AnalyticsAPIService.getAnalyticsAccessToken().then((response) =>
       commit("setAnalyticsAccessToken", response.data)
     );
+  },
+  unsetAnalyticsAccessToken({ commit }) {
+    commit("unsetAnalyticsAccessToken");
   },
 };
 
@@ -116,6 +120,9 @@ const mutations = {
   },
   setAnalyticsAccessToken(state, accessToken) {
     state.analyticsAccessToken = accessToken.access_token;
+  },
+  unsetAnalyticsAccessToken(state) {
+    state.analyticsAccessToken = null;
   },
 };
 

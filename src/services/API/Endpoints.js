@@ -13,4 +13,5 @@ export const pliosEndpoint = "/plios/",
   convertTokenEndpoint = "/convert-token/",
   refreshTokenEndpoint = "/token/",
   listPliosEndpoint = "list_uuid/",
-  duplicatePlioEndpoint = "/duplicate/";
+  duplicatePlioEndpoint = "/duplicate/",
+  analyticsAccessTokenEndpoint = "/cubejs-token/";
