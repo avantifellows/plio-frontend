@@ -188,10 +188,6 @@ export default {
         this.isUserApproved
       );
     },
-    onLoginPage() {
-      // whether the current page is the login page
-      return this.$route.name == "Login";
-    },
     onHomePage() {
       // whether the current page is the home page
       return this.$route.name == "Home";

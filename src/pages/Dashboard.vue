@@ -47,18 +47,31 @@
     >
       <div class="grid grid-cols-2 sm:flex sm:flex-col col-span-2">
         <div class="flex flex-col items-center sm:items-start">
-          <p class="text-yellow-900 text-xsm bp-420:text-xs bp-500:text-sm">VIEWERS</p>
-          <p class="text-yellow-900 text-xl lg:text-2xl xl:text-3xl font-bold">
+          <!-- number of viewers -->
+          <p :class="metricTypeOneTitleClass">
+            {{ $t("dashboard.summary.number_of_viewers") }}
+          </p>
+          <inline-svg
+            v-if="pending"
+            :src="require('@/assets/images/spinner-solid.svg')"
+            :class="loadingSpinnerIconClass"
+          ></inline-svg>
+          <p v-else :class="metricTypeOneClass">
             {{ numberOfViewers }}
           </p>
         </div>
+
+        <!-- average watch time -->
         <div class="flex flex-col items-center sm:items-start sm:mt-10">
-          <p class="text-yellow-900 text-xsm bp-420:text-xs bp-500:text-sm">
-            AVERAGE WATCH TIME
+          <p :class="metricTypeOneTitleClass">
+            {{ $t("dashboard.summary.avg_watch_time") }}
           </p>
-          <p
-            class="text-yellow-900 text-center sm:text-left text-xl lg:text-2xl xl:text-3xl font-bold"
-          >
+          <inline-svg
+            v-if="pending"
+            :src="require('@/assets/images/spinner-solid.svg')"
+            :class="loadingSpinnerIconClass"
+          ></inline-svg>
+          <p v-else :class="metricTypeOneClass">
             {{ averageWatchTime }}
           </p>
         </div>
@@ -66,55 +79,71 @@
       <div class="col-span-6 grid grid-cols-2 mt-4 bp-420:mt-6 sm:mt-0">
         <div class="flex flex-col mx-2 bp-500:mx-4">
           <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
-            <p
-              class="w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900"
-            >
+            <!-- completion rate -->
+            <inline-svg
+              v-if="pending"
+              :src="require('@/assets/images/spinner-solid.svg')"
+              :class="[loadingSpinnerIconClass, 'm-auto']"
+            ></inline-svg>
+            <p v-else :class="metricTypeTwoClass">
               {{ completionRate }}
             </p>
-            <p class="w-full text-center text-xs md:text-sm text-yellow-900 mt-2">
-              COMPLETED
+            <p :class="metricTypeTwoTitleClass">
+              {{ $t("dashboard.summary.completion_rate") }}
             </p>
           </div>
           <div class="mt-4">
             <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
-              <p
-                class="w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900"
-              >
+              <!-- one minute retention -->
+              <inline-svg
+                v-if="pending"
+                :src="require('@/assets/images/spinner-solid.svg')"
+                :class="[loadingSpinnerIconClass, 'm-auto']"
+              ></inline-svg>
+              <p v-else :class="metricTypeTwoClass">
                 {{ oneMinuteRetention }}
               </p>
-              <p class="w-full text-center text-xs md:text-sm text-yellow-900 mt-2">
-                RETENTION AT 1 MINUTE
+              <p :class="metricTypeTwoTitleClass">
+                {{ $t("dashboard.summary.one_minute_retention") }}
               </p>
             </div>
           </div>
         </div>
         <div class="flex flex-col mx-2 bp-500:mx-4">
           <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
-            <p
-              class="w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900"
-            >
+            <!-- accuracy -->
+            <inline-svg
+              v-if="pending"
+              :src="require('@/assets/images/spinner-solid.svg')"
+              :class="[loadingSpinnerIconClass, 'm-auto']"
+            ></inline-svg>
+            <p v-else :class="metricTypeTwoClass">
               {{ accuracy }}
             </p>
-            <p class="w-full text-center text-xs md:text-sm text-yellow-900 mt-2">
-              ACCURACY
-            </p>
+            <p :class="metricTypeTwoTitleClass">{{ $t("dashboard.summary.accuracy") }}</p>
           </div>
           <div class="mt-4">
             <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
-              <p
-                class="w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900"
-              >
+              <!-- number of questions answered -->
+              <inline-svg
+                v-if="pending"
+                :src="require('@/assets/images/spinner-solid.svg')"
+                :class="[loadingSpinnerIconClass, 'm-auto']"
+              ></inline-svg>
+              <p v-else :class="metricTypeTwoClass">
                 {{ numQuestionsAnswered }}
               </p>
-              <p class="w-full text-center text-xs md:text-sm text-yellow-900 mt-2">
-                QUESTIONS ANSWERED
+              <p :class="metricTypeTwoTitleClass">
+                {{ $t("dashboard.summary.num_questions_answered") }}
               </p>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <!-- download report button -->
     <icon-button
+      :iconConfig="downloadReportButtonIconConfig"
       :titleConfig="downloadReportButtonTextConfig"
       :buttonClass="downloadReportButtonClass"
       class="rounded-md shadow-lg bp-500:mb-8 sm:mb-20 md:mb-7"
@@ -151,14 +180,29 @@ export default {
       videoID: "", // video ID for the youtube video linked to the plio
       plioTitle: "", // title for the current plio
       lastUpdated: "", // date when the plio was last updated,
+      // style for the text of the url component
       urlStyleClass:
-        " sm:tracking-normal text-xs bp-500:text-sm md:text-md lg:text-lg font-bold text-yellow-600", // style for the text of the url component
+        "sm:tracking-normal text-xs bp-500:text-sm md:text-md lg:text-lg font-bold text-yellow-600",
       urlCopyButtonClass: "text-yellow-600", // style for the copy button of the url component
       plioAnalytics: {}, // holds all the analytics data for the plio
-      json_data: [
-        ["Tony Peña", "New York", "United AB", "1978-03-15"],
-        ["Tony Peña", "New York", "United BC", "1978-03-15"],
-      ],
+      downloadReportButtonIconConfig: {
+        // config for the loading icon on the download report button
+        enabled: false,
+        iconName: "spinner-solid",
+        iconClass: "animate-spin h-4 object-scale-down text-white",
+      },
+      // styling class for the first type of metric
+      metricTypeOneClass:
+        "text-yellow-900 text-center sm:text-left text-xl lg:text-2xl xl:text-3xl font-bold",
+      // styling class for the title of the first type of metric
+      metricTypeOneTitleClass: "text-yellow-900 text-xsm bp-420:text-xs bp-500:text-sm",
+      // styling class for the second type of metric
+      metricTypeTwoClass:
+        "w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900",
+      // styling class for the title of the second type of metric
+      metricTypeTwoTitleClass:
+        "w-full text-center text-xs md:text-sm text-yellow-900 mt-2",
+      loadingSpinnerIconClass: "animate-spin h-4 object-scale-down", // styling class for loading spinner icon
     };
   },
   async created() {
@@ -169,35 +213,35 @@ export default {
   computed: {
     ...mapState("sync", ["pending"]),
     numberOfViewers() {
-      if (this.pending) return "-";
+      // total number of unique viewers
       return this.plioAnalytics["viewers"] || 0;
     },
     averageWatchTime() {
-      if (this.pending) return "-";
+      // for how long did the users watched the plio on average
       return this.formatTime(Math.round(this.plioAnalytics["average-watch-time"] || 0));
     },
     accuracy() {
-      if (this.pending) return "-";
+      // average accuracy on the plio
       if (this.plioAnalytics["accuracy"] != null)
-        return this.plioAnalytics["accuracy"] + "%";
+        return Math.trunc(this.plioAnalytics["accuracy"]) + "%";
       return "0%";
     },
     completionRate() {
-      if (this.pending) return "-";
+      // what % of users completed the plio
       if (this.plioAnalytics["percent-complete"] != null)
-        return this.plioAnalytics["percent-complete"] + "%";
+        return Math.trunc(this.plioAnalytics["percent-complete"]) + "%";
       return "0%";
     },
     oneMinuteRetention() {
-      if (this.pending) return "-";
+      // what % of users were retained after the 1 minute mark
       if (this.plioAnalytics["1-min-retention"] != null)
-        return this.plioAnalytics["1-min-retention"] + "%";
+        return Math.trunc(this.plioAnalytics["1-min-retention"]) + "%";
       return "0%";
     },
     numQuestionsAnswered() {
-      if (this.pending) return "-";
+      // number of questions answered on average by a user
       if (this.plioAnalytics["num-questions-answered"] != null)
-        return this.plioAnalytics["num-questions-answered"];
+        return Math.round(this.plioAnalytics["num-questions-answered"]);
       return "0%";
     },
     editButtonTextConfig() {
@@ -233,7 +277,8 @@ export default {
     },
     videoThumbnailURL() {
       // link to the thumbnail for the video linked to the plio
-      return `https://img.youtube.com/vi/${this.videoID}/sddefault.jpg`;
+      if (this.videoID) return `https://img.youtube.com/vi/${this.videoID}/sddefault.jpg`;
+      return "";
     },
     lastUpdatedString() {
       // lastUpdated as a human readable string
@@ -261,10 +306,12 @@ export default {
   methods: {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     async fetchData() {
-      this.loadPlio();
-      this.loadAnalytics();
+      // load the plio and then it's analytics data
+      await this.loadPlio();
+      await this.loadAnalytics();
     },
     formatTime(timeInSeconds) {
+      // convert time from seconds to a human readable format
       if (timeInSeconds == null || isNaN(timeInSeconds)) return null;
       if (!timeInSeconds) return "0 secs";
       var hours = Math.floor(timeInSeconds / 3600);
@@ -287,6 +334,7 @@ export default {
       });
     },
     async loadAnalytics() {
+      // load the data through analytics API and save it in the respective keys
       this.plioAnalytics["viewers"] = await PlioAPIService.getUniqueUsersCount(
         this.plioId
       );
@@ -319,11 +367,13 @@ export default {
     },
     downloadReport() {
       // downloads a zip file containing the report for the plio
+      this.downloadReportButtonIconConfig.enabled = true;
       PlioAPIService.getPlioDataDump(this.plioId).then((response) => {
         var link = document.createElement("a");
         link.href = window.URL.createObjectURL(new Blob([response.data]));
         link.download = `plio-data-${this.plioId}.zip`;
         link.click();
+        this.downloadReportButtonIconConfig.enabled = false;
       });
     },
   },

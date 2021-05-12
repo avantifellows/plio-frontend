@@ -263,5 +263,13 @@ export default {
       edit: "प्लायो को संपादित करें",
       download_report: "रिपोर्ट डाउनलोड करें",
     },
+    summary: {
+      number_of_viewers: "दर्शक",
+      avg_watch_time: "औसत वाच टाइम",
+      completion_rate: "समाप्त किया हुआ",
+      one_minute_retention: "अवधारण 1 मिनट पर",
+      accuracy: "शुद्धता",
+      num_questions_answered: "उत्तर किये गए प्रश्न",
+    },
   },
 };

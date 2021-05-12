@@ -262,5 +262,13 @@ export default {
       edit: "Edit Plio",
       download_report: "Download Report",
     },
+    summary: {
+      number_of_viewers: "VIEWERS",
+      avg_watch_time: "AVERAGE WATCH TIME",
+      completion_rate: "COMPLETED",
+      one_minute_retention: "RETENTION AT 1 MINUTE",
+      accuracy: "ACCURACY",
+      num_questions_answered: "QUESTIONS ANSWERED",
+    },
   },
 };
