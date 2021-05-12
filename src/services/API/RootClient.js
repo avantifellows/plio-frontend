@@ -6,12 +6,14 @@ import {
   refreshTokenEndpoint,
   userFromTokenEndpoint,
 } from "@/services/API/Endpoints.js";
+import cubejs from "@cubejs-client/core";
 
 let headers = {
   Accept: "application/json",
   "Content-Type": "application/json",
 };
 
+// backend API client
 const client = axios.create({
   baseURL: process.env.VUE_APP_BACKEND,
   withCredentials: false,
@@ -101,4 +103,21 @@ client.interceptors.response.use(
 
 export function apiClient() {
   return client;
+}
+
+export function analyticsAPIClient() {
+  return cubejs(
+    async () => {
+      if (store.state.auth.analyticsAccessToken === null) {
+        await store.dispatch("auth/getAnalyticsAccessToken");
+      }
+      return store.state.auth.analyticsAccessToken;
+    },
+    {
+      apiUrl: process.env.VUE_APP_CUBEJS_API_URL,
+      headers: {
+        organization: store.getters["auth/activeWorkspaceSchema"],
+      },
+    }
+  );
 }
