@@ -62,7 +62,7 @@ const actions = {
     ).then((response) => dispatch("setUser", response.data));
   },
   async getAnalyticsAccessToken({ commit }) {
-    AnalyticsAPIService.getAnalyticsAccessToken().then((response) =>
+    await AnalyticsAPIService.getAnalyticsAccessToken().then((response) =>
       commit("setAnalyticsAccessToken", response.data)
     );
   },
