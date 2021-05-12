@@ -76,12 +76,12 @@
               <tbody class="bg-white divide-y divide-gray-200">
                 <!-- table values -->
                 <tr
-                  v-for="(entry, entryIndex) in filteredData"
+                  v-for="(entry, rowIndex) in filteredData"
                   :key="entry"
                   :class="tableRowClass"
-                  @mouseover="tableRowHoverOn(entryIndex)"
+                  @mouseover="tableRowHoverOn(rowIndex)"
                   @mouseout="tableRowHoverOff"
-                  @touchstart="tableRowTouchOn(entryIndex)"
+                  @touchstart="tableRowTouchOn(rowIndex)"
                 >
                   <td
                     v-for="(columnName, columnIndex) in columns"
@@ -91,15 +91,15 @@
                   >
                     <div
                       class="absolute w-full flex justify-center"
-                      :class="tableCellOverlayClass(entryIndex, columnIndex)"
+                      :class="tableCellOverlayClass(rowIndex, columnIndex)"
                     >
                       <!-- analyse button -->
                       <icon-button
                         :titleConfig="analyseButtonTitleConfig"
                         :buttonClass="analyseButtonClass"
-                        :isDisabled="!isPublished(entryIndex)"
-                        @click="analysePlio(entryIndex)"
-                        v-tooltip="analyseButtonTooltip(entryIndex)"
+                        :isDisabled="!isPublished(rowIndex)"
+                        @click="analysePlio(rowIndex)"
+                        v-tooltip="analyseButtonTooltip(rowIndex)"
                       ></icon-button>
                     </div>
                     <!-- column content -->
@@ -107,7 +107,7 @@
                       <div v-if="isComponent(entry[columnName])" class="w-full">
                         <PlioListItem
                           :plioId="entry[columnName].value"
-                          @fetched="savePlioDetails(entryIndex, $event)"
+                          @fetched="savePlioDetails(rowIndex, $event)"
                         >
                         </PlioListItem>
                       </div>
@@ -164,8 +164,6 @@ export default {
         iconClass: "text-yellow-600 h-5 w-5",
       },
       selectedRowIndex: null, // index of the row currently in focus / being hovered on
-      isHoverOn: false, // whether a row is being hovered on
-      isTouchMode: false, // whether touch events are accepted
       // classes for the analyse button
       analyseButtonClass:
         "bg-red-500 hover:bg-red-700 rounded-md shadow-md h-10 md:h-12 ring-red-500 -mt-2",
@@ -188,12 +186,7 @@ export default {
     },
     tableRowClass() {
       // class for each row of the table
-      return [
-        {
-          "hover:bg-gray-100 hover:cursor-pointer": this.isHoverOn,
-        },
-        `active:bg-gray-100`,
-      ];
+      return "hover:bg-gray-100 hover:cursor-pointer active:bg-gray-100";
     },
     searchPlaceholder() {
       // placeholder for the search box
@@ -221,9 +214,6 @@ export default {
     tableRowTouchOn(rowIndex) {
       // invoked when a touch event is triggered for a row in the table
       // redirects to the dashboard page for the selected plio
-
-      // mark that touch events are valid
-      if (!this.isTouchMode) this.isTouchMode = true;
       if (this.isPublished(rowIndex) && !this.pending) {
         // only redirect to the dashboard if the plio is published
         this.analysePlio(rowIndex);
@@ -248,28 +238,26 @@ export default {
     },
     tableRowHoverOn(rowIndex) {
       // triggered upon hovering over a row
-      if (!this.pending && !this.isTouchMode) {
+      if (!this.pending) {
         // only set these variables if touch events are not supported
         this.selectedRowIndex = rowIndex;
-        this.isHoverOn = true;
       }
     },
     tableRowHoverOff() {
       // triggered when the hover over a row is exited
       // unset variables when hover is removed
       this.selectedRowIndex = null;
-      this.isHoverOn = false;
     },
     isRowSelected(rowIndex) {
       // whether the given row index is selected
       return this.selectedRowIndex == rowIndex;
     },
-    tableCellOverlayClass(entryIndex, columnIndex) {
+    tableCellOverlayClass(rowIndex, columnIndex) {
       // class for each cell of the table
       return {
         hidden:
           !this.isLastColumn(columnIndex) ||
-          !this.isRowSelected(entryIndex) ||
+          !this.isRowSelected(rowIndex) ||
           this.pending,
       };
     },
@@ -308,15 +296,15 @@ export default {
       this.sortKey = key;
       this.sortOrders[key] = this.sortOrders[key] * -1;
     },
-    savePlioDetails(entryIndex, plioDetails) {
+    savePlioDetails(rowIndex, plioDetails) {
       // save the plio details after they are fetched from the PlioListItem
 
       // to enable the search functionality on things like plio title, status, date etc,
       // those details need to be stored in the filteredData object and that too, inside the "name"
       // key as that key contains the details of plios
-      if (this.filteredData != undefined && this.filteredData[entryIndex] != undefined) {
-        this.filteredData[entryIndex]["name"] = {
-          ...this.filteredData[entryIndex]["name"],
+      if (this.filteredData != undefined && this.filteredData[rowIndex] != undefined) {
+        this.filteredData[rowIndex]["name"] = {
+          ...this.filteredData[rowIndex]["name"],
           ...plioDetails,
         };
       }

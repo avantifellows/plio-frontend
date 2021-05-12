@@ -40,7 +40,6 @@ export default {
   },
   data() {
     return {
-      items: [], // list of all items created for this plio
       videoID: "", // video ID for the youtube video linked to the plio
       plioTitle: "", // title for the current plio
       lastUpdated: "", // date when the plio was last updated
@@ -61,7 +60,6 @@ export default {
       // fetch plio details
       await PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
         if (plioDetails.status != "published") this.$router.replace({ name: "404" });
-        this.items = plioDetails.items || [];
         this.videoID = this.getVideoIDfromURL(plioDetails.video_url);
         this.plioTitle = plioDetails.plioTitle || "";
         this.lastUpdated = new Date(plioDetails.updated_at).toDateString();
