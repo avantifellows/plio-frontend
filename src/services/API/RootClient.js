@@ -21,7 +21,7 @@ const client = axios.create({
 });
 
 // analytics API client
-const analyticsClient = cubejs(process.env.VUE_APP_CUBEJS_AUTH_TOKEN, {
+const analyticsClient = cubejs("", {
   apiUrl: process.env.VUE_APP_CUBEJS_API_URL,
 });
 
