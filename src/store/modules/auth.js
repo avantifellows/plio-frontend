@@ -18,6 +18,16 @@ const getters = {
   locale: (state) => state.config.locale,
   isUserApproved: (state) =>
     state.user != null && state.user.status == "approved",
+  activeWorkspaceSchema: (state) => {
+    let activeOrganizationSchema = "public";
+    if (state.activeWorkspace != "") {
+      let activeOrganization = state.user.organizations.find((organization) => {
+        return organization.shortcode == state.activeWorkspace;
+      });
+      activeOrganizationSchema = activeOrganization.schema_name;
+    }
+    return activeOrganizationSchema;
+  },
 };
 
 const actions = {
