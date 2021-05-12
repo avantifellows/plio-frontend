@@ -161,7 +161,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("auth", ["isAuthenticated", "isUserApproved"]),
+    ...mapGetters("auth", ["isAuthenticated", "isUserApproved", "activeWorkspaceSchema"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     createButtonTextConfig() {
