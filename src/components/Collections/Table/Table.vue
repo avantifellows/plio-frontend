@@ -5,6 +5,7 @@
       <!-- table title -->
       <div :class="tableTitleClass">
         <p>{{ tableTitle }}</p>
+        <p v-if="!pending">({{ totalItemsInTable }})</p>
         <inline-svg
           v-if="pending"
           :src="require('@/assets/images/spinner-solid.svg')"
@@ -114,7 +115,7 @@
                       <div v-if="isComponent(entry[columnName])" class="w-full">
                         <PlioListItem
                           :plioId="entry[columnName].value"
-                          @fetched="savePlioDetails(entryIndex, $event)"
+                          @fetched="savePlioStatus(entryIndex, $event)"
                         >
                         </PlioListItem>
                       </div>
@@ -254,7 +255,8 @@ export default {
   methods: {
     ...mapActions("sync", ["startLoading"]),
     resetSearchString() {
-      // start loading reset the search string to an empty string
+      // start loading
+      // reset the search string to an empty string
       this.startLoading();
       this.searchString = "";
     },
@@ -348,15 +350,15 @@ export default {
       this.sortKey = key;
       this.sortOrders[key] = this.sortOrders[key] * -1;
     },
-    savePlioDetails(entryIndex, plioDetails) {
-      // save the plio details after they are fetched from the PlioListItem
+    savePlioStatus(entryIndex, status) {
+      // save the plio's status after they are fetched from the PlioListItem
 
-      // Each plio's details are being stored in the filteredData object and that too,
+      // Each plio's status us being stored in the filteredData object and that too,
       // inside the "name" key as that key contains the details of plios
       if (this.filteredData != undefined && this.filteredData[entryIndex] != undefined) {
         this.filteredData[entryIndex]["name"] = {
           ...this.filteredData[entryIndex]["name"],
-          ...plioDetails,
+          ...status,
         };
       }
     },

@@ -177,10 +177,6 @@ export default {
       // calculate total pages
       let totalPages = Math.ceil(this.totalItems / this.pageSize);
 
-      // ensure currentPage isn't out of range
-      if (currentPage < 1) currentPage = 1;
-      else if (currentPage > totalPages) currentPage = totalPages;
-
       let startPageNumber; // starting page number to be shown on the navigator
       let endPageNumber; // ending page number to be shown on the navigator
 
