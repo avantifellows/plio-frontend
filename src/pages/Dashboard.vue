@@ -64,10 +64,10 @@
             ></p>
           </div>
           <div v-else>
-            <p :class="metricTypeOneTitleClass">
+            <p :class="textMetricTitleClass">
               {{ $t("dashboard.summary.number_of_viewers") }}
             </p>
-            <p :class="metricTypeOneClass">
+            <p :class="textMetricValueClass">
               {{ numberOfViewers }}
             </p>
           </div>
@@ -87,10 +87,10 @@
             ></p>
           </div>
           <div v-else>
-            <p :class="metricTypeOneTitleClass">
+            <p :class="textMetricTitleClass">
               {{ $t("dashboard.summary.avg_watch_time") }}
             </p>
-            <p :class="metricTypeOneClass">
+            <p :class="textMetricValueClass">
               {{ averageWatchTime }}
             </p>
           </div>
@@ -105,10 +105,10 @@
               <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
             </div>
             <div v-else>
-              <p :class="metricTypeTwoClass">
+              <p :class="cardMetricValueClass">
                 {{ completionRate }}
               </p>
-              <p :class="metricTypeTwoTitleClass">
+              <p :class="cardMetricTitleClass">
                 {{ $t("dashboard.summary.completion_rate") }}
               </p>
             </div>
@@ -124,10 +124,10 @@
                 <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
               </div>
               <div v-else>
-                <p :class="metricTypeTwoClass">
+                <p :class="cardMetricValueClass">
                   {{ oneMinuteRetention }}
                 </p>
-                <p :class="metricTypeTwoTitleClass">
+                <p :class="cardMetricTitleClass">
                   {{ $t("dashboard.summary.one_minute_retention") }}
                 </p>
               </div>
@@ -142,10 +142,10 @@
               <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
             </div>
             <div v-else>
-              <p :class="metricTypeTwoClass">
+              <p :class="cardMetricValueClass">
                 {{ accuracy }}
               </p>
-              <p :class="metricTypeTwoTitleClass">
+              <p :class="cardMetricTitleClass">
                 {{ $t("dashboard.summary.accuracy") }}
               </p>
             </div>
@@ -161,10 +161,10 @@
                 <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
               </div>
               <div v-else>
-                <p :class="metricTypeTwoClass">
+                <p :class="cardMetricValueClass">
                   {{ numQuestionsAnswered }}
                 </p>
-                <p :class="metricTypeTwoTitleClass">
+                <p :class="cardMetricTitleClass">
                   {{ $t("dashboard.summary.num_questions_answered") }}
                 </p>
               </div>
@@ -223,16 +223,15 @@ export default {
         iconClass: "animate-spin h-4 object-scale-down text-white",
       },
       // styling class for the first type of metric
-      metricTypeOneClass:
+      textMetricValueClass:
         "text-yellow-900 text-center sm:text-left text-xl lg:text-2xl xl:text-3xl font-bold",
       // styling class for the title of the first type of metric
-      metricTypeOneTitleClass: "text-yellow-900 text-xsm bp-420:text-xs bp-500:text-sm",
+      textMetricTitleClass: "text-yellow-900 text-xsm bp-420:text-xs bp-500:text-sm",
       // styling class for the second type of metric
-      metricTypeTwoClass:
+      cardMetricValueClass:
         "w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900",
       // styling class for the title of the second type of metric
-      metricTypeTwoTitleClass:
-        "w-full text-center text-xs md:text-sm text-yellow-900 mt-2",
+      cardMetricTitleClass: "w-full text-center text-xs md:text-sm text-yellow-900 mt-2",
     };
   },
   async created() {
@@ -247,7 +246,7 @@ export default {
       return this.plioAnalytics["viewers"] || 0;
     },
     averageWatchTime() {
-      // for how long did the users watched the plio on average
+      // for how long did the users watch the plio on average
       return this.formatTime(Math.round(this.plioAnalytics["average-watch-time"] || 0));
     },
     accuracy() {
