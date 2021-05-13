@@ -153,7 +153,7 @@ export default {
       // set style classe for the page number buttons
       return [
         {
-          "bg-primary-button pointer-events-none":
+          "bg-primary-button pointer-events-none hover:bg-primary-button":
             this.paginatorDetails.currentPage === page && !this.pending,
           "animate-pulse bg-gray-300 text-opacity-0 hover:bg-gray-300": this.pending,
         },

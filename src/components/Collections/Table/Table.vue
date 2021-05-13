@@ -33,7 +33,11 @@
         ></inline-svg>
 
         <!-- search button to perform the search when clicked -->
-        <button :class="searchButtonClass" @click="search">
+        <button
+          :class="searchButtonClass"
+          @click="search"
+          :disabled="!this.isSearchStringPresent"
+        >
           <span class="w-auto flex justify-end items-center">
             <inline-svg
               :src="require('@/assets/images/search-solid.svg')"
@@ -124,7 +128,15 @@
                         v-else
                         class="text-sm sm:text-lg xl:text-2xl font-medium text-gray-900"
                       >
-                        {{ entry[columnName] }}
+                        <!-- skeleton when loading -->
+                        <div
+                          v-if="pending"
+                          class="animate-pulse w-6 bg-gray-500 h-6 rounded-md"
+                        ></div>
+                        <!-- actual value -->
+                        <div v-else>
+                          {{ entry[columnName] }}
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -187,10 +199,8 @@ export default {
       searchContainerClass:
         "bg-white rounded-md flex shadow-md border border-grey-light w-full xsm:w-2/3 sm:w-2/3 md:w-1/3 float-right mb-2 mt-2",
       // classes for search bar input box
-      searchInputBoxClass: "w-full text-gray-700 leading-tight p-2 focus:outline-none",
-      // classes for search bar button
-      searchButtonClass:
-        "bg-grey-lightest border-grey border-l shadow hover:bg-primary-button p-4 text-primary hover:text-white",
+      searchInputBoxClass:
+        "w-full text-gray-700 leading-tight p-2 pl-4 focus:outline-none",
     };
   },
 
@@ -211,6 +221,13 @@ export default {
     isSearchStringPresent() {
       // if a string is present in the search bar
       return this.searchString != "";
+    },
+    searchButtonClass() {
+      // classes for search bar button
+      return [
+        { "pointer-events-none": !this.isSearchStringPresent },
+        "bg-grey-lightest border-grey border-l shadow hover:bg-primary-button p-4 text-primary hover:text-white",
+      ];
     },
     analyseButtonTitleConfig() {
       // title config for the analyse button
