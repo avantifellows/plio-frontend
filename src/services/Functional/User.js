@@ -3,8 +3,17 @@ import UserAPIService from "@/services/API/User.js";
 export default {
   reAuthenticate(store) {
     // return the stored promise from the re-authentication call if re-authentication is in process
-    if (store.state.auth.isReAuthenticating)
-      return store.state.auth.reAuthenticationPromise;
+    if (store.state.auth.isReAuthenticating) {
+      // to handle the case when isReAuthenticating has been set to true
+      // but no promise exists in the store. Log out the user in that case
+      if (store.state.auth.reAuthenticationPromise == null) {
+        store.dispatch("auth/unsetAccessToken");
+        store.dispatch("auth/setReAuthenticationState", false);
+        return Promise.resolve(true);
+      } else {
+        return store.state.auth.reAuthenticationPromise;
+      }
+    }
 
     // set re-authentication as being in process
     store.dispatch("auth/setReAuthenticationState", true);

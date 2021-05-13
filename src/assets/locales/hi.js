@@ -118,9 +118,21 @@ export default {
       },
       search: {
         placeholder: "कुछ ढूंढिए",
+        no_plios_found: "कोई पलायो नहीं मिला",
       },
       buttons: {
         analyse: "प्लायो का विश्लेषण करें",
+      },
+    },
+    paginator: {
+      first: "पहला पेज",
+      last: "आखरी पेज",
+      next: "अगला पेज",
+      previous: "पिछला पेज",
+      description: {
+        to: "से",
+        of: ",",
+        plios: "पलायों में से",
       },
     },
   },
