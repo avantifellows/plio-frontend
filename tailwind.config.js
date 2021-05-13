@@ -37,6 +37,7 @@ module.exports = {
       cursor: ["disabled", "hover"],
       backgroundColor: ["active"],
       display: ["hover"],
+      strokeWidth: ["hover", "focus"],
     },
   },
   plugins: [],

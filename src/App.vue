@@ -106,8 +106,11 @@ export default {
   watch: {
     pending(value) {
       // start or finish progress bar depending on the value of "pending"
-      if (value) this.$Progress.start();
-      else this.$Progress.finish();
+      // exception - Home page
+      if (!this.onHomePage) {
+        if (value) this.$Progress.start();
+        else this.$Progress.finish();
+      }
     },
     isAuthenticated(value) {
       // if user was logged in before but has been logged out now

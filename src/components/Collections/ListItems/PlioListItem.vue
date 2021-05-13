@@ -234,9 +234,6 @@ export default {
       this.plioDetails = this.allPlioDetails[this.plioId];
       var dataToEmit = {
         status: this.status,
-        updateAt: this.updatedAt,
-        title: this.title,
-        plioLink: this.plioLink,
       };
 
       this.$emit("fetched", dataToEmit);

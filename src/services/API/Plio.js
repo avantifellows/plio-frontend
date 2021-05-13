@@ -54,11 +54,21 @@ export default {
     });
   },
 
-  getAllPlios(uuidOnly = false) {
+  getAllPlios(uuidOnly = false, pageNumber = undefined, searchString = "") {
+    // returns all the plios (or just the flat list of uuids) created by the user
+    // also fetches the plios at a given page number [if applicable]
+    // also filters and fetches the plios that match the given search string [if applicable]
     var url = uuidOnly ? pliosEndpoint + listPliosEndpoint : pliosEndpoint;
 
-    // returns all the plios (or just the flat list of uuids) created by the user
-    return apiClient().get(url);
+    var queryParams = {};
+    // add page number query param
+    if (pageNumber != undefined && pageNumber >= 1)
+      queryParams["page"] = pageNumber;
+    // add search string query param
+    if (searchString != undefined && searchString != "")
+      queryParams["search"] = searchString;
+
+    return apiClient().get(url, { params: queryParams });
   },
 
   createPlio() {
