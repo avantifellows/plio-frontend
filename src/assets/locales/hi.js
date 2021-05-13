@@ -4,6 +4,7 @@ export default {
     login: "",
     logout: "लॉगआउट",
     editor: "एडिटर",
+    dashboard: "डैशबोर्ड",
     abtesting: "",
     player: "",
     404: "एरर",
@@ -105,7 +106,7 @@ export default {
     table: {
       columns: {
         name: "नाम",
-        number_of_learners: "दर्शको की संख्या",
+        number_of_viewers: "दर्शको की संख्या",
       },
       plio_list_item: {
         buttons: {
@@ -113,10 +114,12 @@ export default {
           edit: "संपादन",
           duplicate: "नक़ल",
         },
-        empty_title_placeholder: "कोई नाम नहीं",
       },
       search: {
         placeholder: "कुछ ढूंढिए",
+      },
+      buttons: {
+        analyse: "प्लायो का विश्लेषण करें",
       },
     },
   },
@@ -175,6 +178,9 @@ export default {
     yes: "हाँ",
     no: "नहीं",
     got_it: "समझ आ गया",
+    placeholders: {
+      empty_title_placeholder: "कोई नाम नहीं",
+    },
   },
   tooltip: {
     url: "लिंक को कापी करे",
@@ -242,7 +248,28 @@ export default {
             duplicate: "इसके जैसा एक और प्लायो बनाएं",
           },
         },
+        buttons: {
+          analyse_plio: {
+            disabled: "यह प्लायो अभी तक प्रकाशित नहीं है",
+            enabled: "प्लायो का डेटा देखें",
+          },
+        },
       },
+    },
+  },
+  dashboard: {
+    updated: "सबसे हाल ही में प्रकाशित हुआ",
+    buttons: {
+      edit: "प्लायो को संपादित करें",
+      download_report: "रिपोर्ट डाउनलोड करें",
+    },
+    summary: {
+      number_of_viewers: "दर्शक",
+      avg_watch_time: "देखने का औसत समय",
+      completion_rate: "समापन दर",
+      one_minute_retention: "अवधारण 1 मिनट पर",
+      accuracy: "यथार्थता",
+      num_questions_answered: "उत्तर किये गए प्रश्न",
     },
   },
 };

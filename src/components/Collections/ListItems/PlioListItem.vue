@@ -100,28 +100,25 @@ export default {
         iconName: "",
         iconClass: "",
       },
-      playButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10",
+      playButtonClass:
+        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       editButtonIconConfig: {
         enabled: false,
         iconName: "",
         iconClass: "",
       },
-      editButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10",
+      editButtonClass:
+        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       duplicateButtonIconConfig: {
         enabled: false,
         iconName: "",
         iconClass: "",
       },
-      duplicateButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10",
+      duplicateButtonClass:
+        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       urlStyleClass: "text-sm font-bold text-yellow-600",
       urlCopyButtonClass: "text-yellow-600",
     };
-  },
-
-  mounted() {
-    // start loading when the component is mounted
-    // as data is being fetched
-    this.startLoading();
   },
 
   async created() {
@@ -205,7 +202,7 @@ export default {
       // title of the plio. "Untitled" if no title is present
       return (
         this.plioDetails.plioTitle ||
-        this.$t("home.table.plio_list_item.empty_title_placeholder")
+        this.$t("generic.placeholders.empty_title_placeholder")
       );
     },
     plioLink() {
@@ -230,6 +227,7 @@ export default {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     ...mapActions("plioItems", ["fetchPlio"]),
     async loadPlio() {
+      this.startLoading();
       // fetch the details of the plio if they don't exist in the store
       if (!(this.plioId in this.allPlioDetails)) await this.fetchPlio(this.plioId);
 

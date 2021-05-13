@@ -22,11 +22,11 @@
       :class="getMarkerSlideClass(markerIndex)"
       v-model.number="localMarkerPositions[markerIndex]"
       @mouseover="markerSliderSelected(markerIndex)"
+      @mouseout="markerSliderUnselected"
       @change="markerSliderChangeOver(markerIndex)"
       @input="markerSliderUpdated(markerIndex)"
       @touchstart="markerSliderTouched(markerIndex)"
       @touchend="markerSliderUnselected"
-      @mouseout="markerSliderUnselected"
       @click="updateValueFromMarker(markerIndex)"
     />
   </div>

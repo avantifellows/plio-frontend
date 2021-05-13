@@ -4,6 +4,7 @@ export default {
     login: "",
     logout: "Logout",
     editor: "Editor",
+    dashboard: "Dashboard",
     abtesting: "",
     player: "",
     404: "Error",
@@ -105,7 +106,7 @@ export default {
     table: {
       columns: {
         name: "name",
-        number_of_learners: "Number of Viewers",
+        number_of_viewers: "Number of Viewers",
       },
       plio_list_item: {
         buttons: {
@@ -113,10 +114,12 @@ export default {
           edit: "Edit",
           duplicate: "Duplicate",
         },
-        empty_title_placeholder: "Untitled",
       },
       search: {
         placeholder: "Search",
+      },
+      buttons: {
+        analyse: "Analyse Plio",
       },
     },
   },
@@ -175,6 +178,9 @@ export default {
     yes: "Yes",
     no: "No",
     got_it: "Got it",
+    placeholders: {
+      empty_title_placeholder: "Untitled",
+    },
   },
   tooltip: {
     url: "Copy link",
@@ -241,7 +247,28 @@ export default {
             duplicate: "Duplicate this Plio",
           },
         },
+        buttons: {
+          analyse_plio: {
+            disabled: "This plio is not published yet",
+            enabled: "Look at the data for the plio",
+          },
+        },
       },
+    },
+  },
+  dashboard: {
+    updated: "Last published on",
+    buttons: {
+      edit: "Edit Plio",
+      download_report: "Download Report",
+    },
+    summary: {
+      number_of_viewers: "VIEWERS",
+      avg_watch_time: "AVERAGE WATCH TIME",
+      completion_rate: "COMPLETED",
+      one_minute_retention: "RETENTION AT 1 MINUTE",
+      accuracy: "ACCURACY",
+      num_questions_answered: "QUESTIONS ANSWERED",
     },
   },
 };

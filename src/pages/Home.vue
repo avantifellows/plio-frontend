@@ -74,14 +74,14 @@ export default {
   data() {
     return {
       searchQuery: "", // string being queried in the search bar
-      tableColumns: ["name", "number_of_learners"], // columns for the table
+      tableColumns: ["name", "number_of_viewers"], // columns for the table
       tableData: [],
       // dummy table data - to show skeletons when data is being loaded
       dummyTableData: Array(5).fill({
         name: { type: "component", value: "" },
-        number_of_learners: "-",
+        number_of_viewers: "-",
       }),
-      hasAnyPlios: false, // whether there are any plios
+      hasAnyPlios: true, // whether there are any plios
       confirmIcon: require("@/assets/images/check-circle-regular.svg"),
       noPliosIcon: require("@/assets/images/create.svg"),
       toast: useToast(), // use the toast component
@@ -157,7 +157,7 @@ export default {
               };
               break;
 
-            case "number_of_learners":
+            case "number_of_viewers":
               tableRow[column] = await PlioAPIService.getUniqueUsersCount(plioId);
               break;
           }
