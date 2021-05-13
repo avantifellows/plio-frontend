@@ -251,10 +251,11 @@ export default {
           "opacity-50 cursor-not-allowed": this.isFirstPage,
           "sm:animate-pulse sm:bg-gray-300 sm:text-opacity-0 sm:hover:bg-gray-300": this
             .pending,
+          "hover:text-gray-500": !this.pending,
         },
         `relative inline-flex items-center px-4 sm:px-2 py-2 border border-gray-300
-          bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-500
-          focus:outline-none active:bg-primary-button`,
+          bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none
+          active:bg-primary-button`,
       ];
     },
 
@@ -262,12 +263,13 @@ export default {
       return [
         {
           "opacity-50 cursor-not-allowed": this.isLastPage,
-          "sm:animate-pulse sm:bg-gray-300 sm:text-opacity-0 sm:hover:bg-gray-300": this
+          "sm:animate-pulse sm:bg-gray-300 sm:text-gray-300 sm:hover:bg-gray-300 active": this
             .pending,
+          "hover:text-gray-500": !this.pending,
         },
         `relative inline-flex items-center px-4 sm:px-2 py-2 border border-gray-300
-          bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-500
-          focus:outline-none active:bg-primary-button`,
+          bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none
+          active:bg-primary-button`,
       ];
     },
   },
