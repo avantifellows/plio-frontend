@@ -114,7 +114,6 @@ export default {
           edit: "Edit",
           duplicate: "Duplicate",
         },
-        empty_title_placeholder: "Untitled",
       },
       search: {
         placeholder: "Search",
@@ -179,6 +178,9 @@ export default {
     yes: "Yes",
     no: "No",
     got_it: "Got it",
+    placeholders: {
+      empty_title_placeholder: "Untitled",
+    },
   },
   tooltip: {
     url: "Copy link",
@@ -252,6 +254,21 @@ export default {
           },
         },
       },
+    },
+  },
+  dashboard: {
+    updated: "Last published on",
+    buttons: {
+      edit: "Edit Plio",
+      download_report: "Download Report",
+    },
+    summary: {
+      number_of_viewers: "VIEWERS",
+      avg_watch_time: "AVERAGE WATCH TIME",
+      completion_rate: "COMPLETED",
+      one_minute_retention: "RETENTION AT 1 MINUTE",
+      accuracy: "ACCURACY",
+      num_questions_answered: "QUESTIONS ANSWERED",
     },
   },
 };
