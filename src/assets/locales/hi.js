@@ -251,7 +251,7 @@ export default {
         buttons: {
           analyse_plio: {
             disabled: "यह प्लायो अभी तक प्रकाशित नहीं है",
-            enabled: "प्लायो के डेटा को देखें",
+            enabled: "प्लायो का डेटा देखें",
           },
         },
       },

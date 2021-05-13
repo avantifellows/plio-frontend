@@ -5,7 +5,11 @@
     <div class="flex flex-col bp-500:grid bp-500:grid-cols-4 lg:grid-cols-5">
       <!-- thumbnail -->
       <div class="bp-500:w-full flex bp-500:block bp-500:self-center">
-        <img :src="videoThumbnailURL" class="rounded-md" />
+        <p
+          v-if="pending"
+          class="animate-pulse h-32 my-4 w-full place-self-center bg-gray-500 rounded-md"
+        ></p>
+        <img v-else :src="videoThumbnailURL" class="rounded-md" />
       </div>
       <div
         class="col-span-3 lg:col-span-4 flex flex-col justify-between mt-4 bp-500:mr-0 bp-500:ml-8 lg:ml-14"
@@ -48,94 +52,122 @@
       <div class="grid grid-cols-2 sm:flex sm:flex-col col-span-2">
         <div class="flex flex-col items-center sm:items-start">
           <!-- number of viewers -->
-          <p :class="metricTypeOneTitleClass">
-            {{ $t("dashboard.summary.number_of_viewers") }}
-          </p>
-          <inline-svg
+          <div
             v-if="pending"
-            :src="require('@/assets/images/spinner-solid.svg')"
-            :class="loadingSpinnerIconClass"
-          ></inline-svg>
-          <p v-else :class="metricTypeOneClass">
-            {{ numberOfViewers }}
-          </p>
+            class="w-full flex flex-col justify-center sm:justify-start animate-pulse"
+          >
+            <p
+              class="h-2 w-1/2 place-self-center sm:place-self-start bg-yellow-900 rounded-md"
+            ></p>
+            <p
+              class="h-4 w-1/2 place-self-center sm:place-self-start bg-yellow-900 rounded-md mt-1"
+            ></p>
+          </div>
+          <div v-else>
+            <p :class="metricTypeOneTitleClass">
+              {{ $t("dashboard.summary.number_of_viewers") }}
+            </p>
+            <p>
+              {{ numberOfViewers }}
+            </p>
+          </div>
         </div>
 
         <!-- average watch time -->
         <div class="flex flex-col items-center sm:items-start sm:mt-10">
-          <p :class="metricTypeOneTitleClass">
-            {{ $t("dashboard.summary.avg_watch_time") }}
-          </p>
-          <inline-svg
+          <div
             v-if="pending"
-            :src="require('@/assets/images/spinner-solid.svg')"
-            :class="loadingSpinnerIconClass"
-          ></inline-svg>
-          <p v-else :class="metricTypeOneClass">
-            {{ averageWatchTime }}
-          </p>
+            class="w-full flex flex-col justify-center sm:justify-start animate-pulse"
+          >
+            <p
+              class="h-2 w-1/2 place-self-center sm:place-self-start bg-yellow-900 rounded-md"
+            ></p>
+            <p
+              class="h-4 w-1/2 place-self-center sm:place-self-start bg-yellow-900 rounded-md mt-1"
+            ></p>
+          </div>
+          <div v-else>
+            <p :class="metricTypeOneTitleClass">
+              {{ $t("dashboard.summary.avg_watch_time") }}
+            </p>
+            <p :class="metricTypeOneClass">
+              {{ averageWatchTime }}
+            </p>
+          </div>
         </div>
       </div>
       <div class="col-span-6 grid grid-cols-2 mt-4 bp-420:mt-6 sm:mt-0">
         <div class="flex flex-col mx-2 bp-500:mx-4">
           <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
             <!-- completion rate -->
-            <inline-svg
-              v-if="pending"
-              :src="require('@/assets/images/spinner-solid.svg')"
-              :class="[loadingSpinnerIconClass, 'm-auto']"
-            ></inline-svg>
-            <p v-else :class="metricTypeTwoClass">
-              {{ completionRate }}
-            </p>
-            <p :class="metricTypeTwoTitleClass">
-              {{ $t("dashboard.summary.completion_rate") }}
-            </p>
+            <div v-if="pending" class="w-full flex flex-col justify-center animate-pulse">
+              <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
+              <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
+            </div>
+            <div v-else>
+              <p :class="metricTypeTwoClass">
+                {{ completionRate }}
+              </p>
+              <p :class="metricTypeTwoTitleClass">
+                {{ $t("dashboard.summary.completion_rate") }}
+              </p>
+            </div>
           </div>
           <div class="mt-4">
             <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
               <!-- one minute retention -->
-              <inline-svg
+              <div
                 v-if="pending"
-                :src="require('@/assets/images/spinner-solid.svg')"
-                :class="[loadingSpinnerIconClass, 'm-auto']"
-              ></inline-svg>
-              <p v-else :class="metricTypeTwoClass">
-                {{ oneMinuteRetention }}
-              </p>
-              <p :class="metricTypeTwoTitleClass">
-                {{ $t("dashboard.summary.one_minute_retention") }}
-              </p>
+                class="w-full flex flex-col justify-center animate-pulse"
+              >
+                <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
+                <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
+              </div>
+              <div v-else>
+                <p :class="metricTypeTwoClass">
+                  {{ oneMinuteRetention }}
+                </p>
+                <p :class="metricTypeTwoTitleClass">
+                  {{ $t("dashboard.summary.one_minute_retention") }}
+                </p>
+              </div>
             </div>
           </div>
         </div>
         <div class="flex flex-col mx-2 bp-500:mx-4">
           <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
             <!-- accuracy -->
-            <inline-svg
-              v-if="pending"
-              :src="require('@/assets/images/spinner-solid.svg')"
-              :class="[loadingSpinnerIconClass, 'm-auto']"
-            ></inline-svg>
-            <p v-else :class="metricTypeTwoClass">
-              {{ accuracy }}
-            </p>
-            <p :class="metricTypeTwoTitleClass">{{ $t("dashboard.summary.accuracy") }}</p>
+            <div v-if="pending" class="w-full flex flex-col justify-center animate-pulse">
+              <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
+              <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
+            </div>
+            <div v-else>
+              <p :class="metricTypeTwoClass">
+                {{ accuracy }}
+              </p>
+              <p :class="metricTypeTwoTitleClass">
+                {{ $t("dashboard.summary.accuracy") }}
+              </p>
+            </div>
           </div>
           <div class="mt-4">
             <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
               <!-- number of questions answered -->
-              <inline-svg
+              <div
                 v-if="pending"
-                :src="require('@/assets/images/spinner-solid.svg')"
-                :class="[loadingSpinnerIconClass, 'm-auto']"
-              ></inline-svg>
-              <p v-else :class="metricTypeTwoClass">
-                {{ numQuestionsAnswered }}
-              </p>
-              <p :class="metricTypeTwoTitleClass">
-                {{ $t("dashboard.summary.num_questions_answered") }}
-              </p>
+                class="w-full flex flex-col justify-center animate-pulse"
+              >
+                <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
+                <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
+              </div>
+              <div v-else>
+                <p :class="metricTypeTwoClass">
+                  {{ numQuestionsAnswered }}
+                </p>
+                <p :class="metricTypeTwoTitleClass">
+                  {{ $t("dashboard.summary.num_questions_answered") }}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -176,7 +208,6 @@ export default {
   },
   data() {
     return {
-      items: [], // list of all items created for this plio
       videoID: "", // video ID for the youtube video linked to the plio
       plioTitle: "", // title for the current plio
       lastUpdated: "", // date when the plio was last updated,
@@ -202,7 +233,6 @@ export default {
       // styling class for the title of the second type of metric
       metricTypeTwoTitleClass:
         "w-full text-center text-xs md:text-sm text-yellow-900 mt-2",
-      loadingSpinnerIconClass: "animate-spin h-4 object-scale-down", // styling class for loading spinner icon
     };
   },
   async created() {
@@ -327,7 +357,6 @@ export default {
       // fetch plio details
       PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
         if (plioDetails.status != "published") this.$router.replace({ name: "404" });
-        this.items = plioDetails.items || [];
         this.videoID = this.getVideoIDfromURL(plioDetails.video_url);
         this.plioTitle = plioDetails.plioTitle;
         this.lastUpdated = new Date(plioDetails.updated_at);
