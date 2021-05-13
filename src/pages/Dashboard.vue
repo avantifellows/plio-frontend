@@ -337,8 +337,8 @@ export default {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     async fetchData() {
       // load the plio and then it's analytics data
-      await this.loadPlio();
-      await this.loadAnalytics();
+      this.loadPlio();
+      this.loadAnalytics();
     },
     formatTime(timeInSeconds) {
       // convert time from seconds to a human readable format
