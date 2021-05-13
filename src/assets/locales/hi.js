@@ -159,6 +159,9 @@ export default {
       button: "गूगल से साइन इन करें",
       error: "कुछ दिक्कत आ गयी कृपया दोबारा कोशिश करें",
     },
+    warning: {
+      only_indian_numbers: "अभी के लिए केवल भारतीय (+91) फ़ोन नंबर समर्थित हैं",
+    },
   },
   player: {
     question: {

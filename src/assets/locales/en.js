@@ -159,6 +159,10 @@ export default {
       button: "Sign in with Google",
       error: "Something went wrong. Please try again!",
     },
+    warning: {
+      only_indian_numbers:
+        "Only Indian (+91) phone numbers are supported for now",
+    },
   },
   player: {
     question: {

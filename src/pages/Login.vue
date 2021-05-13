@@ -53,6 +53,19 @@
       <p v-if="resentOtp" class="text-center mt-2">
         {{ $t("login.otp.resent") }}
       </p>
+      <!-- only indian numbers warning message -->
+      <div
+        class="bg-yellow-50 p-4 rounded flex items-start text-yellow-600 my-4 shadow-lg max-w-xl mx-auto"
+      >
+        <div class="text-lg place-self-center">
+          <inline-svg :src="warningIcon" class="fill-current w-5 pt-1"></inline-svg>
+        </div>
+        <div class="px-3">
+          <p class="pt-2 text-yellow-700">
+            {{ $t("login.warning.only_indian_numbers") }}
+          </p>
+        </div>
+      </div>
       <p class="text-center text-2xl sm:text-4xl my-10">{{ $t("login.or") }}</p>
       <!-- google sign in button -->
       <icon-button
@@ -106,6 +119,7 @@ export default {
       resentOtp: false, // whether the user has requested to resend OTP
       invalidOtp: false, // whether the OTP is invalid
       toast: useToast(), // use the toast component
+      warningIcon: require("@/assets/images/exclamation-circle-solid.svg"),
     };
   },
   computed: {
