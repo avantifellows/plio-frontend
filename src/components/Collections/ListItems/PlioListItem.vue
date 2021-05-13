@@ -202,7 +202,7 @@ export default {
       // title of the plio. "Untitled" if no title is present
       return (
         this.plioDetails.plioTitle ||
-        this.$t("home.table.plio_list_item.empty_title_placeholder")
+        this.$t("generic.placeholders.empty_title_placeholder")
       );
     },
     plioLink() {

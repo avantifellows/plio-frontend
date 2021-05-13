@@ -8,6 +8,8 @@ module.exports = {
       colors: {
         primary: "#F78000",
         "primary-hover": "#db7506",
+        peach: "#F4EAE1",
+        "peach-light": "#FFF6EF",
       },
     },
     backgroundColor: (theme) => ({
@@ -18,8 +20,13 @@ module.exports = {
     }),
     screens: {
       xsm: "360px",
+      "bp-420": "420px",
       "bp-500": "500px",
       ...defaultTheme.screens,
+    },
+    fontSize: {
+      xsm: "0.6rem",
+      ...defaultTheme.fontSize,
     },
   },
   variants: {

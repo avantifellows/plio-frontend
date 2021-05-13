@@ -1,6 +1,6 @@
 import axios from "axios";
 import store from "@/store";
-import ErrorHandling from "@/services/Functional/ErrorHandling.js";
+import ErrorHandling from "@/services/API/ErrorHandling.js";
 import UserFunctionalService from "@/services/Functional/User.js";
 import {
   refreshTokenEndpoint,
@@ -18,11 +18,6 @@ const client = axios.create({
   baseURL: process.env.VUE_APP_BACKEND,
   withCredentials: false,
   headers,
-});
-
-// analytics API client
-const analyticsClient = cubejs(process.env.VUE_APP_CUBEJS_AUTH_TOKEN, {
-  apiUrl: process.env.VUE_APP_CUBEJS_API_URL,
 });
 
 // the interceptor below is doing the following things:
@@ -111,5 +106,18 @@ export function apiClient() {
 }
 
 export function analyticsAPIClient() {
-  return analyticsClient;
+  return cubejs(
+    async () => {
+      if (store.state.auth.analyticsAccessToken === null) {
+        await store.dispatch("auth/getAnalyticsAccessToken");
+      }
+      return store.state.auth.analyticsAccessToken;
+    },
+    {
+      apiUrl: process.env.VUE_APP_CUBEJS_API_URL,
+      headers: {
+        organization: store.getters["auth/activeWorkspaceSchema"],
+      },
+    }
+  );
 }

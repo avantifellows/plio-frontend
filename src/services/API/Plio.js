@@ -7,8 +7,16 @@ import {
   itemsEndpoint,
   listPliosEndpoint,
   duplicatePlioEndpoint,
+  plioDataDumpEndpoint,
 } from "@/services/API/Endpoints.js";
-import { uniqueUsersQuery } from "@/services/API/Queries/Plio.js";
+import {
+  uniqueUsersQuery,
+  averageWatchTimeQuery,
+  numQuestionsAnsweredQuery,
+  percentageCompleteQuery,
+  accuracyQuery,
+  oneMinuteRetentionQuery,
+} from "@/services/API/Queries/Plio.js";
 
 export default {
   async getPlio(plioId, playMode = false) {
@@ -104,6 +112,13 @@ export default {
     return apiClient().post(pliosEndpoint + plioId + duplicatePlioEndpoint);
   },
 
+  getPlioDataDump(plioId) {
+    // get the data dump for the plio
+    return apiClient().get(pliosEndpoint + plioId + plioDataDumpEndpoint, {
+      responseType: "blob",
+    });
+  },
+
   async getUniqueUsersCount(plioId) {
     // get the count of unique users who watched the given plio
     // refer to this example: https://cube.dev/blog/vue-dashboard-tutorial-using-cubejs/
@@ -112,6 +127,54 @@ export default {
     // https://cube.dev/docs/@cubejs-client-core#result-set-series-names
     var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
     // https://cube.dev/docs/@cubejs-client-core#result-set-chart-pivot
+    return resultSet.chartPivot()[0][resultKey];
+  },
+
+  async getAverageWatchTime(plioId) {
+    // get the average watch time for the given plio
+    var resultSet = await analyticsAPIClient().load(
+      averageWatchTimeQuery(plioId)
+    );
+    // extract the average watch time value
+    var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
+    return resultSet.chartPivot()[0][resultKey];
+  },
+
+  async getNumQuestionsAnswered(plioId) {
+    // get the average watch time for the given plio
+    var resultSet = await analyticsAPIClient().load(
+      numQuestionsAnsweredQuery(plioId)
+    );
+    // extract the value for number of questions answered
+    var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
+    return resultSet.chartPivot()[0][resultKey];
+  },
+
+  async getPercentComplete(plioId) {
+    // get the average watch time for the given plio
+    var resultSet = await analyticsAPIClient().load(
+      percentageCompleteQuery(plioId)
+    );
+    // extract the value for number of questions answered
+    var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
+    return resultSet.chartPivot()[0][resultKey];
+  },
+
+  async getAccuracy(plioId) {
+    // get the average watch time for the given plio
+    var resultSet = await analyticsAPIClient().load(accuracyQuery(plioId));
+    // extract the value for number of questions answered
+    var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
+    return resultSet.chartPivot()[0][resultKey];
+  },
+
+  async getOneMinuteRetention(plioId) {
+    // get the average watch time for the given plio
+    var resultSet = await analyticsAPIClient().load(
+      oneMinuteRetentionQuery(plioId)
+    );
+    // extract the value for number of questions answered
+    var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
     return resultSet.chartPivot()[0][resultKey];
   },
 };
