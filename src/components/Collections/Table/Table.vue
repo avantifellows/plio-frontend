@@ -81,7 +81,6 @@
                   :class="tableRowClass"
                   @mouseover="tableRowHoverOn(rowIndex)"
                   @mouseout="tableRowHoverOff"
-                  @touchstart="tableRowTouchOn(rowIndex)"
                 >
                   <td
                     v-for="(columnName, columnIndex) in columns"
@@ -177,6 +176,10 @@ export default {
 
   computed: {
     ...mapState("sync", ["pending"]),
+    isTouchDevice() {
+      // detects if the user's device has a touchscreen or not
+      return window.matchMedia("(any-pointer: coarse)").matches;
+    },
     analyseButtonTitleConfig() {
       // title config for the analyse button
       return {
@@ -186,7 +189,13 @@ export default {
     },
     tableRowClass() {
       // class for each row of the table
-      return "hover:bg-gray-100 hover:cursor-pointer active:bg-gray-100";
+      return [
+        {
+          "hover:bg-white": this.isTouchDevice,
+          "hover:bg-gray-100": !this.isTouchDevice,
+        },
+        "hover:cursor-pointer",
+      ];
     },
     searchPlaceholder() {
       // placeholder for the search box

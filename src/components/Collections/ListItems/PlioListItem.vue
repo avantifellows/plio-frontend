@@ -60,6 +60,16 @@
           @click="duplicateThenRoute"
           v-tooltip="duplicateButtonTooltip"
         ></icon-button>
+
+        <!-- analyse button -->
+        <icon-button
+          v-if="isTouchDevice"
+          :titleConfig="analyseButtonTitleConfig"
+          :buttonClass="analyseButtonClass"
+          :isDisabled="!isPublished"
+          @click="analysePlio"
+          v-tooltip="analyseButtonTooltip"
+        ></icon-button>
       </div>
     </div>
   </div>
@@ -116,6 +126,8 @@ export default {
       },
       duplicateButtonClass:
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
+      analyseButtonClass:
+        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       urlStyleClass: "text-sm font-bold text-yellow-600",
       urlCopyButtonClass: "text-yellow-600",
     };
@@ -130,6 +142,10 @@ export default {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     ...mapState("plioItems", ["allPlioDetails"]),
+    isTouchDevice() {
+      // detects if the user's device has a touch screen or not
+      return window.matchMedia("(any-pointer: coarse)").matches;
+    },
     statusBadge() {
       // text for the status badge
       if (this.status == undefined) return null;
@@ -156,6 +172,13 @@ export default {
         class: "p-2 text-primary font-semibold",
       };
     },
+    analyseButtonTitleConfig() {
+      // title config for the analyse button
+      return {
+        value: this.$t("home.table.plio_list_item.buttons.analyse"),
+        class: "p-2 text-primary font-semibold",
+      };
+    },
     playButtonTooltip() {
       // tooltip for the play button
       if (!this.status) return "";
@@ -170,6 +193,12 @@ export default {
       // tooltip for the duplicate button
       if (!this.status) return "";
       return this.$t("tooltip.home.table.plio_list_item.buttons.duplicate");
+    },
+    analyseButtonTooltip() {
+      // tooltip for the analyse button
+      if (!this.isPublished)
+        return this.$t(`tooltip.home.table.buttons.analyse_plio.disabled`);
+      return this.$t(`tooltip.home.table.buttons.analyse_plio.enabled`);
     },
     isPublished() {
       // whether the plio was published
@@ -287,6 +316,14 @@ export default {
           name: "Editor",
           params: { plioId: duplicatedPlioId, org: this.activeWorkspace },
         });
+      });
+    },
+
+    analysePlio() {
+      // redirects to the dashboard page for the selected plio
+      this.$router.push({
+        name: "Dashboard",
+        params: { plioId: this.plioId, org: this.activeWorkspace },
       });
     },
   },
