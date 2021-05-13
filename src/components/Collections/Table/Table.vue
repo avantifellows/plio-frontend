@@ -353,7 +353,7 @@ export default {
     savePlioStatus(entryIndex, status) {
       // save the plio's status after they are fetched from the PlioListItem
 
-      // Each plio's status us being stored in the filteredData object and that too,
+      // Each plio's status is being stored in the filteredData object and that too,
       // inside the "name" key as that key contains the details of plios
       if (this.filteredData != undefined && this.filteredData[entryIndex] != undefined) {
         this.filteredData[entryIndex]["name"] = {
