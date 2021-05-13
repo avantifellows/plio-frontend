@@ -7,7 +7,7 @@
       <div class="bp-500:w-full flex bp-500:block bp-500:self-center">
         <p
           v-if="pending"
-          class="animate-pulse h-32 my-4 w-full place-self-center bg-gray-500 rounded-md"
+          class="animate-pulse h-24 md:h-32 xl:h-42 my-2 md:my-4 lg:my-0 xl:my-6 w-full place-self-center bg-gray-500 rounded-md"
         ></p>
         <img v-else :src="videoThumbnailURL" class="rounded-md" />
       </div>
@@ -67,7 +67,7 @@
             <p :class="metricTypeOneTitleClass">
               {{ $t("dashboard.summary.number_of_viewers") }}
             </p>
-            <p>
+            <p :class="metricTypeOneClass">
               {{ numberOfViewers }}
             </p>
           </div>
