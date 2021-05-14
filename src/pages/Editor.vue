@@ -459,6 +459,8 @@ export default {
         return "";
       }
       var baseURL = process.env.VUE_APP_FRONTEND + "/#";
+      baseURL = baseURL.replace("http://", "");
+      baseURL = baseURL.replace("https://", "");
       if (this.org != "") baseURL += "/" + this.org;
       return baseURL + "/play/" + this.plioId;
     },

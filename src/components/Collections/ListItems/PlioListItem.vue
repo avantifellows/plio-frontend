@@ -150,28 +150,32 @@ export default {
       // title config for the play button
       return {
         value: this.$t("home.table.plio_list_item.buttons.play"),
-        class: "p-2 text-primary font-semibold",
+        class:
+          "p-1 bp-500:p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     editButtonTitleConfig() {
       // title config for the play button
       return {
         value: this.$t("home.table.plio_list_item.buttons.edit"),
-        class: "p-2 text-primary font-semibold",
+        class:
+          "p-1 bp-500:p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     duplicateButtonTitleConfig() {
       // title config for the duplicate button
       return {
         value: this.$t("home.table.plio_list_item.buttons.duplicate"),
-        class: "p-2 text-primary font-semibold",
+        class:
+          "p-1 bp-500:p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     analyseButtonTitleConfig() {
       // title config for the analyse button
       return {
         value: this.$t("home.table.plio_list_item.buttons.analyse"),
-        class: "p-2 text-primary font-semibold",
+        class:
+          "p-1 bp-500:p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     playButtonTooltip() {
@@ -235,6 +239,8 @@ export default {
         return "";
       }
       var baseURL = process.env.VUE_APP_FRONTEND + "/#";
+      baseURL = baseURL.replace("http://", "");
+      baseURL = baseURL.replace("https://", "");
       if (this.activeWorkspace != "") baseURL += "/" + this.activeWorkspace;
       return baseURL + "/play/" + this.plioId;
     },
