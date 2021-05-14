@@ -24,11 +24,7 @@
 
       <!-- plio link -->
       <div>
-        <URL
-          :link="plioLink"
-          :urlStyleClass="urlStyleClass"
-          :urlCopyButtonClass="urlCopyButtonClass"
-        ></URL>
+        <URL :link="plioLink" :urlCopyButtonClass="urlCopyButtonClass"></URL>
       </div>
 
       <!-- action buttons -->
@@ -128,7 +124,6 @@ export default {
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       analyseButtonClass:
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
-      urlStyleClass: "text-sm font-bold text-yellow-600",
       urlCopyButtonClass: "text-yellow-600",
     };
   },

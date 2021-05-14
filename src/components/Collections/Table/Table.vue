@@ -5,7 +5,7 @@
       <!-- table title -->
       <div :class="tableTitleClass">
         <p>{{ tableTitle }}</p>
-        <p v-if="!pending">({{ totalItemsInTable }})</p>
+        <p v-if="!pending">({{ totalNumberOfPlios }})</p>
         <inline-svg
           v-if="pending"
           :src="require('@/assets/images/spinner-solid.svg')"
@@ -177,6 +177,11 @@ export default {
       default: "",
       type: String,
     },
+    totalNumberOfPlios: {
+      // total number of plios for the user
+      default: 0,
+      type: Number,
+    },
   },
   components: {
     PlioListItem,
@@ -241,13 +246,7 @@ export default {
     },
     tableRowClass() {
       // class for each row of the table
-      return [
-        {
-          "hover:bg-white": this.isTouchDevice,
-          "hover:bg-gray-100": !this.isTouchDevice,
-        },
-        "hover:cursor-pointer",
-      ];
+      return [{ "hover:bg-gray-100": !this.isTouchDevice }, "hover:cursor-pointer"];
     },
     searchPlaceholder() {
       // placeholder for the search box
