@@ -13,7 +13,7 @@ jobs:
 
     environment:
       name: Production
-      url: "http://app.plio.in"
+      url: "https://app.plio.in"
 
     steps:
       - name: Checkout
