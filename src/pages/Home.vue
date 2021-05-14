@@ -10,7 +10,15 @@
       <div class="mt-10">
         <p class="text-center text-lg sm:text-2xl">
           {{ $t("home.waitlist.1") }} <br />
-          {{ $t("home.waitlist.2") }}
+          {{ $t("home.waitlist.2") }} <br />
+          {{ $t("home.waitlist.3") }}
+          <a
+            href="https://forms.gle/7dxyWSi66FLrckBY8"
+            target="_blank"
+            class="text-green-600"
+            >{{ $t("home.waitlist.4") }}</a
+          >
+          {{ $t("home.waitlist.5") }}
         </p>
       </div>
     </div>
