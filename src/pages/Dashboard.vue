@@ -296,15 +296,8 @@ export default {
       return "bg-primary hover:bg-primary-hover rounded-lg ring-primary px-2 w-full bp-420:w-60";
     },
     plioLink() {
-      // get the link for the plio from the plio ID
-      if (this.plioId == "") {
-        return "";
-      }
-      var baseURL = process.env.VUE_APP_FRONTEND + "/#";
-      baseURL = baseURL.replace("http://", "");
-      baseURL = baseURL.replace("https://", "");
-      if (this.org != "") baseURL += "/" + this.org;
-      return baseURL + "/play/" + this.plioId;
+      // prepare the link for the plio from the plio ID
+      return Utilities.getPlioLink(this.plioId, this.org);
     },
     videoThumbnailURL() {
       // link to the thumbnail for the video linked to the plio

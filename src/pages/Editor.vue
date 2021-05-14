@@ -455,14 +455,7 @@ export default {
     },
     plioLink() {
       // prepare the link for the plio from the plio ID
-      if (this.plioId == "") {
-        return "";
-      }
-      var baseURL = process.env.VUE_APP_FRONTEND + "/#";
-      baseURL = baseURL.replace("http://", "");
-      baseURL = baseURL.replace("https://", "");
-      if (this.org != "") baseURL += "/" + this.org;
-      return baseURL + "/play/" + this.plioId;
+      return Utilities.getPlioLink(this.plioId, this.org);
     },
     isVideoIdValid() {
       // whether the video Id is valid

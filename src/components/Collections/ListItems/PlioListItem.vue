@@ -75,6 +75,7 @@
 import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
+import Utilities from "@/services/Functional/Utilities.js";
 import URL from "@/components/UI/Text/URL.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
@@ -235,14 +236,7 @@ export default {
     },
     plioLink() {
       // prepare the link for the plio from the plio ID
-      if (this.plioId == "") {
-        return "";
-      }
-      var baseURL = process.env.VUE_APP_FRONTEND + "/#";
-      baseURL = baseURL.replace("http://", "");
-      baseURL = baseURL.replace("https://", "");
-      if (this.activeWorkspace != "") baseURL += "/" + this.activeWorkspace;
-      return baseURL + "/play/" + this.plioId;
+      return Utilities.getPlioLink(this.plioId, this.activeWorkspace);
     },
     isUntitled() {
       // if the plio is untitled or not
