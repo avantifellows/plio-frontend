@@ -152,7 +152,7 @@ export default {
       return {
         value: this.$t("home.table.plio_list_item.buttons.play"),
         class:
-          "p-1 bp-500:p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
+          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     editButtonTitleConfig() {
@@ -160,7 +160,7 @@ export default {
       return {
         value: this.$t("home.table.plio_list_item.buttons.edit"),
         class:
-          "p-1 bp-500:p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
+          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     duplicateButtonTitleConfig() {
@@ -168,7 +168,7 @@ export default {
       return {
         value: this.$t("home.table.plio_list_item.buttons.duplicate"),
         class:
-          "p-1 bp-500:p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
+          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     analyseButtonTitleConfig() {
@@ -176,7 +176,7 @@ export default {
       return {
         value: this.$t("home.table.plio_list_item.buttons.analyse"),
         class:
-          "p-1 bp-500:p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
+          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     playButtonTooltip() {

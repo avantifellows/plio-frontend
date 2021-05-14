@@ -4,7 +4,7 @@
     <div class="flex flex-col xsm:flex-row justify-between pt-4">
       <!-- table title -->
       <div :class="tableTitleClass">
-        <p>{{ tableTitle }}</p>
+        <p class="whitespace-nowrap">{{ tableTitle }}</p>
         <p v-if="!pending">({{ totalNumberOfPlios }})</p>
         <inline-svg
           v-if="pending"
