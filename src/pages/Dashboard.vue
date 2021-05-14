@@ -187,6 +187,7 @@
 <script>
 import PlioAPIService from "@/services/API/Plio.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
+import Utilities from "@/services/Functional/Utilities.js";
 import URL from "@/components/UI/Text/URL";
 import IconButton from "@/components/UI/Buttons/IconButton";
 import { mapActions, mapState } from "vuex";
