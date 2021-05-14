@@ -116,6 +116,7 @@ export default {
           play: "Play",
           edit: "Edit",
           duplicate: "Duplicate",
+          analyse: "Analyse",
         },
       },
       search: {

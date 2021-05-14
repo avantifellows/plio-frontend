@@ -24,11 +24,7 @@
 
       <!-- plio link -->
       <div>
-        <URL
-          :link="plioLink"
-          :urlStyleClass="urlStyleClass"
-          :urlCopyButtonClass="urlCopyButtonClass"
-        ></URL>
+        <URL :link="plioLink" :urlCopyButtonClass="urlCopyButtonClass"></URL>
       </div>
 
       <!-- action buttons -->
@@ -60,6 +56,16 @@
           @click="duplicateThenRoute"
           v-tooltip="duplicateButtonTooltip"
         ></icon-button>
+
+        <!-- analyse button -->
+        <icon-button
+          v-if="isTouchDevice"
+          :titleConfig="analyseButtonTitleConfig"
+          :buttonClass="analyseButtonClass"
+          :isDisabled="!isPublished"
+          @click="analysePlio"
+          v-tooltip="analyseButtonTooltip"
+        ></icon-button>
       </div>
     </div>
   </div>
@@ -69,6 +75,7 @@
 import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
+import Utilities from "@/services/Functional/Utilities.js";
 import URL from "@/components/UI/Text/URL.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
@@ -116,7 +123,8 @@ export default {
       },
       duplicateButtonClass:
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
-      urlStyleClass: "text-sm font-bold text-yellow-600",
+      analyseButtonClass:
+        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       urlCopyButtonClass: "text-yellow-600",
     };
   },
@@ -130,6 +138,10 @@ export default {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     ...mapState("plioItems", ["allPlioDetails"]),
+    isTouchDevice() {
+      // detects if the user's device has a touch screen or not
+      return window.matchMedia("(any-pointer: coarse)").matches;
+    },
     statusBadge() {
       // text for the status badge
       if (this.status == undefined) return null;
@@ -139,21 +151,32 @@ export default {
       // title config for the play button
       return {
         value: this.$t("home.table.plio_list_item.buttons.play"),
-        class: "p-2 text-primary font-semibold",
+        class:
+          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     editButtonTitleConfig() {
       // title config for the play button
       return {
         value: this.$t("home.table.plio_list_item.buttons.edit"),
-        class: "p-2 text-primary font-semibold",
+        class:
+          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     duplicateButtonTitleConfig() {
       // title config for the duplicate button
       return {
         value: this.$t("home.table.plio_list_item.buttons.duplicate"),
-        class: "p-2 text-primary font-semibold",
+        class:
+          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
+      };
+    },
+    analyseButtonTitleConfig() {
+      // title config for the analyse button
+      return {
+        value: this.$t("home.table.plio_list_item.buttons.analyse"),
+        class:
+          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     playButtonTooltip() {
@@ -170,6 +193,12 @@ export default {
       // tooltip for the duplicate button
       if (!this.status) return "";
       return this.$t("tooltip.home.table.plio_list_item.buttons.duplicate");
+    },
+    analyseButtonTooltip() {
+      // tooltip for the analyse button
+      if (!this.isPublished)
+        return this.$t(`tooltip.home.table.buttons.analyse_plio.disabled`);
+      return this.$t(`tooltip.home.table.buttons.analyse_plio.enabled`);
     },
     isPublished() {
       // whether the plio was published
@@ -207,12 +236,7 @@ export default {
     },
     plioLink() {
       // prepare the link for the plio from the plio ID
-      if (this.plioId == "") {
-        return "";
-      }
-      var baseURL = process.env.VUE_APP_FRONTEND + "/#";
-      if (this.activeWorkspace != "") baseURL += "/" + this.activeWorkspace;
-      return baseURL + "/play/" + this.plioId;
+      return Utilities.getPlioLink(this.plioId, this.activeWorkspace);
     },
     isUntitled() {
       // if the plio is untitled or not
@@ -284,6 +308,14 @@ export default {
           name: "Editor",
           params: { plioId: duplicatedPlioId, org: this.activeWorkspace },
         });
+      });
+    },
+
+    analysePlio() {
+      // redirects to the dashboard page for the selected plio
+      this.$router.push({
+        name: "Dashboard",
+        params: { plioId: this.plioId, org: this.activeWorkspace },
       });
     },
   },

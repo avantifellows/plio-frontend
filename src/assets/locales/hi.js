@@ -116,6 +116,7 @@ export default {
           play: "चलाओ",
           edit: "संपादन",
           duplicate: "नक़ल",
+          analyse: "विश्लेषण",
         },
       },
       search: {

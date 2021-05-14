@@ -161,6 +161,7 @@ import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
+import Utilities from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
@@ -455,12 +456,7 @@ export default {
     },
     plioLink() {
       // prepare the link for the plio from the plio ID
-      if (this.plioId == "") {
-        return "";
-      }
-      var baseURL = process.env.VUE_APP_FRONTEND + "/#";
-      if (this.org != "") baseURL += "/" + this.org;
-      return baseURL + "/play/" + this.plioId;
+      return Utilities.getPlioLink(this.plioId, this.org);
     },
     isVideoIdValid() {
       // whether the video Id is valid

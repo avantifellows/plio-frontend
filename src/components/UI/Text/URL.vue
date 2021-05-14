@@ -37,7 +37,8 @@ export default {
       type: Boolean,
     },
     urlStyleClass: {
-      default: "text-sm sm:text-md lg:text-lg h-full text-yellow-600 font-bold",
+      default:
+        "text-xs bp-500:text-sm sm:text-md lg:text-lg h-full text-yellow-600 font-bold",
       type: [String, Object],
     },
     urlCopyButtonClass: {

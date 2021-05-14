@@ -4,8 +4,8 @@
     <div class="flex flex-col xsm:flex-row justify-between pt-4">
       <!-- table title -->
       <div :class="tableTitleClass">
-        <p>{{ tableTitle }}</p>
-        <p v-if="!pending">({{ totalItemsInTable }})</p>
+        <p class="whitespace-nowrap">{{ tableTitle }}</p>
+        <p v-if="!pending">({{ totalNumberOfPlios }})</p>
         <inline-svg
           v-if="pending"
           :src="require('@/assets/images/spinner-solid.svg')"
@@ -93,7 +93,6 @@
                   :class="tableRowClass"
                   @mouseover="tableRowHoverOn(rowIndex)"
                   @mouseout="tableRowHoverOff"
-                  @touchstart="tableRowTouchOn(rowIndex)"
                 >
                   <td
                     v-for="(columnName, columnIndex) in columns"
@@ -178,6 +177,11 @@ export default {
       default: "",
       type: String,
     },
+    totalNumberOfPlios: {
+      // total number of plios for the user
+      default: 0,
+      type: Number,
+    },
   },
   components: {
     PlioListItem,
@@ -218,6 +222,10 @@ export default {
 
   computed: {
     ...mapState("sync", ["pending"]),
+    isTouchDevice() {
+      // detects if the user's device has a touchscreen or not
+      return window.matchMedia("(any-pointer: coarse)").matches;
+    },
     isSearchStringPresent() {
       // if a string is present in the search bar
       return this.searchString != "";
@@ -238,7 +246,7 @@ export default {
     },
     tableRowClass() {
       // class for each row of the table
-      return "hover:bg-gray-100 hover:cursor-pointer active:bg-gray-100";
+      return [{ "hover:bg-gray-100": !this.isTouchDevice }, "hover:cursor-pointer"];
     },
     searchPlaceholder() {
       // placeholder for the search box

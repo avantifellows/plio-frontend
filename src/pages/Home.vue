@@ -29,6 +29,7 @@
         :data="tableData"
         :columns="tableColumns"
         :tableTitle="tableTitle"
+        :totalNumberOfPlios="totalNumberOfPlios"
         @search-plios="fetchPlioIds($event)"
         @reset-search-string="resetSearchString"
       >
