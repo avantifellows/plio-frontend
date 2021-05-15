@@ -108,7 +108,7 @@ export function apiClient() {
 export function analyticsAPIClient() {
   return cubejs(
     async () => {
-      if (!store.getters["auth/isAccessTokenValid"]) {
+      if (!store.getters["auth/isAnalyticsAccessTokenValid"]) {
         await store.dispatch("auth/getAnalyticsAccessToken");
       }
       return store.state.auth.analyticsAccessToken;

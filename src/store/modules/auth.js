@@ -30,11 +30,10 @@ const getters = {
     }
     return activeOrganizationSchema;
   },
-  isAccessTokenValid: (state) => {
+  isAnalyticsAccessTokenValid: (state) => {
     if (state.analyticsAccessToken === null) return false;
-    const currentTime = new Date();
     const timeDifference =
-      (currentTime - state.analyticsAccessTokenFetchTime) / 1000;
+      (new Date() - state.analyticsAccessTokenFetchTime) / 1000;
     // return false if the token has expired
     if (timeDifference > state.analyticsAccessTokenExpiryTime) return false;
     return true;
