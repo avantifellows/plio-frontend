@@ -44,6 +44,7 @@
         :class="[inputAreaClass, boxStyling]"
         :maxLength="maxLength"
         :disabled="isDisabled"
+        autocomplete="off"
       />
 
       <!-- end icon -->
