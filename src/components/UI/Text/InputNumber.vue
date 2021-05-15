@@ -44,6 +44,7 @@
         :min="min"
         :max="max"
         type="number"
+        autocomplete="off"
       />
     </div>
   </div>

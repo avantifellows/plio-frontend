@@ -40,6 +40,7 @@
         v-model="localValue"
         @input="inputChange"
         :class="[inputAreaClass, boxStyling]"
+        autocomplete="off"
       />
     </div>
   </div>
