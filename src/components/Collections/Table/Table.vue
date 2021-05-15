@@ -22,6 +22,7 @@
           type="text"
           :placeholder="searchPlaceholder"
           v-model="searchString"
+          autocomplete="off"
         />
 
         <!-- 'x' icon to clear the search string -->
