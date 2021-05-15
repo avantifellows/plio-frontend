@@ -11,6 +11,8 @@ const state = {
   isReAuthenticating: false,
   reAuthenticationPromise: null,
   analyticsAccessToken: null,
+  analyticsAccessTokenFetchTime: null,
+  analyticsAccessTokenExpiryTime: null,
 };
 
 const getters = {
@@ -27,6 +29,14 @@ const getters = {
       activeOrganizationSchema = activeOrganization.schema_name;
     }
     return activeOrganizationSchema;
+  },
+  isAnalyticsAccessTokenValid: (state) => {
+    if (state.analyticsAccessToken === null) return false;
+    const timeDifference =
+      (new Date() - state.analyticsAccessTokenFetchTime) / 1000;
+    // return false if the token has expired
+    if (timeDifference > state.analyticsAccessTokenExpiryTime) return false;
+    return true;
   },
 };
 
@@ -120,9 +130,13 @@ const mutations = {
   },
   setAnalyticsAccessToken(state, accessToken) {
     state.analyticsAccessToken = accessToken.access_token;
+    state.analyticsAccessTokenFetchTime = new Date();
+    state.analyticsAccessTokenExpiryTime = accessToken.expires_in;
   },
   unsetAnalyticsAccessToken(state) {
     state.analyticsAccessToken = null;
+    state.analyticsAccessTokenFetchTime = null;
+    state.analyticsAccessTokenExpiryTime = null;
   },
 };
 
