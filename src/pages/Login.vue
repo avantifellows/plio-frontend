@@ -58,6 +58,7 @@
         :titleConfig="resendOTPTitleConfig"
         :buttonClass="resendOTPButtonClass"
         class="mt-2"
+        :isDisabled="pending"
         v-if="requestedOtp && !resentOtp"
       ></icon-button>
       <!-- text to show when OTP has been resent -->
@@ -170,6 +171,10 @@ export default {
         invalidMessage: this.$t("login.phone.validation.invalid"),
       };
     },
+    isOtpValid() {
+      // whether the OTP entered by the user is valid
+      return this.otpInput.toString().match(/^\d{6}$/g) != null;
+    },
     otpInputValidation() {
       // validation config for the otp text input
       return {
@@ -185,7 +190,7 @@ export default {
     },
     isSubmitOTPEnabled() {
       // whether the submit button for OTP is valid
-      return this.otpInput && this.isOtpValid();
+      return this.otpInput && this.isOtpValid;
     },
     formattedPhoneInput() {
       // append default country code
@@ -256,10 +261,6 @@ export default {
       // whether the phone number entered by the user is valid
       return this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g) != null;
     },
-    isOtpValid() {
-      // whether the OTP entered by the user is valid
-      return this.otpInput.toString().match(/^\d{6}$/g) != null;
-    },
     requestOtp() {
       // requests OTP for the first time
       UserAPIService.requestOtp(this.formattedPhoneInput);
@@ -323,12 +324,11 @@ export default {
         // there is no other page to redirect the user to
         // redirect to the home page
         this.$router.replace({ name: "Home" });
-        this.stopLoading();
       } else {
         // redirect to the relevant page with its params
         this.$router.replace({ name: this.redirectTo, params: this.redirectParams });
-        this.stopLoading();
       }
+      this.stopLoading();
     },
   },
 };
