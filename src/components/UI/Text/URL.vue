@@ -1,5 +1,5 @@
 <template>
-  <div class="flex gap-2">
+  <div class="flex space-x-2">
     <!-- URL link -->
     <p class="place-self-center whitespace-nowrap" :class="urlTextClass">
       {{ link }}

@@ -27,7 +27,7 @@
         </p>
         <div
           v-if="isButtonVisible"
-          class="flex items-center justify-between gap-4 w-full mt-2"
+          class="flex items-center justify-between space-x-4 w-full mt-2"
         >
           <button
             v-if="isConfirmButtonEnabled"
