@@ -199,7 +199,7 @@ export default {
         "bg-red-500 hover:bg-red-700 rounded-md shadow-md h-10 md:h-12 ring-red-500 -mt-2",
       // classes for the table title
       tableTitleClass:
-        "flex flex-row gap-2 text-base sm:text-lg md:text-xl xl:text-2xl font-bold p-2 items-center",
+        "flex flex-row space-x-2 text-base sm:text-lg md:text-xl xl:text-2xl font-bold p-2 items-center",
       // classes for the search bar container
       searchContainerClass:
         "bg-white rounded-md flex shadow-md border border-grey-light w-full xsm:w-2/3 sm:w-2/3 md:w-1/3 float-right mb-2 mt-2",

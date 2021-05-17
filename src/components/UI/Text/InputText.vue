@@ -35,7 +35,7 @@
 
       <!-- input text area -->
       <input
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:shadow-outline w-full"
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:shadow-outline w-full overflow-ellipsis"
         type="text"
         name="placeholder"
         :placeholder="placeholder"
@@ -242,6 +242,7 @@ export default {
       // class for the input element
       return {
         "pl-10": this.isStartIconEnabled,
+        "pr-12": this.isEndIconEnabled,
       };
     },
   },
