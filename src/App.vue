@@ -135,10 +135,14 @@ export default {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions("auth", ["unsetAccessToken", "fetchAndUpdateUser"]),
+    ...mapActions("sync", ["stopLoading"]),
     logoutUser() {
       // logs out the user
       this.unsetAccessToken().then(() => {
         this.$router.replace({ name: "Login" });
+        // added here so that if someone clicks on logout while
+        // some activity is pending
+        this.stopLoading();
       });
     },
     createNewPlio() {
