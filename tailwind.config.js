@@ -11,7 +11,7 @@ module.exports = {
         peach: "#F4EAE1",
         "peach-light": "#FFF6EF",
       },
-      backgroundImage: (theme) => ({
+      backgroundImage: () => ({
         "selectbox-arrow": "url('assets/images/chevron-down-solid-white.svg')",
       }),
       backgroundPosition: {
