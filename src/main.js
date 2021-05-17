@@ -53,7 +53,7 @@ app.use(
   {
     appName: "Plio App Page",
     pageTrackerScreenviewEnabled: true,
-    config: { id: "UA-186793902-3" },
+    config: { id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID },
   },
   router
 );
