@@ -104,6 +104,9 @@ import IconButton from "../components/UI/Buttons/IconButton.vue";
 import { mapActions, mapState } from "vuex";
 import { useToast } from "vue-toastification";
 
+// interval to keep checking if google authentication is ready
+const GAUTH_VALID_CHECK_INTERVAL = 200;
+
 export default {
   props: {
     redirectTo: {
@@ -232,7 +235,7 @@ export default {
         this.isGoogleAuthDisabled = false;
         clearInterval(loginInterval);
       }
-    }, 200);
+    }, GAUTH_VALID_CHECK_INTERVAL);
   },
   methods: {
     ...mapActions("auth", ["setAccessToken"]),
