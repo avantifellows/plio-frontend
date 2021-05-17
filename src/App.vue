@@ -107,7 +107,7 @@ export default {
     pending(value) {
       // start or finish progress bar depending on the value of "pending"
       // exception - Home page
-      if (!this.onHomePage) {
+      if (!this.onHomePage && !this.onLoginPage) {
         if (value) this.$Progress.start();
         else this.$Progress.finish();
       }
@@ -194,6 +194,10 @@ export default {
     onHomePage() {
       // whether the current page is the home page
       return this.$route.name == "Home";
+    },
+    onLoginPage() {
+      // whether the current page is the login page
+      return this.$route.name == "Login";
     },
     showCreateButton() {
       // whether to show the Create button
