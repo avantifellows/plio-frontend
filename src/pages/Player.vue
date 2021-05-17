@@ -513,7 +513,6 @@ export default {
       var plyrInstance = document.getElementsByClassName("plyr")[0];
       if (modal != undefined) {
         plyrInstance.insertBefore(modal, plyrInstance.firstChild);
-        // document.getElementsByClassName("plyr")[0].appendChild(modal);
       }
     },
     playerEntersFullscreen() {
