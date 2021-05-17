@@ -43,7 +43,13 @@ Fallback localization language in case any localization config is not found.
 #### `VUE_APP_GOOGLE_CLIENT_ID`
 OAuth2 client id from Google. Required for Google Sign in functionality.
 
-
 ### Web server
 #### `APP_PORT`
 Port on which you want your docker app to run and expose.
+
+### Google analytics
+#### `VUE_APP_GOOGLE_ANALYTICS_ID`
+The Tracking Code for the Google analytics property corresponding to the app.
+
+#### `VUE_APP_GOOGLE_ANALYTICS_APP_NAME`
+Name of the Google Analytics Property corresponding to the Tracking Code mentioned above.

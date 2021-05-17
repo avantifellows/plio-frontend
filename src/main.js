@@ -10,6 +10,7 @@ import InlineSvg from "vue-inline-svg";
 import Tooltip from "primevue/tooltip";
 import Toast from "vue-toastification";
 import VueProgressBar from "@aacassandra/vue3-progressbar";
+import VueGtag from "vue-gtag";
 
 import "primevue/resources/themes/saga-blue/theme.css";
 import "primevue/resources/primevue.min.css";
@@ -47,6 +48,15 @@ app.component("font-awesome-icon", FontAwesomeIcon);
 app.component("inline-svg", InlineSvg);
 
 app.use(i18n);
+app.use(
+  VueGtag,
+  {
+    appName: process.env.VUE_APP_GOOGLE_ANALYTICS_APP_NAME,
+    pageTrackerScreenviewEnabled: true,
+    config: { id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID },
+  },
+  router
+);
 app.use(PrimeVue, { ripple: true });
 app.use(GAuth, gAuthOptions);
 app.use(Toast);
