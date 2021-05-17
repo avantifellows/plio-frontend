@@ -51,7 +51,7 @@ app.use(i18n);
 app.use(
   VueGtag,
   {
-    appName: "Plio App Page",
+    appName: process.env.VUE_APP_GOOGLE_ANALYTICS_APP_NAME,
     pageTrackerScreenviewEnabled: true,
     config: { id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID },
   },
