@@ -47,6 +47,7 @@ jobs:
           VUE_APP_BACKEND_API_CLIENT_SECRET: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}
           VUE_APP_BACKEND_WEBSOCKET: ${{ secrets.VUE_APP_BACKEND_WEBSOCKET }}
           VUE_APP_CUBEJS_API_URL: ${{ secrets.VUE_APP_CUBEJS_API_URL }}
+          VUE_APP_GOOGLE_ANALYTICS_ID: $${{ secrets.VUE_APP_GOOGLE_ANALYTICS_ID }}
         run: |
           # Build a docker container and push it to ECR
           docker build \
@@ -61,6 +62,7 @@ jobs:
           --build-arg VUE_APP_BACKEND_API_CLIENT_SECRET=$VUE_APP_BACKEND_API_CLIENT_SECRET \
           --build-arg VUE_APP_BACKEND_WEBSOCKET=$VUE_APP_BACKEND_WEBSOCKET \
           --build-arg VUE_APP_CUBEJS_API_URL=$VUE_APP_CUBEJS_API_URL \
+          --build-arg VUE_APP_GOOGLE_ANALYTICS_ID=$VUE_APP_GOOGLE_ANALYTICS_ID \
           -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           echo "Pushing image to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
