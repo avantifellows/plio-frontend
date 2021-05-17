@@ -242,7 +242,7 @@ export default {
       // title config for the analyse button
       return {
         value: this.$t("home.table.buttons.analyse"),
-        class: "p-4 text-white text-lg md:text-xl font-semibold",
+        class: "pl-4 pr-4 text-white text-lg md:text-xl font-semibold",
       };
     },
     tableRowClass() {
