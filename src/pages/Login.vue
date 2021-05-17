@@ -33,14 +33,25 @@
         :isDisabled="!isRequestOtpEnabled"
       ></icon-button>
       <!-- button to submit OTP -->
-      <icon-button
-        class="mt-2"
-        @click="phoneLogin"
-        :titleConfig="submitOTPTitleConfig"
-        :buttonClass="submitOTPButtonClass"
-        v-if="requestedOtp"
+      <button
+        type="button"
+        :class="submitOTPButtonClass"
+        class="mt-2 flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         :disabled="!isSubmitOTPEnabled"
-      ></icon-button>
+        v-if="requestedOtp"
+        @click="phoneLogin"
+      >
+        <div class="flex w-full justify-center">
+          <!-- text -->
+          <p :class="submitOTPTitleClass">{{ submitOTPTitle }}</p>
+          <!-- loading spinner -->
+          <inline-svg
+            v-if="pending"
+            :src="require('@/assets/images/spinner-solid.svg')"
+            class="animate-spin h-4 place-self-center ml-2 text-white"
+          ></inline-svg>
+        </div>
+      </button>
       <!-- button to request resending OTP -->
       <icon-button
         @click="resendOtp"
@@ -174,7 +185,7 @@ export default {
     },
     isSubmitOTPEnabled() {
       // whether the submit button for OTP is valid
-      return this.otpInput && this.isOtpValid();
+      return this.otpInput && this.isOtpValid() && !this.pending;
     },
     formattedPhoneInput() {
       // append default country code
@@ -190,12 +201,13 @@ export default {
       // class for the request OTP button
       return "bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed ring-primary rounded-md py-2";
     },
-    submitOTPTitleConfig() {
-      // title config for the submit OTP button
-      return {
-        value: this.$t("login.otp.submit"),
-        class: "text-white",
-      };
+    submitOTPTitle() {
+      // title for the submit OTP button
+      return this.$t("login.otp.submit");
+    },
+    submitOTPTitleClass() {
+      // class of the title for the submit OTP button
+      return "text-white";
     },
     submitOTPButtonClass() {
       // class for the submit OTP button
@@ -236,6 +248,7 @@ export default {
         clearInterval(loginInterval);
       }
     }, GAUTH_VALID_CHECK_INTERVAL);
+    this.stopLoading();
   },
   methods: {
     ...mapActions("auth", ["setAccessToken"]),
@@ -262,11 +275,13 @@ export default {
     },
     phoneLogin() {
       // invoked for logging in with Phone
+      this.startLoading();
       UserAPIService.verifyOtp(this.formattedPhoneInput, this.otpInput)
         .then((response) => {
           this.setAccessToken(response.data).then(() => this.routeAfterLogin());
         })
         .catch((error) => {
+          this.stopLoading();
           if (error.response.status == 401) {
             // show wrong OTP warning and reset the OTP input text box
             this.invalidOtp = true;
@@ -291,7 +306,6 @@ export default {
         UserAPIService.convertSocialAuthToken(socialAuthToken.access_token).then(
           (response) => {
             this.setAccessToken(response.data).then(() => this.routeAfterLogin());
-            this.stopLoading();
           }
         );
       } catch (error) {
@@ -310,9 +324,11 @@ export default {
         // there is no other page to redirect the user to
         // redirect to the home page
         this.$router.replace({ name: "Home" });
+        this.stopLoading();
       } else {
         // redirect to the relevant page with its params
         this.$router.replace({ name: this.redirectTo, params: this.redirectParams });
+        this.stopLoading();
       }
     },
   },
