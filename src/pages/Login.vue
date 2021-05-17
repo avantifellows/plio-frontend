@@ -248,7 +248,6 @@ export default {
         clearInterval(loginInterval);
       }
     }, GAUTH_VALID_CHECK_INTERVAL);
-    this.stopLoading();
   },
   methods: {
     ...mapActions("auth", ["setAccessToken"]),
