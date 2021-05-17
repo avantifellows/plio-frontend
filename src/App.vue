@@ -107,7 +107,7 @@ export default {
     pending(value) {
       // start or finish progress bar depending on the value of "pending"
       // exception - Home page
-      if (!this.onHomePage) {
+      if (!this.onHomePage && !this.onLoginPage) {
         if (value) this.$Progress.start();
         else this.$Progress.finish();
       }
@@ -135,10 +135,14 @@ export default {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions("auth", ["unsetAccessToken", "fetchAndUpdateUser"]),
+    ...mapActions("sync", ["stopLoading"]),
     logoutUser() {
       // logs out the user
       this.unsetAccessToken().then(() => {
         this.$router.replace({ name: "Login" });
+        // added here so that if someone clicks on logout while
+        // some activity is pending
+        this.stopLoading();
       });
     },
     createNewPlio() {
@@ -194,6 +198,10 @@ export default {
     onHomePage() {
       // whether the current page is the home page
       return this.$route.name == "Home";
+    },
+    onLoginPage() {
+      // whether the current page is the login page
+      return this.$route.name == "Login";
     },
     showCreateButton() {
       // whether to show the Create button

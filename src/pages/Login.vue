@@ -68,12 +68,30 @@
       </div>
       <p class="text-center text-2xl sm:text-4xl my-10">{{ $t("login.or") }}</p>
       <!-- google sign in button -->
-      <icon-button
-        :iconConfig="googleButtonIconConfig"
-        :titleConfig="googleButtonTitleConfig"
-        :buttonClass="googleButtonClass"
+      <button
+        type="button"
+        :class="googleButtonClass"
+        class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        :disabled="isGoogleAuthDisabled"
         @click="googleLogin"
-      ></icon-button>
+      >
+        <div class="flex w-full justify-center">
+          <!-- logo -->
+          <inline-svg
+            :src="require('@/assets/images/google.svg')"
+            :class="googleButtonIconClass"
+            class="place-self-center"
+          ></inline-svg>
+          <!-- text -->
+          <p :class="googleButtonTitleClass">{{ googleButtonTitle }}</p>
+          <!-- loading spinner -->
+          <inline-svg
+            v-if="pending"
+            :src="require('@/assets/images/spinner-solid.svg')"
+            class="animate-spin h-4 place-self-center ml-2"
+          ></inline-svg>
+        </div>
+      </button>
     </div>
   </div>
 </template>
@@ -83,8 +101,11 @@ import UserAPIService from "@/services/API/User.js";
 import UserConfigService from "@/services/Config/User.js";
 import InputNumber from "../components/UI/Text/InputNumber.vue";
 import IconButton from "../components/UI/Buttons/IconButton.vue";
-import { mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 import { useToast } from "vue-toastification";
+
+// interval to keep checking if google authentication is ready
+const GAUTH_VALID_CHECK_INTERVAL = 200;
 
 export default {
   props: {
@@ -120,9 +141,11 @@ export default {
       invalidOtp: false, // whether the OTP is invalid
       toast: useToast(), // use the toast component
       warningIcon: require("@/assets/images/exclamation-circle-solid.svg"),
+      isGoogleAuthDisabled: true, // whether the google auth button is disabled
     };
   },
   computed: {
+    ...mapState("sync", ["pending"]),
     redirectParams() {
       // params for the route to be redirected to
       return JSON.parse(this.params);
@@ -188,28 +211,35 @@ export default {
       // class for the resend OTP button
       return "bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed ring-primary rounded-md py-2";
     },
-    googleButtonIconConfig() {
-      // config for the icon of the google sign in button
-      return {
-        enabled: true,
-        iconName: "google",
-        iconClass: "h-5 w-5",
-      };
+    googleButtonIconClass() {
+      // class for the icon of the google sign in button
+      return "h-5 w-5";
     },
-    googleButtonTitleConfig() {
-      // config for the title of the google sign in button
-      return {
-        value: this.$t("login.google.button"),
-        class: "text-gray-600 ml-2",
-      };
+    googleButtonTitle() {
+      // title of the google sign in button
+      return this.$t("login.google.button");
+    },
+    googleButtonTitleClass() {
+      // class for the title of the google sign in button
+      return "text-gray-600 ml-2";
     },
     googleButtonClass() {
       // class for the google sign in button
       return "bg-gray-100 hover:bg-gray-200 ring-gray-200 rounded-md py-4";
     },
   },
+  created() {
+    // wait for whether the google auth functionality is ready
+    var loginInterval = setInterval(() => {
+      if (this.$gAuth.instance != null) {
+        this.isGoogleAuthDisabled = false;
+        clearInterval(loginInterval);
+      }
+    }, GAUTH_VALID_CHECK_INTERVAL);
+  },
   methods: {
     ...mapActions("auth", ["setAccessToken"]),
+    ...mapActions("sync", ["startLoading", "stopLoading"]),
     isPhoneValid() {
       // whether the phone number entered by the user is valid
       return this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g) != null;
@@ -247,20 +277,26 @@ export default {
     },
     async googleLogin() {
       // invoked for logging in with Google
+      // check whether Google auth is ready to be used
       try {
+        this.startLoading();
         const googleUser = await this.$gAuth.signIn();
         if (!googleUser) {
+          this.stopLoading();
           return null;
         }
+        // set the google login button as disabled
+        this.isGoogleAuthDisabled = true;
         let socialAuthToken = googleUser.getAuthResponse();
         UserAPIService.convertSocialAuthToken(socialAuthToken.access_token).then(
           (response) => {
             this.setAccessToken(response.data).then(() => this.routeAfterLogin());
+            this.stopLoading();
           }
         );
       } catch (error) {
         this.toast.warning(this.$t("login.google.error"));
-        console.error(error);
+        this.stopLoading();
         return null;
       }
     },
