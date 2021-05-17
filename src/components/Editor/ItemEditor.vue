@@ -4,7 +4,7 @@
     class="flex flex-col w-full h-full rounded-md main-container"
     v-if="localSelectedItemIndex != null"
   >
-    <div class="flex gap-1 flex-row w-full p-4 justify-end">
+    <div class="flex space-x-1 flex-row w-full p-4 justify-end">
       <!-- nav bar -->
       <div class="mr-auto sm:flex content-center hidden">
         <p class="self-center editor-title">

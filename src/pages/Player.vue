@@ -5,7 +5,7 @@
     <div v-else class="flex relative shadow-lg">
       <!-- fullscreen button overlay -->
       <div
-        v-if="showItemModal"
+        v-if="showItemModal && !isFullscreen"
         class="z-50 absolute bp-500:hidden w-full h-full bg-transparent"
       >
         <div class="opacity-90 w-full h-full absolute bg-white"></div>
@@ -510,8 +510,10 @@ export default {
 
       // if the video is in fullscreen mode, show the modal on top of it
       var modal = document.getElementById("modal");
+      var plyrInstance = document.getElementsByClassName("plyr")[0];
       if (modal != undefined) {
-        document.getElementsByClassName("plyr")[0].appendChild(modal);
+        plyrInstance.insertBefore(modal, plyrInstance.firstChild);
+        // document.getElementsByClassName("plyr")[0].appendChild(modal);
       }
     },
     playerEntersFullscreen() {

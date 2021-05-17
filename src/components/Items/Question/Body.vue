@@ -9,7 +9,7 @@
     <!-- option container -->
     <div class="flex mx-4 md:mx-6 xl:mx-10">
       <ul class="w-full">
-        <li class="list-none gap-1 flex flex-col">
+        <li class="list-none space-x-1 flex flex-col">
           <div
             v-for="(option, optionIndex) in options"
             :key="optionIndex"

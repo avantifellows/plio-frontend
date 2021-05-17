@@ -3,7 +3,7 @@
   <div v-else class="rounded-sm p-2 w-auto">
     <div class="grid grid-flow-row auto-rows-min gap-2">
       <!-- last updated date -->
-      <div class="flex flex-row justify-start gap-3">
+      <div class="flex flex-row justify-start space-x-3">
         <p class="text-xs place-self-center">{{ updatedAt }}</p>
 
         <!-- status badge -->
@@ -28,7 +28,7 @@
       </div>
 
       <!-- action buttons -->
-      <div class="flex flex-row justify-start gap-3">
+      <div class="flex flex-row justify-start space-x-3">
         <!-- play button -->
         <icon-button
           :titleConfig="playButtonTitleConfig"
