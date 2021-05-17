@@ -226,6 +226,7 @@ export default {
     },
   },
   created() {
+    // wait for whether the google auth functionality is ready
     var loginInterval = setInterval(() => {
       if (this.$gAuth.instance != null) {
         this.isGoogleAuthDisabled = false;
