@@ -5,6 +5,10 @@ import Player from "@/pages/Player.vue";
 import Dashboard from "@/pages/Dashboard.vue";
 import Login from "@/pages/Login";
 import store from "../store";
+import i18n from "@/services/Localisation/i18n.js";
+import { useToast } from "vue-toastification";
+
+const toast = useToast();
 
 const routes = [
   {
@@ -96,6 +100,19 @@ The code below works on `isAuthenticated` state and before every route:
 */
 
 router.beforeEach((to, from, next) => {
+  // clear all toasts whenever the route changes
+  toast.clear();
+
+  // show auto logout toast
+  if (
+    to.name == "Login" &&
+    from.name != undefined &&
+    from.name != "Login" &&
+    to.params["userClickedLogout"] == "false"
+  ) {
+    toast.error(i18n.global.t("error.auto_logout"));
+  }
+
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (store.getters["auth/isAuthenticated"]) {
       next();
