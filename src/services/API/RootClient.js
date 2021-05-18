@@ -105,7 +105,11 @@ client.interceptors.response.use(
 ((send) => {
   XMLHttpRequest.prototype.send = async function (body) {
     this.addEventListener("loadend", async () => {
-      if (this.status == 403) {
+      let analyticsApiBaseUrl = process.env.VUE_APP_CUBEJS_API_URL;
+      if (
+        this.responseURL.includes(analyticsApiBaseUrl) &&
+        this.status == 403
+      ) {
         store.dispatch("auth/unsetAccessToken");
       }
     });
