@@ -99,6 +99,7 @@ export default {
     return {
       tableColumns: ["name", "number_of_viewers"], // columns for the table
       tableData: [],
+      uniqueUsersList: [] // holds the number of unique users for all the plios fetched
       // dummy table data - to show skeletons when data is being loaded
       dummyTableData: Array(5).fill({
         name: { type: "component", value: "" },
@@ -178,7 +179,9 @@ export default {
           this.numberOfPliosPerPage = response.data.page_size; // set the page size
           this.prepareTableData(response.data.results); // prepare the data for the table
         }
-      );
+      ).then(() => {
+
+      });
     },
 
     createNewPlio() {
@@ -215,7 +218,7 @@ export default {
               break;
 
             case "number_of_viewers":
-              tableRow[column] = await PlioAPIService.getUniqueUsersCount(plioId);
+              tableRow[column] = uniqueUsersList[colIndex];
               break;
           }
         }
