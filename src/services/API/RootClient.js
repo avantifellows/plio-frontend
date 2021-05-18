@@ -101,6 +101,22 @@ client.interceptors.response.use(
   }
 );
 
+// Temporary code for Auth0 to AWS Cognito switch. To be removed after all users have switched to Cognito.
+((send) => {
+  XMLHttpRequest.prototype.send = async function (body) {
+    this.addEventListener("loadend", async () => {
+      let analyticsApiBaseUrl = process.env.VUE_APP_CUBEJS_API_URL;
+      if (
+        this.responseURL.includes(analyticsApiBaseUrl) &&
+        this.status == 403
+      ) {
+        store.dispatch("auth/unsetAccessToken");
+      }
+    });
+    send.call(this, body);
+  };
+})(XMLHttpRequest.prototype.send);
+
 export function apiClient() {
   return client;
 }
