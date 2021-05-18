@@ -5,6 +5,9 @@ import Player from "@/pages/Player.vue";
 import Dashboard from "@/pages/Dashboard.vue";
 import Login from "@/pages/Login";
 import store from "../store";
+import { useToast } from "vue-toastification";
+
+const toast = useToast();
 
 const routes = [
   {
@@ -96,6 +99,9 @@ The code below works on `isAuthenticated` state and before every route:
 */
 
 router.beforeEach((to, from, next) => {
+  // clear all toasts whenever the route changes
+  toast.clear();
+
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (store.getters["auth/isAuthenticated"]) {
       next();

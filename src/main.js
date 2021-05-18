@@ -42,6 +42,16 @@ const vueProgressBarOptions = {
   inverse: false,
 };
 
+const filterBeforeCreate = (toast, toasts) => {
+  // adapted from here - https://github.com/Maronato/vue-toastification#filterbeforecreate
+  // Prevents toasts with the same content from appearing simultaneously, discarding duplicates
+  if (toasts.filter((t) => t.content === toast.content).length !== 0) {
+    // Returning false discards the toast
+    return false;
+  }
+  return toast;
+};
+
 const app = createApp(App).use(store).use(router);
 
 app.component("font-awesome-icon", FontAwesomeIcon);
@@ -59,7 +69,7 @@ app.use(
 );
 app.use(PrimeVue, { ripple: true });
 app.use(GAuth, gAuthOptions);
-app.use(Toast);
+app.use(Toast, { filterBeforeCreate });
 app.use(VueProgressBar, vueProgressBarOptions);
 app.directive("tooltip", Tooltip);
 app.mount("#app");

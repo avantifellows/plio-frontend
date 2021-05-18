@@ -36,6 +36,7 @@
       <icon-button
         class="mt-2"
         @click="phoneLogin"
+        :iconConfig="submitOTPIconConfig"
         :titleConfig="submitOTPTitleConfig"
         :buttonClass="submitOTPButtonClass"
         v-if="requestedOtp"
@@ -146,6 +147,14 @@ export default {
   },
   computed: {
     ...mapState("sync", ["pending"]),
+    submitOTPIconConfig() {
+      // config for the loading icon on the submit otp button
+      return {
+        enabled: this.pending,
+        iconName: "spinner-solid",
+        iconClass: "animate-spin h-4 object-scale-down text-white",
+      };
+    },
     redirectParams() {
       // params for the route to be redirected to
       return JSON.parse(this.params);
@@ -174,7 +183,7 @@ export default {
     },
     isSubmitOTPEnabled() {
       // whether the submit button for OTP is valid
-      return this.otpInput && this.isOtpValid();
+      return this.otpInput && this.isOtpValid() && !this.pending;
     },
     formattedPhoneInput() {
       // append default country code
@@ -262,6 +271,7 @@ export default {
     },
     phoneLogin() {
       // invoked for logging in with Phone
+      this.startLoading();
       UserAPIService.verifyOtp(this.formattedPhoneInput, this.otpInput)
         .then((response) => {
           this.setAccessToken(response.data).then(() => this.routeAfterLogin());
@@ -272,6 +282,7 @@ export default {
             this.invalidOtp = true;
             this.toast.error(this.$t("login.otp.incorrect"));
             this.otpInput = "";
+            this.stopLoading();
           }
         });
     },
@@ -291,7 +302,6 @@ export default {
         UserAPIService.convertSocialAuthToken(socialAuthToken.access_token).then(
           (response) => {
             this.setAccessToken(response.data).then(() => this.routeAfterLogin());
-            this.stopLoading();
           }
         );
       } catch (error) {
@@ -314,6 +324,7 @@ export default {
         // redirect to the relevant page with its params
         this.$router.replace({ name: this.redirectTo, params: this.redirectParams });
       }
+      this.stopLoading();
     },
   },
 };
