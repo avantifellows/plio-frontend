@@ -33,21 +33,32 @@
         :isDisabled="!isRequestOtpEnabled"
       ></icon-button>
       <!-- button to submit OTP -->
-      <icon-button
-        class="mt-2"
-        @click="phoneLogin"
-        :iconConfig="submitOTPIconConfig"
-        :titleConfig="submitOTPTitleConfig"
-        :buttonClass="submitOTPButtonClass"
+      <button
+        type="button"
+        :class="submitOTPButtonClass"
+        class="mt-2 flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        :disabled="!isSubmitOTPEnabled || pending"
         v-if="requestedOtp"
-        :disabled="!isSubmitOTPEnabled"
-      ></icon-button>
+        @click="phoneLogin"
+      >
+        <div class="flex w-full justify-center">
+          <!-- text -->
+          <p :class="submitOTPTitleClass">{{ submitOTPTitle }}</p>
+          <!-- loading spinner -->
+          <inline-svg
+            v-if="pending"
+            :src="require('@/assets/images/spinner-solid.svg')"
+            class="animate-spin h-4 place-self-center ml-2 text-white"
+          ></inline-svg>
+        </div>
+      </button>
       <!-- button to request resending OTP -->
       <icon-button
         @click="resendOtp"
         :titleConfig="resendOTPTitleConfig"
         :buttonClass="resendOTPButtonClass"
         class="mt-2"
+        :isDisabled="pending"
         v-if="requestedOtp && !resentOtp"
       ></icon-button>
       <!-- text to show when OTP has been resent -->
@@ -147,14 +158,6 @@ export default {
   },
   computed: {
     ...mapState("sync", ["pending"]),
-    submitOTPIconConfig() {
-      // config for the loading icon on the submit otp button
-      return {
-        enabled: this.pending,
-        iconName: "spinner-solid",
-        iconClass: "animate-spin h-4 object-scale-down text-white",
-      };
-    },
     redirectParams() {
       // params for the route to be redirected to
       return JSON.parse(this.params);
@@ -167,6 +170,10 @@ export default {
         validMessage: this.$t("login.phone.validation.valid"),
         invalidMessage: this.$t("login.phone.validation.invalid"),
       };
+    },
+    isOtpValid() {
+      // whether the OTP entered by the user is valid
+      return this.otpInput.toString().match(/^\d{6}$/g) != null;
     },
     otpInputValidation() {
       // validation config for the otp text input
@@ -183,7 +190,7 @@ export default {
     },
     isSubmitOTPEnabled() {
       // whether the submit button for OTP is valid
-      return this.otpInput && this.isOtpValid() && !this.pending;
+      return this.otpInput && this.isOtpValid;
     },
     formattedPhoneInput() {
       // append default country code
@@ -199,12 +206,13 @@ export default {
       // class for the request OTP button
       return "bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed ring-primary rounded-md py-2";
     },
-    submitOTPTitleConfig() {
-      // title config for the submit OTP button
-      return {
-        value: this.$t("login.otp.submit"),
-        class: "text-white",
-      };
+    submitOTPTitle() {
+      // title for the submit OTP button
+      return this.$t("login.otp.submit");
+    },
+    submitOTPTitleClass() {
+      // class of the title for the submit OTP button
+      return "text-white";
     },
     submitOTPButtonClass() {
       // class for the submit OTP button
@@ -253,10 +261,6 @@ export default {
       // whether the phone number entered by the user is valid
       return this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g) != null;
     },
-    isOtpValid() {
-      // whether the OTP entered by the user is valid
-      return this.otpInput.toString().match(/^\d{6}$/g) != null;
-    },
     requestOtp() {
       // requests OTP for the first time
       UserAPIService.requestOtp(this.formattedPhoneInput);
@@ -277,6 +281,7 @@ export default {
           this.setAccessToken(response.data).then(() => this.routeAfterLogin());
         })
         .catch((error) => {
+          this.stopLoading();
           if (error.response.status == 401) {
             // show wrong OTP warning and reset the OTP input text box
             this.invalidOtp = true;
