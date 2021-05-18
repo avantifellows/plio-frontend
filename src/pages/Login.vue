@@ -144,7 +144,8 @@ export default {
       toast: useToast(), // use the toast component
       warningIcon: require("@/assets/images/exclamation-circle-solid.svg"),
       isGoogleAuthDisabled: true, // whether the google auth button is disabled
-      isSubmitOTPInProgress: false, // whether submit OTP button is in loading mode or not
+      isSubmitOTPInProgress: false, // whether the OTP has been submitted and is being verified
+
     };
   },
   computed: {
