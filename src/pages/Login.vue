@@ -33,32 +33,22 @@
         :isDisabled="!isRequestOtpEnabled"
       ></icon-button>
       <!-- button to submit OTP -->
-      <button
-        type="button"
-        :class="submitOTPButtonClass"
-        class="mt-2 flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        :disabled="!isSubmitOTPEnabled || pending"
-        v-if="requestedOtp"
+      <icon-button
+        class="mt-2"
         @click="phoneLogin"
-      >
-        <div class="flex w-full justify-center">
-          <!-- text -->
-          <p :class="submitOTPTitleClass">{{ submitOTPTitle }}</p>
-          <!-- loading spinner -->
-          <inline-svg
-            v-if="pending"
-            :src="require('@/assets/images/spinner-solid.svg')"
-            class="animate-spin h-4 place-self-center ml-2 text-white"
-          ></inline-svg>
-        </div>
-      </button>
+        :titleConfig="submitOTPTitleConfig"
+        :iconConfig="submitOTPIconConfig"
+        :buttonClass="submitOTPButtonClass"
+        v-if="requestedOtp"
+        :disabled="!isSubmitOTPEnabled || submitOTPIconConfig.enabled"
+      ></icon-button>
       <!-- button to request resending OTP -->
       <icon-button
         @click="resendOtp"
         :titleConfig="resendOTPTitleConfig"
         :buttonClass="resendOTPButtonClass"
         class="mt-2"
-        :isDisabled="pending"
+        :isDisabled="pending || submitOTPIconConfig.enabled"
         v-if="requestedOtp && !resentOtp"
       ></icon-button>
       <!-- text to show when OTP has been resent -->
@@ -154,6 +144,12 @@ export default {
       toast: useToast(), // use the toast component
       warningIcon: require("@/assets/images/exclamation-circle-solid.svg"),
       isGoogleAuthDisabled: true, // whether the google auth button is disabled
+      submitOTPIconConfig: {
+        // config for the loading icon on the submit otp button
+        enabled: false,
+        iconName: "spinner-solid",
+        iconClass: "animate-spin h-4 object-scale-down text-white",
+      },
     };
   },
   computed: {
@@ -206,13 +202,12 @@ export default {
       // class for the request OTP button
       return "bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed ring-primary rounded-md py-2";
     },
-    submitOTPTitle() {
-      // title for the submit OTP button
-      return this.$t("login.otp.submit");
-    },
-    submitOTPTitleClass() {
-      // class of the title for the submit OTP button
-      return "text-white";
+    submitOTPTitleConfig() {
+      // title config for the submit OTP button
+      return {
+        value: this.$t("login.otp.submit"),
+        class: "text-white",
+      };
     },
     submitOTPButtonClass() {
       // class for the submit OTP button
@@ -275,7 +270,7 @@ export default {
     },
     phoneLogin() {
       // invoked for logging in with Phone
-      this.startLoading();
+      this.submitOTPIconConfig.enabled = true;
       UserAPIService.verifyOtp(this.formattedPhoneInput, this.otpInput)
         .then((response) => {
           this.setAccessToken(response.data).then(() => this.routeAfterLogin());
@@ -287,7 +282,7 @@ export default {
             this.invalidOtp = true;
             this.toast.error(this.$t("login.otp.incorrect"));
             this.otpInput = "";
-            this.stopLoading();
+            this.submitOTPIconConfig.enabled = false;
           }
         });
     },
@@ -330,6 +325,7 @@ export default {
         this.$router.replace({ name: this.redirectTo, params: this.redirectParams });
       }
       this.stopLoading();
+      this.submitOTPIconConfig.enabled = false;
     },
   },
 };
