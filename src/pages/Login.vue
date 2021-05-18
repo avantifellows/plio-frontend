@@ -48,7 +48,7 @@
         :titleConfig="resendOTPTitleConfig"
         :buttonClass="resendOTPButtonClass"
         class="mt-2"
-        :isDisabled="pending || submitOTPIconConfig.enabled"
+        :isDisabled="submitOTPIconConfig.enabled"
         v-if="requestedOtp && !resentOtp"
       ></icon-button>
       <!-- text to show when OTP has been resent -->
@@ -144,16 +144,19 @@ export default {
       toast: useToast(), // use the toast component
       warningIcon: require("@/assets/images/exclamation-circle-solid.svg"),
       isGoogleAuthDisabled: true, // whether the google auth button is disabled
-      submitOTPIconConfig: {
-        // config for the loading icon on the submit otp button
-        enabled: false,
-        iconName: "spinner-solid",
-        iconClass: "animate-spin h-4 object-scale-down text-white",
-      },
+      isSubmitOTPInProgress: false, // whether submit OTP button is in loading mode or not
     };
   },
   computed: {
     ...mapState("sync", ["pending"]),
+    submitOTPIconConfig() {
+      // config for the loading icon on the submit otp button
+      return {
+        enabled: this.isSubmitOTPInProgress,
+        iconName: "spinner-solid",
+        iconClass: "animate-spin h-4 object-scale-down text-white",
+      };
+    },
     redirectParams() {
       // params for the route to be redirected to
       return JSON.parse(this.params);
@@ -270,7 +273,7 @@ export default {
     },
     phoneLogin() {
       // invoked for logging in with Phone
-      this.submitOTPIconConfig.enabled = true;
+      this.isSubmitOTPInProgress = true;
       UserAPIService.verifyOtp(this.formattedPhoneInput, this.otpInput)
         .then((response) => {
           this.setAccessToken(response.data).then(() => this.routeAfterLogin());
@@ -282,7 +285,7 @@ export default {
             this.invalidOtp = true;
             this.toast.error(this.$t("login.otp.incorrect"));
             this.otpInput = "";
-            this.submitOTPIconConfig.enabled = false;
+            this.isSubmitOTPInProgress = false;
           }
         });
     },
@@ -325,7 +328,7 @@ export default {
         this.$router.replace({ name: this.redirectTo, params: this.redirectParams });
       }
       this.stopLoading();
-      this.submitOTPIconConfig.enabled = false;
+      this.isSubmitOTPInProgress = false;
     },
   },
 };
