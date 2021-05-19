@@ -2,38 +2,39 @@
   <div class="sm:grid sm:grid-cols-4 md:grid-cols-3 p-10">
     <!-- main grid with the login functionality -->
     <div
-      class="flex flex-col w-full sm:col-start-2 sm:col-span-2 md:col-start-2 md:col-span-1"
+      class="flex flex-col w-full sm:col-start-2 sm:col-span-2 md:col-start-2 md:col-span-1 space-y-10"
     >
+      <img src="@/assets/images/Banner.png" />
       <!-- prompt to enter phone number -->
-      <p class="text-center font-bold text-lg lg:text-xl xl:text-2xl">
+      <!-- <p class="text-center font-bold text-lg lg:text-xl xl:text-2xl">
         {{ $t("login.phone.prompt") }}
-      </p>
+      </p> -->
       <!-- input box to enter phone number -->
-      <input-number
+      <!-- <input-number
         class="mt-2"
         v-model:value="phoneInput"
         :validation="phoneInputValidation"
         :maxLength="10"
-      ></input-number>
+      ></input-number> -->
       <!-- input box to enter OTP -->
-      <input-number
+      <!-- <input-number
         class="mt-2"
         v-model:value="otpInput"
         :validation="otpInputValidation"
         :maxLength="6"
         v-if="requestedOtp"
-      ></input-number>
+      ></input-number> -->
       <!-- button to request for OTP -->
-      <icon-button
+      <!-- <icon-button
         class="mt-2"
         @click="requestOtp"
         :titleConfig="requestOTPTitleConfig"
         :buttonClass="requestOTPButtonClass"
         v-if="!requestedOtp"
         :isDisabled="!isRequestOtpEnabled"
-      ></icon-button>
+      ></icon-button> -->
       <!-- button to submit OTP -->
-      <icon-button
+      <!-- <icon-button
         class="mt-2"
         @click="phoneLogin"
         :titleConfig="submitOTPTitleConfig"
@@ -41,22 +42,22 @@
         :buttonClass="submitOTPButtonClass"
         v-if="requestedOtp"
         :disabled="!isSubmitOTPEnabled || submitOTPIconConfig.enabled"
-      ></icon-button>
+      ></icon-button> -->
       <!-- button to request resending OTP -->
-      <icon-button
+      <!-- <icon-button
         @click="resendOtp"
         :titleConfig="resendOTPTitleConfig"
         :buttonClass="resendOTPButtonClass"
         class="mt-2"
         :isDisabled="submitOTPIconConfig.enabled"
         v-if="requestedOtp && !resentOtp"
-      ></icon-button>
+      ></icon-button> -->
       <!-- text to show when OTP has been resent -->
-      <p v-if="resentOtp" class="text-center mt-2">
+      <!-- <p v-if="resentOtp" class="text-center mt-2">
         {{ $t("login.otp.resent") }}
-      </p>
+      </p> -->
       <!-- only indian numbers warning message -->
-      <div
+      <!-- <div
         class="bg-yellow-50 p-4 rounded flex items-start text-yellow-600 my-4 shadow-lg max-w-xl mx-auto"
       >
         <div class="text-lg place-self-center">
@@ -68,7 +69,7 @@
           </p>
         </div>
       </div>
-      <p class="text-center text-2xl sm:text-4xl my-10">{{ $t("login.or") }}</p>
+      <p class="text-center text-2xl sm:text-4xl my-10">{{ $t("login.or") }}</p>  -->
       <!-- google sign in button -->
       <button
         type="button"
@@ -101,8 +102,8 @@
 <script>
 import UserAPIService from "@/services/API/User.js";
 import UserConfigService from "@/services/Config/User.js";
-import InputNumber from "../components/UI/Text/InputNumber.vue";
-import IconButton from "../components/UI/Buttons/IconButton.vue";
+// import InputNumber from "../components/UI/Text/InputNumber.vue";
+// import IconButton from "../components/UI/Buttons/IconButton.vue";
 import { mapActions, mapState } from "vuex";
 import { useToast } from "vue-toastification";
 
@@ -123,8 +124,8 @@ export default {
     },
   },
   components: {
-    InputNumber,
-    IconButton,
+    // InputNumber,
+    // IconButton,
   },
   watch: {
     isRequestOtpEnabled() {
@@ -145,7 +146,6 @@ export default {
       warningIcon: require("@/assets/images/exclamation-circle-solid.svg"),
       isGoogleAuthDisabled: true, // whether the google auth button is disabled
       isSubmitOTPInProgress: false, // whether the OTP has been submitted and is being verified
-
     };
   },
   computed: {
