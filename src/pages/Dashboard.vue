@@ -105,6 +105,7 @@
               <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
             </div>
             <div v-else>
+              <!-- value -->
               <p :class="cardMetricValueClass">
                 {{ completionRate }}
               </p>
@@ -112,10 +113,12 @@
                 <div
                   class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center"
                 >
+                  <!-- title -->
                   <p>
                     {{ $t("dashboard.summary.completion_rate.title") }}
                   </p>
                   <div class="flex relative">
+                    <!-- info icon -->
                     <inline-svg
                       :src="require('@/assets/images/info.svg')"
                       class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
@@ -124,6 +127,7 @@
                       @touchmove="showCompletedHelpText = true"
                       @touchend="showCompletedHelpText = false"
                     ></inline-svg>
+                    <!-- info text -->
                     <p
                       class="bg-black text-white rounded-md p-2 absolute ml-4 w-28"
                       v-if="showCompletedHelpText"
@@ -146,6 +150,7 @@
                 <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
               </div>
               <div v-else>
+                <!-- value -->
                 <p :class="cardMetricValueClass">
                   {{ oneMinuteRetention }}
                 </p>
@@ -153,10 +158,12 @@
                   <div
                     class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center"
                   >
+                    <!-- title -->
                     <p>
                       {{ $t("dashboard.summary.one_minute_retention.title") }}
                     </p>
                     <div class="flex relative">
+                      <!-- info icon -->
                       <inline-svg
                         :src="require('@/assets/images/info.svg')"
                         class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
@@ -165,6 +172,7 @@
                         @touchmove="showRetentionHelpText = true"
                         @touchend="showRetentionHelpText = false"
                       ></inline-svg>
+                      <!-- info text -->
                       <p
                         class="bg-black text-white rounded-md p-2 absolute ml-4 w-28"
                         v-if="showRetentionHelpText"
@@ -186,6 +194,7 @@
               <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
             </div>
             <div v-else>
+              <!-- value -->
               <p :class="cardMetricValueClass">
                 {{ accuracy }}
               </p>
@@ -193,10 +202,12 @@
                 <div
                   class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center"
                 >
+                  <!-- title -->
                   <p>
                     {{ $t("dashboard.summary.accuracy.title") }}
                   </p>
                   <div class="flex relative">
+                    <!-- info icon -->
                     <inline-svg
                       :src="require('@/assets/images/info.svg')"
                       class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
@@ -205,6 +216,7 @@
                       @touchmove="showAccuracyHelpText = true"
                       @touchend="showAccuracyHelpText = false"
                     ></inline-svg>
+                    <!-- info text -->
                     <p
                       class="bg-black text-white rounded-md p-2 absolute ml-4 w-40"
                       v-if="showAccuracyHelpText"
@@ -227,6 +239,7 @@
                 <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
               </div>
               <div v-else>
+                <!-- value -->
                 <p :class="cardMetricValueClass">
                   {{ numQuestionsAnswered }}
                 </p>
@@ -234,10 +247,12 @@
                   <div
                     class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center px-1"
                   >
+                    <!-- title -->
                     <p>
                       {{ $t("dashboard.summary.num_questions_answered.title") }}
                     </p>
                     <div class="flex relative">
+                      <!-- info icon -->
                       <inline-svg
                         :src="require('@/assets/images/info.svg')"
                         class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
@@ -246,6 +261,7 @@
                         @touchmove="showQuestionsAnsweredHelpText = true"
                         @touchend="showQuestionsAnsweredHelpText = false"
                       ></inline-svg>
+                      <!-- info text -->
                       <p
                         class="bg-black text-white rounded-md p-2 absolute ml-4 w-28"
                         v-if="showQuestionsAnsweredHelpText"
@@ -321,10 +337,10 @@ export default {
         "w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900",
       // styling class for the title of the second type of metric
       cardMetricTitleClass: "w-full text-center text-xs md:text-sm text-yellow-900 mt-2",
-      showAccuracyHelpText: false,
-      showCompletedHelpText: false,
-      showRetentionHelpText: false,
-      showQuestionsAnsweredHelpText: false,
+      showAccuracyHelpText: false, // whether to show the help text for the accuracy metric
+      showCompletedHelpText: false, // whether to show the help text for the % completed metric
+      showRetentionHelpText: false, // whether to show the help text for the retention metric
+      showQuestionsAnsweredHelpText: false, // whether to show the help text for the questions answered metric
     };
   },
   async created() {
