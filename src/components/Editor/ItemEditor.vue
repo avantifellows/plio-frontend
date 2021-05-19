@@ -99,13 +99,14 @@
         @end-icon-selected="deleteOption(optionIndex)"
       ></input-text>
       <!-- add option button -->
-      <div class="flex justify-end mr-2 mt-2" v-tooltip.bottom="addOptionTooltip">
+      <div class="flex justify-end mr-2 mt-2">
         <icon-button
           :titleConfig="addOptionButtonTitleConfig"
           class="float-right"
           @click="addOption"
           :buttonClass="addOptionButtonClass"
           :disabled="isInteractionDisabled"
+          v-tooltip.bottom="addOptionTooltip"
         ></icon-button>
       </div>
     </div>
