@@ -99,7 +99,7 @@ export default {
     return {
       tableColumns: ["name", "number_of_viewers"], // columns for the table
       tableData: [],
-      uniqueUsersList: [] // holds the number of unique users for all the plios fetched
+      uniqueUsersList: [], // holds the number of unique users for all the plios fetched
       // dummy table data - to show skeletons when data is being loaded
       dummyTableData: Array(5).fill({
         name: { type: "component", value: "" },
@@ -167,8 +167,8 @@ export default {
       if (searchString != undefined && searchString != "")
         this.searchString = searchString;
 
-      await PlioAPIService.getAllPlios(uuidOnly, pageNumber, this.searchString).then(
-        (response) => {
+      await PlioAPIService.getAllPlios(uuidOnly, pageNumber, this.searchString)
+        .then((response) => {
           // to handle the case when the user lands on the homepage for the first time
           // if no plios exist, then hide the table else show it
           if (params == undefined) {
@@ -177,11 +177,16 @@ export default {
           }
           this.totalNumberOfPlios = response.data.count; // set total number of plios and show the paginator
           this.numberOfPliosPerPage = response.data.page_size; // set the page size
-          this.prepareTableData(response.data.results); // prepare the data for the table
-        }
-      ).then(() => {
-
-      });
+          return Promise.resolve(response.data.results);
+        })
+        .then(async (plioIdList) => {
+          // fetch the list of unique users for each plio
+          await PlioAPIService.getUniqueUsersCountList(plioIdList).then((response) => {
+            this.uniqueUsersList = response;
+          });
+          return Promise.resolve(plioIdList);
+        })
+        .then((plioIdList) => this.prepareTableData(plioIdList)); // prepare the data for the table
     },
 
     createNewPlio() {
@@ -218,7 +223,7 @@ export default {
               break;
 
             case "number_of_viewers":
-              tableRow[column] = uniqueUsersList[colIndex];
+              tableRow[column] = this.uniqueUsersList[colIndex];
               break;
           }
         }

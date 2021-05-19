@@ -13,6 +13,22 @@ export function uniqueUsersQuery(plioId) {
   };
 }
 
+export function uniqueUsersListQuery(plioIds) {
+  // query to fetch the number of unique users for the given list of plio IDs
+  // reference: https://cube.dev/docs/getting-started-cubejs-schema
+  return {
+    measures: ["Session.uniqueUsers"],
+    dimensions: ["Plio.uuid"],
+    filters: [
+      {
+        member: "Plio.uuid",
+        operator: "equals",
+        values: plioIds,
+      },
+    ],
+  };
+}
+
 export function averageWatchTimeQuery(plioId) {
   return {
     measures: ["GroupedSession.averageWatchTime"],
