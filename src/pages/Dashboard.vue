@@ -109,32 +109,28 @@
               <p :class="cardMetricValueClass">
                 {{ completionRate }}
               </p>
-              <div :class="cardMetricTitleClass" class="flex justify-center">
-                <div
-                  class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center"
-                >
-                  <!-- title -->
-                  <p>
-                    {{ $t("dashboard.summary.completion_rate.title") }}
+              <div :class="cardMetricTitleClass">
+                <!-- title -->
+                <p>
+                  {{ $t("dashboard.summary.completion_rate.title") }}
+                </p>
+                <div class="flex relative">
+                  <!-- info icon -->
+                  <inline-svg
+                    :src="require('@/assets/images/info.svg')"
+                    class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                    @mouseover="showCompletedHelpText = true"
+                    @mouseout="showCompletedHelpText = false"
+                    @touchmove="showCompletedHelpText = true"
+                    @touchend="showCompletedHelpText = false"
+                  ></inline-svg>
+                  <!-- info text -->
+                  <p
+                    class="bg-black text-white rounded-md p-2 absolute ml-4 w-28 z-10"
+                    v-if="showCompletedHelpText"
+                  >
+                    {{ $t("dashboard.summary.completion_rate.tooltip") }}
                   </p>
-                  <div class="flex relative">
-                    <!-- info icon -->
-                    <inline-svg
-                      :src="require('@/assets/images/info.svg')"
-                      class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
-                      @mouseover="showCompletedHelpText = true"
-                      @mouseout="showCompletedHelpText = false"
-                      @touchmove="showCompletedHelpText = true"
-                      @touchend="showCompletedHelpText = false"
-                    ></inline-svg>
-                    <!-- info text -->
-                    <p
-                      class="bg-black text-white rounded-md p-2 absolute ml-4 w-28"
-                      v-if="showCompletedHelpText"
-                    >
-                      {{ $t("dashboard.summary.completion_rate.tooltip") }}
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -154,32 +150,28 @@
                 <p :class="cardMetricValueClass">
                   {{ oneMinuteRetention }}
                 </p>
-                <div :class="cardMetricTitleClass" class="flex justify-center">
-                  <div
-                    class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center"
-                  >
-                    <!-- title -->
-                    <p>
-                      {{ $t("dashboard.summary.one_minute_retention.title") }}
+                <div :class="cardMetricTitleClass">
+                  <!-- title -->
+                  <p>
+                    {{ $t("dashboard.summary.one_minute_retention.title") }}
+                  </p>
+                  <div class="flex relative">
+                    <!-- info icon -->
+                    <inline-svg
+                      :src="require('@/assets/images/info.svg')"
+                      class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                      @mouseover="showRetentionHelpText = true"
+                      @mouseout="showRetentionHelpText = false"
+                      @touchmove="showRetentionHelpText = true"
+                      @touchend="showRetentionHelpText = false"
+                    ></inline-svg>
+                    <!-- info text -->
+                    <p
+                      class="bg-black text-white rounded-md p-2 absolute ml-4 w-28"
+                      v-if="showRetentionHelpText"
+                    >
+                      {{ $t("dashboard.summary.one_minute_retention.tooltip") }}
                     </p>
-                    <div class="flex relative">
-                      <!-- info icon -->
-                      <inline-svg
-                        :src="require('@/assets/images/info.svg')"
-                        class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
-                        @mouseover="showRetentionHelpText = true"
-                        @mouseout="showRetentionHelpText = false"
-                        @touchmove="showRetentionHelpText = true"
-                        @touchend="showRetentionHelpText = false"
-                      ></inline-svg>
-                      <!-- info text -->
-                      <p
-                        class="bg-black text-white rounded-md p-2 absolute ml-4 w-28"
-                        v-if="showRetentionHelpText"
-                      >
-                        {{ $t("dashboard.summary.one_minute_retention.tooltip") }}
-                      </p>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -198,32 +190,28 @@
               <p :class="cardMetricValueClass">
                 {{ accuracy }}
               </p>
-              <div :class="cardMetricTitleClass" class="flex justify-center">
-                <div
-                  class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center"
-                >
-                  <!-- title -->
-                  <p>
-                    {{ $t("dashboard.summary.accuracy.title") }}
+              <div :class="cardMetricTitleClass">
+                <!-- title -->
+                <p>
+                  {{ $t("dashboard.summary.accuracy.title") }}
+                </p>
+                <div class="flex relative">
+                  <!-- info icon -->
+                  <inline-svg
+                    :src="require('@/assets/images/info.svg')"
+                    class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                    @mouseover="showAccuracyHelpText = true"
+                    @mouseout="showAccuracyHelpText = false"
+                    @touchmove="showAccuracyHelpText = true"
+                    @touchend="showAccuracyHelpText = false"
+                  ></inline-svg>
+                  <!-- info text -->
+                  <p
+                    class="bg-black text-white rounded-md p-2 absolute mt-4 -ml-14 bp-500:-ml-8 lg:ml-4 lg:mt-0 w-32 bp-500:w-40 z-10"
+                    v-if="showAccuracyHelpText"
+                  >
+                    {{ $t("dashboard.summary.accuracy.tooltip") }}
                   </p>
-                  <div class="flex relative">
-                    <!-- info icon -->
-                    <inline-svg
-                      :src="require('@/assets/images/info.svg')"
-                      class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
-                      @mouseover="showAccuracyHelpText = true"
-                      @mouseout="showAccuracyHelpText = false"
-                      @touchmove="showAccuracyHelpText = true"
-                      @touchend="showAccuracyHelpText = false"
-                    ></inline-svg>
-                    <!-- info text -->
-                    <p
-                      class="bg-black text-white rounded-md p-2 absolute ml-4 w-40"
-                      v-if="showAccuracyHelpText"
-                    >
-                      {{ $t("dashboard.summary.accuracy.tooltip") }}
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>
@@ -243,32 +231,28 @@
                 <p :class="cardMetricValueClass">
                   {{ numQuestionsAnswered }}
                 </p>
-                <div :class="cardMetricTitleClass" class="flex justify-center">
-                  <div
-                    class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center px-1"
-                  >
-                    <!-- title -->
-                    <p>
-                      {{ $t("dashboard.summary.num_questions_answered.title") }}
+                <div :class="cardMetricTitleClass">
+                  <!-- title -->
+                  <p>
+                    {{ $t("dashboard.summary.num_questions_answered.title") }}
+                  </p>
+                  <div class="flex relative">
+                    <!-- info icon -->
+                    <inline-svg
+                      :src="require('@/assets/images/info.svg')"
+                      class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                      @mouseover="showQuestionsAnsweredHelpText = true"
+                      @mouseout="showQuestionsAnsweredHelpText = false"
+                      @touchmove="showQuestionsAnsweredHelpText = true"
+                      @touchend="showQuestionsAnsweredHelpText = false"
+                    ></inline-svg>
+                    <!-- info text -->
+                    <p
+                      class="bg-black text-white rounded-md p-2 absolute ml-4 w-20 bp-420:w-28"
+                      v-if="showQuestionsAnsweredHelpText"
+                    >
+                      {{ $t("dashboard.summary.num_questions_answered.tooltip") }}
                     </p>
-                    <div class="flex relative">
-                      <!-- info icon -->
-                      <inline-svg
-                        :src="require('@/assets/images/info.svg')"
-                        class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
-                        @mouseover="showQuestionsAnsweredHelpText = true"
-                        @mouseout="showQuestionsAnsweredHelpText = false"
-                        @touchmove="showQuestionsAnsweredHelpText = true"
-                        @touchend="showQuestionsAnsweredHelpText = false"
-                      ></inline-svg>
-                      <!-- info text -->
-                      <p
-                        class="bg-black text-white rounded-md p-2 absolute ml-4 w-28"
-                        v-if="showQuestionsAnsweredHelpText"
-                      >
-                        {{ $t("dashboard.summary.num_questions_answered.tooltip") }}
-                      </p>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -336,7 +320,8 @@ export default {
       cardMetricValueClass:
         "w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900",
       // styling class for the title of the second type of metric
-      cardMetricTitleClass: "w-full text-center text-xs md:text-sm text-yellow-900 mt-2",
+      cardMetricTitleClass:
+        "w-full text-center text-xs md:text-sm text-yellow-900 mt-2 flex justify-center flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center",
       showAccuracyHelpText: false, // whether to show the help text for the accuracy metric
       showCompletedHelpText: false, // whether to show the help text for the % completed metric
       showRetentionHelpText: false, // whether to show the help text for the retention metric

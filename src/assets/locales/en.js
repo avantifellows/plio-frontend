@@ -291,8 +291,7 @@ export default {
       },
       one_minute_retention: {
         title: "RETENTION AT 1 MINUTE",
-        tooltip:
-          "Percentage of viewers who watched your video for at least 1 minute",
+        tooltip: "Percentage of viewers who watched your video beyond 1 minute",
       },
       accuracy: {
         title: "ACCURACY",
