@@ -285,10 +285,24 @@ export default {
     summary: {
       number_of_viewers: "दर्शक",
       avg_watch_time: "देखने का औसत समय",
-      completion_rate: "समापन दर",
-      one_minute_retention: "अवधारण 1 मिनट पर",
-      accuracy: "यथार्थता",
-      num_questions_answered: "उत्तर किये गए प्रश्न",
+      completion_rate: {
+        title: "समापन दर",
+        tooltip: "सभी सवालों के जवाब देने वाले दर्शकों का प्रतिशत",
+      },
+      one_minute_retention: {
+        title: "अवधारण 1 मिनट पर",
+        tooltip:
+          "आपके वीडियो को कम से कम 1 मिनट तक देखने वाले दर्शकों का प्रतिशत",
+      },
+      accuracy: {
+        title: "यथार्थता",
+        tooltip:
+          "प्रत्येक दर्शक के लिए औसत सटीकता - सटीकता की गणना केवल उन प्रश्नों के लिए की जाती है जिनका उत्तर दर्शक ने दिया है",
+      },
+      num_questions_answered: {
+        title: "उत्तर किये गए प्रश्न",
+        tooltip: "प्रत्येक दर्शक द्वारा उत्तर दिए गए प्रश्नों की औसत संख्या",
+      },
     },
   },
 };
