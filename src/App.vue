@@ -5,6 +5,7 @@
       <router-link
         :to="{ name: 'Home', params: { org: activeWorkspace } }"
         class="h-14 w-11 justify-self-start place-self-center"
+        v-if="!onLoginPage"
       >
         <img
           class="h-full w-full object-scale-down"
