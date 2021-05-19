@@ -138,9 +138,10 @@ export default {
 
     // holds the mapping of plio ID to count
     var resultsMap = {};
-    resultSet.series()[0].series.forEach((seriesItem) => {
-      resultsMap[seriesItem.x] = seriesItem.value;
-    });
+    if (resultSet.series()[0] != undefined)
+      resultSet.series()[0].series.forEach((seriesItem) => {
+        resultsMap[seriesItem.x] = seriesItem.value;
+      });
 
     // holds the final list of values to be returned
     var results = [];

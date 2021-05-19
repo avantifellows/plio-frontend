@@ -223,7 +223,7 @@ export default {
               break;
 
             case "number_of_viewers":
-              tableRow[column] = this.uniqueUsersList[colIndex];
+              tableRow[column] = this.uniqueUsersList[plioIndex];
               break;
           }
         }
