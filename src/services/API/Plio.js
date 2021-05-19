@@ -16,6 +16,7 @@ import {
   percentageCompleteQuery,
   accuracyQuery,
   oneMinuteRetentionQuery,
+  uniqueUsersListQuery,
 } from "@/services/API/Queries/Plio.js";
 
 export default {
@@ -128,6 +129,30 @@ export default {
     var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
     // https://cube.dev/docs/@cubejs-client-core#result-set-chart-pivot
     return resultSet.chartPivot()[0][resultKey];
+  },
+
+  async getUniqueUsersCountList(plioIds) {
+    var resultSet = await analyticsAPIClient().load(
+      uniqueUsersListQuery(plioIds)
+    );
+
+    // holds the mapping of plio ID to count
+    var resultsMap = {};
+    if (resultSet.series()[0] != undefined)
+      resultSet.series()[0].series.forEach((seriesItem) => {
+        resultsMap[seriesItem.x] = seriesItem.value;
+      });
+
+    // holds the final list of values to be returned
+    var results = [];
+    plioIds.forEach((plioId) => {
+      // plios which do not have any sessions do not show up in
+      // the resultMap - use a default value for those plios
+      if (!(plioId in resultsMap)) results.push(0);
+      else results.push(resultsMap[plioId]);
+    });
+
+    return results;
   },
 
   async getAverageWatchTime(plioId) {
