@@ -113,11 +113,23 @@
                   <p>
                     {{ $t("dashboard.summary.completion_rate.title") }}
                   </p>
-                  <inline-svg
+                  <!-- <inline-svg
                     :src="require('@/assets/images/info.svg')"
                     class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
                     v-tooltip="$t('dashboard.summary.completion_rate.tooltip')"
-                  ></inline-svg>
+                  ></inline-svg> -->
+                  <VDropdown :triggers="['hover', 'focus', 'touch']">
+                    <div>
+                      <inline-svg
+                        :src="require('@/assets/images/info.svg')"
+                        class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                      ></inline-svg>
+                    </div>
+
+                    <template #popper>
+                      {{ $t("dashboard.summary.completion_rate.tooltip") }}
+                    </template>
+                  </VDropdown>
                 </div>
               </div>
             </div>
@@ -143,11 +155,24 @@
                     <p>
                       {{ $t("dashboard.summary.one_minute_retention.title") }}
                     </p>
-                    <inline-svg
+                    <!-- <inline-svg
                       :src="require('@/assets/images/info.svg')"
                       class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
                       v-tooltip="$t('dashboard.summary.one_minute_retention.tooltip')"
-                    ></inline-svg>
+                    ></inline-svg> -->
+
+                    <VDropdown :triggers="['hover', 'focus', 'touch']">
+                      <div>
+                        <inline-svg
+                          :src="require('@/assets/images/info.svg')"
+                          class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                        ></inline-svg>
+                      </div>
+
+                      <template #popper>
+                        {{ $t("dashboard.summary.one_minute_retention.tooltip") }}
+                      </template>
+                    </VDropdown>
                   </div>
                 </div>
               </div>
@@ -170,14 +195,18 @@
                   <p>
                     {{ $t("dashboard.summary.accuracy.title") }}
                   </p>
-                  <inline-svg
-                    :src="require('@/assets/images/info.svg')"
-                    class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
-                    v-tooltip="{
-                      content: $t('dashboard.summary.accuracy.tooltip'),
-                      show: showMetricTooltip,
-                    }"
-                  ></inline-svg>
+                  <VDropdown :triggers="['hover', 'focus', 'touch']">
+                    <div>
+                      <inline-svg
+                        :src="require('@/assets/images/info.svg')"
+                        class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                      ></inline-svg>
+                    </div>
+
+                    <template #popper>
+                      {{ $t("dashboard.summary.accuracy.tooltip") }}
+                    </template>
+                  </VDropdown>
                 </div>
               </div>
             </div>
@@ -203,12 +232,23 @@
                     <p>
                       {{ $t("dashboard.summary.num_questions_answered.title") }}
                     </p>
-                    <inline-svg
+                    <!-- <inline-svg
                       :src="require('@/assets/images/info.svg')"
                       class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
                       v-tooltip="$t('dashboard.summary.num_questions_answered.tooltip')"
-                      @click="showMetricTooltip = !showMetricTooltip"
-                    ></inline-svg>
+                    ></inline-svg> -->
+                    <VDropdown :triggers="['hover', 'focus', 'touch']">
+                      <div>
+                        <inline-svg
+                          :src="require('@/assets/images/info.svg')"
+                          class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                        ></inline-svg>
+                      </div>
+
+                      <template #popper>
+                        {{ $t("dashboard.summary.num_questions_answered.tooltip") }}
+                      </template>
+                    </VDropdown>
                   </div>
                 </div>
               </div>
@@ -277,7 +317,6 @@ export default {
         "w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900",
       // styling class for the title of the second type of metric
       cardMetricTitleClass: "w-full text-center text-xs md:text-sm text-yellow-900 mt-2",
-      showMetricTooltip: false, // boolean to shnow
     };
   },
   async created() {

@@ -99,13 +99,14 @@
         @end-icon-selected="deleteOption(optionIndex)"
       ></input-text>
       <!-- add option button -->
-      <div class="flex justify-end mr-2 mt-2" v-tooltip.bottom="addOptionTooltip">
+      <div class="flex justify-end mr-2 mt-2">
         <icon-button
           :titleConfig="addOptionButtonTitleConfig"
           class="float-right"
           @click="addOption"
           :buttonClass="addOptionButtonClass"
           :disabled="isInteractionDisabled"
+          v-tooltip.bottom="addOptionTooltip"
         ></icon-button>
       </div>
     </div>
@@ -386,13 +387,10 @@ export default {
       // tooltip text for delete item button
       // itemType is just "question" right now - parametrize when more types are supported
 
-      // TODO: uncomment below code when a non-buggy tooltip is implemented
-
-      // var itemType = "question"
-      // if (this.isInteractionDisabled)
-      //   return `You cannot delete a ${itemType} once the plio is published`
-      // return "Delete this ${itemType}"
-      return undefined;
+      var itemType = "question";
+      if (this.isInteractionDisabled)
+        return `You cannot delete a ${itemType} once the plio is published`;
+      return `Delete this ${itemType}`;
     },
     addItemButtonTooltip() {
       // tooltip for the smaller add item button

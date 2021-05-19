@@ -110,8 +110,8 @@
                         :titleConfig="analyseButtonTitleConfig"
                         :buttonClass="analyseButtonClass"
                         :isDisabled="!isPublished(rowIndex)"
-                        @click="analysePlio(rowIndex)"
                         v-tooltip="analyseButtonTooltip(rowIndex)"
+                        @click="analysePlio(rowIndex)"
                       ></icon-button>
                     </div>
                     <!-- column content -->
