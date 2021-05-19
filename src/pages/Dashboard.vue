@@ -108,9 +108,17 @@
               <p :class="cardMetricValueClass">
                 {{ completionRate }}
               </p>
-              <p :class="cardMetricTitleClass">
-                {{ $t("dashboard.summary.completion_rate") }}
-              </p>
+              <div :class="cardMetricTitleClass" class="flex justify-center">
+                <div class="flex space-x-2">
+                  <p>
+                    {{ $t("dashboard.summary.completion_rate") }}
+                  </p>
+                  <inline-svg
+                    :src="require('@/assets/images/info.svg')"
+                    class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                  ></inline-svg>
+                </div>
+              </div>
             </div>
           </div>
           <div class="mt-4">
@@ -127,9 +135,20 @@
                 <p :class="cardMetricValueClass">
                   {{ oneMinuteRetention }}
                 </p>
-                <p :class="cardMetricTitleClass">
-                  {{ $t("dashboard.summary.one_minute_retention") }}
-                </p>
+                <div :class="cardMetricTitleClass" class="flex justify-center">
+                  <div
+                    class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center"
+                  >
+                    <p v-tooltip="{ content: 'You have 4 new messages.' }">
+                      {{ $t("dashboard.summary.one_minute_retention") }}
+                    </p>
+                    <inline-svg
+                      :src="require('@/assets/images/info.svg')"
+                      class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                      v-tooltip="'You have 4 new messages.'"
+                    ></inline-svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -145,9 +164,17 @@
               <p :class="cardMetricValueClass">
                 {{ accuracy }}
               </p>
-              <p :class="cardMetricTitleClass">
-                {{ $t("dashboard.summary.accuracy") }}
-              </p>
+              <div :class="cardMetricTitleClass" class="flex justify-center">
+                <div class="flex space-x-2">
+                  <p>
+                    {{ $t("dashboard.summary.accuracy") }}
+                  </p>
+                  <inline-svg
+                    :src="require('@/assets/images/info.svg')"
+                    class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                  ></inline-svg>
+                </div>
+              </div>
             </div>
           </div>
           <div class="mt-4">
@@ -164,9 +191,19 @@
                 <p :class="cardMetricValueClass">
                   {{ numQuestionsAnswered }}
                 </p>
-                <p :class="cardMetricTitleClass">
-                  {{ $t("dashboard.summary.num_questions_answered") }}
-                </p>
+                <div :class="cardMetricTitleClass" class="flex justify-center">
+                  <div
+                    class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center"
+                  >
+                    <p>
+                      {{ $t("dashboard.summary.num_questions_answered") }}
+                    </p>
+                    <inline-svg
+                      :src="require('@/assets/images/info.svg')"
+                      class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                    ></inline-svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

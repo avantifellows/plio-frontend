@@ -5,16 +5,17 @@ import store from "./store";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import i18n from "./services/Localisation/i18n.js";
-import PrimeVue from "primevue/config";
+// import PrimeVue from "primevue/config";
 import InlineSvg from "vue-inline-svg";
-import Tooltip from "primevue/tooltip";
+// import Tooltip from "primevue/tooltip";
 import Toast from "vue-toastification";
 import VueProgressBar from "@aacassandra/vue3-progressbar";
 import VueGtag from "vue-gtag";
+import VTooltip from "v-tooltip";
 
-import "primevue/resources/themes/saga-blue/theme.css";
-import "primevue/resources/primevue.min.css";
-import "primeicons/primeicons.css";
+// import "primevue/resources/themes/saga-blue/theme.css";
+// import "primevue/resources/primevue.min.css";
+// import "primeicons/primeicons.css";
 import "./index.css";
 import "vue-toastification/dist/index.css";
 
@@ -57,9 +58,10 @@ app.use(
   },
   router
 );
-app.use(PrimeVue, { ripple: true });
+// app.use(PrimeVue, { ripple: true });
 app.use(GAuth, gAuthOptions);
 app.use(Toast);
+app.use(VTooltip);
 app.use(VueProgressBar, vueProgressBarOptions);
-app.directive("tooltip", Tooltip);
+// app.directive("tooltip", Tooltip);
 app.mount("#app");
