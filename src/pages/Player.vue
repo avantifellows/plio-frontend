@@ -376,14 +376,7 @@ export default {
         }
 
         // handle retention array
-        if (sessionDetails.retention == null || sessionDetails.retention == "") {
-          // retention array not set - create and set it
-          this.retention = this.createEmptyArray(sessionDetails.plio.video.duration);
-          this.updateSession();
-        } else {
-          // set retention value if it exists
-          this.retention = this.retentionStrToArray(sessionDetails.retention);
-        }
+        this.retention = this.retentionStrToArray(sessionDetails.retention);
 
         // set watch time
         this.watchTime = sessionDetails.watch_time;
@@ -412,10 +405,6 @@ export default {
         this.sessionDBId,
         sessionDetails
       ).catch((err) => console.log(err));
-    },
-    createEmptyArray(length) {
-      // initiate array with empty values
-      return new Array(length).fill(0);
     },
     retentionStrToArray(retentionStr) {
       // convert retention string to retention array
