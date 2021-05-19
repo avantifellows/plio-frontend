@@ -50,7 +50,7 @@
               {{ $t("nav.login") }}
             </button>
           </router-link>
-          <a href="#" v-if="isAuthenticated" @click="logoutUser">
+          <a href="#" v-if="isAuthenticated" @click="logoutButtonClicked">
             <button
               class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2"
             >
@@ -88,9 +88,12 @@ export default {
     return {
       showDialogBox: false, // to show the dialog box or not
       toast: useToast(), // use the toast component
+      userClickedLogout: false, // if the user has clicked the logout button
     };
   },
   async created() {
+    // reset the value of pending while creating the component
+    if (this.pending) this.stopLoading();
     // place a listener for the event of closing of the browser
     window.addEventListener("beforeunload", this.onClose);
     if (this.isAuthenticated) await this.fetchAndUpdateUser();
@@ -115,9 +118,15 @@ export default {
     isAuthenticated(value) {
       // if user was logged in before but has been logged out now
       // show a popup telling the user that they're logged out
-      if (!value) {
-        this.toast.error(this.$t("error.auto_logout"));
+      if (!value && !this.userClickedLogout) {
+        // logout user when `isAuthenticated` value changes from true to false
+        // and if the logout action was not triggered by the user
         this.logoutUser();
+      }
+
+      if (value) {
+        // reset the value of `userClickedLogout` whenever the user logs in again
+        this.userClickedLogout = false;
       }
     },
     onHomePage(value) {
@@ -136,10 +145,19 @@ export default {
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions("auth", ["unsetAccessToken", "fetchAndUpdateUser"]),
     ...mapActions("sync", ["stopLoading"]),
+    logoutButtonClicked() {
+      // set whether the logout action as triggered by the user or not
+      this.userClickedLogout = true;
+      // logout the user
+      this.logoutUser();
+    },
     logoutUser() {
       // logs out the user
       this.unsetAccessToken().then(() => {
-        this.$router.replace({ name: "Login" });
+        this.$router.replace({
+          name: "Login",
+          params: { userClickedLogout: this.userClickedLogout },
+        });
         // added here so that if someone clicks on logout while
         // some activity is pending
         this.stopLoading();

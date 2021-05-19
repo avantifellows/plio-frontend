@@ -148,7 +148,7 @@ export default {
     plioIds.forEach((plioId) => {
       // plios which do not have any sessions do not show up in
       // the resultMap - use a default value for those plios
-      if (resultsMap[plioId] == undefined) results.push(0);
+      if (!(plioId in resultsMap)) results.push(0);
       else results.push(resultsMap[plioId]);
     });
 

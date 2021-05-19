@@ -119,7 +119,7 @@
                       <div v-if="isComponent(entry[columnName])" class="w-full">
                         <PlioListItem
                           :plioId="entry[columnName].value"
-                          @fetched="savePlioStatus(rowIndex, $event)"
+                          @fetched="savePlioDetails(rowIndex, $event)"
                         >
                         </PlioListItem>
                       </div>
@@ -363,7 +363,7 @@ export default {
       this.sortKey = key;
       this.sortOrders[key] = this.sortOrders[key] * -1;
     },
-    savePlioStatus(rowIndex, status) {
+    savePlioDetails(rowIndex, plioDetails) {
       // save the plio's status after they are fetched from the PlioListItem
 
       // Each plio's status is being stored in the filteredData object and that too,
@@ -371,7 +371,7 @@ export default {
       if (this.filteredData != undefined && this.filteredData[rowIndex] != undefined) {
         this.filteredData[rowIndex]["name"] = {
           ...this.filteredData[rowIndex]["name"],
-          ...status,
+          ...plioDetails,
         };
       }
     },

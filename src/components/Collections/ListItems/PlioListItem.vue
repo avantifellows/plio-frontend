@@ -258,6 +258,7 @@ export default {
       this.plioDetails = this.allPlioDetails[this.plioId];
       var dataToEmit = {
         status: this.status,
+        title: this.title,
       };
 
       this.$emit("fetched", dataToEmit);

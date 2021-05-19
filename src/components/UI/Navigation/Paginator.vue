@@ -70,6 +70,7 @@
             :key="pageNumber"
             :class="setPageButtonClass(pageNumber)"
             @click="setAndRouteToPage(pageNumber)"
+            :disabled="paginatorDetails.currentPage === pageNumber"
           >
             {{ pageNumber }}
           </button>
@@ -153,7 +154,7 @@ export default {
       // set style classe for the page number buttons
       return [
         {
-          "bg-primary-button pointer-events-none hover:bg-primary-button":
+          "bg-primary-button cursor-not-allowed hover:bg-primary-button":
             this.paginatorDetails.currentPage === page && !this.pending,
           "animate-pulse bg-gray-300 text-opacity-0 hover:bg-gray-300": this.pending,
         },
@@ -248,7 +249,8 @@ export default {
     previousButtonClass() {
       return [
         {
-          "opacity-50 cursor-not-allowed": this.isFirstPage,
+          "opacity-50 cursor-not-allowed hover:text-gray-700 hover:bg-white": this
+            .isFirstPage,
           "sm:animate-pulse sm:bg-gray-300 sm:text-opacity-0 sm:hover:bg-gray-300": this
             .pending,
           "hover:text-gray-500": !this.pending,
@@ -262,7 +264,8 @@ export default {
     nextButtonClass() {
       return [
         {
-          "opacity-50 cursor-not-allowed": this.isLastPage,
+          "opacity-50 cursor-not-allowed hover:text-gray-700 hover:bg-white": this
+            .isLastPage,
           "sm:animate-pulse sm:bg-gray-300 sm:text-gray-300 sm:hover:bg-gray-300 active": this
             .pending,
           "hover:text-gray-500": !this.pending,
