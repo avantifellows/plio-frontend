@@ -5,7 +5,7 @@
     class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
     :disabled="isDisabled"
   >
-    <div class="flex w-full justify-center">
+    <div class="flex w-full justify-center space-x-2">
       <inline-svg
         v-if="isIconConfigEnabled"
         :src="icon"
