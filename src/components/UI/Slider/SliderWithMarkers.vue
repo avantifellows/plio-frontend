@@ -259,7 +259,7 @@ export default {
   @apply appearance-none w-6 h-6 rounded-full bg-red-500 mt-8;
 }
 .marker-slider-thumb::-moz-range-thumb {
-  @apply appearance-none w-6 h-6 rounded-full bg-red-500 transform translate-y-2;
+  @apply appearance-none w-6 h-6 rounded-full bg-red-500 transform translate-y-4;
 }
 .marker-slider-thumb-inactive::-webkit-slider-thumb {
   @apply bg-green-500;
