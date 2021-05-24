@@ -231,16 +231,6 @@ var _default = {
       }
     );
   },
-  // async getUniqueUsersCount(plioId) {
-  //     // get the count of unique users who watched the given plio
-  //     // refer to this example: https://cube.dev/blog/vue-dashboard-tutorial-using-cubejs/
-  //     // https://cube.dev/docs/@cubejs-client-core#result-set
-  //     var resultSet = await analyticsAPIClient().load(uniqueUsersQuery(plioId));
-  //     // https://cube.dev/docs/@cubejs-client-core#result-set-series-names
-  //     var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
-  //     // https://cube.dev/docs/@cubejs-client-core#result-set-chart-pivot
-  //     return resultSet.chartPivot()[0][resultKey];
-  // },
   getUniqueUsersCountList: function getUniqueUsersCountList(plioIds) {
     var resultSet, resultsMap, results;
     return regeneratorRuntime.async(function getUniqueUsersCountList$(
@@ -290,7 +280,7 @@ var _default = {
     });
   },
   getDashboardMetrics: function getDashboardMetrics(plioId) {
-    var metrics, resultSet, resultKey, resultChartPivot;
+    var metrics, resultSet, resultKeys, resultChartPivot;
     return regeneratorRuntime.async(function getDashboardMetrics$(_context4) {
       while (1) {
         switch ((_context4.prev = _context4.next)) {
@@ -307,11 +297,11 @@ var _default = {
 
           case 3:
             resultSet = _context4.sent;
-            resultKey = resultSet.seriesNames().map(function (x) {
+            resultKeys = resultSet.seriesNames().map(function (x) {
               return x.key;
             });
             resultChartPivot = resultSet.chartPivot()[0];
-            resultKey.forEach(function (key) {
+            resultKeys.forEach(function (key) {
               metrics[key] = resultChartPivot[key];
             }); // get session answer level metrics
 
@@ -324,11 +314,11 @@ var _default = {
 
           case 9:
             resultSet = _context4.sent;
-            resultKey = resultSet.seriesNames().map(function (x) {
+            resultKeys = resultSet.seriesNames().map(function (x) {
               return x.key;
             });
             resultChartPivot = resultSet.chartPivot()[0];
-            resultKey.forEach(function (key) {
+            resultKeys.forEach(function (key) {
               metrics[key] = resultChartPivot[key];
             });
             return _context4.abrupt("return", metrics);

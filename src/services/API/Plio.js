@@ -10,12 +10,6 @@ import {
   plioDataDumpEndpoint,
 } from "@/services/API/Endpoints.js";
 import {
-  // uniqueUsersQuery,
-  // averageWatchTimeQuery,
-  // numQuestionsAnsweredQuery,
-  // percentageCompleteQuery,
-  // accuracyQuery,
-  // oneMinuteRetentionQuery,
   dashboardSessionMetricsQuery,
   dashboardSessionAnswerMetricsQuery,
   uniqueUsersListQuery,
@@ -122,17 +116,6 @@ export default {
     });
   },
 
-  // async getUniqueUsersCount(plioId) {
-  //     // get the count of unique users who watched the given plio
-  //     // refer to this example: https://cube.dev/blog/vue-dashboard-tutorial-using-cubejs/
-  //     // https://cube.dev/docs/@cubejs-client-core#result-set
-  //     var resultSet = await analyticsAPIClient().load(uniqueUsersQuery(plioId));
-  //     // https://cube.dev/docs/@cubejs-client-core#result-set-series-names
-  //     var resultKey = resultSet.seriesNames().map((x) => x.key)[0];
-  //     // https://cube.dev/docs/@cubejs-client-core#result-set-chart-pivot
-  //     return resultSet.chartPivot()[0][resultKey];
-  // },
-
   async getUniqueUsersCountList(plioIds) {
     if (plioIds.length == 0) return [];
 
@@ -167,9 +150,9 @@ export default {
     var resultSet = await analyticsAPIClient().load(
       dashboardSessionMetricsQuery(plioId)
     );
-    var resultKey = resultSet.seriesNames().map((x) => x.key);
+    var resultKeys = resultSet.seriesNames().map((x) => x.key);
     var resultChartPivot = resultSet.chartPivot()[0];
-    resultKey.forEach((key) => {
+    resultKeys.forEach((key) => {
       metrics[key] = resultChartPivot[key];
     });
 
@@ -177,9 +160,9 @@ export default {
     resultSet = await analyticsAPIClient().load(
       dashboardSessionAnswerMetricsQuery(plioId)
     );
-    resultKey = resultSet.seriesNames().map((x) => x.key);
+    resultKeys = resultSet.seriesNames().map((x) => x.key);
     resultChartPivot = resultSet.chartPivot()[0];
-    resultKey.forEach((key) => {
+    resultKeys.forEach((key) => {
       metrics[key] = resultChartPivot[key];
     });
     return metrics;
