@@ -452,22 +452,23 @@ export default {
     },
     async loadAnalytics() {
       // load the data through analytics API and save it in the respective keys
-      this.plioAnalytics["viewers"] = await PlioAPIService.getUniqueUsersCount(
-        this.plioId
-      );
-      this.plioAnalytics["average-watch-time"] = await PlioAPIService.getAverageWatchTime(
-        this.plioId
-      );
-      this.plioAnalytics[
-        "num-questions-answered"
-      ] = await PlioAPIService.getNumQuestionsAnswered(this.plioId);
-      this.plioAnalytics["percent-complete"] = await PlioAPIService.getPercentComplete(
-        this.plioId
-      );
-      this.plioAnalytics["accuracy"] = await PlioAPIService.getAccuracy(this.plioId);
-      this.plioAnalytics["1-min-retention"] = await PlioAPIService.getOneMinuteRetention(
-        this.plioId
-      );
+      // this.plioAnalytics["viewers"] = await PlioAPIService.getUniqueUsersCount(
+      //   this.plioId
+      // );
+      // this.plioAnalytics["average-watch-time"] = await PlioAPIService.getAverageWatchTime(
+      //   this.plioId
+      // );
+      // this.plioAnalytics[
+      //   "num-questions-answered"
+      // ] = await PlioAPIService.getNumQuestionsAnswered(this.plioId);
+      // this.plioAnalytics["percent-complete"] = await PlioAPIService.getPercentComplete(
+      //   this.plioId
+      // );
+      // this.plioAnalytics["accuracy"] = await PlioAPIService.getAccuracy(this.plioId);
+      // this.plioAnalytics["1-min-retention"] = await PlioAPIService.getOneMinuteRetention(
+      //   this.plioId
+      // );
+      await PlioAPIService.getDashboardMetrics(this.plioId);
       this.stopLoading();
     },
     getVideoIDfromURL(videoURL) {
