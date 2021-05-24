@@ -246,8 +246,7 @@ export default {
   computed: {
     isVideoIdValid() {
       // whether the video Id is valid
-      // return this.videoId != "";
-      return false;
+      return this.videoId != "";
     },
     hasAnyItems() {
       // whether there are any itesm
