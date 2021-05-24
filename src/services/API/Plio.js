@@ -132,6 +132,8 @@ export default {
   },
 
   async getUniqueUsersCountList(plioIds) {
+    if (plioIds.length == 0) return [];
+
     var resultSet = await analyticsAPIClient().load(
       uniqueUsersListQuery(plioIds)
     );
