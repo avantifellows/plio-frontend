@@ -259,7 +259,9 @@ export default {
   @apply appearance-none w-6 h-6 rounded-full bg-red-500 mt-8;
 }
 .marker-slider-thumb::-moz-range-thumb {
-  @apply appearance-none w-6 h-6 rounded-full bg-red-500 transform translate-y-4;
+  width: 1.4rem;
+  height: 1.4rem;
+  @apply appearance-none rounded-full bg-red-500 transform translate-y-4 border-transparent;
 }
 .marker-slider-thumb-inactive::-webkit-slider-thumb {
   @apply bg-green-500;
@@ -277,6 +279,6 @@ export default {
   @apply appearance-none w-6 h-6 rounded-full bg-blue-500;
 }
 .main-slider-thumb::-moz-range-thumb {
-  @apply appearance-none w-6 h-6 rounded-full bg-blue-500;
+  @apply appearance-none w-6 h-6 rounded-full bg-blue-500 border-transparent;
 }
 </style>
