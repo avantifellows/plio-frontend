@@ -258,25 +258,27 @@ export default {
 .marker-slider-thumb::-webkit-slider-thumb {
   @apply appearance-none w-6 h-6 rounded-full bg-red-500 mt-8;
 }
-.marker-slider-thumb::-moz-slider-thumb {
-  @apply appearance-none w-6 h-6 rounded-full bg-red-500 mt-8;
+.marker-slider-thumb::-moz-range-thumb {
+  width: 1.4rem;
+  height: 1.4rem;
+  @apply appearance-none rounded-full bg-red-500 transform translate-y-4 border-transparent;
 }
 .marker-slider-thumb-inactive::-webkit-slider-thumb {
   @apply bg-green-500;
 }
-.marker-slider-thumb-inactive::-moz-slider-thumb {
-  @apply bg-green-500;
+.marker-slider-thumb-inactive::-moz-range-thumb {
+  @apply bg-green-500 transform translate-y-2;
 }
 .marker-slider-thumb-inactive-disabled::-webkit-slider-thumb {
   @apply bg-primary;
 }
-.marker-slider-thumb-inactive-disabled::-moz-slider-thumb {
-  @apply bg-primary;
+.marker-slider-thumb-inactive-disabled::-moz-range-thumb {
+  @apply bg-primary transform translate-y-2;
 }
 .main-slider-thumb::-webkit-slider-thumb {
   @apply appearance-none w-6 h-6 rounded-full bg-blue-500;
 }
-.main-slider-thumb::-moz-slider-thumb {
-  @apply appearance-none w-6 h-6 rounded-full bg-blue-500;
+.main-slider-thumb::-moz-range-thumb {
+  @apply appearance-none w-6 h-6 rounded-full bg-blue-500 border-transparent;
 }
 </style>
