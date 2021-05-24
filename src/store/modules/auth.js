@@ -32,8 +32,11 @@ const getters = {
   },
   isAnalyticsAccessTokenValid: (state) => {
     if (state.analyticsAccessToken === null) return false;
+    var currentTimeString = new Date().toString();
     const timeDifference =
-      (new Date() - state.analyticsAccessTokenFetchTime) / 1000;
+      (Date.parse(currentTimeString) -
+        Date.parse(state.analyticsAccessTokenFetchTime)) /
+      1000;
     // return false if the token has expired
     if (timeDifference > state.analyticsAccessTokenExpiryTime) return false;
     return true;
