@@ -32,7 +32,7 @@ const getters = {
   },
   isAnalyticsAccessTokenValid: (state) => {
     if (state.analyticsAccessToken === null) return false;
-    var currentTimeString = new Date(2021, 4, 26).toString();
+    var currentTimeString = new Date().toString();
     const timeDifference =
       (Date.parse(currentTimeString) -
         Date.parse(state.analyticsAccessTokenFetchTime)) /
