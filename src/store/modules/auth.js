@@ -32,7 +32,7 @@ const getters = {
   },
   isAnalyticsAccessTokenValid: (state) => {
     if (state.analyticsAccessToken === null) return false;
-    var currentTimeString = new Date().toString();
+    var currentTimeString = new Date(2021, 4, 26).toString();
     const timeDifference =
       (Date.parse(currentTimeString) -
         Date.parse(state.analyticsAccessTokenFetchTime)) /
@@ -134,7 +134,6 @@ const mutations = {
   setAnalyticsAccessToken(state, accessToken) {
     state.analyticsAccessToken = accessToken.access_token;
     state.analyticsAccessTokenFetchTime = new Date();
-    console.log(typeof state.analyticsAccessTokenFetchTime);
     state.analyticsAccessTokenExpiryTime = accessToken.expires_in;
   },
   unsetAnalyticsAccessToken(state) {
