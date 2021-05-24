@@ -32,8 +32,11 @@ const getters = {
   },
   isAnalyticsAccessTokenValid: (state) => {
     if (state.analyticsAccessToken === null) return false;
+    var currentTimeString = new Date().toString();
     const timeDifference =
-      (new Date() - state.analyticsAccessTokenFetchTime) / 1000;
+      (Date.parse(currentTimeString) -
+        Date.parse(state.analyticsAccessTokenFetchTime)) /
+      1000;
     // return false if the token has expired
     if (timeDifference > state.analyticsAccessTokenExpiryTime) return false;
     return true;
@@ -131,6 +134,7 @@ const mutations = {
   setAnalyticsAccessToken(state, accessToken) {
     state.analyticsAccessToken = accessToken.access_token;
     state.analyticsAccessTokenFetchTime = new Date();
+    console.log(typeof state.analyticsAccessTokenFetchTime);
     state.analyticsAccessTokenExpiryTime = accessToken.expires_in;
   },
   unsetAnalyticsAccessToken(state) {
