@@ -143,7 +143,7 @@ export default {
   },
 
   async getDashboardMetrics(plioId) {
-    // get the average watch time for the given plio
+    // get the metrics for each plio for the dashboard
     var metrics = {};
 
     // get session level metrics
