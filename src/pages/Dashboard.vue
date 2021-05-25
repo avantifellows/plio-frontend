@@ -266,7 +266,7 @@
       :iconConfig="downloadReportButtonIconConfig"
       :titleConfig="downloadReportButtonTextConfig"
       :buttonClass="downloadReportButtonClass"
-      class="rounded-md shadow-lg bp-500:mb-8 sm:mb-20 md:mb-7"
+      class="rounded-md shadow-lg bp-500:mb-8 sm:mb-20 md:mb-10 xl:mb-0"
       @click="downloadReport"
     ></icon-button>
   </div>
@@ -451,23 +451,18 @@ export default {
       });
     },
     async loadAnalytics() {
-      // load the data through analytics API and save it in the respective keys
-      this.plioAnalytics["viewers"] = await PlioAPIService.getUniqueUsersCount(
-        this.plioId
-      );
-      this.plioAnalytics["average-watch-time"] = await PlioAPIService.getAverageWatchTime(
-        this.plioId
-      );
-      this.plioAnalytics[
-        "num-questions-answered"
-      ] = await PlioAPIService.getNumQuestionsAnswered(this.plioId);
-      this.plioAnalytics["percent-complete"] = await PlioAPIService.getPercentComplete(
-        this.plioId
-      );
-      this.plioAnalytics["accuracy"] = await PlioAPIService.getAccuracy(this.plioId);
-      this.plioAnalytics["1-min-retention"] = await PlioAPIService.getOneMinuteRetention(
-        this.plioId
-      );
+      await PlioAPIService.getDashboardMetrics(this.plioId).then((metrics) => {
+        this.plioAnalytics["viewers"] = metrics["Session.uniqueUsers"];
+        this.plioAnalytics["average-watch-time"] =
+          metrics["GroupedSession.averageWatchTime"];
+        this.plioAnalytics["num-questions-answered"] =
+          metrics["AggregateSessionMetrics.numQuestionsAnswered"];
+        this.plioAnalytics["percent-complete"] =
+          metrics["AggregateSessionMetrics.completionPercentage"];
+        this.plioAnalytics["accuracy"] = metrics["AggregateSessionMetrics.accuracy"];
+        this.plioAnalytics["1-min-retention"] =
+          metrics["GroupedSessionRetention.averageOneMinuteRetention"];
+      });
       this.stopLoading();
     },
     getVideoIDfromURL(videoURL) {
