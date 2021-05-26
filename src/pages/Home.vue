@@ -1,5 +1,13 @@
 <template>
-  <div>
+  <div class="relative">
+    <transition name="slide-fade">
+      <FilterSortSidebar
+        v-if="isFilterSortMenuVisible"
+        class="absolute z-50 right-0"
+        @close-sidebar="toggleFilterSortMenuVisbility"
+        v-click-away="toggleFilterSortMenuVisbility"
+      ></FilterSortSidebar>
+    </transition>
     <div v-if="!isUserApproved" class="flex flex-col w-full h-full mt-10">
       <div class="flex justify-center">
         <inline-svg
@@ -22,7 +30,7 @@
         </p>
       </div>
     </div>
-    <div v-else>
+    <div v-else :class="{ 'opacity-30 pointer-events-none': blurMainScreen }">
       <!-- table -->
       <Table
         v-if="showTable"
@@ -32,6 +40,7 @@
         :totalNumberOfPlios="totalNumberOfPlios"
         @search-plios="fetchPlioIds($event)"
         @reset-search-string="resetSearchString"
+        @show-filtersort-menu="toggleFilterSortMenuVisbility"
       >
       </Table>
 
@@ -70,6 +79,7 @@ import Table from "@/components/Collections/Table/Table.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import Paginator from "@/components/UI/Navigation/Paginator.vue";
+import FilterSortSidebar from "@/components/UI/Sidebar/FilterSortSidebar.vue";
 import { mapState, mapActions, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 
@@ -79,6 +89,7 @@ export default {
     Table,
     IconButton,
     Paginator,
+    FilterSortSidebar,
   },
   props: {
     org: {
@@ -112,6 +123,7 @@ export default {
       totalNumberOfPlios: 0, // total number of plios for the user
       numberOfPliosPerPage: 5, // number of plios to show on one page (default: 5)
       searchString: "", // the search string to filter the plios on
+      isFilterSortMenuVisible: false,
     };
   },
   async created() {
@@ -138,10 +150,17 @@ export default {
       // title for the table of all plios
       return this.$t("home.all_plios");
     },
+    blurMainScreen() {
+      console.log(this.isFilterSortMenuVisible);
+      return this.isFilterSortMenuVisible;
+    },
   },
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
+    toggleFilterSortMenuVisbility() {
+      this.isFilterSortMenuVisible = !this.isFilterSortMenuVisible;
+    },
     async resetSearchString() {
       // reset the search string to ""
       // fetch all the plios again
@@ -242,3 +261,18 @@ export default {
   },
 };
 </script>
+
+<style>
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.5s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(100%);
+}
+</style>

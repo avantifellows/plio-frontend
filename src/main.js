@@ -11,6 +11,7 @@ import Tooltip from "primevue/tooltip";
 import Toast from "vue-toastification";
 import VueProgressBar from "@aacassandra/vue3-progressbar";
 import VueGtag from "vue-gtag";
+import VueClickAway from "vue3-click-away";
 
 import "primevue/resources/themes/saga-blue/theme.css";
 import "primevue/resources/primevue.min.css";
@@ -71,5 +72,6 @@ app.use(PrimeVue, { ripple: true });
 app.use(GAuth, gAuthOptions);
 app.use(Toast, { filterBeforeCreate });
 app.use(VueProgressBar, vueProgressBarOptions);
+app.use(VueClickAway);
 app.directive("tooltip", Tooltip);
 app.mount("#app");

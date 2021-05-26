@@ -12,6 +12,16 @@
           class="animate-spin h-4 object-scale-down"
         ></inline-svg>
       </div>
+
+      <!-- <div class="bg-grey col-12 mt-3 align-middle justify-content-center flex"> -->
+      <icon-button
+        :titleConfig="filterSortTitleConfig"
+        :iconConfig="filterSortIconConfig"
+        :buttonClass="filterSortButtonClass"
+        @click="showFilterSortMenu"
+      ></icon-button>
+      <!-- </div> -->
+
       <!-- table search -->
 
       <!-- search bar container -->
@@ -206,6 +216,18 @@ export default {
       // classes for search bar input box
       searchInputBoxClass:
         "w-full text-gray-700 leading-tight p-2 pl-4 focus:outline-none",
+      // icon config for the filter-sort button
+      filterSortIconConfig: {
+        enabled: true,
+        iconName: "sliders-h-solid",
+        iconClass: "h-4 w-4",
+      },
+      filterSortButtonClass:
+        "border-grey border-l border-2 shadow-md hover:bg-primary-button p-2 text-primary hover:text-white mt-3 mb-3 ml-auto mr-4",
+      filterSortTitleConfig: {
+        value: "Filter-Sort",
+        class: "text-md md:text-md lg:text-md text-black",
+      },
     };
   },
 
@@ -273,6 +295,10 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startLoading"]),
+    showFilterSortMenu() {
+      console.log("button clicked");
+      this.$emit("show-filtersort-menu");
+    },
     resetSearchString() {
       // starts loading and resets the search string
       this.startLoading();
@@ -410,6 +436,6 @@ export default {
     },
   },
 
-  emits: ["search-plios", "reset-search-string"],
+  emits: ["search-plios", "reset-search-string", "show-filtersort-menu"],
 };
 </script>

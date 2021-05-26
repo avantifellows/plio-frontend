@@ -49,5 +49,5 @@ module.exports = {
       strokeWidth: ["hover", "focus"],
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/forms")],
 };
