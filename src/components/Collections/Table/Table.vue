@@ -63,6 +63,7 @@
                 <tr>
                   <th
                     v-for="(columnName, columnIndex) in columns"
+                    @click="sortBy(columnName)"
                     :key="columnName"
                     scope="col"
                     class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider w-2/3"
@@ -71,6 +72,13 @@
                     <div class="flex">
                       <div class="p-1 my-auto whitespace-nowrap md:text-base xl:text-lg">
                         {{ tableColumnName(columnName) }}
+                      </div>
+                      <div class="p-1 my-auto cursor-pointer">
+                        <inline-svg
+                          :src="require('@/assets/images/chevron-down-solid.svg')"
+                          class="h-3 w-3 my-1 transition ease duration-800"
+                          :class="getSortIconStyleClass(columnName)"
+                        ></inline-svg>
                       </div>
                     </div>
                   </th>
@@ -194,6 +202,8 @@ export default {
       // classes for search bar input box
       searchInputBoxClass:
         "w-full text-gray-700 leading-tight p-2 pl-4 focus:outline-none",
+      // sort order for the "number of viewers" column. 1 - ascending, -1 - descending
+      numberOfViewersSortOrder: 1,
     };
   },
 
@@ -260,6 +270,14 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startLoading"]),
+    sortBy(columnName) {
+      // toggle the sort order for "number_of_viewers" column
+      // and emit it to the parent (Home.vue)
+      if (columnName == "number_of_viewers") {
+        this.numberOfViewersSortOrder = this.numberOfViewersSortOrder * -1;
+        this.$emit("sort-by-number-of-viewers", this.numberOfViewersSortOrder);
+      }
+    },
     resetSearchString() {
       // starts loading and resets the search string
       this.startLoading();
@@ -352,12 +370,20 @@ export default {
         "sm:px-6 px-3": this.isFirstColumn(columnIndex),
       };
     },
+    getSortIconStyleClass(columnName) {
+      // flip the icon if sort order changes
+      // hide the icon for the "name" column
+      return {
+        "transform rotate-180": this.numberOfViewersSortOrder == -1,
+        hidden: columnName == "name",
+      };
+    },
     search() {
       // emit the search string whenever the user presses the search icon
       this.$emit("search-plios", { searchString: this.searchString });
     },
   },
 
-  emits: ["search-plios", "reset-search-string"],
+  emits: ["search-plios", "reset-search-string", "sort-by-number-of-viewers"],
 };
 </script>

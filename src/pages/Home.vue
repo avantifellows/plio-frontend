@@ -32,6 +32,7 @@
         :totalNumberOfPlios="totalNumberOfPlios"
         @search-plios="fetchPlioIds($event)"
         @reset-search-string="resetSearchString"
+        @sort-by-number-of-viewers="sortByNumberOfViewers"
       >
       </Table>
 
@@ -112,6 +113,8 @@ export default {
       totalNumberOfPlios: 0, // total number of plios for the user
       numberOfPliosPerPage: 5, // number of plios to show on one page (default: 5)
       searchString: "", // the search string to filter the plios on
+      sortByFields: [], // array containing the fields to sort the plios on
+      currentPageNumber: undefined, // holds the current page number
     };
   },
   async created() {
@@ -142,12 +145,23 @@ export default {
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
+    async sortByNumberOfViewers(sortOrder) {
+      // invoked when the user clicks the sort icon next to "number of viewers" column
+
+      // remove any existing value of "unique_viewers" field. New value will be pushed below
+      this.sortByFields = this.sortByFields.filter((value) => {
+        return !value.includes("unique_viewers");
+      });
+
+      // push the appropriate field name according to the sort order and make the API call
+      this.sortByFields.push(sortOrder == 1 ? "unique_viewers" : "-unique_viewers");
+      await this.fetchPlioIds();
+    },
     async resetSearchString() {
       // reset the search string to ""
       // fetch all the plios again
       if (this.searchString != "") {
         this.searchString = "";
-        await this.fetchPlioIds();
       }
     },
 
@@ -167,7 +181,15 @@ export default {
       if (searchString != undefined && searchString != "")
         this.searchString = searchString;
 
-      await PlioAPIService.getAllPlios(uuidOnly, pageNumber, this.searchString)
+      // if the params contain a valid pageNumber, update the local currentPageNumber variable
+      if (pageNumber != undefined) this.currentPageNumber = pageNumber;
+
+      await PlioAPIService.getAllPlios(
+        uuidOnly,
+        this.currentPageNumber,
+        this.searchString,
+        this.sortByFields
+      )
         .then((response) => {
           // to handle the case when the user lands on the homepage for the first time
           // if no plios exist, then hide the table else show it

@@ -51,7 +51,12 @@ export default {
     });
   },
 
-  getAllPlios(uuidOnly = false, pageNumber = undefined, searchString = "") {
+  getAllPlios(
+    uuidOnly = false,
+    pageNumber = undefined,
+    searchString = "",
+    sortBy = []
+  ) {
     // returns all the plios (or just the flat list of uuids) created by the user
     // also fetches the plios at a given page number [if applicable]
     // also filters and fetches the plios that match the given search string [if applicable]
@@ -64,6 +69,8 @@ export default {
     // add search string query param
     if (searchString != undefined && searchString != "")
       queryParams["search"] = searchString;
+    // add sort by query param
+    if (sortBy.length != 0) queryParams["ordering"] = sortBy.join();
 
     return apiClient().get(url, { params: queryParams });
   },
