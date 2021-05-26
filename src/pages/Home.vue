@@ -162,6 +162,7 @@ export default {
       // fetch all the plios again
       if (this.searchString != "") {
         this.searchString = "";
+        await this.fetchPlioIds();
       }
     },
 

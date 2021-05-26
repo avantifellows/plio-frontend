@@ -270,14 +270,6 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startLoading"]),
-    sortBy(columnName) {
-      // toggle the sort order for "number_of_viewers" column
-      // and emit it to the parent (Home.vue)
-      if (columnName == "number_of_viewers") {
-        this.numberOfViewersSortOrder = this.numberOfViewersSortOrder * -1;
-        this.$emit("sort-by-number-of-viewers", this.numberOfViewersSortOrder);
-      }
-    },
     resetSearchString() {
       // starts loading and resets the search string
       this.startLoading();
@@ -351,6 +343,14 @@ export default {
     },
     capitalize(str) {
       return str.charAt(0).toUpperCase() + str.slice(1);
+    },
+    sortBy(columnName) {
+      // toggle the sort order for "number_of_viewers" column
+      // and emit it to the parent (Home.vue)
+      if (columnName == "number_of_viewers") {
+        this.numberOfViewersSortOrder = this.numberOfViewersSortOrder * -1;
+        this.$emit("sort-by-number-of-viewers", this.numberOfViewersSortOrder);
+      }
     },
     savePlioDetails(rowIndex, plioDetails) {
       // save the plio's status after they are fetched from the PlioListItem
