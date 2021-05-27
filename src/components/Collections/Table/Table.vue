@@ -271,7 +271,6 @@ export default {
   methods: {
     ...mapActions("sync", ["startLoading"]),
     resetSearchString() {
-      console.log("Test");
       // starts loading and resets the search string
       this.startLoading();
       this.searchString = "";

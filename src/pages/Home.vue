@@ -178,7 +178,6 @@ export default {
       // if the params contain a valid pageNumber, update the local currentPageNumber variable
       if (pageNumber != undefined) this.currentPageNumber = pageNumber;
 
-      console.log(this.sortByField);
       await PlioAPIService.getAllPlios(
         uuidOnly,
         this.currentPageNumber,
