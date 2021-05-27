@@ -53,3 +53,7 @@ The Tracking Code for the Google analytics property corresponding to the app.
 
 #### `VUE_APP_GOOGLE_ANALYTICS_APP_NAME`
 Name of the Google Analytics Property corresponding to the Tracking Code mentioned above.
+
+### Mixpanel
+#### `VUE_APP_MIXPANEL_PROJECT_TOKEN`
+This is the project token for your mixpanel project which you can view in the Mixpanel Dashboard.
