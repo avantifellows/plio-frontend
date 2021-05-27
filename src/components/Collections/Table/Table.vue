@@ -89,7 +89,7 @@
               <tbody class="bg-white divide-y divide-gray-200">
                 <!-- table values -->
                 <tr
-                  v-for="(entry, rowIndex) in filteredData"
+                  v-for="(entry, rowIndex) in localData"
                   :key="entry"
                   :class="tableRowClass"
                   @mouseover="tableRowHoverOn(rowIndex)"
@@ -190,8 +190,6 @@ export default {
   },
   data() {
     return {
-      sortKey: "", // the key (table column) to sort the table on
-      sortOrders: {}, // store the sorting orders of all columns of the table - asc or desc
       searchString: "", // the string to use when filtering the results
       selectedRowIndex: null, // index of the row currently in focus / being hovered on
       // classes for the analyse button
@@ -206,11 +204,12 @@ export default {
       // classes for search bar input box
       searchInputBoxClass:
         "w-full text-gray-700 leading-tight p-2 pl-4 focus:outline-none",
+      // sort order for the "number of viewers" column. 1 - ascending, -1 - descending
+      numViewersSortOrder: 1,
     };
   },
 
   created() {
-    this.initialiseSortOrders();
     this.startLoading();
   },
 
@@ -255,14 +254,14 @@ export default {
     },
     totalItemsInTable() {
       // total rows present in the table
-      return this.filteredData.length || 0;
+      return this.localData.length || 0;
     },
     isTableEmpty() {
       return this.totalItemsInTable == 0;
     },
-    filteredData() {
-      // contains the filtered data after applying sorting
-      return this.orderBySort(this.data);
+    localData() {
+      // contains the local copy of the table data
+      return this.data;
     },
     disabledElementClass() {
       // class for elements that need to be disabled
@@ -290,7 +289,7 @@ export default {
       // redirects to the dashboard page for the selected plio
       this.$router.push({
         name: "Dashboard",
-        params: { plioId: this.filteredData[rowIndex]["name"]["value"], org: this.org },
+        params: { plioId: this.localData[rowIndex]["name"]["value"], org: this.org },
       });
     },
     analyseButtonTooltip(rowIndex) {
@@ -301,7 +300,7 @@ export default {
     },
     isPublished(rowIndex) {
       // whether the plio in the given row is published
-      return this.filteredData[rowIndex]["name"]["status"] == "published";
+      return this.localData[rowIndex]["name"]["status"] == "published";
     },
     tableRowHoverOn(rowIndex) {
       // triggered upon hovering over a row
@@ -344,54 +343,31 @@ export default {
       // if a particular entry in the table is a component or not
       return value.type == "component";
     },
-    initialiseSortOrders() {
-      // initialise sorting orders for all table columns
-      // set it to 1 - ascending
-      const columnSortOrders = {};
-      this.columns.forEach(function (key) {
-        columnSortOrders[key] = 1;
-      });
-      this.sortOrders = columnSortOrders;
-    },
     capitalize(str) {
       return str.charAt(0).toUpperCase() + str.slice(1);
     },
-    sortBy(key) {
-      // invoked when sorting arrows are clicked on a table column
-      // sortOrder value can be 1(ascending) or -1(descending)
-      // everytime this method is involed, sortOrder for the "key" is toggled
-      this.sortKey = key;
-      this.sortOrders[key] = this.sortOrders[key] * -1;
+    sortBy(columnName) {
+      // toggle the sort order for "number_of_viewers" column
+      // and emit it to the parent
+      if (columnName == "number_of_viewers") {
+        this.numViewersSortOrder = this.numViewersSortOrder * -1;
+        this.$emit(
+          "sort-num-viewers",
+          this.numViewersSortOrder == -1 ? "-unique_viewers" : "unique_viewers"
+        );
+      }
     },
     savePlioDetails(rowIndex, plioDetails) {
       // save the plio's status after they are fetched from the PlioListItem
 
-      // Each plio's status is being stored in the filteredData object and that too,
+      // Each plio's status is being stored in the localData object and that too,
       // inside the "name" key as that key contains the details of plios
-      if (this.filteredData != undefined && this.filteredData[rowIndex] != undefined) {
-        this.filteredData[rowIndex]["name"] = {
-          ...this.filteredData[rowIndex]["name"],
+      if (this.localData != undefined && this.localData[rowIndex] != undefined) {
+        this.localData[rowIndex]["name"] = {
+          ...this.localData[rowIndex]["name"],
           ...plioDetails,
         };
       }
-    },
-    orderBySort(data) {
-      const sortKey = this.sortKey;
-      const order = this.sortOrders[sortKey];
-
-      if (sortKey) {
-        data = data.slice().sort(function (a, b) {
-          a = a[sortKey];
-          b = b[sortKey];
-          if (sortKey == "name") {
-            // to apply sorting on the plio title
-            a = a["title"].toLowerCase();
-            b = b["title"].toLowerCase();
-          }
-          return (a === b ? 0 : a > b ? 1 : -1) * order;
-        });
-      }
-      return data;
     },
     getColumnHeaderStyleClass(columnIndex) {
       return {
@@ -400,8 +376,11 @@ export default {
       };
     },
     getSortIconStyleClass(columnName) {
+      // flip the icon if sort order changes
+      // hide the icon for the "name" column
       return {
-        "transform rotate-180": this.sortOrders[columnName] == -1,
+        "transform rotate-180": this.numViewersSortOrder == -1,
+        hidden: columnName == "name",
       };
     },
     search() {
@@ -410,6 +389,6 @@ export default {
     },
   },
 
-  emits: ["search-plios", "reset-search-string"],
+  emits: ["search-plios", "reset-search-string", "sort-num-viewers"],
 };
 </script>

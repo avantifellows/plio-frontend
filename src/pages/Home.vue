@@ -32,6 +32,7 @@
         :totalNumberOfPlios="totalNumberOfPlios"
         @search-plios="fetchPlioIds($event)"
         @reset-search-string="resetSearchString"
+        @sort-num-viewers="sortPlios"
       >
       </Table>
 
@@ -112,6 +113,8 @@ export default {
       totalNumberOfPlios: 0, // total number of plios for the user
       numberOfPliosPerPage: 5, // number of plios to show on one page (default: 5)
       searchString: "", // the search string to filter the plios on
+      sortByField: undefined, // string which holds the field to sort the plios on
+      currentPageNumber: undefined, // holds the current page number
     };
   },
   async created() {
@@ -142,6 +145,11 @@ export default {
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
+    async sortPlios(sortByField) {
+      // invoked when the user clicks the sort icon next to a column
+      this.sortByField = sortByField;
+      await this.fetchPlioIds();
+    },
     async resetSearchString() {
       // reset the search string to ""
       // fetch all the plios again
@@ -167,7 +175,15 @@ export default {
       if (searchString != undefined && searchString != "")
         this.searchString = searchString;
 
-      await PlioAPIService.getAllPlios(uuidOnly, pageNumber, this.searchString)
+      // if the params contain a valid pageNumber, update the local currentPageNumber variable
+      if (pageNumber != undefined) this.currentPageNumber = pageNumber;
+
+      await PlioAPIService.getAllPlios(
+        uuidOnly,
+        this.currentPageNumber,
+        this.searchString,
+        this.sortByField
+      )
         .then((response) => {
           // to handle the case when the user lands on the homepage for the first time
           // if no plios exist, then hide the table else show it
