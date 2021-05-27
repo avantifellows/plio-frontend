@@ -203,7 +203,7 @@ export default {
       searchInputBoxClass:
         "w-full text-gray-700 leading-tight p-2 pl-4 focus:outline-none",
       // sort order for the "number of viewers" column. 1 - ascending, -1 - descending
-      numberOfViewersSortOrder: 1,
+      numViewersSortOrder: 1,
     };
   },
 
@@ -346,10 +346,13 @@ export default {
     },
     sortBy(columnName) {
       // toggle the sort order for "number_of_viewers" column
-      // and emit it to the parent (Home.vue)
+      // and emit the field to sort by, to the parent (Home.vue)
       if (columnName == "number_of_viewers") {
-        this.numberOfViewersSortOrder = this.numberOfViewersSortOrder * -1;
-        this.$emit("sort-by-number-of-viewers", this.numberOfViewersSortOrder);
+        this.numViewersSortOrder = this.numViewersSortOrder * -1;
+        this.$emit(
+          "sort-num-viewers",
+          this.numViewersSortOrder == -1 ? "-unique_viewers" : "unique_viewers"
+        );
       }
     },
     savePlioDetails(rowIndex, plioDetails) {
@@ -374,7 +377,7 @@ export default {
       // flip the icon if sort order changes
       // hide the icon for the "name" column
       return {
-        "transform rotate-180": this.numberOfViewersSortOrder == -1,
+        "transform rotate-180": this.numViewersSortOrder == -1,
         hidden: columnName == "name",
       };
     },
@@ -384,6 +387,6 @@ export default {
     },
   },
 
-  emits: ["search-plios", "reset-search-string", "sort-by-number-of-viewers"],
+  emits: ["search-plios", "reset-search-string", "sort-num-viewers"],
 };
 </script>

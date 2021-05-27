@@ -32,7 +32,7 @@
         :totalNumberOfPlios="totalNumberOfPlios"
         @search-plios="fetchPlioIds($event)"
         @reset-search-string="resetSearchString"
-        @sort-by-number-of-viewers="sortByNumberOfViewers"
+        @sort-num-viewers="sortPlios"
       >
       </Table>
 
@@ -113,7 +113,7 @@ export default {
       totalNumberOfPlios: 0, // total number of plios for the user
       numberOfPliosPerPage: 5, // number of plios to show on one page (default: 5)
       searchString: "", // the search string to filter the plios on
-      sortByFields: [], // array containing the fields to sort the plios on
+      sortByField: undefined, // string which holds the field to sort the plios on
       currentPageNumber: undefined, // holds the current page number
     };
   },
@@ -145,16 +145,9 @@ export default {
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
-    async sortByNumberOfViewers(sortOrder) {
-      // invoked when the user clicks the sort icon next to "number of viewers" column
-
-      // remove any existing value of "unique_viewers" field. New value will be pushed below
-      this.sortByFields = this.sortByFields.filter((value) => {
-        return !value.includes("unique_viewers");
-      });
-
-      // push the appropriate field name according to the sort order and make the API call
-      this.sortByFields.push(sortOrder == 1 ? "unique_viewers" : "-unique_viewers");
+    async sortPlios(sortByField) {
+      // invoked when the user clicks the sort icon next to a column
+      this.sortByField = sortByField;
       await this.fetchPlioIds();
     },
     async resetSearchString() {
@@ -189,7 +182,7 @@ export default {
         uuidOnly,
         this.currentPageNumber,
         this.searchString,
-        this.sortByFields
+        this.sortByField
       )
         .then((response) => {
           // to handle the case when the user lands on the homepage for the first time

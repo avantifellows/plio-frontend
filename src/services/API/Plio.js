@@ -55,7 +55,7 @@ export default {
     uuidOnly = false,
     pageNumber = undefined,
     searchString = "",
-    sortBy = []
+    sortBy = undefined
   ) {
     // returns all the plios (or just the flat list of uuids) created by the user
     // also fetches the plios at a given page number [if applicable]
@@ -70,7 +70,7 @@ export default {
     if (searchString != undefined && searchString != "")
       queryParams["search"] = searchString;
     // add sort by query param
-    if (sortBy.length != 0) queryParams["ordering"] = sortBy.join();
+    if (sortBy != undefined) queryParams["ordering"] = sortBy;
 
     return apiClient().get(url, { params: queryParams });
   },
