@@ -346,7 +346,7 @@ export default {
     },
     sortBy(columnName) {
       // toggle the sort order for "number_of_viewers" column
-      // and emit it to the parent (Home.vue)
+      // and emit it to the parent 
       if (columnName == "number_of_viewers") {
         this.numberOfViewersSortOrder = this.numberOfViewersSortOrder * -1;
         this.$emit("sort-by-number-of-viewers", this.numberOfViewersSortOrder);
