@@ -349,7 +349,7 @@ export default {
       // and emit it to the parent 
       if (columnName == "number_of_viewers") {
         this.numberOfViewersSortOrder = this.numberOfViewersSortOrder * -1;
-        this.$emit("sort-by-number-of-viewers", this.numberOfViewersSortOrder);
+        this.$emit("sort-num-viewers", this.numberOfViewersSortOrder);
       }
     },
     savePlioDetails(rowIndex, plioDetails) {
