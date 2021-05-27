@@ -70,7 +70,9 @@
                     :class="getColumnHeaderStyleClass(columnIndex)"
                   >
                     <div class="flex">
-                      <div class="p-1 my-auto whitespace-nowrap md:text-base xl:text-lg">
+                      <div
+                        class="p-1 my-auto whitespace-nowrap md:text-base xl:text-lg cursor-pointer"
+                      >
                         {{ tableColumnName(columnName) }}
                       </div>
                       <div class="p-1 my-auto cursor-pointer">
