@@ -18,6 +18,8 @@ import "primeicons/primeicons.css";
 import "./index.css";
 import "vue-toastification/dist/index.css";
 
+import mixpanel from "mixpanel-browser";
+
 // Google AOauth. Add CLIENT_ID in .env file
 import GAuth from "vue3-google-oauth2";
 
@@ -72,4 +74,8 @@ app.use(GAuth, gAuthOptions);
 app.use(Toast, { filterBeforeCreate });
 app.use(VueProgressBar, vueProgressBarOptions);
 app.directive("tooltip", Tooltip);
+
+// add mixpanel as an instance property
+mixpanel.init(process.env.VUE_APP_MIXPANEL_PROJECT_TOKEN);
+app.config.globalProperties.$mixpanel = mixpanel;
 app.mount("#app");

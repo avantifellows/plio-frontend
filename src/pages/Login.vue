@@ -252,6 +252,8 @@ export default {
         clearInterval(loginInterval);
       }
     }, GAUTH_VALID_CHECK_INTERVAL);
+    // track the event on mixpanel
+    this.$mixpanel.track("View Login");
   },
   methods: {
     ...mapActions("auth", ["setAccessToken"]),
