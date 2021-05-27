@@ -75,6 +75,7 @@ app.use(Toast, { filterBeforeCreate });
 app.use(VueProgressBar, vueProgressBarOptions);
 app.directive("tooltip", Tooltip);
 
+// add mixpanel as an instance property
 mixpanel.init(process.env.VUE_APP_MIXPANEL_PROJECT_TOKEN);
 app.config.globalProperties.$mixpanel = mixpanel;
 app.mount("#app");
