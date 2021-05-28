@@ -146,6 +146,7 @@ export default {
         valid: "",
         invalid: "Mobile number is invalid",
       },
+      input_placeholder: "Mobile Number",
     },
     otp: {
       request: "Request OTP",
@@ -166,6 +167,13 @@ export default {
     warning: {
       only_indian_numbers:
         "Only Indian (+91) phone numbers are supported for now",
+    },
+    opt_in_t_and_c: {
+      1: "By logging in, you are choosing to accept our",
+      2: "Terms of Serivce",
+      3: "and",
+      4: "Privacy Policy",
+      5: "",
     },
   },
   player: {

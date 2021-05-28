@@ -180,10 +180,13 @@ export default {
         })
         .catch(() => this.toast.error(this.$t("error.create_plio")));
     },
-    onClose(event) {
+    onClose() {
       // invoked when trying to close the browser or changing pages
-      event.preventDefault();
-      event.returnValue = "";
+      // only works on Editor page or the Player page
+      if (this.onEditorPage || this.onPlayerPage) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
     },
   },
   computed: {
@@ -217,6 +220,14 @@ export default {
     onHomePage() {
       // whether the current page is the home page
       return this.$route.name == "Home";
+    },
+    onEditorPage() {
+      // whether the current page is the editor page
+      return this.$route.name == "Editor";
+    },
+    onPlayerPage() {
+      // whether the current page is the player page
+      return this.$route.name == "Player";
     },
     onLoginPage() {
       // whether the current page is the login page
