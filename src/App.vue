@@ -120,17 +120,16 @@ export default {
     user: {
       handler() {
         // identify on mixpanel if not already identified
-        if (this.$mixpanel.get_distinct_id() != this.user.id) {
-          this.$mixpanel.alias(this.user.id);
+        if (this.$mixpanel.get_distinct_id() != this.user.id.toString()) {
+          this.$mixpanel.alias(this.user.id.toString());
           this.$mixpanel.people.set({
             "$first_name": this.user.first_name,
             "$last_name": this.user.last_name,
             "$email": this.user.email,
             "$phone": this.user.phone,
           });
-          this.$mixpanel.identify(this.user.id);
+          this.$mixpanel.identify(this.user.id.toString());
         }
-        console.log(this.user);
       },
       deep: true,
     },
@@ -164,6 +163,7 @@ export default {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
       this.$Progress.start();
+      this.$mixpanel.track("Click Create");
       PlioAPIService.createPlio()
         .then(response => {
           this.$Progress.finish();
