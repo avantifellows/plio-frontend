@@ -243,21 +243,4 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
-input[type="number"]::-webkit-input-placeholder {
-  text-align: center;
-}
-
-input[type="number"]:-moz-placeholder {
-  /* Firefox 18- */
-  text-align: center;
-}
-
-input[type="number"]::-moz-placeholder {
-  /* Firefox 19+ */
-  text-align: center;
-}
-
-input[type="number"]:-ms-input-placeholder {
-  text-align: center;
-}
 </style>

@@ -146,7 +146,7 @@ export default {
         valid: "",
         invalid: "Mobile number is invalid",
       },
-      input_placeholder: "Mobile Number",
+      input_placeholder: "Enter Mobile Number",
     },
     otp: {
       request: "Request OTP",

@@ -180,7 +180,7 @@ export default {
         })
         .catch(() => this.toast.error(this.$t("error.create_plio")));
     },
-    onClose() {
+    onClose(event) {
       // invoked when trying to close the browser or changing pages
       // only works on Editor page or the Player page
       if (this.onEditorPage || this.onPlayerPage) {

@@ -387,3 +387,22 @@ export default {
   },
 };
 </script>
+<style lang="postcss">
+input[type="number"]::-webkit-input-placeholder {
+  text-align: left;
+}
+
+input[type="number"]:-moz-placeholder {
+  /* Firefox 18- */
+  text-align: left;
+}
+
+input[type="number"]::-moz-placeholder {
+  /* Firefox 19+ */
+  text-align: left;
+}
+
+input[type="number"]:-ms-input-placeholder {
+  text-align: left;
+}
+</style>

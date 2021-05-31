@@ -146,7 +146,7 @@ export default {
         valid: "",
         invalid: "फ़ोन नंबर अमान्य है",
       },
-      input_placeholder: "मोबाइल नंबर",
+      input_placeholder: "मोबाइल नंबर डालें",
     },
     otp: {
       request: "OTP भेजो",
