@@ -2,16 +2,8 @@
   <div :class="{ 'opacity-50 pointer-events-none': coverBackground }">
     <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
       <!-- top left logo -->
-      <router-link
-        :to="{ name: 'Home', params: { org: activeWorkspace } }"
-        class="h-14 w-11 justify-self-start place-self-center"
-        v-if="!onLoginPage"
-      >
-        <img
-          class="h-full w-full object-scale-down"
-          id="logo"
-          src="@/assets/images/logo.png"
-        />
+      <router-link :to="{ name: 'Home', params: { org: activeWorkspace } }" class="h-14 w-11 justify-self-start place-self-center" v-if="!onLoginPage">
+        <img class="h-full w-full object-scale-down" id="logo" src="@/assets/images/logo.png" />
       </router-link>
 
       <!-- workspace switcher -->
@@ -20,24 +12,13 @@
       </div>
 
       <!-- page heading -->
-      <div
-        v-if="isAuthenticated"
-        class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center"
-      >
+      <div v-if="isAuthenticated" class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center">
         <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
       </div>
 
       <!-- create plio button -->
-      <div
-        v-if="showCreateButton"
-        class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1"
-      >
-        <icon-button
-          :titleConfig="createButtonTextConfig"
-          :buttonClass="createButtonClass"
-          class="rounded-md shadow-lg"
-          @click="createNewPlio"
-        ></icon-button>
+      <div v-if="showCreateButton" class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1">
+        <icon-button :titleConfig="createButtonTextConfig" :buttonClass="createButtonClass" class="rounded-md shadow-lg" @click="createNewPlio"></icon-button>
       </div>
 
       <div class="grid col-start-6 col-end-8 justify-items-end sm:col-start-7">
@@ -45,16 +26,12 @@
         <!-- logout -->
         <div v-if="showLogout" class="text-lg sm:text-xl">
           <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
-            <button
-              class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain"
-            >
+            <button class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain">
               {{ $t("nav.login") }}
             </button>
           </router-link>
           <a href="#" v-if="isAuthenticated" @click="logoutButtonClicked">
-            <button
-              class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2"
-            >
+            <button class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2">
               {{ $t("nav.logout") }}
             </button>
           </a>
@@ -134,11 +111,27 @@ export default {
       // check if the current user actually belongs to the activeWorkspace
       // set in the store. If not, then redirect to the personal workspace
       if (value) {
-        var isUserInWorkspace = this.user.organizations.some((org) => {
+        var isUserInWorkspace = this.user.organizations.some(org => {
           return org.shortcode == this.activeWorkspace;
         });
         if (!isUserInWorkspace) this.$router.replace({ name: "Home" });
       }
+    },
+    user: {
+      handler() {
+        // identify on mixpanel if not already identified
+        if (this.$mixpanel.get_distinct_id() != this.user.id.toString()) {
+          this.$mixpanel.alias(this.user.id.toString());
+          this.$mixpanel.people.set({
+            "$first_name": this.user.first_name,
+            "$last_name": this.user.last_name,
+            "$email": this.user.email,
+            "$phone": this.user.phone,
+          });
+          this.$mixpanel.identify(this.user.id.toString());
+        }
+      },
+      deep: true,
     },
   },
   methods: {
@@ -159,6 +152,9 @@ export default {
           name: "Login",
           params: { userClickedLogout: this.userClickedLogout },
         });
+        // resets the distinct ID so that multiple users can use the same device
+        this.$mixpanel.reset();
+        this.$mixpanel.track("Logout");
         // added here so that if someone clicks on logout while
         // some activity is pending
         this.stopLoading();
@@ -168,8 +164,9 @@ export default {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
       this.$Progress.start();
+      this.$mixpanel.track("Click Create");
       PlioAPIService.createPlio()
-        .then((response) => {
+        .then(response => {
           this.$Progress.finish();
           if (response.status == 201) {
             this.$router.push({
@@ -210,12 +207,7 @@ export default {
     },
     showWorkspaceSwitcher() {
       // whether to show workspace switcher
-      return (
-        this.isAuthenticated &&
-        this.onHomePage &&
-        this.user.organizations.length &&
-        this.isUserApproved
-      );
+      return this.isAuthenticated && this.onHomePage && this.user.organizations.length && this.isUserApproved;
     },
     onHomePage() {
       // whether the current page is the home page
