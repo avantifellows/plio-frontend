@@ -1,75 +1,13 @@
 <template>
-  <div class="sm:grid sm:grid-cols-4 md:grid-cols-3 p-10">
+  <div class="sm:grid sm:grid-cols-4 md:grid-cols-4 p-2 bp-320:p-4 sm:p-6 md:p-10">
     <!-- main grid with the login functionality -->
     <div
-      class="flex flex-col w-full sm:col-start-2 sm:col-span-2 md:col-start-2 md:col-span-1 space-y-10"
+      class="flex flex-col w-full sm:col-span-full md:col-start-2 md:col-span-2 border shadow-xl bg-white rounded-md p-4 md:p-8 border-primary max-w-3xl mx-auto"
     >
-      <img src="@/assets/images/Banner.png" />
-      <!-- prompt to enter phone number -->
-      <!-- <p class="text-center font-bold text-lg lg:text-xl xl:text-2xl">
-        {{ $t("login.phone.prompt") }}
-      </p> -->
-      <!-- input box to enter phone number -->
-      <!-- <input-number
-        class="mt-2"
-        v-model:value="phoneInput"
-        :validation="phoneInputValidation"
-        :maxLength="10"
-      ></input-number> -->
-      <!-- input box to enter OTP -->
-      <!-- <input-number
-        class="mt-2"
-        v-model:value="otpInput"
-        :validation="otpInputValidation"
-        :maxLength="6"
-        v-if="requestedOtp"
-      ></input-number> -->
-      <!-- button to request for OTP -->
-      <!-- <icon-button
-        class="mt-2"
-        @click="requestOtp"
-        :titleConfig="requestOTPTitleConfig"
-        :buttonClass="requestOTPButtonClass"
-        v-if="!requestedOtp"
-        :isDisabled="!isRequestOtpEnabled"
-      ></icon-button> -->
-      <!-- button to submit OTP -->
-      <!-- <icon-button
-        class="mt-2"
-        @click="phoneLogin"
-        :titleConfig="submitOTPTitleConfig"
-        :iconConfig="submitOTPIconConfig"
-        :buttonClass="submitOTPButtonClass"
-        v-if="requestedOtp"
-        :disabled="!isSubmitOTPEnabled || submitOTPIconConfig.enabled"
-      ></icon-button> -->
-      <!-- button to request resending OTP -->
-      <!-- <icon-button
-        @click="resendOtp"
-        :titleConfig="resendOTPTitleConfig"
-        :buttonClass="resendOTPButtonClass"
-        class="mt-2"
-        :isDisabled="submitOTPIconConfig.enabled"
-        v-if="requestedOtp && !resentOtp"
-      ></icon-button> -->
-      <!-- text to show when OTP has been resent -->
-      <!-- <p v-if="resentOtp" class="text-center mt-2">
-        {{ $t("login.otp.resent") }}
-      </p> -->
-      <!-- only indian numbers warning message -->
-      <!-- <div
-        class="bg-yellow-50 p-4 rounded flex items-start text-yellow-600 my-4 shadow-lg max-w-xl mx-auto"
-      >
-        <div class="text-lg place-self-center">
-          <inline-svg :src="warningIcon" class="fill-current w-5 pt-1"></inline-svg>
-        </div>
-        <div class="px-3">
-          <p class="pt-2 text-yellow-700">
-            {{ $t("login.warning.only_indian_numbers") }}
-          </p>
-        </div>
+      <!-- plio logo as a banner -->
+      <div class="w-20 justify-self-start place-self-center mb-10">
+        <img class="h-full w-full object-scale-down" src="@/assets/images/logo.png" />
       </div>
-      <p class="text-center text-2xl sm:text-4xl my-10">{{ $t("login.or") }}</p>  -->
       <!-- google sign in button -->
       <button
         type="button"
@@ -91,10 +29,77 @@
           <inline-svg
             v-if="pending"
             :src="require('@/assets/images/spinner-solid.svg')"
-            class="animate-spin h-4 place-self-center ml-2"
+            class="animate-spin h-4 place-self-center ml-2 md"
           ></inline-svg>
         </div>
       </button>
+
+      <!-- "OR" divider between google login and phone login -->
+      <div class="flex flex-row space-x-2">
+        <hr class="border-b w-1/2 my-auto border-gray-400" />
+        <p class="text-center text-xl sm:text-2xl my-5 whitespace-nowrap">
+          {{ $t("login.or") }}
+        </p>
+        <hr class="border-b w-1/2 my-auto border-gray-400" />
+      </div>
+
+      <!-- input box to enter phone number -->
+      <input-number
+        v-model:value="phoneInput"
+        :validation="phoneInputValidation"
+        :maxLength="10"
+        :staticText="phoneInputStaticText"
+        :startIcon="phoneInputIconConfig"
+        :placeholder="phoneInputPlaceholder"
+      ></input-number>
+      <!-- input box to enter OTP -->
+      <input-number
+        class="mt-2"
+        v-model:value="otpInput"
+        :validation="otpInputValidation"
+        :maxLength="6"
+        v-if="requestedOtp"
+      ></input-number>
+      <!-- button to request for OTP -->
+      <icon-button
+        class="mt-2"
+        @click="requestOtp"
+        :titleConfig="requestOTPTitleConfig"
+        :buttonClass="requestOTPButtonClass"
+        v-if="!requestedOtp && isRequestOtpEnabled"
+        :isDisabled="!isRequestOtpEnabled"
+      ></icon-button>
+      <!-- button to submit OTP -->
+      <icon-button
+        class="mt-2"
+        @click="phoneLogin"
+        :titleConfig="submitOTPTitleConfig"
+        :iconConfig="submitOTPIconConfig"
+        :buttonClass="submitOTPButtonClass"
+        v-if="requestedOtp"
+        :disabled="!isSubmitOTPEnabled || submitOTPIconConfig.enabled"
+      ></icon-button>
+      <!-- button to request resending OTP -->
+      <icon-button
+        @click="resendOtp"
+        :titleConfig="resendOTPTitleConfig"
+        :buttonClass="resendOTPButtonClass"
+        class="mt-2"
+        :isDisabled="submitOTPIconConfig.enabled"
+        v-if="requestedOtp && !resentOtp"
+      ></icon-button>
+      <!-- text to show when OTP has been resent -->
+      <p v-if="resentOtp" class="text-center mt-2">
+        {{ $t("login.otp.resent") }}
+      </p>
+
+      <!-- terms and service declaration message -->
+      <div class="p-2 rounded flex items-start max-w-xl mx-auto mt-4 space-x-1">
+        <div class="place-self-center">
+          <inline-svg :src="warningIcon" class="fill-current w-4"></inline-svg>
+        </div>
+        <p v-html="tAndCText" class="text-xs md:text-sm"></p>
+      </div>
     </div>
   </div>
 </template>
@@ -102,8 +107,8 @@
 <script>
 import UserAPIService from "@/services/API/User.js";
 import UserConfigService from "@/services/Config/User.js";
-// import InputNumber from "../components/UI/Text/InputNumber.vue";
-// import IconButton from "../components/UI/Buttons/IconButton.vue";
+import InputNumber from "../components/UI/Text/InputNumber.vue";
+import IconButton from "../components/UI/Buttons/IconButton.vue";
 import { mapActions, mapState } from "vuex";
 import { useToast } from "vue-toastification";
 
@@ -124,8 +129,8 @@ export default {
     },
   },
   components: {
-    // InputNumber,
-    // IconButton,
+    InputNumber,
+    IconButton,
   },
   watch: {
     isRequestOtpEnabled() {
@@ -146,10 +151,40 @@ export default {
       warningIcon: require("@/assets/images/exclamation-circle-solid.svg"),
       isGoogleAuthDisabled: true, // whether the google auth button is disabled
       isSubmitOTPInProgress: false, // whether the OTP has been submitted and is being verified
+      phoneInputIconConfig: {
+        // icon config for phone input text box
+        enabled: true,
+        name: "phone-alt-solid",
+        class: "text-gray-500 ml-1 p-0.5",
+      },
+      phoneInputStaticText: {
+        // config to show "+91" on the phone input textbox
+        enabled: true,
+        text: "+91",
+        class: "text-gray-500 border-r pr-2",
+      },
     };
   },
   computed: {
     ...mapState("sync", ["pending"]),
+    tAndCText() {
+      return [
+        // formatted text for the terms and service opt in message
+        this.$t("login.opt_in_t_and_c.1"),
+        `<a href='https://plio.in/terms' class="underline" target="_blank">` +
+          this.$t("login.opt_in_t_and_c.2") +
+          `</a>`,
+        this.$t("login.opt_in_t_and_c.3"),
+        `<a href='https://plio.in/privacy' class="underline" target="_blank">` +
+          this.$t("login.opt_in_t_and_c.4") +
+          `</a>`,
+        this.$t("login.opt_in_t_and_c.5"),
+      ].join(" ");
+    },
+    phoneInputPlaceholder() {
+      // placeholder to be shown on the phone input textbox
+      return this.$t("login.phone.input_placeholder");
+    },
     submitOTPIconConfig() {
       // config for the loading icon on the submit otp button
       return {
@@ -237,11 +272,11 @@ export default {
     },
     googleButtonTitleClass() {
       // class for the title of the google sign in button
-      return "text-gray-600 ml-2";
+      return "text-gray-600 ml-2 md:text-md text-sm lg:text-xl";
     },
     googleButtonClass() {
       // class for the google sign in button
-      return "bg-gray-100 hover:bg-gray-200 ring-gray-200 rounded-md py-4";
+      return "bg-gray-100 hover:bg-gray-200 ring-gray-200 rounded-md py-6";
     },
   },
   created() {
@@ -336,3 +371,22 @@ export default {
   },
 };
 </script>
+<style lang="postcss">
+input[type="number"]::-webkit-input-placeholder {
+  text-align: left;
+}
+
+input[type="number"]:-moz-placeholder {
+  /* Firefox 18- */
+  text-align: left;
+}
+
+input[type="number"]::-moz-placeholder {
+  /* Firefox 19+ */
+  text-align: left;
+}
+
+input[type="number"]:-ms-input-placeholder {
+  text-align: left;
+}
+</style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-1 gap-y-1">
+  <div class="grid grid-cols-1">
     <div class="flex justify-between">
       <!-- title for the input box -->
       <p class="text-xs pl-2">{{ title }}</p>
@@ -32,9 +32,16 @@
         <inline-svg :src="startIconObj"></inline-svg>
       </div>
 
+      <!-- static text -->
+      <div v-if="isStaticTextEnabled" :class="[staticText.class, staticTextDefaultClass]">
+        <p class="self-center">
+          {{ staticText.text }}
+        </p>
+      </div>
+
       <!-- input text area -->
       <input
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md focus:outline-none focus:ring focus:shadow-outline ring-transparent w-full"
+        class="p-3 border placeholder-blueGray-300 focus:placeholder-white text-blueGray-600 bg-white rounded text-xs sm:text-base focus:outline-none focus:ring-1 focus:shadow-outline focus:border-transparent focus:ring-yellow-400 w-full"
         name="placeholder"
         :placeholder="placeholder"
         v-model="localValue"
@@ -109,6 +116,17 @@ export default {
       default: null,
       type: Number,
     },
+    staticText: {
+      // whether any static text needs to be displayed
+      default: () => {
+        return {
+          enabled: false,
+          text: "",
+          class: "",
+        };
+      },
+      type: Object,
+    },
   },
   computed: {
     localValue: {
@@ -119,6 +137,10 @@ export default {
       set(localValue) {
         this.$emit("update:value", localValue);
       },
+    },
+    isStaticTextEnabled() {
+      // whether the static text is to be showed or not
+      return this.staticText.enabled || false;
     },
     isValidationEnabled() {
       // whether input validation is on
@@ -174,9 +196,20 @@ export default {
     inputAreaClass() {
       // class for the input element
       return {
-        "pl-10": this.isStartIconEnabled,
-        "pl-4": !this.isStartIconEnabled,
+        "pl-20": this.isStartIconEnabled && this.isStaticTextEnabled,
+        "pl-10": this.isStartIconEnabled && !this.isStaticTextEnabled,
+        "pl-11": !this.isStartIconEnabled && this.isStaticTextEnabled,
       };
+    },
+    staticTextDefaultClass() {
+      // class for the static text next to the input element
+      return [
+        {
+          "pl-2": !this.isStartIconEnabled,
+          "pl-9": this.isStartIconEnabled,
+        },
+        "z-10 flex absolute text-xs sm:text-base inset-y-0 left-0",
+      ];
     },
   },
   methods: {
@@ -209,22 +242,5 @@ input::-webkit-inner-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
-}
-input[type="number"]::-webkit-input-placeholder {
-  text-align: center;
-}
-
-input[type="number"]:-moz-placeholder {
-  /* Firefox 18- */
-  text-align: center;
-}
-
-input[type="number"]::-moz-placeholder {
-  /* Firefox 19+ */
-  text-align: center;
-}
-
-input[type="number"]:-ms-input-placeholder {
-  text-align: center;
 }
 </style>
