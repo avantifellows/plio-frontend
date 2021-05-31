@@ -163,7 +163,12 @@ export default {
         text: "+91",
         class: "text-gray-500 border-r pr-2",
       },
-      tAndCText: [
+    };
+  },
+  computed: {
+    ...mapState("sync", ["pending"]),
+    tAndCText() {
+      return [
         // formatted text for the terms and service opt in message
         this.$t("login.opt_in_t_and_c.1"),
         `<a href='https://plio.in/terms' class="underline" target="_blank">` +
@@ -174,11 +179,8 @@ export default {
           this.$t("login.opt_in_t_and_c.4") +
           `</a>`,
         this.$t("login.opt_in_t_and_c.5"),
-      ].join(" "),
-    };
-  },
-  computed: {
-    ...mapState("sync", ["pending"]),
+      ].join(" ");
+    },
     phoneInputPlaceholder() {
       // placeholder to be shown on the phone input textbox
       return this.$t("login.phone.input_placeholder");
