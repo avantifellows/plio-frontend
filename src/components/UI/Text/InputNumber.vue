@@ -41,7 +41,7 @@
 
       <!-- input text area -->
       <input
-        class="p-2 border placeholder-blueGray-300 focus:placeholder-white text-blueGray-600 bg-white rounded text-md focus:outline-none focus:ring-1 focus:shadow-outline focus:border-transparent focus:ring-yellow-400 w-full"
+        class="p-2 border placeholder-blueGray-300 focus:placeholder-white text-blueGray-600 bg-white rounded text-xs sm:text-base focus:outline-none focus:ring-1 focus:shadow-outline focus:border-transparent focus:ring-yellow-400 w-full"
         name="placeholder"
         :placeholder="placeholder"
         v-model="localValue"
@@ -208,7 +208,7 @@ export default {
           "pl-2": !this.isStartIconEnabled,
           "pl-9": this.isStartIconEnabled,
         },
-        "z-10 flex absolute text-md inset-y-0 left-0",
+        "z-10 flex absolute text-xs sm:text-base inset-y-0 left-0",
       ];
     },
   },
