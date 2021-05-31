@@ -170,7 +170,7 @@ export default {
     },
     opt_in_t_and_c: {
       1: "By logging in, you are choosing to accept our",
-      2: "Terms of Serivce",
+      2: "Terms of Service",
       3: "and",
       4: "Privacy Policy",
       5: "",

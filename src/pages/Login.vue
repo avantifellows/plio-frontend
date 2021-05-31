@@ -1,8 +1,8 @@
 <template>
-  <div class="sm:grid sm:grid-cols-4 md:grid-cols-4 p-10">
+  <div class="sm:grid sm:grid-cols-4 md:grid-cols-4 p-2 bp-320:p-4 sm:p-6 md:p-10">
     <!-- main grid with the login functionality -->
     <div
-      class="flex flex-col w-full sm:col-span-full md:col-start-2 md:col-span-2 border shadow-xl bg-white rounded-md p-8 border-primary max-w-3xl mx-auto"
+      class="flex flex-col w-full sm:col-span-full md:col-start-2 md:col-span-2 border shadow-xl bg-white rounded-md p-2 sm:p-4 md:p-8 border-primary max-w-3xl mx-auto"
     >
       <!-- plio logo as a banner -->
       <div class="w-20 justify-self-start place-self-center mb-10">
@@ -37,7 +37,7 @@
       <!-- "OR" divider between google login and phone login -->
       <div class="flex flex-row space-x-2">
         <hr class="border-b w-1/2 my-auto border-gray-400" />
-        <p class="text-center text-xl sm:text-2xl my-10 whitespace-nowrap">
+        <p class="text-center text-xl sm:text-2xl my-5 whitespace-nowrap">
           {{ $t("login.or") }}
         </p>
         <hr class="border-b w-1/2 my-auto border-gray-400" />
@@ -45,7 +45,6 @@
 
       <!-- input box to enter phone number -->
       <input-number
-        class="mt-2"
         v-model:value="phoneInput"
         :validation="phoneInputValidation"
         :maxLength="10"
@@ -99,36 +98,7 @@
         <div class="place-self-center">
           <inline-svg :src="warningIcon" class="fill-current w-4"></inline-svg>
         </div>
-        <div class="text-xs flex flex-row flex-wrap">
-          <!-- "By logging in, you are choosing to accept our" -->
-          <p class="xsm:whitespace-nowrap">{{ $t("login.opt_in_t_and_c.1") }}</p>
-          &nbsp;
-          <!-- "Terms of service" -->
-          <a
-            href="https://plio.in/terms"
-            class="underline whitespace-nowrap"
-            target="_blank"
-          >
-            {{ $t("login.opt_in_t_and_c.2") }}
-          </a>
-          &nbsp;
-          <!-- "and" -->
-          <p class="whitespace-nowrap">{{ $t("login.opt_in_t_and_c.3") }}</p>
-          &nbsp;
-          <!-- "Privacy Policy" -->
-          <a
-            href="https://plio.in/privacy"
-            class="underline whitespace-nowrap"
-            target="_blank"
-          >
-            {{ $t("login.opt_in_t_and_c.4") }}
-          </a>
-          &nbsp;
-          <!-- placeholder for hindi translation -->
-          <p class="whitespace-nowrap">
-            {{ $t("login.opt_in_t_and_c.5") }}
-          </p>
-        </div>
+        <p v-html="tAndCText" class="text-xs md:text-sm"></p>
       </div>
     </div>
   </div>
@@ -191,8 +161,20 @@ export default {
         // config to show "+91" on the phone input textbox
         enabled: true,
         text: "+91",
-        class: "text-gray-500",
+        class: "text-gray-500 border-r pr-2",
       },
+      tAndCText: [
+        // formatted text for the terms and service opt in message
+        this.$t("login.opt_in_t_and_c.1"),
+        `<a href='https://plio.in/terms' class="underline" target="_blank">` +
+          this.$t("login.opt_in_t_and_c.2") +
+          `</a>`,
+        this.$t("login.opt_in_t_and_c.3"),
+        `<a href='https://plio.in/privacy' class="underline" target="_blank">` +
+          this.$t("login.opt_in_t_and_c.4") +
+          `</a>`,
+        this.$t("login.opt_in_t_and_c.5"),
+      ].join(" "),
     };
   },
   computed: {

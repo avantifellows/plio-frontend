@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-1 gap-y-1">
+  <div class="grid grid-cols-1">
     <div class="flex justify-between">
       <!-- title for the input box -->
       <p class="text-xs pl-2">{{ title }}</p>
@@ -41,7 +41,7 @@
 
       <!-- input text area -->
       <input
-        class="p-2 border placeholder-blueGray-300 focus:placeholder-white text-blueGray-600 bg-white rounded text-xs sm:text-base focus:outline-none focus:ring-1 focus:shadow-outline focus:border-transparent focus:ring-yellow-400 w-full"
+        class="p-3 border placeholder-blueGray-300 focus:placeholder-white text-blueGray-600 bg-white rounded text-xs sm:text-base focus:outline-none focus:ring-1 focus:shadow-outline focus:border-transparent focus:ring-yellow-400 w-full"
         name="placeholder"
         :placeholder="placeholder"
         v-model="localValue"
