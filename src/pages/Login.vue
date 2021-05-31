@@ -2,7 +2,7 @@
   <div class="sm:grid sm:grid-cols-4 md:grid-cols-4 p-2 bp-320:p-4 sm:p-6 md:p-10">
     <!-- main grid with the login functionality -->
     <div
-      class="flex flex-col w-full sm:col-span-full md:col-start-2 md:col-span-2 border shadow-xl bg-white rounded-md p-2 sm:p-4 md:p-8 border-primary max-w-3xl mx-auto"
+      class="flex flex-col w-full sm:col-span-full md:col-start-2 md:col-span-2 border shadow-xl bg-white rounded-md p-4 md:p-8 border-primary max-w-3xl mx-auto"
     >
       <!-- plio logo as a banner -->
       <div class="w-20 justify-self-start place-self-center mb-10">
