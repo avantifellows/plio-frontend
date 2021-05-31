@@ -152,6 +152,7 @@ export default {
           name: "Login",
           params: { userClickedLogout: this.userClickedLogout },
         });
+        // resets the distinct ID so that multiple users can use the same device
         this.$mixpanel.reset();
         this.$mixpanel.track("Logout");
         // added here so that if someone clicks on logout while
