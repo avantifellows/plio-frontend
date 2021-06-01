@@ -17,7 +17,11 @@ const state = {
 
 const getters = {
   isAuthenticated: (state) => !!state.accessToken,
-  locale: (state) => state.config.locale,
+  locale: (state) => {
+    var configValue = JSON.parse(state.config);
+    if (configValue != null) return configValue.locale;
+    return null;
+  },
   isUserApproved: (state) =>
     state.user != null && state.user.status == "approved",
   activeWorkspaceSchema: (state) => {
