@@ -198,6 +198,8 @@ export default {
           email: this.user.email,
           name: this.user.first_name + this.user.last_name,
         });
+
+        window.removeEventListener("chatwoot:ready", this.assignUserToChatwoot);
       }
     },
     logoutButtonClicked() {
