@@ -120,7 +120,7 @@ export default {
     user: {
       handler() {
         // identify on mixpanel if not already identified
-        if (this.$mixpanel.get_distinct_id() != this.user.id.toString()) {
+        if (this.user != null && this.$mixpanel.get_distinct_id() != this.user.id.toString()) {
           this.$mixpanel.alias(this.user.id.toString());
           this.$mixpanel.people.set({
             "$first_name": this.user.first_name,
