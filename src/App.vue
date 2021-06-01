@@ -156,14 +156,14 @@ export default {
       // mounting chatwoot SDK to the DOM
       let chatwootScript = document.createElement("script");
       chatwootScript.innerHTML = `(function(d,t) {
-          var BASE_URL="${process.env.VUE_APP_CHATWOOT_WEBSITE}";
+          var BASE_URL="${process.env.VUE_APP_CHATWOOT_URL}";
           var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
           g.src=BASE_URL+"/packs/js/sdk.js";
           g.id="chatwoot_sdk_mount"
           s.parentNode.insertBefore(g,s);
           g.onload=function(){
             window.chatwootSDK.run({
-              websiteToken: '${process.env.VUE_APP_CHATWOOT_WEBSITE_TOKEN}',
+              websiteToken: '${process.env.VUE_APP_CHATWOOT_TOKEN}',
               baseUrl: BASE_URL
             })
           }

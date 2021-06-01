@@ -57,3 +57,10 @@ Name of the Google Analytics Property corresponding to the Tracking Code mention
 ### Mixpanel
 #### `VUE_APP_MIXPANEL_PROJECT_TOKEN`
 This is the project token for your mixpanel project which you can view in the Mixpanel Dashboard.
+
+### Chatwoot
+#### `VUE_APP_CHATWOOT_URL`
+The URL of your chatwoot app
+
+#### `VUE_APP_CHATWOOT_TOKEN`
+The token of your chatwoot app. Can be found in the app settings
