@@ -90,7 +90,10 @@ export default {
     if (this.pending) this.stopLoading();
     // place a listener for the event of closing of the browser
     window.addEventListener("beforeunload", this.onClose);
-    if (this.isAuthenticated) await this.fetchAndUpdateUser();
+    if (this.isAuthenticated) {
+      await this.fetchAndUpdateUser();
+      this.setupChatwoot();
+    }
     // ask user to pick the language if they are visiting for the first time
     if (this.locale == null) {
       this.showLanguagePickerDialog = true;
@@ -123,8 +126,11 @@ export default {
       }
 
       if (value) {
-        // reset the value of `userClickedLogout` whenever the user logs in again
+        // whenever the user logs in again,
+        // reset the value of `userClickedLogout`
         this.userClickedLogout = false;
+        // setup chatwoot bubble
+        this.setupChatwoot();
       }
     },
     onHomePage(value) {
@@ -172,6 +178,59 @@ export default {
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions("auth", ["unsetAccessToken", "fetchAndUpdateUser"]),
     ...mapActions("sync", ["stopLoading"]),
+    mountChatwoot() {
+      // mounting chatwoot SDK to the DOM
+      let chatwootScript = document.createElement("script");
+      chatwootScript.innerHTML = `(function(d,t) {
+          var BASE_URL="${process.env.VUE_APP_CHATWOOT_URL}";
+          var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+          g.src=BASE_URL+"/packs/js/sdk.js";
+          g.id="chatwoot_sdk_mount"
+          s.parentNode.insertBefore(g,s);
+          g.onload=function(){
+            window.chatwootSDK.run({
+              websiteToken: '${process.env.VUE_APP_CHATWOOT_TOKEN}',
+              baseUrl: BASE_URL
+            })
+          }
+        })(document,"script");`;
+      chatwootScript.id = "chatwoot_script";
+      document.head.appendChild(chatwootScript);
+    },
+    setupChatwoot() {
+      // set up chatwoot instance and add event listener
+      if (window.$chatwoot != undefined) window.$chatwoot.reset();
+      this.mountChatwoot();
+      window.addEventListener("chatwoot:ready", this.assignUserToChatwoot);
+    },
+    teardownChatwoot() {
+      // teardown chatwoot instance
+
+      // reset the instance
+      window.$chatwoot.reset();
+
+      // hide the bubble
+      var chatwootBubble = document.querySelector(".woot-widget-bubble");
+      if (chatwootBubble != undefined) chatwootBubble.classList.add("hidden");
+    },
+    assignUserToChatwoot() {
+      if (this.isAuthenticated) {
+        // unhide chatwoot bubble if it was hidden before
+        var chatwootBubble = document.querySelector(".woot-widget-bubble");
+        if (chatwootBubble != undefined) {
+          chatwootBubble.classList.remove("hidden");
+          chatwootBubble.style.bottom = "60px";
+        }
+
+        // set the user for the chatwoot instance
+        window.$chatwoot.setUser(this.user.id, {
+          email: this.user.email,
+          name: this.user.first_name + this.user.last_name,
+        });
+
+        window.removeEventListener("chatwoot:ready", this.assignUserToChatwoot);
+      }
+    },
     logoutButtonClicked() {
       // set whether the logout action as triggered by the user or not
       this.userClickedLogout = true;
@@ -191,6 +250,7 @@ export default {
         // added here so that if someone clicks on logout while
         // some activity is pending
         this.stopLoading();
+        this.teardownChatwoot();
       });
     },
     createNewPlio() {

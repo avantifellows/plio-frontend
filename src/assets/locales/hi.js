@@ -128,10 +128,10 @@ export default {
       },
     },
     paginator: {
-      first: "पहला पेज",
-      last: "आखरी पेज",
-      next: "अगला पेज",
-      previous: "पिछला पेज",
+      first: "पहला",
+      last: "आखरी",
+      next: "अगला",
+      previous: "पिछला",
       description: {
         to: "से",
         of: ",",
