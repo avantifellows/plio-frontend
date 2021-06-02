@@ -181,6 +181,13 @@ export default {
       // creates a new draft plio and redirects the user to the editor
       this.$Progress.start();
       this.$mixpanel.track("Click Create");
+      this.$mixpanel.people.set_once({
+        "First Plio Created": new Date().toISOString(),
+      });
+      this.$mixpanel.people.set({
+        "Last Plio Created": new Date().toISOString(),
+      });
+      this.$mixpanel.people.increment("Total Plios Created");
       PlioAPIService.createPlio()
         .then(response => {
           this.$Progress.finish();

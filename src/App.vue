@@ -140,16 +140,29 @@ export default {
     user: {
       handler() {
         // identify on mixpanel if not already identified
-        if (this.user != null && this.$mixpanel.get_distinct_id() != this.user.id.toString()) {
+        if (this.user == null) return;
+        if (this.$mixpanel.get_distinct_id() != this.user.id.toString()) {
           this.$mixpanel.alias(this.user.id.toString());
           this.$mixpanel.people.set({
             "$first_name": this.user.first_name,
             "$last_name": this.user.last_name,
             "$email": this.user.email,
             "$phone": this.user.phone,
+            "User DB ID": this.user.id,
           });
-          this.$mixpanel.identify(this.user.id.toString());
+          this.$mixpanel.identify(this.user.id);
         }
+        this.$mixpanel.people.set({
+          "All Workspaces": this.allWorkspaces,
+          "Current Workspace": this.activeWorkspace,
+          "User Status": this.user.status,
+          "Current Locale": this.user.config.locale,
+          "Last Logged In": new Date().toISOString(),
+        });
+        this.$mixpanel.register({
+          "User Status": this.user.status,
+          "Current Workspace": this.activeWorkspace,
+        });
       },
       deep: true,
     },
@@ -185,6 +198,13 @@ export default {
       // creates a new draft plio and redirects the user to the editor
       this.$Progress.start();
       this.$mixpanel.track("Click Create");
+      this.$mixpanel.people.set_once({
+        "First Plio Created": new Date().toISOString(),
+      });
+      this.$mixpanel.people.set({
+        "Last Plio Created": new Date().toISOString(),
+      });
+      this.$mixpanel.people.increment("Total Plios Created");
       PlioAPIService.createPlio()
         .then(response => {
           this.$Progress.finish();
@@ -207,6 +227,10 @@ export default {
     },
     setLocale(locale) {
       // sets the given locale as the locale for the user
+      this.$mixpanel.register({
+        "Current Locale": locale,
+      });
+
       this.$i18n.locale = locale;
       UserConfigService.updateLocale();
       this.showLanguagePickerDialog = false;
@@ -272,6 +296,17 @@ export default {
     coverBackground() {
       // whether to apply opacity on the background
       return this.showLanguagePickerDialog;
+    },
+    allWorkspaces() {
+      // list of shortcodes of all workspaces that the user is a part of
+      if (this.user == null) return [];
+      var shortcodes = [];
+
+      this.user.organizations.forEach(organization => {
+        shortcodes.push(organization.shortcode);
+      });
+
+      return shortcodes;
     },
   },
 };

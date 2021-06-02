@@ -150,6 +150,7 @@ export default {
     };
   },
   computed: {
+    ...mapState("auth", ["user"]),
     ...mapState("sync", ["pending"]),
     tAndCText() {
       return [
@@ -178,7 +179,7 @@ export default {
       if (this.redirectTo == "" || this.redirectTo == "/") {
         // there is no other page to redirect the user to
         // redirect to the home page
-        return { name: "Home" };
+        return { name: "Home", params: {} };
       }
       // redirect to the relevant page with its params
       return { name: this.redirectTo, params: this.redirectParams };
@@ -349,9 +350,16 @@ export default {
       });
       // route user to the relevant page after login is complete
       this.$router.replace(this.routeParams);
+      this.$mixpanel.register({
+        "User Status": this.user.status,
+        "Current Workspace": this.routeParams.params.org || "",
+      });
       this.$mixpanel.track("Login", {
         "Login Type": loginType,
         "Login Destination": JSON.stringify(this.routeParams["params"] || {}),
+      });
+      this.$mixpanel.people.set_once({
+        "First Log In": new Date().toISOString(),
       });
       this.stopLoading();
       this.isSubmitOTPInProgress = false;

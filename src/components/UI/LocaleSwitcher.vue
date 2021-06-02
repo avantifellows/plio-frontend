@@ -15,6 +15,12 @@ export default {
   methods: {
     updateLocale() {
       // update the locale to the local and remote configs
+      this.$mixpanel.register({
+        "Current Locale": this.$i18n.locale,
+      });
+      this.$mixpanel.people.set({
+        "Current Locale": this.$i18n.locale,
+      });
       UserConfigService.updateLocale();
     },
   },

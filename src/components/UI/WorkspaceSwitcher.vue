@@ -2,11 +2,7 @@
   <div>
     <select v-model="selectedWorkspace" @change="updateActiveWorkspace">
       <option value="">Personal Workspace</option>
-      <option
-        v-for="workspace in workspaces"
-        :key="workspace.id"
-        :value="workspace.shortcode"
-      >
+      <option v-for="workspace in workspaces" :key="workspace.id" :value="workspace.shortcode">
         {{ workspace.name }}
       </option>
     </select>
@@ -32,6 +28,12 @@ export default {
   methods: {
     ...mapActions("auth", ["setActiveWorkspace"]),
     updateActiveWorkspace() {
+      this.$mixpanel.register({
+        "Current Workspace": this.selectedWorkspace,
+      });
+      this.$mixpanel.people.set({
+        "Current Workspace": this.selectedWorkspace,
+      });
       this.setActiveWorkspace(this.selectedWorkspace);
       this.$router.push({ name: "Home", params: { org: this.activeWorkspace } });
     },
