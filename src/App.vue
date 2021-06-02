@@ -1,48 +1,64 @@
 <template>
-  <div :class="{ 'opacity-50 pointer-events-none': coverBackground }">
-    <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
-      <!-- top left logo -->
-      <router-link :to="{ name: 'Home', params: { org: activeWorkspace } }" class="h-14 w-11 justify-self-start place-self-center" v-if="!onLoginPage">
-        <img class="h-full w-full object-scale-down" id="logo" src="@/assets/images/logo.png" />
-      </router-link>
+  <div class="flex relative">
+    <div class="w-full" :class="{ 'opacity-20 pointer-events-none': coverBackground }" @keydown="keyboardPressed">
+      <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
+        <!-- top left logo -->
+        <router-link :to="{ name: 'Home', params: { org: activeWorkspace } }" class="h-14 w-11 justify-self-start place-self-center" v-if="!onLoginPage">
+          <img class="h-full w-full object-scale-down" id="logo" src="@/assets/images/logo.png" />
+        </router-link>
 
-      <!-- workspace switcher -->
-      <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
-        <WorkspaceSwitcher class="flex justify-center"></WorkspaceSwitcher>
-      </div>
-
-      <!-- page heading -->
-      <div v-if="isAuthenticated" class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center">
-        <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
-      </div>
-
-      <!-- create plio button -->
-      <div v-if="showCreateButton" class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1">
-        <icon-button :titleConfig="createButtonTextConfig" :buttonClass="createButtonClass" class="rounded-md shadow-lg" @click="createNewPlio"></icon-button>
-      </div>
-
-      <div class="grid col-start-6 col-end-8 justify-items-end sm:col-start-7">
-        <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
-        <!-- logout -->
-        <div v-if="showLogout" class="text-lg sm:text-xl">
-          <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
-            <button class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain">
-              {{ $t("nav.login") }}
-            </button>
-          </router-link>
-          <a href="#" v-if="isAuthenticated" @click="logoutButtonClicked">
-            <button class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2">
-              {{ $t("nav.logout") }}
-            </button>
-          </a>
+        <!-- workspace switcher -->
+        <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
+          <WorkspaceSwitcher class="flex justify-center"></WorkspaceSwitcher>
         </div>
-        <!-- locale switcher -->
-        <div class="self-center">
-          <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
+
+        <!-- page heading -->
+        <div v-if="isAuthenticated" class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center">
+          <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
+        </div>
+
+        <!-- create plio button -->
+        <div v-if="showCreateButton" class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1">
+          <icon-button :titleConfig="createButtonTextConfig" :buttonClass="createButtonClass" class="rounded-md shadow-lg" @click="createNewPlio"></icon-button>
+        </div>
+
+        <div class="grid col-start-6 col-end-8 justify-items-end sm:col-start-7">
+          <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
+          <!-- logout -->
+          <div v-if="showLogout" class="text-lg sm:text-xl">
+            <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
+              <button class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain">
+                {{ $t("nav.login") }}
+              </button>
+            </router-link>
+            <a href="#" v-if="isAuthenticated" @click="logoutButtonClicked">
+              <button class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2">
+                {{ $t("nav.logout") }}
+              </button>
+            </a>
+          </div>
+          <!-- locale switcher -->
+          <div class="self-center">
+            <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
+          </div>
+        </div>
+      </div>
+      <router-view />
+    </div>
+    <!-- first-time language picker -->
+    <div class="fixed w-full my-5 flex justify-center" v-if="showLanguagePickerDialog">
+      <div class="bg-white w-11/12 sm:w-9/12 lg:w-7/12 p-4 sm:p-10 rounded-lg border border-black">
+        <p class="text-center text-2xl sm:text-4xl py-4 sm:py-8">Select your language</p>
+        <div class="grid grid-cols-2 space-x-2">
+          <div class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer">
+            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">English</p>
+          </div>
+          <div class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer">
+            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">हिंदी</p>
+          </div>
         </div>
       </div>
     </div>
-    <router-view />
   </div>
   <vue-progress-bar></vue-progress-bar>
 </template>
@@ -64,7 +80,7 @@ export default {
   },
   data() {
     return {
-      showDialogBox: false, // to show the dialog box or not
+      showLanguagePickerDialog: false, // whether to show a language picker dialog box
       toast: useToast(), // use the toast component
       userClickedLogout: false, // if the user has clicked the logout button
     };
@@ -75,6 +91,10 @@ export default {
     // place a listener for the event of closing of the browser
     window.addEventListener("beforeunload", this.onClose);
     if (this.isAuthenticated) await this.fetchAndUpdateUser();
+    // ask user to pick the language if they are visiting for the first time
+    if (this.locale == null) {
+      this.showLanguagePickerDialog = true;
+    }
   },
   beforeUnmount() {
     // remove the listener for the event of closing of the browser
@@ -185,9 +205,21 @@ export default {
         event.returnValue = "";
       }
     },
+    setLocale(locale) {
+      // sets the given locale as the locale for the user
+      this.$i18n.locale = locale;
+      UserConfigService.updateLocale();
+      this.showLanguagePickerDialog = false;
+    },
+    keyboardPressed() {
+      // triggered when any keyboard button is pressed
+
+      // prevent keyboard buttons from working if coverBackground = true
+      if (this.coverBackground) event.preventDefault();
+    },
   },
   computed: {
-    ...mapGetters("auth", ["isAuthenticated", "isUserApproved", "activeWorkspaceSchema"]),
+    ...mapGetters("auth", ["isAuthenticated", "isUserApproved", "activeWorkspaceSchema", "locale"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     showLogout() {
@@ -238,8 +270,8 @@ export default {
       return pageName;
     },
     coverBackground() {
-      // whether to apply opacity to the background
-      return this.showDialogBox;
+      // whether to apply opacity on the background
+      return this.showLanguagePickerDialog;
     },
   },
 };
