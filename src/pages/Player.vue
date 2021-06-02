@@ -188,6 +188,14 @@ export default {
     },
   },
   async created() {
+    this.$mixpanel.people.set_once({
+      "First Plio Viewed": new Date().toISOString(),
+    });
+    this.$mixpanel.people.set({
+      "Last Plio Viewed": new Date().toISOString(),
+    });
+    this.$mixpanel.people.increment("Total Plios Viewed");
+
     // load the systemwide component properties
     this.componentProperties = require("@/services/Config/" + "Player.json");
 
@@ -328,6 +336,7 @@ export default {
         this.updateSession();
         // create an event for the user watching the plio
         this.createEvent("watching");
+        this.$mixpanel.people.increment("Total Watch Time", UPLOAD_INTERVAL / 1000);
       }
       UPLOAD_INTERVAL_TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL);
     },
