@@ -344,9 +344,10 @@ export default {
     },
     routeAfterLogin(loginType) {
       // fetch the user config and save it locally
-      UserConfigService.saveLocalUserConfig();
-      // set the system locale
-      UserConfigService.setLocaleFromUserConfig();
+      UserConfigService.saveLocalUserConfig().then(() => {
+        // update the locale to the local and remote configs
+        UserConfigService.updateLocale();
+      });
       // route user to the relevant page after login is complete
       this.$router.replace(this.routeParams);
       this.$mixpanel.register({
