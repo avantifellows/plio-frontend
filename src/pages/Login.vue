@@ -1,9 +1,7 @@
 <template>
   <div class="sm:grid sm:grid-cols-4 md:grid-cols-4 p-2 bp-320:p-4 sm:p-6 md:p-10">
     <!-- main grid with the login functionality -->
-    <div
-      class="flex flex-col w-full sm:col-span-full md:col-start-2 md:col-span-2 border shadow-xl bg-white rounded-md p-4 md:p-8 border-primary max-w-3xl mx-auto"
-    >
+    <div class="flex flex-col w-full sm:col-span-full md:col-start-2 md:col-span-2 border shadow-xl bg-white rounded-md p-4 md:p-8 border-primary max-w-3xl mx-auto">
       <!-- plio logo as a banner -->
       <div class="w-20 justify-self-start place-self-center mb-10">
         <img class="h-full w-full object-scale-down" src="@/assets/images/logo.png" />
@@ -18,19 +16,11 @@
       >
         <div class="flex w-full justify-center">
           <!-- logo -->
-          <inline-svg
-            :src="require('@/assets/images/google.svg')"
-            :class="googleButtonIconClass"
-            class="place-self-center"
-          ></inline-svg>
+          <inline-svg :src="require('@/assets/images/google.svg')" :class="googleButtonIconClass" class="place-self-center"></inline-svg>
           <!-- text -->
           <p :class="googleButtonTitleClass">{{ googleButtonTitle }}</p>
           <!-- loading spinner -->
-          <inline-svg
-            v-if="pending"
-            :src="require('@/assets/images/spinner-solid.svg')"
-            class="animate-spin h-4 place-self-center ml-2 md"
-          ></inline-svg>
+          <inline-svg v-if="pending" :src="require('@/assets/images/spinner-solid.svg')" class="animate-spin h-4 place-self-center ml-2 md"></inline-svg>
         </div>
       </button>
 
@@ -53,13 +43,7 @@
         :placeholder="phoneInputPlaceholder"
       ></input-number>
       <!-- input box to enter OTP -->
-      <input-number
-        class="mt-2"
-        v-model:value="otpInput"
-        :validation="otpInputValidation"
-        :maxLength="6"
-        v-if="requestedOtp"
-      ></input-number>
+      <input-number class="mt-2" v-model:value="otpInput" :validation="otpInputValidation" :maxLength="6" v-if="requestedOtp"></input-number>
       <!-- button to request for OTP -->
       <icon-button
         class="mt-2"
@@ -166,18 +150,15 @@ export default {
     };
   },
   computed: {
+    ...mapState("auth", ["user"]),
     ...mapState("sync", ["pending"]),
     tAndCText() {
       return [
         // formatted text for the terms and service opt in message
         this.$t("login.opt_in_t_and_c.1"),
-        `<a href='https://plio.in/terms' class="underline" target="_blank">` +
-          this.$t("login.opt_in_t_and_c.2") +
-          `</a>`,
+        `<a href='https://plio.in/terms' class="underline" target="_blank">` + this.$t("login.opt_in_t_and_c.2") + `</a>`,
         this.$t("login.opt_in_t_and_c.3"),
-        `<a href='https://plio.in/privacy' class="underline" target="_blank">` +
-          this.$t("login.opt_in_t_and_c.4") +
-          `</a>`,
+        `<a href='https://plio.in/privacy' class="underline" target="_blank">` + this.$t("login.opt_in_t_and_c.4") + `</a>`,
         this.$t("login.opt_in_t_and_c.5"),
       ].join(" ");
     },
@@ -192,6 +173,16 @@ export default {
         iconName: "spinner-solid",
         iconClass: "animate-spin h-4 object-scale-down text-white",
       };
+    },
+    routeParams() {
+      // returns the params for where the user should be directed to
+      if (this.redirectTo == "" || this.redirectTo == "/") {
+        // there is no other page to redirect the user to
+        // redirect to the home page
+        return { name: "Home", params: {} };
+      }
+      // redirect to the relevant page with its params
+      return { name: this.redirectTo, params: this.redirectParams };
     },
     redirectParams() {
       // params for the route to be redirected to
@@ -288,7 +279,9 @@ export default {
       }
     }, GAUTH_VALID_CHECK_INTERVAL);
     // track the event on mixpanel
-    this.$mixpanel.track("View Login");
+    this.$mixpanel.track("View Login", {
+      "Login Destination": this.routeParams["params"] || {},
+    });
   },
   methods: {
     ...mapActions("auth", ["setAccessToken"]),
@@ -313,10 +306,10 @@ export default {
       // invoked for logging in with Phone
       this.isSubmitOTPInProgress = true;
       UserAPIService.verifyOtp(this.formattedPhoneInput, this.otpInput)
-        .then((response) => {
-          this.setAccessToken(response.data).then(() => this.routeAfterLogin());
+        .then(response => {
+          this.setAccessToken(response.data).then(() => this.routeAfterLogin("phone"));
         })
-        .catch((error) => {
+        .catch(error => {
           this.stopLoading();
           if (error.response.status == 401) {
             // show wrong OTP warning and reset the OTP input text box
@@ -340,31 +333,34 @@ export default {
         // set the google login button as disabled
         this.isGoogleAuthDisabled = true;
         let socialAuthToken = googleUser.getAuthResponse();
-        UserAPIService.convertSocialAuthToken(socialAuthToken.access_token).then(
-          (response) => {
-            this.setAccessToken(response.data).then(() => this.routeAfterLogin());
-          }
-        );
+        UserAPIService.convertSocialAuthToken(socialAuthToken.access_token).then(response => {
+          this.setAccessToken(response.data).then(() => this.routeAfterLogin("google"));
+        });
       } catch (error) {
         this.toast.warning(this.$t("login.google.error"));
         this.stopLoading();
         return null;
       }
     },
-    routeAfterLogin() {
+    routeAfterLogin(loginType) {
       // fetch the user config and save it locally
-      UserConfigService.saveLocalUserConfig();
-      // set the system locale
-      UserConfigService.setLocaleFromUserConfig();
+      UserConfigService.saveLocalUserConfig().then(() => {
+        // update the locale to the local and remote configs
+        UserConfigService.updateLocale();
+      });
       // route user to the relevant page after login is complete
-      if (this.redirectTo == "" || this.redirectTo == "/") {
-        // there is no other page to redirect the user to
-        // redirect to the home page
-        this.$router.replace({ name: "Home" });
-      } else {
-        // redirect to the relevant page with its params
-        this.$router.replace({ name: this.redirectTo, params: this.redirectParams });
-      }
+      this.$router.replace(this.routeParams);
+      this.$mixpanel.register({
+        "User Status": this.user.status,
+        "Current Workspace": this.routeParams.params.org || "",
+      });
+      this.$mixpanel.track("Login", {
+        "Login Type": loginType,
+        "Login Destination": JSON.stringify(this.routeParams["params"] || {}),
+      });
+      this.$mixpanel.people.set_once({
+        "First Log In": new Date().toISOString(),
+      });
       this.stopLoading();
       this.isSubmitOTPInProgress = false;
     },

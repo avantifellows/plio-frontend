@@ -1,40 +1,25 @@
 <template>
-  <div
-    class="flex flex-col px-6 bp-500:px-6 sm:px-8 lg:px-32 xl:px-40 py-6 md:py-8 xl:py-10 bg-peach"
-  >
+  <div class="flex flex-col px-6 bp-500:px-6 sm:px-8 lg:px-32 xl:px-40 py-6 md:py-8 xl:py-10 bg-peach">
     <div class="flex flex-col bp-500:grid bp-500:grid-cols-4 lg:grid-cols-5">
       <!-- thumbnail -->
       <div class="bp-500:w-full flex bp-500:block bp-500:self-center">
-        <p
-          v-if="pending"
-          class="animate-pulse h-24 md:h-32 xl:h-42 my-2 md:my-4 lg:my-0 xl:my-6 w-full place-self-center bg-gray-500 rounded-md"
-        ></p>
+        <p v-if="pending" class="animate-pulse h-24 md:h-32 xl:h-42 my-2 md:my-4 lg:my-0 xl:my-6 w-full place-self-center bg-gray-500 rounded-md"></p>
         <img v-else :src="videoThumbnailURL" class="rounded-md" />
       </div>
-      <div
-        class="col-span-3 lg:col-span-4 flex flex-col justify-between mt-4 bp-500:mr-0 bp-500:ml-8 lg:ml-14"
-      >
+      <div class="col-span-3 lg:col-span-4 flex flex-col justify-between mt-4 bp-500:mr-0 bp-500:ml-8 lg:ml-14">
         <div>
           <!-- publish date -->
           <p class="text-xs bp-500:text-sm sm:text-md md:text-lg text-gray-500">
             {{ lastUpdatedDisplayText }}
           </p>
           <!-- title -->
-          <p
-            class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl tracking-tight font-bold text-yellow-900"
-            :class="plioTitleClass"
-          >
+          <p class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl tracking-tight font-bold text-yellow-900" :class="plioTitleClass">
             {{ displayPlioTitle }}
           </p>
         </div>
         <div class="flex flex-col bp-420:flex-row bp-500:flex-col sm:flex-row">
           <!-- url -->
-          <URL
-            :link="plioLink"
-            :urlStyleClass="urlStyleClass"
-            :urlCopyButtonClass="urlCopyButtonClass"
-            :isUnderlined="true"
-          ></URL>
+          <URL :link="plioLink" :urlStyleClass="urlStyleClass" :urlCopyButtonClass="urlCopyButtonClass" :isUnderlined="true"></URL>
           <!-- edit button -->
           <icon-button
             :titleConfig="editButtonTextConfig"
@@ -46,22 +31,13 @@
       </div>
     </div>
     <!-- summary -->
-    <div
-      class="flex flex-col sm:grid sm:grid-cols-8 bg-peach-light mt-4 sm:mt-8 lg:mt-10 mb-4 sm:mb-8 lg:mb-10 px-2 bp-420:px-4 py-8 sm:p-10 rounded-lg"
-    >
+    <div class="flex flex-col sm:grid sm:grid-cols-8 bg-peach-light mt-4 sm:mt-8 lg:mt-10 mb-4 sm:mb-8 lg:mb-10 px-2 bp-420:px-4 py-8 sm:p-10 rounded-lg">
       <div class="grid grid-cols-2 sm:flex sm:flex-col col-span-2">
         <div class="flex flex-col items-center sm:items-start">
           <!-- number of viewers -->
-          <div
-            v-if="pending"
-            class="w-full flex flex-col justify-center sm:justify-start animate-pulse"
-          >
-            <p
-              class="h-2 w-1/2 place-self-center sm:place-self-start bg-yellow-900 rounded-md"
-            ></p>
-            <p
-              class="h-4 w-1/2 place-self-center sm:place-self-start bg-yellow-900 rounded-md mt-1"
-            ></p>
+          <div v-if="pending" class="w-full flex flex-col justify-center sm:justify-start animate-pulse">
+            <p class="h-2 w-1/2 place-self-center sm:place-self-start bg-yellow-900 rounded-md"></p>
+            <p class="h-4 w-1/2 place-self-center sm:place-self-start bg-yellow-900 rounded-md mt-1"></p>
           </div>
           <div v-else>
             <p :class="textMetricTitleClass">
@@ -75,16 +51,9 @@
 
         <!-- average watch time -->
         <div class="flex flex-col items-center sm:items-start sm:mt-10">
-          <div
-            v-if="pending"
-            class="w-full flex flex-col justify-center sm:justify-start animate-pulse"
-          >
-            <p
-              class="h-2 w-1/2 place-self-center sm:place-self-start bg-yellow-900 rounded-md"
-            ></p>
-            <p
-              class="h-4 w-1/2 place-self-center sm:place-self-start bg-yellow-900 rounded-md mt-1"
-            ></p>
+          <div v-if="pending" class="w-full flex flex-col justify-center sm:justify-start animate-pulse">
+            <p class="h-2 w-1/2 place-self-center sm:place-self-start bg-yellow-900 rounded-md"></p>
+            <p class="h-4 w-1/2 place-self-center sm:place-self-start bg-yellow-900 rounded-md mt-1"></p>
           </div>
           <div v-else>
             <p :class="textMetricTitleClass">
@@ -125,10 +94,7 @@
                     @touchend="showCompletedHelpText = false"
                   ></inline-svg>
                   <!-- info text -->
-                  <p
-                    class="bg-black text-white rounded-md p-2 absolute ml-4 w-28 z-10"
-                    v-if="showCompletedHelpText"
-                  >
+                  <p class="bg-black text-white rounded-md p-2 absolute ml-4 w-28 z-10" v-if="showCompletedHelpText">
                     {{ $t("dashboard.summary.completion_rate.tooltip") }}
                   </p>
                 </div>
@@ -138,10 +104,7 @@
           <div class="mt-4">
             <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
               <!-- one minute retention -->
-              <div
-                v-if="pending"
-                class="w-full flex flex-col justify-center animate-pulse"
-              >
+              <div v-if="pending" class="w-full flex flex-col justify-center animate-pulse">
                 <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
                 <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
               </div>
@@ -166,10 +129,7 @@
                       @touchend="showRetentionHelpText = false"
                     ></inline-svg>
                     <!-- info text -->
-                    <p
-                      class="bg-black text-white rounded-md p-2 absolute ml-4 w-28"
-                      v-if="showRetentionHelpText"
-                    >
+                    <p class="bg-black text-white rounded-md p-2 absolute ml-4 w-28" v-if="showRetentionHelpText">
                       {{ $t("dashboard.summary.one_minute_retention.tooltip") }}
                     </p>
                   </div>
@@ -206,10 +166,7 @@
                     @touchend="showAccuracyHelpText = false"
                   ></inline-svg>
                   <!-- info text -->
-                  <p
-                    class="bg-black text-white rounded-md p-2 absolute mt-4 -ml-14 bp-500:-ml-8 lg:ml-4 lg:mt-0 w-32 bp-500:w-40 z-10"
-                    v-if="showAccuracyHelpText"
-                  >
+                  <p class="bg-black text-white rounded-md p-2 absolute mt-4 -ml-14 bp-500:-ml-8 lg:ml-4 lg:mt-0 w-32 bp-500:w-40 z-10" v-if="showAccuracyHelpText">
                     {{ $t("dashboard.summary.accuracy.tooltip") }}
                   </p>
                 </div>
@@ -219,10 +176,7 @@
           <div class="mt-4">
             <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
               <!-- number of questions answered -->
-              <div
-                v-if="pending"
-                class="w-full flex flex-col justify-center animate-pulse"
-              >
+              <div v-if="pending" class="w-full flex flex-col justify-center animate-pulse">
                 <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
                 <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
               </div>
@@ -247,10 +201,7 @@
                       @touchend="showQuestionsAnsweredHelpText = false"
                     ></inline-svg>
                     <!-- info text -->
-                    <p
-                      class="bg-black text-white rounded-md p-2 absolute ml-4 w-20 bp-420:w-28"
-                      v-if="showQuestionsAnsweredHelpText"
-                    >
+                    <p class="bg-black text-white rounded-md p-2 absolute ml-4 w-20 bp-420:w-28" v-if="showQuestionsAnsweredHelpText">
                       {{ $t("dashboard.summary.num_questions_answered.tooltip") }}
                     </p>
                   </div>
@@ -301,8 +252,7 @@ export default {
       plioTitle: "", // title for the current plio
       lastUpdated: "", // date when the plio was last updated,
       // style for the text of the url component
-      urlStyleClass:
-        "sm:tracking-normal text-xs bp-500:text-sm md:text-md lg:text-lg font-bold text-yellow-600",
+      urlStyleClass: "sm:tracking-normal text-xs bp-500:text-sm md:text-md lg:text-lg font-bold text-yellow-600",
       urlCopyButtonClass: "text-yellow-600", // style for the copy button of the url component
       plioAnalytics: {}, // holds all the analytics data for the plio
       downloadReportButtonIconConfig: {
@@ -312,16 +262,13 @@ export default {
         iconClass: "animate-spin h-4 object-scale-down text-white",
       },
       // styling class for the first type of metric
-      textMetricValueClass:
-        "text-yellow-900 text-center sm:text-left text-xl lg:text-2xl xl:text-3xl font-bold",
+      textMetricValueClass: "text-yellow-900 text-center sm:text-left text-xl lg:text-2xl xl:text-3xl font-bold",
       // styling class for the title of the first type of metric
       textMetricTitleClass: "text-yellow-900 text-xsm bp-420:text-xs bp-500:text-sm",
       // styling class for the second type of metric
-      cardMetricValueClass:
-        "w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900",
+      cardMetricValueClass: "w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900",
       // styling class for the title of the second type of metric
-      cardMetricTitleClass:
-        "w-full text-center text-xs md:text-sm text-yellow-900 mt-2 flex justify-center flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center",
+      cardMetricTitleClass: "w-full text-center text-xs md:text-sm text-yellow-900 mt-2 flex justify-center flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center",
       showAccuracyHelpText: false, // whether to show the help text for the accuracy metric
       showCompletedHelpText: false, // whether to show the help text for the % completed metric
       showRetentionHelpText: false, // whether to show the help text for the retention metric
@@ -345,26 +292,22 @@ export default {
     },
     accuracy() {
       // average accuracy on the plio
-      if (this.plioAnalytics["accuracy"] != null)
-        return Math.trunc(this.plioAnalytics["accuracy"]) + "%";
+      if (this.plioAnalytics["accuracy"] != null) return Math.trunc(this.plioAnalytics["accuracy"]) + "%";
       return "0%";
     },
     completionRate() {
       // what % of users completed the plio
-      if (this.plioAnalytics["percent-complete"] != null)
-        return Math.trunc(this.plioAnalytics["percent-complete"]) + "%";
+      if (this.plioAnalytics["percent-complete"] != null) return Math.trunc(this.plioAnalytics["percent-complete"]) + "%";
       return "0%";
     },
     oneMinuteRetention() {
       // what % of users were retained after the 1 minute mark
-      if (this.plioAnalytics["1-min-retention"] != null)
-        return Math.trunc(this.plioAnalytics["1-min-retention"]) + "%";
+      if (this.plioAnalytics["1-min-retention"] != null) return Math.trunc(this.plioAnalytics["1-min-retention"]) + "%";
       return "0%";
     },
     numQuestionsAnswered() {
       // number of questions answered on average by a user
-      if (this.plioAnalytics["num-questions-answered"] != null)
-        return Math.round(this.plioAnalytics["num-questions-answered"]);
+      if (this.plioAnalytics["num-questions-answered"] != null) return Math.round(this.plioAnalytics["num-questions-answered"]);
       return "0%";
     },
     editButtonTextConfig() {
@@ -443,7 +386,7 @@ export default {
     },
     loadPlio() {
       // fetch plio details
-      PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
+      PlioAPIService.getPlio(this.plioId).then(plioDetails => {
         if (plioDetails.status != "published") this.$router.replace({ name: "404" });
         this.videoID = this.getVideoIDfromURL(plioDetails.video_url);
         this.plioTitle = plioDetails.plioTitle;
@@ -451,18 +394,26 @@ export default {
       });
     },
     async loadAnalytics() {
-      await PlioAPIService.getDashboardMetrics(this.plioId).then((metrics) => {
-        this.plioAnalytics["viewers"] = metrics["Session.uniqueUsers"];
-        this.plioAnalytics["average-watch-time"] =
-          metrics["GroupedSession.averageWatchTime"];
-        this.plioAnalytics["num-questions-answered"] =
-          metrics["AggregateSessionMetrics.numQuestionsAnswered"];
-        this.plioAnalytics["percent-complete"] =
-          metrics["AggregateSessionMetrics.completionPercentage"];
-        this.plioAnalytics["accuracy"] = metrics["AggregateSessionMetrics.accuracy"];
-        this.plioAnalytics["1-min-retention"] =
-          metrics["GroupedSessionRetention.averageOneMinuteRetention"];
-      });
+      await PlioAPIService.getDashboardMetrics(this.plioId)
+        .then(metrics => {
+          this.plioAnalytics["viewers"] = metrics["Session.uniqueUsers"];
+          this.plioAnalytics["average-watch-time"] = metrics["GroupedSession.averageWatchTime"];
+          this.plioAnalytics["num-questions-answered"] = metrics["AggregateSessionMetrics.numQuestionsAnswered"];
+          this.plioAnalytics["percent-complete"] = metrics["AggregateSessionMetrics.completionPercentage"];
+          this.plioAnalytics["accuracy"] = metrics["AggregateSessionMetrics.accuracy"];
+          this.plioAnalytics["1-min-retention"] = metrics["GroupedSessionRetention.averageOneMinuteRetention"];
+        })
+        .then(() => {
+          this.$mixpanel.track("Visit Dashboard", {
+            "Plio UUID": this.plioId,
+            "Plio Average Watch Time": this.plioAnalytics["average-watch-time"] || 0,
+            "Plio Number of Viewers": this.plioAnalytics["viewers"] || 0,
+            "Plio Retention At 1 Minute": this.plioAnalytics["1-min-retention"] || 0,
+            "Plio Accuracy": this.plioAnalytics["accuracy"] || 0,
+            "Plio Completion Rate": this.plioAnalytics["percent-complete"] || 0,
+            "Plio Num Questions Answered": this.plioAnalytics["num-questions-answered"] || 0,
+          });
+        });
       this.stopLoading();
     },
     getVideoIDfromURL(videoURL) {
@@ -480,7 +431,7 @@ export default {
     downloadReport() {
       // downloads a zip file containing the report for the plio
       this.downloadReportButtonIconConfig.enabled = true;
-      PlioAPIService.getPlioDataDump(this.plioId).then((response) => {
+      PlioAPIService.getPlioDataDump(this.plioId).then(response => {
         var link = document.createElement("a");
         link.href = window.URL.createObjectURL(new Blob([response.data]));
         link.download = `plio-data-${this.plioId}.zip`;

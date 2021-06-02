@@ -20,7 +20,14 @@ Fixes #{issue id}
 ## Test Plan
 
 <!-- Demonstrate that the code is solid. Example: The exact commands you ran and their output, screenshots / videos if the pull request changes the user interface. -->
-- [ ] Responsive
+- [ ] Test Responsiveness
+    - [ ] Laptop (1200px)
+    - [ ] Tablet (760px)
+    - [ ] Phone (320px)
+- [ ] Cross-Browser Testing
+    - [ ] Chrome
+    - [ ] Firefox
+    - [ ] Safari
 - [ ] Tested locally
 - [ ] Tested on staging
 - [ ] Tested on production

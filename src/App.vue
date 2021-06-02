@@ -1,71 +1,64 @@
 <template>
-  <div :class="{ 'opacity-50 pointer-events-none': coverBackground }">
-    <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
-      <!-- top left logo -->
-      <router-link
-        :to="{ name: 'Home', params: { org: activeWorkspace } }"
-        class="h-14 w-11 justify-self-start place-self-center"
-        v-if="!onLoginPage"
-      >
-        <img
-          class="h-full w-full object-scale-down"
-          id="logo"
-          src="@/assets/images/logo.png"
-        />
-      </router-link>
+  <div class="flex relative">
+    <div class="w-full" :class="{ 'opacity-20 pointer-events-none': coverBackground }" @keydown="keyboardPressed">
+      <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
+        <!-- top left logo -->
+        <router-link :to="{ name: 'Home', params: { org: activeWorkspace } }" class="h-14 w-11 justify-self-start place-self-center" v-if="!onLoginPage">
+          <img class="h-full w-full object-scale-down" id="logo" src="@/assets/images/logo.png" />
+        </router-link>
 
-      <!-- workspace switcher -->
-      <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
-        <WorkspaceSwitcher class="flex justify-center"></WorkspaceSwitcher>
-      </div>
-
-      <!-- page heading -->
-      <div
-        v-if="isAuthenticated"
-        class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center"
-      >
-        <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
-      </div>
-
-      <!-- create plio button -->
-      <div
-        v-if="showCreateButton"
-        class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1"
-      >
-        <icon-button
-          :titleConfig="createButtonTextConfig"
-          :buttonClass="createButtonClass"
-          class="rounded-md shadow-lg"
-          @click="createNewPlio"
-        ></icon-button>
-      </div>
-
-      <div class="grid col-start-6 col-end-8 justify-items-end sm:col-start-7">
-        <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
-        <!-- logout -->
-        <div v-if="showLogout" class="text-lg sm:text-xl">
-          <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
-            <button
-              class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain"
-            >
-              {{ $t("nav.login") }}
-            </button>
-          </router-link>
-          <a href="#" v-if="isAuthenticated" @click="logoutButtonClicked">
-            <button
-              class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2"
-            >
-              {{ $t("nav.logout") }}
-            </button>
-          </a>
+        <!-- workspace switcher -->
+        <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
+          <WorkspaceSwitcher class="flex justify-center"></WorkspaceSwitcher>
         </div>
-        <!-- locale switcher -->
-        <div class="self-center">
-          <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
+
+        <!-- page heading -->
+        <div v-if="isAuthenticated" class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center">
+          <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
+        </div>
+
+        <!-- create plio button -->
+        <div v-if="showCreateButton" class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1">
+          <icon-button :titleConfig="createButtonTextConfig" :buttonClass="createButtonClass" class="rounded-md shadow-lg" @click="createNewPlio"></icon-button>
+        </div>
+
+        <div class="grid col-start-6 col-end-8 justify-items-end sm:col-start-7">
+          <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
+          <!-- logout -->
+          <div v-if="showLogout" class="text-lg sm:text-xl">
+            <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
+              <button class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain">
+                {{ $t("nav.login") }}
+              </button>
+            </router-link>
+            <a href="#" v-if="isAuthenticated" @click="logoutButtonClicked">
+              <button class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2">
+                {{ $t("nav.logout") }}
+              </button>
+            </a>
+          </div>
+          <!-- locale switcher -->
+          <div class="self-center">
+            <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
+          </div>
+        </div>
+      </div>
+      <router-view />
+    </div>
+    <!-- first-time language picker -->
+    <div class="fixed w-full my-5 flex justify-center" v-if="showLanguagePickerDialog">
+      <div class="bg-white w-11/12 sm:w-9/12 lg:w-7/12 p-4 sm:p-10 rounded-lg border border-black">
+        <p class="text-center text-2xl sm:text-4xl py-4 sm:py-8">Select your language</p>
+        <div class="grid grid-cols-2 space-x-2">
+          <div class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer">
+            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white" @click="setLocale('en')">English</p>
+          </div>
+          <div class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer">
+            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white" @click="setLocale('hi')">हिंदी</p>
+          </div>
         </div>
       </div>
     </div>
-    <router-view />
   </div>
   <vue-progress-bar></vue-progress-bar>
 </template>
@@ -87,7 +80,7 @@ export default {
   },
   data() {
     return {
-      showDialogBox: false, // to show the dialog box or not
+      showLanguagePickerDialog: false, // whether to show a language picker dialog box
       toast: useToast(), // use the toast component
       userClickedLogout: false, // if the user has clicked the logout button
     };
@@ -100,6 +93,10 @@ export default {
     if (this.isAuthenticated) {
       await this.fetchAndUpdateUser();
       this.setupChatwoot();
+    }
+    // ask user to pick the language if they are visiting for the first time
+    if (this.locale == null) {
+      this.showLanguagePickerDialog = true;
     }
   },
   beforeUnmount() {
@@ -140,11 +137,40 @@ export default {
       // check if the current user actually belongs to the activeWorkspace
       // set in the store. If not, then redirect to the personal workspace
       if (value) {
-        var isUserInWorkspace = this.user.organizations.some((org) => {
+        var isUserInWorkspace = this.user.organizations.some(org => {
           return org.shortcode == this.activeWorkspace;
         });
         if (!isUserInWorkspace) this.$router.replace({ name: "Home" });
       }
+    },
+    user: {
+      handler() {
+        // identify on mixpanel if not already identified
+        if (this.user == null) return;
+        if (this.$mixpanel.get_distinct_id() != this.user.id.toString()) {
+          this.$mixpanel.alias(this.user.id.toString());
+          this.$mixpanel.people.set({
+            "$first_name": this.user.first_name,
+            "$last_name": this.user.last_name,
+            "$email": this.user.email,
+            "$phone": this.user.phone,
+            "User DB ID": this.user.id,
+          });
+          this.$mixpanel.identify(this.user.id);
+        }
+        this.$mixpanel.people.set({
+          "All Workspaces": this.allWorkspaces,
+          "Current Workspace": this.activeWorkspace,
+          "User Status": this.user.status,
+          "Current Locale": this.user.config.locale,
+          "Last Logged In": new Date().toISOString(),
+        });
+        this.$mixpanel.register({
+          "User Status": this.user.status,
+          "Current Workspace": this.activeWorkspace,
+        });
+      },
+      deep: true,
     },
   },
   methods: {
@@ -218,6 +244,9 @@ export default {
           name: "Login",
           params: { userClickedLogout: this.userClickedLogout },
         });
+        // resets the distinct ID so that multiple users can use the same device
+        this.$mixpanel.reset();
+        this.$mixpanel.track("Logout");
         // added here so that if someone clicks on logout while
         // some activity is pending
         this.stopLoading();
@@ -228,8 +257,16 @@ export default {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
       this.$Progress.start();
+      this.$mixpanel.track("Click Create");
+      this.$mixpanel.people.set_once({
+        "First Plio Created": new Date().toISOString(),
+      });
+      this.$mixpanel.people.set({
+        "Last Plio Created": new Date().toISOString(),
+      });
+      this.$mixpanel.people.increment("Total Plios Created");
       PlioAPIService.createPlio()
-        .then((response) => {
+        .then(response => {
           this.$Progress.finish();
           if (response.status == 201) {
             this.$router.push({
@@ -248,9 +285,25 @@ export default {
         event.returnValue = "";
       }
     },
+    setLocale(locale) {
+      // sets the given locale as the locale for the user
+      this.$mixpanel.register({
+        "Current Locale": locale,
+      });
+
+      this.$i18n.locale = locale;
+      UserConfigService.updateLocale();
+      this.showLanguagePickerDialog = false;
+    },
+    keyboardPressed() {
+      // triggered when any keyboard button is pressed
+
+      // prevent keyboard buttons from working if coverBackground = true
+      if (this.coverBackground) event.preventDefault();
+    },
   },
   computed: {
-    ...mapGetters("auth", ["isAuthenticated", "isUserApproved", "activeWorkspaceSchema"]),
+    ...mapGetters("auth", ["isAuthenticated", "isUserApproved", "activeWorkspaceSchema", "locale"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     showLogout() {
@@ -270,12 +323,7 @@ export default {
     },
     showWorkspaceSwitcher() {
       // whether to show workspace switcher
-      return (
-        this.isAuthenticated &&
-        this.onHomePage &&
-        this.user.organizations.length &&
-        this.isUserApproved
-      );
+      return this.isAuthenticated && this.onHomePage && this.user.organizations.length && this.isUserApproved;
     },
     onHomePage() {
       // whether the current page is the home page
@@ -306,8 +354,19 @@ export default {
       return pageName;
     },
     coverBackground() {
-      // whether to apply opacity to the background
-      return this.showDialogBox;
+      // whether to apply opacity on the background
+      return this.showLanguagePickerDialog;
+    },
+    allWorkspaces() {
+      // list of shortcodes of all workspaces that the user is a part of
+      if (this.user == null) return [];
+      var shortcodes = [];
+
+      this.user.organizations.forEach(organization => {
+        shortcodes.push(organization.shortcode);
+      });
+
+      return shortcodes;
     },
   },
 };

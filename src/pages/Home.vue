@@ -2,22 +2,14 @@
   <div>
     <div v-if="!isUserApproved" class="flex flex-col w-full h-full mt-10">
       <div class="flex justify-center">
-        <inline-svg
-          :src="confirmIcon"
-          class="h-12 w-12 sm:h-20 sm:w-20 place-self-center text-green-600"
-        ></inline-svg>
+        <inline-svg :src="confirmIcon" class="h-12 w-12 sm:h-20 sm:w-20 place-self-center text-green-600"></inline-svg>
       </div>
       <div class="mt-10">
         <p class="text-center text-lg sm:text-2xl">
           {{ $t("home.waitlist.1") }} <br />
           {{ $t("home.waitlist.2") }} <br />
           {{ $t("home.waitlist.3") }}
-          <a
-            href="https://forms.gle/7dxyWSi66FLrckBY8"
-            target="_blank"
-            class="text-green-600"
-            >{{ $t("home.waitlist.4") }}</a
-          >
+          <a href="https://forms.gle/7dxyWSi66FLrckBY8" target="_blank" class="text-green-600">{{ $t("home.waitlist.4") }}</a>
           {{ $t("home.waitlist.5") }}
         </p>
       </div>
@@ -37,30 +29,16 @@
       </Table>
 
       <!-- pagination nav bar -->
-      <Paginator
-        v-if="showTable"
-        :totalItems="totalNumberOfPlios"
-        :pageSize="numberOfPliosPerPage"
-        @page-selected="fetchPlioIds($event)"
-      >
-      </Paginator>
+      <Paginator v-if="showTable" :totalItems="totalNumberOfPlios" :pageSize="numberOfPliosPerPage" @page-selected="fetchPlioIds($event)"> </Paginator>
 
       <!-- no plios exist warning -->
       <div v-if="!showTable" class="flex flex-col bg-white w-full m-auto mt-32 px-8">
-        <inline-svg
-          :src="noPliosIcon"
-          class="w-50 h-50 opacity-50 place-self-center m-10"
-        ></inline-svg>
+        <inline-svg :src="noPliosIcon" class="w-50 h-50 opacity-50 place-self-center m-10"></inline-svg>
         <p class="text-center text-md sm:text-lg md:text-xl lg:text-2xl">
           {{ $t("home.no_plios") }}
         </p>
         <!-- create plio button -->
-        <icon-button
-          :titleConfig="createButtonTextConfig"
-          :buttonClass="createButtonClass"
-          class="rounded-md shadow-lg mt-4 place-self-center"
-          @click="createNewPlio"
-        ></icon-button>
+        <icon-button :titleConfig="createButtonTextConfig" :buttonClass="createButtonClass" class="rounded-md shadow-lg mt-4 place-self-center" @click="createNewPlio"></icon-button>
       </div>
     </div>
   </div>
@@ -121,6 +99,7 @@ export default {
     // feed the dummy data to show skeletons before loading the actual data
     this.tableData = this.dummyTableData;
     if (this.isUserApproved) await this.fetchPlioIds();
+    this.$mixpanel.track("Visit Home");
   },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
@@ -165,26 +144,18 @@ export default {
 
       //if params contain a searchString or pageNumber, save it into a variable,
       //else save the variable as undefined
-      var searchString =
-        params != undefined && "searchString" in params ? params.searchString : undefined;
+      var searchString = params != undefined && "searchString" in params ? params.searchString : undefined;
 
-      var pageNumber =
-        params != undefined && "pageNumber" in params ? params.pageNumber : undefined;
+      var pageNumber = params != undefined && "pageNumber" in params ? params.pageNumber : undefined;
 
       // if the params contain a valid searchString, update the local searchString variable
-      if (searchString != undefined && searchString != "")
-        this.searchString = searchString;
+      if (searchString != undefined && searchString != "") this.searchString = searchString;
 
       // if the params contain a valid pageNumber, update the local currentPageNumber variable
       if (pageNumber != undefined) this.currentPageNumber = pageNumber;
 
-      await PlioAPIService.getAllPlios(
-        uuidOnly,
-        this.currentPageNumber,
-        this.searchString,
-        this.sortByField
-      )
-        .then((response) => {
+      await PlioAPIService.getAllPlios(uuidOnly, this.currentPageNumber, this.searchString, this.sortByField)
+        .then(response => {
           // to handle the case when the user lands on the homepage for the first time
           // if no plios exist, then hide the table else show it
           if (params == undefined) {
@@ -195,22 +166,30 @@ export default {
           this.numberOfPliosPerPage = response.data.page_size; // set the page size
           return Promise.resolve(response.data.results);
         })
-        .then(async (plioIdList) => {
+        .then(async plioIdList => {
           // fetch the list of unique users for each plio
-          await PlioAPIService.getUniqueUsersCountList(plioIdList).then((response) => {
+          await PlioAPIService.getUniqueUsersCountList(plioIdList).then(response => {
             this.countUniqueUsersList = response;
           });
           return Promise.resolve(plioIdList);
         })
-        .then((plioIdList) => this.prepareTableData(plioIdList)); // prepare the data for the table
+        .then(plioIdList => this.prepareTableData(plioIdList)); // prepare the data for the table
     },
 
     createNewPlio() {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
       this.$Progress.start();
+      this.$mixpanel.track("Click Create");
+      this.$mixpanel.people.set_once({
+        "First Plio Created": new Date().toISOString(),
+      });
+      this.$mixpanel.people.set({
+        "Last Plio Created": new Date().toISOString(),
+      });
+      this.$mixpanel.people.increment("Total Plios Created");
       PlioAPIService.createPlio()
-        .then((response) => {
+        .then(response => {
           this.$Progress.finish();
           if (response.status == 201) {
             this.$router.push({

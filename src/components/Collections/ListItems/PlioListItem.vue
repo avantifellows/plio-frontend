@@ -7,18 +7,11 @@
         <p class="text-xs place-self-center">{{ updatedAt }}</p>
 
         <!-- status badge -->
-        <simple-badge
-          :text="statusBadge"
-          :badgeClass="statusBadgeClass"
-          v-tooltip.top="statusBadgeTooltip"
-        ></simple-badge>
+        <simple-badge :text="statusBadge" :badgeClass="statusBadgeClass" v-tooltip.top="statusBadgeTooltip"></simple-badge>
       </div>
 
       <!-- plio title -->
-      <div
-        class="text-base sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold truncate"
-        :class="{ 'opacity-50': isUntitled }"
-      >
+      <div class="text-base sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold truncate" :class="{ 'opacity-50': isUntitled }">
         {{ title }}
       </div>
 
@@ -40,13 +33,7 @@
         ></icon-button>
 
         <!-- edit button -->
-        <icon-button
-          :titleConfig="editButtonTitleConfig"
-          :iconConfig="editButtonIconConfig"
-          :buttonClass="editButtonClass"
-          v-tooltip="editButtonTooltip"
-          @click="editPlio"
-        ></icon-button>
+        <icon-button :titleConfig="editButtonTitleConfig" :iconConfig="editButtonIconConfig" :buttonClass="editButtonClass" v-tooltip="editButtonTooltip" @click="editPlio"></icon-button>
 
         <!-- duplicate button -->
         <icon-button
@@ -107,24 +94,20 @@ export default {
         iconName: "",
         iconClass: "",
       },
-      playButtonClass:
-        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
+      playButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       editButtonIconConfig: {
         enabled: false,
         iconName: "",
         iconClass: "",
       },
-      editButtonClass:
-        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
+      editButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       duplicateButtonIconConfig: {
         enabled: false,
         iconName: "",
         iconClass: "",
       },
-      duplicateButtonClass:
-        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
-      analyseButtonClass:
-        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
+      duplicateButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
+      analyseButtonClass: "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       urlCopyButtonClass: "text-yellow-600",
     };
   },
@@ -151,32 +134,28 @@ export default {
       // title config for the play button
       return {
         value: this.$t("home.table.plio_list_item.buttons.play"),
-        class:
-          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
+        class: "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     editButtonTitleConfig() {
       // title config for the play button
       return {
         value: this.$t("home.table.plio_list_item.buttons.edit"),
-        class:
-          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
+        class: "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     duplicateButtonTitleConfig() {
       // title config for the duplicate button
       return {
         value: this.$t("home.table.plio_list_item.buttons.duplicate"),
-        class:
-          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
+        class: "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     analyseButtonTitleConfig() {
       // title config for the analyse button
       return {
         value: this.$t("home.table.plio_list_item.buttons.analyse"),
-        class:
-          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
+        class: "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     playButtonTooltip() {
@@ -196,8 +175,7 @@ export default {
     },
     analyseButtonTooltip() {
       // tooltip for the analyse button
-      if (!this.isPublished)
-        return this.$t(`tooltip.home.table.buttons.analyse_plio.disabled`);
+      if (!this.isPublished) return this.$t(`tooltip.home.table.buttons.analyse_plio.disabled`);
       return this.$t(`tooltip.home.table.buttons.analyse_plio.enabled`);
     },
     isPublished() {
@@ -229,10 +207,7 @@ export default {
     },
     title() {
       // title of the plio. "Untitled" if no title is present
-      return (
-        this.plioDetails.plioTitle ||
-        this.$t("generic.placeholders.empty_title_placeholder")
-      );
+      return this.plioDetails.plioTitle || this.$t("generic.placeholders.empty_title_placeholder");
     },
     plioLink() {
       // prepare the link for the plio from the plio ID
@@ -286,11 +261,15 @@ export default {
       // 3. Link the duplicated items and questions to the newly created plio
 
       this.startLoading();
+      this.$mixpanel.track("Click Duplicate", {
+        "Plio UUID": this.plioId,
+        "Plio Status": this.status,
+      });
       var newPlio = await PlioAPIService.duplicatePlio(this.plioId);
       var newPlioDBId = newPlio.data.id;
 
       await Promise.all(
-        this.plioDetails.items.map(async (item) => {
+        this.plioDetails.items.map(async item => {
           // duplicate item and update it to link the item to the plio
           var newItem = await ItemAPIService.duplicateItem(item.id, newPlioDBId);
 
@@ -303,7 +282,7 @@ export default {
 
     async duplicateThenRoute() {
       // duplicate the plio and when it's done, route to the editor
-      await this.duplicatePlio().then((duplicatedPlioId) => {
+      await this.duplicatePlio().then(duplicatedPlioId => {
         this.stopLoading();
         this.$router.push({
           name: "Editor",
