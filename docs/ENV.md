@@ -61,7 +61,7 @@ Mixpanel is used for tracking user behaviour throughout the webapp.
 This is the project token for your mixpanel project which you can view in the Mixpanel Dashboard.
 
 ### Chatwoot
-Chatwoot is an open-source customer engagement suite. It's used to talk to customers and gather their feedback.
+Chatwoot is an open-source customer engagement suite. It is used to talk to customers and gather their feedback.
 
 #### `VUE_APP_CHATWOOT_URL`
 The URL of your chatwoot app
