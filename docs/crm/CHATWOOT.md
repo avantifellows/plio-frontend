@@ -1,5 +1,5 @@
 ## Chatwoot
-Plio uses [Chatwoot](https://github.com/chatwoot/chatwoot) as it's customer engagement suite. This document covers steps by step details on how to get the chatwoot app running and integrated into the frontend.
+Plio uses [Chatwoot](https://github.com/chatwoot/chatwoot) as its customer engagement suite. This document covers steps by step details on how to get the chatwoot app running and integrated into the frontend.
 
 ### Deploying the chatwoot app on Heroku
 1. Use the [one click deploy button](https://www.chatwoot.com/docs/self-hosted/deployment/heroku#deploying-on-heroku) provided by the Chatwoot team to deploy the app on Heroku free of cost.
