@@ -128,10 +128,10 @@ export default {
       },
     },
     paginator: {
-      first: "First page",
-      last: "Last page",
-      next: "Next page",
-      previous: "Previous page",
+      first: "First",
+      last: "Last",
+      next: "Next",
+      previous: "Previous",
       description: {
         to: "to",
         of: " of",

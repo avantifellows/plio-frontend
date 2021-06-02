@@ -191,7 +191,10 @@ export default {
       if (this.isAuthenticated) {
         // unhide chatwoot bubble if it was hidden before
         var chatwootBubble = document.querySelector(".woot-widget-bubble");
-        if (chatwootBubble != undefined) chatwootBubble.classList.remove("hidden");
+        if (chatwootBubble != undefined) {
+          chatwootBubble.classList.remove("hidden");
+          chatwootBubble.style.bottom = "60px";
+        }
 
         // set the user for the chatwoot instance
         window.$chatwoot.setUser(this.user.id, {
