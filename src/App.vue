@@ -51,10 +51,10 @@
         <p class="text-center text-2xl sm:text-4xl py-4 sm:py-8">Select your language</p>
         <div class="grid grid-cols-2 space-x-2">
           <div class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer">
-            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">English</p>
+            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white" @click="setLocale('en')">English</p>
           </div>
           <div class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer">
-            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">हिंदी</p>
+            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white" @click="setLocale('hi')">हिंदी</p>
           </div>
         </div>
       </div>
