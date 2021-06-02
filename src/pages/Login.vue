@@ -359,7 +359,7 @@ export default {
         "Login Destination": JSON.stringify(this.routeParams["params"] || {}),
       });
       this.$mixpanel.people.set_once({
-        "First Logged In": new Date().toISOString(),
+        "First Log In": new Date().toISOString(),
       });
       this.stopLoading();
       this.isSubmitOTPInProgress = false;

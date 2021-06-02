@@ -153,6 +153,7 @@ export default {
       itemResponses: [], // holds the responses to each item
       videoSource: "youtube", // source for the video
       watchTime: 0, // keeps a count of the watch time in seconds for the plio by the user
+      watchTimeIncrement: 0, // maintains the increase in watch time since the last time it was logged
       currentItemIndex: null, // current item being displayed
       markerClass: [
         // class for the item marker displayed on top of the video slider
@@ -194,7 +195,6 @@ export default {
     this.$mixpanel.people.set({
       "Last Plio Viewed": new Date().toISOString(),
     });
-    this.$mixpanel.people.increment("Total Plios Viewed");
 
     // load the systemwide component properties
     this.componentProperties = require("@/services/Config/" + "Player.json");
@@ -336,7 +336,8 @@ export default {
         this.updateSession();
         // create an event for the user watching the plio
         this.createEvent("watching");
-        this.$mixpanel.people.increment("Total Watch Time", UPLOAD_INTERVAL / 1000);
+        this.$mixpanel.people.increment("Total Watch Time", this.watchTimeIncrement.toFixed(2));
+        this.watchTimeIncrement = 0;
       }
       UPLOAD_INTERVAL_TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL);
     },
@@ -360,6 +361,12 @@ export default {
         // reset the user to where they left off if they are returning
         if (sessionDetails.last_event != null) {
           this.currentTimestamp = sessionDetails.last_event.player_time;
+        }
+
+        // if this is the first session for this plio-user combination
+        // increment the number of plios watched by this user
+        if (sessionDetails.is_first) {
+          this.$mixpanel.people.increment("Total Plios Viewed");
         }
 
         // handle retention array
@@ -459,6 +466,7 @@ export default {
       this.checkItemToSelect(timestamp);
       // update watch time
       this.watchTime += PLYR_INTERVAL_TIME;
+      this.watchTimeIncrement += PLYR_INTERVAL_TIME;
       // update retention
       var currentTime = Math.trunc(this.player.currentTime);
       if (currentTime != this.lastTimestampRetention) {

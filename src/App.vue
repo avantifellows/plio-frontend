@@ -157,13 +157,11 @@ export default {
           "Current Workspace": this.activeWorkspace,
           "User Status": this.user.status,
           "Current Locale": this.user.config.locale,
+          "Last Logged In": new Date().toISOString(),
         });
         this.$mixpanel.register({
           "User Status": this.user.status,
           "Current Workspace": this.activeWorkspace,
-        });
-        this.$mixpanel.people.set({
-          "Last Logged In": new Date().toISOString(),
         });
       },
       deep: true,
