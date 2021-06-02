@@ -1,6 +1,6 @@
 <template>
   <div class="flex relative">
-    <div class="w-full" :class="{ 'opacity-20 pointer-events-none': coverBackground }">
+    <div class="w-full" :class="{ 'opacity-20 pointer-events-none': coverBackground }" @keydown="keyboardPressed">
       <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
         <!-- top left logo -->
         <router-link :to="{ name: 'Home', params: { org: activeWorkspace } }" class="h-14 w-11 justify-self-start place-self-center" v-if="!onLoginPage">
@@ -46,15 +46,15 @@
       <router-view />
     </div>
     <!-- first-time language picker -->
-    <div class="fixed w-full mt-40 flex justify-center" v-if="showLanguagePicker">
+    <div class="fixed w-full my-5 flex justify-center" v-if="showLanguagePickerDialog">
       <div class="bg-white w-11/12 sm:w-9/12 lg:w-7/12 p-4 sm:p-10 rounded-lg border border-black">
         <p class="text-center text-2xl sm:text-4xl py-4 sm:py-8">Select your language</p>
         <div class="grid grid-cols-2 space-x-2">
-          <div class="bg-green-400 hover:bg-green-600 p-4 sm:p-8 rounded-lg">
-            <p class="text-xl sm:text-3xl cursor-pointer text-white" @click="setLocale('en')">English</p>
+          <div class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer">
+            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">English</p>
           </div>
-          <div class="bg-red-400 hover:bg-red-600 p-4 sm:p-8 rounded-lg">
-            <p class="text-xl sm:text-3xl cursor-pointer text-white" @click="setLocale('hi')">हिंदी</p>
+          <div class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer">
+            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">हिंदी</p>
           </div>
         </div>
       </div>
@@ -80,8 +80,7 @@ export default {
   },
   data() {
     return {
-      coverBackground: false, // whether to apply opacity on the background
-      showLanguagePicker: false, // whether to show a language picker box
+      showLanguagePickerDialog: false, // whether to show a language picker dialog box
       toast: useToast(), // use the toast component
       userClickedLogout: false, // if the user has clicked the logout button
     };
@@ -94,8 +93,7 @@ export default {
     if (this.isAuthenticated) await this.fetchAndUpdateUser();
     // ask user to pick the language if they are visiting for the first time
     if (this.locale == null) {
-      this.coverBackground = true;
-      this.showLanguagePicker = true;
+      this.showLanguagePickerDialog = true;
     }
   },
   beforeUnmount() {
@@ -211,8 +209,13 @@ export default {
       // sets the given locale as the locale for the user
       this.$i18n.locale = locale;
       UserConfigService.updateLocale();
-      this.showLanguagePicker = false;
-      this.coverBackground = false;
+      this.showLanguagePickerDialog = false;
+    },
+    keyboardPressed() {
+      // triggered when any keyboard button is pressed
+
+      // prevent keyboard buttons from working if coverBackground = true
+      if (this.coverBackground) event.preventDefault();
     },
   },
   computed: {
@@ -265,6 +268,10 @@ export default {
         pageName = this.$t("nav." + this.$route.name.toLowerCase());
       }
       return pageName;
+    },
+    coverBackground() {
+      // whether to apply opacity on the background
+      return this.showLanguagePickerDialog;
     },
   },
 };
