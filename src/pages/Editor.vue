@@ -1,6 +1,6 @@
 <template>
   <!--- base grid -->
-  <div class="flex relative justify-center">
+  <div class="flex relative justify-center md:mx-10 xl:mx-20">
     <div class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full" :class="{ 'opacity-30 pointer-events-none': blurMainScreen }">
       <!--- preview grid -->
       <div class="flex flex-col ml-5 mr-5">
@@ -34,7 +34,7 @@
         </div>
 
         <!--- buttons -->
-        <div class="flex justify-between mt-10">
+        <div class="flex justify-between md:justify-start md:space-x-4 mt-10">
           <!--- button to go back to home -->
           <icon-button :titleConfig="backButtonTitleConfig" :iconConfig="backButtonIconConfig" :buttonClass="backButtonClass" @click="returnToHome"></icon-button>
           <!--- publish button -->
@@ -70,17 +70,38 @@
           <input-text :placeholder="titleInputPlaceholder" :title="titleInputTitle" v-model:value="plioTitle" ref="title" :boxStyling="'pl-4'"></input-text>
         </div>
 
-        <div class="flex justify-center py-2 mt-10">
-          <!-- big add item button -->
-          <div class="w-2/3" v-if="currentItemIndex == null">
-            <icon-button
-              :iconConfig="addItemIconConfig"
-              :titleConfig="addItemTitleConfig"
-              :buttonClass="addItemButtonClass"
-              @click="addNewItem"
+        <div class="flex justify-center py-2 mt-8 sm:mt-10 mb-16">
+          <!-- boxes for adding different types of items -->
+          <div
+            class="bg-peach rounded-lg p-4 xsm:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
+            :class="itemPickerClass"
+            v-if="currentItemIndex == null"
+            v-tooltip.bottom="addItemTooltip"
+          >
+            <!-- @click="addNewItem"
               :disabled="addItemDisabled"
-              v-tooltip="addItemTooltip"
-            ></icon-button>
+              v-tooltip="addItemTooltip" -->
+            <p class="text-yellow-900 text-xl font-bold">Add a new question</p>
+            <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
+              <button
+                :disabled="addItemDisabled"
+                @click="addNewItem('mcq')"
+                class="w-10/12 flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
+                :class="questionTypeSelectorClass"
+              >
+                <inline-svg :src="require('@/assets/images/radio-button.svg')" class="h-4 w-4 fill-current"></inline-svg>
+                <p class="font-bold text-center">Multiple Choice</p>
+              </button>
+              <button
+                :disabled="addItemDisabled"
+                @click="addNewItem('subjective')"
+                class="w-10/12 flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
+                :class="questionTypeSelectorClass"
+              >
+                <inline-svg :src="require('@/assets/images/subjective-question.svg')" class="w-20 fill-current"></inline-svg>
+                <p class="font-bold text-center">Subjective</p>
+              </button>
+            </div>
           </div>
           <!--- item editor  -->
           <item-editor
@@ -119,7 +140,7 @@ import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
-import QuestionAPIService from "@/services/API/Question.js";
+// import QuestionAPIService from "@/services/API/Question.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import Utilities from "@/services/Functional/Utilities.js";
@@ -260,6 +281,14 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading"]),
+    itemPickerClass() {
+      // class for the item picker
+      return { "opacity-30 cursor-not-allowed": this.addItemDisabled };
+    },
+    questionTypeSelectorClass() {
+      // class for the question type selectors
+      return { "hover:bg-primary hover:text-white hover:border-primary": !this.addItemDisabled };
+    },
     itemType() {
       // type of the current item - null if no item is selected
       if (!this.isItemSelected) return null;
@@ -809,44 +838,43 @@ export default {
       details["options"] = ["", ""];
       return details;
     },
-    addNewItem() {
-      this.player.pause();
-      const currentTimestamp = this.currentTimestamp;
-      // newItem object will store the information of the newly created
-      // item and the question
-      var newItem = {};
-
-      // check if the time where user is trying to add an item is valid or not
-      if (!ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)) {
-        this.showCannotAddItemDialog();
-        return;
-      }
-
-      // create item, then create the question, then update local states
-      ItemAPIService.createItem({
-        plio: this.plioDBId,
-        type: this.getItemTypeForNewItem(),
-        time: currentTimestamp,
-        meta: this.getMetadataForNewItem(),
-      })
-        .then(createdItem => {
-          // storing the newly created item into "newItem"
-          newItem = createdItem;
-          if (createdItem.type == "question") {
-            var questionDetails = this.getDetailsForNewQuestion();
-            questionDetails.item = createdItem.id;
-            return QuestionAPIService.createQuestion(questionDetails);
-          }
-        })
-        .then(createdQuestion => {
-          // storing the newly created question into "newItem"
-          newItem.details = createdQuestion;
-          // push it into items, update the itemTimestamps and currentItemIndex
-          this.items.push(newItem);
-          this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
-          this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
-          this.markItemSelected(this.currentItemIndex);
-        });
+    addNewItem(questionType) {
+      console.log(questionType);
+      // this.player.pause();
+      // const currentTimestamp = this.currentTimestamp;
+      // // newItem object will store the information of the newly created
+      // // item and the question
+      // var newItem = {};
+      // // check if the time where user is trying to add an item is valid or not
+      // if (!ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)) {
+      //   this.showCannotAddItemDialog();
+      //   return;
+      // }
+      // // create item, then create the question, then update local states
+      // ItemAPIService.createItem({
+      //   plio: this.plioDBId,
+      //   type: this.getItemTypeForNewItem(),
+      //   time: currentTimestamp,
+      //   meta: this.getMetadataForNewItem(),
+      // })
+      //   .then(createdItem => {
+      //     // storing the newly created item into "newItem"
+      //     newItem = createdItem;
+      //     if (createdItem.type == "question") {
+      //       var questionDetails = this.getDetailsForNewQuestion();
+      //       questionDetails.item = createdItem.id;
+      //       return QuestionAPIService.createQuestion(questionDetails);
+      //     }
+      //   })
+      //   .then(createdQuestion => {
+      //     // storing the newly created question into "newItem"
+      //     newItem.details = createdQuestion;
+      //     // push it into items, update the itemTimestamps and currentItemIndex
+      //     this.items.push(newItem);
+      //     this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
+      //     this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
+      //     this.markItemSelected(this.currentItemIndex);
+      //   });
     },
     deleteItemButtonClicked() {
       // invoked when the delete item button is clicked
