@@ -151,7 +151,7 @@ export default {
     questionCorrectAnswer() {
       // correct answer for the question
       if (this.currentItem == undefined) return null;
-      return this.currentItem["details"]["correct_answer"];
+      return parseInt(this.currentItem["details"]["correct_answer"]);
     },
     questionText() {
       // text for the question
