@@ -150,6 +150,7 @@
             @delete-option="deleteOption"
             @error-occurred="setErrorOccurred"
             @error-resolved="setErrorResolved"
+            @question-type-changed="questionTypeChanged"
           ></item-editor>
         </div>
       </div>
@@ -546,6 +547,11 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
+    questionTypeChanged(newQuestionType) {
+      // invoked when the question type is changed
+      this.items[this.currentItemIndex].details.type = newQuestionType;
+      QuestionAPIService.updateQuestion(this.items[this.currentItemIndex].details);
+    },
     returnToHome() {
       // returns the user back to Home
       this.$router.push({ name: "Home", params: { org: this.org } });
@@ -633,8 +639,6 @@ export default {
         this.player.pause();
         this.currentItemIndex = itemIndex;
         this.currentQuestionTypeIndex = this.questionTypeToIndex[this.items[itemIndex].details.type];
-        console.log(this.currentItemIndex);
-        console.log(this.currentQuestionTypeIndex);
       }
     },
     markNoItemSelected() {

@@ -192,9 +192,9 @@ export default {
   watch: {
     localQuestionTypeIndex() {
       this.$emit("update:questionTypeIndex", this.localQuestionTypeIndex);
+      this.$emit("question-type-changed", this.questionTypeOptions[this.localQuestionTypeIndex]["value"]);
     },
     questionTypeIndex() {
-      console.log(this.questionTypeIndex);
       this.localQuestionTypeIndex = this.questionTypeIndex;
     },
   },
@@ -559,6 +559,7 @@ export default {
     "error-occurred",
     "error-resolved",
     "update:questionTypeIndex",
+    "question-type-changed",
   ],
 };
 </script>

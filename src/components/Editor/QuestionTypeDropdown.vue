@@ -1,5 +1,5 @@
 <template>
-  <div :class="dropdownClass">
+  <div>
     <div :class="selectedOptionClass">
       <div class="relative">
         <!-- selected option -->
