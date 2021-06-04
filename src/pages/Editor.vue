@@ -63,7 +63,6 @@
                   :selectedItemIndex="currentItemIndex"
                   :itemList="items"
                   :previewMode="true"
-                  @skip-question="closeModal"
                 ></item-modal>
               </transition>
             </div>
@@ -577,10 +576,6 @@ export default {
     toggleMinimize() {
       // toggle the minimized state of the modal
       this.isModalMinimized = !this.isModalMinimized;
-    },
-    closeModal() {
-      this.currentItemIndex = null;
-      this.player.play();
     },
     returnToHome() {
       // returns the user back to Home

@@ -4,9 +4,9 @@
     <div v-if="isItemQuestion" class="h-full flex flex-col justify-center">
       <!-- header -->
       <item-question-header
+        v-if="!previewMode"
         @skip-question="skipQuestion"
         :isAnswerSubmitted="isAnswerSubmitted"
-        :previewMode="previewMode"
       ></item-question-header>
       <!-- main question body -->
       <item-question-body
@@ -87,6 +87,7 @@ export default {
   },
   computed: {
     currentItemResponseAnswer() {
+      // `answer` object for `currentItemResponse`
       if (this.currentItemResponse == null) return null;
       return this.currentItemResponse.answer;
     },
@@ -150,7 +151,7 @@ export default {
     questionCorrectAnswer() {
       // correct answer for the question
       if (this.currentItem == undefined) return null;
-      return this.currentItem["details"]["correct_answer"];
+      return parseInt(this.currentItem["details"]["correct_answer"]);
     },
     questionText() {
       // text for the question

@@ -18,24 +18,14 @@ export default {
       return {
         enabled: true,
         iconName: "times-solid",
-        iconClass: [
-          {
-            "h-5 w-5 sm:h-8 sm:w-8 md:h-8 md:w-8": !this.previewMode,
-            "h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5": this.previewMode,
-          },
-          "text-red-600 bg-white shadow-none hover:bg-gray-200",
-        ],
+        iconClass:
+          "text-red-600 bg-white h-5 w-5 sm:h-8 sm:w-8 md:h-8 md:w-8 shadow-none hover:bg-gray-200",
       };
     },
   },
   props: {
     isAnswerSubmitted: {
       // whether the answer has been submitted
-      default: false,
-      type: Boolean,
-    },
-    previewMode: {
-      // whether the item modal will be shown in editor preview mode
       default: false,
       type: Boolean,
     },
