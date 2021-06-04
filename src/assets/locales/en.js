@@ -29,6 +29,8 @@ export default {
         published: "Publish Changes",
       },
       add_question: "Add a question",
+      show_video: "Show Video",
+      show_item: "Show Item",
     },
     updated: "Updated at",
     item_editor: {

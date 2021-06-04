@@ -29,6 +29,8 @@ export default {
         published: "परिवर्तन प्रकाशित करें",
       },
       add_question: "नया सवाल बनाएं",
+      show_video: "वीडियो देखें",
+      show_item: "वस्तु देखें",
     },
     updated: "अपडेटेड ऐट",
     item_editor: {

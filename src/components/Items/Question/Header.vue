@@ -4,7 +4,7 @@
     <icon-button
       :iconConfig="skipButtonIconConfig"
       @click="skipClicked"
-      :class="{ hidden: isAnswerSubmitted }"
+      :class="{ hidden: isAnswerSubmitted || previewMode }"
     ></icon-button>
   </div>
 </template>

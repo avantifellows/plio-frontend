@@ -28,6 +28,7 @@
           </div>
           <div v-else>
             <div class="relative">
+              <!-- video player -->
               <video-player
                 :videoId="videoId"
                 :plyrConfig="plyrConfig"
@@ -38,16 +39,33 @@
                 id="videoPlayer"
                 class="z-0"
               ></video-player>
-              <!-- item modal component -->
-              <item-modal
-                id="modal"
-                class="absolute z-10 inset-0 border-2"
-                :class="{ hidden: !showItemModal }"
-                :selectedItemIndex="currentItemIndex"
-                :itemList="items"
-                :previewMode="true"
-                @skip-question="closeModal"
-              ></item-modal>
+              <!-- minimize button -->
+              <icon-button
+                v-if="showItemModal"
+                :titleConfig="minimizeButtonTitleClass"
+                :buttonClass="minimizeButtonClass"
+                @click="toggleMinimize"
+                class="absolute z-20 top-2 right-2"
+              >
+              </icon-button>
+              <!-- transition for minimizing/maximizing item modal -->
+              <transition
+                name="modalGrowShrink"
+                enter-active-class="grow"
+                leave-active-class="shrink"
+              >
+                <!-- item modal component -->
+                <item-modal
+                  v-if="!isModalMinimized"
+                  id="modal"
+                  class="absolute z-10 inset-0 border-2"
+                  :class="{ hidden: !showItemModal }"
+                  :selectedItemIndex="currentItemIndex"
+                  :itemList="items"
+                  :previewMode="true"
+                  @skip-question="closeModal"
+                ></item-modal>
+              </transition>
             </div>
 
             <!--- slider with question markers -->
@@ -260,6 +278,10 @@ export default {
       plioDBId: null, // store the DB id of plio object
       anyErrorsPresent: false, // store if any errors are present or not
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
+      isModalMinimized: false, // whether the preview modal is minimized or not
+      // styling class for the minimize button
+      minimizeButtonClass:
+        "bg-primary hover:bg-primary-hover rounded-lg p-1 lg:p-2 ring-0 px-2 border-2 border-white",
     };
   },
   async created() {
@@ -317,6 +339,15 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading"]),
+    minimizeButtonTitleClass() {
+      // styling class for the title of minimize button
+      return {
+        value: this.isModalMinimized
+          ? this.$t("editor.buttons.show_item")
+          : this.$t("editor.buttons.show_video"),
+        class: "text-white text-sm lg:text-base",
+      };
+    },
     showItemModal() {
       // whether the item modal needs to be shown
       return this.hasAnyItems && this.isAnyItemActive;
@@ -543,6 +574,10 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
+    toggleMinimize() {
+      // toggle the minimized state of the modal
+      this.isModalMinimized = !this.isModalMinimized;
+    },
     closeModal() {
       this.currentItemIndex = null;
       this.player.play();
@@ -618,6 +653,7 @@ export default {
       );
       if (selectedItemIndex != null) {
         this.markItemSelected(selectedItemIndex);
+        this.isModalMinimized = false;
       } else this.markNoItemSelected();
     },
     updatePlayerTimestamp(timestamp) {
@@ -1005,3 +1041,100 @@ export default {
   },
 };
 </script>
+<style lang="scss">
+@mixin modalScale($scaleFactor) {
+  transform: scale($scaleFactor);
+  transform-origin: 98% 5%;
+}
+
+@keyframes shrink {
+  1% {
+    @include modalScale(0.9);
+  }
+  10% {
+    @include modalScale(0.8);
+  }
+  20% {
+    @include modalScale(0.7);
+  }
+  30% {
+    @include modalScale(0.6);
+  }
+  40% {
+    @include modalScale(0.5);
+  }
+  50% {
+    @include modalScale(0.4);
+  }
+  60% {
+    @include modalScale(0.3);
+  }
+  70% {
+    @include modalScale(0.2);
+  }
+  80% {
+    @include modalScale(0.1);
+  }
+  90% {
+    @include modalScale(0.07);
+  }
+  100% {
+    @include modalScale(0.03);
+  }
+}
+
+@keyframes grow {
+  0% {
+    @include modalScale(0);
+  }
+  1% {
+    @include modalScale(0.03);
+  }
+  10% {
+    @include modalScale(0.07);
+  }
+  20% {
+    @include modalScale(0.1);
+  }
+  30% {
+    @include modalScale(0.2);
+  }
+  40% {
+    @include modalScale(0.3);
+  }
+  50% {
+    @include modalScale(0.4);
+  }
+  60% {
+    @include modalScale(0.5);
+  }
+  70% {
+    @include modalScale(0.6);
+  }
+  80% {
+    @include modalScale(0.7);
+  }
+  90% {
+    @include modalScale(0.8);
+  }
+  100% {
+    @include modalScale(0.9);
+  }
+}
+
+.shrink {
+  animation: shrink 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.grow {
+  animation: grow 0.3s ease-in;
+}
+
+.modalGrowShrink-leave {
+  @include modalScale(0);
+}
+
+.modalGrowShrink-enter {
+  @include modalScale(1);
+}
+</style>
