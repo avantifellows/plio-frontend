@@ -343,7 +343,7 @@ export default {
         var plyrInstance = document.getElementsByClassName("plyr")[0];
         this.$nextTick(() => {
           var maximizeButton = document.getElementById("maximizeButton");
-          if (maximizeButton != null && maximizeButton != undefined)
+          if (maximizeButton != undefined)
             plyrInstance.insertBefore(maximizeButton, plyrInstance.firstChild);
         });
       }
@@ -588,7 +588,7 @@ export default {
       }
 
       var maximizeButton = document.getElementById("maximizeButton");
-      if (maximizeButton != null && maximizeButton != undefined)
+      if (maximizeButton != undefined)
         plyrInstance.insertBefore(maximizeButton, plyrInstance.firstChild);
     },
     playerEntersFullscreen() {
