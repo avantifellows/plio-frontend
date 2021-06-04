@@ -28,6 +28,7 @@ Fixes #{issue id}
     - [ ] Chrome
     - [ ] Firefox
     - [ ] Safari
+- [ ] Local Language Support
 - [ ] Tested locally
 - [ ] Tested on staging
 - [ ] Tested on production
