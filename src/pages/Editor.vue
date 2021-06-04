@@ -1,7 +1,10 @@
 <template>
   <!--- base grid -->
-  <div class="flex relative justify-center md:mx-10 xl:mx-20">
-    <div class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full" :class="{ 'opacity-30 pointer-events-none': blurMainScreen }">
+  <div class="flex relative justify-center md:mx-4 lg:mx-10 xl:mx-20">
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
+      :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
+    >
       <!--- preview grid -->
       <div class="flex flex-col ml-5 mr-5">
         <!--- plio link -->
@@ -16,7 +19,14 @@
             </div>
           </div>
           <div v-else>
-            <video-player :videoId="videoId" :plyrConfig="plyrConfig" @update="videoTimestampUpdated" @ready="playerReady" @play="playerPlayed" ref="videoPlayer"></video-player>
+            <video-player
+              :videoId="videoId"
+              :plyrConfig="plyrConfig"
+              @update="videoTimestampUpdated"
+              @ready="playerReady"
+              @play="playerPlayed"
+              ref="videoPlayer"
+            ></video-player>
 
             <!--- slider with question markers -->
             <slider-with-markers
@@ -36,9 +46,20 @@
         <!--- buttons -->
         <div class="flex justify-between md:justify-start md:space-x-4 mt-10">
           <!--- button to go back to home -->
-          <icon-button :titleConfig="backButtonTitleConfig" :iconConfig="backButtonIconConfig" :buttonClass="backButtonClass" @click="returnToHome"></icon-button>
+          <icon-button
+            :titleConfig="backButtonTitleConfig"
+            :iconConfig="backButtonIconConfig"
+            :buttonClass="backButtonClass"
+            @click="returnToHome"
+          ></icon-button>
           <!--- publish button -->
-          <icon-button :titleConfig="publishButtonTitleConfig" :class="publishButtonClass" class="shadow-lg" v-tooltip.right="publishButtonTooltip" @click="publishButtonClicked"></icon-button>
+          <icon-button
+            :titleConfig="publishButtonTitleConfig"
+            :class="publishButtonClass"
+            class="shadow-lg"
+            v-tooltip.right="publishButtonTooltip"
+            @click="publishButtonClicked"
+          ></icon-button>
         </div>
       </div>
 
@@ -47,7 +68,11 @@
         <div class="grid gap-y-4">
           <div class="flex w-full justify-between">
             <!--- publish/draft badge -->
-            <simple-badge :text="statusBadge" :badgeClass="statusBadgeClass" v-tooltip.top="statusBadgeTooltip"></simple-badge>
+            <simple-badge
+              :text="statusBadge"
+              :badgeClass="statusBadgeClass"
+              v-tooltip.top="statusBadgeTooltip"
+            ></simple-badge>
             <!--- text to show updated time status -->
             <p class="text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
               {{ syncStatusText }}
@@ -67,7 +92,13 @@
           ></input-text>
 
           <!--- plio title -->
-          <input-text :placeholder="titleInputPlaceholder" :title="titleInputTitle" v-model:value="plioTitle" ref="title" :boxStyling="'pl-4'"></input-text>
+          <input-text
+            :placeholder="titleInputPlaceholder"
+            :title="titleInputTitle"
+            v-model:value="plioTitle"
+            ref="title"
+            :boxStyling="'pl-4'"
+          ></input-text>
         </div>
 
         <div class="flex justify-center py-2 mt-8 sm:mt-10 mb-16">
@@ -78,9 +109,6 @@
             v-if="currentItemIndex == null"
             v-tooltip.bottom="addItemTooltip"
           >
-            <!-- @click="addNewItem"
-              :disabled="addItemDisabled"
-              v-tooltip="addItemTooltip" -->
             <p class="text-yellow-900 text-xl font-bold">Add a new question</p>
             <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
               <button
@@ -89,7 +117,10 @@
                 class="w-10/12 flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                 :class="questionTypeSelectorClass"
               >
-                <inline-svg :src="require('@/assets/images/radio-button.svg')" class="h-4 w-4 fill-current"></inline-svg>
+                <inline-svg
+                  :src="require('@/assets/images/radio-button.svg')"
+                  class="h-4 w-4 fill-current"
+                ></inline-svg>
                 <p class="font-bold text-center">Multiple Choice</p>
               </button>
               <button
@@ -98,7 +129,10 @@
                 class="w-10/12 flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                 :class="questionTypeSelectorClass"
               >
-                <inline-svg :src="require('@/assets/images/subjective-question.svg')" class="w-20 fill-current"></inline-svg>
+                <inline-svg
+                  :src="require('@/assets/images/subjective-question.svg')"
+                  class="w-20 fill-current"
+                ></inline-svg>
                 <p class="font-bold text-center">Subjective</p>
               </button>
             </div>
@@ -108,11 +142,12 @@
             v-if="hasAnyItems && currentItemIndex != null"
             v-model:itemList="items"
             v-model:selectedItemIndex="currentItemIndex"
-            @update:selectedItemIndex="navigateToItem"
             :videoDuration="videoDuration"
+            :isInteractionDisabled="isPublished"
+            v-model:questionTypeIndex="currentQuestionTypeIndex"
+            @update:selectedItemIndex="navigateToItem"
             @delete-selected-item="deleteItemButtonClicked"
             @delete-option="deleteOption"
-            :isInteractionDisabled="isPublished"
             @error-occurred="setErrorOccurred"
             @error-resolved="setErrorResolved"
           ></item-editor>
@@ -140,7 +175,7 @@ import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
-// import QuestionAPIService from "@/services/API/Question.js";
+import QuestionAPIService from "@/services/API/Question.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import Utilities from "@/services/Functional/Utilities.js";
@@ -188,6 +223,7 @@ export default {
       plioTitle: "", // title for the current plio
       currentTimestamp: 0, // current timestamp
       currentItemIndex: null, // current item being displayed
+      currentQuestionTypeIndex: 0, // index of the current question type being created
       plyrConfig: {
         controls: ["play-large", "play", "volume"],
       },
@@ -225,6 +261,11 @@ export default {
       plioDBId: null, // store the DB id of plio object
       anyErrorsPresent: false, // store if any errors are present or not
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
+      // mapping of questionType value to index in the list of question types
+      questionTypeToIndex: {
+        "mcq": 0,
+        "subjective": 1,
+      },
     };
   },
   async created() {
@@ -260,7 +301,8 @@ export default {
       // when time is changed from the time input boxes
       // or when item is added using the add item button
       this.checkAndFixItemOrder();
-      if (this.items != null && this.currentItemIndex != null) this.currentTimestamp = this.items[this.currentItemIndex].time;
+      if (this.items != null && this.currentItemIndex != null)
+        this.currentTimestamp = this.items[this.currentItemIndex].time;
     },
     videoURL(newVideoURL) {
       // invoked when the video link is updated
@@ -561,7 +603,11 @@ export default {
       // checks if an item is to be selected and marks/unmarks accordingly
       if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY) return;
       this.lastCheckTimestamp = timestamp;
-      var selectedItemIndex = ItemFunctionalService.checkItemPopup(timestamp, this.itemTimestamps, POP_UP_PRECISION_TIME);
+      var selectedItemIndex = ItemFunctionalService.checkItemPopup(
+        timestamp,
+        this.itemTimestamps,
+        POP_UP_PRECISION_TIME
+      );
       if (selectedItemIndex != null) {
         this.markItemSelected(selectedItemIndex);
       } else this.markNoItemSelected();
@@ -586,6 +632,9 @@ export default {
         this.isItemSelected = true;
         this.player.pause();
         this.currentItemIndex = itemIndex;
+        this.currentQuestionTypeIndex = this.questionTypeToIndex[this.items[itemIndex].details.type];
+        console.log(this.currentItemIndex);
+        console.log(this.currentQuestionTypeIndex);
       }
     },
     markNoItemSelected() {
@@ -630,7 +679,8 @@ export default {
           this.videoURL = plioDetails.video_url || "";
           this.plioTitle = plioDetails.plioTitle || "";
           this.status = plioDetails.status;
-          if (plioDetails.updated_at != undefined && plioDetails.updated_at != "") this.lastUpdated = new Date(plioDetails.updated_at);
+          if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
+            this.lastUpdated = new Date(plioDetails.updated_at);
           this.hasUnpublishedChanges = false;
           this.videoDBId = plioDetails.videoDBId;
           this.plioDBId = plioDetails.plioDBId;
@@ -815,11 +865,6 @@ export default {
       // returns the type of item being added when add item button is clicked
       return "question";
     },
-    getQuestionTypeForNewQuestion() {
-      // returns the type of question being added when add item button is clicked
-      // only "mcq" questions are supported as of now
-      return "mcq";
-    },
     getMetadataForNewItem() {
       // returns a metadata object which contains only the name of the source from where
       // the question is coming from.
@@ -829,52 +874,51 @@ export default {
       meta["source"]["name"] = "default";
       return meta;
     },
-    getDetailsForNewQuestion() {
+    getDetailsForNewQuestion(questionType) {
       // barebones question structure
       var details = {};
       details["correct_answer"] = "0";
       details["text"] = "";
-      details["type"] = this.getQuestionTypeForNewQuestion();
+      details["type"] = questionType;
       details["options"] = ["", ""];
       return details;
     },
     addNewItem(questionType) {
-      console.log(questionType);
-      // this.player.pause();
-      // const currentTimestamp = this.currentTimestamp;
-      // // newItem object will store the information of the newly created
-      // // item and the question
-      // var newItem = {};
-      // // check if the time where user is trying to add an item is valid or not
-      // if (!ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)) {
-      //   this.showCannotAddItemDialog();
-      //   return;
-      // }
-      // // create item, then create the question, then update local states
-      // ItemAPIService.createItem({
-      //   plio: this.plioDBId,
-      //   type: this.getItemTypeForNewItem(),
-      //   time: currentTimestamp,
-      //   meta: this.getMetadataForNewItem(),
-      // })
-      //   .then(createdItem => {
-      //     // storing the newly created item into "newItem"
-      //     newItem = createdItem;
-      //     if (createdItem.type == "question") {
-      //       var questionDetails = this.getDetailsForNewQuestion();
-      //       questionDetails.item = createdItem.id;
-      //       return QuestionAPIService.createQuestion(questionDetails);
-      //     }
-      //   })
-      //   .then(createdQuestion => {
-      //     // storing the newly created question into "newItem"
-      //     newItem.details = createdQuestion;
-      //     // push it into items, update the itemTimestamps and currentItemIndex
-      //     this.items.push(newItem);
-      //     this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
-      //     this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
-      //     this.markItemSelected(this.currentItemIndex);
-      //   });
+      this.player.pause();
+      const currentTimestamp = this.currentTimestamp;
+      // newItem object will store the information of the newly created
+      // item and the question
+      var newItem = {};
+      // check if the time where user is trying to add an item is valid or not
+      if (!ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)) {
+        this.showCannotAddItemDialog();
+        return;
+      }
+      // create item, then create the question, then update local states
+      ItemAPIService.createItem({
+        plio: this.plioDBId,
+        type: this.getItemTypeForNewItem(),
+        time: currentTimestamp,
+        meta: this.getMetadataForNewItem(),
+      })
+        .then(createdItem => {
+          // storing the newly created item into "newItem"
+          newItem = createdItem;
+          if (createdItem.type == "question") {
+            var questionDetails = this.getDetailsForNewQuestion(questionType);
+            questionDetails.item = createdItem.id;
+            return QuestionAPIService.createQuestion(questionDetails);
+          }
+        })
+        .then(createdQuestion => {
+          // storing the newly created question into "newItem"
+          newItem.details = createdQuestion;
+          // push it into items, update the itemTimestamps and currentItemIndex
+          this.items.push(newItem);
+          this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
+          this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
+          this.markItemSelected(this.currentItemIndex);
+        });
     },
     deleteItemButtonClicked() {
       // invoked when the delete item button is clicked
