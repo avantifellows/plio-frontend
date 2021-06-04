@@ -107,6 +107,33 @@
           v-tooltip.bottom="addOptionTooltip"
         ></icon-button>
       </div>
+
+      <!-- setting max char limit -->
+      <div v-if="isQuestionTypeSubjective" class="p-2">
+        <!-- checkbox -->
+        <label class="inline-flex items-center mt-3">
+          <input
+            type="checkbox"
+            class="form-checkbox h-5 w-5 text-primary focus:ring-transparent"
+            v-model="isMaxCharLimitSet"
+            checked
+          /><span class="ml-2 text-gray-700">Set Character Limit</span>
+        </label>
+        <!-- the max limit input -->
+        <div v-if="isMaxCharLimitSet" class="flex space-x-2 items-center">
+          <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">MAX</p>
+          <input-text
+            :placeholder="'100'"
+            v-model:value.number="maxCharLimit"
+            class="w-24"
+            :boxStyling="charLimitBoxClass"
+            @keypress="maxCharLimitInputKeypress"
+          ></input-text>
+          <!-- :isDisabled="isDisabled"
+        v-tooltip.bottom="disabledInputTooltip" -->
+          <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">CHARACTERS ALLOWED</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -184,8 +211,10 @@ export default {
           icon: "subjective-question.svg",
         },
       ],
-      localQuestionTypeIndex: this.questionTypeIndex,
-      isQuestionDropdownShown: false,
+      localQuestionTypeIndex: this.questionTypeIndex, // local copy of the current question type index
+      isQuestionDropdownShown: false, // whether the question type dropdown is shown
+      // isMaxCharLimitSet: false, // whether the max char limit has been set
+      // maxCharLimit: 100, // the max char limit
     };
   },
 
@@ -196,6 +225,10 @@ export default {
     },
     questionTypeIndex() {
       this.localQuestionTypeIndex = this.questionTypeIndex;
+    },
+    maxCharLimit() {
+      // if the user has not set the limit as empty - reset it back to 100
+      if (this.maxCharLimit == "") this.maxCharLimit = 100;
     },
   },
 
@@ -236,6 +269,11 @@ export default {
     QuestionTypeDropdown,
   },
   methods: {
+    maxCharLimitInputKeypress(event) {
+      // invoked when a key is pressed in the input area for setting max limit
+      var numberPattern = /[0-9]/g;
+      if (event.key.match(numberPattern) == null) event.preventDefault();
+    },
     toggleQuestionTypeDropdown(newValue) {
       // invoked when the question type dropdown's visibility is toggled
       this.isQuestionDropdownShown = newValue;
@@ -351,6 +389,10 @@ export default {
   },
 
   computed: {
+    charLimitBoxClass() {
+      // class for the input area to enter max char limit
+      return ["text-center disabled:opacity-50", { "cursor-not-allowed": this.isInteractionDisabled }];
+    },
     questionTypeDropdownClass() {
       // class for the question type dropdown
       return { "w-full": this.isQuestionDropdownShown, "w-1/3": !this.isQuestionDropdownShown };
@@ -509,6 +551,26 @@ export default {
         this.localItemList[this.localSelectedItemIndex].details.text = value;
       },
     },
+    maxCharLimit: {
+      get() {
+        // extract the character limit from the item
+        return this.localItemList[this.localSelectedItemIndex].details.max_char_limit || 100;
+      },
+      set(value) {
+        // set the character limit in the item
+        this.localItemList[this.localSelectedItemIndex].details.max_char_limit = value;
+      },
+    },
+    isMaxCharLimitSet: {
+      get() {
+        // extract whether character limit is set from the item
+        return this.localItemList[this.localSelectedItemIndex].details.has_char_limit;
+      },
+      set(value) {
+        // set whether character limit exists in the item
+        this.localItemList[this.localSelectedItemIndex].details.has_char_limit = value;
+      },
+    },
     timeObject: {
       // this object contains four keys - 'hour', 'minute', 'second'
       // and 'millisecond' - all are type Number
@@ -560,6 +622,7 @@ export default {
     "error-resolved",
     "update:questionTypeIndex",
     "question-type-changed",
+    "toggle-max-char-limit",
   ],
 };
 </script>

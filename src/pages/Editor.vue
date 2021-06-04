@@ -43,6 +43,19 @@
           </div>
         </div>
 
+        <div
+          v-if="isQuestionTypeSubjective"
+          class="mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
+        >
+          <inline-svg
+            :src="require('@/assets/images/exclamation-circle-solid.svg')"
+            class="w-10 h-10 text-yellow-600 fill-current"
+          ></inline-svg>
+          <p class="text-yellow-600">
+            Subjective Questions are not included while calculating the accuracy during analysis.
+          </p>
+        </div>
+
         <!--- buttons -->
         <div class="flex justify-between md:justify-start md:space-x-4 mt-10">
           <!--- button to go back to home -->
@@ -324,6 +337,11 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading"]),
+    isQuestionTypeSubjective() {
+      // whether the type of the question being created is subjective
+      if (this.currentItemIndex == null) return false;
+      return this.items[this.currentItemIndex].details.type == "subjective";
+    },
     itemPickerClass() {
       // class for the item picker
       return { "opacity-30 cursor-not-allowed": this.addItemDisabled };
@@ -550,7 +568,6 @@ export default {
     questionTypeChanged(newQuestionType) {
       // invoked when the question type is changed
       this.items[this.currentItemIndex].details.type = newQuestionType;
-      QuestionAPIService.updateQuestion(this.items[this.currentItemIndex].details);
     },
     returnToHome() {
       // returns the user back to Home
@@ -885,6 +902,7 @@ export default {
       details["text"] = "";
       details["type"] = questionType;
       details["options"] = ["", ""];
+      details["max_char_limit"] = 100;
       return details;
     },
     addNewItem(questionType) {
