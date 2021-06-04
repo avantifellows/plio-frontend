@@ -1,9 +1,7 @@
 <template>
-  <div class="overflow-y-auto flex flex-col py-4">
+  <div class="overflow-y-auto flex flex-col py-2">
     <!-- question text -->
-    <p
-      class="m-2 sm:m-4 mx-4 md:mx-6 xl:mx-10 font-bold text-lg md:text-xl lg:text-2xl leading-tight"
-    >
+    <p :class="questionTextClass">
       {{ questionText }}
     </p>
     <!-- option container -->
@@ -13,13 +11,12 @@
           <div
             v-for="(option, optionIndex) in options"
             :key="optionIndex"
-            class="border p-2 pl-4 text-lg md:text-xl lg:text-2xl rounded-md mx-5"
-            :class="optionBackgroundClass(optionIndex)"
+            :class="[optionBackgroundClass(optionIndex), optionTextClass]"
           >
             <!-- each option is defined here -->
             <!-- adding <label> so that touch input is just
                   not limited to the radio button -->
-            <label class="flex content-center">
+            <label :class="labelClass(option)">
               <!-- understand the meaning of the keys here:
                https://www.w3schools.com/tags/att_input_type_radio.asp -->
               <input
@@ -29,7 +26,7 @@
                 class="place-self-center w-4"
                 @click="selectOption(optionIndex)"
                 :checked="isOptionChecked(optionIndex)"
-                :disabled="isAnswerSubmitted"
+                :disabled="isAnswerSubmitted || previewMode"
               />
               <div
                 v-html="option"
@@ -76,8 +73,36 @@ export default {
       default: false,
       type: Boolean,
     },
+    previewMode: {
+      // whether the item body will be shown in editor preview mode
+      default: false,
+      type: Boolean,
+    },
+  },
+  computed: {
+    questionTextClass() {
+      return [
+        {
+          "sm:m-4 text-lg md:text-xl lg:text-2xl": !this.previewMode,
+          "sm:m-2 text-sm md:text-base lg:text-lg xl:text-xl": this.previewMode,
+        },
+        "m-2 mx-4 md:mx-6 xl:mx-10 font-bold leading-tight",
+      ];
+    },
+    optionTextClass() {
+      return [
+        {
+          "p-2 text-lg md:text-xl lg:text-2xl": !this.previewMode,
+          "p-1 text-sm md:text-base lg:text-lg xl:text-xl": this.previewMode,
+        },
+        "border pl-4 rounded-md mx-5",
+      ];
+    },
   },
   methods: {
+    labelClass(optionText) {
+      return [{ "h-4 sm:h-5": optionText == "" }, "flex content-center"];
+    },
     selectOption(optionIndex) {
       // invoked when an option is selected
       this.$emit("option-selected", optionIndex);

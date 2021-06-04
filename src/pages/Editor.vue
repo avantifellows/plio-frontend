@@ -1,22 +1,54 @@
 <template>
   <!--- base grid -->
   <div class="flex relative justify-center">
-    <div class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full" :class="{ 'opacity-30 pointer-events-none': blurMainScreen }">
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
+      :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
+    >
       <!--- preview grid -->
       <div class="flex flex-col ml-5 mr-5">
         <!--- plio link -->
-        <URL :link="plioLink" class="justify-center m-4" :urlStyleClass="urlStyleClass" :isUnderlined="true"></URL>
+        <URL
+          :link="plioLink"
+          class="justify-center m-4"
+          :urlStyleClass="urlStyleClass"
+          :isUnderlined="true"
+        ></URL>
 
         <div class="justify-center">
           <!--- video preview -->
           <div v-if="!isVideoIdValid" class="flex justify-center">
             <div class="flex relative justify-center">
               <img src="@/assets/images/plain.svg" />
-              <img src="@/assets/images/play.svg" class="absolute place-self-center w-12 h-12" />
+              <img
+                src="@/assets/images/play.svg"
+                class="absolute place-self-center w-12 h-12"
+              />
             </div>
           </div>
           <div v-else>
-            <video-player :videoId="videoId" :plyrConfig="plyrConfig" @update="videoTimestampUpdated" @ready="playerReady" @play="playerPlayed" ref="videoPlayer"></video-player>
+            <div class="relative">
+              <video-player
+                :videoId="videoId"
+                :plyrConfig="plyrConfig"
+                @update="videoTimestampUpdated"
+                @ready="playerReady"
+                @play="playerPlayed"
+                ref="videoPlayer"
+                id="videoPlayer"
+                class="z-0"
+              ></video-player>
+              <!-- item modal component -->
+              <item-modal
+                id="modal"
+                class="absolute z-10 inset-0 border-2"
+                :class="{ hidden: !showItemModal }"
+                :selectedItemIndex="currentItemIndex"
+                :itemList="items"
+                :previewMode="true"
+                @skip-question="closeModal"
+              ></item-modal>
+            </div>
 
             <!--- slider with question markers -->
             <slider-with-markers
@@ -36,9 +68,20 @@
         <!--- buttons -->
         <div class="flex justify-between mt-10">
           <!--- button to go back to home -->
-          <icon-button :titleConfig="backButtonTitleConfig" :iconConfig="backButtonIconConfig" :buttonClass="backButtonClass" @click="returnToHome"></icon-button>
+          <icon-button
+            :titleConfig="backButtonTitleConfig"
+            :iconConfig="backButtonIconConfig"
+            :buttonClass="backButtonClass"
+            @click="returnToHome"
+          ></icon-button>
           <!--- publish button -->
-          <icon-button :titleConfig="publishButtonTitleConfig" :class="publishButtonClass" class="shadow-lg" v-tooltip.right="publishButtonTooltip" @click="publishButtonClicked"></icon-button>
+          <icon-button
+            :titleConfig="publishButtonTitleConfig"
+            :class="publishButtonClass"
+            class="shadow-lg"
+            v-tooltip.right="publishButtonTooltip"
+            @click="publishButtonClicked"
+          ></icon-button>
         </div>
       </div>
 
@@ -47,7 +90,11 @@
         <div class="grid gap-y-4">
           <div class="flex w-full justify-between">
             <!--- publish/draft badge -->
-            <simple-badge :text="statusBadge" :badgeClass="statusBadgeClass" v-tooltip.top="statusBadgeTooltip"></simple-badge>
+            <simple-badge
+              :text="statusBadge"
+              :badgeClass="statusBadgeClass"
+              v-tooltip.top="statusBadgeTooltip"
+            ></simple-badge>
             <!--- text to show updated time status -->
             <p class="text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
               {{ syncStatusText }}
@@ -67,7 +114,13 @@
           ></input-text>
 
           <!--- plio title -->
-          <input-text :placeholder="titleInputPlaceholder" :title="titleInputTitle" v-model:value="plioTitle" ref="title" :boxStyling="'pl-4'"></input-text>
+          <input-text
+            :placeholder="titleInputPlaceholder"
+            :title="titleInputTitle"
+            v-model:value="plioTitle"
+            ref="title"
+            :boxStyling="'pl-4'"
+          ></input-text>
         </div>
 
         <div class="flex justify-center py-2 mt-10">
@@ -126,6 +179,7 @@ import Utilities from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
+import ItemModal from "../components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
 
 // used for deep cloning objects
@@ -146,6 +200,7 @@ export default {
     IconButton,
     SimpleBadge,
     DialogBox,
+    ItemModal,
   },
   props: {
     plioId: {
@@ -168,7 +223,8 @@ export default {
       currentTimestamp: 0, // current timestamp
       currentItemIndex: null, // current item being displayed
       plyrConfig: {
-        controls: ["play-large", "play", "volume"],
+        controls: ["play-large", "play", "volume", "current-time"],
+        invertTime: false,
       },
       sliderStep: 0.1, // timestep for the slider
       itemTimestamps: [], // stores the list of the timestamps of all items
@@ -239,7 +295,8 @@ export default {
       // when time is changed from the time input boxes
       // or when item is added using the add item button
       this.checkAndFixItemOrder();
-      if (this.items != null && this.currentItemIndex != null) this.currentTimestamp = this.items[this.currentItemIndex].time;
+      if (this.items != null && this.currentItemIndex != null)
+        this.currentTimestamp = this.items[this.currentItemIndex].time;
     },
     videoURL(newVideoURL) {
       // invoked when the video link is updated
@@ -260,6 +317,14 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading"]),
+    showItemModal() {
+      // whether the item modal needs to be shown
+      return this.hasAnyItems && this.isAnyItemActive;
+    },
+    isAnyItemActive() {
+      // whether any item is currently active
+      return this.currentItemIndex != null;
+    },
     itemType() {
       // type of the current item - null if no item is selected
       if (!this.isItemSelected) return null;
@@ -365,7 +430,8 @@ export default {
       // class for the publish button
       return [
         {
-          "opacity-50 cursor-not-allowed pointer-events-none": !this.isPublishButtonEnabled,
+          "opacity-50 cursor-not-allowed pointer-events-none": !this
+            .isPublishButtonEnabled,
         },
         `rounded-md ring-green-500`,
       ];
@@ -373,10 +439,12 @@ export default {
     publishButtonTooltip() {
       // tooltip text for publish button
       if (!this.isPublished) {
-        if (!this.isPublishButtonEnabled) return this.$t("tooltip.editor.publish.draft.disabled");
+        if (!this.isPublishButtonEnabled)
+          return this.$t("tooltip.editor.publish.draft.disabled");
         return this.$t("tooltip.editor.publish.draft.enabled");
       }
-      if (!this.isPublishButtonEnabled) return this.$t("tooltip.editor.publish.published.disabled");
+      if (!this.isPublishButtonEnabled)
+        return this.$t("tooltip.editor.publish.published.disabled");
       return this.$t("tooltip.editor.publish.published.enabled");
     },
     lastUpdatedStr() {
@@ -475,6 +543,10 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
+    closeModal() {
+      this.currentItemIndex = null;
+      this.player.play();
+    },
     returnToHome() {
       // returns the user back to Home
       this.$router.push({ name: "Home", params: { org: this.org } });
@@ -511,7 +583,13 @@ export default {
       // check if the time after drag is valid and if not, set the item time
       // back to the one before the drag
       // else proceed with the new time
-      if (!ItemFunctionalService.isTimestampValid(itemTimestamp, this.itemTimestamps, itemIndex)) {
+      if (
+        !ItemFunctionalService.isTimestampValid(
+          itemTimestamp,
+          this.itemTimestamps,
+          itemIndex
+        )
+      ) {
         this.items[itemIndex]["time"] = timeBeforeDragEnded;
         itemTimestamp = timeBeforeDragEnded;
         this.showCannotAddItemDialog();
@@ -530,9 +608,14 @@ export default {
     },
     checkItemToSelect(timestamp) {
       // checks if an item is to be selected and marks/unmarks accordingly
-      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY) return;
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+        return;
       this.lastCheckTimestamp = timestamp;
-      var selectedItemIndex = ItemFunctionalService.checkItemPopup(timestamp, this.itemTimestamps, POP_UP_PRECISION_TIME);
+      var selectedItemIndex = ItemFunctionalService.checkItemPopup(
+        timestamp,
+        this.itemTimestamps,
+        POP_UP_PRECISION_TIME
+      );
       if (selectedItemIndex != null) {
         this.markItemSelected(selectedItemIndex);
       } else this.markNoItemSelected();
@@ -596,12 +679,13 @@ export default {
     async loadPlio() {
       // fetch plio details
       await PlioAPIService.getPlio(this.plioId)
-        .then(plioDetails => {
+        .then((plioDetails) => {
           this.items = plioDetails.items || [];
           this.videoURL = plioDetails.video_url || "";
           this.plioTitle = plioDetails.plioTitle || "";
           this.status = plioDetails.status;
-          if (plioDetails.updated_at != undefined && plioDetails.updated_at != "") this.lastUpdated = new Date(plioDetails.updated_at);
+          if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
+            this.lastUpdated = new Date(plioDetails.updated_at);
           this.hasUnpublishedChanges = false;
           this.videoDBId = plioDetails.videoDBId;
           this.plioDBId = plioDetails.plioDBId;
@@ -667,7 +751,8 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
@@ -711,7 +796,8 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.got_it"),
-        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: false,
@@ -732,7 +818,8 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.got_it"),
-        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: false,
@@ -775,7 +862,10 @@ export default {
       }
 
       // delete the option
-      this.items[this.currentItemIndex].details.options.splice(this.optionIndexToDelete, 1);
+      this.items[this.currentItemIndex].details.options.splice(
+        this.optionIndexToDelete,
+        1
+      );
       // if the deleted option was the correct answer, reset the correct answer
       if (this.optionIndexToDelete == this.correctOptionIndex) {
         this.items[this.currentItemIndex].details.correct_answer = 0;
@@ -817,7 +907,9 @@ export default {
       var newItem = {};
 
       // check if the time where user is trying to add an item is valid or not
-      if (!ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)) {
+      if (
+        !ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)
+      ) {
         this.showCannotAddItemDialog();
         return;
       }
@@ -829,7 +921,7 @@ export default {
         time: currentTimestamp,
         meta: this.getMetadataForNewItem(),
       })
-        .then(createdItem => {
+        .then((createdItem) => {
           // storing the newly created item into "newItem"
           newItem = createdItem;
           if (createdItem.type == "question") {
@@ -838,7 +930,7 @@ export default {
             return QuestionAPIService.createQuestion(questionDetails);
           }
         })
-        .then(createdQuestion => {
+        .then((createdQuestion) => {
           // storing the newly created question into "newItem"
           newItem.details = createdQuestion;
           // push it into items, update the itemTimestamps and currentItemIndex
@@ -852,11 +944,14 @@ export default {
       // invoked when the delete item button is clicked
       // set dialog properties
       this.dialogTitle = this.$t(`editor.dialog.delete_item.${this.itemType}.title`);
-      this.dialogDescription = this.$t(`editor.dialog.delete_item.${this.itemType}.description`);
+      this.dialogDescription = this.$t(
+        `editor.dialog.delete_item.${this.itemType}.description`
+      );
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
