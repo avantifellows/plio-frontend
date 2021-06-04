@@ -46,7 +46,6 @@
                 :selectedItemIndex="currentItemIndex"
                 :itemList="items"
                 :previewMode="true"
-                @skip-question="closeModal"
               ></item-modal>
             </div>
 
@@ -543,10 +542,6 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
-    closeModal() {
-      this.currentItemIndex = null;
-      this.player.play();
-    },
     returnToHome() {
       // returns the user back to Home
       this.$router.push({ name: "Home", params: { org: this.org } });
