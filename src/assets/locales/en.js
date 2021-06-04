@@ -183,6 +183,7 @@ export default {
       submit: "Submit",
       revise: "Revise",
       proceed: "Proceed",
+      skip: "Skip",
     },
     fullscreen: {
       enter: "Go Fullscreen",

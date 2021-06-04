@@ -23,6 +23,7 @@
         :titleConfig="fullscreenButtonTitleConfig"
         :buttonClass="fullscreenButtonClass"
         @click="toggleFullscreen"
+        class="btn"
       ></icon-button>
     </div>
     <div class="place-self-end">
@@ -181,7 +182,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .btn {
   border-bottom: outset;
 }

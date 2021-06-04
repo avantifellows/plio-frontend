@@ -182,6 +182,7 @@ export default {
       submit: "सबमिट करें",
       revise: "पुनः देखें",
       proceed: "आगे बढ़ें",
+      skip: "छोड़ें",
     },
     fullscreen: {
       enter: "पूर्ण स्क्रीन में प्रवेश करें",

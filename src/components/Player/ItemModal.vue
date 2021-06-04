@@ -7,6 +7,8 @@
         v-if="!previewMode"
         @skip-question="skipQuestion"
         :isAnswerSubmitted="isAnswerSubmitted"
+        :isModalMinimized="isModalMinimized"
+        @toggle-minimize="toggleMinimize"
       ></item-question-header>
       <!-- main question body -->
       <item-question-body
@@ -76,6 +78,11 @@ export default {
     },
     previewMode: {
       // whether the item modal will be shown in editor preview mode
+      default: false,
+      type: Boolean,
+    },
+    isModalMinimized: {
+      // whether the item modal is minimized or not
       default: false,
       type: Boolean,
     },
@@ -164,6 +171,9 @@ export default {
     },
   },
   methods: {
+    toggleMinimize() {
+      this.$emit("toggle-minimize");
+    },
     skipQuestion() {
       // skip the question
       this.$emit("skip-question");
@@ -197,6 +207,7 @@ export default {
     "update:responseList",
     "submit-question",
     "option-selected",
+    "toggle-minimize",
   ],
 };
 </script>

@@ -4,10 +4,17 @@
     <video-skeleton v-if="!isVideoIdValid"></video-skeleton>
     <div v-else class="flex relative shadow-lg">
       <!-- fullscreen button overlay -->
-      <div v-if="showItemModal && !isFullscreen" class="z-50 absolute bp-500:hidden w-full h-full bg-transparent">
+      <div
+        v-if="showItemModal && !isFullscreen"
+        class="z-50 absolute bp-500:hidden w-full h-full bg-transparent"
+      >
         <div class="opacity-90 w-full h-full absolute bg-white"></div>
         <div class="flex w-full h-full">
-          <icon-button :titleConfig="fullscreenButtonTitleConfig" :buttonClass="fullscreenButtonClass" @click="goFullscreen"></icon-button>
+          <icon-button
+            :titleConfig="fullscreenButtonTitleConfig"
+            :buttonClass="fullscreenButtonClass"
+            @click="goFullscreen"
+          ></icon-button>
         </div>
       </div>
       <!-- video player component -->
@@ -26,21 +33,42 @@
         @exitfullscreen="playerExitsFullscreen"
         class="w-full z-0"
       ></video-player>
-      <!-- item modal component -->
-      <item-modal
-        id="modal"
-        class="absolute z-10"
-        :class="{ hidden: !showItemModal }"
-        :selectedItemIndex="currentItemIndex"
-        :itemList="items"
-        v-model:isFullscreen="isFullscreen"
-        v-model:responseList="itemResponses"
-        @skip-question="skipQuestion"
-        @proceed-question="proceedQuestion"
-        @revise-question="reviseQuestion"
-        @submit-question="submitQuestion"
-        @option-selected="optionSelected"
-      ></item-modal>
+      <!-- minimize button -->
+      <icon-button
+        v-if="isModalMinimized && showItemModal"
+        :titleConfig="minimizeButtonTitleConfig"
+        :buttonClass="minimizeButtonClass"
+        @click="toggleMinimize"
+        :class="[minimizeButtonPositionClass, 'absolute z-20 btn']"
+        id="maximizeButton"
+      >
+      </icon-button>
+      <!-- transition for minimizing/maximizing item modal -->
+      <transition
+        name="modalGrowShrink"
+        enter-active-class="grow"
+        leave-active-class="shrink"
+      >
+        <!-- item modal component -->
+        <item-modal
+          v-if="!isModalMinimized"
+          id="modal"
+          class="absolute z-10"
+          :class="{ hidden: !showItemModal }"
+          :selectedItemIndex="currentItemIndex"
+          :itemList="items"
+          v-model:isFullscreen="isFullscreen"
+          v-model:responseList="itemResponses"
+          :previewMode="false"
+          :isModalMinimized="isModalMinimized"
+          @skip-question="skipQuestion"
+          @proceed-question="proceedQuestion"
+          @revise-question="reviseQuestion"
+          @submit-question="submitQuestion"
+          @option-selected="optionSelected"
+          @toggle-minimize="toggleMinimize"
+        ></item-modal>
+      </transition>
     </div>
   </div>
 </template>
@@ -104,14 +132,18 @@ if (!Array.prototype.fill) {
       var relativeStart = start >> 0;
 
       // Step 8.
-      var k = relativeStart < 0 ? Math.max(len + relativeStart, 0) : Math.min(relativeStart, len);
+      var k =
+        relativeStart < 0
+          ? Math.max(len + relativeStart, 0)
+          : Math.min(relativeStart, len);
 
       // Steps 9-10.
       var end = arguments[2];
       var relativeEnd = end === undefined ? len : end >> 0;
 
       // Step 11.
-      var finalValue = relativeEnd < 0 ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
+      var finalValue =
+        relativeEnd < 0 ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
 
       // Step 12.
       while (k < finalValue) {
@@ -135,7 +167,15 @@ export default {
   data() {
     return {
       plyrConfig: {
-        controls: ["play", "play-large", "progress", "current-time", "mute", "volume", "fullscreen"],
+        controls: [
+          "play",
+          "play-large",
+          "progress",
+          "current-time",
+          "mute",
+          "volume",
+          "fullscreen",
+        ],
 
         ratio: "16:7",
 
@@ -179,6 +219,11 @@ export default {
       retention: [], // array to store video retention value
       lastTimestampRetention: null, // last recorded timestamp in the retention array
       toast: useToast(), // use the toast component
+      isModalMinimized: false, // whether the item modal is minimized or not
+      // styling class for the minimize button
+      minimizeButtonClass:
+        "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+      isPortrait: true, // whether the device is in portrait mode
     };
   },
   watch: {
@@ -233,6 +278,23 @@ export default {
     },
   },
   computed: {
+    minimizeButtonPositionClass() {
+      return [
+        {
+          "top-1/4": this.isFullscreen && this.isPortrait,
+        },
+        "top-2 right-4",
+      ];
+    },
+    minimizeButtonTitleConfig() {
+      // styling class for the title of minimize button
+      return {
+        value: this.isModalMinimized
+          ? this.$t("editor.buttons.show_item")
+          : this.$t("editor.buttons.show_video"),
+        class: "text-white text-base sm:text-xl lg:text-2xl font-bold",
+      };
+    },
     isVideoIdValid() {
       // whether the video Id is valid
       return this.videoId != "";
@@ -274,6 +336,18 @@ export default {
     },
   },
   methods: {
+    toggleMinimize() {
+      // toggle the minimized state of the modal
+      this.isModalMinimized = !this.isModalMinimized;
+      if (this.isFullscreen) {
+        var plyrInstance = document.getElementsByClassName("plyr")[0];
+        this.$nextTick(() => {
+          var maximizeButton = document.getElementById("maximizeButton");
+          if (maximizeButton != undefined && maximizeButton != null)
+            plyrInstance.insertBefore(maximizeButton, plyrInstance.firstChild);
+        });
+      }
+    },
     videoSeeked() {
       // invoked when a seek operation ends
       this.createEvent("video_seeked", { currentTime: this.player.currentTime });
@@ -289,7 +363,10 @@ export default {
       // after revise is clicked, take the user either to the beginning
       // of the video if the question is the first item else to the end of
       // the previous item
-      this.player.currentTime = this.currentItemIndex == 0 ? 0 : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
+      this.player.currentTime =
+        this.currentItemIndex == 0
+          ? 0
+          : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
       // create an event for the revise action
       this.createEvent("question_revised", { itemIndex: this.currentItemIndex });
       this.closeItemModal();
@@ -319,7 +396,7 @@ export default {
     async fetchPlioCreateSession() {
       // fetches plio details and creates a new session
       await PlioAPIService.getPlio(this.plioId, true)
-        .then(plioDetails => {
+        .then((plioDetails) => {
           // redirect to 404 if the plio is not published
           if (plioDetails.status != "published") this.$router.replace({ name: "404" });
           this.items = plioDetails.items || [];
@@ -336,7 +413,10 @@ export default {
         this.updateSession();
         // create an event for the user watching the plio
         this.createEvent("watching");
-        this.$mixpanel.people.increment("Total Watch Time", this.watchTimeIncrement.toFixed(2));
+        this.$mixpanel.people.increment(
+          "Total Watch Time",
+          this.watchTimeIncrement.toFixed(2)
+        );
         this.watchTimeIncrement = 0;
       }
       UPLOAD_INTERVAL_TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL);
@@ -356,7 +436,7 @@ export default {
     },
     createSession() {
       // creates new user-plio session
-      SessionAPIService.createSession(this.plioDBId).then(sessionDetails => {
+      SessionAPIService.createSession(this.plioDBId).then((sessionDetails) => {
         this.sessionDBId = sessionDetails.id;
         // reset the user to where they left off if they are returning
         if (sessionDetails.last_event != null) {
@@ -376,7 +456,7 @@ export default {
         this.watchTime = sessionDetails.watch_time;
 
         // set item responses
-        sessionDetails.session_answers.forEach(sessionAnswer => {
+        sessionDetails.session_answers.forEach((sessionAnswer) => {
           // removing the _id in keys like session_id, question_id
           // so that we can directly update the answers without having to
           // create another dictionary every time we want to upload
@@ -395,11 +475,14 @@ export default {
         watch_time: this.watchTime,
         retention: this.retentionArrayToStr(this.retention),
       };
-      return SessionAPIService.updateSession(this.sessionDBId, sessionDetails).catch(err => console.log(err));
+      return SessionAPIService.updateSession(
+        this.sessionDBId,
+        sessionDetails
+      ).catch((err) => console.log(err));
     },
     retentionStrToArray(retentionStr) {
       // convert retention string to retention array
-      return retentionStr.split(",").map(value => parseInt(value));
+      return retentionStr.split(",").map((value) => parseInt(value));
     },
     retentionArrayToStr(retentionArray) {
       // convert retention array to retention string
@@ -408,6 +491,8 @@ export default {
     setScreenProperties() {
       // sets various properties based on the device screen
       this.playerHeight = document.getElementById("videoPlayer").clientHeight;
+      if (screen.availHeight > screen.availWidth) this.isPortrait = true;
+      else this.isPortrait = false;
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL
@@ -458,7 +543,8 @@ export default {
     },
     isItemResponseDone(itemIndex) {
       // whether the response to an item is complete
-      if (this.itemResponses && this.itemResponses[itemIndex]) return this.itemResponses[itemIndex].answer != null;
+      if (this.itemResponses && this.itemResponses[itemIndex])
+        return this.itemResponses[itemIndex].answer != null;
       return false;
     },
     videoTimestampUpdated(timestamp) {
@@ -476,9 +562,15 @@ export default {
     },
     checkItemToSelect(timestamp) {
       // checks if an item is to be selected and marks/unmarks accordingly
-      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY) return;
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+        return;
       this.lastCheckTimestamp = timestamp;
-      this.currentItemIndex = ItemFunctionalService.checkItemPopup(timestamp, this.itemTimestamps, POP_UP_PRECISION_TIME);
+      this.isModalMinimized = false;
+      this.currentItemIndex = ItemFunctionalService.checkItemPopup(
+        timestamp,
+        this.itemTimestamps,
+        POP_UP_PRECISION_TIME
+      );
       if (this.currentItemIndex != null) {
         this.markItemSelected();
         this.createEvent("item_opened", { itemIndex: this.currentItemIndex });
@@ -494,6 +586,10 @@ export default {
       if (modal != undefined) {
         plyrInstance.insertBefore(modal, plyrInstance.firstChild);
       }
+
+      var maximizeButton = document.getElementById("maximizeButton");
+      if (maximizeButton != undefined && maximizeButton != null)
+        plyrInstance.insertBefore(maximizeButton, plyrInstance.firstChild);
     },
     playerEntersFullscreen() {
       // invoked when the player enters fullscreen

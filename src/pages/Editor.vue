@@ -39,13 +39,13 @@
                 id="videoPlayer"
                 class="z-0"
               ></video-player>
-              <!-- minimize button -->
+              <!-- maximize button -->
               <icon-button
                 v-if="showItemModal"
                 :titleConfig="minimizeButtonTitleClass"
                 :buttonClass="minimizeButtonClass"
                 @click="toggleMinimize"
-                class="absolute z-20 top-2 right-2"
+                class="absolute z-20 top-2 right-2 btn"
               >
               </icon-button>
               <!-- transition for minimizing/maximizing item modal -->
@@ -280,7 +280,7 @@ export default {
       isModalMinimized: false, // whether the preview modal is minimized or not
       // styling class for the minimize button
       minimizeButtonClass:
-        "bg-primary hover:bg-primary-hover rounded-lg p-1 lg:p-2 ring-0 px-2 border-2 border-white",
+        "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-10 sm:pr-10 rounded-md shadow-xl",
     };
   },
   async created() {
