@@ -40,14 +40,16 @@
                 class="z-0"
               ></video-player>
               <!-- maximize button -->
-              <icon-button
-                v-if="showItemModal"
-                :titleConfig="minimizeButtonTitleClass"
-                :buttonClass="minimizeButtonClass"
-                @click="toggleMinimize"
-                class="absolute z-20 top-2 right-2 btn"
-              >
-              </icon-button>
+              <transition name="maximize-btn-transition">
+                <icon-button
+                  v-if="showItemModal && isModalMinimized"
+                  :titleConfig="maximizeButtonTitleClass"
+                  :buttonClass="maximizeButtonClass"
+                  @click="maximize"
+                  class="absolute z-20"
+                  id="maximizeButton"
+                ></icon-button>
+              </transition>
               <!-- transition for minimizing/maximizing item modal -->
               <transition
                 name="modalGrowShrink"
@@ -63,6 +65,7 @@
                   :selectedItemIndex="currentItemIndex"
                   :itemList="items"
                   :previewMode="true"
+                  @toggle-minimize="minimize"
                 ></item-modal>
               </transition>
             </div>
@@ -279,8 +282,8 @@ export default {
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       isModalMinimized: false, // whether the preview modal is minimized or not
       // styling class for the minimize button
-      minimizeButtonClass:
-        "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-10 sm:pr-10 rounded-md shadow-xl",
+      maximizeButtonClass:
+        "bg-primary hover:bg-primary-hover p-2 pl-2 pr-2 sm:p-2 rounded-md shadow-xl",
     };
   },
   async created() {
@@ -338,11 +341,16 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading"]),
-    minimizeButtonTitleClass() {
+    currentItemType() {
+      // type of the current selected item -
+      // eg - question, note etc
+      return this.items[this.currentItemIndex].type;
+    },
+    maximizeButtonTitleClass() {
       // styling class for the title of minimize button
       return {
         value: this.isModalMinimized
-          ? this.$t("editor.buttons.show_item")
+          ? this.$t(`editor.buttons.show_${this.currentItemType}`)
           : this.$t("editor.buttons.show_video"),
         class: "text-white text-sm lg:text-base",
       };
@@ -573,8 +581,21 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
-    toggleMinimize() {
-      // toggle the minimized state of the modal
+    minimize(positions) {
+      // invoked when minimize button is clicked
+
+      // set some CSS variables which tells the animation
+      // where the modal should shrink to and where the maximize button should pop up
+      let root = document.documentElement;
+      root.style.setProperty("--t-origin-x", positions.centerX + "px");
+      root.style.setProperty("--t-origin-y", positions.centerY + "px");
+      root.style.setProperty("--maximize-btn-left", positions.leftX + "px");
+      root.style.setProperty("--maximize-btn-top", positions.leftY + "px");
+
+      this.isModalMinimized = true;
+    },
+    maximize() {
+      // invoked when maximize button is clicked
       this.isModalMinimized = !this.isModalMinimized;
     },
     returnToHome() {
@@ -1037,9 +1058,13 @@ export default {
 };
 </script>
 <style lang="scss">
+:root {
+  --t-origin-x: 98%;
+  --t-origin-y: 5%;
+}
 @mixin modalScale($scaleFactor) {
   transform: scale($scaleFactor);
-  transform-origin: 98% 5%;
+  transform-origin: var(--t-origin-x) var(--t-origin-y);
 }
 
 @keyframes shrink {
@@ -1122,7 +1147,7 @@ export default {
 }
 
 .grow {
-  animation: grow 0.3s ease-in;
+  animation: grow 0.1s ease-in;
 }
 
 .modalGrowShrink-leave {
@@ -1131,5 +1156,9 @@ export default {
 
 .modalGrowShrink-enter {
   @include modalScale(1);
+}
+
+.maximize-btn-transition-leave {
+  animation: linear 0.1s;
 }
 </style>

@@ -5,7 +5,6 @@
       <icon-button
         :titleConfig="reviseButtonTitleConfig"
         :buttonClass="reviseButtonClass"
-        class="btn"
         v-if="!isAnswerSubmitted"
         @click="reviseClicked"
       ></icon-button>
@@ -23,7 +22,6 @@
         :titleConfig="fullscreenButtonTitleConfig"
         :buttonClass="fullscreenButtonClass"
         @click="toggleFullscreen"
-        class="btn"
       ></icon-button>
     </div>
     <div class="place-self-end">
@@ -31,7 +29,6 @@
       <icon-button
         :titleConfig="submitButtonTitleConfig"
         :buttonClass="submitButtonClass"
-        class="btn"
         v-if="!isAnswerSubmitted"
         :isDisabled="isSubmitDisabled"
         @click="submitClicked"
@@ -40,7 +37,6 @@
       <icon-button
         :titleConfig="proceedButtonTitleConfig"
         :buttonClass="proceedButtonClass"
-        class="btn"
         @click="proceedClicked"
         v-else
       ></icon-button>
@@ -181,12 +177,3 @@ export default {
   ],
 };
 </script>
-
-<style>
-.btn {
-  border-bottom: outset;
-}
-.btn:active {
-  border-bottom: hidden;
-}
-</style>

@@ -30,7 +30,7 @@ export default {
       },
       add_question: "Add a question",
       show_video: "Show Video",
-      show_item: "Show Item",
+      show_question: "Show Question",
     },
     updated: "Updated at",
     item_editor: {

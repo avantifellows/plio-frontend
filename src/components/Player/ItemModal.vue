@@ -4,11 +4,12 @@
     <div v-if="isItemQuestion" class="h-full flex flex-col justify-center">
       <!-- header -->
       <item-question-header
-        v-if="!previewMode"
-        @skip-question="skipQuestion"
         :isAnswerSubmitted="isAnswerSubmitted"
         :isModalMinimized="isModalMinimized"
+        :isFullscreen="isFullscreen"
+        :previewMode="previewMode"
         @toggle-minimize="toggleMinimize"
+        @skip-question="skipQuestion"
       ></item-question-header>
       <!-- main question body -->
       <item-question-body
@@ -171,8 +172,8 @@ export default {
     },
   },
   methods: {
-    toggleMinimize() {
-      this.$emit("toggle-minimize");
+    toggleMinimize(positions) {
+      this.$emit("toggle-minimize", positions);
     },
     skipQuestion() {
       // skip the question

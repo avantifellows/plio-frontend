@@ -34,15 +34,17 @@
         class="w-full z-0"
       ></video-player>
       <!-- minimize button -->
-      <icon-button
-        v-if="isModalMinimized && showItemModal"
-        :titleConfig="minimizeButtonTitleConfig"
-        :buttonClass="minimizeButtonClass"
-        @click="toggleMinimize"
-        :class="[minimizeButtonPositionClass, 'absolute z-20 btn']"
-        id="maximizeButton"
-      >
-      </icon-button>
+      <transition name="maximize-btn-transition">
+        <icon-button
+          v-if="isModalMinimized && showItemModal"
+          class="absolute z-20"
+          id="maximizeButton"
+          :titleConfig="maximizeButtonTitleConfig"
+          :buttonClass="maximizeButtonClass"
+          @click="maximize"
+        >
+        </icon-button>
+      </transition>
       <!-- transition for minimizing/maximizing item modal -->
       <transition
         name="modalGrowShrink"
@@ -61,12 +63,13 @@
           v-model:responseList="itemResponses"
           :previewMode="false"
           :isModalMinimized="isModalMinimized"
+          :isFullscreen="isFullscreen"
           @skip-question="skipQuestion"
           @proceed-question="proceedQuestion"
           @revise-question="reviseQuestion"
           @submit-question="submitQuestion"
           @option-selected="optionSelected"
-          @toggle-minimize="toggleMinimize"
+          @toggle-minimize="minimize"
         ></item-modal>
       </transition>
     </div>
@@ -221,8 +224,8 @@ export default {
       toast: useToast(), // use the toast component
       isModalMinimized: false, // whether the item modal is minimized or not
       // styling class for the minimize button
-      minimizeButtonClass:
-        "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+      maximizeButtonClass:
+        "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-6 sm:pr-6 lg:p-4 lg:pl-6 lg:pr-6 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
       isPortrait: true, // whether the device is in portrait mode
     };
   },
@@ -278,19 +281,16 @@ export default {
     },
   },
   computed: {
-    minimizeButtonPositionClass() {
-      return [
-        {
-          "top-1/4": this.isFullscreen && this.isPortrait,
-        },
-        "top-2 right-4",
-      ];
+    currentItemType() {
+      // type of the current selected item -
+      // eg - question, note etc
+      return this.items[this.currentItemIndex].type;
     },
-    minimizeButtonTitleConfig() {
+    maximizeButtonTitleConfig() {
       // styling class for the title of minimize button
       return {
         value: this.isModalMinimized
-          ? this.$t("editor.buttons.show_item")
+          ? this.$t(`editor.buttons.show_${this.currentItemType}`)
           : this.$t("editor.buttons.show_video"),
         class: "text-white text-base sm:text-xl lg:text-2xl font-bold",
       };
@@ -336,17 +336,30 @@ export default {
     },
   },
   methods: {
-    toggleMinimize() {
+    maximize() {
       // toggle the minimized state of the modal
-      this.isModalMinimized = !this.isModalMinimized;
-      if (this.isFullscreen) {
-        var plyrInstance = document.getElementsByClassName("plyr")[0];
-        this.$nextTick(() => {
-          var maximizeButton = document.getElementById("maximizeButton");
-          if (maximizeButton != undefined)
-            plyrInstance.insertBefore(maximizeButton, plyrInstance.firstChild);
-        });
-      }
+      this.isModalMinimized = false;
+    },
+    minimize(positions) {
+      // invoked when minimize button is clicked
+
+      // set some CSS variables which tells the animation
+      // where the modal should shrink to and where the maximize button should pop up
+      let root = document.documentElement;
+      root.style.setProperty("--t-origin-x", positions.centerX + "px");
+      root.style.setProperty("--t-origin-y", positions.centerY + "px");
+      root.style.setProperty("--maximize-btn-left", positions.leftX + "px");
+      root.style.setProperty("--maximize-btn-top", positions.leftY + "px");
+
+      this.isModalMinimized = true;
+
+      // insert the button inside the plyr instance so it shows up in fullscreen mode
+      var plyrInstance = document.getElementsByClassName("plyr")[0];
+      this.$nextTick(() => {
+        var maximizeButton = document.getElementById("maximizeButton");
+        if (maximizeButton != undefined)
+          plyrInstance.insertBefore(maximizeButton, plyrInstance.firstChild);
+      });
     },
     videoSeeked() {
       // invoked when a seek operation ends
@@ -619,3 +632,14 @@ export default {
   },
 };
 </script>
+<style>
+:root {
+  --maximize-btn-left: 72.5rem;
+  --maximize-btn-top: 0.5rem;
+}
+
+#maximizeButton {
+  left: var(--maximize-btn-left);
+  top: var(--maximize-btn-top);
+}
+</style>
