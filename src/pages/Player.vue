@@ -46,11 +46,7 @@
         </icon-button>
       </transition>
       <!-- transition for minimizing/maximizing item modal -->
-      <transition
-        name="modalGrowShrink"
-        enter-active-class="grow"
-        leave-active-class="shrink"
-      >
+      <transition enter-active-class="grow" leave-active-class="shrink">
         <!-- item modal component -->
         <item-modal
           v-if="!isModalMinimized"
@@ -64,6 +60,7 @@
           :previewMode="false"
           :isModalMinimized="isModalMinimized"
           :isFullscreen="isFullscreen"
+          :isPortrait="isPortrait"
           @skip-question="skipQuestion"
           @proceed-question="proceedQuestion"
           @revise-question="reviseQuestion"

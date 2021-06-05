@@ -51,11 +51,7 @@
                 ></icon-button>
               </transition>
               <!-- transition for minimizing/maximizing item modal -->
-              <transition
-                name="modalGrowShrink"
-                enter-active-class="grow"
-                leave-active-class="shrink"
-              >
+              <transition enter-active-class="grow" leave-active-class="shrink">
                 <!-- item modal component -->
                 <item-modal
                   v-if="!isModalMinimized"
@@ -1148,14 +1144,6 @@ export default {
 
 .grow {
   animation: grow 0.1s ease-in;
-}
-
-.modalGrowShrink-leave {
-  @include modalScale(0);
-}
-
-.modalGrowShrink-enter {
-  @include modalScale(1);
 }
 
 .maximize-btn-transition-leave {

@@ -1,18 +1,18 @@
 <template>
-  <div class="flex w-full bg-white justify-end p-1 pr-3 md:pr-6 space-x-2">
-    <!-- minimize button -->
-    <icon-button
-      :titleConfig="minimizeButtonTitleConfig"
-      :buttonClass="minimizeButtonClass"
-      @click="toggleMinimize"
-      id="minimize"
-    ></icon-button>
+  <div :class="mainStylingClass">
     <!-- skip button -->
     <icon-button
       :titleConfig="skipButtonTitleConfig"
       @click="skipClicked"
       :class="{ hidden: isAnswerSubmitted || previewMode }"
       :buttonClass="skipButtonClass"
+    ></icon-button>
+    <!-- minimize button -->
+    <icon-button
+      :titleConfig="minimizeButtonTitleConfig"
+      :buttonClass="minimizeButtonClass"
+      @click="toggleMinimize"
+      id="minimize"
     ></icon-button>
   </div>
 </template>
@@ -29,6 +29,13 @@ export default {
   },
   components: { IconButton },
   computed: {
+    mainStylingClass() {
+      // main styling class for this component
+      return [
+        { "mt-auto": this.isPortrait },
+        "flex w-full bg-white justify-end p-1 pr-6 md:pr-10 space-x-2 mt-4",
+      ];
+    },
     minimizeButtonClass() {
       // styling class for the minimize button
       return [
@@ -76,6 +83,11 @@ export default {
     },
     previewMode: {
       // whether the item modal will be shown in editor preview mode
+      default: false,
+      type: Boolean,
+    },
+    isPortrait: {
+      // whether the screen is in portraid mode
       default: false,
       type: Boolean,
     },
