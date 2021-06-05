@@ -888,7 +888,7 @@ export default {
     getDetailsForNewQuestion() {
       // barebones question structure
       var details = {};
-      details["correct_answer"] = "0";
+      details["correct_answer"] = 0;
       details["text"] = "";
       details["type"] = this.getQuestionTypeForNewQuestion();
       details["options"] = ["", ""];
