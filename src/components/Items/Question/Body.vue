@@ -37,7 +37,9 @@
         </li>
       </ul>
     </div>
-    <div v-if="isQuestionTypeSubjective" class="flex px-4 md:px-6 xl:px-10 w-full">
+    <!-- subjective question answer -->
+    <div v-if="isQuestionTypeSubjective" class="flex flex-col px-4 md:px-6 xl:px-10 w-full">
+      <!-- input area for the answer -->
       <Textarea
         :placeholder="subjectiveAnswerInputPlaceholder"
         title=""
@@ -45,7 +47,12 @@
         v-model:value="subjectiveAnswer"
         :boxStyling="'px-4 placeholder-gray-400 bp-420:h-20 sm:h-28 md:h-36 focus:border-gray-200 focus:ring-transparent'"
         :isDisabled="isAnswerSubmitted"
+        @keypress="checkCharLimit"
       ></Textarea>
+      <!-- character limit -->
+      <div class="h-full flex items-end px-6" v-if="hasCharLimit && !isAnswerSubmitted">
+        <p class="text-sm sm:text-base lg:text-lg font-bold" :class="maxCharLimitClass">{{ charactersLeft }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -103,9 +110,24 @@ export default {
       default: "mcq",
       type: String,
     },
+    hasCharLimit: {
+      // whether the answer has a character limit
+      default: false,
+      type: Boolean,
+    },
+    maxCharLimit: {
+      // the character limit to be used if present
+      default: 0,
+      type: Number,
+    },
   },
   components: { Textarea },
   methods: {
+    checkCharLimit(event) {
+      // checks if character limit is reached in case it is set
+      if (!this.hasCharLimit) return;
+      if (!this.charactersLeft) event.preventDefault();
+    },
     selectOption(optionIndex) {
       // invoked when an option is selected
       this.$emit("option-selected", optionIndex);
@@ -123,6 +145,21 @@ export default {
     },
   },
   computed: {
+    maxCharLimitClass() {
+      // class for the character limit text
+      if (this.charactersLeft > 0.2 * this.maxCharLimit) return "text-gray-400";
+      else if (this.charactersLeft > 0.1 * this.maxCharLimit) return "text-yellow-500";
+      else return "text-red-400";
+    },
+    charactersLeft() {
+      // number of characters left for the subjective answer if a limit is given
+      return this.maxCharLimit - this.currentAnswerLength;
+    },
+    currentAnswerLength() {
+      // length of the current answer (for subjective question)
+      if (this.subjectiveAnswer == null) return 0;
+      return this.subjectiveAnswer.length;
+    },
     defaultAnswer() {
       // the default answer to be shown
       if (this.submittedAnswer != null) {

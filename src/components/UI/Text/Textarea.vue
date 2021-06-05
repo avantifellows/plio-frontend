@@ -36,12 +36,13 @@
       <textarea
         class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
         :class="[inputAreaClass, boxStyling]"
-        name="placeholder"
+        :disabled="isDisabled"
         :placeholder="placeholder"
         v-model="localValue"
-        @input="inputChange"
+        name="placeholder"
         autocomplete="off"
-        :disabled="isDisabled"
+        @input="inputChange"
+        @keypress="keyPress"
       />
     </div>
   </div>
@@ -172,11 +173,15 @@ export default {
       // invoked on input change
       this.$emit("input", this.value);
     },
+    keyPress(event) {
+      // invoked on pressing a key
+      this.$emit("keypress", event);
+    },
     startIconSelected() {
       // invoked on start icon being selected
       this.$emit("start-icon-selected", this.value);
     },
   },
-  emits: ["input", "update:value", "start-icon-selected"],
+  emits: ["input", "keypress", "update:value", "start-icon-selected"],
 };
 </script>

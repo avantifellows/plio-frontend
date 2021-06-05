@@ -13,6 +13,8 @@
         :draftAnswer="draftResponses[selectedItemIndex]"
         :submittedAnswer="currentItemResponse.answer"
         :questionType="questionType"
+        :hasCharLimit="hasCharLimit"
+        :maxCharLimit="maxCharLimit"
         @option-selected="optionSelected"
         @answer-updated="answerUpdated"
       ></item-question-body>
@@ -78,6 +80,15 @@ export default {
     ItemQuestionBody,
   },
   computed: {
+    hasCharLimit() {
+      // whether the question has a character limit if the item is a question
+      if (!this.isItemQuestion || !this.isQuestionTypeSubjective) return false;
+      return this.currentItem["details"]["has_char_limit"];
+    },
+    maxCharLimit() {
+      // the character limit for a question's answer
+      return this.currentItem["details"]["max_char_limit"];
+    },
     showAnswerCorrectness() {
       // whether to show the answer's correctness after submission
       return this.isQuestionTypeMCQ;
