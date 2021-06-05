@@ -336,6 +336,10 @@ export default {
     },
   },
   methods: {
+    mountOnFullscreenPlyr(elementToMount) {
+      var plyrInstance = document.getElementsByClassName("plyr")[0];
+      plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
+    },
     maximize() {
       // toggle the minimized state of the modal
       this.isModalMinimized = false;
@@ -354,11 +358,9 @@ export default {
       this.isModalMinimized = true;
 
       // insert the button inside the plyr instance so it shows up in fullscreen mode
-      var plyrInstance = document.getElementsByClassName("plyr")[0];
       this.$nextTick(() => {
         var maximizeButton = document.getElementById("maximizeButton");
-        if (maximizeButton != undefined)
-          plyrInstance.insertBefore(maximizeButton, plyrInstance.firstChild);
+        if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
       });
     },
     videoSeeked() {
@@ -595,14 +597,10 @@ export default {
 
       // if the video is in fullscreen mode, show the modal on top of it
       var modal = document.getElementById("modal");
-      var plyrInstance = document.getElementsByClassName("plyr")[0];
-      if (modal != undefined) {
-        plyrInstance.insertBefore(modal, plyrInstance.firstChild);
-      }
+      if (modal != undefined) this.mountOnFullscreenPlyr(modal);
 
       var maximizeButton = document.getElementById("maximizeButton");
-      if (maximizeButton != undefined)
-        plyrInstance.insertBefore(maximizeButton, plyrInstance.firstChild);
+      if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
     },
     playerEntersFullscreen() {
       // invoked when the player enters fullscreen
