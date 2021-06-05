@@ -4,7 +4,7 @@
     <icon-button
       :iconConfig="skipButtonIconConfig"
       @click="skipClicked"
-      :class="{ hidden: isAnswerSubmitted }"
+      :class="{ invisible: isAnswerSubmitted }"
     ></icon-button>
   </div>
 </template>
@@ -18,8 +18,7 @@ export default {
       return {
         enabled: true,
         iconName: "times-solid",
-        iconClass:
-          "text-red-600 bg-white h-5 w-5 sm:h-8 sm:w-8 md:h-8 md:w-8 shadow-none hover:bg-gray-200",
+        iconClass: "text-red-600 bg-white h-5 w-5 sm:h-8 sm:w-8 md:h-8 md:w-8 shadow-none hover:bg-gray-200",
       };
     },
   },

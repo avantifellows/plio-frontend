@@ -3,19 +3,18 @@
     <!-- question modal -->
     <div v-if="isItemQuestion" class="h-full flex flex-col shadow-inner justify-center">
       <!-- header -->
-      <item-question-header
-        @skip-question="skipQuestion"
-        :isAnswerSubmitted="isAnswerSubmitted"
-      ></item-question-header>
+      <item-question-header @skip-question="skipQuestion" :isAnswerSubmitted="isAnswerSubmitted"></item-question-header>
       <!-- main question body -->
       <item-question-body
         :questionText="questionText"
         :options="questionOptions"
         :correctAnswer="questionCorrectAnswer"
         :isAnswerSubmitted="isAnswerSubmitted"
-        :selectedOption="draftResponses[selectedItemIndex]"
-        :selectedAnswer="currentItemResponse.answer"
+        :draftAnswer="draftResponses[selectedItemIndex]"
+        :submittedAnswer="currentItemResponse.answer"
+        :questionType="questionType"
         @option-selected="optionSelected"
+        @answer-updated="answerUpdated"
       ></item-question-body>
       <!-- footer -->
       <item-question-footer
@@ -23,7 +22,8 @@
         v-model:isFullscreen="localIsFullscreen"
         :isAnswerSubmitted="isAnswerSubmitted"
         :isAnswerCorrect="isAnswerCorrect"
-        :isOptionSelected="isOptionSelected"
+        :isSubmitEnabled="isAnswerValid"
+        :showAnswerCorrectness="showAnswerCorrectness"
         @proceed-question="proceedQuestion"
         @revise-question="emitRevise"
         @submit-question="submitQuestion"
@@ -78,9 +78,15 @@ export default {
     ItemQuestionBody,
   },
   computed: {
-    isOptionSelected() {
+    showAnswerCorrectness() {
+      // whether to show the answer's correctness after submission
+      return this.isQuestionTypeMCQ;
+    },
+    isAnswerValid() {
       // whether an option has been selected
-      return this.draftResponses[this.selectedItemIndex] != null;
+      if (this.draftResponses[this.selectedItemIndex] == null) return false;
+      if (this.isQuestionTypeSubjective) return this.draftResponses[this.selectedItemIndex] != "";
+      return true;
     },
     localResponseList: {
       // local copy of the responseList prop
@@ -141,8 +147,25 @@ export default {
       // whether the item is a Question
       return this.itemType == "question";
     },
+    questionType() {
+      // type of the question if the item is a question
+      if (!this.isItemQuestion) return null;
+      return this.currentItem["details"]["type"];
+    },
+    isQuestionTypeMCQ() {
+      // whether the type of the question is MCQ if item is question
+      return this.questionType == "mcq";
+    },
+    isQuestionTypeSubjective() {
+      // whether the type of the question is subjective if item is question
+      return this.questionType == "subjective";
+    },
   },
   methods: {
+    answerUpdated(answer) {
+      // invoked when the answer to a subjective question is updated
+      this.draftResponses[this.selectedItemIndex] = answer;
+    },
     skipQuestion() {
       // skip the question
       this.$emit("skip-question");
@@ -162,9 +185,7 @@ export default {
     },
     submitQuestion() {
       // invoked when the response to the question has been submitted
-      this.localResponseList[this.selectedItemIndex].answer = this.draftResponses[
-        this.selectedItemIndex
-      ];
+      this.localResponseList[this.selectedItemIndex].answer = this.draftResponses[this.selectedItemIndex];
       this.$emit("submit-question");
     },
   },

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <select v-model="$i18n.locale" @change="updateLocale">
+    <select v-model="$i18n.locale" @change="updateLocale" class="border-0">
       <option value="en">English</option>
       <option value="hi">हिंदी</option>
     </select>

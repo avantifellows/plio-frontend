@@ -1,6 +1,7 @@
 <template>
   <div class="flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end">
     <div class="place-self-start flex h-full">
+      `
       <!-- revise button -->
       <icon-button
         :titleConfig="reviseButtonTitleConfig"
@@ -14,7 +15,7 @@
         :src="answerCorrectnessIcon"
         :class="answerCorrectnessIconClass"
         class="w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 place-self-center ml-4"
-        v-else
+        v-if="showAnswerCorrectness && isAnswerSubmitted"
       ></inline-svg>
     </div>
     <!-- button to enter/exit fullscreen -->
@@ -32,7 +33,7 @@
         :buttonClass="submitButtonClass"
         class="btn"
         v-if="!isAnswerSubmitted"
-        :isDisabled="isSubmitDisabled"
+        :isDisabled="!isSubmitEnabled"
         @click="submitClicked"
       ></icon-button>
       <!-- proceed button -->
@@ -62,8 +63,13 @@ export default {
       default: false,
       type: Boolean,
     },
-    isOptionSelected: {
-      // whether an option has been selected
+    showAnswerCorrectness: {
+      // whether to show the answer correctness
+      default: true,
+      type: Boolean,
+    },
+    isSubmitEnabled: {
+      // whether the submit option is enabled
       default: false,
       type: Boolean,
     },
@@ -149,10 +155,6 @@ export default {
         "text-red-500": !this.isAnswerCorrect,
       };
     },
-    isSubmitDisabled() {
-      // whether the submit button is disabled
-      return !this.isOptionSelected;
-    },
   },
   methods: {
     submitClicked() {
@@ -172,12 +174,7 @@ export default {
       this.localIsFullscreen = !this.localIsFullscreen;
     },
   },
-  emits: [
-    "submit-question",
-    "revise-question",
-    "proceed-question",
-    "update:isFullscreen",
-  ],
+  emits: ["submit-question", "revise-question", "proceed-question", "update:isFullscreen"],
 };
 </script>
 

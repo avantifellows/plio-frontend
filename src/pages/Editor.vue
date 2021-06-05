@@ -52,7 +52,7 @@
             class="w-10 h-10 text-yellow-600 fill-current"
           ></inline-svg>
           <p class="text-yellow-600">
-            Subjective Questions are not included while calculating the accuracy during analysis.
+            Subjective Questions are not included while calculating the accuracy in the dashboard
           </p>
         </div>
 

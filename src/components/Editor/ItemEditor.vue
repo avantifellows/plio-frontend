@@ -65,7 +65,7 @@
         v-model:value="questionText"
         ref="questionText"
         class="p-2"
-        :boxStyling="'pl-4'"
+        :boxStyling="'pl-4 focus:ring-primary'"
       ></Textarea>
 
       <!-- time input HH : MM : SS : mmm -->
@@ -391,7 +391,7 @@ export default {
   computed: {
     charLimitBoxClass() {
       // class for the input area to enter max char limit
-      return ["text-center disabled:opacity-50", { "cursor-not-allowed": this.isInteractionDisabled }];
+      return ["text-center disabled:opacity-50"];
     },
     questionTypeDropdownClass() {
       // class for the question type dropdown

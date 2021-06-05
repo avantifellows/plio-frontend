@@ -7,7 +7,11 @@
       <div v-if="showItemModal && !isFullscreen" class="z-50 absolute bp-500:hidden w-full h-full bg-transparent">
         <div class="opacity-90 w-full h-full absolute bg-white"></div>
         <div class="flex w-full h-full">
-          <icon-button :titleConfig="fullscreenButtonTitleConfig" :buttonClass="fullscreenButtonClass" @click="goFullscreen"></icon-button>
+          <icon-button
+            :titleConfig="fullscreenButtonTitleConfig"
+            :buttonClass="fullscreenButtonClass"
+            @click="goFullscreen"
+          ></icon-button>
         </div>
       </div>
       <!-- video player component -->
@@ -289,7 +293,8 @@ export default {
       // after revise is clicked, take the user either to the beginning
       // of the video if the question is the first item else to the end of
       // the previous item
-      this.player.currentTime = this.currentItemIndex == 0 ? 0 : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
+      this.player.currentTime =
+        this.currentItemIndex == 0 ? 0 : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
       // create an event for the revise action
       this.createEvent("question_revised", { itemIndex: this.currentItemIndex });
       this.closeItemModal();
@@ -376,13 +381,17 @@ export default {
         this.watchTime = sessionDetails.watch_time;
 
         // set item responses
-        sessionDetails.session_answers.forEach(sessionAnswer => {
+        sessionDetails.session_answers.forEach((sessionAnswer, itemIndex) => {
           // removing the _id in keys like session_id, question_id
           // so that we can directly update the answers without having to
           // create another dictionary every time we want to upload
           var itemResponse = {};
           for (var key of Object.keys(sessionAnswer)) {
             itemResponse[key.replace("_id", "")] = sessionAnswer[key];
+          }
+          // for mcq items, convert answers to integer
+          if (this.items[itemIndex].type == "question" && this.items[itemIndex].details["type"] == "mcq") {
+            itemResponse.answer = parseInt(itemResponse.answer);
           }
           this.itemResponses.push(itemResponse);
         });
@@ -478,7 +487,11 @@ export default {
       // checks if an item is to be selected and marks/unmarks accordingly
       if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY) return;
       this.lastCheckTimestamp = timestamp;
-      this.currentItemIndex = ItemFunctionalService.checkItemPopup(timestamp, this.itemTimestamps, POP_UP_PRECISION_TIME);
+      this.currentItemIndex = ItemFunctionalService.checkItemPopup(
+        timestamp,
+        this.itemTimestamps,
+        POP_UP_PRECISION_TIME
+      );
       if (this.currentItemIndex != null) {
         this.markItemSelected();
         this.createEvent("item_opened", { itemIndex: this.currentItemIndex });

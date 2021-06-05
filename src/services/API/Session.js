@@ -12,13 +12,7 @@ export default {
         plio: plioId,
       })
       .then((response) => {
-        // convert string answers to int
-        var sessionDetails = response.data;
-        sessionDetails.session_answers.forEach((sessionAnswer) => {
-          if (sessionAnswer.answer != null)
-            sessionAnswer.answer = parseInt(sessionAnswer.answer);
-        });
-        return sessionDetails;
+        return response.data;
       });
   },
 

@@ -11,7 +11,7 @@
           <span class="flex flex-1 space-x-2 items-center">
             <inline-svg
               :src="getIconSource(selectedOption.icon)"
-              class="text-white h-4 w-2/3 fill-current"
+              class="text-white h-4 w-full bp-420:w-2/3 bp-500:w-full sm:w-2/3 fill-current"
             ></inline-svg>
           </span>
           <!-- dropdown icon -->
