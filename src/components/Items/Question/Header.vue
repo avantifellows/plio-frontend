@@ -4,7 +4,7 @@
     <icon-button
       :titleConfig="skipButtonTitleConfig"
       @click="skipClicked"
-      :class="{ invisible: isAnswerSubmitted || previewMode }"
+      :class="{ hidden: isAnswerSubmitted || previewMode }"
       :buttonClass="skipButtonClass"
     ></icon-button>
     <!-- minimize button -->
@@ -34,7 +34,7 @@ export default {
       return [
         {
           "mt-auto": this.isPortrait,
-          "px-6 md:px-8 xl:px-12": !this.previewMode,
+          "pr-10": !this.previewMode,
           "pr-4": this.previewMode,
         },
         "flex w-full bg-white justify-end p-1 space-x-2 mt-2",
@@ -47,13 +47,15 @@ export default {
           "sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10": !this.previewMode,
           "p-2": this.previewMode,
         },
-        "bg-primary hover:bg-primary-hover p-1 rounded-md shadow-xl",
+        "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 rounded-md shadow-xl",
       ];
     },
     minimizeButtonTitleConfig() {
       // styling class for the title of minimize button
       return {
-        value: this.isModalMinimized ? this.$t("editor.buttons.show_item") : this.$t("editor.buttons.show_video"),
+        value: this.isModalMinimized
+          ? this.$t("editor.buttons.show_item")
+          : this.$t("editor.buttons.show_video"),
         class: this.previewMode
           ? "text-white text-sm lg:text-base"
           : "text-white text-md sm:text-base lg:text-xl font-bold",
@@ -107,16 +109,24 @@ export default {
       // calculate the following position values (in px)
       // centerX, centerY - (X,Y) co-ordinates of the center of minimize button
       // leftX, leftY - (X,Y) co-ordinates of the left most end of minimize button
-      var minimizeBtnPositions = document.getElementById("minimize").getBoundingClientRect();
-      var plyrInstancePositions = document.getElementById("videoPlayer").getBoundingClientRect();
+      var minimizeBtnPositions = document
+        .getElementById("minimize")
+        .getBoundingClientRect();
+      var plyrInstancePositions = document
+        .getElementById("videoPlayer")
+        .getBoundingClientRect();
 
       var widthMinimizeBtn = minimizeBtnPositions.right - minimizeBtnPositions.left;
       var heightMinimizeBtn = minimizeBtnPositions.bottom - minimizeBtnPositions.top;
       var centerOfMinimizeBtn_X =
-        (this.isFullscreen ? minimizeBtnPositions.left : minimizeBtnPositions.left - plyrInstancePositions.left) +
+        (this.isFullscreen
+          ? minimizeBtnPositions.left
+          : minimizeBtnPositions.left - plyrInstancePositions.left) +
         widthMinimizeBtn / 2;
       var centerOfMinimizeBtn_Y =
-        (this.isFullscreen ? minimizeBtnPositions.top : minimizeBtnPositions.top - plyrInstancePositions.top) +
+        (this.isFullscreen
+          ? minimizeBtnPositions.top
+          : minimizeBtnPositions.top - plyrInstancePositions.top) +
         heightMinimizeBtn / 2;
       var leftOfMinimizeBtn_X = this.isFullscreen
         ? minimizeBtnPositions.left
