@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <div class="flex relative items-center">
+    <div class="flex relative mt-1 items-center">
       <!-- start icon -->
       <div
         v-if="isStartIconEnabled"

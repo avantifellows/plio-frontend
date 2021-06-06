@@ -16,7 +16,7 @@
           :class="answerCorrectnessIconClass"
           class="w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 place-self-center ml-4"
         ></inline-svg>
-        <p class="text-2xl" :class="answerFeedbackTextClass" v-if="hasAnyAnswerFeedback">
+        <p class="text-md sm:text-lg lg:text-2xl" :class="answerFeedbackTextClass" v-if="hasAnyAnswerFeedback">
           {{ answerFeedbackText }}
         </p>
       </div>

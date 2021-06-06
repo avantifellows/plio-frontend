@@ -4,7 +4,7 @@
     <icon-button
       :titleConfig="skipButtonTitleConfig"
       @click="skipClicked"
-      :class="{ invisible: isAnswerSubmitted || previewMode }"
+      :class="{ hidden: isAnswerSubmitted || previewMode }"
       :buttonClass="skipButtonClass"
     ></icon-button>
     <!-- minimize button -->
@@ -47,7 +47,7 @@ export default {
           "sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10": !this.previewMode,
           "p-2": this.previewMode,
         },
-        "bg-primary hover:bg-primary-hover p-1 rounded-md shadow-xl",
+        "bg-primary hover:bg-primary-hover p-1 px-4 rounded-md shadow-xl",
       ];
     },
     minimizeButtonTitleConfig() {

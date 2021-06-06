@@ -536,7 +536,9 @@ export default {
     },
     isItemResponseDone(itemIndex) {
       // whether the response to an item is complete
-      if (this.itemResponses && this.itemResponses[itemIndex]) return this.itemResponses[itemIndex].answer != null;
+      if (this.itemResponses && this.itemResponses[itemIndex]) {
+        return this.itemResponses[itemIndex].answer != null && !isNaN(this.itemResponses[itemIndex].answer);
+      }
       return false;
     },
     videoTimestampUpdated(timestamp) {

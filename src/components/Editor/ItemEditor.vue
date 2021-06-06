@@ -8,6 +8,7 @@
         @toggle-visibility="toggleQuestionTypeDropdown"
         :options="questionTypeOptions"
         v-model:selectedIndex="localQuestionTypeIndex"
+        :isDisabled="isInteractionDisabled"
       ></QuestionTypeDropdown>
     </div>
     <!-- nav bar -->
