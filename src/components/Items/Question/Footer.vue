@@ -1,5 +1,5 @@
 <template>
-  <div :class="mainStylingClass">
+  <div :class="containerClass">
     <div class="place-self-start flex h-full">
       <!-- revise button -->
       <icon-button
@@ -85,7 +85,7 @@ export default {
         this.$emit("update:isFullscreen", localIsFullscreen);
       },
     },
-    mainStylingClass() {
+    containerClass() {
       // main styling class for this component
       return [
         { "mb-auto": this.isPortrait },

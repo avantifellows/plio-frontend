@@ -23,7 +23,7 @@
                 type="radio"
                 name="questionOptions"
                 :value="option"
-                class="place-self-center w-4"
+                class="place-self-center"
                 @click="selectOption(optionIndex)"
                 :checked="isOptionChecked(optionIndex)"
                 :disabled="isAnswerSubmitted || previewMode"

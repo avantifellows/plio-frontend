@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col bg-white w-full h-full overflow-hidden">
     <!-- question modal -->
-    <div v-if="isItemQuestion" class="h-full flex flex-col justify-between">
+    <div v-if="isItemQuestion" :class="containerClass">
       <!-- header -->
       <item-question-header
         :isAnswerSubmitted="isAnswerSubmitted"
@@ -101,6 +101,16 @@ export default {
     ItemQuestionBody,
   },
   computed: {
+    containerClass() {
+      // main styling class for this component's container
+      return [
+        {
+          "justify-between": !this.previewMode,
+          "justify-start": this.previewMode,
+        },
+        "h-full flex flex-col",
+      ];
+    },
     currentItemResponseAnswer() {
       // `answer` object for `currentItemResponse`
       if (this.currentItemResponse == null) return null;

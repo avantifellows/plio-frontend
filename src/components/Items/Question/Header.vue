@@ -1,5 +1,5 @@
 <template>
-  <div :class="mainStylingClass">
+  <div :class="containerClass">
     <!-- skip button -->
     <icon-button
       :titleConfig="skipButtonTitleConfig"
@@ -11,7 +11,7 @@
     <icon-button
       :titleConfig="minimizeButtonTitleConfig"
       :buttonClass="minimizeButtonClass"
-      @click="toggleMinimize"
+      @click="minimizeModal"
       id="minimize"
     ></icon-button>
   </div>
@@ -29,11 +29,15 @@ export default {
   },
   components: { IconButton },
   computed: {
-    mainStylingClass() {
+    containerClass() {
       // main styling class for this component
       return [
-        { "mt-auto": this.isPortrait },
-        "flex w-full bg-white justify-end p-1 pr-6 md:pr-10 space-x-2 mt-4",
+        {
+          "mt-auto": this.isPortrait,
+          "pr-10": !this.previewMode,
+          "pr-4": this.previewMode,
+        },
+        "flex w-full bg-white justify-end p-1 space-x-2 mt-4",
       ];
     },
     minimizeButtonClass() {
@@ -96,7 +100,7 @@ export default {
     skipClicked() {
       this.$emit("skip-question");
     },
-    toggleMinimize() {
+    minimizeModal() {
       // on the click of the minimize button, emit the event with a
       // payload containing the position data of the minimize button
       this.$emit("toggle-minimize", this.calculateButtonPosition());

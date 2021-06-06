@@ -45,7 +45,7 @@
                   v-if="showItemModal && isModalMinimized"
                   :titleConfig="maximizeButtonTitleClass"
                   :buttonClass="maximizeButtonClass"
-                  @click="maximize"
+                  @click="maximizeModal"
                   class="absolute z-20"
                   id="maximizeButton"
                 ></icon-button>
@@ -61,7 +61,7 @@
                   :selectedItemIndex="currentItemIndex"
                   :itemList="items"
                   :previewMode="true"
-                  @toggle-minimize="minimize"
+                  @toggle-minimize="minimizeModal"
                 ></item-modal>
               </transition>
             </div>
@@ -577,7 +577,7 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
-    minimize(positions) {
+    minimizeModal(positions) {
       // invoked when minimize button is clicked
 
       // set some CSS variables which tells the animation
@@ -590,7 +590,7 @@ export default {
 
       this.isModalMinimized = true;
     },
-    maximize() {
+    maximizeModal() {
       // invoked when maximize button is clicked
       this.isModalMinimized = !this.isModalMinimized;
     },

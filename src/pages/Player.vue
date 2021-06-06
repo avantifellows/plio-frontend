@@ -41,7 +41,7 @@
           id="maximizeButton"
           :titleConfig="maximizeButtonTitleConfig"
           :buttonClass="maximizeButtonClass"
-          @click="maximize"
+          @click="maximizeModal"
         >
         </icon-button>
       </transition>
@@ -66,7 +66,7 @@
           @revise-question="reviseQuestion"
           @submit-question="submitQuestion"
           @option-selected="optionSelected"
-          @toggle-minimize="minimize"
+          @toggle-minimize="minimizeModal"
         ></item-modal>
       </transition>
     </div>
@@ -337,11 +337,11 @@ export default {
       var plyrInstance = document.getElementsByClassName("plyr")[0];
       plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
     },
-    maximize() {
+    maximizeModal() {
       // toggle the minimized state of the modal
       this.isModalMinimized = false;
     },
-    minimize(positions) {
+    minimizeModal(positions) {
       // invoked when minimize button is clicked
 
       // set some CSS variables which tells the animation

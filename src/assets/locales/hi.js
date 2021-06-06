@@ -30,7 +30,7 @@ export default {
       },
       add_question: "नया सवाल बनाएं",
       show_video: "वीडियो देखें",
-      show_item: "सवाल देखें",
+      show_question: "सवाल देखें",
     },
     updated: "अपडेटेड ऐट",
     item_editor: {
