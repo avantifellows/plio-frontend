@@ -30,21 +30,42 @@
         @exitfullscreen="playerExitsFullscreen"
         class="w-full z-0"
       ></video-player>
-      <!-- item modal component -->
-      <item-modal
-        id="modal"
-        class="absolute z-10"
-        :class="{ hidden: !showItemModal }"
-        :selectedItemIndex="currentItemIndex"
-        :itemList="items"
-        v-model:isFullscreen="isFullscreen"
-        v-model:responseList="itemResponses"
-        @skip-question="skipQuestion"
-        @proceed-question="proceedQuestion"
-        @revise-question="reviseQuestion"
-        @submit-question="submitQuestion"
-        @option-selected="optionSelected"
-      ></item-modal>
+      <!-- minimize button -->
+      <transition name="maximize-btn-transition">
+        <icon-button
+          v-if="isModalMinimized && showItemModal"
+          class="absolute z-20"
+          id="maximizeButton"
+          :titleConfig="maximizeButtonTitleConfig"
+          :buttonClass="maximizeButtonClass"
+          @click="maximizeModal"
+        >
+        </icon-button>
+      </transition>
+      <!-- transition for minimizing/maximizing item modal -->
+      <transition enter-active-class="grow" leave-active-class="shrink">
+        <!-- item modal component -->
+        <item-modal
+          v-if="!isModalMinimized"
+          id="modal"
+          class="absolute z-10"
+          :class="{ hidden: !showItemModal }"
+          :selectedItemIndex="currentItemIndex"
+          :itemList="items"
+          v-model:isFullscreen="isFullscreen"
+          v-model:responseList="itemResponses"
+          :previewMode="false"
+          :isModalMinimized="isModalMinimized"
+          :isFullscreen="isFullscreen"
+          :isPortrait="isPortrait"
+          @skip-question="skipQuestion"
+          @proceed-question="proceedQuestion"
+          @revise-question="reviseQuestion"
+          @submit-question="submitQuestion"
+          @option-selected="optionSelected"
+          @toggle-minimize="minimizeModal"
+        ></item-modal>
+      </transition>
     </div>
   </div>
 </template>
@@ -183,6 +204,11 @@ export default {
       retention: [], // array to store video retention value
       lastTimestampRetention: null, // last recorded timestamp in the retention array
       toast: useToast(), // use the toast component
+      isModalMinimized: false, // whether the item modal is minimized or not
+      // styling class for the minimize button
+      maximizeButtonClass:
+        "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-6 sm:pr-6 lg:p-4 lg:pl-6 lg:pr-6 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+      isPortrait: true, // whether the device is in portrait mode
     };
   },
   watch: {
@@ -237,6 +263,20 @@ export default {
     },
   },
   computed: {
+    currentItemType() {
+      // type of the current selected item -
+      // eg - question, note etc
+      return this.items[this.currentItemIndex].type;
+    },
+    maximizeButtonTitleConfig() {
+      // styling class for the title of minimize button
+      return {
+        value: this.isModalMinimized
+          ? this.$t(`editor.buttons.show_${this.currentItemType}`)
+          : this.$t("editor.buttons.show_video"),
+        class: "text-white text-base sm:text-xl lg:text-2xl font-bold",
+      };
+    },
     isVideoIdValid() {
       // whether the video Id is valid
       return this.videoId != "";
@@ -278,6 +318,33 @@ export default {
     },
   },
   methods: {
+    mountOnFullscreenPlyr(elementToMount) {
+      var plyrInstance = document.getElementsByClassName("plyr")[0];
+      plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
+    },
+    maximizeModal() {
+      // toggle the minimized state of the modal
+      this.isModalMinimized = false;
+    },
+    minimizeModal(positions) {
+      // invoked when minimize button is clicked
+
+      // set some CSS variables which tells the animation where the modal should shrink to
+      // and where the maximize button should pop up. These variables are defined in `Editor.vue`
+      let root = document.documentElement;
+      root.style.setProperty("--t-origin-x", positions.centerX + "px");
+      root.style.setProperty("--t-origin-y", positions.centerY + "px");
+      root.style.setProperty("--maximize-btn-left", positions.leftX + "px");
+      root.style.setProperty("--maximize-btn-top", positions.leftY + "px");
+
+      this.isModalMinimized = true;
+
+      // insert the button inside the plyr instance so it shows up in fullscreen mode
+      this.$nextTick(() => {
+        var maximizeButton = document.getElementById("maximizeButton");
+        if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
+      });
+    },
     videoSeeked() {
       // invoked when a seek operation ends
       this.createEvent("video_seeked", { currentTime: this.player.currentTime });
@@ -417,6 +484,8 @@ export default {
     setScreenProperties() {
       // sets various properties based on the device screen
       this.playerHeight = document.getElementById("videoPlayer").clientHeight;
+      if (screen.availHeight > screen.availWidth) this.isPortrait = true;
+      else this.isPortrait = false;
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL
@@ -487,6 +556,7 @@ export default {
       // checks if an item is to be selected and marks/unmarks accordingly
       if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY) return;
       this.lastCheckTimestamp = timestamp;
+      this.isModalMinimized = false;
       this.currentItemIndex = ItemFunctionalService.checkItemPopup(
         timestamp,
         this.itemTimestamps,
@@ -503,10 +573,10 @@ export default {
 
       // if the video is in fullscreen mode, show the modal on top of it
       var modal = document.getElementById("modal");
-      var plyrInstance = document.getElementsByClassName("plyr")[0];
-      if (modal != undefined) {
-        plyrInstance.insertBefore(modal, plyrInstance.firstChild);
-      }
+      if (modal != undefined) this.mountOnFullscreenPlyr(modal);
+
+      var maximizeButton = document.getElementById("maximizeButton");
+      if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
     },
     playerEntersFullscreen() {
       // invoked when the player enters fullscreen

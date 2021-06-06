@@ -29,6 +29,8 @@ export default {
         published: "Publish Changes",
       },
       add_question: "Add a question",
+      show_video: "Show Video",
+      show_question: "Show Question",
     },
     updated: "Updated at",
     item_editor: {
@@ -181,6 +183,7 @@ export default {
       submit: "Submit",
       revise: "Revise",
       proceed: "Proceed",
+      skip: "Skip",
     },
     fullscreen: {
       enter: "Go Fullscreen",

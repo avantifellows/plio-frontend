@@ -1,12 +1,16 @@
 <template>
   <div class="flex flex-col bg-white w-full h-full overflow-hidden">
     <!-- question modal -->
-    <div v-if="isItemQuestion" class="h-full flex flex-col justify-center">
+    <div v-if="isItemQuestion" :class="containerClass">
       <!-- header -->
       <item-question-header
-        v-if="!previewMode"
-        @skip-question="skipQuestion"
         :isAnswerSubmitted="isAnswerSubmitted"
+        :isModalMinimized="isModalMinimized"
+        :isFullscreen="isFullscreen"
+        :previewMode="previewMode"
+        :isPortrait="isPortrait"
+        @toggle-minimize="toggleMinimize"
+        @skip-question="skipQuestion"
       ></item-question-header>
       <!-- main question body -->
       <item-question-body
@@ -32,6 +36,7 @@
         :isAnswerCorrect="isAnswerCorrect"
         :isSubmitEnabled="isAnswerValid"
         :showAnswerCorrectness="showAnswerCorrectness"
+        :isPortrait="isPortrait"
         @proceed-question="proceedQuestion"
         @revise-question="emitRevise"
         @submit-question="submitQuestion"
@@ -84,6 +89,16 @@ export default {
       default: false,
       type: Boolean,
     },
+    isModalMinimized: {
+      // whether the item modal is minimized or not
+      default: false,
+      type: Boolean,
+    },
+    isPortrait: {
+      // whether the screen is in portraid mode
+      default: false,
+      type: Boolean,
+    },
   },
   components: {
     ItemQuestionHeader,
@@ -103,6 +118,16 @@ export default {
     showAnswerCorrectness() {
       // whether to show the answer's correctness after submission
       return this.isQuestionTypeMCQ;
+    }
+    containerClass() {
+      // main styling class for this component's container
+      return [
+        {
+          "justify-between": !this.previewMode,
+          "justify-start": this.previewMode,
+        },
+        "h-full flex flex-col",
+      ];
     },
     currentItemResponseAnswer() {
       // `answer` object for `currentItemResponse`
@@ -194,6 +219,9 @@ export default {
     answerUpdated(answer) {
       // invoked when the answer to a subjective question is updated
       this.draftResponses[this.selectedItemIndex] = answer;
+    }
+    toggleMinimize(positions) {
+      this.$emit("toggle-minimize", positions);
     },
     skipQuestion() {
       // skip the question
@@ -226,6 +254,7 @@ export default {
     "update:responseList",
     "submit-question",
     "option-selected",
+    "toggle-minimize",
   ],
 };
 </script>

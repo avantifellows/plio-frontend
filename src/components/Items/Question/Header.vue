@@ -1,10 +1,18 @@
 <template>
-  <div class="flex w-full bg-white justify-end p-1 pr-3 md:pr-6">
+  <div :class="containerClass">
     <!-- skip button -->
     <icon-button
-      :iconConfig="skipButtonIconConfig"
+      :titleConfig="skipButtonTitleConfig"
       @click="skipClicked"
-      :class="{ invisible: isAnswerSubmitted }"
+      :class="{ invisible: isAnswerSubmitted || previewMode }"
+      :buttonClass="skipButtonClass"
+    ></icon-button>
+    <!-- minimize button -->
+    <icon-button
+      :titleConfig="minimizeButtonTitleConfig"
+      :buttonClass="minimizeButtonClass"
+      @click="minimizeModal"
+      id="minimize"
     ></icon-button>
   </div>
 </template>
@@ -12,13 +20,50 @@
 <script>
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 export default {
+  data() {
+    return {
+      // styling class for the skip button
+      skipButtonClass:
+        "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+    };
+  },
   components: { IconButton },
   computed: {
-    skipButtonIconConfig() {
+    containerClass() {
+      // main styling class for this component
+      return [
+        {
+          "mt-auto": this.isPortrait,
+          "pr-10": !this.previewMode,
+          "pr-4": this.previewMode,
+        },
+        "flex w-full bg-white justify-end p-1 space-x-2 mt-4",
+      ];
+    },
+    minimizeButtonClass() {
+      // styling class for the minimize button
+      return [
+        {
+          "sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10": !this.previewMode,
+          "p-2": this.previewMode,
+        },
+        "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4  rounded-md shadow-xl",
+      ];
+    },
+    skipButtonTitleConfig() {
+      // styling class for the title of skip button
       return {
-        enabled: true,
-        iconName: "times-solid",
-        iconClass: "text-red-600 bg-white h-5 w-5 sm:h-8 sm:w-8 md:h-8 md:w-8 shadow-none hover:bg-gray-200",
+        value: this.$t("player.question.skip"),
+        class: "text-white text-base sm:text-xl lg:text-2xl font-bold",
+      };
+    },
+    minimizeButtonTitleConfig() {
+      // styling class for the title of minimize button
+      return {
+        value: this.isModalMinimized ? this.$t("editor.buttons.show_item") : this.$t("editor.buttons.show_video"),
+        class: this.previewMode
+          ? "text-white text-sm lg:text-base"
+          : "text-white text-base sm:text-xl lg:text-2xl font-bold",
       };
     },
   },
@@ -28,12 +73,66 @@ export default {
       default: false,
       type: Boolean,
     },
+    isModalMinimized: {
+      // whether the item modal is minimized or not
+      default: false,
+      type: Boolean,
+    },
+    isFullscreen: {
+      // whether the modal is in fullscreen
+      default: false,
+      type: Boolean,
+    },
+    previewMode: {
+      // whether the item modal will be shown in editor preview mode
+      default: false,
+      type: Boolean,
+    },
+    isPortrait: {
+      // whether the screen is in portraid mode
+      default: false,
+      type: Boolean,
+    },
   },
   methods: {
     skipClicked() {
       this.$emit("skip-question");
     },
+    minimizeModal() {
+      // on the click of the minimize button, emit the event with a
+      // payload containing the position data of the minimize button
+      this.$emit("toggle-minimize", this.calculateButtonPosition());
+    },
+    calculateButtonPosition() {
+      // calculate the following position values (in px)
+      // centerX, centerY - (X,Y) co-ordinates of the center of minimize button
+      // leftX, leftY - (X,Y) co-ordinates of the left most end of minimize button
+      var minimizeBtnPositions = document.getElementById("minimize").getBoundingClientRect();
+      var plyrInstancePositions = document.getElementById("videoPlayer").getBoundingClientRect();
+
+      var widthMinimizeBtn = minimizeBtnPositions.right - minimizeBtnPositions.left;
+      var heightMinimizeBtn = minimizeBtnPositions.bottom - minimizeBtnPositions.top;
+      var centerOfMinimizeBtn_X =
+        (this.isFullscreen ? minimizeBtnPositions.left : minimizeBtnPositions.left - plyrInstancePositions.left) +
+        widthMinimizeBtn / 2;
+      var centerOfMinimizeBtn_Y =
+        (this.isFullscreen ? minimizeBtnPositions.top : minimizeBtnPositions.top - plyrInstancePositions.top) +
+        heightMinimizeBtn / 2;
+      var leftOfMinimizeBtn_X = this.isFullscreen
+        ? minimizeBtnPositions.left
+        : minimizeBtnPositions.left - plyrInstancePositions.left;
+      var leftOfMinimizeBtn_Y = this.isFullscreen
+        ? minimizeBtnPositions.top
+        : minimizeBtnPositions.top - plyrInstancePositions.top;
+
+      return {
+        centerX: centerOfMinimizeBtn_X,
+        centerY: centerOfMinimizeBtn_Y,
+        leftX: leftOfMinimizeBtn_X,
+        leftY: leftOfMinimizeBtn_Y,
+      };
+    },
   },
-  emits: ["skip-question"],
+  emits: ["skip-question", "toggle-minimize"],
 };
 </script>
