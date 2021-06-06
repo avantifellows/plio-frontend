@@ -23,7 +23,7 @@
                 type="radio"
                 name="questionOptions"
                 :value="option"
-                class="place-self-center w-4"
+                class="place-self-center"
                 @click="selectOption(optionIndex)"
                 :checked="isOptionChecked(optionIndex)"
                 :disabled="isAnswerSubmitted || previewMode"
@@ -86,7 +86,7 @@ export default {
           "sm:m-4 text-lg md:text-xl lg:text-2xl": !this.previewMode,
           "sm:m-2 text-sm md:text-base lg:text-lg xl:text-xl": this.previewMode,
         },
-        "m-2 mx-4 md:mx-6 xl:mx-10 font-bold leading-tight",
+        "m-2 mx-4 md:mx-6 xl:mx-10 font-bold leading-tight whitespace-pre-wrap",
       ];
     },
     optionTextClass() {
@@ -95,7 +95,7 @@ export default {
           "p-2 text-lg md:text-xl lg:text-2xl": !this.previewMode,
           "p-1 text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg": this.previewMode,
         },
-        "border pl-4 rounded-md mx-5",
+        "border pl-4 rounded-md mx-5 whitespace-pre-wrap",
       ];
     },
   },

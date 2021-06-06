@@ -28,6 +28,7 @@
           </div>
           <div v-else>
             <div class="relative">
+              <!-- video player -->
               <video-player
                 :videoId="videoId"
                 :plyrConfig="plyrConfig"
@@ -38,15 +39,31 @@
                 id="videoPlayer"
                 class="z-0"
               ></video-player>
-              <!-- item modal component -->
-              <item-modal
-                id="modal"
-                class="absolute z-10 inset-0 border-2"
-                :class="{ hidden: !showItemModal }"
-                :selectedItemIndex="currentItemIndex"
-                :itemList="items"
-                :previewMode="true"
-              ></item-modal>
+              <!-- maximize button -->
+              <transition name="maximize-btn-transition">
+                <icon-button
+                  v-if="showItemModal && isModalMinimized"
+                  :titleConfig="maximizeButtonTitleClass"
+                  :buttonClass="maximizeButtonClass"
+                  @click="maximizeModal"
+                  class="absolute z-20"
+                  id="maximizeButton"
+                ></icon-button>
+              </transition>
+              <!-- transition for minimizing/maximizing item modal -->
+              <transition enter-active-class="grow" leave-active-class="shrink">
+                <!-- item modal component -->
+                <item-modal
+                  v-if="!isModalMinimized"
+                  id="modal"
+                  class="absolute z-10 inset-0 border-2"
+                  :class="{ hidden: !showItemModal }"
+                  :selectedItemIndex="currentItemIndex"
+                  :itemList="items"
+                  :previewMode="true"
+                  @toggle-minimize="minimizeModal"
+                ></item-modal>
+              </transition>
             </div>
 
             <!--- slider with question markers -->
@@ -259,6 +276,10 @@ export default {
       plioDBId: null, // store the DB id of plio object
       anyErrorsPresent: false, // store if any errors are present or not
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
+      isModalMinimized: false, // whether the preview modal is minimized or not
+      // styling class for the minimize button
+      maximizeButtonClass:
+        "bg-primary hover:bg-primary-hover p-2 pl-2 pr-2 sm:p-2 rounded-md shadow-xl",
     };
   },
   async created() {
@@ -316,6 +337,20 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading"]),
+    currentItemType() {
+      // type of the current selected item -
+      // eg - question, note etc
+      return this.items[this.currentItemIndex].type;
+    },
+    maximizeButtonTitleClass() {
+      // styling class for the title of minimize button
+      return {
+        value: this.isModalMinimized
+          ? this.$t(`editor.buttons.show_${this.currentItemType}`)
+          : this.$t("editor.buttons.show_video"),
+        class: "text-white text-sm lg:text-base",
+      };
+    },
     showItemModal() {
       // whether the item modal needs to be shown
       return this.hasAnyItems && this.isAnyItemActive;
@@ -542,6 +577,23 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
+    minimizeModal(positions) {
+      // invoked when minimize button is clicked
+
+      // set some CSS variables which tells the animation
+      // where the modal should shrink to and where the maximize button should pop up
+      let root = document.documentElement;
+      root.style.setProperty("--t-origin-x", positions.centerX + "px");
+      root.style.setProperty("--t-origin-y", positions.centerY + "px");
+      root.style.setProperty("--maximize-btn-left", positions.leftX + "px");
+      root.style.setProperty("--maximize-btn-top", positions.leftY + "px");
+
+      this.isModalMinimized = true;
+    },
+    maximizeModal() {
+      // invoked when maximize button is clicked
+      this.isModalMinimized = !this.isModalMinimized;
+    },
     returnToHome() {
       // returns the user back to Home
       this.$router.push({ name: "Home", params: { org: this.org } });
@@ -613,6 +665,7 @@ export default {
       );
       if (selectedItemIndex != null) {
         this.markItemSelected(selectedItemIndex);
+        this.isModalMinimized = false;
       } else this.markNoItemSelected();
     },
     updatePlayerTimestamp(timestamp) {
@@ -1000,3 +1053,108 @@ export default {
   },
 };
 </script>
+<style lang="scss">
+:root {
+  --t-origin-x: 98%;
+  --t-origin-y: 5%;
+  --maximize-btn-left: 72.5rem;
+  --maximize-btn-top: 0.5rem;
+}
+
+#maximizeButton {
+  left: var(--maximize-btn-left);
+  top: var(--maximize-btn-top);
+}
+
+.maximize-btn-transition-leave {
+  animation: linear 0.1s;
+}
+
+@mixin modalScale($scaleFactor) {
+  transform: scale($scaleFactor);
+  transform-origin: var(--t-origin-x) var(--t-origin-y);
+}
+
+@keyframes shrink {
+  1% {
+    @include modalScale(0.9);
+  }
+  10% {
+    @include modalScale(0.8);
+  }
+  20% {
+    @include modalScale(0.7);
+  }
+  30% {
+    @include modalScale(0.6);
+  }
+  40% {
+    @include modalScale(0.5);
+  }
+  50% {
+    @include modalScale(0.4);
+  }
+  60% {
+    @include modalScale(0.3);
+  }
+  70% {
+    @include modalScale(0.2);
+  }
+  80% {
+    @include modalScale(0.1);
+  }
+  90% {
+    @include modalScale(0.07);
+  }
+  100% {
+    @include modalScale(0.03);
+  }
+}
+
+@keyframes grow {
+  0% {
+    @include modalScale(0);
+  }
+  1% {
+    @include modalScale(0.03);
+  }
+  10% {
+    @include modalScale(0.07);
+  }
+  20% {
+    @include modalScale(0.1);
+  }
+  30% {
+    @include modalScale(0.2);
+  }
+  40% {
+    @include modalScale(0.3);
+  }
+  50% {
+    @include modalScale(0.4);
+  }
+  60% {
+    @include modalScale(0.5);
+  }
+  70% {
+    @include modalScale(0.6);
+  }
+  80% {
+    @include modalScale(0.7);
+  }
+  90% {
+    @include modalScale(0.8);
+  }
+  100% {
+    @include modalScale(0.9);
+  }
+}
+
+.shrink {
+  animation: shrink 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.grow {
+  animation: grow 0.1s ease-in;
+}
+</style>

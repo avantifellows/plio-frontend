@@ -29,6 +29,8 @@ export default {
         published: "परिवर्तन प्रकाशित करें",
       },
       add_question: "नया सवाल बनाएं",
+      show_video: "वीडियो देखें",
+      show_question: "सवाल देखें",
     },
     updated: "अपडेटेड ऐट",
     item_editor: {
@@ -180,6 +182,7 @@ export default {
       submit: "सबमिट करें",
       revise: "पुनः देखें",
       proceed: "आगे बढ़ें",
+      skip: "छोड़ें",
     },
     fullscreen: {
       enter: "पूर्ण स्क्रीन में प्रवेश करें",

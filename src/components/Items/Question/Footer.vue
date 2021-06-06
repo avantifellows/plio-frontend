@@ -1,11 +1,10 @@
 <template>
-  <div class="flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end">
+  <div :class="containerClass">
     <div class="place-self-start flex h-full">
       <!-- revise button -->
       <icon-button
         :titleConfig="reviseButtonTitleConfig"
         :buttonClass="reviseButtonClass"
-        class="btn"
         v-if="!isAnswerSubmitted"
         @click="reviseClicked"
       ></icon-button>
@@ -30,7 +29,6 @@
       <icon-button
         :titleConfig="submitButtonTitleConfig"
         :buttonClass="submitButtonClass"
-        class="btn"
         v-if="!isAnswerSubmitted"
         :isDisabled="isSubmitDisabled"
         @click="submitClicked"
@@ -39,7 +37,6 @@
       <icon-button
         :titleConfig="proceedButtonTitleConfig"
         :buttonClass="proceedButtonClass"
-        class="btn"
         @click="proceedClicked"
         v-else
       ></icon-button>
@@ -72,6 +69,11 @@ export default {
       default: false,
       type: Boolean,
     },
+    isPortrait: {
+      // whether the screen is in portraid mode
+      default: false,
+      type: Boolean,
+    },
   },
   computed: {
     localIsFullscreen: {
@@ -82,6 +84,13 @@ export default {
       set(localIsFullscreen) {
         this.$emit("update:isFullscreen", localIsFullscreen);
       },
+    },
+    containerClass() {
+      // main styling class for this component
+      return [
+        { "mb-auto": this.isPortrait },
+        "flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end mb-4",
+      ];
     },
     submitButtonTitleConfig() {
       // config for the text of the submit button
@@ -180,12 +189,3 @@ export default {
   ],
 };
 </script>
-
-<style scoped>
-.btn {
-  border-bottom: outset;
-}
-.btn:active {
-  border-bottom: hidden;
-}
-</style>
