@@ -274,7 +274,7 @@ export default {
         value: this.isModalMinimized
           ? this.$t(`editor.buttons.show_${this.currentItemType}`)
           : this.$t("editor.buttons.show_video"),
-        class: "text-white text-base sm:text-xl lg:text-2xl font-bold",
+        class: "text-white text-md sm:text-base lg:text-xl font-bold",
       };
     },
     isVideoIdValid() {

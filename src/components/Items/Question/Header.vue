@@ -34,10 +34,10 @@ export default {
       return [
         {
           "mt-auto": this.isPortrait,
-          "pr-10": !this.previewMode,
+          "px-6 md:px-8 xl:px-12": !this.previewMode,
           "pr-4": this.previewMode,
         },
-        "flex w-full bg-white justify-end p-1 space-x-2 mt-4",
+        "flex w-full bg-white justify-end p-1 space-x-2 mt-2",
       ];
     },
     minimizeButtonClass() {
@@ -47,15 +47,8 @@ export default {
           "sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10": !this.previewMode,
           "p-2": this.previewMode,
         },
-        "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4  rounded-md shadow-xl",
+        "bg-primary hover:bg-primary-hover p-1 rounded-md shadow-xl",
       ];
-    },
-    skipButtonTitleConfig() {
-      // styling class for the title of skip button
-      return {
-        value: this.$t("player.question.skip"),
-        class: "text-white text-base sm:text-xl lg:text-2xl font-bold",
-      };
     },
     minimizeButtonTitleConfig() {
       // styling class for the title of minimize button
@@ -63,7 +56,14 @@ export default {
         value: this.isModalMinimized ? this.$t("editor.buttons.show_item") : this.$t("editor.buttons.show_video"),
         class: this.previewMode
           ? "text-white text-sm lg:text-base"
-          : "text-white text-base sm:text-xl lg:text-2xl font-bold",
+          : "text-white text-md sm:text-base lg:text-xl font-bold",
+      };
+    },
+    skipButtonTitleConfig() {
+      // styling class for the title of skip button
+      return {
+        value: this.$t("player.question.skip"),
+        class: "text-white text-md sm:text-base lg:text-xl font-bold",
       };
     },
   },

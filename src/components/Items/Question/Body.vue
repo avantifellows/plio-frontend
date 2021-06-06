@@ -155,10 +155,10 @@ export default {
     questionTextClass() {
       return [
         {
-          "sm:m-4 text-lg md:text-xl lg:text-2xl": !this.previewMode,
-          "sm:m-2 text-sm md:text-base lg:text-lg xl:text-xl": this.previewMode,
+          "text-lg md:text-xl lg:text-2xl": !this.previewMode,
+          "text-sm md:text-base lg:text-lg xl:text-xl": this.previewMode,
         },
-        "m-2 mx-4 md:mx-6 xl:mx-10 font-bold leading-tight whitespace-pre-wrap",
+        "m-2 mx-4 font-bold leading-tight whitespace-pre-wrap",
       ];
     },
     optionTextClass() {
