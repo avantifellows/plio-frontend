@@ -45,7 +45,7 @@
         class="px-2 w-full"
         v-model:value="subjectiveAnswer"
         :boxStyling="'px-4 placeholder-gray-400 bp-420:h-20 sm:h-28 md:h-36 focus:border-gray-200 focus:ring-transparent'"
-        :isDisabled="isAnswerSubmitted"
+        :isDisabled="isAnswerSubmitted || previewMode"
         @keypress="checkCharLimit"
       ></Textarea>
       <!-- character limit -->

@@ -19,7 +19,7 @@
         :correctAnswer="questionCorrectAnswer"
         :isAnswerSubmitted="isAnswerSubmitted"
         :draftAnswer="draftResponses[selectedItemIndex]"
-        :submittedAnswer="currentItemResponse.answer"
+        :submittedAnswer="currentItemResponseAnswer"
         :questionType="questionType"
         :hasCharLimit="hasCharLimit"
         :maxCharLimit="maxCharLimit"
@@ -118,7 +118,7 @@ export default {
     showAnswerCorrectness() {
       // whether to show the answer's correctness after submission
       return this.isQuestionTypeMCQ;
-    }
+    },
     containerClass() {
       // main styling class for this component's container
       return [
@@ -219,7 +219,7 @@ export default {
     answerUpdated(answer) {
       // invoked when the answer to a subjective question is updated
       this.draftResponses[this.selectedItemIndex] = answer;
-    }
+    },
     toggleMinimize(positions) {
       this.$emit("toggle-minimize", positions);
     },
