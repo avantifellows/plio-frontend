@@ -93,7 +93,7 @@ export default {
       return [
         {
           "p-2 text-lg md:text-xl lg:text-2xl": !this.previewMode,
-          "p-1 text-sm md:text-base lg:text-lg xl:text-xl": this.previewMode,
+          "p-1 text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg": this.previewMode,
         },
         "border pl-4 rounded-md mx-5",
       ];
@@ -121,3 +121,24 @@ export default {
   emits: ["option-selected"],
 };
 </script>
+<style>
+/* width */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+</style>
