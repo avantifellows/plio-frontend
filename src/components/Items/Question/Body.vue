@@ -125,26 +125,6 @@ export default {
       type: Boolean,
     },
   },
-  computed: {
-    questionTextClass() {
-      return [
-        {
-          "sm:m-4 text-lg md:text-xl lg:text-2xl": !this.previewMode,
-          "sm:m-2 text-sm md:text-base lg:text-lg xl:text-xl": this.previewMode,
-        },
-        "m-2 mx-4 md:mx-6 xl:mx-10 font-bold leading-tight",
-      ];
-    },
-    optionTextClass() {
-      return [
-        {
-          "p-2 text-lg md:text-xl lg:text-2xl": !this.previewMode,
-          "p-1 text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg": this.previewMode,
-        },
-        "border pl-4 rounded-md mx-5",
-      ];
-    },
-  },
   components: { Textarea },
   methods: {
     checkCharLimit(event) {
@@ -172,6 +152,24 @@ export default {
     },
   },
   computed: {
+    questionTextClass() {
+      return [
+        {
+          "sm:m-4 text-lg md:text-xl lg:text-2xl": !this.previewMode,
+          "sm:m-2 text-sm md:text-base lg:text-lg xl:text-xl": this.previewMode,
+        },
+        "m-2 mx-4 md:mx-6 xl:mx-10 font-bold leading-tight",
+      ];
+    },
+    optionTextClass() {
+      return [
+        {
+          "p-2 text-lg md:text-xl lg:text-2xl": !this.previewMode,
+          "p-1 text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg": this.previewMode,
+        },
+        "border pl-4 rounded-md mx-5",
+      ];
+    },
     maxCharLimitClass() {
       // class for the character limit text
       if (this.charactersLeft > 0.2 * this.maxCharLimit) return "text-gray-400";
