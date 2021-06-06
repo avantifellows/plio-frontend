@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-y-auto flex flex-col py-2">
+  <div class="overflow-y-auto flex flex-col">
     <!-- question text -->
     <div class="px-4 md:px-6 xl:px-10">
       <p :class="questionTextClass">

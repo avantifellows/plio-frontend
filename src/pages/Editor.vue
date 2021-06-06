@@ -13,9 +13,10 @@
         <div class="justify-center">
           <!--- video preview -->
           <div v-if="!isVideoIdValid" class="flex justify-center">
-            <div class="flex relative justify-center">
-              <img src="@/assets/images/plain.svg" />
-              <img src="@/assets/images/play.svg" class="absolute place-self-center w-12 h-12" />
+            <div class="flex relative justify-center w-full">
+              <div
+                class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-96 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
+              ></div>
             </div>
           </div>
           <div v-else>

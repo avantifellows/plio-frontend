@@ -188,7 +188,7 @@ export default {
     },
     isAnswerSubmitted() {
       // has the answer for the current item submitted - if current item is a question
-      return this.currentItemResponseAnswer != null;
+      return this.currentItemResponseAnswer != null && !isNaN(this.currentItemResponseAnswer);
     },
     questionOptions() {
       // options for the question
