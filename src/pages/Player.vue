@@ -344,8 +344,8 @@ export default {
     minimizeModal(positions) {
       // invoked when minimize button is clicked
 
-      // set some CSS variables which tells the animation
-      // where the modal should shrink to and where the maximize button should pop up
+      // set some CSS variables which tells the animation where the modal should shrink to
+      // and where the maximize button should pop up. These variables are defined in `Editor.vue`
       let root = document.documentElement;
       root.style.setProperty("--t-origin-x", positions.centerX + "px");
       root.style.setProperty("--t-origin-y", positions.centerY + "px");
@@ -627,14 +627,3 @@ export default {
   },
 };
 </script>
-<style>
-:root {
-  --maximize-btn-left: 72.5rem;
-  --maximize-btn-top: 0.5rem;
-}
-
-#maximizeButton {
-  left: var(--maximize-btn-left);
-  top: var(--maximize-btn-top);
-}
-</style>

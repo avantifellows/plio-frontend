@@ -1057,7 +1057,19 @@ export default {
 :root {
   --t-origin-x: 98%;
   --t-origin-y: 5%;
+  --maximize-btn-left: 72.5rem;
+  --maximize-btn-top: 0.5rem;
 }
+
+#maximizeButton {
+  left: var(--maximize-btn-left);
+  top: var(--maximize-btn-top);
+}
+
+.maximize-btn-transition-leave {
+  animation: linear 0.1s;
+}
+
 @mixin modalScale($scaleFactor) {
   transform: scale($scaleFactor);
   transform-origin: var(--t-origin-x) var(--t-origin-y);
@@ -1144,9 +1156,5 @@ export default {
 
 .grow {
   animation: grow 0.1s ease-in;
-}
-
-.maximize-btn-transition-leave {
-  animation: linear 0.1s;
 }
 </style>
