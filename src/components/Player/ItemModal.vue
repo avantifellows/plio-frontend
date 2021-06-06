@@ -35,8 +35,9 @@
         :isAnswerSubmitted="isAnswerSubmitted"
         :isAnswerCorrect="isAnswerCorrect"
         :isSubmitEnabled="isAnswerValid"
-        :showAnswerCorrectness="showAnswerCorrectness"
         :isPortrait="isPortrait"
+        :answerFeedbackText="answerFeedbackText"
+        :answerFeedbackTextClass="answerFeedbackTextClass"
         @proceed-question="proceedQuestion"
         @revise-question="emitRevise"
         @submit-question="submitQuestion"
@@ -106,6 +107,16 @@ export default {
     ItemQuestionBody,
   },
   computed: {
+    answerFeedbackText() {
+      // text to be used as feedback once answer is submitted
+      if (this.isQuestionTypeSubjective) return "Submitted";
+      return "";
+    },
+    answerFeedbackTextClass() {
+      // class for the text to be used as feedback once answer is submitted
+      if (this.isQuestionTypeSubjective) return "text-green-600";
+      return "";
+    },
     hasCharLimit() {
       // whether the question has a character limit if the item is a question
       if (!this.isItemQuestion || !this.isQuestionTypeSubjective) return false;
@@ -114,10 +125,6 @@ export default {
     maxCharLimit() {
       // the character limit for a question's answer
       return this.currentItem["details"]["max_char_limit"];
-    },
-    showAnswerCorrectness() {
-      // whether to show the answer's correctness after submission
-      return this.isQuestionTypeMCQ;
     },
     containerClass() {
       // main styling class for this component's container
@@ -176,6 +183,7 @@ export default {
     isAnswerCorrect() {
       // where the selected option index is current
       if (this.currentItem == undefined || !this.isItemQuestion || this.currentItemResponse == null) return null;
+      if (this.isQuestionTypeSubjective) return true;
       return this.questionCorrectAnswer == this.currentItemResponseAnswer;
     },
     isAnswerSubmitted() {

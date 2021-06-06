@@ -10,12 +10,16 @@
         @click="reviseClicked"
       ></icon-button>
       <!-- icon to show correct/wrong option result -->
-      <inline-svg
-        :src="answerCorrectnessIcon"
-        :class="answerCorrectnessIconClass"
-        class="w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 place-self-center ml-4"
-        v-if="showAnswerCorrectness && isAnswerSubmitted"
-      ></inline-svg>
+      <div class="flex items-center space-x-4" v-if="isAnswerSubmitted">
+        <inline-svg
+          :src="answerCorrectnessIcon"
+          :class="answerCorrectnessIconClass"
+          class="w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 place-self-center ml-4"
+        ></inline-svg>
+        <p class="text-2xl" :class="answerFeedbackTextClass" v-if="hasAnyAnswerFeedback">
+          {{ answerFeedbackText }}
+        </p>
+      </div>
     </div>
     <!-- button to enter/exit fullscreen -->
     <div class="hidden bp-500:block">
@@ -60,11 +64,6 @@ export default {
       default: false,
       type: Boolean,
     },
-    showAnswerCorrectness: {
-      // whether to show the answer correctness
-      default: true,
-      type: Boolean,
-    },
     isSubmitEnabled: {
       // whether the submit option is enabled
       default: false,
@@ -80,8 +79,22 @@ export default {
       default: false,
       type: Boolean,
     },
+    answerFeedbackText: {
+      // text to be used as feedback once answer is submitted
+      default: "",
+      type: String,
+    },
+    answerFeedbackTextClass: {
+      // class for the text to be used as feedback once answer is submitted
+      default: "",
+      type: String,
+    },
   },
   computed: {
+    hasAnyAnswerFeedback() {
+      // whether any text has been provided to be used as feedback once an answer has been submitted
+      return this.answerFeedbackText != "";
+    },
     localIsFullscreen: {
       // local copy of isFullscreen prop
       get() {
