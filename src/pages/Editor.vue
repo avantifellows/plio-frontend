@@ -19,15 +19,27 @@
             </div>
           </div>
           <div v-else>
-            <video-player
-              :videoId="videoId"
-              :plyrConfig="plyrConfig"
-              @update="videoTimestampUpdated"
-              @ready="playerReady"
-              @play="playerPlayed"
-              ref="videoPlayer"
-            ></video-player>
-
+            <div class="relative">
+              <video-player
+                :videoId="videoId"
+                :plyrConfig="plyrConfig"
+                @update="videoTimestampUpdated"
+                @ready="playerReady"
+                @play="playerPlayed"
+                ref="videoPlayer"
+                id="videoPlayer"
+                class="z-0"
+              ></video-player>
+              <!-- item modal component -->
+              <item-modal
+                id="modal"
+                class="absolute z-10 inset-0 border-2"
+                :class="{ hidden: !showItemModal }"
+                :selectedItemIndex="currentItemIndex"
+                :itemList="items"
+                :previewMode="true"
+              ></item-modal>
+            </div>
             <!--- slider with question markers -->
             <slider-with-markers
               :end="videoDuration"
@@ -196,6 +208,7 @@ import Utilities from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
+import ItemModal from "../components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
 
 // used for deep cloning objects
@@ -216,6 +229,7 @@ export default {
     IconButton,
     SimpleBadge,
     DialogBox,
+    ItemModal,
   },
   props: {
     plioId: {
@@ -239,7 +253,8 @@ export default {
       currentItemIndex: null, // current item being displayed
       currentQuestionTypeIndex: 0, // index of the current question type being created
       plyrConfig: {
-        controls: ["play-large", "play", "volume"],
+        controls: ["play-large", "play", "volume", "current-time"],
+        invertTime: false,
       },
       sliderStep: 0.1, // timestep for the slider
       itemTimestamps: [], // stores the list of the timestamps of all items
@@ -349,6 +364,14 @@ export default {
     questionTypeSelectorClass() {
       // class for the question type selectors
       return { "hover:bg-primary hover:text-white hover:border-primary": !this.addItemDisabled };
+    }
+    showItemModal() {
+      // whether the item modal needs to be shown
+      return this.hasAnyItems && this.isAnyItemActive;
+    },
+    isAnyItemActive() {
+      // whether any item is currently active
+      return this.currentItemIndex != null;
     },
     itemType() {
       // type of the current item - null if no item is selected
@@ -455,7 +478,8 @@ export default {
       // class for the publish button
       return [
         {
-          "opacity-50 cursor-not-allowed pointer-events-none": !this.isPublishButtonEnabled,
+          "opacity-50 cursor-not-allowed pointer-events-none": !this
+            .isPublishButtonEnabled,
         },
         `rounded-md ring-green-500`,
       ];
@@ -463,10 +487,12 @@ export default {
     publishButtonTooltip() {
       // tooltip text for publish button
       if (!this.isPublished) {
-        if (!this.isPublishButtonEnabled) return this.$t("tooltip.editor.publish.draft.disabled");
+        if (!this.isPublishButtonEnabled)
+          return this.$t("tooltip.editor.publish.draft.disabled");
         return this.$t("tooltip.editor.publish.draft.enabled");
       }
-      if (!this.isPublishButtonEnabled) return this.$t("tooltip.editor.publish.published.disabled");
+      if (!this.isPublishButtonEnabled)
+        return this.$t("tooltip.editor.publish.published.disabled");
       return this.$t("tooltip.editor.publish.published.enabled");
     },
     lastUpdatedStr() {
@@ -605,7 +631,13 @@ export default {
       // check if the time after drag is valid and if not, set the item time
       // back to the one before the drag
       // else proceed with the new time
-      if (!ItemFunctionalService.isTimestampValid(itemTimestamp, this.itemTimestamps, itemIndex)) {
+      if (
+        !ItemFunctionalService.isTimestampValid(
+          itemTimestamp,
+          this.itemTimestamps,
+          itemIndex
+        )
+      ) {
         this.items[itemIndex]["time"] = timeBeforeDragEnded;
         itemTimestamp = timeBeforeDragEnded;
         this.showCannotAddItemDialog();
@@ -624,7 +656,8 @@ export default {
     },
     checkItemToSelect(timestamp) {
       // checks if an item is to be selected and marks/unmarks accordingly
-      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY) return;
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+        return;
       this.lastCheckTimestamp = timestamp;
       var selectedItemIndex = ItemFunctionalService.checkItemPopup(
         timestamp,
@@ -695,7 +728,7 @@ export default {
     async loadPlio() {
       // fetch plio details
       await PlioAPIService.getPlio(this.plioId)
-        .then(plioDetails => {
+        .then((plioDetails) => {
           this.items = plioDetails.items || [];
           this.videoURL = plioDetails.video_url || "";
           this.plioTitle = plioDetails.plioTitle || "";
@@ -767,7 +800,8 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
@@ -811,7 +845,8 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.got_it"),
-        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: false,
@@ -832,7 +867,8 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.got_it"),
-        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: false,
@@ -875,7 +911,10 @@ export default {
       }
 
       // delete the option
-      this.items[this.currentItemIndex].details.options.splice(this.optionIndexToDelete, 1);
+      this.items[this.currentItemIndex].details.options.splice(
+        this.optionIndexToDelete,
+        1
+      );
       // if the deleted option was the correct answer, reset the correct answer
       if (this.optionIndexToDelete == this.correctOptionIndex) {
         this.items[this.currentItemIndex].details.correct_answer = 0;
@@ -898,7 +937,7 @@ export default {
     getDetailsForNewQuestion(questionType) {
       // barebones question structure
       var details = {};
-      details["correct_answer"] = "0";
+      details["correct_answer"] = 0;
       details["text"] = "";
       details["type"] = questionType;
       details["options"] = ["", ""];
@@ -912,7 +951,9 @@ export default {
       // item and the question
       var newItem = {};
       // check if the time where user is trying to add an item is valid or not
-      if (!ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)) {
+      if (
+        !ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)
+      ) {
         this.showCannotAddItemDialog();
         return;
       }
@@ -923,7 +964,7 @@ export default {
         time: currentTimestamp,
         meta: this.getMetadataForNewItem(),
       })
-        .then(createdItem => {
+        .then((createdItem) => {
           // storing the newly created item into "newItem"
           newItem = createdItem;
           if (createdItem.type == "question") {
@@ -932,7 +973,7 @@ export default {
             return QuestionAPIService.createQuestion(questionDetails);
           }
         })
-        .then(createdQuestion => {
+        .then((createdQuestion) => {
           // storing the newly created question into "newItem"
           newItem.details = createdQuestion;
           // push it into items, update the itemTimestamps and currentItemIndex
@@ -946,11 +987,14 @@ export default {
       // invoked when the delete item button is clicked
       // set dialog properties
       this.dialogTitle = this.$t(`editor.dialog.delete_item.${this.itemType}.title`);
-      this.dialogDescription = this.$t(`editor.dialog.delete_item.${this.itemType}.description`);
+      this.dialogDescription = this.$t(
+        `editor.dialog.delete_item.${this.itemType}.description`
+      );
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,

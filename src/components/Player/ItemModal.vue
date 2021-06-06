@@ -1,9 +1,13 @@
 <template>
   <div class="flex flex-col bg-white w-full h-full overflow-hidden">
     <!-- question modal -->
-    <div v-if="isItemQuestion" class="h-full flex flex-col shadow-inner justify-center">
+    <div v-if="isItemQuestion" class="h-full flex flex-col justify-center">
       <!-- header -->
-      <item-question-header @skip-question="skipQuestion" :isAnswerSubmitted="isAnswerSubmitted"></item-question-header>
+      <item-question-header
+        v-if="!previewMode"
+        @skip-question="skipQuestion"
+        :isAnswerSubmitted="isAnswerSubmitted"
+      ></item-question-header>
       <!-- main question body -->
       <item-question-body
         :questionText="questionText"
@@ -17,9 +21,11 @@
         :maxCharLimit="maxCharLimit"
         @option-selected="optionSelected"
         @answer-updated="answerUpdated"
+        :previewMode="previewMode"
       ></item-question-body>
       <!-- footer -->
       <item-question-footer
+        v-if="!previewMode"
         class="place-self-end"
         v-model:isFullscreen="localIsFullscreen"
         :isAnswerSubmitted="isAnswerSubmitted"
@@ -73,6 +79,11 @@ export default {
       default: false,
       type: Boolean,
     },
+    previewMode: {
+      // whether the item modal will be shown in editor preview mode
+      default: false,
+      type: Boolean,
+    },
   },
   components: {
     ItemQuestionHeader,
@@ -92,6 +103,11 @@ export default {
     showAnswerCorrectness() {
       // whether to show the answer's correctness after submission
       return this.isQuestionTypeMCQ;
+    },
+    currentItemResponseAnswer() {
+      // `answer` object for `currentItemResponse`
+      if (this.currentItemResponse == null) return null;
+      return this.currentItemResponse.answer;
     },
     isAnswerValid() {
       // whether an option has been selected
@@ -123,7 +139,9 @@ export default {
     },
     currentItemResponse() {
       // response for the current item
-      return this.responseList[this.selectedItemIndex];
+      if (this.responseList != undefined) return this.responseList[this.selectedItemIndex];
+
+      return null;
     },
     itemType() {
       // type of the current item
@@ -132,12 +150,12 @@ export default {
     },
     isAnswerCorrect() {
       // where the selected option index is current
-      if (this.currentItem == undefined || !this.isItemQuestion) return null;
-      return this.questionCorrectAnswer == this.currentItemResponse.answer;
+      if (this.currentItem == undefined || !this.isItemQuestion || this.currentItemResponse == null) return null;
+      return this.questionCorrectAnswer == this.currentItemResponseAnswer;
     },
     isAnswerSubmitted() {
       // has the answer for the current item submitted - if current item is a question
-      return this.currentItemResponse.answer != null;
+      return this.currentItemResponseAnswer != null;
     },
     questionOptions() {
       // options for the question
