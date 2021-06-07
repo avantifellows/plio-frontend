@@ -66,6 +66,10 @@ export default {
   },
   watch: {
     subjectiveAnswer() {
+      if (this.subjectiveAnswer != null && this.subjectiveAnswer.length > this.maxCharLimit) {
+        // prevent answers more than the character limit from being entered via copy pasting
+        this.subjectiveAnswer = this.subjectiveAnswer.substring(0, this.maxCharLimit);
+      }
       this.$emit("answer-updated", this.subjectiveAnswer);
     },
   },
@@ -131,6 +135,7 @@ export default {
       if (!this.hasCharLimit) return;
       if (!this.charactersLeft) event.preventDefault();
     },
+
     labelClass(optionText) {
       return [{ "h-4 sm:h-5": optionText == "" }, "flex content-center"];
     },

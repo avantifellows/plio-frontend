@@ -564,6 +564,7 @@ export default {
     maxCharLimit: {
       get() {
         // extract the character limit from the item
+        if (this.localItemList[this.localSelectedItemIndex] == null) return null;
         return this.localItemList[this.localSelectedItemIndex].details.max_char_limit || 100;
       },
       set(value) {
@@ -574,6 +575,7 @@ export default {
     isMaxCharLimitSet: {
       get() {
         // extract whether character limit is set from the item
+        if (this.localItemList[this.localSelectedItemIndex] == null) return false;
         return this.localItemList[this.localSelectedItemIndex].details.has_char_limit;
       },
       set(value) {
