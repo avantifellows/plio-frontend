@@ -26,6 +26,7 @@
     <div
       class="absolute mt-1 w-2/3 bp-500:w-1/2 sm:w-1/3 md:w-1/2 xl:w-1/3 z-10 bg-white shadow-lg"
       v-if="showDropdown"
+      v-click-away="hideDropdown"
     >
       <ul
         tabindex="-1"
@@ -99,13 +100,17 @@ export default {
     },
     isDisabled(value) {
       if (value && this.showDropdown) {
-        this.showDropdown = false;
-        this.$emit("toggle-visibility", this.showDropdown);
+        this.hideDropdown();
       }
     },
   },
   methods: {
     ...Utilties,
+    hideDropdown() {
+      // hides the dropdown when clicking away from the dropdown
+      this.showDropdown = false;
+      this.$emit("toggle-visibility", this.showDropdown);
+    },
     setOption(index) {
       // sets the given index as the selected option index
       this.localSelectedIndex = index;

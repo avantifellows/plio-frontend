@@ -126,9 +126,11 @@
           <input-text
             :placeholder="'100'"
             v-model:value.number="maxCharLimit"
+            ref="maxCharLimit"
             class="w-24"
             :boxStyling="charLimitBoxClass"
             @keypress="maxCharLimitInputKeypress"
+            @keydown="maxCharLimitInputKeydown"
           ></input-text>
           <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">CHARACTERS ALLOWED</p>
         </div>
@@ -262,6 +264,15 @@ export default {
       // only allows numbers as input
       var numberPattern = /[0-9]/g;
       if (event.key.match(numberPattern) == null) event.preventDefault();
+    },
+    maxCharLimitInputKeydown(event) {
+      // invoked when the backspace is clicked on the max char limit box
+      // does not let the backspace make the value empty
+      if (event.keyCode == 8) {
+        if (this.maxCharLimit < 10) this.maxCharLimit = 100;
+        else this.maxCharLimit = Number(String(this.maxCharLimit).slice(0, -1));
+        event.preventDefault();
+      }
     },
     toggleQuestionTypeDropdown(newValue) {
       // invoked when the question type dropdown's visibility is toggled

@@ -537,9 +537,15 @@ export default {
     isItemResponseDone(itemIndex) {
       // whether the response to an item is complete
       if (this.itemResponses && this.itemResponses[itemIndex]) {
-        return this.itemResponses[itemIndex].answer != null && !isNaN(this.itemResponses[itemIndex].answer);
+        if (this.itemResponses[itemIndex].answer == null) return false;
+        if (this.isItemMCQ(itemIndex)) return !isNaN(this.itemResponses[itemIndex].answer);
+        return true;
       }
       return false;
+    },
+    isItemMCQ(itemIndex) {
+      // whether the given item index is an MCQ question
+      return this.items[itemIndex].type == "question" && this.items[itemIndex].details.type == "mcq";
     },
     videoTimestampUpdated(timestamp) {
       // invoked when the current time in the video is updated

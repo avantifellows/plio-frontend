@@ -187,7 +187,9 @@ export default {
     },
     isAnswerSubmitted() {
       // has the answer for the current item submitted - if current item is a question
-      return this.currentItemResponseAnswer != null && !isNaN(this.currentItemResponseAnswer);
+      if (this.currentItemResponseAnswer == null) return false;
+      if (this.isQuestionTypeMCQ) return !isNaN(this.currentItemResponseAnswer);
+      return true;
     },
     questionOptions() {
       // options for the question
@@ -197,7 +199,7 @@ export default {
     questionCorrectAnswer() {
       // correct answer for the question
       if (this.currentItem == undefined) return null;
-      return this.currentItem["details"]["correct_answer"];
+      return parseInt(this.currentItem["details"]["correct_answer"]);
     },
     questionText() {
       // text for the question

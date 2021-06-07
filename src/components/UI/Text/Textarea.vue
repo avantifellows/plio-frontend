@@ -43,6 +43,7 @@
         autocomplete="off"
         @input="inputChange"
         @keypress="keyPress"
+        @keydown="keyDown"
       />
     </div>
   </div>
@@ -174,14 +175,18 @@ export default {
       this.$emit("input", this.value);
     },
     keyPress(event) {
-      // invoked on pressing a key
+      // invoked by pressing a key
       this.$emit("keypress", event);
+    },
+    keyDown(event) {
+      // invoked by the event keydown
+      this.$emit("keydown", event);
     },
     startIconSelected() {
       // invoked on start icon being selected
       this.$emit("start-icon-selected", this.value);
     },
   },
-  emits: ["input", "keypress", "update:value", "start-icon-selected"],
+  emits: ["input", "keypress", "keydown", "update:value", "start-icon-selected"],
 };
 </script>
