@@ -45,10 +45,11 @@ module.exports = {
       opacity: ["disabled"],
       pointerEvents: ["disabled"],
       cursor: ["disabled", "hover"],
-      backgroundColor: ["active"],
+      backgroundColor: ["active", "checked", "disabled"],
+      borderColor: ["checked"],
       display: ["hover"],
       strokeWidth: ["hover", "focus"],
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/forms")],
 };

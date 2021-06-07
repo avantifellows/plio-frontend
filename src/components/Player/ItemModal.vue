@@ -18,9 +18,13 @@
         :options="questionOptions"
         :correctAnswer="questionCorrectAnswer"
         :isAnswerSubmitted="isAnswerSubmitted"
-        :selectedOption="draftResponses[selectedItemIndex]"
-        :selectedAnswer="currentItemResponseAnswer"
+        :draftAnswer="draftResponses[selectedItemIndex]"
+        :submittedAnswer="currentItemResponseAnswer"
+        :questionType="questionType"
+        :hasCharLimit="hasCharLimit"
+        :maxCharLimit="maxCharLimit"
         @option-selected="optionSelected"
+        @answer-updated="subjectiveAnswerUpdated"
         :previewMode="previewMode"
       ></item-question-body>
       <!-- footer -->
@@ -30,8 +34,10 @@
         v-model:isFullscreen="localIsFullscreen"
         :isAnswerSubmitted="isAnswerSubmitted"
         :isAnswerCorrect="isAnswerCorrect"
-        :isOptionSelected="isOptionSelected"
+        :isSubmitEnabled="isAnswerValid"
         :isPortrait="isPortrait"
+        :answerFeedbackText="answerFeedbackText"
+        :answerFeedbackTextClass="answerFeedbackTextClass"
         @proceed-question="proceedQuestion"
         @revise-question="emitRevise"
         @submit-question="submitQuestion"
@@ -101,6 +107,24 @@ export default {
     ItemQuestionBody,
   },
   computed: {
+    answerFeedbackText() {
+      // text to be used as feedback once answer is submitted
+      if (this.isQuestionTypeSubjective) return "Submitted";
+      return "";
+    },
+    answerFeedbackTextClass() {
+      // class for the text to be used as feedback once answer is submitted
+      if (this.isQuestionTypeSubjective) return "text-green-600";
+      return "";
+    },
+    hasCharLimit() {
+      // whether the question has a character limit if the item is a question
+      return this.currentItem["details"]["has_char_limit"];
+    },
+    maxCharLimit() {
+      // the character limit for a question's answer
+      return this.currentItem["details"]["max_char_limit"];
+    },
     containerClass() {
       // main styling class for this component's container
       return [
@@ -116,9 +140,11 @@ export default {
       if (this.currentItemResponse == null) return null;
       return this.currentItemResponse.answer;
     },
-    isOptionSelected() {
+    isAnswerValid() {
       // whether an option has been selected
-      return this.draftResponses[this.selectedItemIndex] != null;
+      if (this.draftResponses[this.selectedItemIndex] == null) return false;
+      if (this.isQuestionTypeSubjective) return this.draftResponses[this.selectedItemIndex] != "";
+      return true;
     },
     localResponseList: {
       // local copy of the responseList prop
@@ -144,8 +170,7 @@ export default {
     },
     currentItemResponse() {
       // response for the current item
-      if (this.responseList != undefined)
-        return this.responseList[this.selectedItemIndex];
+      if (this.responseList != undefined) return this.responseList[this.selectedItemIndex];
 
       return null;
     },
@@ -156,17 +181,15 @@ export default {
     },
     isAnswerCorrect() {
       // where the selected option index is current
-      if (
-        this.currentItem == undefined ||
-        !this.isItemQuestion ||
-        this.currentItemResponse == null
-      )
-        return null;
+      if (this.currentItem == undefined || !this.isItemQuestion || this.currentItemResponse == null) return null;
+      if (this.isQuestionTypeSubjective) return true;
       return this.questionCorrectAnswer == this.currentItemResponseAnswer;
     },
     isAnswerSubmitted() {
       // has the answer for the current item submitted - if current item is a question
-      return this.currentItemResponseAnswer != null;
+      if (this.currentItemResponseAnswer == null) return false;
+      if (this.isQuestionTypeMCQ) return !isNaN(this.currentItemResponseAnswer);
+      return true;
     },
     questionOptions() {
       // options for the question
@@ -176,7 +199,7 @@ export default {
     questionCorrectAnswer() {
       // correct answer for the question
       if (this.currentItem == undefined) return null;
-      return this.currentItem["details"]["correct_answer"];
+      return parseInt(this.currentItem["details"]["correct_answer"]);
     },
     questionText() {
       // text for the question
@@ -187,8 +210,25 @@ export default {
       // whether the item is a Question
       return this.itemType == "question";
     },
+    questionType() {
+      // type of the question if the item is a question
+      if (!this.isItemQuestion) return null;
+      return this.currentItem["details"]["type"];
+    },
+    isQuestionTypeMCQ() {
+      // whether the type of the question is MCQ if item is question
+      return this.questionType == "mcq";
+    },
+    isQuestionTypeSubjective() {
+      // whether the type of the question is subjective if item is question
+      return this.questionType == "subjective";
+    },
   },
   methods: {
+    subjectiveAnswerUpdated(answer) {
+      // invoked when the answer to a subjective question is updated
+      this.draftResponses[this.selectedItemIndex] = answer;
+    },
     toggleMinimize(positions) {
       this.$emit("toggle-minimize", positions);
     },
@@ -211,9 +251,7 @@ export default {
     },
     submitQuestion() {
       // invoked when the response to the question has been submitted
-      this.localResponseList[this.selectedItemIndex].answer = this.draftResponses[
-        this.selectedItemIndex
-      ];
+      this.localResponseList[this.selectedItemIndex].answer = this.draftResponses[this.selectedItemIndex];
       this.$emit("submit-question");
     },
   },

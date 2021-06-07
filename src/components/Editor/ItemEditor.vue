@@ -1,27 +1,24 @@
 <template>
   <!-- big box -->
-  <div
-    class="flex flex-col w-full h-full rounded-md main-container"
-    v-if="localSelectedItemIndex != null"
-  >
+  <div class="flex flex-col w-full h-full rounded-md main-container relative" v-if="localSelectedItemIndex != null">
+    <!-- question type picker -->
+    <div class="absolute rounded-md mt-4 ml-2 z-5" :class="questionTypeDropdownClass">
+      <QuestionTypeDropdown
+        class="w-full"
+        @toggle-visibility="toggleQuestionTypeDropdown"
+        :options="questionTypes"
+        v-model:selectedIndex="localQuestionTypeIndex"
+        :isDisabled="isInteractionDisabled"
+      ></QuestionTypeDropdown>
+    </div>
+    <!-- nav bar -->
     <div class="flex space-x-1 flex-row w-full p-4 justify-end">
-      <!-- nav bar -->
-      <div class="mr-auto sm:flex content-center hidden">
-        <p class="self-center editor-title">
-          {{ getHeading(localItemList[localSelectedItemIndex].type) }}
-        </p>
-      </div>
-
       <!-- dropdown for choosing items -->
-      <ItemDropDown
-        :optionsList="itemOptionsList"
-        v-model:selectedItemIndex="localSelectedItemIndex"
-        class="mr-auto sm:mr-0"
-      ></ItemDropDown>
+      <Dropdown :optionsList="itemOptionsList" v-model:value="localSelectedItemIndex" class="mr-0"></Dropdown>
 
       <!-- previous item button -->
       <icon-button
-        class="rounded-tl-xl rounded-bl-xl w-8 h-8 disabled:opacity-50"
+        class="rounded-tl-xl rounded-bl-xl w-8 h-8 disabled:opacity-50 hidden bp-500:block md:hidden lg:block"
         :iconConfig="previousItemIconConfig"
         @click="updateSelectedItemIndex(localSelectedItemIndex - 1)"
         :buttonClass="previousItemButtonClass"
@@ -31,7 +28,7 @@
 
       <!-- next item button -->
       <icon-button
-        class="rounded-tr-xl rounded-br-xl w-8 h-8 disabled:opacity-50"
+        class="rounded-tr-xl rounded-br-xl w-8 h-8 disabled:opacity-50 hidden bp-500:block md:hidden lg:block"
         :iconConfig="nextItemIconConfig"
         @click="updateSelectedItemIndex(localSelectedItemIndex + 1)"
         :buttonClass="nextItemButtonClass"
@@ -41,7 +38,7 @@
 
       <!-- add item button -->
       <icon-button
-        class="rounded-xl w-8 h-8"
+        class="rounded-xl w-8 h-8 px-2 hidden xsm:block"
         :iconConfig="addItemIconConfig"
         :buttonClass="addItemButtonClass"
         @click="removeSelectedItemIndex"
@@ -51,7 +48,7 @@
 
       <!-- delete item button -->
       <icon-button
-        class="rounded-xl bg-delete-button w-8 h-8 shadow-lg"
+        class="rounded-xl bg-delete-button w-8 h-8 shadow-lg px-2"
         :iconConfig="deleteItemIconConfig"
         @click="deleteSelectedItem"
         v-tooltip.left="deleteItemButtonTooltip"
@@ -69,7 +66,7 @@
         v-model:value="questionText"
         ref="questionText"
         class="p-2"
-        :boxStyling="'pl-4'"
+        :boxStyling="'pl-4 focus:ring-primary'"
       ></Textarea>
 
       <!-- time input HH : MM : SS : mmm -->
@@ -85,21 +82,23 @@
       ></time-input>
 
       <!-- input field for entering options  -->
-      <input-text
-        v-for="(option, optionIndex) in options"
-        :placeholder="optionInputPlaceholder"
-        :title="getOptionInputTitle(optionIndex)"
-        class="p-2"
-        v-model:value="options[optionIndex]"
-        :key="optionIndex"
-        :startIcon="getCorrectOptionIconConfig(optionIndex)"
-        :endIcon="getDeleteOptionIconConfig"
-        :boxStyling="getOptionBoxStyling(optionIndex)"
-        @start-icon-selected="updateCorrectOption(optionIndex)"
-        @end-icon-selected="deleteOption(optionIndex)"
-      ></input-text>
+      <div v-if="isQuestionTypeMCQ">
+        <input-text
+          v-for="(option, optionIndex) in options"
+          class="p-2"
+          v-model:value="options[optionIndex]"
+          :placeholder="optionInputPlaceholder"
+          :title="getOptionInputTitle(optionIndex)"
+          :key="optionIndex"
+          :startIcon="getCorrectOptionIconConfig(optionIndex)"
+          :endIcon="getDeleteOptionIconConfig"
+          :boxStyling="getOptionBoxStyling(optionIndex)"
+          @start-icon-selected="updateCorrectOption(optionIndex)"
+          @end-icon-selected="deleteOption(optionIndex)"
+        ></input-text>
+      </div>
       <!-- add option button -->
-      <div class="flex justify-end mr-2 mt-2">
+      <div class="flex justify-end mr-2 mt-2" v-if="isQuestionTypeMCQ">
         <icon-button
           :titleConfig="addOptionButtonTitleConfig"
           class="float-right"
@@ -109,13 +108,41 @@
           v-tooltip.bottom="addOptionTooltip"
         ></icon-button>
       </div>
+
+      <!-- setting max char limit -->
+      <div v-if="isQuestionTypeSubjective" class="p-2">
+        <!-- checkbox -->
+        <label class="inline-flex items-center mt-3">
+          <input
+            type="checkbox"
+            class="form-checkbox h-5 w-5 text-primary focus:ring-transparent"
+            v-model="isMaxCharLimitSet"
+            checked
+          /><span class="ml-2 text-gray-700">Set Character Limit</span>
+        </label>
+        <!-- the max limit input -->
+        <div v-if="isMaxCharLimitSet" class="flex space-x-2 items-center">
+          <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">MAX</p>
+          <input-text
+            :placeholder="'100'"
+            v-model:value.number="maxCharLimit"
+            ref="maxCharLimit"
+            class="w-24"
+            :boxStyling="charLimitBoxClass"
+            @keypress="maxCharLimitInputKeypress"
+            @keydown="maxCharLimitInputKeydown"
+          ></input-text>
+          <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">CHARACTERS ALLOWED</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import IconButton from "../UI/Buttons/IconButton.vue";
-import ItemDropDown from "../UI/DropDownMenu/ItemDropDown.vue";
+import Dropdown from "../UI/DropDownMenu/Dropdown.vue";
+import QuestionTypeDropdown from "@/components/Editor/QuestionTypeDropdown.vue";
 import InputText from "../UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
@@ -133,8 +160,7 @@ export default {
         iconClass: "text-white h-5 w-5",
       },
       // styling classes for previous item button
-      previousItemButtonClass:
-        "bg-primary-button hover:bg-primary-button-hover shadow-lg",
+      previousItemButtonClass: "bg-primary-button hover:bg-primary-button-hover focus:ring-primary shadow-lg",
       nextItemIconConfig: {
         // icon config for next item button
         enabled: true,
@@ -142,7 +168,7 @@ export default {
         iconClass: "text-white h-5 w-5",
       },
       // styling classes for next item button
-      nextItemButtonClass: "bg-primary-button hover:bg-primary-button-hover shadow-lg",
+      nextItemButtonClass: "bg-primary-button hover:bg-primary-button-hover focus:ring-primary shadow-lg",
       addItemIconConfig: {
         // icon config for add item button
         enabled: true,
@@ -151,13 +177,13 @@ export default {
       },
       // styling classes for add item button
       addItemButtonClass: [
-        "bg-primary-button hover:bg-primary-button-hover disabled:opacity-40 shadow-lg",
+        "bg-primary-button hover:bg-primary-button-hover disabled:opacity-40 focus:ring-primary shadow-lg",
         { "cursor-not-allowed": this.isInteractionDisabled },
       ],
       // styling classes for add option button
       addOptionButtonClass: [
         `rounded-md font-bold p-5 h-2 w-auto bg-primary-button shadow-lg
-        hover:bg-primary-button-hover disabled:opacity-50`,
+        hover:bg-primary-button-hover disabled:opacity-50 focus:ring-primary`,
         { "cursor-not-allowed": this.isInteractionDisabled },
       ],
       deleteItemIconConfig: {
@@ -173,7 +199,28 @@ export default {
       // warning messages for error states
       timeExceedsWarning: "The time entered exceeds the video duration",
       itemInVicinityWarning: "Questions should be at least 2 seconds apart",
+      // all the options for the question types
+      questionTypes: [
+        {
+          value: "mcq",
+          label: "Multiple Choice",
+          icon: "radio-button.svg",
+        },
+        {
+          value: "subjective",
+          label: "Subjective",
+          icon: "subjective-question.svg",
+        },
+      ],
+      isQuestionDropdownShown: false, // whether the question type dropdown is shown
     };
+  },
+
+  watch: {
+    maxCharLimit() {
+      // if the user has not set the limit - reset it back to 100
+      if (this.maxCharLimit == "") this.maxCharLimit = 100;
+    },
   },
 
   props: {
@@ -197,16 +244,40 @@ export default {
       default: false,
       type: Boolean,
     },
+    questionTypeIndex: {
+      // index of the type of the question to be created
+      default: 0,
+      type: Number,
+    },
   },
-
   components: {
-    ItemDropDown,
+    Dropdown,
     IconButton,
     InputText,
     TimeInput,
     Textarea,
+    QuestionTypeDropdown,
   },
   methods: {
+    maxCharLimitInputKeypress(event) {
+      // invoked when a key is pressed in the input area for setting max limit
+      // only allows numbers as input
+      var numberPattern = /[0-9]/g;
+      if (event.key.match(numberPattern) == null) event.preventDefault();
+    },
+    maxCharLimitInputKeydown(event) {
+      // invoked when the backspace is clicked on the max char limit box
+      // does not let the backspace make the value empty
+      if (event.keyCode == 8) {
+        if (this.maxCharLimit < 10) this.maxCharLimit = 100;
+        else this.maxCharLimit = Number(String(this.maxCharLimit).slice(0, -1));
+        event.preventDefault();
+      }
+    },
+    toggleQuestionTypeDropdown(newValue) {
+      // invoked when the question type dropdown's visibility is toggled
+      this.isQuestionDropdownShown = newValue;
+    },
     getHeading(itemType) {
       // heading for the current item
       return this.$t(`editor.item_editor.heading.${itemType}`);
@@ -224,13 +295,7 @@ export default {
       else this.timeExceedsVideoDuration = false;
 
       // check if any other item is in the vicinity of time entered by the user
-      if (
-        !ItemFunctionalService.isTimestampValid(
-          timeInput,
-          this.localItemTimestamps,
-          this.localSelectedItemIndex
-        )
-      )
+      if (!ItemFunctionalService.isTimestampValid(timeInput, this.localItemTimestamps, this.localSelectedItemIndex))
         this.itemInVicinity = true;
       else this.itemInVicinity = false;
     },
@@ -249,10 +314,7 @@ export default {
       return {
         enabled: true,
         name: "check-circle-regular",
-        class: [
-          { "text-green-500": this.isOptionMarkedCorrect(optionIndex) },
-          "cursor-pointer",
-        ],
+        class: [{ "text-green-500": this.isOptionMarkedCorrect(optionIndex) }, "cursor-pointer"],
         tooltip: this.getCorrectOptionTooltip(optionIndex),
       };
     },
@@ -263,8 +325,7 @@ export default {
     },
     getCorrectOptionTooltip(optionIndex) {
       // returns the tooltip for the correct option button for the given option index
-      if (this.isOptionMarkedCorrect(optionIndex))
-        return this.$t("tooltip.editor.item_editor.correct_option.marked");
+      if (this.isOptionMarkedCorrect(optionIndex)) return this.$t("tooltip.editor.item_editor.correct_option.marked");
       return this.$t("tooltip.editor.item_editor.correct_option.unmarked");
     },
     isOptionMarkedCorrect(optionIndex) {
@@ -289,9 +350,7 @@ export default {
       // https://stackoverflow.com/questions/1322732/convert-seconds-to-hh-mm-ss-with-javascript
 
       var timestampObject = {};
-      var isoTime = new Date(Math.floor(timeInSeconds) * 1000)
-        .toISOString()
-        .substr(11, 8);
+      var isoTime = new Date(Math.floor(timeInSeconds) * 1000).toISOString().substr(11, 8);
       var hour = parseInt(isoTime.split(":")[0]);
       var minute = parseInt(isoTime.split(":")[1]);
       var second = parseInt(isoTime.split(":")[2]);
@@ -325,13 +384,41 @@ export default {
     updateCorrectOption(selectedOptionIndex) {
       // when some option is selected as correct, update it in the
       // item list
-      this.localItemList[
-        this.localSelectedItemIndex
-      ].details.correct_answer = selectedOptionIndex;
+      this.localItemList[this.localSelectedItemIndex].details.correct_answer = selectedOptionIndex;
     },
   },
 
   computed: {
+    localQuestionTypeIndex: {
+      // local copy of the current question type index
+      get() {
+        return this.questionTypeIndex;
+      },
+      set(localQuestionTypeIndex) {
+        this.$emit("update:questionTypeIndex", localQuestionTypeIndex);
+        this.$emit("question-type-changed", this.questionTypes[localQuestionTypeIndex]["value"]);
+      },
+    },
+    charLimitBoxClass() {
+      // class for the input area to enter max char limit
+      return "text-center disabled:opacity-50";
+    },
+    questionTypeDropdownClass() {
+      // class for the question type dropdown
+      return { "w-full": this.isQuestionDropdownShown, "w-1/3": !this.isQuestionDropdownShown };
+    },
+    questionType() {
+      // type of the question being created
+      return this.questionTypes[this.localQuestionTypeIndex]["value"];
+    },
+    isQuestionTypeMCQ() {
+      // whether the type of the question being created is mcq
+      return this.questionType == "mcq";
+    },
+    isQuestionTypeSubjective() {
+      // whether the type of the question being created is subjective
+      return this.questionType == "subjective";
+    },
     timeDisabledTooltip() {
       // tooltip for the time input box when it is disabled
       return this.$t("tooltip.time_input");
@@ -362,7 +449,7 @@ export default {
     },
     localItemTimestamps() {
       // returns a list of timestamp values after extracting them from the items
-      return this.localItemList.map((value) => value.time);
+      return this.localItemList.map(value => value.time);
     },
     timeInputErrorStates() {
       // create and pass an object containing info about the error message
@@ -379,8 +466,7 @@ export default {
     },
     addOptionTooltip() {
       // tooltip for add option button
-      if (this.isInteractionDisabled)
-        return this.$t("tooltip.editor.item_editor.buttons.add_option.disabled");
+      if (this.isInteractionDisabled) return this.$t("tooltip.editor.item_editor.buttons.add_option.disabled");
       return this.$t("tooltip.editor.item_editor.buttons.add_option.enabled");
     },
     deleteItemButtonTooltip() {
@@ -400,9 +486,7 @@ export default {
       // itemType is just "question" right now - parametrize when more types are supported
       var itemType = "question";
       if (this.isInteractionDisabled)
-        return this.$t(
-          `tooltip.editor.item_editor.buttons.add_item.${itemType}.disabled`
-        );
+        return this.$t(`tooltip.editor.item_editor.buttons.add_item.${itemType}.disabled`);
       return this.$t(`tooltip.editor.item_editor.buttons.add_item.${itemType}.enabled`);
     },
     addOptionButtonTitleConfig() {
@@ -453,7 +537,7 @@ export default {
         var currentItem = {};
         currentItem["value"] = itemIndex;
         var itemType = this.$t(`editor.item_editor.dropdown.${item.type}`);
-        currentItem["text"] = `${itemType} ${itemIndex + 1}`;
+        currentItem["label"] = `${itemType} ${itemIndex + 1}`;
         optionsList.push(currentItem);
       });
 
@@ -477,6 +561,28 @@ export default {
         this.localItemList[this.localSelectedItemIndex].details.text = value;
       },
     },
+    maxCharLimit: {
+      get() {
+        // extract the character limit from the item
+        if (this.localItemList[this.localSelectedItemIndex] == null) return null;
+        return this.localItemList[this.localSelectedItemIndex].details.max_char_limit || 100;
+      },
+      set(value) {
+        // set the character limit in the item
+        this.localItemList[this.localSelectedItemIndex].details.max_char_limit = value;
+      },
+    },
+    isMaxCharLimitSet: {
+      get() {
+        // extract whether character limit is set from the item
+        if (this.localItemList[this.localSelectedItemIndex] == null) return false;
+        return this.localItemList[this.localSelectedItemIndex].details.has_char_limit;
+      },
+      set(value) {
+        // set whether character limit exists in the item
+        this.localItemList[this.localSelectedItemIndex].details.has_char_limit = value;
+      },
+    },
     timeObject: {
       // this object contains four keys - 'hour', 'minute', 'second'
       // and 'millisecond' - all are type Number
@@ -496,8 +602,7 @@ export default {
         this.checkTimeInputErrors(timeInSeconds);
 
         // update the local time values if no error is present
-        if (!this.isAnyError)
-          this.localItemList[this.localSelectedItemIndex].time = timeInSeconds;
+        if (!this.isAnyError) this.localItemList[this.localSelectedItemIndex].time = timeInSeconds;
       },
     },
     options: {
@@ -527,6 +632,8 @@ export default {
     "delete-option",
     "error-occurred",
     "error-resolved",
+    "update:questionTypeIndex",
+    "question-type-changed",
   ],
 };
 </script>

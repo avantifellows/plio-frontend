@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-1 gap-y-1">
+  <div class="grid grid-cols-1">
     <div class="flex justify-between">
       <!-- title for the input box -->
       <p class="text-xs pl-2">{{ title }}</p>
@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <div class="flex relative items-center">
+    <div class="flex relative mt-1 items-center">
       <!-- start icon -->
       <div
         v-if="isStartIconEnabled"
@@ -35,12 +35,13 @@
 
       <!-- input text area -->
       <input
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:shadow-outline w-full overflow-ellipsis"
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
         type="text"
         name="placeholder"
         :placeholder="placeholder"
         v-model="localValue"
         @input="inputChange"
+        @keypress="keyPress"
         :class="[inputAreaClass, boxStyling]"
         :maxLength="maxLength"
         :disabled="isDisabled"
@@ -188,10 +189,7 @@ export default {
     },
     startIconClass() {
       // gets the start icon name from the prop
-      return [
-        this.startIcon.class,
-        { "cursor-not-allowed pointer-events-none opacity-50": this.isStartIconDisabled },
-      ];
+      return [this.startIcon.class, { "cursor-not-allowed pointer-events-none opacity-50": this.isStartIconDisabled }];
     },
     startIconTooltip() {
       // returns the tooltip text for the side icon
@@ -216,10 +214,7 @@ export default {
     },
     endIconClass() {
       // gets the end icon name from the prop
-      return [
-        this.endIcon.class,
-        { "cursor-not-allowed pointer-events-none opacity-50": this.isEndIconDisabled },
-      ];
+      return [this.endIcon.class, { "cursor-not-allowed pointer-events-none opacity-50": this.isEndIconDisabled }];
     },
     endIconTooltip() {
       // returns the tooltip text for the end icon
@@ -251,6 +246,10 @@ export default {
       // invoked on input change
       this.$emit("input", this.value);
     },
+    keyPress(event) {
+      // invoked when a key is pressed
+      this.$emit("keypress", event);
+    },
     startIconSelected() {
       // invoked on start icon being selected
       this.$emit("start-icon-selected", this.value);
@@ -260,6 +259,6 @@ export default {
       this.$emit("end-icon-selected", this.value);
     },
   },
-  emits: ["input", "update:value", "start-icon-selected", "end-icon-selected"],
+  emits: ["input", "keypress", "update:value", "start-icon-selected", "end-icon-selected"],
 };
 </script>

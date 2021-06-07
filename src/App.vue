@@ -3,7 +3,11 @@
     <div class="w-full" :class="{ 'opacity-20 pointer-events-none': coverBackground }" @keydown="keyboardPressed">
       <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
         <!-- top left logo -->
-        <router-link :to="{ name: 'Home', params: { org: activeWorkspace } }" class="h-14 w-11 justify-self-start place-self-center" v-if="!onLoginPage">
+        <router-link
+          :to="{ name: 'Home', params: { org: activeWorkspace } }"
+          class="h-14 w-11 justify-self-start place-self-center"
+          v-if="!onLoginPage"
+        >
           <img class="h-full w-full object-scale-down" id="logo" src="@/assets/images/logo.png" />
         </router-link>
 
@@ -19,7 +23,12 @@
 
         <!-- create plio button -->
         <div v-if="showCreateButton" class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1">
-          <icon-button :titleConfig="createButtonTextConfig" :buttonClass="createButtonClass" class="rounded-md shadow-lg" @click="createNewPlio"></icon-button>
+          <icon-button
+            :titleConfig="createButtonTextConfig"
+            :buttonClass="createButtonClass"
+            class="rounded-md shadow-lg"
+            @click="createNewPlio"
+          ></icon-button>
         </div>
 
         <div class="grid col-start-6 col-end-8 justify-items-end sm:col-start-7">
@@ -51,10 +60,14 @@
         <p class="text-center text-2xl sm:text-4xl py-4 sm:py-8">Select your language</p>
         <div class="grid grid-cols-2 space-x-2">
           <div class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer">
-            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white" @click="setLocale('en')">English</p>
+            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white" @click="setLocale('en')">
+              English
+            </p>
           </div>
           <div class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer">
-            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white" @click="setLocale('hi')">हिंदी</p>
+            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white" @click="setLocale('hi')">
+              हिंदी
+            </p>
           </div>
         </div>
       </div>

@@ -9,12 +9,16 @@
         @click="reviseClicked"
       ></icon-button>
       <!-- icon to show correct/wrong option result -->
-      <inline-svg
-        :src="answerCorrectnessIcon"
-        :class="answerCorrectnessIconClass"
-        class="w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 place-self-center ml-4"
-        v-else
-      ></inline-svg>
+      <div class="flex items-center space-x-4" v-if="isAnswerSubmitted">
+        <inline-svg
+          :src="answerCorrectnessIcon"
+          :class="answerCorrectnessIconClass"
+          class="w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 place-self-center ml-4"
+        ></inline-svg>
+        <p class="text-md sm:text-lg lg:text-2xl" :class="answerFeedbackTextClass" v-if="hasAnyAnswerFeedback">
+          {{ answerFeedbackText }}
+        </p>
+      </div>
     </div>
     <!-- button to enter/exit fullscreen -->
     <div class="hidden bp-500:block">
@@ -30,7 +34,7 @@
         :titleConfig="submitButtonTitleConfig"
         :buttonClass="submitButtonClass"
         v-if="!isAnswerSubmitted"
-        :isDisabled="isSubmitDisabled"
+        :isDisabled="!isSubmitEnabled"
         @click="submitClicked"
       ></icon-button>
       <!-- proceed button -->
@@ -59,8 +63,8 @@ export default {
       default: false,
       type: Boolean,
     },
-    isOptionSelected: {
-      // whether an option has been selected
+    isSubmitEnabled: {
+      // whether the submit button is enabled
       default: false,
       type: Boolean,
     },
@@ -74,8 +78,22 @@ export default {
       default: false,
       type: Boolean,
     },
+    answerFeedbackText: {
+      // text to be used as feedback once answer is submitted
+      default: "",
+      type: String,
+    },
+    answerFeedbackTextClass: {
+      // class for the text to be used as feedback once answer is submitted
+      default: "",
+      type: String,
+    },
   },
   computed: {
+    hasAnyAnswerFeedback() {
+      // whether any text has been provided to be used as feedback once an answer has been submitted
+      return this.answerFeedbackText != "";
+    },
     localIsFullscreen: {
       // local copy of isFullscreen prop
       get() {
@@ -158,10 +176,6 @@ export default {
         "text-red-500": !this.isAnswerCorrect,
       };
     },
-    isSubmitDisabled() {
-      // whether the submit button is disabled
-      return !this.isOptionSelected;
-    },
   },
   methods: {
     submitClicked() {
@@ -181,11 +195,6 @@ export default {
       this.localIsFullscreen = !this.localIsFullscreen;
     },
   },
-  emits: [
-    "submit-question",
-    "revise-question",
-    "proceed-question",
-    "update:isFullscreen",
-  ],
+  emits: ["submit-question", "revise-question", "proceed-question", "update:isFullscreen"],
 };
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-1 gap-y-1">
+  <div class="grid grid-cols-1">
     <div class="flex justify-between">
       <!-- title for the input box -->
       <p class="text-xs pl-2">{{ title }}</p>
@@ -21,11 +21,11 @@
       </div>
     </div>
 
-    <div class="flex relative">
+    <div class="flex relative mt-1">
       <!-- left icon -->
       <div
         v-if="isStartIconEnabled"
-        class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center text-xl w-5 inset-y-1/4 left-1.5"
+        class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center w-5 inset-y-1/4 left-1.5"
         @click="startIconSelected"
         :class="startIconClass"
       >
@@ -34,13 +34,16 @@
 
       <!-- input text area -->
       <textarea
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-blue-300 focus:shadow-outline w-full"
-        name="placeholder"
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
+        :class="[inputAreaClass, boxStyling]"
+        :disabled="isDisabled"
         :placeholder="placeholder"
         v-model="localValue"
-        @input="inputChange"
-        :class="[inputAreaClass, boxStyling]"
+        name="placeholder"
         autocomplete="off"
+        @input="inputChange"
+        @keypress="keyPress"
+        @keydown="keyDown"
       />
     </div>
   </div>
@@ -87,8 +90,15 @@ export default {
     boxStyling: {
       // pass any classes that need to be added to the input
       // boxes
-      default: () => {},
+      default: () => {
+        return "focus:ring-primary";
+      },
       type: [Object, String],
+    },
+    isDisabled: {
+      // whether the input area is disabled
+      default: false,
+      type: Boolean,
     },
   },
   computed: {
@@ -164,11 +174,19 @@ export default {
       // invoked on input change
       this.$emit("input", this.value);
     },
+    keyPress(event) {
+      // invoked by pressing a key
+      this.$emit("keypress", event);
+    },
+    keyDown(event) {
+      // invoked by the event keydown
+      this.$emit("keydown", event);
+    },
     startIconSelected() {
       // invoked on start icon being selected
       this.$emit("start-icon-selected", this.value);
     },
   },
-  emits: ["input", "update:value", "start-icon-selected"],
+  emits: ["input", "keypress", "keydown", "update:value", "start-icon-selected"],
 };
 </script>

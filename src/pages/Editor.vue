@@ -1,6 +1,6 @@
 <template>
   <!--- base grid -->
-  <div class="flex relative justify-center">
+  <div class="flex relative justify-center md:mx-4 lg:mx-10 xl:mx-20">
     <div
       class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
       :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
@@ -8,22 +8,15 @@
       <!--- preview grid -->
       <div class="flex flex-col ml-5 mr-5">
         <!--- plio link -->
-        <URL
-          :link="plioLink"
-          class="justify-center m-4"
-          :urlStyleClass="urlStyleClass"
-          :isUnderlined="true"
-        ></URL>
+        <URL :link="plioLink" class="justify-center m-4" :urlStyleClass="urlStyleClass" :isUnderlined="true"></URL>
 
         <div class="justify-center">
           <!--- video preview -->
           <div v-if="!isVideoIdValid" class="flex justify-center">
-            <div class="flex relative justify-center">
-              <img src="@/assets/images/plain.svg" />
-              <img
-                src="@/assets/images/play.svg"
-                class="absolute place-self-center w-12 h-12"
-              />
+            <div class="flex relative justify-center w-full">
+              <div
+                class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-96 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
+              ></div>
             </div>
           </div>
           <div v-else>
@@ -65,7 +58,6 @@
                 ></item-modal>
               </transition>
             </div>
-
             <!--- slider with question markers -->
             <slider-with-markers
               :end="videoDuration"
@@ -81,8 +73,21 @@
           </div>
         </div>
 
+        <div
+          v-if="isQuestionTypeSubjective"
+          class="mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
+        >
+          <inline-svg
+            :src="getIconSource('exclamation-circle-solid.svg')"
+            class="w-10 h-10 text-yellow-600 fill-current"
+          ></inline-svg>
+          <p class="text-yellow-600">
+            Subjective Questions are not included while calculating the accuracy in the dashboard
+          </p>
+        </div>
+
         <!--- buttons -->
-        <div class="flex justify-between mt-10">
+        <div class="flex justify-between md:justify-start md:space-x-4 mt-10">
           <!--- button to go back to home -->
           <icon-button
             :titleConfig="backButtonTitleConfig"
@@ -139,30 +144,56 @@
           ></input-text>
         </div>
 
-        <div class="flex justify-center py-2 mt-10">
-          <!-- big add item button -->
-          <div class="w-2/3" v-if="currentItemIndex == null">
-            <icon-button
-              :iconConfig="addItemIconConfig"
-              :titleConfig="addItemTitleConfig"
-              :buttonClass="addItemButtonClass"
-              @click="addNewItem"
-              :disabled="addItemDisabled"
-              v-tooltip="addItemTooltip"
-            ></icon-button>
+        <div class="flex justify-center py-2 mt-8 sm:mt-10 mb-16">
+          <!-- boxes for adding different types of items -->
+          <div
+            class="bg-peach rounded-lg p-4 xsm:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
+            :class="itemPickerClass"
+            v-if="currentItemIndex == null"
+            v-tooltip.bottom="addItemTooltip"
+          >
+            <p class="text-yellow-900 text-xl font-bold">Add a new question</p>
+            <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
+              <button
+                :disabled="addItemDisabled"
+                @click="addNewItem('mcq')"
+                class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
+                :class="questionTypeSelectorClass"
+              >
+                <inline-svg
+                  :src="getIconSource('radio-button.svg')"
+                  class="h-4 w-4 fill-current text-primary group-hover:text-white"
+                ></inline-svg>
+                <p class="font-bold text-center">Multiple Choice</p>
+              </button>
+              <button
+                :disabled="addItemDisabled"
+                @click="addNewItem('subjective')"
+                class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
+                :class="questionTypeSelectorClass"
+              >
+                <inline-svg
+                  :src="getIconSource('subjective-question.svg')"
+                  class="w-20 fill-current text-primary group-hover:text-white"
+                ></inline-svg>
+                <p class="font-bold text-center">Subjective</p>
+              </button>
+            </div>
           </div>
           <!--- item editor  -->
           <item-editor
             v-if="hasAnyItems && currentItemIndex != null"
             v-model:itemList="items"
             v-model:selectedItemIndex="currentItemIndex"
-            @update:selectedItemIndex="navigateToItem"
             :videoDuration="videoDuration"
+            :isInteractionDisabled="isPublished"
+            v-model:questionTypeIndex="currentQuestionTypeIndex"
+            @update:selectedItemIndex="navigateToItem"
             @delete-selected-item="deleteItemButtonClicked"
             @delete-option="deleteOption"
-            :isInteractionDisabled="isPublished"
             @error-occurred="setErrorOccurred"
             @error-resolved="setErrorResolved"
+            @question-type-changed="questionTypeChanged"
           ></item-editor>
         </div>
       </div>
@@ -197,6 +228,7 @@ import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import ItemModal from "../components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
+import Utilties from "@/services/Functional/Utilities.js";
 
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
@@ -238,6 +270,7 @@ export default {
       plioTitle: "", // title for the current plio
       currentTimestamp: 0, // current timestamp
       currentItemIndex: null, // current item being displayed
+      currentQuestionTypeIndex: 0, // index of the current question type being created
       plyrConfig: {
         controls: ["play-large", "play", "volume", "current-time"],
         invertTime: false,
@@ -276,10 +309,14 @@ export default {
       plioDBId: null, // store the DB id of plio object
       anyErrorsPresent: false, // store if any errors are present or not
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
+      // mapping of questionType value to index in the list of question types
+      questionTypeToIndex: {
+        "mcq": 0,
+        "subjective": 1,
+      },
       isModalMinimized: false, // whether the preview modal is minimized or not
       // styling class for the minimize button
-      maximizeButtonClass:
-        "bg-primary hover:bg-primary-hover p-2 pl-2 pr-2 sm:p-2 rounded-md shadow-xl",
+      maximizeButtonClass: "bg-primary hover:bg-primary-hover p-2 pl-2 pr-2 sm:p-2 rounded-md shadow-xl",
     };
   },
   async created() {
@@ -337,6 +374,19 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading"]),
+    isQuestionTypeSubjective() {
+      // whether the type of the question being created is subjective
+      if (this.currentItemIndex == null) return false;
+      return this.items[this.currentItemIndex].details.type == "subjective";
+    },
+    itemPickerClass() {
+      // class for the item picker
+      return { "opacity-30 cursor-not-allowed": this.addItemDisabled };
+    },
+    questionTypeSelectorClass() {
+      // class for the question type selectors
+      return { "hover:bg-primary hover:text-white hover:border-primary": !this.addItemDisabled };
+    },
     currentItemType() {
       // type of the current selected item -
       // eg - question, note etc
@@ -464,8 +514,7 @@ export default {
       // class for the publish button
       return [
         {
-          "opacity-50 cursor-not-allowed pointer-events-none": !this
-            .isPublishButtonEnabled,
+          "opacity-50 cursor-not-allowed pointer-events-none": !this.isPublishButtonEnabled,
         },
         `rounded-md ring-green-500`,
       ];
@@ -473,12 +522,10 @@ export default {
     publishButtonTooltip() {
       // tooltip text for publish button
       if (!this.isPublished) {
-        if (!this.isPublishButtonEnabled)
-          return this.$t("tooltip.editor.publish.draft.disabled");
+        if (!this.isPublishButtonEnabled) return this.$t("tooltip.editor.publish.draft.disabled");
         return this.$t("tooltip.editor.publish.draft.enabled");
       }
-      if (!this.isPublishButtonEnabled)
-        return this.$t("tooltip.editor.publish.published.disabled");
+      if (!this.isPublishButtonEnabled) return this.$t("tooltip.editor.publish.published.disabled");
       return this.$t("tooltip.editor.publish.published.enabled");
     },
     lastUpdatedStr() {
@@ -577,6 +624,11 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
+    ...Utilties,
+    questionTypeChanged(newQuestionType) {
+      // invoked when the question type is changed
+      this.items[this.currentItemIndex].details.type = newQuestionType;
+    },
     minimizeModal(positions) {
       // invoked when minimize button is clicked
 
@@ -630,13 +682,7 @@ export default {
       // check if the time after drag is valid and if not, set the item time
       // back to the one before the drag
       // else proceed with the new time
-      if (
-        !ItemFunctionalService.isTimestampValid(
-          itemTimestamp,
-          this.itemTimestamps,
-          itemIndex
-        )
-      ) {
+      if (!ItemFunctionalService.isTimestampValid(itemTimestamp, this.itemTimestamps, itemIndex)) {
         this.items[itemIndex]["time"] = timeBeforeDragEnded;
         itemTimestamp = timeBeforeDragEnded;
         this.showCannotAddItemDialog();
@@ -655,8 +701,7 @@ export default {
     },
     checkItemToSelect(timestamp) {
       // checks if an item is to be selected and marks/unmarks accordingly
-      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
-        return;
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY) return;
       this.lastCheckTimestamp = timestamp;
       var selectedItemIndex = ItemFunctionalService.checkItemPopup(
         timestamp,
@@ -688,6 +733,7 @@ export default {
         this.isItemSelected = true;
         this.player.pause();
         this.currentItemIndex = itemIndex;
+        this.currentQuestionTypeIndex = this.questionTypeToIndex[this.items[itemIndex].details.type];
       }
     },
     markNoItemSelected() {
@@ -727,7 +773,7 @@ export default {
     async loadPlio() {
       // fetch plio details
       await PlioAPIService.getPlio(this.plioId)
-        .then((plioDetails) => {
+        .then(plioDetails => {
           this.items = plioDetails.items || [];
           this.videoURL = plioDetails.video_url || "";
           this.plioTitle = plioDetails.plioTitle || "";
@@ -799,8 +845,7 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
@@ -844,8 +889,7 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.got_it"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: false,
@@ -866,8 +910,7 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.got_it"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: false,
@@ -910,10 +953,7 @@ export default {
       }
 
       // delete the option
-      this.items[this.currentItemIndex].details.options.splice(
-        this.optionIndexToDelete,
-        1
-      );
+      this.items[this.currentItemIndex].details.options.splice(this.optionIndexToDelete, 1);
       // if the deleted option was the correct answer, reset the correct answer
       if (this.optionIndexToDelete == this.correctOptionIndex) {
         this.items[this.currentItemIndex].details.correct_answer = 0;
@@ -924,11 +964,6 @@ export default {
       // returns the type of item being added when add item button is clicked
       return "question";
     },
-    getQuestionTypeForNewQuestion() {
-      // returns the type of question being added when add item button is clicked
-      // only "mcq" questions are supported as of now
-      return "mcq";
-    },
     getMetadataForNewItem() {
       // returns a metadata object which contains only the name of the source from where
       // the question is coming from.
@@ -938,30 +973,27 @@ export default {
       meta["source"]["name"] = "default";
       return meta;
     },
-    getDetailsForNewQuestion() {
+    getDetailsForNewQuestion(questionType) {
       // barebones question structure
       var details = {};
       details["correct_answer"] = 0;
       details["text"] = "";
-      details["type"] = this.getQuestionTypeForNewQuestion();
+      details["type"] = questionType;
       details["options"] = ["", ""];
+      details["max_char_limit"] = 100;
       return details;
     },
-    addNewItem() {
+    addNewItem(questionType) {
       this.player.pause();
       const currentTimestamp = this.currentTimestamp;
       // newItem object will store the information of the newly created
       // item and the question
       var newItem = {};
-
       // check if the time where user is trying to add an item is valid or not
-      if (
-        !ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)
-      ) {
+      if (!ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)) {
         this.showCannotAddItemDialog();
         return;
       }
-
       // create item, then create the question, then update local states
       ItemAPIService.createItem({
         plio: this.plioDBId,
@@ -969,16 +1001,16 @@ export default {
         time: currentTimestamp,
         meta: this.getMetadataForNewItem(),
       })
-        .then((createdItem) => {
+        .then(createdItem => {
           // storing the newly created item into "newItem"
           newItem = createdItem;
           if (createdItem.type == "question") {
-            var questionDetails = this.getDetailsForNewQuestion();
+            var questionDetails = this.getDetailsForNewQuestion(questionType);
             questionDetails.item = createdItem.id;
             return QuestionAPIService.createQuestion(questionDetails);
           }
         })
-        .then((createdQuestion) => {
+        .then(createdQuestion => {
           // storing the newly created question into "newItem"
           newItem.details = createdQuestion;
           // push it into items, update the itemTimestamps and currentItemIndex
@@ -992,14 +1024,11 @@ export default {
       // invoked when the delete item button is clicked
       // set dialog properties
       this.dialogTitle = this.$t(`editor.dialog.delete_item.${this.itemType}.title`);
-      this.dialogDescription = this.$t(
-        `editor.dialog.delete_item.${this.itemType}.description`
-      );
+      this.dialogDescription = this.$t(`editor.dialog.delete_item.${this.itemType}.description`);
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
