@@ -78,7 +78,7 @@
           class="mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
         >
           <inline-svg
-            :src="require('@/assets/images/exclamation-circle-solid.svg')"
+            :src="getIconSource('exclamation-circle-solid.svg')"
             class="w-10 h-10 text-yellow-600 fill-current"
           ></inline-svg>
           <p class="text-yellow-600">
@@ -157,24 +157,24 @@
               <button
                 :disabled="addItemDisabled"
                 @click="addNewItem('mcq')"
-                class="w-10/12 flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
+                class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                 :class="questionTypeSelectorClass"
               >
                 <inline-svg
-                  :src="require('@/assets/images/radio-button.svg')"
-                  class="h-4 w-4 fill-current"
+                  :src="getIconSource('radio-button.svg')"
+                  class="h-4 w-4 fill-current text-primary group-hover:text-white"
                 ></inline-svg>
                 <p class="font-bold text-center">Multiple Choice</p>
               </button>
               <button
                 :disabled="addItemDisabled"
                 @click="addNewItem('subjective')"
-                class="w-10/12 flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
+                class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                 :class="questionTypeSelectorClass"
               >
                 <inline-svg
-                  :src="require('@/assets/images/subjective-question.svg')"
-                  class="w-20 fill-current"
+                  :src="getIconSource('subjective-question.svg')"
+                  class="w-20 fill-current text-primary group-hover:text-white"
                 ></inline-svg>
                 <p class="font-bold text-center">Subjective</p>
               </button>
@@ -228,6 +228,7 @@ import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import ItemModal from "../components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
+import Utilties from "@/services/Functional/Utilities.js";
 
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
@@ -623,6 +624,7 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
+    ...Utilties,
     questionTypeChanged(newQuestionType) {
       // invoked when the question type is changed
       this.items[this.currentItemIndex].details.type = newQuestionType;

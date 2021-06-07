@@ -24,7 +24,7 @@
         :hasCharLimit="hasCharLimit"
         :maxCharLimit="maxCharLimit"
         @option-selected="optionSelected"
-        @answer-updated="answerUpdated"
+        @answer-updated="subjectiveAnswerUpdated"
         :previewMode="previewMode"
       ></item-question-body>
       <!-- footer -->
@@ -119,7 +119,6 @@ export default {
     },
     hasCharLimit() {
       // whether the question has a character limit if the item is a question
-      if (!this.isItemQuestion || !this.isQuestionTypeSubjective) return false;
       return this.currentItem["details"]["has_char_limit"];
     },
     maxCharLimit() {
@@ -224,7 +223,7 @@ export default {
     },
   },
   methods: {
-    answerUpdated(answer) {
+    subjectiveAnswerUpdated(answer) {
       // invoked when the answer to a subjective question is updated
       this.draftResponses[this.selectedItemIndex] = answer;
     },

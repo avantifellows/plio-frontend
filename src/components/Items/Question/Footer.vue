@@ -1,7 +1,6 @@
 <template>
   <div :class="containerClass">
     <div class="place-self-start flex h-full">
-      `
       <!-- revise button -->
       <icon-button
         :titleConfig="reviseButtonTitleConfig"
@@ -65,7 +64,7 @@ export default {
       type: Boolean,
     },
     isSubmitEnabled: {
-      // whether the submit option is enabled
+      // whether the submit button is enabled
       default: false,
       type: Boolean,
     },

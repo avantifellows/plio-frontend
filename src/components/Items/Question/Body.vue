@@ -41,15 +41,14 @@
       <!-- input area for the answer -->
       <Textarea
         :placeholder="subjectiveAnswerInputPlaceholder"
-        title=""
         class="px-2 w-full"
         v-model:value="subjectiveAnswer"
-        :boxStyling="'px-4 placeholder-gray-400 bp-420:h-20 sm:h-28 md:h-36 focus:border-gray-200 focus:ring-transparent'"
+        boxStyling="px-4 placeholder-gray-400 bp-420:h-20 sm:h-28 md:h-36 focus:border-gray-200 focus:ring-transparent"
         :isDisabled="isAnswerSubmitted || previewMode"
         @keypress="checkCharLimit"
       ></Textarea>
       <!-- character limit -->
-      <div class="h-full flex items-end px-6" v-if="hasCharLimit && !isAnswerSubmitted">
+      <div class="h-full flex items-end px-6 mt-2" v-if="hasCharLimit && !isAnswerSubmitted">
         <p class="text-sm sm:text-base lg:text-lg font-bold" :class="maxCharLimitClass">{{ charactersLeft }}</p>
       </div>
     </div>
@@ -90,12 +89,12 @@ export default {
       type: Number,
     },
     submittedAnswer: {
-      // index of the answer
+      // answer for the question which has been submitted
       default: null,
       type: [String, Number],
     },
     draftAnswer: {
-      // index of the option selected but not yet submitted
+      // answer for the question which has been entered but not submitted
       default: null,
       type: [String, Number],
     },

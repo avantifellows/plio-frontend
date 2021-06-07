@@ -1,27 +1,26 @@
 <template>
   <div>
-    <div :class="selectedOptionClass">
-      <div class="relative">
-        <!-- selected option -->
-        <button
-          type="button"
-          @click="toggleDropdownDisplay"
-          :disabled="isDisabled"
-          class="disabled:opacity-50 w-full flex space-x-2 bg-primary rounded-lg shadow-lg p-2 text-left cursor-default focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:text-sm items-center"
-        >
-          <span class="flex flex-1 space-x-2 items-center">
-            <inline-svg
-              :src="getIconSource(selectedOption.icon)"
-              class="text-white h-4 w-full bp-420:w-2/3 bp-500:w-full sm:w-2/3 fill-current"
-            ></inline-svg>
-          </span>
-          <!-- dropdown icon -->
+    <div :class="selectedOptionClass" class="relative">
+      <!-- selected option -->
+      <button
+        type="button"
+        @click="toggleDropdownDisplay"
+        :disabled="isDisabled"
+        class="disabled:opacity-50 w-full flex space-x-2 bg-primary rounded-lg shadow-lg p-2 text-left cursor-default focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:text-sm items-center"
+      >
+        <span class="flex flex-1 space-x-2 items-center">
           <inline-svg
-            :src="require('@/assets/images/chevron-down-solid-white.svg')"
-            class="h-4 w-4 text-primary fill-current"
+            :src="getIconSource(selectedOption.icon)"
+            class="text-white h-4 w-full bp-420:w-2/3 bp-500:w-full sm:w-2/3 fill-current"
           ></inline-svg>
-        </button>
-      </div>
+        </span>
+        <!-- dropdown icon -->
+        <inline-svg
+          :src="getIconSource('chevron-down-solid-white.svg')"
+          class="h-4 w-4 text-primary fill-current"
+          :class="dropdownIconClass"
+        ></inline-svg>
+      </button>
     </div>
     <!-- options -->
     <div
@@ -31,8 +30,6 @@
       <ul
         tabindex="-1"
         role="listbox"
-        aria-labelledby="listbox-label"
-        aria-activedescendant="listbox-item-3"
         class="max-h-56 text-base py-2 ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
       >
         <li
@@ -53,17 +50,19 @@
 </template>
 
 <script>
+import Utilties from "@/services/Functional/Utilities.js";
+
 export default {
   name: "QuestionTypeDropdown",
   data() {
     return {
-      selectedOptionIndex: this.selectedIndex, // index of the selected option
+      localSelectedIndex: this.selectedIndex, // index of the selected option
       showDropdown: false, // whether to show the dropdown for choosing an option
     };
   },
   props: {
     options: {
-      // the list of options
+      // the list of options in the dropdown
       type: Array,
       default: () => [],
     },
@@ -79,9 +78,12 @@ export default {
     },
   },
   computed: {
+    dropdownIconClass() {
+      return [{ "transform rotate-180": this.showDropdown }, "transition ease duration-800"];
+    },
     selectedOption() {
       // the selected option
-      return this.options[this.selectedOptionIndex];
+      return this.options[this.localSelectedIndex];
     },
     selectedOptionClass() {
       // class for the selected option
@@ -93,19 +95,20 @@ export default {
   },
   watch: {
     selectedIndex() {
-      this.selectedOptionIndex = this.selectedIndex;
+      this.localSelectedIndex = this.selectedIndex;
     },
     isDisabled(value) {
-      if (value) this.showDropdown = false;
+      if (value && this.showDropdown) {
+        this.showDropdown = false;
+        this.$emit("toggle-visibility", this.showDropdown);
+      }
     },
   },
   methods: {
-    getIconSource(iconName) {
-      return require(`@/assets/images/${iconName}`);
-    },
+    ...Utilties,
     setOption(index) {
       // sets the given index as the selected option index
-      this.selectedOptionIndex = index;
+      this.localSelectedIndex = index;
       this.$emit("update:selectedIndex", index);
       this.toggleDropdownDisplay();
     },

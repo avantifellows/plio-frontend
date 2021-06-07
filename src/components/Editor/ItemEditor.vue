@@ -6,7 +6,7 @@
       <QuestionTypeDropdown
         class="w-full"
         @toggle-visibility="toggleQuestionTypeDropdown"
-        :options="questionTypeOptions"
+        :options="questionTypes"
         v-model:selectedIndex="localQuestionTypeIndex"
         :isDisabled="isInteractionDisabled"
       ></QuestionTypeDropdown>
@@ -14,7 +14,7 @@
     <!-- nav bar -->
     <div class="flex space-x-1 flex-row w-full p-4 justify-end">
       <!-- dropdown for choosing items -->
-      <ItemDropDown :optionsList="itemOptionsList" v-model:value="localSelectedItemIndex" class="mr-0"></ItemDropDown>
+      <Dropdown :optionsList="itemOptionsList" v-model:value="localSelectedItemIndex" class="mr-0"></Dropdown>
 
       <!-- previous item button -->
       <icon-button
@@ -130,8 +130,6 @@
             :boxStyling="charLimitBoxClass"
             @keypress="maxCharLimitInputKeypress"
           ></input-text>
-          <!-- :isDisabled="isDisabled"
-        v-tooltip.bottom="disabledInputTooltip" -->
           <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">CHARACTERS ALLOWED</p>
         </div>
       </div>
@@ -141,7 +139,7 @@
 
 <script>
 import IconButton from "../UI/Buttons/IconButton.vue";
-import ItemDropDown from "../UI/DropDownMenu/ItemDropDown.vue";
+import Dropdown from "../UI/DropDownMenu/Dropdown.vue";
 import QuestionTypeDropdown from "@/components/Editor/QuestionTypeDropdown.vue";
 import InputText from "../UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
@@ -200,7 +198,7 @@ export default {
       timeExceedsWarning: "The time entered exceeds the video duration",
       itemInVicinityWarning: "Questions should be at least 2 seconds apart",
       // all the options for the question types
-      questionTypeOptions: [
+      questionTypes: [
         {
           value: "mcq",
           label: "Multiple Choice",
@@ -212,23 +210,13 @@ export default {
           icon: "subjective-question.svg",
         },
       ],
-      localQuestionTypeIndex: this.questionTypeIndex, // local copy of the current question type index
       isQuestionDropdownShown: false, // whether the question type dropdown is shown
-      // isMaxCharLimitSet: false, // whether the max char limit has been set
-      // maxCharLimit: 100, // the max char limit
     };
   },
 
   watch: {
-    localQuestionTypeIndex() {
-      this.$emit("update:questionTypeIndex", this.localQuestionTypeIndex);
-      this.$emit("question-type-changed", this.questionTypeOptions[this.localQuestionTypeIndex]["value"]);
-    },
-    questionTypeIndex() {
-      this.localQuestionTypeIndex = this.questionTypeIndex;
-    },
     maxCharLimit() {
-      // if the user has not set the limit as empty - reset it back to 100
+      // if the user has not set the limit - reset it back to 100
       if (this.maxCharLimit == "") this.maxCharLimit = 100;
     },
   },
@@ -260,9 +248,8 @@ export default {
       type: Number,
     },
   },
-
   components: {
-    ItemDropDown,
+    Dropdown,
     IconButton,
     InputText,
     TimeInput,
@@ -272,6 +259,7 @@ export default {
   methods: {
     maxCharLimitInputKeypress(event) {
       // invoked when a key is pressed in the input area for setting max limit
+      // only allows numbers as input
       var numberPattern = /[0-9]/g;
       if (event.key.match(numberPattern) == null) event.preventDefault();
     },
@@ -390,9 +378,19 @@ export default {
   },
 
   computed: {
+    localQuestionTypeIndex: {
+      // local copy of the current question type index
+      get() {
+        return this.questionTypeIndex;
+      },
+      set(localQuestionTypeIndex) {
+        this.$emit("update:questionTypeIndex", localQuestionTypeIndex);
+        this.$emit("question-type-changed", this.questionTypes[localQuestionTypeIndex]["value"]);
+      },
+    },
     charLimitBoxClass() {
       // class for the input area to enter max char limit
-      return ["text-center disabled:opacity-50"];
+      return "text-center disabled:opacity-50";
     },
     questionTypeDropdownClass() {
       // class for the question type dropdown
@@ -400,7 +398,7 @@ export default {
     },
     questionType() {
       // type of the question being created
-      return this.questionTypeOptions[this.localQuestionTypeIndex]["value"];
+      return this.questionTypes[this.localQuestionTypeIndex]["value"];
     },
     isQuestionTypeMCQ() {
       // whether the type of the question being created is mcq
@@ -623,7 +621,6 @@ export default {
     "error-resolved",
     "update:questionTypeIndex",
     "question-type-changed",
-    "toggle-max-char-limit",
   ],
 };
 </script>

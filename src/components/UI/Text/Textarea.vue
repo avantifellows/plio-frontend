@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-1 my-2">
+  <div class="grid grid-cols-1">
     <div class="flex justify-between">
       <!-- title for the input box -->
       <p class="text-xs pl-2">{{ title }}</p>
@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <div class="flex relative">
+    <div class="flex relative mt-1">
       <!-- left icon -->
       <div
         v-if="isStartIconEnabled"

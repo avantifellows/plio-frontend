@@ -8,4 +8,9 @@ export default {
     if (activeWorkspace != "") baseURL += "/" + activeWorkspace;
     return baseURL + "/play/" + plioId;
   },
+
+  getIconSource(iconName) {
+    // returns the source of an icon given the name
+    return require(`@/assets/images/${iconName}`);
+  },
 };

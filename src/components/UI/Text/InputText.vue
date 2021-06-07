@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-1 gap-y-1">
+  <div class="grid grid-cols-1">
     <div class="flex justify-between">
       <!-- title for the input box -->
       <p class="text-xs pl-2">{{ title }}</p>
@@ -35,7 +35,7 @@
 
       <!-- input text area -->
       <input
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full border-gray-200"
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
         type="text"
         name="placeholder"
         :placeholder="placeholder"

@@ -13,7 +13,7 @@
 
 <script>
 export default {
-  name: "ItemDropDown",
+  name: "Dropdown",
   props: {
     optionsList: {
       default: () => [],
