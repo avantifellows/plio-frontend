@@ -109,7 +109,7 @@ export default {
   computed: {
     answerFeedbackText() {
       // text to be used as feedback once answer is submitted
-      if (this.isQuestionTypeSubjective) return "Submitted";
+      if (this.isQuestionTypeSubjective) return this.$t("generic.submitted");
       return "";
     },
     answerFeedbackTextClass() {

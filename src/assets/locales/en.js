@@ -22,13 +22,17 @@ export default {
       placeholder: "Enter the name of the Plio",
       title: "Plio Title",
     },
+    headings: {
+      add_question: "Add a new question",
+      subjective_question_warning:
+        "Subjective Questions are not included while calculating the accuracy in the dashboard",
+    },
     buttons: {
       home: "Home",
       publish: {
         draft: "Publish Plio",
         published: "Publish Changes",
       },
-      add_question: "Add a question",
       show_video: "Show Video",
       show_question: "Show Question",
     },
@@ -53,6 +57,11 @@ export default {
       },
       heading: {
         question: "EDIT QUESTION",
+        set_character_limit: "Set Character Limit",
+        char_limit: {
+          max: "MAX",
+          chars_allowed: "CHARACTERS ALLOWED",
+        },
       },
     },
     dialog: {
@@ -184,6 +193,7 @@ export default {
       revise: "Revise",
       proceed: "Proceed",
       skip: "Skip",
+      placeholder: "Enter your answer here",
     },
     fullscreen: {
       enter: "Go Fullscreen",
@@ -212,6 +222,9 @@ export default {
     placeholders: {
       empty_title_placeholder: "Untitled",
     },
+    mcq: "Multiple Choice",
+    subjective: "Subjective",
+    submitted: "Submitted",
   },
   tooltip: {
     url: "Copy link",

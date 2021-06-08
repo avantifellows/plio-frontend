@@ -126,12 +126,12 @@
             class="form-checkbox h-5 w-5 text-primary focus:ring-transparent"
             v-model="isMaxCharLimitSet"
             checked
-          /><span class="ml-2 text-gray-700">Set Character Limit</span>
+          /><span class="ml-2 text-gray-700">{{ $t("editor.item_editor.heading.set_character_limit") }}</span>
         </label>
         <!-- the max limit input -->
         <div v-if="isMaxCharLimitSet" class="flex space-x-2 items-center">
           <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">
-            MAX
+            {{ $t("editor.item_editor.heading.char_limit.max") }}
           </p>
           <input-text
             :placeholder="'100'"
@@ -143,7 +143,7 @@
             @keydown="maxCharLimitInputKeydown"
           ></input-text>
           <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">
-            CHARACTERS ALLOWED
+            {{ $t("editor.item_editor.heading.char_limit.chars_allowed") }}
           </p>
         </div>
       </div>
@@ -217,12 +217,12 @@ export default {
       questionTypes: [
         {
           value: "mcq",
-          label: "Multiple Choice",
+          label: this.$t("generic.mcq"),
           icon: "radio-button.svg",
         },
         {
           value: "subjective",
-          label: "Subjective",
+          label: this.$t("generic.subjective"),
           icon: "subjective-question.svg",
         },
       ],
