@@ -1,6 +1,9 @@
 <template>
   <!-- big box -->
-  <div class="flex flex-col w-full h-full rounded-md main-container relative" v-if="localSelectedItemIndex != null">
+  <div
+    class="flex flex-col w-full h-full rounded-md main-container relative"
+    v-if="localSelectedItemIndex != null"
+  >
     <!-- question type picker -->
     <div class="absolute rounded-md mt-4 ml-2 z-5" :class="questionTypeDropdownClass">
       <QuestionTypeDropdown
@@ -14,7 +17,11 @@
     <!-- nav bar -->
     <div class="flex space-x-1 flex-row w-full p-4 justify-end">
       <!-- dropdown for choosing items -->
-      <Dropdown :optionsList="itemOptionsList" v-model:value="localSelectedItemIndex" class="mr-0"></Dropdown>
+      <Dropdown
+        :optionsList="itemOptionsList"
+        v-model:value="localSelectedItemIndex"
+        class="mr-0"
+      ></Dropdown>
 
       <!-- previous item button -->
       <icon-button
@@ -67,6 +74,7 @@
         ref="questionText"
         class="p-2"
         :boxStyling="'pl-4 focus:ring-primary'"
+        :maxHeightLimit="questionTextboxHeightLimit"
       ></Textarea>
 
       <!-- time input HH : MM : SS : mmm -->
@@ -122,7 +130,9 @@
         </label>
         <!-- the max limit input -->
         <div v-if="isMaxCharLimitSet" class="flex space-x-2 items-center">
-          <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">MAX</p>
+          <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">
+            MAX
+          </p>
           <input-text
             :placeholder="'100'"
             v-model:value.number="maxCharLimit"
@@ -132,7 +142,9 @@
             @keypress="maxCharLimitInputKeypress"
             @keydown="maxCharLimitInputKeydown"
           ></input-text>
-          <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">CHARACTERS ALLOWED</p>
+          <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">
+            CHARACTERS ALLOWED
+          </p>
         </div>
       </div>
     </div>
@@ -160,7 +172,8 @@ export default {
         iconClass: "text-white h-5 w-5",
       },
       // styling classes for previous item button
-      previousItemButtonClass: "bg-primary-button hover:bg-primary-button-hover focus:ring-primary shadow-lg",
+      previousItemButtonClass:
+        "bg-primary-button hover:bg-primary-button-hover focus:ring-primary shadow-lg",
       nextItemIconConfig: {
         // icon config for next item button
         enabled: true,
@@ -168,7 +181,8 @@ export default {
         iconClass: "text-white h-5 w-5",
       },
       // styling classes for next item button
-      nextItemButtonClass: "bg-primary-button hover:bg-primary-button-hover focus:ring-primary shadow-lg",
+      nextItemButtonClass:
+        "bg-primary-button hover:bg-primary-button-hover focus:ring-primary shadow-lg",
       addItemIconConfig: {
         // icon config for add item button
         enabled: true,
@@ -213,6 +227,7 @@ export default {
         },
       ],
       isQuestionDropdownShown: false, // whether the question type dropdown is shown
+      questionTextboxHeightLimit: 200, // maximum allowed height of the question text box in px
     };
   },
 
@@ -295,7 +310,13 @@ export default {
       else this.timeExceedsVideoDuration = false;
 
       // check if any other item is in the vicinity of time entered by the user
-      if (!ItemFunctionalService.isTimestampValid(timeInput, this.localItemTimestamps, this.localSelectedItemIndex))
+      if (
+        !ItemFunctionalService.isTimestampValid(
+          timeInput,
+          this.localItemTimestamps,
+          this.localSelectedItemIndex
+        )
+      )
         this.itemInVicinity = true;
       else this.itemInVicinity = false;
     },
@@ -314,7 +335,10 @@ export default {
       return {
         enabled: true,
         name: "check-circle-regular",
-        class: [{ "text-green-500": this.isOptionMarkedCorrect(optionIndex) }, "cursor-pointer"],
+        class: [
+          { "text-green-500": this.isOptionMarkedCorrect(optionIndex) },
+          "cursor-pointer",
+        ],
         tooltip: this.getCorrectOptionTooltip(optionIndex),
       };
     },
@@ -325,7 +349,8 @@ export default {
     },
     getCorrectOptionTooltip(optionIndex) {
       // returns the tooltip for the correct option button for the given option index
-      if (this.isOptionMarkedCorrect(optionIndex)) return this.$t("tooltip.editor.item_editor.correct_option.marked");
+      if (this.isOptionMarkedCorrect(optionIndex))
+        return this.$t("tooltip.editor.item_editor.correct_option.marked");
       return this.$t("tooltip.editor.item_editor.correct_option.unmarked");
     },
     isOptionMarkedCorrect(optionIndex) {
@@ -350,7 +375,9 @@ export default {
       // https://stackoverflow.com/questions/1322732/convert-seconds-to-hh-mm-ss-with-javascript
 
       var timestampObject = {};
-      var isoTime = new Date(Math.floor(timeInSeconds) * 1000).toISOString().substr(11, 8);
+      var isoTime = new Date(Math.floor(timeInSeconds) * 1000)
+        .toISOString()
+        .substr(11, 8);
       var hour = parseInt(isoTime.split(":")[0]);
       var minute = parseInt(isoTime.split(":")[1]);
       var second = parseInt(isoTime.split(":")[2]);
@@ -384,7 +411,9 @@ export default {
     updateCorrectOption(selectedOptionIndex) {
       // when some option is selected as correct, update it in the
       // item list
-      this.localItemList[this.localSelectedItemIndex].details.correct_answer = selectedOptionIndex;
+      this.localItemList[
+        this.localSelectedItemIndex
+      ].details.correct_answer = selectedOptionIndex;
     },
   },
 
@@ -396,7 +425,10 @@ export default {
       },
       set(localQuestionTypeIndex) {
         this.$emit("update:questionTypeIndex", localQuestionTypeIndex);
-        this.$emit("question-type-changed", this.questionTypes[localQuestionTypeIndex]["value"]);
+        this.$emit(
+          "question-type-changed",
+          this.questionTypes[localQuestionTypeIndex]["value"]
+        );
       },
     },
     charLimitBoxClass() {
@@ -405,7 +437,10 @@ export default {
     },
     questionTypeDropdownClass() {
       // class for the question type dropdown
-      return { "w-full": this.isQuestionDropdownShown, "w-1/3": !this.isQuestionDropdownShown };
+      return {
+        "w-full": this.isQuestionDropdownShown,
+        "w-1/3": !this.isQuestionDropdownShown,
+      };
     },
     questionType() {
       // type of the question being created
@@ -449,7 +484,7 @@ export default {
     },
     localItemTimestamps() {
       // returns a list of timestamp values after extracting them from the items
-      return this.localItemList.map(value => value.time);
+      return this.localItemList.map((value) => value.time);
     },
     timeInputErrorStates() {
       // create and pass an object containing info about the error message
@@ -466,7 +501,8 @@ export default {
     },
     addOptionTooltip() {
       // tooltip for add option button
-      if (this.isInteractionDisabled) return this.$t("tooltip.editor.item_editor.buttons.add_option.disabled");
+      if (this.isInteractionDisabled)
+        return this.$t("tooltip.editor.item_editor.buttons.add_option.disabled");
       return this.$t("tooltip.editor.item_editor.buttons.add_option.enabled");
     },
     deleteItemButtonTooltip() {
@@ -486,7 +522,9 @@ export default {
       // itemType is just "question" right now - parametrize when more types are supported
       var itemType = "question";
       if (this.isInteractionDisabled)
-        return this.$t(`tooltip.editor.item_editor.buttons.add_item.${itemType}.disabled`);
+        return this.$t(
+          `tooltip.editor.item_editor.buttons.add_item.${itemType}.disabled`
+        );
       return this.$t(`tooltip.editor.item_editor.buttons.add_item.${itemType}.enabled`);
     },
     addOptionButtonTitleConfig() {
@@ -565,7 +603,9 @@ export default {
       get() {
         // extract the character limit from the item
         if (this.localItemList[this.localSelectedItemIndex] == null) return null;
-        return this.localItemList[this.localSelectedItemIndex].details.max_char_limit || 100;
+        return (
+          this.localItemList[this.localSelectedItemIndex].details.max_char_limit || 100
+        );
       },
       set(value) {
         // set the character limit in the item
@@ -602,7 +642,8 @@ export default {
         this.checkTimeInputErrors(timeInSeconds);
 
         // update the local time values if no error is present
-        if (!this.isAnyError) this.localItemList[this.localSelectedItemIndex].time = timeInSeconds;
+        if (!this.isAnyError)
+          this.localItemList[this.localSelectedItemIndex].time = timeInSeconds;
       },
     },
     options: {
