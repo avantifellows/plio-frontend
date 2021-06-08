@@ -82,7 +82,7 @@
             class="w-10 h-10 text-yellow-600 fill-current"
           ></inline-svg>
           <p class="text-yellow-600">
-            Subjective Questions are not included while calculating the accuracy in the dashboard
+            {{ $t("editor.headings.subjective_question_warning") }}
           </p>
         </div>
 
@@ -152,7 +152,7 @@
             v-if="currentItemIndex == null"
             v-tooltip.bottom="addItemTooltip"
           >
-            <p class="text-yellow-900 text-xl font-bold">Add a new question</p>
+            <p class="text-yellow-900 text-xl font-bold">{{ $t("editor.headings.add_question") }}</p>
             <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
               <button
                 :disabled="addItemDisabled"
@@ -164,7 +164,7 @@
                   :src="getIconSource('radio-button.svg')"
                   class="h-4 w-4 fill-current text-primary group-hover:text-white"
                 ></inline-svg>
-                <p class="font-bold text-center">Multiple Choice</p>
+                <p class="font-bold text-center">{{ $t("generic.mcq") }}</p>
               </button>
               <button
                 :disabled="addItemDisabled"
@@ -176,7 +176,7 @@
                   :src="getIconSource('subjective-question.svg')"
                   class="w-20 fill-current text-primary group-hover:text-white"
                 ></inline-svg>
-                <p class="font-bold text-center">Subjective</p>
+                <p class="font-bold text-center">{{ $t("generic.subjective") }}</p>
               </button>
             </div>
           </div>
