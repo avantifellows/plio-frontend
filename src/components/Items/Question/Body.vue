@@ -206,7 +206,7 @@ export default {
     },
     subjectiveAnswerInputPlaceholder() {
       // placeholder for the subjective answer input area
-      return "Enter your answer here";
+      return this.$t("player.question.placeholder");
     },
   },
   emits: ["option-selected", "answer-updated"],

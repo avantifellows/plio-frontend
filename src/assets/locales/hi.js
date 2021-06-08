@@ -22,6 +22,11 @@ export default {
       placeholder: "प्लायो का नाम यहाँ लिखें ",
       title: "प्लायो का नाम",
     },
+    headings: {
+      add_question: "एक नया प्रश्न जोड़ें",
+      subjective_question_warning:
+        "डैशबोर्ड में सटीकता की गणना करते समय विस्तृत प्रश्न शामिल नहीं होते हैं",
+    },
     buttons: {
       home: "होम",
       publish: {
@@ -53,6 +58,11 @@ export default {
       },
       heading: {
         question: "प्रश्न संपादित करें",
+        set_character_limit: "चरित्र सीमा निर्धारित करें",
+        char_limit: {
+          max: "अधिकतम",
+          chars_allowed: "वर्ण",
+        },
       },
     },
     dialog: {
@@ -183,6 +193,7 @@ export default {
       revise: "पुनः देखें",
       proceed: "आगे बढ़ें",
       skip: "छोड़ें",
+      placeholder: "अपना उत्तर यहां दर्ज करें",
     },
     fullscreen: {
       enter: "पूर्ण स्क्रीन में प्रवेश करें",
@@ -211,6 +222,9 @@ export default {
     placeholders: {
       empty_title_placeholder: "कोई नाम नहीं",
     },
+    mcq: "बहुविकल्पी",
+    subjective: "विस्तृत",
+    submitted: "निवेदन हो गया",
   },
   tooltip: {
     url: "लिंक को कापी करे",
