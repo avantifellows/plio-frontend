@@ -30,14 +30,20 @@
                 :checked="isOptionChecked(optionIndex)"
                 :disabled="isAnswerSubmitted || previewMode"
               />
-              <div v-html="option" class="ml-2 h-full place-self-center leading-tight"></div>
+              <div
+                v-html="option"
+                class="ml-2 h-full place-self-center leading-tight"
+              ></div>
             </label>
           </div>
         </li>
       </ul>
     </div>
     <!-- subjective question answer -->
-    <div v-if="isQuestionTypeSubjective" class="flex flex-col px-4 md:px-6 xl:px-10 w-full">
+    <div
+      v-if="isQuestionTypeSubjective"
+      class="flex flex-col px-4 md:px-6 xl:px-10 w-full"
+    >
       <!-- input area for the answer -->
       <Textarea
         :placeholder="subjectiveAnswerInputPlaceholder"
@@ -46,10 +52,16 @@
         boxStyling="px-4 placeholder-gray-400 bp-420:h-20 sm:h-28 md:h-36 focus:border-gray-200 focus:ring-transparent"
         :isDisabled="isAnswerSubmitted || previewMode"
         @keypress="checkCharLimit"
+        :maxHeightLimit="subjectiveBoxHeightLimit"
       ></Textarea>
       <!-- character limit -->
-      <div class="h-full flex items-end px-6 mt-2" v-if="hasCharLimit && !isAnswerSubmitted">
-        <p class="text-sm sm:text-base lg:text-lg font-bold" :class="maxCharLimitClass">{{ charactersLeft }}</p>
+      <div
+        class="h-full flex items-end px-6 mt-2"
+        v-if="hasCharLimit && !isAnswerSubmitted"
+      >
+        <p class="text-sm sm:text-base lg:text-lg font-bold" :class="maxCharLimitClass">
+          {{ charactersLeft }}
+        </p>
       </div>
     </div>
   </div>
@@ -62,11 +74,15 @@ export default {
   data() {
     return {
       subjectiveAnswer: "", // holds the answer to the subjective question
+      subjectiveBoxHeightLimit: 250, // maximum allowed height of the subjective answer text box in px
     };
   },
   watch: {
     subjectiveAnswer() {
-      if (this.subjectiveAnswer != null && this.subjectiveAnswer.length > this.maxCharLimit) {
+      if (
+        this.subjectiveAnswer != null &&
+        this.subjectiveAnswer.length > this.maxCharLimit
+      ) {
         // prevent answers more than the character limit from being entered via copy pasting
         this.subjectiveAnswer = this.subjectiveAnswer.substring(0, this.maxCharLimit);
       }

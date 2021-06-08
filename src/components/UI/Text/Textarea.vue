@@ -100,6 +100,11 @@ export default {
       default: false,
       type: Boolean,
     },
+    maxHeightLimit: {
+      // maximum allowed height of the text box in px
+      default: 0,
+      type: Number,
+    },
   },
   computed: {
     localValue: {
@@ -163,16 +168,24 @@ export default {
       return this.startIcon.enabled;
     },
     inputAreaClass() {
-      // // class for the input element
+      // class for the input element
       return {
         "pl-10": this.isStartIconEnabled,
       };
     },
   },
   methods: {
-    inputChange() {
+    inputChange(event) {
       // invoked on input change
       this.$emit("input", this.value);
+
+      // auto expand the textbox if a `maxHeightLimit` has been specified
+      if (this.maxHeightLimit > 0) {
+        var textareaElement = event.srcElement;
+        textareaElement.style.height = "";
+        textareaElement.style.height =
+          Math.min(textareaElement.scrollHeight, this.maxHeightLimit) + "px";
+      }
     },
     keyPress(event) {
       // invoked by pressing a key
