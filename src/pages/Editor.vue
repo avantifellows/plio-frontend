@@ -6,7 +6,7 @@
       :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
     >
       <!--- preview grid -->
-      <div class="flex flex-col ml-5 mr-5">
+      <div class="flex flex-col ml-5 mr-5 z-0">
         <!--- plio link -->
         <URL
           :link="plioLink"
