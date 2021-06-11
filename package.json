@@ -1,77 +1,92 @@
 {
-    "name": "plio_frontend",
-    "version": "0.1.0",
-    "private": true,
-    "scripts": {
-        "serve": "vue-cli-service serve",
-        "build": "vue-cli-service build",
-        "lint": "vue-cli-service lint",
-        "deploy": "vue-cli-service build && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend --delete --acl public-read",
-        "build-staging": "vue-cli-service build --mode staging",
-        "deploy-staging": "vue-cli-service build --mode staging && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend-staging --delete --acl public-read",
-        "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\""
+  "name": "plio_frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "test:unit": "vue-cli-service test:unit",
+    "lint": "vue-cli-service lint",
+    "deploy": "vue-cli-service build && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend --delete --acl public-read",
+    "build-staging": "vue-cli-service build --mode staging",
+    "deploy-staging": "vue-cli-service build --mode staging && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend-staging --delete --acl public-read",
+    "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\""
+  },
+  "dependencies": {
+    "@aacassandra/vue3-progressbar": "^1.0.3",
+    "@cubejs-client/core": "^0.27.6",
+    "@fortawesome/fontawesome-free": "^5.15.1",
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@fortawesome/vue-fontawesome": "^3.0.0-3",
+    "@tailwindcss/forms": "^0.3.3",
+    "axios": "^0.21.1",
+    "core-js": "^3.6.5",
+    "mixpanel-browser": "^2.41.0",
+    "plyr": "^3.6.3",
+    "primeicons": "^4.1.0",
+    "primevue": "^3.3.5",
+    "secure-ls": "^1.2.3",
+    "vue": "^3.0.0-0",
+    "vue-gtag": "^2.0.0",
+    "vue-i18n": "^9.0.0",
+    "vue-inline-svg": "^3.0.0-beta.2",
+    "vue-router": "^4.0.0-beta.12",
+    "vue-toastification": "^2.0.0-rc.1",
+    "vue3-click-away": "^1.2.1",
+    "vue3-google-oauth2": "^1.0.4",
+    "vuex": "^4.0.0-beta.4",
+    "vuex-persistedstate": "^4.0.0-beta.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss7-compat": "^2.0.4",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-router": "^4.5.6",
+    "@vue/cli-plugin-unit-jest": "~4.5.0",
+    "@vue/cli-plugin-vuex": "^4.5.6",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/compiler-sfc": "^3.0.0-0",
+    "autoprefixer": "^9.8.6",
+    "babel-eslint": "^10.1.0",
+    "babel-plugin-transform-remove-console": "^6.9.4",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^7.0.0-0",
+    "postcss": "^7.0.35",
+    "sass": "^1.26.11",
+    "sass-loader": "^10.0.2",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.4",
+    "typescript": "~3.9.3",
+    "vue-jest": "^5.0.0-0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
     },
-    "dependencies": {
-        "@aacassandra/vue3-progressbar": "^1.0.3",
-        "@cubejs-client/core": "^0.27.6",
-        "@fortawesome/fontawesome-free": "^5.15.1",
-        "@fortawesome/fontawesome-svg-core": "^1.2.32",
-        "@fortawesome/free-solid-svg-icons": "^5.15.1",
-        "@fortawesome/vue-fontawesome": "^3.0.0-3",
-        "@tailwindcss/forms": "^0.3.3",
-        "axios": "^0.21.1",
-        "core-js": "^3.6.5",
-        "mixpanel-browser": "^2.41.0",
-        "plyr": "^3.6.3",
-        "primeicons": "^4.1.0",
-        "primevue": "^3.3.5",
-        "secure-ls": "^1.2.3",
-        "vue": "^3.0.0-0",
-        "vue-gtag": "^2.0.0",
-        "vue-i18n": "^9.0.0",
-        "vue-inline-svg": "^3.0.0-beta.2",
-        "vue-router": "^4.0.0-beta.12",
-        "vue-toastification": "^2.0.0-rc.1",
-        "vue3-click-away": "^1.2.1",
-        "vue3-google-oauth2": "^1.0.4",
-        "vuex": "^4.0.0-beta.4",
-        "vuex-persistedstate": "^4.0.0-beta.3"
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
     },
-    "devDependencies": {
-        "@tailwindcss/postcss7-compat": "^2.0.4",
-        "@vue/cli-plugin-babel": "~4.5.0",
-        "@vue/cli-plugin-eslint": "~4.5.0",
-        "@vue/cli-plugin-router": "^4.5.6",
-        "@vue/cli-plugin-vuex": "^4.5.6",
-        "@vue/cli-service": "~4.5.0",
-        "@vue/compiler-sfc": "^3.0.0-0",
-        "autoprefixer": "^9.8.6",
-        "babel-eslint": "^10.1.0",
-        "babel-plugin-transform-remove-console": "^6.9.4",
-        "eslint": "^6.7.2",
-        "eslint-plugin-vue": "^7.0.0-0",
-        "postcss": "^7.0.35",
-        "sass": "^1.26.11",
-        "sass-loader": "^10.0.2",
-        "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.4"
-    },
-    "eslintConfig": {
-        "root": true,
-        "env": {
-            "node": true
-        },
-        "extends": [
-            "plugin:vue/vue3-essential",
-            "eslint:recommended"
+    "rules": {},
+    "overrides": [
+      {
+        "files": [
+          "**/__tests__/*.{j,t}s?(x)",
+          "**/tests/unit/**/*.spec.{j,t}s?(x)"
         ],
-        "parserOptions": {
-            "parser": "babel-eslint"
-        },
-        "rules": {}
-    },
-    "browserslist": [
-        "> 1%",
-        "last 2 versions",
-        "not dead"
+        "env": {
+          "jest": true
+        }
+      }
     ]
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
 }
