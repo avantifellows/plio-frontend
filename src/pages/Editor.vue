@@ -245,6 +245,8 @@ var POP_UP_CHECKING_FREQUENCY = 0.5;
 var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 // offset from the POP_UP_CHECKING_FREQUENCY for the minimum question timestamp
 var MINIMUM_QUESTION_TIME_OFFSET = 0.1;
+// minimum timestamp for each question
+var MINIMUM_QUESTION_TIMESTAMP = MINIMUM_QUESTION_TIME_OFFSET + POP_UP_CHECKING_FREQUENCY;
 
 export default {
   name: "Editor",
@@ -363,9 +365,9 @@ export default {
       // or when item is added using the add item button
       this.checkAndFixItemOrder();
       if (this.items != null && this.currentItemIndex != null) {
-        if (this.items[this.currentItemIndex].time <= POP_UP_CHECKING_FREQUENCY)
-          this.items[this.currentItemIndex].time =
-            POP_UP_CHECKING_FREQUENCY + MINIMUM_QUESTION_TIME_OFFSET;
+        // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
+        if (this.items[this.currentItemIndex].time < MINIMUM_QUESTION_TIMESTAMP)
+          this.items[this.currentItemIndex].time = MINIMUM_QUESTION_TIMESTAMP;
         this.currentTimestamp = this.items[this.currentItemIndex].time;
       }
     },
