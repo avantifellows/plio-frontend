@@ -374,7 +374,6 @@ export default {
     videoURL(newVideoURL) {
       // invoked when the video link is updated
       var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
-      this.videoInputValidation["isValid"] = linkValidation["valid"];
       if (!linkValidation["valid"]) return;
 
       if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
@@ -440,7 +439,7 @@ export default {
       // video link validation display config
       return {
         enabled: this.videoURL,
-        isValid: false,
+        isValid: this.isVideoIdValid,
         validMessage: this.$t("editor.video_input.validation.valid"),
         invalidMessage: this.$t("editor.video_input.validation.invalid"),
       };
