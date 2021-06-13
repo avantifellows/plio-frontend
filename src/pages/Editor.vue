@@ -398,7 +398,7 @@ export default {
       // URL of the image present for the current item
       if (this.currentItemIndex == null) return null;
       if (this.items[this.currentItemIndex].details.image == null) return null;
-      return this.items[this.currentItemIndex].details.image.image_url;
+      return this.items[this.currentItemIndex].details.image.url;
     },
     isQuestionTypeSubjective() {
       // whether the type of the question being created is subjective

@@ -5,7 +5,7 @@ export default {
   async uploadImage(imageFile) {
     // API to upload an image and create an image object in the DB
     var bodyFormData = new FormData();
-    bodyFormData.append("image_url", imageFile);
+    bodyFormData.append("url", imageFile);
 
     apiClient().defaults.headers["Content-Type"] = "multipart/form-data";
 

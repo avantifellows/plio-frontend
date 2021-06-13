@@ -118,7 +118,7 @@ export default {
       // URL of the image for an item
       // returns NULL if the image doesn't exist
       if (this.currentItemImage == null) return null;
-      return this.currentItemImage.image_url;
+      return this.currentItemImage.url;
     },
     currentItemDetails() {
       // details for the current item
