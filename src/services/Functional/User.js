@@ -1,4 +1,5 @@
 import UserAPIService from "@/services/API/User.js";
+import UtilitiesService from "@/services/Functional/Utilities.js";
 
 export default {
   reAuthenticate(store) {
@@ -6,7 +7,10 @@ export default {
     if (store.state.auth.isReAuthenticating) {
       // to handle the case when isReAuthenticating has been set to true
       // but no promise exists in the store. Log out the user in that case
-      if (store.state.auth.reAuthenticationPromise == null) {
+      if (
+        store.state.auth.reAuthenticationPromise == null ||
+        UtilitiesService.isObjectEmpty(store.state.auth.reAuthenticationPromise)
+      ) {
         store.dispatch("auth/unsetAccessToken");
         store.dispatch("auth/setReAuthenticationState", false);
         return Promise.resolve(true);
