@@ -20,6 +20,9 @@ module.exports = {
       backgroundSize: {
         "10%": "10%",
       },
+      fontSize: {
+        xxs: ".6rem",
+      },
     },
     backgroundColor: (theme) => ({
       ...theme("colors"),

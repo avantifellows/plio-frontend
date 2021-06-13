@@ -5,7 +5,10 @@
     class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
     :disabled="isDisabled"
   >
-    <div class="flex w-full justify-center space-x-2">
+    <div
+      class="flex w-full justify-center"
+      :class="{ 'flex-col': isStackVertically, 'space-x-2': !isStackVertically }"
+    >
       <inline-svg
         v-if="isIconConfigEnabled"
         :src="icon"
@@ -51,6 +54,12 @@ export default {
       default: () => {},
     },
     isDisabled: {
+      type: Boolean,
+      default: false,
+    },
+    isStackVertically: {
+      // whether to stack the icon and title vertically
+      // instead of horizontally
       type: Boolean,
       default: false,
     },

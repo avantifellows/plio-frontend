@@ -15,4 +15,5 @@ export const pliosEndpoint = "/plios/",
   userConfigEndpoint = "/config/",
   convertTokenEndpoint = "/convert-token/",
   refreshTokenEndpoint = "/token/",
-  analyticsAccessTokenEndpoint = "/cubejs-token/";
+  analyticsAccessTokenEndpoint = "/cubejs-token/",
+  imagesEndpoint = "/images/";

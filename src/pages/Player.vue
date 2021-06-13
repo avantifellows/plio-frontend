@@ -4,7 +4,10 @@
     <video-skeleton v-if="!isVideoIdValid"></video-skeleton>
     <div v-else class="flex relative shadow-lg">
       <!-- fullscreen button overlay -->
-      <div v-if="showItemModal && !isFullscreen" class="z-50 absolute bp-500:hidden w-full h-full bg-transparent">
+      <div
+        v-if="showItemModal && !isFullscreen"
+        class="z-50 absolute bp-500:hidden w-full h-full bg-transparent"
+      >
         <div class="opacity-90 w-full h-full absolute bg-white"></div>
         <div class="flex w-full h-full">
           <icon-button
@@ -57,7 +60,6 @@
           :previewMode="false"
           :isModalMinimized="isModalMinimized"
           :isFullscreen="isFullscreen"
-          :isPortrait="isPortrait"
           @skip-question="skipQuestion"
           @proceed-question="proceedQuestion"
           @revise-question="reviseQuestion"
@@ -129,14 +131,18 @@ if (!Array.prototype.fill) {
       var relativeStart = start >> 0;
 
       // Step 8.
-      var k = relativeStart < 0 ? Math.max(len + relativeStart, 0) : Math.min(relativeStart, len);
+      var k =
+        relativeStart < 0
+          ? Math.max(len + relativeStart, 0)
+          : Math.min(relativeStart, len);
 
       // Steps 9-10.
       var end = arguments[2];
       var relativeEnd = end === undefined ? len : end >> 0;
 
       // Step 11.
-      var finalValue = relativeEnd < 0 ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
+      var finalValue =
+        relativeEnd < 0 ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
 
       // Step 12.
       while (k < finalValue) {
@@ -160,7 +166,15 @@ export default {
   data() {
     return {
       plyrConfig: {
-        controls: ["play", "play-large", "progress", "current-time", "mute", "volume", "fullscreen"],
+        controls: [
+          "play",
+          "play-large",
+          "progress",
+          "current-time",
+          "mute",
+          "volume",
+          "fullscreen",
+        ],
 
         ratio: "16:7",
 
@@ -361,7 +375,9 @@ export default {
       // of the video if the question is the first item else to the end of
       // the previous item
       this.player.currentTime =
-        this.currentItemIndex == 0 ? 0 : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
+        this.currentItemIndex == 0
+          ? 0
+          : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
       // create an event for the revise action
       this.createEvent("question_revised", { itemIndex: this.currentItemIndex });
       this.closeItemModal();
@@ -391,7 +407,7 @@ export default {
     async fetchPlioCreateSession() {
       // fetches plio details and creates a new session
       await PlioAPIService.getPlio(this.plioId, true)
-        .then(plioDetails => {
+        .then((plioDetails) => {
           // redirect to 404 if the plio is not published
           if (plioDetails.status != "published") this.$router.replace({ name: "404" });
           this.items = plioDetails.items || [];
@@ -408,7 +424,10 @@ export default {
         this.updateSession();
         // create an event for the user watching the plio
         this.createEvent("watching");
-        this.$mixpanel.people.increment("Total Watch Time", this.watchTimeIncrement.toFixed(2));
+        this.$mixpanel.people.increment(
+          "Total Watch Time",
+          this.watchTimeIncrement.toFixed(2)
+        );
         this.watchTimeIncrement = 0;
       }
       UPLOAD_INTERVAL_TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL);
@@ -428,7 +447,7 @@ export default {
     },
     createSession() {
       // creates new user-plio session
-      SessionAPIService.createSession(this.plioDBId).then(sessionDetails => {
+      SessionAPIService.createSession(this.plioDBId).then((sessionDetails) => {
         this.sessionDBId = sessionDetails.id;
         // reset the user to where they left off if they are returning
         if (sessionDetails.last_event != null) {
@@ -457,7 +476,10 @@ export default {
             itemResponse[key.replace("_id", "")] = sessionAnswer[key];
           }
           // for mcq items, convert answers to integer
-          if (this.items[itemIndex].type == "question" && this.items[itemIndex].details["type"] == "mcq") {
+          if (
+            this.items[itemIndex].type == "question" &&
+            this.items[itemIndex].details["type"] == "mcq"
+          ) {
             itemResponse.answer = parseInt(itemResponse.answer);
           }
           this.itemResponses.push(itemResponse);
@@ -471,11 +493,14 @@ export default {
         watch_time: this.watchTime,
         retention: this.retentionArrayToStr(this.retention),
       };
-      return SessionAPIService.updateSession(this.sessionDBId, sessionDetails).catch(err => console.log(err));
+      return SessionAPIService.updateSession(
+        this.sessionDBId,
+        sessionDetails
+      ).catch((err) => console.log(err));
     },
     retentionStrToArray(retentionStr) {
       // convert retention string to retention array
-      return retentionStr.split(",").map(value => parseInt(value));
+      return retentionStr.split(",").map((value) => parseInt(value));
     },
     retentionArrayToStr(retentionArray) {
       // convert retention array to retention string
@@ -538,14 +563,18 @@ export default {
       // whether the response to an item is complete
       if (this.itemResponses && this.itemResponses[itemIndex]) {
         if (this.itemResponses[itemIndex].answer == null) return false;
-        if (this.isItemMCQ(itemIndex)) return !isNaN(this.itemResponses[itemIndex].answer);
+        if (this.isItemMCQ(itemIndex))
+          return !isNaN(this.itemResponses[itemIndex].answer);
         return true;
       }
       return false;
     },
     isItemMCQ(itemIndex) {
       // whether the given item index is an MCQ question
-      return this.items[itemIndex].type == "question" && this.items[itemIndex].details.type == "mcq";
+      return (
+        this.items[itemIndex].type == "question" &&
+        this.items[itemIndex].details.type == "mcq"
+      );
     },
     videoTimestampUpdated(timestamp) {
       // invoked when the current time in the video is updated
@@ -562,7 +591,8 @@ export default {
     },
     checkItemToSelect(timestamp) {
       // checks if an item is to be selected and marks/unmarks accordingly
-      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY) return;
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+        return;
       this.lastCheckTimestamp = timestamp;
       this.isModalMinimized = false;
       this.currentItemIndex = ItemFunctionalService.checkItemPopup(

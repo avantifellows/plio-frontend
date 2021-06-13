@@ -6,62 +6,67 @@
         {{ questionText }}
       </p>
     </div>
-    <!-- option container -->
-    <div v-if="isQuestionTypeMCQ" class="flex mx-4 md:mx-6 xl:mx-10">
-      <ul class="w-full">
-        <li class="list-none space-y-1 flex flex-col">
-          <div
-            v-for="(option, optionIndex) in options"
-            :key="optionIndex"
-            :class="[optionBackgroundClass(optionIndex), optionTextClass]"
-          >
-            <!-- each option is defined here -->
-            <!-- adding <label> so that touch input is just
-                  not limited to the radio button -->
-            <label :class="labelClass(option)">
-              <!-- understand the meaning of the keys here:
-               https://www.w3schools.com/tags/att_input_type_radio.asp -->
-              <input
-                type="radio"
-                name="questionOptions"
-                :value="option"
-                class="place-self-center"
-                @click="selectOption(optionIndex)"
-                :checked="isOptionChecked(optionIndex)"
-                :disabled="isAnswerSubmitted || previewMode"
-              />
-              <div
-                v-html="option"
-                class="ml-2 h-full place-self-center leading-tight"
-              ></div>
-            </label>
-          </div>
-        </li>
-      </ul>
-    </div>
-    <!-- subjective question answer -->
-    <div
-      v-if="isQuestionTypeSubjective"
-      class="flex flex-col px-4 md:px-6 xl:px-10 w-full"
-    >
-      <!-- input area for the answer -->
-      <Textarea
-        :placeholder="subjectiveAnswerInputPlaceholder"
-        class="px-2 w-full"
-        v-model:value="subjectiveAnswer"
-        boxStyling="px-4 placeholder-gray-400 bp-420:h-20 sm:h-28 md:h-36 focus:border-gray-200 focus:ring-transparent"
-        :isDisabled="isAnswerSubmitted || previewMode"
-        @keypress="checkCharLimit"
-        :maxHeightLimit="subjectiveBoxHeightLimit"
-      ></Textarea>
-      <!-- character limit -->
+    <div :class="orientationClass">
+      <!-- question image container -->
+      <div :class="questionImageContainerClass" v-if="isQuestionImagePresent">
+        <img :src="questionImageUrl" class="object-contain h-full w-full" />
+      </div>
+      <!-- option container -->
+      <div v-if="isQuestionTypeMCQ" :class="optionContainerClass">
+        <ul class="w-full">
+          <li class="list-none space-y-1 flex flex-col">
+            <div
+              v-for="(option, optionIndex) in options"
+              :key="optionIndex"
+              :class="[optionBackgroundClass(optionIndex), optionTextClass]"
+            >
+              <!-- each option is defined here -->
+              <!-- adding <label> so that touch input is just not limited to the radio button -->
+              <label :class="labelClass(option)">
+                <!-- understand the meaning of the keys here:
+                    https://www.w3schools.com/tags/att_input_type_radio.asp -->
+                <input
+                  type="radio"
+                  name="questionOptions"
+                  :value="option"
+                  class="place-self-center"
+                  @click="selectOption(optionIndex)"
+                  :checked="isOptionChecked(optionIndex)"
+                  :disabled="isAnswerSubmitted || previewMode"
+                />
+                <div
+                  v-html="option"
+                  class="ml-2 h-full place-self-center leading-tight"
+                ></div>
+              </label>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <!-- subjective question answer -->
       <div
-        class="h-full flex items-end px-6 mt-2"
-        v-if="hasCharLimit && !isAnswerSubmitted"
+        v-if="isQuestionTypeSubjective"
+        class="flex flex-col px-4 md:px-6 xl:px-10 w-full"
       >
-        <p class="text-sm sm:text-base lg:text-lg font-bold" :class="maxCharLimitClass">
-          {{ charactersLeft }}
-        </p>
+        <!-- input area for the answer -->
+        <Textarea
+          :placeholder="subjectiveAnswerInputPlaceholder"
+          class="px-2 w-full"
+          v-model:value="subjectiveAnswer"
+          boxStyling="px-4 placeholder-gray-400 bp-420:h-20 sm:h-28 md:h-36 focus:border-gray-200 focus:ring-transparent"
+          :isDisabled="isAnswerSubmitted || previewMode"
+          @keypress="checkCharLimit"
+          :maxHeightLimit="subjectiveBoxHeightLimit"
+        ></Textarea>
+        <!-- character limit -->
+        <div
+          class="h-full flex items-end px-6 mt-2"
+          v-if="hasCharLimit && !isAnswerSubmitted"
+        >
+          <p class="text-sm sm:text-base lg:text-lg font-bold" :class="maxCharLimitClass">
+            {{ charactersLeft }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -143,6 +148,16 @@ export default {
       default: false,
       type: Boolean,
     },
+    questionImageUrl: {
+      // URL of the image to be shown on a question
+      default: null,
+      type: String,
+    },
+    isPortrait: {
+      // whether the screen is in portraid mode
+      default: false,
+      type: Boolean,
+    },
   },
   components: { Textarea },
   methods: {
@@ -172,6 +187,43 @@ export default {
     },
   },
   computed: {
+    optionContainerClass() {
+      // styling class for the options container
+      return [
+        {
+          "w-full": this.isQuestionImagePresent && !this.isPortrait && !this.previewMode,
+        },
+        "flex mx-4 md:mx-6 xl:mx-10",
+      ];
+    },
+    questionImageContainerClass() {
+      // styling class for the image container
+      return [
+        {
+          "h-3/6 mx-10 mb-4": this.isPortrait && !this.previewMode,
+          "h-28 sm:h-36 md:h-60 lg:h-72 xl:h-89 ml-10":
+            !this.isPortrait && !this.previewMode,
+          "h-44 mx-10 mb-4": this.previewMode,
+        },
+        "border rounded-md",
+      ];
+    },
+    orientationClass() {
+      // styling class to decide orientation of images + options depending on portrait/landscape orientation
+      return [
+        {
+          "flex-row content-center items-center":
+            this.isQuestionImagePresent && !this.isPortrait && !this.previewMode,
+          "flex-col":
+            (this.isQuestionImagePresent && this.isPortrait) || this.previewMode,
+        },
+        "flex",
+      ];
+    },
+    isQuestionImagePresent() {
+      // if the current question contains an image
+      return this.questionImageUrl != null;
+    },
     questionTextClass() {
       return [
         {

@@ -26,6 +26,8 @@
         @option-selected="optionSelected"
         @answer-updated="subjectiveAnswerUpdated"
         :previewMode="previewMode"
+        :questionImageUrl="questionImageUrl"
+        :isPortrait="isPortrait"
       ></item-question-body>
       <!-- footer -->
       <item-question-footer
@@ -55,6 +57,7 @@ export default {
   data() {
     return {
       draftResponses: [], // stores the options selected by the user but not yet submitted
+      isPortrait: true, // whether the device is in portrait mode
     };
   },
   created() {
@@ -63,6 +66,15 @@ export default {
     this.itemList.forEach(() => {
       this.draftResponses.push(null);
     });
+
+    // determine the screen orientation when the item modal is created
+    this.checkScreenOrientation();
+    // add listener for screen size being changed
+    window.addEventListener("resize", this.checkScreenOrientation);
+  },
+  unmounted() {
+    // remove listeners
+    window.removeEventListener("resize", this.checkScreenOrientation);
   },
   props: {
     itemList: {
@@ -95,11 +107,6 @@ export default {
       default: false,
       type: Boolean,
     },
-    isPortrait: {
-      // whether the screen is in portraid mode
-      default: false,
-      type: Boolean,
-    },
   },
   components: {
     ItemQuestionHeader,
@@ -107,6 +114,20 @@ export default {
     ItemQuestionBody,
   },
   computed: {
+    questionImageUrl() {
+      // URL of the image for an item
+      // returns NULL if the image doesn't exist
+      if (this.currentItemImage == null) return null;
+      return this.currentItemImage.image_url;
+    },
+    currentItemDetails() {
+      // details for the current item
+      return this.currentItem.details;
+    },
+    currentItemImage() {
+      // image data for the current item
+      return this.currentItemDetails.image;
+    },
     answerFeedbackText() {
       // text to be used as feedback once answer is submitted
       if (this.isQuestionTypeSubjective) return this.$t("generic.submitted");
@@ -143,7 +164,8 @@ export default {
     isAnswerValid() {
       // whether an option has been selected
       if (this.draftResponses[this.selectedItemIndex] == null) return false;
-      if (this.isQuestionTypeSubjective) return this.draftResponses[this.selectedItemIndex] != "";
+      if (this.isQuestionTypeSubjective)
+        return this.draftResponses[this.selectedItemIndex] != "";
       return true;
     },
     localResponseList: {
@@ -170,7 +192,8 @@ export default {
     },
     currentItemResponse() {
       // response for the current item
-      if (this.responseList != undefined) return this.responseList[this.selectedItemIndex];
+      if (this.responseList != undefined)
+        return this.responseList[this.selectedItemIndex];
 
       return null;
     },
@@ -181,7 +204,12 @@ export default {
     },
     isAnswerCorrect() {
       // where the selected option index is current
-      if (this.currentItem == undefined || !this.isItemQuestion || this.currentItemResponse == null) return null;
+      if (
+        this.currentItem == undefined ||
+        !this.isItemQuestion ||
+        this.currentItemResponse == null
+      )
+        return null;
       if (this.isQuestionTypeSubjective) return true;
       return this.questionCorrectAnswer == this.currentItemResponseAnswer;
     },
@@ -225,6 +253,11 @@ export default {
     },
   },
   methods: {
+    checkScreenOrientation() {
+      // check if the device is in portrait or landscape mode
+      if (screen.availHeight > screen.availWidth) this.isPortrait = true;
+      else this.isPortrait = false;
+    },
     subjectiveAnswerUpdated(answer) {
       // invoked when the answer to a subjective question is updated
       this.draftResponses[this.selectedItemIndex] = answer;
@@ -251,7 +284,9 @@ export default {
     },
     submitQuestion() {
       // invoked when the response to the question has been submitted
-      this.localResponseList[this.selectedItemIndex].answer = this.draftResponses[this.selectedItemIndex];
+      this.localResponseList[this.selectedItemIndex].answer = this.draftResponses[
+        this.selectedItemIndex
+      ];
       this.$emit("submit-question");
     },
   },
