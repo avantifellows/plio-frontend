@@ -5,7 +5,7 @@
     v-if="localSelectedItemIndex != null"
   >
     <!-- question type picker -->
-    <div class="absolute rounded-md mt-4 ml-2 z-5" :class="questionTypeDropdownClass">
+    <div class="absolute rounded-md mt-4 ml-4 z-5" :class="questionTypeDropdownClass">
       <QuestionTypeDropdown
         class="w-full"
         @toggle-visibility="toggleQuestionTypeDropdown"
@@ -126,7 +126,9 @@
             class="form-checkbox h-5 w-5 text-primary focus:ring-transparent"
             v-model="isMaxCharLimitSet"
             checked
-          /><span class="ml-2 text-gray-700">{{ $t("editor.item_editor.heading.set_character_limit") }}</span>
+          /><span class="ml-2 text-gray-700">{{
+            $t("editor.item_editor.heading.set_character_limit")
+          }}</span>
         </label>
         <!-- the max limit input -->
         <div v-if="isMaxCharLimitSet" class="flex space-x-2 items-center">

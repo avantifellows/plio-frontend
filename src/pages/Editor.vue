@@ -6,9 +6,14 @@
       :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
     >
       <!--- preview grid -->
-      <div class="flex flex-col ml-5 mr-5">
+      <div class="flex flex-col ml-5 mr-5 z-0">
         <!--- plio link -->
-        <URL :link="plioLink" class="justify-center m-4" :urlStyleClass="urlStyleClass" :isUnderlined="true"></URL>
+        <URL
+          :link="plioLink"
+          class="justify-center m-4"
+          :urlStyleClass="urlStyleClass"
+          :isUnderlined="true"
+        ></URL>
 
         <div class="justify-center">
           <!--- video preview -->
@@ -152,7 +157,9 @@
             v-if="currentItemIndex == null"
             v-tooltip.bottom="addItemTooltip"
           >
-            <p class="text-yellow-900 text-xl font-bold">{{ $t("editor.headings.add_question") }}</p>
+            <p class="text-yellow-900 text-xl font-bold">
+              {{ $t("editor.headings.add_question") }}
+            </p>
             <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
               <button
                 :disabled="addItemDisabled"
@@ -236,6 +243,10 @@ import Utilties from "@/services/Functional/Utilities.js";
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
 var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
+// offset from the POP_UP_CHECKING_FREQUENCY for the minimum question timestamp
+var MINIMUM_QUESTION_TIME_OFFSET = 0.1;
+// minimum timestamp for each question
+var MINIMUM_QUESTION_TIMESTAMP = MINIMUM_QUESTION_TIME_OFFSET + POP_UP_CHECKING_FREQUENCY;
 
 export default {
   name: "Editor",
@@ -311,12 +322,13 @@ export default {
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       // mapping of questionType value to index in the list of question types
       questionTypeToIndex: {
-        "mcq": 0,
-        "subjective": 1,
+        mcq: 0,
+        subjective: 1,
       },
       isModalMinimized: false, // whether the preview modal is minimized or not
       // styling class for the minimize button
-      maximizeButtonClass: "bg-primary hover:bg-primary-hover p-2 pl-2 pr-2 sm:p-2 rounded-md shadow-xl",
+      maximizeButtonClass:
+        "bg-primary hover:bg-primary-hover p-2 pl-2 pr-2 sm:p-2 rounded-md shadow-xl",
     };
   },
   async created() {
@@ -352,13 +364,16 @@ export default {
       // when time is changed from the time input boxes
       // or when item is added using the add item button
       this.checkAndFixItemOrder();
-      if (this.items != null && this.currentItemIndex != null)
+      if (this.items != null && this.currentItemIndex != null) {
+        // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
+        if (this.items[this.currentItemIndex].time < MINIMUM_QUESTION_TIMESTAMP)
+          this.items[this.currentItemIndex].time = MINIMUM_QUESTION_TIMESTAMP;
         this.currentTimestamp = this.items[this.currentItemIndex].time;
+      }
     },
     videoURL(newVideoURL) {
       // invoked when the video link is updated
       var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
-      this.videoInputValidation["isValid"] = linkValidation["valid"];
       if (!linkValidation["valid"]) return;
 
       if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
@@ -385,7 +400,9 @@ export default {
     },
     questionTypeSelectorClass() {
       // class for the question type selectors
-      return { "hover:bg-primary hover:text-white hover:border-primary": !this.addItemDisabled };
+      return {
+        "hover:bg-primary hover:text-white hover:border-primary": !this.addItemDisabled,
+      };
     },
     currentItemType() {
       // type of the current selected item -
@@ -422,7 +439,7 @@ export default {
       // video link validation display config
       return {
         enabled: this.videoURL,
-        isValid: false,
+        isValid: this.isVideoIdValid,
         validMessage: this.$t("editor.video_input.validation.valid"),
         invalidMessage: this.$t("editor.video_input.validation.invalid"),
       };
@@ -514,7 +531,8 @@ export default {
       // class for the publish button
       return [
         {
-          "opacity-50 cursor-not-allowed pointer-events-none": !this.isPublishButtonEnabled,
+          "opacity-50 cursor-not-allowed pointer-events-none": !this
+            .isPublishButtonEnabled,
         },
         `rounded-md ring-green-500`,
       ];
@@ -522,10 +540,12 @@ export default {
     publishButtonTooltip() {
       // tooltip text for publish button
       if (!this.isPublished) {
-        if (!this.isPublishButtonEnabled) return this.$t("tooltip.editor.publish.draft.disabled");
+        if (!this.isPublishButtonEnabled)
+          return this.$t("tooltip.editor.publish.draft.disabled");
         return this.$t("tooltip.editor.publish.draft.enabled");
       }
-      if (!this.isPublishButtonEnabled) return this.$t("tooltip.editor.publish.published.disabled");
+      if (!this.isPublishButtonEnabled)
+        return this.$t("tooltip.editor.publish.published.disabled");
       return this.$t("tooltip.editor.publish.published.enabled");
     },
     lastUpdatedStr() {
@@ -682,7 +702,13 @@ export default {
       // check if the time after drag is valid and if not, set the item time
       // back to the one before the drag
       // else proceed with the new time
-      if (!ItemFunctionalService.isTimestampValid(itemTimestamp, this.itemTimestamps, itemIndex)) {
+      if (
+        !ItemFunctionalService.isTimestampValid(
+          itemTimestamp,
+          this.itemTimestamps,
+          itemIndex
+        )
+      ) {
         this.items[itemIndex]["time"] = timeBeforeDragEnded;
         itemTimestamp = timeBeforeDragEnded;
         this.showCannotAddItemDialog();
@@ -701,7 +727,8 @@ export default {
     },
     checkItemToSelect(timestamp) {
       // checks if an item is to be selected and marks/unmarks accordingly
-      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY) return;
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+        return;
       this.lastCheckTimestamp = timestamp;
       var selectedItemIndex = ItemFunctionalService.checkItemPopup(
         timestamp,
@@ -733,7 +760,9 @@ export default {
         this.isItemSelected = true;
         this.player.pause();
         this.currentItemIndex = itemIndex;
-        this.currentQuestionTypeIndex = this.questionTypeToIndex[this.items[itemIndex].details.type];
+        this.currentQuestionTypeIndex = this.questionTypeToIndex[
+          this.items[itemIndex].details.type
+        ];
       }
     },
     markNoItemSelected() {
@@ -773,7 +802,7 @@ export default {
     async loadPlio() {
       // fetch plio details
       await PlioAPIService.getPlio(this.plioId)
-        .then(plioDetails => {
+        .then((plioDetails) => {
           this.items = plioDetails.items || [];
           this.videoURL = plioDetails.video_url || "";
           this.plioTitle = plioDetails.plioTitle || "";
@@ -845,7 +874,8 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
@@ -889,7 +919,8 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.got_it"),
-        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: false,
@@ -910,7 +941,8 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.got_it"),
-        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: false,
@@ -953,7 +985,10 @@ export default {
       }
 
       // delete the option
-      this.items[this.currentItemIndex].details.options.splice(this.optionIndexToDelete, 1);
+      this.items[this.currentItemIndex].details.options.splice(
+        this.optionIndexToDelete,
+        1
+      );
       // if the deleted option was the correct answer, reset the correct answer
       if (this.optionIndexToDelete == this.correctOptionIndex) {
         this.items[this.currentItemIndex].details.correct_answer = 0;
@@ -990,7 +1025,9 @@ export default {
       // item and the question
       var newItem = {};
       // check if the time where user is trying to add an item is valid or not
-      if (!ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)) {
+      if (
+        !ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)
+      ) {
         this.showCannotAddItemDialog();
         return;
       }
@@ -1001,7 +1038,7 @@ export default {
         time: currentTimestamp,
         meta: this.getMetadataForNewItem(),
       })
-        .then(createdItem => {
+        .then((createdItem) => {
           // storing the newly created item into "newItem"
           newItem = createdItem;
           if (createdItem.type == "question") {
@@ -1010,7 +1047,7 @@ export default {
             return QuestionAPIService.createQuestion(questionDetails);
           }
         })
-        .then(createdQuestion => {
+        .then((createdQuestion) => {
           // storing the newly created question into "newItem"
           newItem.details = createdQuestion;
           // push it into items, update the itemTimestamps and currentItemIndex
@@ -1024,11 +1061,14 @@ export default {
       // invoked when the delete item button is clicked
       // set dialog properties
       this.dialogTitle = this.$t(`editor.dialog.delete_item.${this.itemType}.title`);
-      this.dialogDescription = this.$t(`editor.dialog.delete_item.${this.itemType}.description`);
+      this.dialogDescription = this.$t(
+        `editor.dialog.delete_item.${this.itemType}.description`
+      );
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class: "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
