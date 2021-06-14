@@ -5,7 +5,7 @@
     v-if="localSelectedItemIndex != null"
   >
     <!-- question type picker -->
-    <div class="absolute rounded-md mt-4 ml-2 z-5" :class="questionTypeDropdownClass">
+    <div class="absolute rounded-md mt-4 ml-4 z-5" :class="questionTypeDropdownClass">
       <QuestionTypeDropdown
         class="w-full"
         @toggle-visibility="toggleQuestionTypeDropdown"

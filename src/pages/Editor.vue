@@ -6,7 +6,7 @@
       :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
     >
       <!--- preview grid -->
-      <div class="flex flex-col ml-5 mr-5">
+      <div class="flex flex-col ml-5 mr-5 z-0">
         <!--- plio link -->
         <URL
           :link="plioLink"
@@ -253,6 +253,10 @@ import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
 var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
+// offset from the POP_UP_CHECKING_FREQUENCY for the minimum question timestamp
+var MINIMUM_QUESTION_TIME_OFFSET = 0.1;
+// minimum timestamp for each question
+var MINIMUM_QUESTION_TIMESTAMP = MINIMUM_QUESTION_TIME_OFFSET + POP_UP_CHECKING_FREQUENCY;
 
 export default {
   name: "Editor",
@@ -372,13 +376,16 @@ export default {
       // when time is changed from the time input boxes
       // or when item is added using the add item button
       this.checkAndFixItemOrder();
-      if (this.items != null && this.currentItemIndex != null)
+      if (this.items != null && this.currentItemIndex != null) {
+        // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
+        if (this.items[this.currentItemIndex].time < MINIMUM_QUESTION_TIMESTAMP)
+          this.items[this.currentItemIndex].time = MINIMUM_QUESTION_TIMESTAMP;
         this.currentTimestamp = this.items[this.currentItemIndex].time;
+      }
     },
     videoURL(newVideoURL) {
       // invoked when the video link is updated
       var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
-      this.videoInputValidation["isValid"] = linkValidation["valid"];
       if (!linkValidation["valid"]) return;
 
       if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
@@ -450,7 +457,7 @@ export default {
       // video link validation display config
       return {
         enabled: this.videoURL,
-        isValid: false,
+        isValid: this.isVideoIdValid,
         validMessage: this.$t("editor.video_input.validation.valid"),
         invalidMessage: this.$t("editor.video_input.validation.invalid"),
       };
