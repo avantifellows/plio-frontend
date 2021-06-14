@@ -4,13 +4,15 @@ import { imagesEndpoint } from "@/services/API/Endpoints.js";
 export default {
   async uploadImage(imageFile) {
     // API to upload an image and create an image object in the DB
-    var bodyFormData = new FormData();
-    bodyFormData.append("url", imageFile);
+    var imageFormData = new FormData();
+    imageFormData.append("url", imageFile);
 
+    // set the content-type as `multipart/form-data` for the post request to go through
     apiClient().defaults.headers["Content-Type"] = "multipart/form-data";
 
-    var response = await apiClient().post(imagesEndpoint, bodyFormData);
+    var response = await apiClient().post(imagesEndpoint, imageFormData);
 
+    // reset the content type for other requests
     apiClient().defaults.headers["Content-Type"] = "application/json";
 
     return response;

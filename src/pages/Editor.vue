@@ -218,10 +218,10 @@
     ></dialog-box>
     <ImageUploaderDialog
       v-if="showImageUploaderDialog"
-      :existingImage="itemImage"
+      :uploadedImage="itemImage"
       @close-dialog="toggleImageUploaderBox"
       @image-selected="uploadImage"
-      @delete-and-unlink-image="deleteLinkedImage"
+      @delete-image="deleteLinkedImage"
     ></ImageUploaderDialog>
   </div>
 </template>
@@ -658,8 +658,6 @@ export default {
     ...Utilties,
     deleteLinkedImage() {
       // unlink image from the question, and delete it on S3
-      // NOTE: no need to explicitly call `QuestionAPIService.updateQuestion` here
-      // as we're watching the `items` object so the plio gets saved automatically
       var imageIdToDelete = this.items[this.currentItemIndex].details.image.id;
       ImageAPIService.deleteImage(imageIdToDelete);
       this.items[this.currentItemIndex].details.image = null;

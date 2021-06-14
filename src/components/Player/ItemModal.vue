@@ -26,7 +26,7 @@
         @option-selected="optionSelected"
         @answer-updated="subjectiveAnswerUpdated"
         :previewMode="previewMode"
-        :questionImageUrl="questionImageUrl"
+        :imageData="imageData"
         :isPortrait="isPortrait"
       ></item-question-body>
       <!-- footer -->
@@ -114,11 +114,11 @@ export default {
     ItemQuestionBody,
   },
   computed: {
-    questionImageUrl() {
+    imageData() {
       // URL of the image for an item
       // returns NULL if the image doesn't exist
       if (this.currentItemImage == null) return null;
-      return this.currentItemImage.url;
+      return this.currentItemImage;
     },
     currentItemDetails() {
       // details for the current item

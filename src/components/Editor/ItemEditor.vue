@@ -82,9 +82,9 @@
           :iconConfig="addImageButtonIconConfig"
           :titleConfig="addImageButtonTitleConfig"
           class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
-          @click="toggleImageUploaderBox"
+          @click="showImageUploaderBox"
           :buttonClass="addImageButtonClass"
-          :isStackVertically="true"
+          :orientation="'vertical'"
         ></icon-button>
       </div>
 
@@ -295,7 +295,7 @@ export default {
     QuestionTypeDropdown,
   },
   methods: {
-    toggleImageUploaderBox() {
+    showImageUploaderBox() {
       // to show or hide the image uploader dialog box
       this.$emit("show-image-uploader");
     },
@@ -446,7 +446,9 @@ export default {
     addImageButtonTitleConfig() {
       // title config for the add image button
       return {
-        value: this.isQuestionImagePresent ? "Edit" : "Image",
+        value: this.isQuestionImagePresent
+          ? this.$t("editor.item_editor.image_upload.edit_image")
+          : this.$t("editor.item_editor.image_upload.add_image"),
         class: "text-xs group-hover:text-white text-black font-normal",
       };
     },

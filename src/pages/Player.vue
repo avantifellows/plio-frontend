@@ -222,7 +222,6 @@ export default {
       // styling class for the minimize button
       maximizeButtonClass:
         "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-6 sm:pr-6 lg:p-4 lg:pl-6 lg:pr-6 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
-      isPortrait: true, // whether the device is in portrait mode
     };
   },
   watch: {
@@ -509,8 +508,6 @@ export default {
     setScreenProperties() {
       // sets various properties based on the device screen
       this.playerHeight = document.getElementById("videoPlayer").clientHeight;
-      if (screen.availHeight > screen.availWidth) this.isPortrait = true;
-      else this.isPortrait = false;
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL

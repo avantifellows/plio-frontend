@@ -64,6 +64,10 @@ export default {
           chars_allowed: "वर्ण",
         },
       },
+      image_upload: {
+        add_image: "चित्र",
+        edit_image: "बदलें",
+      },
     },
     dialog: {
       delete_option: {
@@ -102,6 +106,13 @@ export default {
         },
         draft: {
           title: "प्लायो को प्रकाशित किया जा रहा है...",
+        },
+      },
+      image_uploader: {
+        title: "फ़ाइल खींचें और छोड़ें या क्लिक करके अपलोड करें",
+        buttons: {
+          done: "आगे बढ़ें",
+          delete: "डिलीट",
         },
       },
     },

@@ -57,14 +57,16 @@ export default {
       type: Boolean,
       default: false,
     },
-    isStackVertically: {
-      // whether to stack the icon and title vertically
-      // instead of horizontally
-      type: Boolean,
-      default: false,
+    orientation: {
+      // whether to stack the icon and title vertically or horizontally
+      type: String,
+      default: "horizontal",
     },
   },
   computed: {
+    isStackVertically() {
+      return this.orientation == "vertical";
+    },
     iconName() {
       // name of the icon image file under assets/images
       return this.localIconConfig.iconName;

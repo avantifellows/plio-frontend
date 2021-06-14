@@ -9,7 +9,11 @@
     <div :class="orientationClass">
       <!-- question image container -->
       <div :class="questionImageContainerClass" v-if="isQuestionImagePresent">
-        <img :src="questionImageUrl" class="object-contain h-full w-full" />
+        <img
+          :src="imageData.url"
+          class="object-contain h-full w-full"
+          :alt="imageData.alt_text"
+        />
       </div>
       <!-- option container -->
       <div v-if="isQuestionTypeMCQ" :class="optionContainerClass">
@@ -148,10 +152,10 @@ export default {
       default: false,
       type: Boolean,
     },
-    questionImageUrl: {
-      // URL of the image to be shown on a question
+    imageData: {
+      // data of the image to be shown on a question. Contains URL and alt_text
       default: null,
-      type: String,
+      type: Object,
     },
     isPortrait: {
       // whether the screen is in portraid mode
@@ -222,7 +226,7 @@ export default {
     },
     isQuestionImagePresent() {
       // if the current question contains an image
-      return this.questionImageUrl != null;
+      return this.imageData != null && this.imageData.url != null;
     },
     questionTextClass() {
       return [

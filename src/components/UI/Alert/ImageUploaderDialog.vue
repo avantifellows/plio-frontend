@@ -28,7 +28,7 @@
           class="w-2/3 h-2/3 m-auto text-primary transform -rotate-12"
         ></inline-svg>
         <div class="mx-auto mb-8 text-lg font-semibold">
-          Drag and drop or click here to upload
+          {{ $t("editor.dialog.image_uploader.title") }}
         </div>
       </div>
 
@@ -37,7 +37,6 @@
       <VueImageUploader
         outputFormat="verboseWithFile"
         accept="image/*"
-        doNotResize="['gif', 'svg']"
         @input="loadAndPreviewImage"
         :class="uploaderInputClass"
       ></VueImageUploader>
@@ -81,15 +80,14 @@ export default {
     IconButton,
   },
   props: {
-    existingImage: {
-      // if an existing image needs to be previewed, that URL will be passed in this prop
+    uploadedImage: {
+      // if an existing, uploaded image needs to be previewed, that URL will be passed in this prop
       default: null,
       type: String,
     },
   },
   data() {
     return {
-      showImagePreview: false, // whether to show the image preview or not
       imageToPreview: null, // the URL of the image that needs to be previewed
       localImageData: null, // the data of the image that has been uploaded, saved locally
       // styling class for the image preview div
@@ -99,10 +97,9 @@ export default {
   },
 
   created() {
-    if (this.existingImage != null) {
+    if (this.uploadedImage != null) {
       // if there is an existing image, it needs to be previewed when the dialog opens up
-      this.showImagePreview = true;
-      this.imageToPreview = this.existingImage;
+      this.imageToPreview = this.uploadedImage;
     }
   },
 
@@ -117,7 +114,7 @@ export default {
     deleteButtonTitleConfig() {
       // title config for the delete button
       return {
-        value: "Delete",
+        value: this.$t("editor.dialog.image_uploader.buttons.delete"),
         class: "text-black hover:text-white text-md font-bold",
       };
     },
@@ -128,13 +125,18 @@ export default {
     doneButtonTitleConfig() {
       // title config for the done button
       return {
-        value: "Done",
+        value: this.$t("editor.dialog.image_uploader.buttons.done"),
         class: "text-white text-md font-bold",
       };
     },
     doneButtonClass() {
       // class for the done button
       return "bg-primary hover:bg-primary-hover p-1 px-2 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none h-10 place-self-center";
+    },
+    showImagePreview() {
+      // whether to show the image preview or not
+      if (this.imageToPreview != null) return true;
+      return false;
     },
   },
 
@@ -147,7 +149,6 @@ export default {
       if (imageInfo != undefined) {
         this.localImageData = imageInfo;
         this.imageToPreview = this.localImageData.dataUrl;
-        this.showImagePreview = true;
       }
     },
     closeDialog() {
@@ -157,14 +158,13 @@ export default {
     deleteAndUnsetImage() {
       // invoked when the user clicks the delete button
       // hide the image preview
-      this.showImagePreview = false;
       this.imageToPreview = null;
 
       // if the image was saved locally only, purge the local data
       // else if the image was saved in the DB, emit an event
       // (image deletion and unlinking is handled separately)
-      if (this.existingImage == null) this.localImageData = null;
-      else this.$emit("delete-and-unlink-image");
+      if (this.uploadedImage == null) this.localImageData = null;
+      else this.$emit("delete-image");
     },
     submitImage() {
       // when a locally uploaded image needs to be submitted to the DB,
@@ -175,6 +175,6 @@ export default {
     },
   },
 
-  emits: ["close-dialog", "image-selected", "delete-and-unlink-image"],
+  emits: ["close-dialog", "image-selected", "delete-image"],
 };
 </script>

@@ -63,6 +63,10 @@ export default {
           chars_allowed: "CHARACTERS ALLOWED",
         },
       },
+      image_upload: {
+        add_image: "Image",
+        edit_image: "Edit",
+      },
     },
     dialog: {
       delete_option: {
@@ -101,6 +105,13 @@ export default {
         },
         draft: {
           title: "Publishing the plio...",
+        },
+      },
+      image_uploader: {
+        title: "Drag and drop or click here to upload",
+        buttons: {
+          done: "Done",
+          delete: "Delete",
         },
       },
     },
