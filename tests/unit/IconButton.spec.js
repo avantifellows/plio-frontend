@@ -6,10 +6,10 @@ describe("IconButton.vue", () => {
     const { getByText } = render(IconButton, {
       props: {
         titleConfig: {
-          value: "Vaibhav",
+          value: "Button for testing",
         },
       },
     });
-    expect(getByText("Vaibhav")).toBeTruthy();
+    expect(getByText("Button for testing")).toBeTruthy();
   });
 });
