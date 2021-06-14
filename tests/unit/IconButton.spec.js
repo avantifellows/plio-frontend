@@ -1,15 +1,16 @@
-import { render } from "@testing-library/vue";
+import { shallowMount } from "@vue/test-utils";
 import IconButton from "@/components/UI/Buttons/IconButton";
 
 describe("IconButton.vue", () => {
   it("renders title config correctly", () => {
-    const { getByText } = render(IconButton, {
+    const buttonText = "Test Button";
+    const wrapper = shallowMount(IconButton, {
       props: {
         titleConfig: {
-          value: "Button for testing",
+          value: buttonText,
         },
       },
     });
-    expect(getByText("Button for testing")).toBeTruthy();
+    expect(wrapper.text()).toMatch(buttonText);
   });
 });
