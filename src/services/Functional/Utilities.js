@@ -15,7 +15,7 @@ export default {
   },
 
   isObjectEmpty(obj) {
-    // checks if an object (`obj`) is an empty object or not
+    // checks if an object (`obj`) is empty
     return Object.keys(obj).length === 0 && obj.constructor === Object;
   },
 };
