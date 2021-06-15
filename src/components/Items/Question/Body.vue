@@ -213,7 +213,7 @@ export default {
       ];
     },
     orientationClass() {
-      // styling class to decide orientation of images + options depending on portrait/landscape orientation
+      // styling class to decide orientation of image + options depending on portrait/landscape orientation
       return [
         {
           "flex-row content-center items-center":
