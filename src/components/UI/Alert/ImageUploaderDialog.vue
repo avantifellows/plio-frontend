@@ -74,6 +74,9 @@ import VueImageUploader from "@/components/Vue2PortedPackages/VueImageUploader.v
 import Utilities from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 
+// Images more than 10 MB are not allowed to be uploaded
+const MAX_IMAGE_UPLOAD_SIZE = 10485760;
+
 export default {
   name: "ImageUploaderDialog",
   components: {
@@ -94,7 +97,7 @@ export default {
       // styling class for the image preview div
       imagePreviewClass:
         "object-contain h-full w-full border border-dashed border-gray-700",
-      isFileSizeExceedLimit: false,
+      isFileSizeLimitExceeded: false,
     };
   },
 
@@ -107,15 +110,15 @@ export default {
 
   computed: {
     fileSizeInfoText() {
-      return this.isFileSizeExceedLimit
+      return this.isFileSizeLimitExceeded
         ? this.$t("editor.dialog.image_uploader.size_info_text.error")
         : this.$t("editor.dialog.image_uploader.size_info_text.info");
     },
     fileSizeInfoTextClass() {
       return [
         {
-          "text-red-500 font-semibold animate-bounce": this.isFileSizeExceedLimit,
-          "text-black": !this.isFileSizeExceedLimit,
+          "text-red-500 font-semibold animate-bounce": this.isFileSizeLimitExceeded,
+          "text-black": !this.isFileSizeLimitExceeded,
         },
         "mx-auto mb-8 text-base",
       ];
@@ -163,10 +166,10 @@ export default {
       // extract the base64 URL from the info and
       // use it to show the preview
       if (imageInfo != undefined && "dataUrl" in imageInfo) {
-        if (imageInfo.file.size > 10485760) {
-          this.isFileSizeExceedLimit = true;
+        if (imageInfo.file.size > MAX_IMAGE_UPLOAD_SIZE) {
+          this.isFileSizeLimitExceeded = true;
         } else {
-          this.isFileSizeExceedLimit = false;
+          this.isFileSizeLimitExceeded = false;
           this.localImageData = imageInfo;
           this.imageToPreview = this.localImageData.dataUrl;
         }
