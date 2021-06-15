@@ -84,7 +84,7 @@
           class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
           @click="showImageUploaderBox"
           :buttonClass="addImageButtonClass"
-          :orientation="'vertical'"
+          orientation="vertical"
         ></icon-button>
       </div>
 
