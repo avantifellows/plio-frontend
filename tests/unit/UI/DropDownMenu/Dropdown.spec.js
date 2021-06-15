@@ -1,4 +1,4 @@
-import { shallowMount } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import Dropdown from "@/components/UI/DropDownMenu/Dropdown";
 
 const optionsList = [
@@ -14,12 +14,12 @@ const optionsList = [
 
 describe("Dropdown.vue", () => {
   it("renders properly with default values", () => {
-    const wrapper = shallowMount(Dropdown);
+    const wrapper = mount(Dropdown);
     expect(wrapper).toBeTruthy();
   });
 
   it("renders options list correctly", () => {
-    const wrapper = shallowMount(Dropdown, {
+    const wrapper = mount(Dropdown, {
       props: {
         optionsList,
       },

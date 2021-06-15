@@ -1,10 +1,10 @@
-import { shallowMount } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge";
 
 describe("SimpleBadge.vue", () => {
   it("renders title correctly", () => {
     const badgeText = "Test Badge";
-    const wrapper = shallowMount(SimpleBadge, {
+    const wrapper = mount(SimpleBadge, {
       props: {
         text: badgeText,
       },
@@ -15,7 +15,7 @@ describe("SimpleBadge.vue", () => {
   it("renders css class correctly", () => {
     const badgeText = "Test Badge";
     const badgeClass = "text-white";
-    const wrapper = shallowMount(SimpleBadge, {
+    const wrapper = mount(SimpleBadge, {
       props: {
         text: badgeText,
         badgeClass: badgeClass,
