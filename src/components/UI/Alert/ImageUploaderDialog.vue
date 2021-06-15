@@ -45,14 +45,13 @@
     <!-- footer -->
     <div
       class="h-10 w-full bg-white rounded-b-md flex flex-row space-x-4 justify-end pr-10"
-      :class="{ 'h-20': showImagePreview }"
+      :class="{ 'h-20': showImagePreview, invisible: !showImagePreview }"
     >
       <!-- delete button -->
       <icon-button
         :iconConfig="deleteButtonIconConfig"
         :titleConfig="deleteButtonTitleConfig"
         :buttonClass="deleteButtonClass"
-        v-if="showImagePreview"
         @click="deleteAndUnsetImage"
       ></icon-button>
 
@@ -61,7 +60,6 @@
         :iconConfig="doneButtonIconConfig"
         :titleConfig="doneButtonTitleConfig"
         :buttonClass="doneButtonClass"
-        v-if="showImagePreview"
         @click="submitImage"
       ></icon-button>
     </div>

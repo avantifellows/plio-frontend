@@ -7,7 +7,7 @@
   >
     <div
       class="flex w-full justify-center"
-      :class="{ 'flex-col': isStackVertically, 'space-x-2': !isStackVertically }"
+      :class="{ 'flex-col': isStackedVertically, 'space-x-2': !isStackedVertically }"
     >
       <inline-svg
         v-if="isIconConfigEnabled"
@@ -64,7 +64,7 @@ export default {
     },
   },
   computed: {
-    isStackVertically() {
+    isStackedVertically() {
       return this.orientation == "vertical";
     },
     iconName() {
