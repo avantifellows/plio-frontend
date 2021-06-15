@@ -27,8 +27,11 @@
           :src="getIconSource('add_image.svg')"
           class="w-2/3 h-2/3 m-auto text-primary transform -rotate-12"
         ></inline-svg>
-        <div class="mx-auto mb-8 text-lg font-semibold">
+        <div class="mx-auto mb-2 text-lg font-semibold">
           {{ $t("editor.dialog.image_uploader.title") }}
+        </div>
+        <div :class="fileSizeInfoTextClass">
+          <p>{{ fileSizeInfoText }}</p>
         </div>
       </div>
 
@@ -91,6 +94,7 @@ export default {
       // styling class for the image preview div
       imagePreviewClass:
         "object-contain h-full w-full border border-dashed border-gray-700",
+      isFileSizeExceedLimit: false,
     };
   },
 
@@ -102,6 +106,20 @@ export default {
   },
 
   computed: {
+    fileSizeInfoText() {
+      return this.isFileSizeExceedLimit
+        ? this.$t("editor.dialog.image_uploader.size_info_text.error")
+        : this.$t("editor.dialog.image_uploader.size_info_text.info");
+    },
+    fileSizeInfoTextClass() {
+      return [
+        {
+          "text-red-500 font-semibold animate-bounce": this.isFileSizeExceedLimit,
+          "text-black": !this.isFileSizeExceedLimit,
+        },
+        "mx-auto mb-8 text-base",
+      ];
+    },
     uploaderInputClass() {
       // styling class for the input element that handles uploading
       return [
@@ -144,9 +162,14 @@ export default {
       // save the image info locally
       // extract the base64 URL from the info and
       // use it to show the preview
-      if (imageInfo != undefined) {
-        this.localImageData = imageInfo;
-        this.imageToPreview = this.localImageData.dataUrl;
+      if (imageInfo != undefined && "dataUrl" in imageInfo) {
+        if (imageInfo.file.size > 10485760) {
+          this.isFileSizeExceedLimit = true;
+        } else {
+          this.isFileSizeExceedLimit = false;
+          this.localImageData = imageInfo;
+          this.imageToPreview = this.localImageData.dataUrl;
+        }
       }
     },
     closeDialog() {

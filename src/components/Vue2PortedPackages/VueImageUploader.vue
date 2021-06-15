@@ -42,8 +42,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  **/
-import EXIF from "@/exif.js";
-import dataURLtoBlob from "blueimp-canvas-to-blob";
 export default {
   name: "image-uploader",
   props: {
@@ -242,13 +240,6 @@ export default {
           img.src = e.target.result;
           img.onload = function () {
             that.log("img.onload() is triggered", 2);
-            // this extracts exifdata if available. Returns an empty object if not
-            EXIF.getData(img, function () {
-              that.exifData = this.exifdata;
-              if (Object.keys(that.exifData).length === 0) {
-                that.log("ImageUploader: exif data found and extracted", 2);
-              }
-            });
             that.scaleImage(img, that.exifData.Orientation);
           };
         };
@@ -501,16 +492,6 @@ export default {
       this.log("ImageUploader: outputFormat: " + this.outputFormat);
       if (this.outputFormat === "file") {
         return this.currentFile;
-      }
-      if (this.outputFormat === "blob") {
-        if (typeof dataURLtoBlob === "undefined") {
-          console.warn(
-            'Missing library! blueimp-canvas-to-blob.js must be loaded to output as "blob"'
-          );
-          console.warn("Falling back to default base64 dataUrl");
-          return imageData;
-        }
-        return dataURLtoBlob(imageData);
       }
       const info = {
         name: this.currentFile.name,

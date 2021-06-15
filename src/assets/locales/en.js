@@ -113,6 +113,10 @@ export default {
           done: "Done",
           delete: "Delete",
         },
+        size_info_text: {
+          info: "Max image size allowed - 10 MB",
+          error: "Image size exeeds 10 MB. Please upload a smaller image",
+        },
       },
     },
   },
