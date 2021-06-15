@@ -1,3 +1,5 @@
+// configurations for jest unit testing
+
 module.exports = {
   preset: "@vue/cli-plugin-unit-jest",
   transform: {
