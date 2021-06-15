@@ -2,7 +2,7 @@ import { shallowMount } from "@vue/test-utils";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge";
 
 describe("SimpleBadge.vue", () => {
-  it("renders title config correctly", () => {
+  it("renders title correctly", () => {
     const badgeText = "Test Badge";
     const wrapper = shallowMount(SimpleBadge, {
       props: {
