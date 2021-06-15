@@ -1,11 +1,5 @@
 import { mount } from "@vue/test-utils";
 import DialogBox from "@/components/UI/Alert/DialogBox";
-import { config } from "@vue/test-utils";
-import InlineSvg from "vue-inline-svg";
-
-config.global.components = {
-  InlineSvg,
-};
 
 describe("DialogBox.vue", () => {
   it("should render with default values", () => {

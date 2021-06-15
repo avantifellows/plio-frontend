@@ -5,4 +5,5 @@ module.exports = {
   },
   collectCoverage: true,
   collectCoverageFrom: ["src/**/*.{js,vue}", "!src/main.js"],
+  setupFiles: ["<rootDir>/jest.init.js"],
 };
