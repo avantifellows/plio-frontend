@@ -26,5 +26,11 @@ describe("Dropdown.vue", () => {
     });
     expect(wrapper.find("option").html()).toContain(optionsList[0].label);
     expect(wrapper.find("option").element.value).toMatch(optionsList[0].value);
+    expect(wrapper.find("option:nth-child(2)").html()).toContain(
+      optionsList[1].label
+    );
+    expect(wrapper.find("option:nth-child(2)").element.value).toMatch(
+      optionsList[1].value
+    );
   });
 });

@@ -2,6 +2,8 @@
 FROM node:lts-alpine as base-stage
 WORKDIR /app
 COPY package*.json ./
+# install dependencies for npm run test:unit
+RUN apk --no-cache --virtual build-dependencies add python make g++
 RUN npm install
 
 # development stage
