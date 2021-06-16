@@ -1,12 +1,5 @@
 <template>
-  <input
-    :id="id"
-    :class="className"
-    type="file"
-    @change="uploadFile"
-    :accept="accept"
-    capture="false"
-  />
+  <input :id="id" :class="className" type="file" @change="uploadFile" :accept="accept" />
 </template>
 
 <script>
