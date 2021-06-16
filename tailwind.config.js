@@ -65,7 +65,7 @@ module.exports = {
       opacity: ["disabled"],
       pointerEvents: ["disabled"],
       cursor: ["disabled", "hover"],
-      textColor: ["group-disabled", "disabled"],
+      textColor: ["group-disabled"],
       backgroundColor: ["active", "checked", "disabled"],
       borderColor: ["checked"],
       display: ["hover"],
