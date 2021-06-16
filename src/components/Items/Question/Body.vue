@@ -242,7 +242,7 @@ export default {
       // styling class for the image container
       return [
         {
-          "h-3/6 mx-10 mb-4": this.isPortrait && !this.previewMode && this.isFullscreen,
+          "h-96 mx-10 mb-4": this.isPortrait && !this.previewMode && this.isFullscreen,
           "h-28 sm:h-36 md:h-60 lg:h-72 xl:h-89 ml-10 w-1/2 lg:w-1/3":
             (!this.isPortrait && !this.previewMode) ||
             (this.isPortrait && !this.isFullscreen),
