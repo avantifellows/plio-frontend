@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col bg-white w-full sm:w-3/6 xl:w-2/6 border rounded-lg shadow-xl fixed top-1/6 sm:top-1/4 md:top-1/6"
+    class="flex flex-col bg-white w-5/6 sm:w-4/6 md:w-3/6 xl:w-2/6 border rounded-lg shadow-xl fixed top-1/6 sm:top-1/4 md:top-1/6"
   >
     <!-- header -->
     <div class="h-10 w-full bg-white rounded-t-md">
@@ -13,7 +13,7 @@
     </div>
 
     <!-- body -->
-    <div class="h-96 w-full bg-white px-10 relative">
+    <div class="h-48 xsm:h-56 bp-420:h-72 bp-500:h-96 w-full bg-white px-10 relative">
       <!-- image preview -->
       <img v-if="showImagePreview" :src="imageToPreview" :class="imagePreviewClass" />
 
@@ -24,10 +24,12 @@
         id="upload-box"
       >
         <inline-svg
-          :src="getIconSource('add_image.svg')"
-          class="w-2/3 h-2/3 m-auto text-primary transform -rotate-12"
+          :src="uploaderBoxIconSource"
+          :class="uploaderBoxIconClass"
         ></inline-svg>
-        <div class="mx-auto mb-2 text-lg font-semibold">
+        <div
+          class="mx-auto mb-2 text-xs xsm:text-sm bp-420:text-base sm:text-base md:text-lg font-semibold"
+        >
           {{ $t("editor.dialog.image_uploader.title") }}
         </div>
         <div :class="fileSizeInfoTextClass">
@@ -73,6 +75,7 @@
 import VueImageUploader from "@/components/Vue2PortedPackages/VueImageUploader.vue";
 import Utilities from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import { mapState, mapActions } from "vuex";
 
 // Images more than 10 MB are not allowed to be uploaded
 const MAX_IMAGE_UPLOAD_SIZE = 10485760;
@@ -109,6 +112,23 @@ export default {
   },
 
   computed: {
+    ...mapState("sync", ["pending"]),
+    uploaderBoxIconSource() {
+      // icon source for the uploader box
+      return this.pending
+        ? this.getIconSource("spinner-solid.svg")
+        : this.getIconSource("add_image.svg");
+    },
+    uploaderBoxIconClass() {
+      // icon styling classes for the uploader box
+      return [
+        {
+          "animate-spin w-1/2 h-1/2": this.pending,
+          "transform -rotate-12 w-2/3 h-2/3": !this.pending,
+        },
+        "m-auto text-primary",
+      ];
+    },
     fileSizeInfoText() {
       return this.isFileSizeLimitExceeded
         ? this.$t("editor.dialog.image_uploader.size_info_text.error")
@@ -120,7 +140,7 @@ export default {
           "text-red-500 font-semibold animate-bounce": this.isFileSizeLimitExceeded,
           "text-black": !this.isFileSizeLimitExceeded,
         },
-        "mx-auto mb-8 text-base",
+        "mx-auto mb-8 text-xs xsm:text-sm bp-420:text-base sm:text-base md:text-lg",
       ];
     },
     uploaderInputClass() {
@@ -161,10 +181,12 @@ export default {
 
   methods: {
     ...Utilities,
+    ...mapActions("sync", ["startLoading", "stopLoading"]),
     loadAndPreviewImage(imageInfo) {
       // save the image info locally
       // extract the base64 URL from the info and
       // use it to show the preview
+      this.startLoading();
       if (imageInfo != undefined && "dataUrl" in imageInfo) {
         if (imageInfo.file.size > MAX_IMAGE_UPLOAD_SIZE) {
           this.isFileSizeLimitExceeded = true;
@@ -173,6 +195,7 @@ export default {
           this.localImageData = imageInfo;
           this.imageToPreview = this.localImageData.dataUrl;
         }
+        this.stopLoading();
       }
     },
     closeDialog() {
@@ -193,8 +216,11 @@ export default {
     submitImage() {
       // when a locally uploaded image needs to be submitted to the DB,
       // emit an event with the image file as a payload
-      if (this.localImageData != null)
+      if (this.localImageData != null) {
+        this.startLoading();
+        this.$Progress.finish();
         this.$emit("image-selected", this.localImageData.file);
+      }
       this.closeDialog();
     },
   },

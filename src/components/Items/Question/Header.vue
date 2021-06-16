@@ -44,10 +44,10 @@ export default {
       // styling class for the minimize button
       return [
         {
-          "sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10": !this.previewMode,
-          "p-2": this.previewMode,
+          "sm:p-2 sm:px-10 lg:p-4 lg:px-10 px-4": !this.previewMode,
+          "p-1 lg:p-2 px-2": this.previewMode,
         },
-        "bg-primary hover:bg-primary-hover p-1 px-4 rounded-md",
+        "bg-primary hover:bg-primary-hover p-1 rounded-md",
       ];
     },
     minimizeButtonTitleConfig() {
@@ -57,7 +57,7 @@ export default {
           ? this.$t("editor.buttons.show_item")
           : this.$t("editor.buttons.show_video"),
         class: this.previewMode
-          ? "text-white text-sm lg:text-base"
+          ? "text-white text-xs lg:text-sm"
           : "text-white text-md sm:text-base lg:text-xl font-bold",
       };
     },

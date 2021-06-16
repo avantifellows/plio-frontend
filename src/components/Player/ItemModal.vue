@@ -28,6 +28,7 @@
         :previewMode="previewMode"
         :imageData="imageData"
         :isPortrait="isPortrait"
+        :isFullscreen="isFullscreen"
       ></item-question-body>
       <!-- footer -->
       <item-question-footer
@@ -151,7 +152,7 @@ export default {
       return [
         {
           "justify-between": !this.previewMode,
-          "justify-start": this.previewMode,
+          "justify-center md:justify-start": this.previewMode,
         },
         "h-full flex flex-col",
       ];
@@ -251,10 +252,18 @@ export default {
       // whether the type of the question is subjective if item is question
       return this.questionType == "subjective";
     },
+    onEditorPage() {
+      return this.$route.name == "Editor";
+    },
   },
   methods: {
     checkScreenOrientation() {
       // check if the device is in portrait or landscape mode
+      if (this.onEditorPage) {
+        // device is assumed to be always in landscape mode when the user is on the Editor page
+        this.isPortrait = false;
+        return;
+      }
       if (screen.availHeight > screen.availWidth) this.isPortrait = true;
       else this.isPortrait = false;
     },

@@ -7,12 +7,21 @@
       </p>
     </div>
     <div :class="orientationClass">
+      <!-- loading spinner when question image is loading -->
+      <div class="place-self-center px-10" v-if="pending">
+        <inline-svg
+          :src="require('@/assets/images/spinner-solid.svg')"
+          class="animate-spin h-4 object-scale-down"
+        ></inline-svg>
+      </div>
       <!-- question image container -->
       <div :class="questionImageContainerClass" v-if="isQuestionImagePresent">
         <img
           :src="imageData.url"
           class="object-contain h-full w-full"
           :alt="imageData.alt_text"
+          @load="imageLoaded"
+          :class="{ invisible: pending }"
         />
       </div>
       <!-- option container -->
@@ -78,6 +87,7 @@
 
 <script>
 import Textarea from "@/components/UI/Text/Textarea.vue";
+import { mapState, mapActions } from "vuex";
 
 export default {
   data() {
@@ -97,9 +107,17 @@ export default {
       }
       this.$emit("answer-updated", this.subjectiveAnswer);
     },
+    imageData: {
+      // invoked when another item pops up which has an image
+      handler(value) {
+        if (value != null) this.startLoading();
+      },
+      deep: true,
+    },
   },
-  created() {
+  async created() {
     this.subjectiveAnswer = this.defaultAnswer;
+    if (this.isQuestionImagePresent) this.startLoading();
   },
   props: {
     questionText: {
@@ -162,9 +180,19 @@ export default {
       default: false,
       type: Boolean,
     },
+    isFullscreen: {
+      // whether the modal is in fullscreen
+      default: false,
+      type: Boolean,
+    },
   },
   components: { Textarea },
   methods: {
+    ...mapActions("sync", ["startLoading", "stopLoading"]),
+    imageLoaded() {
+      // stop the loading spinner when the image has been loaded
+      this.stopLoading();
+    },
     checkCharLimit(event) {
       // checks if character limit is reached in case it is set
       if (!this.hasCharLimit) return;
@@ -191,13 +219,16 @@ export default {
     },
   },
   computed: {
+    ...mapState("sync", ["pending"]),
     optionContainerClass() {
       // styling class for the options container
       return [
         {
-          "w-full": this.isQuestionImagePresent && !this.isPortrait && !this.previewMode,
+          "w-full": !this.isPortrait,
+          "mx-2": this.previewMode,
+          "mx-4 md:mx-6 xl:mx-10": !this.previewMode,
         },
-        "flex mx-4 md:mx-6 xl:mx-10",
+        "flex my-2",
       ];
     },
     questionImageContainerClass() {
@@ -205,9 +236,10 @@ export default {
       return [
         {
           "h-3/6 mx-10 mb-4": this.isPortrait && !this.previewMode,
-          "h-28 sm:h-36 md:h-60 lg:h-72 xl:h-89 ml-10":
+          "h-28 sm:h-36 md:h-60 lg:h-72 xl:h-89 ml-10 w-1/2 lg:w-1/3":
             !this.isPortrait && !this.previewMode,
-          "h-44 mx-10 mb-4": this.previewMode,
+          "h-32 md:h-40 ml-4 mb-4 w-1/2": this.previewMode,
+          invisible: this.pending,
         },
         "border rounded-md",
       ];
@@ -216,10 +248,9 @@ export default {
       // styling class to decide orientation of image + options depending on portrait/landscape orientation
       return [
         {
-          "flex-row content-center items-center":
-            this.isQuestionImagePresent && !this.isPortrait && !this.previewMode,
-          "flex-col":
-            (this.isQuestionImagePresent && this.isPortrait) || this.previewMode,
+          "flex-row content-center":
+            this.isQuestionImagePresent && !this.isPortrait && !this.isFullscreen,
+          "flex-col": this.isQuestionImagePresent && this.isPortrait && this.isFullscreen,
         },
         "flex",
       ];

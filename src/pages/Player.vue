@@ -252,6 +252,10 @@ export default {
 
     // add listener for screen size being changed
     window.addEventListener("resize", this.setScreenProperties);
+
+    // hide the chatwoot bubble
+    var chatwootBubble = document.querySelector(".woot-widget-bubble");
+    if (chatwootBubble != undefined) chatwootBubble.classList.add("hidden");
   },
   beforeUnmount() {
     // remove timeout

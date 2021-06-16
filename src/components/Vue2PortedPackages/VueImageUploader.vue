@@ -5,7 +5,7 @@
     type="file"
     @change="uploadFile"
     :accept="accept"
-    :capture="capture"
+    :capture="false"
   />
 </template>
 

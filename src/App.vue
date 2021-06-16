@@ -235,6 +235,10 @@ export default {
           chatwootBubble.style.bottom = "60px";
         }
 
+        // hide the chatwoot bubble for all the pages except "Home"
+        if (this.onHomePage) chatwootBubble.classList.remove("hidden");
+        else chatwootBubble.classList.add("hidden");
+
         // set the user for the chatwoot instance
         window.$chatwoot.setUser(this.user.id, {
           email: this.user.email,
