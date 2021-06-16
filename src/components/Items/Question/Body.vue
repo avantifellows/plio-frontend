@@ -235,7 +235,7 @@ export default {
           "mx-2": this.previewMode,
           "mx-4 md:mx-6 xl:mx-10": !this.previewMode,
         },
-        "flex my-2",
+        "flex",
       ];
     },
     questionImageContainerClass() {

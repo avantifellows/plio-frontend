@@ -335,7 +335,7 @@ export default {
       isModalMinimized: false, // whether the preview modal is minimized or not
       // styling class for the minimize button
       maximizeButtonClass:
-        "bg-primary hover:bg-primary-hover p-2 pl-2 pr-2 sm:p-2 rounded-md shadow-xl",
+        "bg-primary hover:bg-primary-hover p-1 lg:p-2 px-2 rounded-md shadow-xl",
       showImageUploaderDialog: false, // whether to show the image uploader or not
     };
   },
@@ -429,7 +429,7 @@ export default {
         value: this.isModalMinimized
           ? this.$t(`editor.buttons.show_${this.currentItemType}`)
           : this.$t("editor.buttons.show_video"),
-        class: "text-white text-sm lg:text-base",
+        class: "text-white text-xs lg:text-sm tracking-tighter",
       };
     },
     showItemModal() {
