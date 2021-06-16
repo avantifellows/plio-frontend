@@ -202,10 +202,10 @@ export default {
       this.$emit("change", output);
     },
     emitLoad() {
-      this.$emit("onUpload");
+      this.$emit("upload");
     },
     emitComplete() {
-      this.$emit("onComplete");
+      this.$emit("complete");
     },
     /**
      * Handels the file manipulation on upload
@@ -543,6 +543,6 @@ export default {
   created() {
     this.log("Initialised ImageUploader");
   },
-  emits: ["image-preview"],
+  emits: ["image-preview", "upload", "complete", "input", "change"],
 };
 </script>

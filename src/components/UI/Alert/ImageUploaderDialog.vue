@@ -54,7 +54,6 @@
     >
       <!-- delete button -->
       <icon-button
-        :iconConfig="deleteButtonIconConfig"
         :titleConfig="deleteButtonTitleConfig"
         :buttonClass="deleteButtonClass"
         @click="deleteAndUnsetImage"
@@ -62,7 +61,6 @@
 
       <!-- done button -->
       <icon-button
-        :iconConfig="doneButtonIconConfig"
         :titleConfig="doneButtonTitleConfig"
         :buttonClass="doneButtonClass"
         @click="submitImage"
