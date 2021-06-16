@@ -321,10 +321,6 @@ export default {
         iconName: "plus-solid",
         iconClass: "text-white h-5 w-5 mr-3",
       },
-      addItemTitleConfig: {
-        // config for title of add item button
-        value: this.$t("editor.buttons.add_question"),
-      },
       // index of the option to be deleted; -1 means nothing to be deleted
       optionIndexToDelete: -1,
       videoDBId: null, // store the DB id of video object linked to the plio
