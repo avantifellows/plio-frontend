@@ -132,7 +132,7 @@ export default {
       // icon styling classes for the uploader box
       return [
         {
-          "animate-spin w-1/2 h-1/2": this.pending,
+          "animate-spin w-1/6 h-1/6": this.pending,
           "transform -rotate-12 w-2/3 h-2/3": !this.pending,
         },
         "m-auto text-primary",
