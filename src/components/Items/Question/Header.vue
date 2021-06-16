@@ -24,7 +24,7 @@ export default {
     return {
       // styling class for the skip button
       skipButtonClass:
-        "bg-primary hover:bg-primary-hover pt-1 pb-1 pl-4 pr-4 sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+        "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none h-full",
     };
   },
   components: { IconButton },
@@ -47,7 +47,7 @@ export default {
           "sm:p-2 sm:px-10 lg:p-4 lg:px-10 px-4": !this.previewMode,
           "p-1 lg:p-2 px-2": this.previewMode,
         },
-        "bg-primary hover:bg-primary-hover p-1 rounded-md",
+        "bg-primary hover:bg-primary-hover p-1 rounded-md h-full",
       ];
     },
     minimizeButtonTitleConfig() {
