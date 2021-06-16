@@ -252,15 +252,12 @@ export default {
       // whether the type of the question is subjective if item is question
       return this.questionType == "subjective";
     },
-    onEditorPage() {
-      return this.$route.name == "Editor";
-    },
   },
   methods: {
     checkScreenOrientation() {
       // check if the device is in portrait or landscape mode
-      if (this.onEditorPage) {
-        // device is assumed to be always in landscape mode when the user is on the Editor page
+      if (this.previewMode) {
+        // device is assumed to be always in landscape mode when the modal is in preview mode
         this.isPortrait = false;
         return;
       }
