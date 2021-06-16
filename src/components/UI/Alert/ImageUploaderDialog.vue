@@ -28,7 +28,7 @@
           :class="uploaderBoxIconClass"
         ></inline-svg>
         <div
-          class="mx-auto mb-2 text-xs xsm:text-sm bp-420:text-base sm:text-base md:text-lg font-semibold"
+          class="mx-auto mb-2 text-xs xsm:text-sm bp-420:text-base sm:text-base md:text-lg font-semibold px-2 text-center"
         >
           {{ clickHereToUploadMessage }}
         </div>
@@ -149,7 +149,7 @@ export default {
           "text-red-500 font-semibold animate-bounce": this.isFileSizeLimitExceeded,
           "text-black": !this.isFileSizeLimitExceeded,
         },
-        "mx-auto mb-8 text-xs xsm:text-sm bp-420:text-base sm:text-base md:text-lg",
+        "mx-auto mb-8 text-xs xsm:text-sm bp-420:text-base sm:text-base md:text-lg px-2 text-center",
       ];
     },
     uploaderInputClass() {
