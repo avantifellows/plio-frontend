@@ -4,12 +4,12 @@
   >
     <div class="flex flex-col bp-500:grid bp-500:grid-cols-4 lg:grid-cols-5">
       <!-- thumbnail -->
-      <div class="bp-500:w-full flex bp-500:block bp-500:self-center">
+      <div class="bp-500:w-full flex bp-500:block bp-500:self-center justify-center">
         <p
           v-if="pending"
           class="animate-pulse h-24 md:h-32 xl:h-42 my-2 md:my-4 lg:my-0 xl:my-6 w-full place-self-center bg-gray-500 rounded-md"
         ></p>
-        <img v-else :src="videoThumbnailURL" class="rounded-md" />
+        <img v-else :src="videoThumbnailURL" class="rounded-md h-48 bp-500:h-auto" />
       </div>
       <div
         class="col-span-3 lg:col-span-4 flex flex-col justify-between mt-4 bp-500:mr-0 bp-500:ml-8 lg:ml-14"
