@@ -108,7 +108,8 @@ export default {
         },
       },
       image_uploader: {
-        title: "Drag and drop or click here to upload",
+        title_non_touch: "Drag and drop or click here to upload",
+        title_touch: "Click to take a picture or add from gallery",
         buttons: {
           done: "Done",
           delete: "Delete",

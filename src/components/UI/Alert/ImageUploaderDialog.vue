@@ -30,7 +30,7 @@
         <div
           class="mx-auto mb-2 text-xs xsm:text-sm bp-420:text-base sm:text-base md:text-lg font-semibold"
         >
-          {{ $t("editor.dialog.image_uploader.title") }}
+          {{ clickHereToUploadMessage }}
         </div>
         <div :class="fileSizeInfoTextClass">
           <p>{{ fileSizeInfoText }}</p>
@@ -113,6 +113,15 @@ export default {
 
   computed: {
     ...mapState("sync", ["pending"]),
+    clickHereToUploadMessage() {
+      return this.isTouchDevice
+        ? this.$t("editor.dialog.image_uploader.title_touch")
+        : this.$t("editor.dialog.image_uploader.title_non_touch");
+    },
+    isTouchDevice() {
+      // detects if the user's device has a touchscreen or not
+      return window.matchMedia("(any-pointer: coarse)").matches;
+    },
     uploaderBoxIconSource() {
       // icon source for the uploader box
       return this.pending
