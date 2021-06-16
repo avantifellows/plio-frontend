@@ -225,7 +225,6 @@ export default {
       // emit an event with the image file as a payload
       if (this.localImageData != null) {
         this.startLoading();
-        this.$Progress.finish();
         this.$emit("image-selected", this.localImageData.file);
       }
       this.closeDialog();

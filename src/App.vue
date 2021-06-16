@@ -121,14 +121,6 @@ export default {
     UserConfigService.setLocaleFromUserConfig();
   },
   watch: {
-    pending(value) {
-      // start or finish progress bar depending on the value of "pending"
-      // exception - Home page
-      if (!this.onHomePage && !this.onLoginPage) {
-        if (value) this.$Progress.start();
-        else this.$Progress.finish();
-      }
-    },
     isAuthenticated(value) {
       // if user was logged in before but has been logged out now
       // show a popup telling the user that they're logged out

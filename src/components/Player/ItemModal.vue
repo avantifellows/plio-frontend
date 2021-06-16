@@ -152,7 +152,7 @@ export default {
       return [
         {
           "justify-between": !this.previewMode,
-          "justify-center md:justify-start": this.previewMode,
+          "justify-center md:justify-start lg:justify-center": this.previewMode,
         },
         "h-full flex flex-col",
       ];
