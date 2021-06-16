@@ -355,13 +355,6 @@ export default {
         this.savePlio();
       }
     }, this.saveInterval);
-
-    // hide the chatwoot bubble
-    this.$nextTick(() => {
-      var chatwootBubble = document.querySelector(".woot-widget-bubble");
-      console.log(chatwootBubble);
-      if (chatwootBubble != undefined) chatwootBubble.classList.add("hidden");
-    });
   },
   beforeUnmount() {
     // clear interval

@@ -332,10 +332,6 @@ export default {
     // fetch plio details
     this.startLoading();
     await this.fetchData();
-
-    // hide the chatwoot bubble
-    var chatwootBubble = document.querySelector(".woot-widget-bubble");
-    if (chatwootBubble != undefined) chatwootBubble.classList.add("hidden");
   },
   computed: {
     ...mapState("sync", ["pending"]),

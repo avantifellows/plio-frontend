@@ -155,6 +155,13 @@ export default {
         });
         if (!isUserInWorkspace) this.$router.replace({ name: "Home" });
       }
+
+      // hide the chatwoot bubble if the user navigates away from the home page
+      var chatwootBubble = document.querySelector(".woot-widget-bubble");
+      if (chatwootBubble != undefined) {
+        if (value) chatwootBubble.classList.remove("hidden");
+        else chatwootBubble.classList.add("hidden");
+      }
     },
     user: {
       handler() {
