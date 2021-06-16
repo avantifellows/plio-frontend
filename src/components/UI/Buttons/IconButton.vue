@@ -15,7 +15,9 @@
         :class="iconClass"
         class="place-self-center"
       ></inline-svg>
-      <p v-if="displayTitle" :class="titleClass">{{ title }}</p>
+      <p v-if="displayTitle" :class="titleClass">
+        {{ title }}
+      </p>
     </div>
   </button>
 </template>

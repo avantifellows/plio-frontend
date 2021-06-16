@@ -664,7 +664,6 @@ export default {
       var imageIdToDelete = this.items[this.currentItemIndex].details.image.id;
       ImageAPIService.deleteImage(imageIdToDelete);
       this.items[this.currentItemIndex].details.image = null;
-      if (this.isPublished) this.savePlio()
     },
     uploadImage(imageFile) {
       // POST the image file to the backend.

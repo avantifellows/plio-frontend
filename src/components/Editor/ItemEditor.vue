@@ -79,12 +79,13 @@
         ></Textarea>
         <!-- add image to item button -->
         <icon-button
+          class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
+          orientation="vertical"
           :iconConfig="addImageButtonIconConfig"
           :titleConfig="addImageButtonTitleConfig"
-          class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
-          @click="showImageUploaderBox"
           :buttonClass="addImageButtonClass"
-          orientation="vertical"
+          :isDisabled="isInteractionDisabled"
+          @click="showImageUploaderBox"
         ></icon-button>
       </div>
 
@@ -242,12 +243,14 @@ export default {
       isQuestionDropdownShown: false, // whether the question type dropdown is shown
       questionTextboxHeightLimit: 200, // maximum allowed height of the question text box in px
       // styling classes for add image button
-      addImageButtonClass: "bg-white hover:bg-primary-button focus:ring-primary",
+      addImageButtonClass:
+        "bg-white hover:bg-primary-button disabled:bg-white focus:ring-primary",
       addImageButtonIconConfig: {
         // icon config for add image button
         enabled: true,
         iconName: "image-regular",
-        iconClass: "w-6 h-6 text-primary group-hover:text-white",
+        iconClass:
+          "w-6 h-6 text-primary group-hover:text-white group-disabled:text-primary",
       },
     };
   },
@@ -449,7 +452,8 @@ export default {
         value: this.isQuestionImagePresent
           ? this.$t("editor.item_editor.image_upload.edit_image")
           : this.$t("editor.item_editor.image_upload.add_image"),
-        class: "text-xs group-hover:text-white text-black font-normal",
+        class:
+          "text-xs group-hover:text-white group-disabled:text-black text-black font-normal",
       };
     },
     isQuestionImagePresent() {
