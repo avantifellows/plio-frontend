@@ -5,6 +5,7 @@
     "scripts": {
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build",
+        "test:unit": "vue-cli-service test:unit",
         "lint": "vue-cli-service lint",
         "deploy": "vue-cli-service build && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend --delete --acl public-read",
         "build-staging": "vue-cli-service build --mode staging",
@@ -27,8 +28,8 @@
         "primeicons": "^4.1.0",
         "primevue": "^3.3.5",
         "secure-ls": "^1.2.3",
+        "vue": "^3.0.0",
         "tailwindcss-interaction-variants": "^5.0.0",
-        "vue": "^3.0.0-0",
         "vue-gtag": "^2.0.0",
         "vue-i18n": "^9.0.0",
         "vue-inline-svg": "^3.0.0-beta.2",
@@ -44,9 +45,11 @@
         "@vue/cli-plugin-babel": "~4.5.0",
         "@vue/cli-plugin-eslint": "~4.5.0",
         "@vue/cli-plugin-router": "^4.5.6",
+        "@vue/cli-plugin-unit-jest": "~4.5.0",
         "@vue/cli-plugin-vuex": "^4.5.6",
         "@vue/cli-service": "~4.5.0",
         "@vue/compiler-sfc": "^3.0.0-0",
+        "@vue/test-utils": "^2.0.0-0",
         "autoprefixer": "^9.8.6",
         "babel-eslint": "^10.1.0",
         "babel-plugin-transform-remove-console": "^6.9.4",
@@ -55,7 +58,8 @@
         "postcss": "^7.0.35",
         "sass": "^1.26.11",
         "sass-loader": "^10.0.2",
-        "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.4"
+        "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.4",
+        "vue-jest": "^5.0.0-0"
     },
     "eslintConfig": {
         "root": true,
@@ -69,7 +73,18 @@
         "parserOptions": {
             "parser": "babel-eslint"
         },
-        "rules": {}
+        "rules": {},
+        "overrides": [
+            {
+                "files": [
+                    "**/__tests__/*.{j,t}s?(x)",
+                    "**/tests/unit/**/*.spec.{j,t}s?(x)"
+                ],
+                "env": {
+                    "jest": true
+                }
+            }
+        ]
     },
     "browserslist": [
         "> 1%",
