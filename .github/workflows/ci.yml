@@ -1,0 +1,31 @@
+name: Plio CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  pre-commit:
+    name: Pre-commit
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+    - uses: pre-commit/action@v2.0.0
+
+  test:
+    name: Test cases
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Test Cases
+        # command to run tests and generate coverage metrics
+        run: npm run test:unit
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1

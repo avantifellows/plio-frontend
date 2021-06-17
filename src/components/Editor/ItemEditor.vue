@@ -66,16 +66,28 @@
 
     <!-- item editor -->
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
-      <!-- question input box : expandable -->
-      <Textarea
-        :placeholder="questionInputPlaceholder"
-        :title="questionInputTitle"
-        v-model:value="questionText"
-        ref="questionText"
-        class="p-2"
-        :boxStyling="'pl-4 focus:ring-primary'"
-        :maxHeightLimit="questionTextboxHeightLimit"
-      ></Textarea>
+      <div class="flex flex-row">
+        <!-- question input box : expandable -->
+        <Textarea
+          :placeholder="questionInputPlaceholder"
+          :title="questionInputTitle"
+          v-model:value="questionText"
+          ref="questionText"
+          class="p-2 w-full"
+          :boxStyling="'pl-4 focus:ring-primary'"
+          :maxHeightLimit="questionTextboxHeightLimit"
+        ></Textarea>
+        <!-- add image to item button -->
+        <icon-button
+          class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
+          orientation="vertical"
+          :iconConfig="addImageButtonIconConfig"
+          :titleConfig="addImageButtonTitleConfig"
+          :buttonClass="addImageButtonClass"
+          :isDisabled="isInteractionDisabled"
+          @click="showImageUploaderBox"
+        ></icon-button>
+      </div>
 
       <!-- time input HH : MM : SS : mmm -->
       <time-input
@@ -230,6 +242,16 @@ export default {
       ],
       isQuestionDropdownShown: false, // whether the question type dropdown is shown
       questionTextboxHeightLimit: 200, // maximum allowed height of the question text box in px
+      // styling classes for add image button
+      addImageButtonClass:
+        "bg-white hover:bg-primary-button disabled:bg-white focus:ring-primary",
+      addImageButtonIconConfig: {
+        // icon config for add image button
+        enabled: true,
+        iconName: "image-regular",
+        iconClass:
+          "w-6 h-6 text-primary group-hover:text-white group-disabled:text-primary",
+      },
     };
   },
 
@@ -276,6 +298,10 @@ export default {
     QuestionTypeDropdown,
   },
   methods: {
+    showImageUploaderBox() {
+      // to show or hide the image uploader dialog box
+      this.$emit("show-image-uploader");
+    },
     maxCharLimitInputKeypress(event) {
       // invoked when a key is pressed in the input area for setting max limit
       // only allows numbers as input
@@ -420,6 +446,20 @@ export default {
   },
 
   computed: {
+    addImageButtonTitleConfig() {
+      // title config for the add image button
+      return {
+        value: this.isQuestionImagePresent
+          ? this.$t("editor.item_editor.image_upload.edit_image")
+          : this.$t("editor.item_editor.image_upload.add_image"),
+        class:
+          "text-xs group-hover:text-white group-disabled:text-black text-black font-normal",
+      };
+    },
+    isQuestionImagePresent() {
+      // if the current selected item has an image present
+      return this.localItemList[this.localSelectedItemIndex].details.image != null;
+    },
     localQuestionTypeIndex: {
       // local copy of the current question type index
       get() {
@@ -677,6 +717,7 @@ export default {
     "error-resolved",
     "update:questionTypeIndex",
     "question-type-changed",
+    "show-image-uploader",
   ],
 };
 </script>

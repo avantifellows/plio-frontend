@@ -1,67 +1,85 @@
 <template>
   <div class="overflow-y-auto flex flex-col">
     <!-- question text -->
-    <div class="px-4 md:px-6 xl:px-10">
+    <div :class="questionTextDivClass">
       <p :class="questionTextClass">
         {{ questionText }}
       </p>
     </div>
-    <!-- option container -->
-    <div v-if="isQuestionTypeMCQ" class="flex mx-4 md:mx-6 xl:mx-10">
-      <ul class="w-full">
-        <li class="list-none space-y-1 flex flex-col">
-          <div
-            v-for="(option, optionIndex) in options"
-            :key="optionIndex"
-            :class="[optionBackgroundClass(optionIndex), optionTextClass]"
-          >
-            <!-- each option is defined here -->
-            <!-- adding <label> so that touch input is just
-                  not limited to the radio button -->
-            <label :class="labelClass(option)">
-              <!-- understand the meaning of the keys here:
-               https://www.w3schools.com/tags/att_input_type_radio.asp -->
-              <input
-                type="radio"
-                name="questionOptions"
-                :value="option"
-                class="place-self-center"
-                @click="selectOption(optionIndex)"
-                :checked="isOptionChecked(optionIndex)"
-                :disabled="isAnswerSubmitted || previewMode"
-              />
-              <div
-                v-html="option"
-                class="ml-2 h-full place-self-center leading-tight"
-              ></div>
-            </label>
-          </div>
-        </li>
-      </ul>
-    </div>
-    <!-- subjective question answer -->
-    <div
-      v-if="isQuestionTypeSubjective"
-      class="flex flex-col px-4 md:px-6 xl:px-10 w-full"
-    >
-      <!-- input area for the answer -->
-      <Textarea
-        :placeholder="subjectiveAnswerInputPlaceholder"
-        class="px-2 w-full"
-        v-model:value="subjectiveAnswer"
-        boxStyling="px-4 placeholder-gray-400 bp-420:h-20 sm:h-28 md:h-36 focus:border-gray-200 focus:ring-transparent"
-        :isDisabled="isAnswerSubmitted || previewMode"
-        @keypress="checkCharLimit"
-        :maxHeightLimit="subjectiveBoxHeightLimit"
-      ></Textarea>
-      <!-- character limit -->
+    <div :class="orientationClass">
+      <!-- loading spinner when question image is loading -->
+      <div class="place-self-center px-10" v-if="pending">
+        <inline-svg
+          :src="require('@/assets/images/spinner-solid.svg')"
+          class="animate-spin h-4 object-scale-down"
+        ></inline-svg>
+      </div>
+      <!-- question image container -->
+      <div :class="questionImageContainerClass" v-if="isQuestionImagePresent">
+        <img
+          :src="imageData.url"
+          class="object-contain h-full w-full"
+          :alt="imageData.alt_text"
+          @load="imageLoaded"
+          :class="{ invisible: pending }"
+        />
+      </div>
+      <!-- option container -->
+      <div v-if="isQuestionTypeMCQ" :class="optionContainerClass">
+        <ul class="w-full">
+          <li class="list-none space-y-1 flex flex-col">
+            <div
+              v-for="(option, optionIndex) in options"
+              :key="optionIndex"
+              :class="[optionBackgroundClass(optionIndex), optionTextClass]"
+            >
+              <!-- each option is defined here -->
+              <!-- adding <label> so that touch input is just not limited to the radio button -->
+              <label :class="labelClass(option)">
+                <!-- understand the meaning of the keys here:
+                    https://www.w3schools.com/tags/att_input_type_radio.asp -->
+                <input
+                  type="radio"
+                  name="questionOptions"
+                  :value="option"
+                  class="place-self-center"
+                  @click="selectOption(optionIndex)"
+                  :checked="isOptionChecked(optionIndex)"
+                  :disabled="isAnswerSubmitted || previewMode"
+                />
+                <div
+                  v-html="option"
+                  class="ml-2 h-full place-self-center leading-tight"
+                ></div>
+              </label>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <!-- subjective question answer -->
       <div
-        class="h-full flex items-end px-6 mt-2"
-        v-if="hasCharLimit && !isAnswerSubmitted"
+        v-if="isQuestionTypeSubjective"
+        class="flex flex-col px-4 md:px-6 xl:px-10 w-full"
       >
-        <p class="text-sm sm:text-base lg:text-lg font-bold" :class="maxCharLimitClass">
-          {{ charactersLeft }}
-        </p>
+        <!-- input area for the answer -->
+        <Textarea
+          :placeholder="subjectiveAnswerInputPlaceholder"
+          class="px-2 w-full"
+          v-model:value="subjectiveAnswer"
+          boxStyling="px-4 placeholder-gray-400 bp-420:h-20 sm:h-28 md:h-36 focus:border-gray-200 focus:ring-transparent"
+          :isDisabled="isAnswerSubmitted || previewMode"
+          @keypress="checkCharLimit"
+          :maxHeightLimit="subjectiveBoxHeightLimit"
+        ></Textarea>
+        <!-- character limit -->
+        <div
+          class="h-full flex items-end px-6 mt-2"
+          v-if="hasCharLimit && !isAnswerSubmitted"
+        >
+          <p class="text-sm sm:text-base lg:text-lg font-bold" :class="maxCharLimitClass">
+            {{ charactersLeft }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -69,6 +87,7 @@
 
 <script>
 import Textarea from "@/components/UI/Text/Textarea.vue";
+import { mapState, mapActions } from "vuex";
 
 export default {
   data() {
@@ -88,9 +107,17 @@ export default {
       }
       this.$emit("answer-updated", this.subjectiveAnswer);
     },
+    imageData: {
+      // invoked when another item pops up which has an image
+      handler(value) {
+        if (value != null) this.startLoading();
+      },
+      deep: true,
+    },
   },
-  created() {
+  async created() {
     this.subjectiveAnswer = this.defaultAnswer;
+    if (this.isQuestionImagePresent) this.startLoading();
   },
   props: {
     questionText: {
@@ -143,9 +170,29 @@ export default {
       default: false,
       type: Boolean,
     },
+    imageData: {
+      // data of the image to be shown on a question. Contains URL and alt_text
+      default: null,
+      type: Object,
+    },
+    isPortrait: {
+      // whether the screen is in portraid mode
+      default: false,
+      type: Boolean,
+    },
+    isFullscreen: {
+      // whether the modal is in fullscreen
+      default: false,
+      type: Boolean,
+    },
   },
   components: { Textarea },
   methods: {
+    ...mapActions("sync", ["startLoading", "stopLoading"]),
+    imageLoaded() {
+      // stop the loading spinner when the image has been loaded
+      this.stopLoading();
+    },
     checkCharLimit(event) {
       // checks if character limit is reached in case it is set
       if (!this.hasCharLimit) return;
@@ -172,13 +219,61 @@ export default {
     },
   },
   computed: {
+    ...mapState("sync", ["pending"]),
+    questionTextDivClass() {
+      // class for the div containing the question text
+      return {
+        "px-4 md:px-6 xl:px-10": !this.previewMode,
+        "md:px-2 xl:px-4": this.previewMode,
+      };
+    },
+    optionContainerClass() {
+      // styling class for the options container
+      return [
+        {
+          "w-full": !this.isPortrait || (this.isPortrait && !this.isFullscreen),
+          "mx-2": this.previewMode,
+          "mx-4 md:mx-6 xl:mx-10": !this.previewMode,
+        },
+        "flex",
+      ];
+    },
+    questionImageContainerClass() {
+      // styling class for the image container
+      return [
+        {
+          "h-96 mx-10 mb-4": this.isPortrait && !this.previewMode && this.isFullscreen,
+          "h-28 sm:h-36 md:h-60 lg:h-72 xl:h-89 ml-10 w-1/2 lg:w-1/3":
+            (!this.isPortrait && !this.previewMode) ||
+            (this.isPortrait && !this.isFullscreen),
+          "h-32 md:h-40 ml-4 mb-4 w-1/2": this.previewMode,
+          invisible: this.pending,
+        },
+        "border rounded-md",
+      ];
+    },
+    orientationClass() {
+      // styling class to decide orientation of image + options depending on portrait/landscape orientation
+      return [
+        {
+          "flex-row content-center":
+            this.isQuestionImagePresent && !this.isPortrait && !this.isFullscreen,
+          "flex-col": this.isQuestionImagePresent && this.isPortrait && this.isFullscreen,
+        },
+        "flex",
+      ];
+    },
+    isQuestionImagePresent() {
+      // if the current question contains an image
+      return this.imageData != null && this.imageData.url != null;
+    },
     questionTextClass() {
       return [
         {
-          "text-lg md:text-xl lg:text-2xl": !this.previewMode,
+          "text-lg md:text-xl lg:text-2xl mx-4": !this.previewMode,
           "text-sm md:text-base lg:text-lg xl:text-xl": this.previewMode,
         },
-        "m-2 mx-4 font-bold leading-tight whitespace-pre-wrap",
+        "m-2 font-bold leading-tight whitespace-pre-wrap",
       ];
     },
     optionTextClass() {
@@ -187,7 +282,7 @@ export default {
           "p-2 text-lg md:text-xl lg:text-2xl": !this.previewMode,
           "p-1 text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg": this.previewMode,
         },
-        "border pl-4 rounded-md mx-5 whitespace-pre-wrap",
+        "border rounded-md mx-2 whitespace-pre-wrap",
       ];
     },
     maxCharLimitClass() {

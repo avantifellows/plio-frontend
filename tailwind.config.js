@@ -20,6 +20,9 @@ module.exports = {
       backgroundSize: {
         "10%": "10%",
       },
+      fontSize: {
+        xxs: ".6rem",
+      },
     },
     backgroundColor: (theme) => ({
       ...theme("colors"),
@@ -39,17 +42,38 @@ module.exports = {
       ...defaultTheme.fontSize,
     },
   },
+  variantOrder: [
+    "first",
+    "last",
+    "odd",
+    "even",
+    "visited",
+    "checked",
+    "group-hover",
+    "group-focus",
+    "focus-within",
+    "hover",
+    "focus",
+    "focus-visible",
+    "active",
+    "group-disabled", // Custom variant
+    "disabled",
+  ],
   variants: {
     extend: {
       // to use "disabled:opacity-50" with tailwind
       opacity: ["disabled"],
       pointerEvents: ["disabled"],
       cursor: ["disabled", "hover"],
+      textColor: ["group-disabled"],
       backgroundColor: ["active", "checked", "disabled"],
       borderColor: ["checked"],
       display: ["hover"],
       strokeWidth: ["hover", "focus"],
     },
   },
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [
+    require("@tailwindcss/forms"),
+    require("tailwindcss-interaction-variants"),
+  ],
 };
