@@ -63,6 +63,10 @@ export default {
           chars_allowed: "CHARACTERS ALLOWED",
         },
       },
+      image_upload: {
+        add_image: "Image",
+        edit_image: "Edit",
+      },
     },
     dialog: {
       delete_option: {
@@ -101,6 +105,18 @@ export default {
         },
         draft: {
           title: "Publishing the plio...",
+        },
+      },
+      image_uploader: {
+        title_non_touch: "Drag and drop or click here to upload",
+        title_touch: "Click to take a picture or add from gallery",
+        buttons: {
+          done: "Done",
+          delete: "Delete",
+        },
+        size_info_text: {
+          info: "Maximum image size allowed is 10 MB",
+          error: "Image size exeeds 10 MB. Please upload a smaller image",
         },
       },
     },

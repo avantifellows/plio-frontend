@@ -121,14 +121,6 @@ export default {
     UserConfigService.setLocaleFromUserConfig();
   },
   watch: {
-    pending(value) {
-      // start or finish progress bar depending on the value of "pending"
-      // exception - Home page
-      if (!this.onHomePage && !this.onLoginPage) {
-        if (value) this.$Progress.start();
-        else this.$Progress.finish();
-      }
-    },
     isAuthenticated(value) {
       // if user was logged in before but has been logged out now
       // show a popup telling the user that they're logged out
@@ -154,6 +146,13 @@ export default {
           return org.shortcode == this.activeWorkspace;
         });
         if (!isUserInWorkspace) this.$router.replace({ name: "Home" });
+      }
+
+      // hide the chatwoot bubble if the user navigates away from the home page
+      var chatwootBubble = document.querySelector(".woot-widget-bubble");
+      if (chatwootBubble != undefined) {
+        if (value) chatwootBubble.classList.remove("hidden");
+        else chatwootBubble.classList.add("hidden");
       }
     },
     user: {
@@ -233,6 +232,10 @@ export default {
         if (chatwootBubble != undefined) {
           chatwootBubble.classList.remove("hidden");
           chatwootBubble.style.bottom = "60px";
+
+          // hide the chatwoot bubble for all the pages except "Home"
+          if (this.onHomePage) chatwootBubble.classList.remove("hidden");
+          else chatwootBubble.classList.add("hidden");
         }
 
         // set the user for the chatwoot instance

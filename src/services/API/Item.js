@@ -1,5 +1,5 @@
 import { apiClient } from "@/services/API/RootClient.js";
-import { itemsEndpoint } from "@/services/API/Endpoints.js";
+import { itemsEndpoint, duplicateEndpoint } from "@/services/API/Endpoints.js";
 
 export default {
   createItem(itemDetails) {
@@ -22,7 +22,7 @@ export default {
 
   duplicateItem(itemId, plioDBId) {
     // Create a clone of itemId and link it to the provided plio's DB ID
-    return apiClient().post(itemsEndpoint + itemId + "/duplicate/", {
+    return apiClient().post(itemsEndpoint + itemId + duplicateEndpoint, {
       plioId: plioDBId,
     });
   },

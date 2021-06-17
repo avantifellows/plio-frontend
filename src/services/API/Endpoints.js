@@ -1,6 +1,6 @@
 export const pliosEndpoint = "/plios/",
   listPliosEndpoint = "list_uuid/",
-  duplicatePlioEndpoint = "/duplicate/",
+  duplicateEndpoint = "/duplicate/",
   plioDataDumpEndpoint = "/download_data/",
   itemsEndpoint = "/items/",
   videosEndpoint = "/videos/",
@@ -15,4 +15,5 @@ export const pliosEndpoint = "/plios/",
   userConfigEndpoint = "/config/",
   convertTokenEndpoint = "/convert-token/",
   refreshTokenEndpoint = "/token/",
-  analyticsAccessTokenEndpoint = "/cubejs-token/";
+  analyticsAccessTokenEndpoint = "/cubejs-token/",
+  imagesEndpoint = "/images/";

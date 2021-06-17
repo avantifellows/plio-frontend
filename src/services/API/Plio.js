@@ -6,7 +6,7 @@ import {
   pliosEndpoint,
   itemsEndpoint,
   listPliosEndpoint,
-  duplicatePlioEndpoint,
+  duplicateEndpoint,
   plioDataDumpEndpoint,
 } from "@/services/API/Endpoints.js";
 import {
@@ -113,7 +113,7 @@ export default {
 
   duplicatePlio(plioId) {
     // create a clone of plioId plio
-    return apiClient().post(pliosEndpoint + plioId + duplicatePlioEndpoint);
+    return apiClient().post(pliosEndpoint + plioId + duplicateEndpoint);
   },
 
   getPlioDataDump(plioId) {

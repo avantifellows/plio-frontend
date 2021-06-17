@@ -201,6 +201,7 @@
             @error-occurred="setErrorOccurred"
             @error-resolved="setErrorResolved"
             @question-type-changed="questionTypeChanged"
+            @show-image-uploader="toggleImageUploaderBox"
           ></item-editor>
         </div>
       </div>
@@ -215,6 +216,13 @@
       @confirm="dialogConfirmed"
       @cancel="dialogCancelled"
     ></dialog-box>
+    <ImageUploaderDialog
+      v-if="showImageUploaderDialog"
+      :uploadedImage="itemImage"
+      @close-dialog="toggleImageUploaderBox"
+      @image-selected="uploadImage"
+      @delete-image="deleteLinkedImage"
+    ></ImageUploaderDialog>
   </div>
 </template>
 
@@ -227,6 +235,7 @@ import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
+import ImageAPIService from "@/services/API/Image.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import Utilities from "@/services/Functional/Utilities.js";
@@ -236,6 +245,7 @@ import DialogBox from "@/components/UI/Alert/DialogBox";
 import ItemModal from "../components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
 import Utilties from "@/services/Functional/Utilities.js";
+import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
@@ -260,6 +270,7 @@ export default {
     SimpleBadge,
     DialogBox,
     ItemModal,
+    ImageUploaderDialog,
   },
   props: {
     plioId: {
@@ -310,10 +321,6 @@ export default {
         iconName: "plus-solid",
         iconClass: "text-white h-5 w-5 mr-3",
       },
-      addItemTitleConfig: {
-        // config for title of add item button
-        value: this.$t("editor.buttons.add_question"),
-      },
       // index of the option to be deleted; -1 means nothing to be deleted
       optionIndexToDelete: -1,
       videoDBId: null, // store the DB id of video object linked to the plio
@@ -328,7 +335,8 @@ export default {
       isModalMinimized: false, // whether the preview modal is minimized or not
       // styling class for the minimize button
       maximizeButtonClass:
-        "bg-primary hover:bg-primary-hover p-2 pl-2 pr-2 sm:p-2 rounded-md shadow-xl",
+        "bg-primary hover:bg-primary-hover p-1 lg:p-2 px-2 rounded-md shadow-xl",
+      showImageUploaderDialog: false, // whether to show the image uploader or not
     };
   },
   async created() {
@@ -389,6 +397,12 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading"]),
+    itemImage() {
+      // URL of the image present for the current item
+      if (this.currentItemIndex == null) return null;
+      if (this.items[this.currentItemIndex].details.image == null) return null;
+      return this.items[this.currentItemIndex].details.image.url;
+    },
     isQuestionTypeSubjective() {
       // whether the type of the question being created is subjective
       if (this.currentItemIndex == null) return false;
@@ -415,7 +429,7 @@ export default {
         value: this.isModalMinimized
           ? this.$t(`editor.buttons.show_${this.currentItemType}`)
           : this.$t("editor.buttons.show_video"),
-        class: "text-white text-sm lg:text-base",
+        class: "text-white text-xs lg:text-sm tracking-tighter",
       };
     },
     showItemModal() {
@@ -467,7 +481,7 @@ export default {
     },
     blurMainScreen() {
       // whether to blur the main screen with opacity
-      return this.isBeingPublished || this.showDialogBox;
+      return this.isBeingPublished || this.showDialogBox || this.showImageUploaderDialog;
     },
     statusBadgeClass() {
       // class for the status badge
@@ -645,6 +659,23 @@ export default {
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
     ...Utilties,
+    deleteLinkedImage() {
+      // unlink image from the question, and delete it on S3
+      var imageIdToDelete = this.items[this.currentItemIndex].details.image.id;
+      ImageAPIService.deleteImage(imageIdToDelete);
+      this.items[this.currentItemIndex].details.image = null;
+    },
+    uploadImage(imageFile) {
+      // POST the image file to the backend.
+      // and update the question object with the linked image data
+      ImageAPIService.uploadImage(imageFile).then((response) => {
+        this.items[this.currentItemIndex].details.image = response.data;
+      });
+    },
+    toggleImageUploaderBox() {
+      // show or hide the image uploader dialog box
+      this.showImageUploaderDialog = !this.showImageUploaderDialog;
+    },
     questionTypeChanged(newQuestionType) {
       // invoked when the question type is changed
       this.items[this.currentItemIndex].details.type = newQuestionType;

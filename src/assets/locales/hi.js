@@ -64,6 +64,10 @@ export default {
           chars_allowed: "वर्ण",
         },
       },
+      image_upload: {
+        add_image: "चित्र",
+        edit_image: "बदलें",
+      },
     },
     dialog: {
       delete_option: {
@@ -102,6 +106,19 @@ export default {
         },
         draft: {
           title: "प्लायो को प्रकाशित किया जा रहा है...",
+        },
+      },
+      image_uploader: {
+        title_non_touch: "तस्वीर खींचें और छोड़ें या क्लिक करके अपलोड करें",
+        title_touch: "तस्वीर लेने या गैलरी से डालने के लिए क्लिक करें",
+        buttons: {
+          done: "आगे बढ़ें",
+          delete: "हटा दें",
+        },
+        size_info_text: {
+          info: "तस्वीर के आकार की अधिकतम अनुमति 10 MB है",
+          error:
+            "यह तस्वीर 10 MB से ज़्यादा बड़ी ह। कृपया कोई छोटी तस्वीर अपलोड करें",
         },
       },
     },
