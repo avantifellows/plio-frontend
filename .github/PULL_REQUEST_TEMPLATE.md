@@ -30,5 +30,6 @@ Fixes #{issue id}
     - [ ] Safari
 - [ ] Local Language Support
 - [ ] Tested locally
+- [ ] Tested on phone
 - [ ] Tested on staging
 - [ ] Tested on production

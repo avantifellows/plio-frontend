@@ -13,4 +13,9 @@ export default {
     // returns the source of an icon given the name
     return require(`@/assets/images/${iconName}`);
   },
+
+  isObjectEmpty(obj) {
+    // checks if an object (`obj`) is empty
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
+  },
 };

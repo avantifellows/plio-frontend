@@ -29,16 +29,6 @@ export function dashboardSessionMetricsQuery(plioId) {
         operator: "equals",
         values: [plioId],
       },
-      {
-        member: "Plio.uuid",
-        operator: "equals",
-        values: [plioId],
-      },
-      {
-        member: "Plio.uuid",
-        operator: "equals",
-        values: [plioId],
-      },
     ],
   };
 }
@@ -53,16 +43,6 @@ export function dashboardSessionAnswerMetricsQuery(plioId) {
       "AggregateSessionMetrics.accuracy",
     ],
     filters: [
-      {
-        member: "Plio.uuid",
-        operator: "equals",
-        values: [plioId],
-      },
-      {
-        member: "Plio.uuid",
-        operator: "equals",
-        values: [plioId],
-      },
       {
         member: "Plio.uuid",
         operator: "equals",

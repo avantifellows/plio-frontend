@@ -5,14 +5,19 @@
     class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
     :disabled="isDisabled"
   >
-    <div class="flex w-full justify-center space-x-2">
+    <div
+      class="flex w-full justify-center"
+      :class="{ 'flex-col': isStackedVertically, 'space-x-2': !isStackedVertically }"
+    >
       <inline-svg
         v-if="isIconConfigEnabled"
         :src="icon"
         :class="iconClass"
         class="place-self-center"
       ></inline-svg>
-      <p v-if="displayTitle" :class="titleClass">{{ title }}</p>
+      <p v-if="displayTitle" :class="titleClass">
+        {{ title }}
+      </p>
     </div>
   </button>
 </template>
@@ -54,8 +59,16 @@ export default {
       type: Boolean,
       default: false,
     },
+    orientation: {
+      // whether to stack the icon and title vertically or horizontally
+      type: String,
+      default: "horizontal",
+    },
   },
   computed: {
+    isStackedVertically() {
+      return this.orientation == "vertical";
+    },
     iconName() {
       // name of the icon image file under assets/images
       return this.localIconConfig.iconName;

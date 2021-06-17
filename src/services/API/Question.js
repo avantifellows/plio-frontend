@@ -13,9 +13,15 @@ export default {
 
   updateQuestion(questionDetails) {
     // API to update a question in the DB
+    var cloneDeep = require("lodash.clonedeep");
+    var questionDetailsClone = cloneDeep(questionDetails);
+    if ("image" in questionDetails && questionDetails["image"] != undefined) {
+      var imageId = questionDetails["image"]["id"];
+      questionDetailsClone["image"] = imageId;
+    }
     return apiClient().put(
       questionsEndpoint + questionDetails.id,
-      questionDetails
+      questionDetailsClone
     );
   },
 
