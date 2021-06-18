@@ -29,6 +29,7 @@ Fixes #{issue id}
     - [ ] Firefox
     - [ ] Safari
 - [ ] Local Language Support
+- [ ] Wrote tests
 - [ ] Tested locally
 - [ ] Tested on phone
 - [ ] Tested on staging
