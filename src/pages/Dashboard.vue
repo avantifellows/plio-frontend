@@ -97,7 +97,7 @@
         </div>
 
         <div
-          class="hidden sm:flex sm:flex-col sm:h-full sm:justify-end sm:items-center sm:items-start sm:mt-10"
+          class="hidden sm:flex sm:flex-col sm:h-full sm:justify-end sm:items-start sm:mt-10"
           v-if="!pending"
         >
           <div>
