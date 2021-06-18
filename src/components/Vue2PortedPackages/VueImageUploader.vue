@@ -188,7 +188,7 @@ export default {
      * @param  {object} event
      */
     uploadFile(e) {
-      this.startLoading()
+      this.startLoading();
       const file = e.target.files && e.target.files.length ? e.target.files[0] : null;
       if (file) {
         this.emitLoad();
@@ -205,7 +205,7 @@ export default {
       this.$emit("change", output);
     },
     emitLoad() {
-      this.$emit("onLoad");
+      this.$emit("onUpload");
     },
     emitComplete() {
       this.$emit("onComplete");
@@ -547,6 +547,6 @@ export default {
   created() {
     this.log("Initialised ImageUploader");
   },
-  emits: ["image-preview", "onLoad", "onComplete", "input", "change"],
+  emits: ["image-preview", "onUpload", "onComplete", "input", "change"],
 };
 </script>
