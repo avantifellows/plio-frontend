@@ -23,9 +23,18 @@
         class="border border-dashed border-gray-700 bg-white h-full w-full flex flex-col"
         id="upload-box"
       >
+        <!-- loading spinner -->
         <inline-svg
-          :src="uploaderBoxIconSource"
-          :class="uploaderBoxIconClass"
+          v-if="pending"
+          :src="getIconSource('spinner-solid.svg')"
+          class="animate-spin w-1/6 h-1/6 m-auto text-primary"
+        ></inline-svg>
+
+        <!-- image icon svg -->
+        <inline-svg
+          v-else
+          :src="getIconSource('add_image.svg')"
+          class="transform -rotate-12 w-2/3 h-2/3 m-auto text-primary"
         ></inline-svg>
         <div
           class="mx-auto mb-2 text-xs xsm:text-sm bp-420:text-base sm:text-base md:text-lg font-semibold px-2 text-center"
@@ -44,6 +53,7 @@
         accept="image/*"
         @input="loadAndPreviewImage"
         :class="uploaderInputClass"
+        :key="reRenderKey"
       ></VueImageUploader>
     </div>
 
@@ -99,6 +109,7 @@ export default {
       imagePreviewClass:
         "object-contain h-full w-full border border-dashed border-gray-700",
       isFileSizeLimitExceeded: false,
+      reRenderKey: 0, // to re-render the upload image input everytime an image has been deleted
     };
   },
 
@@ -119,22 +130,6 @@ export default {
     isTouchDevice() {
       // detects if the user's device has a touchscreen or not
       return window.matchMedia("(any-pointer: coarse)").matches;
-    },
-    uploaderBoxIconSource() {
-      // icon source for the uploader box
-      return this.pending
-        ? this.getIconSource("spinner-solid.svg")
-        : this.getIconSource("add_image.svg");
-    },
-    uploaderBoxIconClass() {
-      // icon styling classes for the uploader box
-      return [
-        {
-          "animate-spin w-1/6 h-1/6": this.pending,
-          "transform -rotate-12 w-2/3 h-2/3": !this.pending,
-        },
-        "m-auto text-primary",
-      ];
     },
     fileSizeInfoText() {
       return this.isFileSizeLimitExceeded
@@ -193,7 +188,6 @@ export default {
       // save the image info locally
       // extract the base64 URL from the info and
       // use it to show the preview
-      this.startLoading();
       if (imageInfo != undefined && "dataUrl" in imageInfo) {
         if (imageInfo.file.size > MAX_IMAGE_UPLOAD_SIZE) {
           this.isFileSizeLimitExceeded = true;
@@ -210,6 +204,8 @@ export default {
       this.$emit("close-dialog");
     },
     deleteAndUnsetImage() {
+      // re-render the image upload input component
+      this.reRenderKey = !this.reRenderKey;
       // invoked when the user clicks the delete button
       // hide the image preview
       this.imageToPreview = null;
