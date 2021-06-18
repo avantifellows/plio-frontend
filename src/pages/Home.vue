@@ -30,6 +30,7 @@
         :columns="tableColumns"
         :tableTitle="tableTitle"
         :totalNumberOfPlios="totalNumberOfPlios"
+        :org="org"
         @search-plios="fetchPlioIds($event)"
         @reset-search-string="resetSearchString"
         @sort-num-viewers="sortPlios"
