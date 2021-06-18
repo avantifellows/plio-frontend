@@ -4,12 +4,12 @@
   >
     <div class="flex flex-col bp-500:grid bp-500:grid-cols-4 lg:grid-cols-5">
       <!-- thumbnail -->
-      <div class="bp-500:w-full flex bp-500:block bp-500:self-center">
+      <div class="bp-500:w-full flex bp-500:block bp-500:self-center justify-center">
         <p
           v-if="pending"
           class="animate-pulse h-24 md:h-32 xl:h-42 my-2 md:my-4 lg:my-0 xl:my-6 w-full place-self-center bg-gray-500 rounded-md"
         ></p>
-        <img v-else :src="videoThumbnailURL" class="rounded-md" />
+        <img v-else :src="videoThumbnailURL" class="rounded-md h-48 bp-500:h-auto" />
       </div>
       <div
         class="col-span-3 lg:col-span-4 flex flex-col justify-between mt-4 bp-500:mr-0 bp-500:ml-8 lg:ml-14"
@@ -95,12 +95,28 @@
             </p>
           </div>
         </div>
+
+        <div
+          class="hidden sm:flex sm:flex-col sm:h-full sm:justify-end sm:items-start sm:mt-10"
+          v-if="!pending"
+        >
+          <div>
+            <p
+              class="text-yellow-600 text-center sm:text-left hidden sm:block text-xs lg:text-sm xl:text-md font-bold"
+            >
+              {{ $t("dashboard.update_message") }}
+            </p>
+          </div>
+        </div>
       </div>
       <div class="col-span-6 grid grid-cols-2 mt-4 bp-420:mt-6 sm:mt-0">
         <div class="flex flex-col mx-2 bp-500:mx-4">
           <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
             <!-- completion rate -->
-            <div v-if="pending" class="w-full flex flex-col justify-center animate-pulse">
+            <div
+              v-if="pending"
+              class="w-full flex flex-col justify-center animate-pulse py-4"
+            >
               <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
               <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
             </div>
@@ -140,7 +156,7 @@
               <!-- one minute retention -->
               <div
                 v-if="pending"
-                class="w-full flex flex-col justify-center animate-pulse"
+                class="w-full flex flex-col justify-center animate-pulse py-4"
               >
                 <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
                 <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
@@ -181,7 +197,10 @@
         <div class="flex flex-col mx-2 bp-500:mx-4">
           <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
             <!-- accuracy -->
-            <div v-if="pending" class="w-full flex flex-col justify-center animate-pulse">
+            <div
+              v-if="pending"
+              class="w-full flex flex-col justify-center animate-pulse py-4"
+            >
               <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
               <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
             </div>
@@ -221,7 +240,7 @@
               <!-- number of questions answered -->
               <div
                 v-if="pending"
-                class="w-full flex flex-col justify-center animate-pulse"
+                class="w-full flex flex-col justify-center animate-pulse py-4"
               >
                 <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
                 <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
@@ -259,6 +278,13 @@
             </div>
           </div>
         </div>
+      </div>
+      <div class="mt-4">
+        <p
+          class="mx-2 bp-500:mx-4 px-2 text-yellow-600 sm:hidden text-xs lg:text-sm xl:text-md font-bold"
+        >
+          {{ $t("dashboard.update_message") }}
+        </p>
       </div>
     </div>
     <!-- download report button -->

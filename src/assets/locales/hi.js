@@ -324,6 +324,7 @@ export default {
       edit: "प्लायो को संपादित करें",
       download_report: "रिपोर्ट डाउनलोड करें",
     },
+    update_message: "यह पेज हर घंटे अपडेट होता है",
     summary: {
       number_of_viewers: "दर्शक",
       avg_watch_time: "देखने का औसत समय",

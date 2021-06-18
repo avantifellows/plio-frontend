@@ -322,6 +322,7 @@ export default {
       edit: "Edit Plio",
       download_report: "Download Report",
     },
+    update_message: "This page is updated every hour",
     summary: {
       number_of_viewers: "VIEWERS",
       avg_watch_time: "AVERAGE WATCH TIME",
