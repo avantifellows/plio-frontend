@@ -21,6 +21,7 @@ const routes = [
     path: "/:org?/home",
     name: "Home",
     component: Home,
+    props: true,
     meta: { requiresAuth: true },
   },
   {
