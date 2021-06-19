@@ -57,10 +57,7 @@
         </ul>
       </div>
       <!-- subjective question answer -->
-      <div
-        v-if="isQuestionTypeSubjective"
-        class="flex flex-col px-4 md:px-6 xl:px-10 w-full"
-      >
+      <div v-if="isQuestionTypeSubjective" :class="subjectiveAnswerClass">
         <!-- input area for the answer -->
         <Textarea
           :placeholder="subjectiveAnswerInputPlaceholder"
@@ -220,11 +217,21 @@ export default {
   },
   computed: {
     ...mapState("sync", ["pending"]),
+    subjectiveAnswerClass() {
+      // class for the div for entering subjective answer
+      return [
+        {
+          "px-4 md:px-6 xl:px-10": !this.previewMode,
+          "px-2 md:px-4 xl:px-8": this.previewMode,
+        },
+        "flex flex-col w-full",
+      ];
+    },
     questionTextDivClass() {
       // class for the div containing the question text
       return {
         "px-4 md:px-6 xl:px-10": !this.previewMode,
-        "md:px-2 xl:px-4": this.previewMode,
+        "px-2 md:px-4 xl:px-8": this.previewMode,
       };
     },
     optionContainerClass() {
@@ -232,7 +239,8 @@ export default {
       return [
         {
           "w-full": !this.isPortrait || (this.isPortrait && !this.isFullscreen),
-          "mx-2": this.previewMode,
+          "mx-2": this.previewMode && this.isQuestionImagePresent,
+          "mx-2 md:mx-4 xl:mx-8": this.previewMode && !this.isQuestionImagePresent,
           "mx-4 md:mx-6 xl:mx-10": !this.previewMode,
         },
         "flex",
@@ -246,7 +254,7 @@ export default {
           "h-28 sm:h-36 md:h-60 lg:h-72 xl:h-89 ml-10 w-1/2 lg:w-1/3":
             (!this.isPortrait && !this.previewMode) ||
             (this.isPortrait && !this.isFullscreen),
-          "h-32 md:h-40 ml-4 mb-4 w-1/2": this.previewMode,
+          "h-32 md:h-40 ml-4 lg:ml-6 xl:ml-8 mb-4 w-1/2": this.previewMode,
           invisible: this.pending,
         },
         "border rounded-md",
