@@ -57,11 +57,7 @@
         </ul>
       </div>
       <!-- subjective question answer -->
-      <div
-        v-if="isQuestionTypeSubjective"
-        class="flex flex-col w-full"
-        :class="subjectiveAnswerClass"
-      >
+      <div v-if="isQuestionTypeSubjective" :class="subjectiveAnswerClass">
         <!-- input area for the answer -->
         <Textarea
           :placeholder="subjectiveAnswerInputPlaceholder"
@@ -223,10 +219,13 @@ export default {
     ...mapState("sync", ["pending"]),
     subjectiveAnswerClass() {
       // class for the div for entering subjective answer
-      return {
-        "px-4 md:px-6 xl:px-10": !this.previewMode,
-        "px-2 md:px-4 xl:px-8": this.previewMode,
-      };
+      return [
+        {
+          "px-4 md:px-6 xl:px-10": !this.previewMode,
+          "px-2 md:px-4 xl:px-8": this.previewMode,
+        },
+        "flex flex-col w-full",
+      ];
     },
     questionTextDivClass() {
       // class for the div containing the question text
