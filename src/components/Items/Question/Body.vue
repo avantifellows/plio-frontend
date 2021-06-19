@@ -240,7 +240,8 @@ export default {
       return [
         {
           "w-full": !this.isPortrait || (this.isPortrait && !this.isFullscreen),
-          "mx-2": this.previewMode,
+          "mx-2": this.previewMode && this.isQuestionImagePresent,
+          "mx-2 md:mx-4 xl:mx-8": this.previewMode && !this.isQuestionImagePresent,
           "mx-4 md:mx-6 xl:mx-10": !this.previewMode,
         },
         "flex",
