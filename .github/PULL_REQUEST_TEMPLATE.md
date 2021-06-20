@@ -34,3 +34,4 @@ Fixes #{issue id}
 - [ ] Tested on phone
 - [ ] Tested on staging
 - [ ] Tested on production
+- [ ] Check for bundle size [here](https://bundlephobia.com/) if adding a package
