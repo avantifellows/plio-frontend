@@ -244,7 +244,6 @@ import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import ItemModal from "../components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
-import Utilties from "@/services/Functional/Utilities.js";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 
 // used for deep cloning objects
@@ -596,7 +595,7 @@ export default {
     },
     plioLink() {
       // prepare the link for the plio from the plio ID
-      return Utilities.getPlioLink(this.plioId, this.org);
+      return this.getPlioLink(this.plioId, this.org);
     },
     isVideoIdValid() {
       // whether the video Id is valid
@@ -658,7 +657,7 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
-    ...Utilties,
+    ...Utilities,
     deleteLinkedImage() {
       // unlink image from the question, and delete it on S3
       var imageIdToDelete = this.items[this.currentItemIndex].details.image.id;

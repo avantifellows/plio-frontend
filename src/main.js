@@ -3,7 +3,6 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import i18n from "./services/Localisation/i18n.js";
 import PrimeVue from "primevue/config";
 import InlineSvg from "vue-inline-svg";
@@ -12,17 +11,16 @@ import Toast from "vue-toastification";
 import VueProgressBar from "@aacassandra/vue3-progressbar";
 import VueGtag from "vue-gtag";
 import VueClickAway from "vue3-click-away";
+import mixpanel from "mixpanel-browser";
+
+// Google AOauth. Add CLIENT_ID in .env file
+import GAuth from "vue3-google-oauth2";
 
 import "primevue/resources/themes/saga-blue/theme.css";
 import "primevue/resources/primevue.min.css";
 import "primeicons/primeicons.css";
 import "./index.css";
 import "vue-toastification/dist/index.css";
-
-import mixpanel from "mixpanel-browser";
-
-// Google AOauth. Add CLIENT_ID in .env file
-import GAuth from "vue3-google-oauth2";
 
 const gAuthOptions = {
   clientId: process.env.VUE_APP_GOOGLE_CLIENT_ID,
@@ -57,7 +55,6 @@ const filterBeforeCreate = (toast, toasts) => {
 
 const app = createApp(App).use(store).use(router);
 
-app.component("font-awesome-icon", FontAwesomeIcon);
 app.component("inline-svg", InlineSvg);
 
 app.use(i18n);

@@ -1,18 +1,17 @@
 <template>
-  <font-awesome-icon
-    :icon="['fas', 'hand-point-right']"
-    class="hand-pointer"
-    ref="hand-pointer"
-  ></font-awesome-icon>
+  <inline-svg
+    :src="getIconSource('hand-point-left-solid.svg')"
+    class="hand-pointer transform rotate-180"
+  ></inline-svg>
 </template>
 
 <script>
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faHandPointRight } from "@fortawesome/free-solid-svg-icons/faHandPointRight";
-library.add(faHandPointRight);
-
+import Utilities from "@/services/Functional/Utilities.js";
 export default {
   name: "ProceedButtonPointer",
+  methods: {
+    ...Utilities,
+  },
 };
 </script>
 

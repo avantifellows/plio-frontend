@@ -1,21 +1,20 @@
 <template>
   <div class="options-pointer-container">
-    <font-awesome-icon
-      :icon="['fas', 'hand-point-left']"
+    <inline-svg
+      :src="getIconSource('hand-point-left-solid.svg')"
       class="option-pointer"
-      ref="hand-pointer"
-    ></font-awesome-icon>
+    ></inline-svg>
     <div class="instruction-text">{{ $t("player.tutorial.mcq") }}</div>
   </div>
 </template>
 
 <script>
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faHandPointLeft } from "@fortawesome/free-solid-svg-icons/faHandPointLeft";
-library.add(faHandPointLeft);
-
+import Utilities from "@/services/Functional/Utilities.js";
 export default {
   name: "mcqOptionsPointer",
+  methods: {
+    ...Utilities,
+  },
 };
 </script>
 
