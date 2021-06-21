@@ -24,6 +24,8 @@ jobs:
         run: npm install
 
       - name: Run Test Cases
+        env:
+          VUE_APP_MIXPANEL_PROJECT_TOKEN: ${{ secrets.VUE_APP_MIXPANEL_PROJECT_TOKEN }}
         # command to run tests and generate coverage metrics
         run: npm run test:unit
 
