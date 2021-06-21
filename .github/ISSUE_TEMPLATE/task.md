@@ -17,3 +17,6 @@ A clear and concise description of what needs to be done.
 
 **References**
 Specify any reference material / links
+
+**Housekeeping**
+Make sure to add the relevant details on the right pane like Labels/Projects/Milestones etc.
