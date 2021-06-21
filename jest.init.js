@@ -15,6 +15,9 @@ const $mixpanel = mixpanel;
 import router from "@/router";
 const $router = router;
 
+import i18n from "@/services/Localisation/i18n.js";
+const $t = (msg) => i18n.global.t(msg);
+
 config.global = {
   components: {
     InlineSvg,
@@ -23,5 +26,6 @@ config.global = {
   mocks: {
     $mixpanel,
     $router,
+    $t,
   },
 };
