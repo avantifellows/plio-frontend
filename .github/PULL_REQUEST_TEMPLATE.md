@@ -35,3 +35,4 @@ Fixes #{issue id}
 - [ ] Tested on an actual physical phone
 - [ ] Tested on production
 - [ ] Check for bundle size [here](https://bundlephobia.com/) if adding a package
+- [ ] Added relevant details like Labels/Projects/Milestones etc.
