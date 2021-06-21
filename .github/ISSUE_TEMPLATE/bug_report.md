@@ -36,3 +36,6 @@ If applicable, add screenshots to help explain your problem.
 
 **Additional context**
 Add any other context about the problem here. Ex: This seems to also happen at another page and [...]
+
+**Housekeeping**
+Make sure to add the relevant details on the right pane like Labels/Projects/Milestones etc.
