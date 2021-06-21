@@ -10,11 +10,13 @@
           :src="icon"
           class="place-self-center"
           :class="iconClass"
+          data-test="icon"
         ></inline-svg>
         <!-- title -->
         <p
           class="text-gray-800 dark:text-gray-200 text-xl font-bold mt-4"
           v-if="showTitle"
+          data-test="title"
         >
           {{ title }}
         </p>
@@ -22,6 +24,7 @@
         <p
           class="text-gray-600 dark:text-gray-400 text-sm py-2 px-6"
           v-if="showDescription"
+          data-test="description"
         >
           {{ description }}
         </p>
