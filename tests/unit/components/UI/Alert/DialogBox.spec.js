@@ -53,4 +53,28 @@ describe("DialogBox.vue", () => {
       expect.arrayContaining(["w-12", "h-12"])
     );
   });
+
+  it("confirm button present", () => {
+    const wrapper = mount(DialogBox);
+    expect(wrapper.get('[data-test="confirmButton"]').text()).toBe("Yes");
+  });
+
+  it("cancel button present", () => {
+    const wrapper = mount(DialogBox);
+    expect(wrapper.get('[data-test="cancelButton"]').text()).toBe("No");
+  });
+
+  it("confirm click works", () => {
+    const wrapper = mount(DialogBox);
+    wrapper.get('[data-test="confirmButton"]').trigger("click");
+
+    expect(wrapper.emitted()).toHaveProperty("confirm");
+  });
+
+  it("cancel click works", () => {
+    const wrapper = mount(DialogBox);
+    wrapper.get('[data-test="cancelButton"]').trigger("click");
+
+    expect(wrapper.emitted()).toHaveProperty("cancel");
+  });
 });

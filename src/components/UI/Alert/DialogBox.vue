@@ -38,6 +38,7 @@
             class="py-2 px-4 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg"
             :class="confirmButtonClass"
             @click="confirmClicked"
+            data-test="confirmButton"
           >
             {{ confirmButtonText }}
           </button>
@@ -47,6 +48,7 @@
             class="py-2 px-4 w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg"
             :class="cancelButtonClass"
             @click="cancelClicked"
+            data-test="cancelButton"
           >
             {{ cancelButtonText }}
           </button>
