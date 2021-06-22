@@ -32,7 +32,7 @@ describe("URL.vue", () => {
     });
 
     expect(wrapper.get('[data-test="link"]').classes()).toEqual(
-      expect.arrayContaining(["w-12", "h-12"])
+      expect.arrayContaining(linkClass.split(" "))
     );
   });
 
