@@ -86,7 +86,7 @@ export default {
   computed: {
     selectedOptionHasIcon() {
       // whether the selected option has an icon
-      return this.selectionOption != undefined && this.selectedOption.icon != null;
+      return this.selectedOption != undefined && this.selectedOption.icon != null;
     },
     dropdownIconClass() {
       return [
