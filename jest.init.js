@@ -29,3 +29,8 @@ config.global = {
     $t,
   },
 };
+
+// mock document
+Object.defineProperty(document, "currentScript", {
+  value: document.createElement("script"),
+});
