@@ -267,6 +267,7 @@ export default {
       // list of items
       default: () => [],
       type: Array,
+      required: true,
     },
     selectedItemIndex: {
       // index of the selected item
