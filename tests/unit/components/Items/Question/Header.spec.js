@@ -1,9 +1,9 @@
 import { mount } from "@vue/test-utils";
-import Table from "@/components/Collections/Table/Table";
+import Header from "@/components/Items/Question/Header";
 
-describe("Table.vue", () => {
+describe("Header.vue", () => {
   it("should render with default values", () => {
-    const wrapper = mount(Table);
+    const wrapper = mount(Header);
     expect(wrapper).toBeTruthy();
   });
 });

@@ -1,9 +1,9 @@
 import { mount } from "@vue/test-utils";
-import Table from "@/components/Collections/Table/Table";
+import ItemModal from "@/components/Player/ItemModal";
 
-describe("Table.vue", () => {
+describe("ItemModal.vue", () => {
   it("should render with default values", () => {
-    const wrapper = mount(Table);
+    const wrapper = mount(ItemModal);
     expect(wrapper).toBeTruthy();
   });
 });

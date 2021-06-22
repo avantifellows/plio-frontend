@@ -1,6 +1,5 @@
 import { mount } from "@vue/test-utils";
 import URL from "@/components/UI/Text/URL";
-import Tooltip from "primevue/tooltip";
 
 // mock document.execCommand
 document.execCommand = jest.fn();
@@ -9,13 +8,7 @@ describe("URL.vue", () => {
   let wrapper;
 
   beforeEach(() => {
-    wrapper = mount(URL, {
-      global: {
-        directives: {
-          tooltip: Tooltip,
-        },
-      },
-    });
+    wrapper = mount(URL);
   });
 
   it("should render with default values", () => {
@@ -38,7 +31,7 @@ describe("URL.vue", () => {
     });
 
     expect(wrapper.get('[data-test="link"]').classes()).toEqual(
-      expect.arrayContaining(["w-12", "h-12"])
+      expect.arrayContaining(linkClass.split(" "))
     );
   });
 
