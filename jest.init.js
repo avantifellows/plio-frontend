@@ -9,6 +9,7 @@ import InlineSvg from "vue-inline-svg";
 import Toast from "vue-toastification";
 import Tooltip from "primevue/tooltip";
 import VueClickAway from "vue3-click-away";
+import { jest } from "@jest/globals";
 
 import mixpanel from "mixpanel-browser";
 mixpanel.init(process.env.VUE_APP_MIXPANEL_PROJECT_TOKEN);

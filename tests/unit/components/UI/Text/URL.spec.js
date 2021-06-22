@@ -1,6 +1,5 @@
 import { mount } from "@vue/test-utils";
 import URL from "@/components/UI/Text/URL";
-import Tooltip from "primevue/tooltip";
 
 // mock document.execCommand
 document.execCommand = jest.fn();
