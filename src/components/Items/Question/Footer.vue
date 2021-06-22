@@ -7,18 +7,25 @@
         :buttonClass="reviseButtonClass"
         v-if="!isAnswerSubmitted"
         @click="reviseClicked"
+        data-test="reviseButton"
       ></icon-button>
       <!-- icon to show correct/wrong option result -->
-      <div class="flex items-center space-x-4" v-if="isAnswerSubmitted">
+      <div
+        class="flex items-center space-x-4"
+        v-if="isAnswerSubmitted"
+        data-test="answerFeedback"
+      >
         <inline-svg
           :src="answerCorrectnessIcon"
           :class="answerCorrectnessIconClass"
           class="w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 place-self-center ml-4"
+          data-test="answerCorrectnessIcon"
         ></inline-svg>
         <p
           class="text-md sm:text-lg lg:text-2xl"
           :class="answerFeedbackTextClass"
           v-if="hasAnyAnswerFeedback"
+          data-test="answerFeedbackText"
         >
           {{ answerFeedbackText }}
         </p>
@@ -30,6 +37,7 @@
         :titleConfig="fullscreenButtonTitleConfig"
         :buttonClass="fullscreenButtonClass"
         @click="toggleFullscreen"
+        data-test="fullscreenButton"
       ></icon-button>
     </div>
     <div class="place-self-end">
@@ -40,6 +48,7 @@
         v-if="!isAnswerSubmitted"
         :isDisabled="!isSubmitEnabled"
         @click="submitClicked"
+        data-test="submitButton"
       ></icon-button>
       <!-- proceed button -->
       <icon-button
@@ -47,6 +56,7 @@
         :buttonClass="proceedButtonClass"
         @click="proceedClicked"
         v-else
+        data-test="proceedButton"
       ></icon-button>
     </div>
   </div>
