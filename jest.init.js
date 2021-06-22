@@ -7,6 +7,7 @@
 import { config } from "@vue/test-utils";
 import InlineSvg from "vue-inline-svg";
 import Toast from "vue-toastification";
+import VueClickAway from "vue3-click-away";
 
 import mixpanel from "mixpanel-browser";
 mixpanel.init(process.env.VUE_APP_MIXPANEL_PROJECT_TOKEN);
@@ -24,6 +25,7 @@ const $t = (msg) => i18n.global.t(msg);
 config.global = {
   components: {
     InlineSvg,
+    VueClickAway,
   },
   plugins: [Toast],
   mocks: {

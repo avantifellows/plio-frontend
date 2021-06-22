@@ -6,100 +6,71 @@ import Tooltip from "primevue/tooltip";
 document.execCommand = jest.fn();
 
 describe("URL.vue", () => {
-  it("should render with default values", () => {
-    const wrapper = mount(URL, {
+  let wrapper;
+
+  beforeEach(() => {
+    wrapper = mount(URL, {
       global: {
         directives: {
           tooltip: Tooltip,
         },
       },
     });
+  });
+
+  it("should render with default values", () => {
     expect(wrapper).toBeTruthy();
   });
 
-  it("link renders correctly", () => {
+  it("link renders correctly", async () => {
     const link = "testLink";
-    const wrapper = mount(URL, {
-      global: {
-        directives: {
-          tooltip: Tooltip,
-        },
-      },
-      props: {
-        link: link,
-      },
-    });
+    await wrapper.setProps({ link: link });
+
     expect(wrapper.get('[data-test="link"]').text()).toBe(link);
   });
 
-  it("link text class is set correctly", () => {
+  it("link text class is set correctly", async () => {
     const link = "testLink";
     const linkClass = "w-12 h-12";
-    const wrapper = mount(URL, {
-      global: {
-        directives: {
-          tooltip: Tooltip,
-        },
-      },
-      props: {
-        link: link,
-        urlStyleClass: linkClass,
-      },
+    await wrapper.setProps({
+      link: link,
+      urlStyleClass: linkClass,
     });
+
     expect(wrapper.get('[data-test="link"]').classes()).toEqual(
       expect.arrayContaining(["w-12", "h-12"])
     );
   });
 
-  it("link text underlining works correctly", () => {
+  it("link text underlining works correctly", async () => {
     const link = "testLink";
-    const wrapper = mount(URL, {
-      global: {
-        directives: {
-          tooltip: Tooltip,
-        },
-      },
-      props: {
-        link: link,
-        isUnderlined: true,
-      },
+    await wrapper.setProps({
+      link: link,
+      isUnderlined: true,
     });
+
     expect(wrapper.get('[data-test="link"]').classes()).toEqual(
       expect.arrayContaining(["border-b-2", "border-yellow-500"])
     );
   });
 
-  it("button class is set correctly", () => {
+  it("button class is set correctly", async () => {
     const link = "testLink";
     const urlCopyButtonClass = "text-yellow-100";
-    const wrapper = mount(URL, {
-      global: {
-        directives: {
-          tooltip: Tooltip,
-        },
-      },
-      props: {
-        link: link,
-        urlCopyButtonClass: urlCopyButtonClass,
-      },
+    await wrapper.setProps({
+      link: link,
+      urlCopyButtonClass: urlCopyButtonClass,
     });
+
     expect(wrapper.get('[data-test="copyButton"]').classes()).toContain(
       urlCopyButtonClass
     );
   });
 
-  it("button click is working correctly", () => {
+  it("button click is working correctly", async () => {
     const link = "testLink";
-
-    const wrapper = mount(URL, {
-      global: {
-        directives: {
-          tooltip: Tooltip,
-        },
-      },
-      props: {
-        link: link,
-      },
+    await wrapper.setProps({
+      link: link,
     });
 
     wrapper.get('[data-test="copyButton"]').trigger("click");
