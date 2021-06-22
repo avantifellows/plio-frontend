@@ -9,13 +9,7 @@ describe("URL.vue", () => {
   let wrapper;
 
   beforeEach(() => {
-    wrapper = mount(URL, {
-      global: {
-        directives: {
-          tooltip: Tooltip,
-        },
-      },
-    });
+    wrapper = mount(URL);
   });
 
   it("should render with default values", () => {

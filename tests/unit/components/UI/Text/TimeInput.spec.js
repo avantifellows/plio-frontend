@@ -4,13 +4,7 @@ import Tooltip from "primevue/tooltip";
 
 describe("TimeInput.vue", () => {
   it("should render with default values", () => {
-    const wrapper = mount(TimeInput, {
-      global: {
-        directives: {
-          tooltip: Tooltip,
-        },
-      },
-    });
+    const wrapper = mount(TimeInput);
     expect(wrapper).toBeTruthy();
   });
 });
