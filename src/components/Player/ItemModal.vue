@@ -80,7 +80,9 @@ export default {
   props: {
     itemList: {
       // list of items
-      default: () => {},
+      default: () => {
+        return [];
+      },
       type: Array,
     },
     responseList: {
