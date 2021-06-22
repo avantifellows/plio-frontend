@@ -10,6 +10,7 @@
       >
         <span class="flex flex-1 space-x-2 items-center">
           <inline-svg
+            v-if="selectedOptionHasIcon"
             :src="getIconSource(selectedOption.icon)"
             class="text-white h-4 w-full bp-420:w-2/3 bp-500:w-full sm:w-2/3 fill-current"
           ></inline-svg>
@@ -41,7 +42,11 @@
           @click="setOption(optionIndex)"
         >
           <div class="flex space-x-4 items-center">
-            <inline-svg :src="getIconSource(option.icon)" class="w-1/4 h-4 fill-current"></inline-svg>
+            <inline-svg
+              v-if="doesOptionHaveIcon(option)"
+              :src="getIconSource(option.icon)"
+              class="w-1/4 h-4 fill-current"
+            ></inline-svg>
             <p class="block font-normal w-full">{{ option.label }}</p>
           </div>
         </li>
@@ -79,8 +84,15 @@ export default {
     },
   },
   computed: {
+    selectedOptionHasIcon() {
+      // whether the selected option has an icon
+      return this.selectedOption != undefined && this.selectedOption.icon != null;
+    },
     dropdownIconClass() {
-      return [{ "transform rotate-180": this.showDropdown }, "transition ease duration-800"];
+      return [
+        { "transform rotate-180": this.showDropdown },
+        "transition ease duration-800",
+      ];
     },
     selectedOption() {
       // the selected option
@@ -106,6 +118,10 @@ export default {
   },
   methods: {
     ...Utilties,
+    doesOptionHaveIcon(option) {
+      // whether the given option has an icon
+      return option != undefined && option.icon != null;
+    },
     hideDropdown() {
       // hides the dropdown when clicking away from the dropdown
       this.showDropdown = false;
