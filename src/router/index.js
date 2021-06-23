@@ -165,7 +165,7 @@ router.beforeEach((to) => {
   return;
 });
 
-function restrictUnapprovedUser(to, from) {
+function restrictUnapprovedUser(to) {
   if (!store.getters["auth/isUserApproved"])
     return { name: "Home", params: { org: to.params.org }, replace: true };
   else return;
