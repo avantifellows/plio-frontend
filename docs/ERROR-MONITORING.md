@@ -3,9 +3,9 @@
 If you're setting up Plio for staging or production, you may also wish to capture errors faced by users in real-time. For that purpose, Plio uses [Sentry.io](https://sentry.io/) for real-time error monitoring and reporting.
 
 ### Pre-requisites
-1. Create an account at Sentry
-2. Set up your organization
-3. Create a new VueJS project.
+1. Create an account at Sentry.
+2. Set up your organization.
+3. Create a new VueJS project. Name it `plio-frontend`.
 
 
 ### Enable error logging
