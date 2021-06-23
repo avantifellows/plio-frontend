@@ -59,7 +59,10 @@ const filterBeforeCreate = (toast, toasts) => {
 
 const app = createApp(App).use(store).use(router);
 
-if (["staging", "production"].includes(process.env.NODE_ENV)) {
+if (
+  ["staging", "production"].includes(process.env.NODE_ENV) &&
+  process.env.VUE_APP_SENTRY_DSN
+) {
   // Since Vue3 isn't officially supported yet by Sentry, we're using
   // the JavaScript Sentry integration with @sentry/browser.
   Sentry.init({
