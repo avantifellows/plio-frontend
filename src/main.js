@@ -13,6 +13,10 @@ import VueGtag from "vue-gtag";
 import VueClickAway from "vue3-click-away";
 import mixpanel from "mixpanel-browser";
 
+// sentry imports
+import * as Sentry from "@sentry/browser";
+import { Integrations } from "@sentry/tracing";
+
 // Google AOauth. Add CLIENT_ID in .env file
 import GAuth from "vue3-google-oauth2";
 
@@ -54,6 +58,22 @@ const filterBeforeCreate = (toast, toasts) => {
 };
 
 const app = createApp(App).use(store).use(router);
+
+if (["staging", "production"].includes(process.env.NODE_ENV)) {
+  // Since Vue3 isn't officially supported yet by Sentry, we're using
+  // the JavaScript Sentry integration with @sentry/browser.
+  Sentry.init({
+    dsn: process.env.VUE_APP_SENTRY_DSN,
+    integrations: [new Integrations.BrowserTracing()],
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    tracesSampleRate: 1.0,
+    environment: process.env.NODE_ENV,
+  });
+  app.config.errorHandler = (err) => {
+    Sentry.captureException(err);
+  };
+}
 
 app.component("inline-svg", InlineSvg);
 
