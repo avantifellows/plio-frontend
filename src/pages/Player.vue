@@ -234,13 +234,11 @@ export default {
     },
   },
   async created() {
-    // creating a promise for the third party auth functionality
-
-    // if the app needs to authenticate via third party, resolve this promise only when all tasks are done
-    // and the authenticated user is set
-
-    // if the app does not need third party auth, resolve the promise instantly
-    // all the remaining code will run only when this promise is resolved
+    // Creating a promise for the third party auth functionality.
+    // If the app needs to authenticate via third party, resolve this promise only when all tasks are done
+    // and the authenticated user is set.
+    // If the app does not need third party auth, resolve the promise instantly.
+    // All the remaining code will run only when this promise is resolved.
     let thirdPartyAuthPromiseResolve;
     let thirdPartyAuthPromise = new Promise((resolve) => {
       thirdPartyAuthPromiseResolve = resolve;

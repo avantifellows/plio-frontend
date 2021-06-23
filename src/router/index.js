@@ -123,9 +123,10 @@ router.beforeEach((to, from) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     // app has to be authenticated using third party auth if all the query params
     // match the keys in `requiredAuthKeys` and they're not empty or undefined
-    var isThirdPartyAuth =
-      requiredAuthKeys.every((key) => Object.keys(to.query).includes(key)) &&
-      Object.keys(to.query).every(
+    let query_params = Object.keys(to.query);
+    let isThirdPartyAuth =
+      requiredAuthKeys.every((key) => query_params.includes(key)) &&
+      query_params.every(
         (key) => to.query[key] != "" && to.query[key] != undefined
       );
 
