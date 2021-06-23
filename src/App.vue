@@ -1,6 +1,10 @@
 <template>
   <div class="flex relative">
-    <div class="w-full" :class="{ 'opacity-20 pointer-events-none': coverBackground }" @keydown="keyboardPressed">
+    <div
+      class="w-full"
+      :class="{ 'opacity-20 pointer-events-none': coverBackground }"
+      @keydown="keyboardPressed"
+    >
       <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
         <!-- top left logo -->
         <router-link
@@ -8,7 +12,11 @@
           class="h-14 w-11 justify-self-start place-self-center"
           v-if="!onLoginPage"
         >
-          <img class="h-full w-full object-scale-down" id="logo" src="@/assets/images/logo.png" />
+          <img
+            class="h-full w-full object-scale-down"
+            id="logo"
+            src="@/assets/images/logo.png"
+          />
         </router-link>
 
         <!-- workspace switcher -->
@@ -17,12 +25,18 @@
         </div>
 
         <!-- page heading -->
-        <div v-if="isAuthenticated" class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center">
+        <div
+          v-if="isAuthenticated"
+          class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center"
+        >
           <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
         </div>
 
         <!-- create plio button -->
-        <div v-if="showCreateButton" class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1">
+        <div
+          v-if="showCreateButton"
+          class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1"
+        >
           <icon-button
             :titleConfig="createButtonTextConfig"
             :buttonClass="createButtonClass"
@@ -36,12 +50,16 @@
           <!-- logout -->
           <div v-if="showLogout" class="text-lg sm:text-xl">
             <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
-              <button class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain">
+              <button
+                class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain"
+              >
                 {{ $t("nav.login") }}
               </button>
             </router-link>
             <a href="#" v-if="isAuthenticated" @click="logoutButtonClicked">
-              <button class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2">
+              <button
+                class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2"
+              >
                 {{ $t("nav.logout") }}
               </button>
             </a>
@@ -56,16 +74,28 @@
     </div>
     <!-- first-time language picker -->
     <div class="fixed w-full my-5 flex justify-center" v-if="showLanguagePickerDialog">
-      <div class="bg-white w-11/12 sm:w-9/12 lg:w-7/12 p-4 sm:p-10 rounded-lg border border-black">
+      <div
+        class="bg-white w-11/12 sm:w-9/12 lg:w-7/12 p-4 sm:p-10 rounded-lg border border-black"
+      >
         <p class="text-center text-2xl sm:text-4xl py-4 sm:py-8">Select your language</p>
         <div class="grid grid-cols-2 space-x-2">
-          <div class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer">
-            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white" @click="setLocale('en')">
+          <div
+            class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer"
+          >
+            <p
+              class="text-xl sm:text-3xl text-black text-center group-hover:text-white"
+              @click="setLocale('en')"
+            >
               English
             </p>
           </div>
-          <div class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer">
-            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white" @click="setLocale('hi')">
+          <div
+            class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer"
+          >
+            <p
+              class="text-xl sm:text-3xl text-black text-center group-hover:text-white"
+              @click="setLocale('hi')"
+            >
               हिंदी
             </p>
           </div>
@@ -77,8 +107,8 @@
 </template>
 
 <script>
-import WorkspaceSwitcher from "@/components/UI/WorkspaceSwitcher.vue";
-import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
+import WorkspaceSwitcher from "@/components/App/WorkspaceSwitcher.vue";
+import LocaleSwitcher from "@/components/App/LocaleSwitcher.vue";
 import UserConfigService from "@/services/Config/User.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { mapActions, mapState, mapGetters } from "vuex";
@@ -142,7 +172,7 @@ export default {
       // check if the current user actually belongs to the activeWorkspace
       // set in the store. If not, then redirect to the personal workspace
       if (value) {
-        var isUserInWorkspace = this.user.organizations.some(org => {
+        var isUserInWorkspace = this.user.organizations.some((org) => {
           return org.shortcode == this.activeWorkspace;
         });
         if (!isUserInWorkspace) this.$router.replace({ name: "Home" });
@@ -162,10 +192,10 @@ export default {
         if (this.$mixpanel.get_distinct_id() != this.user.id.toString()) {
           this.$mixpanel.alias(this.user.id.toString());
           this.$mixpanel.people.set({
-            "$first_name": this.user.first_name,
-            "$last_name": this.user.last_name,
-            "$email": this.user.email,
-            "$phone": this.user.phone,
+            $first_name: this.user.first_name,
+            $last_name: this.user.last_name,
+            $email: this.user.email,
+            $phone: this.user.phone,
             "User DB ID": this.user.id,
           });
           this.$mixpanel.identify(this.user.id);
@@ -282,7 +312,7 @@ export default {
       });
       this.$mixpanel.people.increment("Total Plios Created");
       PlioAPIService.createPlio()
-        .then(response => {
+        .then((response) => {
           this.$Progress.finish();
           if (response.status == 201) {
             this.$router.push({
@@ -319,7 +349,12 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("auth", ["isAuthenticated", "isUserApproved", "activeWorkspaceSchema", "locale"]),
+    ...mapGetters("auth", [
+      "isAuthenticated",
+      "isUserApproved",
+      "activeWorkspaceSchema",
+      "locale",
+    ]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     showLogout() {
@@ -339,7 +374,12 @@ export default {
     },
     showWorkspaceSwitcher() {
       // whether to show workspace switcher
-      return this.isAuthenticated && this.onHomePage && this.user.organizations.length && this.isUserApproved;
+      return (
+        this.isAuthenticated &&
+        this.onHomePage &&
+        this.user.organizations.length &&
+        this.isUserApproved
+      );
     },
     onHomePage() {
       // whether the current page is the home page
@@ -378,7 +418,7 @@ export default {
       if (this.user == null) return [];
       var shortcodes = [];
 
-      this.user.organizations.forEach(organization => {
+      this.user.organizations.forEach((organization) => {
         shortcodes.push(organization.shortcode);
       });
 

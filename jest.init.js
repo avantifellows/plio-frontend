@@ -22,6 +22,7 @@ const $store = store;
 
 import i18n from "@/services/Localisation/i18n.js";
 const $t = (msg) => i18n.global.t(msg);
+const $i18n = i18n;
 
 config.global = {
   components: {
@@ -33,6 +34,7 @@ config.global = {
     $router,
     $t,
     $store,
+    $i18n,
   },
   directives: {
     tooltip: Tooltip,
