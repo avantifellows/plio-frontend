@@ -51,6 +51,7 @@
     "babel-plugin-transform-remove-console": "^6.9.4",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.0.0-0",
+    "jest-transform-stub": "^2.0.0",
     "postcss": "^7.0.35",
     "sass": "^1.26.11",
     "sass-loader": "^10.0.2",
@@ -74,7 +75,8 @@
       {
         "files": [
           "**/__tests__/*.{j,t}s?(x)",
-          "**/tests/unit/**/*.spec.{j,t}s?(x)"
+          "**/tests/unit/**/*.spec.{j,t}s?(x)",
+          "jest.init.js"
         ],
         "env": {
           "jest": true

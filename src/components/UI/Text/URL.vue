@@ -1,7 +1,7 @@
 <template>
   <div class="flex space-x-2">
     <!-- URL link -->
-    <p class="place-self-center whitespace-nowrap" :class="urlTextClass">
+    <p class="place-self-center whitespace-nowrap" :class="urlTextClass" data-test="link">
       {{ link }}
     </p>
     <!-- copy button -->
@@ -9,6 +9,7 @@
       @click="copyToClipboard()"
       v-tooltip="this.$t('tooltip.url')"
       :class="urlCopyButtonClass"
+      data-test="copyButton"
     >
       <inline-svg
         :src="require('@/assets/images/copy.svg')"
