@@ -9,7 +9,8 @@ import i18n from "@/services/Localisation/i18n.js";
 import { useToast } from "vue-toastification";
 
 const toast = useToast();
-// these keys should be present in the third party auth query request URL
+// these keys should be present as query params when a third party
+// auth is used to access a route
 const requiredAuthKeys = ["auth_type", "unique_id", "access_token"];
 
 const routes = [
