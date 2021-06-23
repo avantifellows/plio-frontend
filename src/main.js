@@ -4,8 +4,8 @@ import router from "./router";
 import store from "./store";
 
 import i18n from "./services/Localisation/i18n.js";
-import PrimeVue from "primevue/config";
 import InlineSvg from "vue-inline-svg";
+import PrimeVue from "primevue/config";
 import Tooltip from "primevue/tooltip";
 import Toast from "vue-toastification";
 import VueProgressBar from "@aacassandra/vue3-progressbar";

@@ -7,15 +7,26 @@
         :buttonClass="reviseButtonClass"
         v-if="!isAnswerSubmitted"
         @click="reviseClicked"
+        data-test="reviseButton"
       ></icon-button>
       <!-- icon to show correct/wrong option result -->
-      <div class="flex items-center space-x-4" v-if="isAnswerSubmitted">
+      <div
+        class="flex items-center space-x-4"
+        v-if="isAnswerSubmitted"
+        data-test="answerFeedback"
+      >
         <inline-svg
           :src="answerCorrectnessIcon"
           :class="answerCorrectnessIconClass"
           class="w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 place-self-center ml-4"
+          data-test="answerCorrectnessIcon"
         ></inline-svg>
-        <p class="text-md sm:text-lg lg:text-2xl" :class="answerFeedbackTextClass" v-if="hasAnyAnswerFeedback">
+        <p
+          class="text-md sm:text-lg lg:text-2xl"
+          :class="answerFeedbackTextClass"
+          v-if="hasAnyAnswerFeedback"
+          data-test="answerFeedbackText"
+        >
           {{ answerFeedbackText }}
         </p>
       </div>
@@ -26,6 +37,7 @@
         :titleConfig="fullscreenButtonTitleConfig"
         :buttonClass="fullscreenButtonClass"
         @click="toggleFullscreen"
+        data-test="fullscreenButton"
       ></icon-button>
     </div>
     <div class="place-self-end">
@@ -36,6 +48,7 @@
         v-if="!isAnswerSubmitted"
         :isDisabled="!isSubmitEnabled"
         @click="submitClicked"
+        data-test="submitButton"
       ></icon-button>
       <!-- proceed button -->
       <icon-button
@@ -43,6 +56,7 @@
         :buttonClass="proceedButtonClass"
         @click="proceedClicked"
         v-else
+        data-test="proceedButton"
       ></icon-button>
     </div>
   </div>
@@ -141,7 +155,7 @@ export default {
     },
     proceedButtonClass() {
       // class for the proceed button
-      return "bg-green-500 hover:bg-green-700 ring-green-500 p-1 pl-4 pr-4 sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl";
+      return "bg-primary hover:bg-primary-hover ring-green-500 p-1 pl-4 pr-4 sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl";
     },
     fullscreenButtonTitleConfig() {
       // config for the text of the fullscreen toggle button
@@ -195,6 +209,11 @@ export default {
       this.localIsFullscreen = !this.localIsFullscreen;
     },
   },
-  emits: ["submit-question", "revise-question", "proceed-question", "update:isFullscreen"],
+  emits: [
+    "submit-question",
+    "revise-question",
+    "proceed-question",
+    "update:isFullscreen",
+  ],
 };
 </script>

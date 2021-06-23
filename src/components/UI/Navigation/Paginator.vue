@@ -38,7 +38,7 @@
           {{ " " + $t("home.paginator.description.to") + " " }}
           <span class="font-medium">{{ paginatorDetails.endItemIndex + 1 }}</span>
           {{ $t("home.paginator.description.of") }}
-          <span class="font-medium">{{ totalItems }}</span>
+          <span class="font-medium" data-test="totalItems">{{ totalItems }}</span>
           {{ " " + $t("home.paginator.description.plios") }}
         </p>
       </div>
