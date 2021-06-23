@@ -1,7 +1,9 @@
 <template>
   <div class="sm:grid sm:grid-cols-4 md:grid-cols-4 p-2 bp-320:p-4 sm:p-6 md:p-10">
     <!-- main grid with the login functionality -->
-    <div class="flex flex-col w-full sm:col-span-full md:col-start-2 md:col-span-2 border shadow-xl bg-white rounded-md p-4 md:p-8 border-primary max-w-3xl mx-auto">
+    <div
+      class="flex flex-col w-full sm:col-span-full md:col-start-2 md:col-span-2 border shadow-xl bg-white rounded-md p-4 md:p-8 border-primary max-w-3xl mx-auto"
+    >
       <!-- plio logo as a banner -->
       <div class="w-20 justify-self-start place-self-center mb-10">
         <img class="h-full w-full object-scale-down" src="@/assets/images/logo.png" />
@@ -16,11 +18,19 @@
       >
         <div class="flex w-full justify-center">
           <!-- logo -->
-          <inline-svg :src="require('@/assets/images/google.svg')" :class="googleButtonIconClass" class="place-self-center"></inline-svg>
+          <inline-svg
+            :src="require('@/assets/images/google.svg')"
+            :class="googleButtonIconClass"
+            class="place-self-center"
+          ></inline-svg>
           <!-- text -->
           <p :class="googleButtonTitleClass">{{ googleButtonTitle }}</p>
           <!-- loading spinner -->
-          <inline-svg v-if="pending" :src="require('@/assets/images/spinner-solid.svg')" class="animate-spin h-4 place-self-center ml-2 md"></inline-svg>
+          <inline-svg
+            v-if="pending"
+            :src="require('@/assets/images/spinner-solid.svg')"
+            class="animate-spin h-4 place-self-center ml-2 md"
+          ></inline-svg>
         </div>
       </button>
 
@@ -43,7 +53,13 @@
         :placeholder="phoneInputPlaceholder"
       ></input-number>
       <!-- input box to enter OTP -->
-      <input-number class="mt-2" v-model:value="otpInput" :validation="otpInputValidation" :maxLength="6" v-if="requestedOtp"></input-number>
+      <input-number
+        class="mt-2"
+        v-model:value="otpInput"
+        :validation="otpInputValidation"
+        :maxLength="6"
+        v-if="requestedOtp"
+      ></input-number>
       <!-- button to request for OTP -->
       <icon-button
         class="mt-2"
@@ -156,9 +172,13 @@ export default {
       return [
         // formatted text for the terms and service opt in message
         this.$t("login.opt_in_t_and_c.1"),
-        `<a href='https://plio.in/terms' class="underline" target="_blank">` + this.$t("login.opt_in_t_and_c.2") + `</a>`,
+        `<a href='https://plio.in/terms' class="underline" target="_blank">` +
+          this.$t("login.opt_in_t_and_c.2") +
+          `</a>`,
         this.$t("login.opt_in_t_and_c.3"),
-        `<a href='https://plio.in/privacy' class="underline" target="_blank">` + this.$t("login.opt_in_t_and_c.4") + `</a>`,
+        `<a href='https://plio.in/privacy' class="underline" target="_blank">` +
+          this.$t("login.opt_in_t_and_c.4") +
+          `</a>`,
         this.$t("login.opt_in_t_and_c.5"),
       ].join(" ");
     },
@@ -306,10 +326,10 @@ export default {
       // invoked for logging in with Phone
       this.isSubmitOTPInProgress = true;
       UserAPIService.verifyOtp(this.formattedPhoneInput, this.otpInput)
-        .then(response => {
+        .then((response) => {
           this.setAccessToken(response.data).then(() => this.routeAfterLogin("phone"));
         })
-        .catch(error => {
+        .catch((error) => {
           this.stopLoading();
           if (error.response.status == 401) {
             // show wrong OTP warning and reset the OTP input text box
@@ -333,9 +353,11 @@ export default {
         // set the google login button as disabled
         this.isGoogleAuthDisabled = true;
         let socialAuthToken = googleUser.getAuthResponse();
-        UserAPIService.convertSocialAuthToken(socialAuthToken.access_token).then(response => {
-          this.setAccessToken(response.data).then(() => this.routeAfterLogin("google"));
-        });
+        UserAPIService.convertSocialAuthToken(socialAuthToken.access_token).then(
+          (response) => {
+            this.setAccessToken(response.data).then(() => this.routeAfterLogin("google"));
+          }
+        );
       } catch (error) {
         this.toast.warning(this.$t("login.google.error"));
         this.stopLoading();
