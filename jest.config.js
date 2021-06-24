@@ -11,7 +11,7 @@ module.exports = {
     "!src/main.js",
     "!src/**/dist/*.js",
     "!src/components/UI/tutorial/*.vue",
-    "!src/components/UI/Vue2PortedPackages/**/*.{js,vue}",
+    "!src/components/Vue2PortedPackages/**/*.{js,vue}",
   ],
   setupFiles: ["<rootDir>/jest.init.js"],
 };
