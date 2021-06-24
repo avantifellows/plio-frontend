@@ -9,6 +9,7 @@ import InlineSvg from "vue-inline-svg";
 import Toast from "vue-toastification";
 import Tooltip from "primevue/tooltip";
 import VueClickAway from "vue3-click-away";
+import VueProgressBar from "@aacassandra/vue3-progressbar";
 
 import mixpanel from "mixpanel-browser";
 mixpanel.init(process.env.VUE_APP_MIXPANEL_PROJECT_TOKEN);
@@ -27,8 +28,9 @@ const $i18n = i18n;
 config.global = {
   components: {
     InlineSvg,
+    VueProgressBar,
   },
-  plugins: [Toast, store, router],
+  plugins: [Toast, store],
   mocks: {
     $mixpanel,
     $router,

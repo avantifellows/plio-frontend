@@ -160,3 +160,4 @@ function restrictUnapprovedUser(to, from, next) {
 }
 
 export default router;
+export { routes };
