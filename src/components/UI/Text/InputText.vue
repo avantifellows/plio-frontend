@@ -46,6 +46,7 @@
         :maxLength="maxLength"
         :disabled="isDisabled"
         autocomplete="off"
+        data-test="input"
       />
 
       <!-- end icon -->
