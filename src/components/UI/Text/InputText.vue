@@ -14,7 +14,11 @@
           ></inline-svg>
 
           <!-- validation message -->
-          <p class="pl-1 place-self-center" :class="validationColorClass">
+          <p
+            class="pl-1 place-self-center"
+            :class="validationColorClass"
+            data-test="validationMessage"
+          >
             {{ validationMessage }}
           </p>
         </div>

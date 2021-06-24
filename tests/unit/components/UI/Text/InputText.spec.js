@@ -58,4 +58,38 @@ describe("InputText.vue", () => {
 
     expect(input.element.value).toBe(value);
   });
+
+  it("renders valid messages correctly", async () => {
+    const validation = {
+      enabled: true,
+      isValid: true,
+      validMessage: "valid",
+    };
+    const wrapper = mount(InputText, {
+      props: {
+        validation: validation,
+      },
+    });
+
+    expect(wrapper.find('[data-test="validationMessage"]').text()).toBe(
+      validation.validMessage
+    );
+  });
+
+  it("renders invalid messages correctly", async () => {
+    const validation = {
+      enabled: true,
+      isValid: false,
+      invalidMessage: "invalid",
+    };
+    const wrapper = mount(InputText, {
+      props: {
+        validation: validation,
+      },
+    });
+
+    expect(wrapper.find('[data-test="validationMessage"]').text()).toBe(
+      validation.invalidMessage
+    );
+  });
 });
