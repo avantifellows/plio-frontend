@@ -109,6 +109,16 @@ describe("Textarea.vue", () => {
     expect(wrapper.emitted()).toHaveProperty("keypress");
   });
 
+  it("input keydown detected correctly", async () => {
+    const wrapper = mount(Textarea);
+
+    await wrapper.find('[data-test="input"]').trigger("keydown", {
+      key: "a",
+    });
+
+    expect(wrapper.emitted()).toHaveProperty("keydown");
+  });
+
   it("renders start icon correctly", () => {
     const startIcon = {
       enabled: true,
