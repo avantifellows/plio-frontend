@@ -257,6 +257,10 @@ export default {
           thirdPartyAuthPromiseResolve();
         })
         .catch((error) => {
+          // if there's some error in the query params,
+          // let the user continue if they're logged in,
+          // or redirect the user to the same plio, but without the third party auth params
+          // so the user has to login to view the plio
           if (error.response.status === 400) {
             if (this.isAuthenticated) thirdPartyAuthPromiseResolve();
             else
