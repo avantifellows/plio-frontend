@@ -97,6 +97,16 @@ describe("InputText.vue", () => {
     );
   });
 
+  it("input keypress detected correctly", async () => {
+    const wrapper = mount(InputText);
+
+    wrapper.find('[data-test="input"]').trigger("keypress", {
+      key: "a",
+    });
+
+    expect(wrapper.emitted()).toHaveProperty("keypress");
+  });
+
   it("renders start icon correctly", async () => {
     const startIcon = {
       enabled: true,
@@ -120,6 +130,29 @@ describe("InputText.vue", () => {
       expect.arrayContaining(startIcon.class.split(" "))
     );
     expect(wrapper.vm.startIconName).toBe(startIcon.name);
+  });
+
+  it("start icon click works correctly", async () => {
+    const startIcon = {
+      enabled: true,
+      name: "check",
+      class: "w-10 h-10",
+      tooltip: "",
+    };
+    const wrapper = mount(InputText, {
+      props: {
+        startIcon: startIcon,
+      },
+      global: {
+        stubs: {
+          InlineSvg: InlineSvg,
+        },
+      },
+    });
+
+    wrapper.get('[data-test="startIcon"]').trigger("click");
+
+    expect(wrapper.emitted()).toHaveProperty("start-icon-selected");
   });
 
   it("renders start icon disabled correctly", async () => {
@@ -201,5 +234,28 @@ describe("InputText.vue", () => {
         "opacity-50",
       ])
     );
+  });
+
+  it("end icon click works correctly", async () => {
+    const endIcon = {
+      enabled: true,
+      name: "check",
+      class: "w-10 h-10",
+      tooltip: "",
+    };
+    const wrapper = mount(InputText, {
+      props: {
+        endIcon: endIcon,
+      },
+      global: {
+        stubs: {
+          InlineSvg: InlineSvg,
+        },
+      },
+    });
+
+    wrapper.get('[data-test="endIcon"]').trigger("click");
+
+    expect(wrapper.emitted()).toHaveProperty("end-icon-selected");
   });
 });
