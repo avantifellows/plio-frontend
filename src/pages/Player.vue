@@ -245,6 +245,7 @@ export default {
     });
 
     if (this.isThirdPartyAuth) {
+      console.log("if enter");
       // convert the third party token into Plio's internal token
       // and set the user accordingly
       UserAPIService.convertThirdPartyToken({
@@ -254,23 +255,22 @@ export default {
       })
         .then(async (response) => {
           await this.setAccessToken(response.data);
+          console.log("then");
           thirdPartyAuthPromiseResolve();
         })
         .catch((error) => {
           // if there's some error in the query params,
-          // let the user continue if they're logged in,
-          // or redirect the user to the same plio, but without the third party auth params
-          // so the user has to login to view the plio
+          // reload the page and remove the auth query params
+          // if the user is authenticated -- they will be able to see the plio
+          // if the user is not -- they will be asked to log in and then see the plio
           if (error.response.status === 400) {
-            if (this.isAuthenticated) thirdPartyAuthPromiseResolve();
-            else
-              this.$router.replace({
-                name: "Player",
-                params: {
-                  org: this.org,
-                  plioId: this.plioId,
-                },
-              });
+            this.$router.replace({
+              name: "Player",
+              params: {
+                org: this.org,
+                plioId: this.plioId,
+              },
+            });
           }
         });
     } else thirdPartyAuthPromiseResolve();
