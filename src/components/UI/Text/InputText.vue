@@ -2,7 +2,7 @@
   <div class="grid grid-cols-1">
     <div class="flex justify-between">
       <!-- title for the input box -->
-      <p class="text-xs pl-2">{{ title }}</p>
+      <p class="text-xs pl-2" data-test="title">{{ title }}</p>
       <!-- input validation -->
       <div class="pr-2" v-if="isValidationEnabled">
         <div class="flex text-xs">

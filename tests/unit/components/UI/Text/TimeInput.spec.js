@@ -78,22 +78,12 @@ describe("TimeInput.vue", () => {
       .find('[data-test="input"]');
     await millisecondInput.setValue(timeObjectValue.millisecond);
 
-    expect(
-      wrapper.find('[data-test="hour"]').find('[data-test="input"]').element
-        .value
-    ).toBe(String(timeObjectValue.hour));
-    expect(
-      wrapper.find('[data-test="minute"]').find('[data-test="input"]').element
-        .value
-    ).toBe(String(timeObjectValue.minute));
-    expect(
-      wrapper.find('[data-test="second"]').find('[data-test="input"]').element
-        .value
-    ).toBe(String(timeObjectValue.second));
-    expect(
-      wrapper.find('[data-test="millisecond"]').find('[data-test="input"]')
-        .element.value
-    ).toBe(String(timeObjectValue.millisecond));
+    expect(hourInput.element.value).toBe(String(timeObjectValue.hour));
+    expect(minuteInput.element.value).toBe(String(timeObjectValue.minute));
+    expect(secondInput.element.value).toBe(String(timeObjectValue.second));
+    expect(millisecondInput.element.value).toBe(
+      String(timeObjectValue.millisecond)
+    );
   });
 
   it("test error handling", async () => {
