@@ -33,6 +33,7 @@
         @click="startIconSelected"
         :class="startIconClass"
         v-tooltip.left="startIconTooltip"
+        data-test="startIcon"
       >
         <inline-svg :src="startIconObj"></inline-svg>
       </div>
@@ -60,6 +61,7 @@
         @click="endIconSelected"
         :class="endIconClass"
         v-tooltip.left="endIconTooltip"
+        data-test="endIcon"
       >
         <inline-svg :src="endIconObj" class="place-self-center"></inline-svg>
       </div>

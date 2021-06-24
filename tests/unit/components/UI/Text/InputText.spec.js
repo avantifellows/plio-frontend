@@ -1,6 +1,10 @@
 import { mount } from "@vue/test-utils";
 import InputText from "@/components/UI/Text/InputText";
 
+const InlineSvg = {
+  template: "<img />",
+};
+
 describe("InputText.vue", () => {
   it("should render with default values", () => {
     const wrapper = mount(InputText);
@@ -90,6 +94,112 @@ describe("InputText.vue", () => {
 
     expect(wrapper.find('[data-test="validationMessage"]').text()).toBe(
       validation.invalidMessage
+    );
+  });
+
+  it("renders start icon correctly", async () => {
+    const startIcon = {
+      enabled: true,
+      name: "check",
+      class: "w-10 h-10",
+      tooltip: "",
+    };
+    const wrapper = mount(InputText, {
+      props: {
+        startIcon: startIcon,
+      },
+      global: {
+        stubs: {
+          InlineSvg: InlineSvg,
+        },
+      },
+    });
+
+    expect(wrapper.get('[data-test="startIcon"]').html()).toContain("img");
+    expect(wrapper.get('[data-test="startIcon"]').classes()).toEqual(
+      expect.arrayContaining(startIcon.class.split(" "))
+    );
+    expect(wrapper.vm.startIconName).toBe(startIcon.name);
+  });
+
+  it("renders start icon disabled correctly", async () => {
+    const startIcon = {
+      enabled: true,
+      name: "check",
+      class: "w-10 h-10",
+      tooltip: "",
+      isDisabled: true,
+    };
+    const wrapper = mount(InputText, {
+      props: {
+        startIcon: startIcon,
+      },
+      global: {
+        stubs: {
+          InlineSvg: InlineSvg,
+        },
+      },
+    });
+
+    expect(wrapper.get('[data-test="startIcon"]').classes()).toEqual(
+      expect.arrayContaining([
+        "cursor-not-allowed",
+        "pointer-events-none",
+        "opacity-50",
+      ])
+    );
+  });
+
+  it("renders end icon correctly", async () => {
+    const endIcon = {
+      enabled: true,
+      name: "check",
+      class: "w-10 h-10",
+      tooltip: "",
+    };
+    const wrapper = mount(InputText, {
+      props: {
+        endIcon: endIcon,
+      },
+      global: {
+        stubs: {
+          InlineSvg: InlineSvg,
+        },
+      },
+    });
+
+    expect(wrapper.get('[data-test="endIcon"]').html()).toContain("img");
+    expect(wrapper.get('[data-test="endIcon"]').classes()).toEqual(
+      expect.arrayContaining(endIcon.class.split(" "))
+    );
+    expect(wrapper.vm.endIconName).toBe(endIcon.name);
+  });
+
+  it("renders end icon disabled correctly", async () => {
+    const endIcon = {
+      enabled: true,
+      name: "check",
+      class: "w-10 h-10",
+      tooltip: "",
+      isDisabled: true,
+    };
+    const wrapper = mount(InputText, {
+      props: {
+        endIcon: endIcon,
+      },
+      global: {
+        stubs: {
+          InlineSvg: InlineSvg,
+        },
+      },
+    });
+
+    expect(wrapper.get('[data-test="endIcon"]').classes()).toEqual(
+      expect.arrayContaining([
+        "cursor-not-allowed",
+        "pointer-events-none",
+        "opacity-50",
+      ])
     );
   });
 });
