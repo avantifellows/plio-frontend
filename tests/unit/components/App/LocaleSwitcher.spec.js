@@ -7,13 +7,11 @@ describe("LocaleSwitcher.vue", () => {
     expect(wrapper).toBeTruthy();
   });
 
-  it("test updating switcher triggers updating the locale", () => {
+  it("test updating switcher triggers the update method", () => {
     const updateLocale = jest.spyOn(LocaleSwitcher.methods, "updateLocale");
     const wrapper = mount(LocaleSwitcher);
 
-    const select = wrapper.find('[data-test="select"]').element;
-    select.value = "hi";
-    select.dispatchEvent(new Event("change"));
+    wrapper.find('[data-test="select"]').trigger("change");
 
     expect(updateLocale).toHaveBeenCalled();
   });
