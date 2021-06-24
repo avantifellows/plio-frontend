@@ -95,4 +95,59 @@ describe("TimeInput.vue", () => {
         .element.value
     ).toBe(String(timeObjectValue.millisecond));
   });
+
+  it("test error handling", async () => {
+    const hourInput = wrapper
+      .find('[data-test="hour"]')
+      .find('[data-test="input"]');
+    const minuteInput = wrapper
+      .find('[data-test="minute"]')
+      .find('[data-test="input"]');
+    const secondInput = wrapper
+      .find('[data-test="second"]')
+      .find('[data-test="input"]');
+    const millisecondInput = wrapper
+      .find('[data-test="millisecond"]')
+      .find('[data-test="input"]');
+
+    // set wrong hour input
+    await hourInput.setValue("a");
+
+    expect(wrapper.emitted()).toHaveProperty("error-occurred");
+
+    // set valid hour input
+    await hourInput.setValue(12);
+
+    expect(wrapper.emitted()).toHaveProperty("error-resolved");
+
+    // set wrong minute input
+    await minuteInput.setValue("a");
+
+    expect(wrapper.emitted()).toHaveProperty("error-occurred");
+
+    // set valid minute input
+    await minuteInput.setValue(12);
+
+    expect(wrapper.emitted()).toHaveProperty("error-resolved");
+
+    // set wrong second input
+    await secondInput.setValue("a");
+
+    expect(wrapper.emitted()).toHaveProperty("error-occurred");
+
+    // set valid second input
+    await secondInput.setValue(12);
+
+    expect(wrapper.emitted()).toHaveProperty("error-resolved");
+
+    // set wrong millisecond input
+    await millisecondInput.setValue("a");
+
+    expect(wrapper.emitted()).toHaveProperty("error-occurred");
+
+    // set valid millisecond input
+    await millisecondInput.setValue(12);
+
+    expect(wrapper.emitted()).toHaveProperty("error-resolved");
+  });
 });
