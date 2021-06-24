@@ -241,6 +241,7 @@ export default {
       // invoked when a key is pressed
       if (this.maxLength != null && this.localValue.length == this.maxLength) {
         event.preventDefault();
+        return;
       }
     },
     startIconSelected() {

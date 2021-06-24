@@ -2,7 +2,7 @@
   <div class="grid grid-cols-1">
     <div class="flex justify-between">
       <!-- title for the input box -->
-      <p class="text-xs pl-2">{{ title }}</p>
+      <p class="text-xs pl-2" data-test="title">{{ title }}</p>
       <!-- input validation -->
       <div class="pr-2" v-if="isValidationEnabled">
         <div class="flex text-xs">
@@ -14,7 +14,11 @@
           ></inline-svg>
 
           <!-- validation message -->
-          <p class="pl-1 place-self-center" :class="validationColorClass">
+          <p
+            class="pl-1 place-self-center"
+            :class="validationColorClass"
+            data-test="validationMessage"
+          >
             {{ validationMessage }}
           </p>
         </div>
@@ -28,6 +32,7 @@
         class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center w-5 inset-y-1/4 left-1.5"
         @click="startIconSelected"
         :class="startIconClass"
+        data-test="startIcon"
       >
         <inline-svg :src="startIconObj"></inline-svg>
       </div>
@@ -44,6 +49,7 @@
         @input="inputChange"
         @keypress="keyPress"
         @keydown="keyDown"
+        data-test="input"
       />
     </div>
   </div>
@@ -116,6 +122,11 @@ export default {
         this.$emit("update:value", localValue);
       },
     },
+    isStartIconDisabled() {
+      // is start icon disabled or not
+      if (this.startIcon.isDisabled != null) return this.startIcon.isDisabled;
+      return false;
+    },
     isValidationEnabled() {
       // whether input validation is on
       return this.validation["enabled"];
@@ -152,7 +163,10 @@ export default {
     },
     startIconClass() {
       // gets the start icon name from the prop
-      return this.startIcon.class;
+      return [
+        this.startIcon.class,
+        { "cursor-not-allowed pointer-events-none opacity-50": this.isStartIconDisabled },
+      ];
     },
     startIconObj() {
       // uses the start icon name to fetch the icon object

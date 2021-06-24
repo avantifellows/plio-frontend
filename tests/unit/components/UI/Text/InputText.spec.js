@@ -63,7 +63,7 @@ describe("InputText.vue", () => {
     expect(input.element.value).toBe(value);
   });
 
-  it("renders valid messages correctly", async () => {
+  it("renders valid messages correctly", () => {
     const validation = {
       enabled: true,
       isValid: true,
@@ -80,7 +80,7 @@ describe("InputText.vue", () => {
     );
   });
 
-  it("renders invalid messages correctly", async () => {
+  it("renders invalid messages correctly", () => {
     const validation = {
       enabled: true,
       isValid: false,
@@ -100,14 +100,14 @@ describe("InputText.vue", () => {
   it("input keypress detected correctly", async () => {
     const wrapper = mount(InputText);
 
-    wrapper.find('[data-test="input"]').trigger("keypress", {
+    await wrapper.find('[data-test="input"]').trigger("keypress", {
       key: "a",
     });
 
     expect(wrapper.emitted()).toHaveProperty("keypress");
   });
 
-  it("renders start icon correctly", async () => {
+  it("renders start icon correctly", () => {
     const startIcon = {
       enabled: true,
       name: "check",
@@ -132,7 +132,7 @@ describe("InputText.vue", () => {
     expect(wrapper.vm.startIconName).toBe(startIcon.name);
   });
 
-  it("start icon click works correctly", async () => {
+  it("start icon click works correctly", () => {
     const startIcon = {
       enabled: true,
       name: "check",
@@ -155,7 +155,7 @@ describe("InputText.vue", () => {
     expect(wrapper.emitted()).toHaveProperty("start-icon-selected");
   });
 
-  it("renders start icon disabled correctly", async () => {
+  it("renders start icon disabled correctly", () => {
     const startIcon = {
       enabled: true,
       name: "check",
@@ -183,7 +183,7 @@ describe("InputText.vue", () => {
     );
   });
 
-  it("renders end icon correctly", async () => {
+  it("renders end icon correctly", () => {
     const endIcon = {
       enabled: true,
       name: "check",
@@ -208,7 +208,7 @@ describe("InputText.vue", () => {
     expect(wrapper.vm.endIconName).toBe(endIcon.name);
   });
 
-  it("renders end icon disabled correctly", async () => {
+  it("renders end icon disabled correctly", () => {
     const endIcon = {
       enabled: true,
       name: "check",
@@ -236,7 +236,7 @@ describe("InputText.vue", () => {
     );
   });
 
-  it("end icon click works correctly", async () => {
+  it("end icon click works correctly", () => {
     const endIcon = {
       enabled: true,
       name: "check",

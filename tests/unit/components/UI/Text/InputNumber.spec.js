@@ -65,7 +65,7 @@ describe("InputNumber.vue", () => {
     expect(input.element.value).toBe(String(value));
   });
 
-  it("renders valid messages correctly", async () => {
+  it("renders valid messages correctly", () => {
     const validation = {
       enabled: true,
       isValid: true,
@@ -82,7 +82,7 @@ describe("InputNumber.vue", () => {
     );
   });
 
-  it("renders invalid messages correctly", async () => {
+  it("renders invalid messages correctly", () => {
     const validation = {
       enabled: true,
       isValid: false,
@@ -102,14 +102,14 @@ describe("InputNumber.vue", () => {
   it("input keypress detected correctly", async () => {
     const wrapper = mount(InputNumber);
 
-    wrapper.find('[data-test="input"]').trigger("keypress", {
+    await wrapper.find('[data-test="input"]').trigger("keypress", {
       key: "a",
     });
 
     expect(wrapper.emitted()).toHaveProperty("keypress");
   });
 
-  it("renders start icon correctly", async () => {
+  it("renders start icon correctly", () => {
     const startIcon = {
       enabled: true,
       name: "check",
@@ -134,7 +134,7 @@ describe("InputNumber.vue", () => {
     expect(wrapper.vm.startIconName).toBe(startIcon.name);
   });
 
-  it("start icon click works correctly", async () => {
+  it("start icon click works correctly", () => {
     const startIcon = {
       enabled: true,
       name: "check",
@@ -157,7 +157,7 @@ describe("InputNumber.vue", () => {
     expect(wrapper.emitted()).toHaveProperty("start-icon-selected");
   });
 
-  it("renders start icon disabled correctly", async () => {
+  it("renders start icon disabled correctly", () => {
     const startIcon = {
       enabled: true,
       name: "check",
