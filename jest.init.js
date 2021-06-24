@@ -28,7 +28,7 @@ config.global = {
   components: {
     InlineSvg,
   },
-  plugins: [Toast, store],
+  plugins: [Toast, store, router],
   mocks: {
     $mixpanel,
     $router,
