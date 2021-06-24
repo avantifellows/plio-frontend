@@ -65,6 +65,7 @@ if (
 ) {
   // Since Vue3 isn't officially supported yet by Sentry, we're using
   // the JavaScript Sentry integration with @sentry/browser.
+  // Refer Sentry documentation for more configs: https://docs.sentry.io/platforms/javascript/configuration/
   Sentry.init({
     dsn: process.env.VUE_APP_SENTRY_DSN,
     integrations: [new Integrations.BrowserTracing()],
