@@ -189,7 +189,10 @@ export default {
     },
     startIconClass() {
       // gets the start icon name from the prop
-      return [this.startIcon.class, { "cursor-not-allowed pointer-events-none opacity-50": this.isStartIconDisabled }];
+      return [
+        this.startIcon.class,
+        { "cursor-not-allowed pointer-events-none opacity-50": this.isStartIconDisabled },
+      ];
     },
     startIconTooltip() {
       // returns the tooltip text for the side icon
@@ -214,7 +217,10 @@ export default {
     },
     endIconClass() {
       // gets the end icon name from the prop
-      return [this.endIcon.class, { "cursor-not-allowed pointer-events-none opacity-50": this.isEndIconDisabled }];
+      return [
+        this.endIcon.class,
+        { "cursor-not-allowed pointer-events-none opacity-50": this.isEndIconDisabled },
+      ];
     },
     endIconTooltip() {
       // returns the tooltip text for the end icon
@@ -259,6 +265,12 @@ export default {
       this.$emit("end-icon-selected", this.value);
     },
   },
-  emits: ["input", "keypress", "update:value", "start-icon-selected", "end-icon-selected"],
+  emits: [
+    "input",
+    "keypress",
+    "update:value",
+    "start-icon-selected",
+    "end-icon-selected",
+  ],
 };
 </script>
