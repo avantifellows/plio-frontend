@@ -65,13 +65,6 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: "/:org?/experiment/:id",
-    name: "ABTesting",
-    component: () => import("@/pages/ABTesting"),
-    props: true,
-    meta: { requiresAuth: true },
-  },
-  {
     path: "/404-not-found",
     name: "404",
     component: () => import("@/pages/Error"),
