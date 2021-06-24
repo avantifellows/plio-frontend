@@ -251,10 +251,14 @@ export default {
         auth_type: this.thirdPartyAuthType,
         unique_id: this.thirdPartyUniqueId,
         access_token: this.thirdPartyAccessToken,
-      }).then(async (response) => {
-        await this.setAccessToken(response.data);
-        thirdPartyAuthPromiseResolve();
-      });
+      })
+        .then(async (response) => {
+          await this.setAccessToken(response.data);
+          thirdPartyAuthPromiseResolve();
+        })
+        .catch((error) => {
+          if (error.response.status === 400) this.$router.replace({ name: "Home" });
+        });
     } else thirdPartyAuthPromiseResolve();
 
     // wait for the third party auth process to complete and then proceed
