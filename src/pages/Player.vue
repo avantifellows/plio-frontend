@@ -84,7 +84,7 @@ import ItemFunctionalService from "@/services/Functional/Item.js";
 import ItemModal from "../components/Player/ItemModal.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
@@ -257,7 +257,17 @@ export default {
           thirdPartyAuthPromiseResolve();
         })
         .catch((error) => {
-          if (error.response.status === 400) this.$router.replace({ name: "Home" });
+          if (error.response.status === 400) {
+            if (this.isAuthenticated) thirdPartyAuthPromiseResolve();
+            else
+              this.$router.replace({
+                name: "Player",
+                params: {
+                  org: this.org,
+                  plioId: this.plioId,
+                },
+              });
+          }
         });
     } else thirdPartyAuthPromiseResolve();
 
@@ -319,6 +329,7 @@ export default {
     },
   },
   computed: {
+    ...mapGetters("auth", ["isAuthenticated"]),
     isThirdPartyAuth() {
       // if the app needs to authenticate using a third party auth or not
       return (
