@@ -11,11 +11,11 @@ If you're setting up Plio for staging or production, you may also wish to captur
 ### Enable error logging
 1. Set up env variable for `SENTRY_DSN`. You can get the value of DSN for your projects from `Project Settings > SDK Setup > Client Keys (DSN)`
 2. Make sure your `NODE_ENV` is either 'staging' or 'production'.
-3. Trigger an error by adding the following line in your code:
+3. Test your set up by triggering an error - add the following line in your code somewhere:
     ```js
     throw "Deliberate Error!";
     ```
-4. You should now see the error at your Sentry dashboard as well from `Issues` tab.
+4. Once you invoke the error trigger, you should now see the error at your Sentry dashboard as well from the `Issues` tab.
 
 ### Enable reporting
 By default, Sentry sends error reports to your inbox. However, you may prefer other channels to receive error notifications.
