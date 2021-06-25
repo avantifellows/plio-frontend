@@ -6,15 +6,4 @@ describe("VideoPlayer.vue", () => {
     const wrapper = mount(VideoPlayer);
     expect(wrapper).toBeTruthy();
   });
-
-  it("render with valid video ID", async () => {
-    const initiatePlayer = jest.spyOn(VideoPlayer.methods, "initiatePlayer");
-    const wrapper = mount(VideoPlayer);
-
-    await wrapper.setProps({
-      videoId: "4j4fYyWgl0w",
-    });
-
-    expect(initiatePlayer).toHaveBeenCalled();
-  });
 });
