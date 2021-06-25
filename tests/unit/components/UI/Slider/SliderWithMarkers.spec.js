@@ -44,7 +44,7 @@ describe("SliderWithMarkers.vue", () => {
     expect(slider.element.value).toBe(String(value));
   });
 
-  it("sets markers correctly", async () => {
+  it("sets markers correctly", () => {
     const sliderProps = {
       markerPositions: [10, 20, 30],
       end: 100,
@@ -78,5 +78,39 @@ describe("SliderWithMarkers.vue", () => {
     expect(wrapper.find('[data-test="marker-1"]').exists()).toBe(true);
     expect(wrapper.find('[data-test="marker-2"]').exists()).toBe(true);
     expect(wrapper.find('[data-test="marker-3"]').exists()).toBe(false);
+  });
+
+  it("sets active marker on hover/touch", async () => {
+    const sliderProps = {
+      markerPositions: [10, 20, 30],
+    };
+    const data = {
+      sliderWidth: 100,
+      markerWidth: 10,
+    };
+    const wrapper = mount(SliderWithMarkers, {
+      props: sliderProps,
+      data() {
+        return data;
+      },
+    });
+
+    // mouse event
+    let marker = wrapper.find('[data-test="marker-0"]');
+    await marker.trigger("mouseover");
+
+    expect(wrapper.vm.activeMarkerIndex).toBe(0);
+
+    await marker.trigger("mouseout");
+    expect(wrapper.vm.activeMarkerIndex).toBe(null);
+
+    // touch event
+    marker = wrapper.find('[data-test="marker-0"]');
+    await marker.trigger("touchstart");
+
+    expect(wrapper.vm.activeMarkerIndex).toBe(0);
+
+    await marker.trigger("touchend");
+    expect(wrapper.vm.activeMarkerIndex).toBe(null);
   });
 });
