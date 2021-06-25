@@ -120,6 +120,12 @@ router.beforeEach((to, from) => {
     toast.error(i18n.global.t("error.auto_logout"));
   }
 
+  // if in the previous session, the user was in a workspace other than the personal workspace,
+  // pass those params in the router going forward. This will lead them to the org workspace's home
+  // where they left off the in the previous session
+  const existingActiveWorkspace = store.state["auth"]["activeWorkspace"];
+  if (existingActiveWorkspace != "") to.params.org = existingActiveWorkspace;
+
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     // app has to be authenticated using third party auth if all the query params
     // match the keys in `requiredAuthKeys` and they're not empty or undefined
@@ -149,7 +155,8 @@ router.beforeEach((to, from) => {
 
 router.beforeEach((to) => {
   if (to.matched.some((record) => record.meta.guest)) {
-    if (store.getters["auth/isAuthenticated"]) return { name: "Home" };
+    if (store.getters["auth/isAuthenticated"])
+      return { name: "Home", params: to.params };
   } else return;
 });
 
