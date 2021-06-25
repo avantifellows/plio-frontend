@@ -269,6 +269,7 @@ export default {
                 plioId: this.plioId,
               },
             });
+            thirdPartyAuthPromiseResolve();
           }
         });
     } else thirdPartyAuthPromiseResolve();
