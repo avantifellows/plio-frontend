@@ -173,9 +173,19 @@ export default {
       // set in the store. If not, then redirect to the personal workspace
       if (value) {
         var isUserInWorkspace = this.user.organizations.some((org) => {
-          return org.shortcode == this.activeWorkspace;
+          // no need to redirect if the user belongs to the workspace
+          // or the user is in the personal workspace
+          return org.shortcode == this.activeWorkspace || this.activeWorkspace == "";
         });
-        if (!isUserInWorkspace) this.$router.replace({ name: "Home" });
+
+        if (!isUserInWorkspace) {
+          // make sure to pass the query params as it is so they're not lost
+          // while redirecting
+          this.$router.replace({
+            name: "Home",
+            query: this.$route.query,
+          });
+        }
       }
 
       // hide the chatwoot bubble if the user navigates away from the home page

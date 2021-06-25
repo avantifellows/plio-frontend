@@ -7,6 +7,7 @@ import {
   userConfigEndpoint,
   convertTokenEndpoint,
   refreshTokenEndpoint,
+  convertThirdPartyTokenEndpoint,
 } from "@/services/API/Endpoints.js";
 import store from "@/store";
 
@@ -48,6 +49,13 @@ export default {
       },
       { baseURL: process.env.VUE_APP_BACKEND_AUTH_URL }
     );
+  },
+
+  async convertThirdPartyToken(payload) {
+    // convert third party auth token into Plio's internal token
+    return apiClient().post(convertThirdPartyTokenEndpoint, payload, {
+      baseURL: process.env.VUE_APP_BACKEND_AUTH_URL,
+    });
   },
 
   getUserConfig(userId) {
