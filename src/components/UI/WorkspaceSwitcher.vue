@@ -2,7 +2,11 @@
   <div>
     <select v-model="selectedWorkspace" @change="updateActiveWorkspace">
       <option value="">Personal Workspace</option>
-      <option v-for="workspace in workspaces" :key="workspace.id" :value="workspace.shortcode">
+      <option
+        v-for="workspace in workspaces"
+        :key="workspace.id"
+        :value="workspace.shortcode"
+      >
         {{ workspace.name }}
       </option>
     </select>
