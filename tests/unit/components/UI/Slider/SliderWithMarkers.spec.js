@@ -113,4 +113,69 @@ describe("SliderWithMarkers.vue", () => {
     await marker.trigger("touchend");
     expect(wrapper.vm.activeMarkerIndex).toBe(null);
   });
+
+  it("clicks marker correctly", async () => {
+    const sliderProps = {
+      markerPositions: [10, 20, 30],
+    };
+    const data = {
+      sliderWidth: 100,
+      markerWidth: 10,
+    };
+    const wrapper = mount(SliderWithMarkers, {
+      props: sliderProps,
+      data() {
+        return data;
+      },
+    });
+
+    // mouse event
+    let marker = wrapper.find('[data-test="marker-0"]');
+    await marker.trigger("click");
+
+    expect(wrapper.emitted()).toHaveProperty("marker-selected");
+  });
+
+  it("sets value for marker through input field", async () => {
+    const sliderProps = {
+      markerPositions: [10, 20, 30],
+    };
+    const data = {
+      sliderWidth: 100,
+      markerWidth: 10,
+    };
+    const wrapper = mount(SliderWithMarkers, {
+      props: sliderProps,
+      data() {
+        return data;
+      },
+    });
+    const value = 15;
+
+    let marker = wrapper.find('[data-test="marker-0"]');
+    await marker.setValue(value);
+
+    expect(wrapper.emitted()).toHaveProperty("marker-drag");
+    expect(marker.element.value).toBe(String(value));
+  });
+
+  it("marker change detected correctly", async () => {
+    const sliderProps = {
+      markerPositions: [10, 20, 30],
+    };
+    const data = {
+      sliderWidth: 100,
+      markerWidth: 10,
+    };
+    const wrapper = mount(SliderWithMarkers, {
+      props: sliderProps,
+      data() {
+        return data;
+      },
+    });
+
+    await wrapper.find('[data-test="marker-0"]').trigger("change");
+
+    expect(wrapper.emitted()).toHaveProperty("marker-drag-end");
+  });
 });

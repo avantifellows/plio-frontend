@@ -136,7 +136,6 @@ export default {
       // invoked when the marker slider value change is done
       this.clickAfterDragEnded = true;
       this.$emit("marker-drag-end", markerIndex);
-      // invoked when a marker has been unselected
       this.activeMarkerIndex = null;
     },
     markerSliderUnselected() {
