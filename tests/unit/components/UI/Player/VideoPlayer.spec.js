@@ -9,6 +9,10 @@ describe("VideoPlayer.vue", () => {
 
   it("render with valid video ID", async () => {
     const initiatePlayer = jest.spyOn(VideoPlayer.methods, "initiatePlayer");
+    const setPlayerProperties = jest.spyOn(
+      VideoPlayer.methods,
+      "setPlayerProperties"
+    );
     const wrapper = mount(VideoPlayer);
 
     await wrapper.setProps({
@@ -16,5 +20,6 @@ describe("VideoPlayer.vue", () => {
     });
 
     expect(initiatePlayer).toHaveBeenCalled();
+    expect(setPlayerProperties).toHaveBeenCalled();
   });
 });
