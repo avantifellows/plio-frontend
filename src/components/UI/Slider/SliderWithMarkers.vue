@@ -9,6 +9,7 @@
       :step="step"
       class="slider w-full absolute z-50 main-slider-thumb"
       @input="valueUpdated"
+      data-test="mainSlider"
     />
     <input
       type="range"
