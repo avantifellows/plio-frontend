@@ -29,6 +29,7 @@
       @touchstart="markerSliderTouched(markerIndex)"
       @touchend="markerSliderUnselected"
       @click="updateValueFromMarker(markerIndex)"
+      :data-test="`marker-${markerIndex}`"
     />
   </div>
 </template>
@@ -74,11 +75,6 @@ export default {
     step: {
       default: 1,
       type: Number,
-    },
-    // whether to hide markers which overflow from the slider
-    hideOverflowMarkers: {
-      default: true,
-      type: Boolean,
     },
     isDragDisabled: {
       // whether to make the markers non draggable or not

@@ -43,4 +43,40 @@ describe("SliderWithMarkers.vue", () => {
     expect(wrapper.emitted()).toHaveProperty("update");
     expect(slider.element.value).toBe(String(value));
   });
+
+  it("sets markers correctly", async () => {
+    const sliderProps = {
+      markerPositions: [10, 20, 30],
+      end: 100,
+    };
+    const data = {
+      sliderWidth: 100,
+      markerWidth: 10,
+    };
+    const wrapper = mount(SliderWithMarkers, {
+      props: sliderProps,
+      data() {
+        return data;
+      },
+    });
+
+    const multiplier = Number(
+      (
+        ((data.sliderWidth - data.markerWidth) * 100) /
+        (sliderProps.end * data.sliderWidth)
+      ).toFixed(2)
+    );
+
+    const expectedMarkerRelativePositions = [];
+    sliderProps.markerPositions.forEach((markerPosition) => {
+      expectedMarkerRelativePositions.push(markerPosition * multiplier);
+    });
+    expect(wrapper.vm.markerRelativePositions).toEqual(
+      expectedMarkerRelativePositions
+    );
+    expect(wrapper.find('[data-test="marker-0"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="marker-1"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="marker-2"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="marker-3"]').exists()).toBe(false);
+  });
 });
