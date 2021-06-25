@@ -121,10 +121,12 @@ router.beforeEach((to, from) => {
   }
 
   // if in the previous session, the user was in a workspace other than the personal workspace,
-  // pass those params in the router going forward. This will lead them to the org workspace's home
+  // pass those params in the router going forward. Only do this after checking that any org params
+  // are not explicitly specified in the requested URL. This will lead them to the org workspace's home
   // where they left off the in the previous session
   const existingActiveWorkspace = store.state["auth"]["activeWorkspace"];
-  if (existingActiveWorkspace != "") to.params.org = existingActiveWorkspace;
+  if (existingActiveWorkspace != "" && to.params.org != "")
+    to.params.org = existingActiveWorkspace;
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     // app has to be authenticated using third party auth if all the query params
