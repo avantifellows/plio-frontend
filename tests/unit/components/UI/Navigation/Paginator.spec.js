@@ -10,4 +10,17 @@ describe("Paginator.vue", () => {
     });
     expect(wrapper.get('[data-test="totalItems"]').text()).toBe("10");
   });
+
+  it("should trigger correctly on click", async () => {
+    const wrapper = mount(Paginator, {
+      props: {
+        totalItems: 15,
+      },
+    });
+    await wrapper.get('[data-test="smallNext"]').trigger("click");
+    expect(wrapper.emitted("page-selected")[0][0].pageNumber).toBe(2);
+
+    await wrapper.get('[data-test="smallPrevious"]').trigger("click");
+    expect(wrapper.emitted("page-selected")[1][0].pageNumber).toBe(1);
+  });
 });

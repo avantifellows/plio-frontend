@@ -10,6 +10,7 @@
         @click="setAndRouteToPage(paginatorDetails.currentPage - 1)"
         :class="[previousButtonClass, 'rounded-md']"
         :disabled="isFirstPage"
+        data-test="smallPrevious"
       >
         {{ $t("home.paginator.previous") }}
       </button>
@@ -18,6 +19,7 @@
         @click="setAndRouteToPage(paginatorDetails.currentPage + 1)"
         :class="[nextButtonClass, 'rounded-md']"
         :disabled="isLastPage"
+        data-test="smallNext"
       >
         {{ $t("home.paginator.next") }}
       </button>
