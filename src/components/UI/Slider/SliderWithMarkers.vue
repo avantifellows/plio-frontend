@@ -194,9 +194,6 @@ export default {
       get() {
         return this.markerPositions;
       },
-      set(localMarkerPositions) {
-        this.$emit("update:markerPositions", localMarkerPositions);
-      },
     },
     markerRelativePositions() {
       // converts the absolute positions of the markers to relative to the slider length

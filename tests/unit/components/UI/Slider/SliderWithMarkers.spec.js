@@ -155,6 +155,7 @@ describe("SliderWithMarkers.vue", () => {
     let marker = wrapper.find('[data-test="marker-0"]');
     await marker.setValue(value);
 
+    console.log(wrapper.emitted());
     expect(wrapper.emitted()).toHaveProperty("marker-drag");
     expect(marker.element.value).toBe(String(value));
   });
