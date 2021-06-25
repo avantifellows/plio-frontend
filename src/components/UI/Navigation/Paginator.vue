@@ -68,11 +68,12 @@
 
           <!-- individual page numbers -->
           <button
-            v-for="pageNumber in paginatorDetails.pageNumbers"
+            v-for="(pageNumber, index) in paginatorDetails.pageNumbers"
             :key="pageNumber"
             :class="setPageButtonClass(pageNumber)"
             @click="setAndRouteToPage(pageNumber)"
             :disabled="paginatorDetails.currentPage === pageNumber"
+            :data-test="`pageButton-${index}`"
           >
             {{ pageNumber }}
           </button>
