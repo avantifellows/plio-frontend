@@ -172,12 +172,6 @@ export default {
       // whether the given marker index is active
       return this.activeMarkerIndex != null && this.activeMarkerIndex == markerIndex;
     },
-    convertRemToPixels() {
-      return 1.5 * parseInt(this.getBaseFontSize(), 10);
-    },
-    getBaseFontSize() {
-      return window.getComputedStyle(document.body, null).getPropertyValue("font-size");
-    },
   },
   computed: {
     markerArenaWidth() {
