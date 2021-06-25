@@ -245,7 +245,6 @@ export default {
     });
 
     if (this.isThirdPartyAuth) {
-      console.log("if enter");
       // convert the third party token into Plio's internal token
       // and set the user accordingly
       UserAPIService.convertThirdPartyToken({
@@ -255,7 +254,6 @@ export default {
       })
         .then(async (response) => {
           await this.setAccessToken(response.data);
-          console.log("then");
           thirdPartyAuthPromiseResolve();
         })
         .catch((error) => {
