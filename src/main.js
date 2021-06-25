@@ -59,6 +59,7 @@ const filterBeforeCreate = (toast, toasts) => {
 
 const app = createApp(App).use(store).use(router);
 
+console.log("NODE_ENV: ", process.env.NODE_ENV);
 if (
   ["staging", "production"].includes(process.env.NODE_ENV) &&
   process.env.VUE_APP_SENTRY_DSN

@@ -13,6 +13,7 @@ CMD npm run serve -- --port ${APP_PORT}
 # build stage
 FROM base-stage as build-stage
 # Any env variables will be passed as arg here to make these available at build time.
+ARG NODE_ENV
 ARG VUE_APP_BACKEND
 ARG VUE_APP_BACKEND_AUTH_URL
 ARG VUE_APP_FRONTEND
@@ -30,6 +31,7 @@ ARG VUE_APP_CHATWOOT_URL
 ARG VUE_APP_CHATWOOT_TOKEN
 
 # Add those arg as env variable for builder
+ENV NODE_ENV $NODE_ENV
 ENV VUE_APP_BACKEND $VUE_APP_BACKEND
 ENV VUE_APP_BACKEND_AUTH_URL $VUE_APP_BACKEND_AUTH_URL
 ENV VUE_APP_FRONTEND $VUE_APP_FRONTEND

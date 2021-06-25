@@ -33,6 +33,7 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
+          NODE_ENV: production
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: plio-frontend-production
           IMAGE_TAG: ${{ github.sha }}
@@ -55,6 +56,7 @@ jobs:
           # Build a docker container and push it to ECR
           docker build \
           --target production-stage \
+          --build-arg NODE_ENV=$NODE_ENV \
           --build-arg VUE_APP_BACKEND=$VUE_APP_BACKEND \
           --build-arg VUE_APP_BACKEND_AUTH_URL=$VUE_APP_BACKEND_AUTH_URL \
           --build-arg VUE_APP_FRONTEND=$VUE_APP_FRONTEND \
