@@ -36,8 +36,9 @@ export default {
       add_question: "नया सवाल बनाएं",
       show_video: "वीडियो देखें",
       show_question: "सवाल देखें",
-      share_plio: "प्लायो बाटें",
-      play_plio: "प्लायो चलाएं",
+      share_plio: "बाटें",
+      play_plio: "चलाएं",
+      analyze_plio: "विश्लेषण करें",
     },
     updated: "अपडेटेड ऐट",
     item_editor: {

@@ -7,7 +7,7 @@
     >
       <!--- preview grid -->
       <div class="flex flex-col mx-6 z-0">
-        <div class="md:m-4 my-8 flex justify-center space-x-4">
+        <div class="my-8 flex justify-center space-x-4">
           <!-- share plio -->
           <icon-button
             :isDisabled="!isPublished"
@@ -120,6 +120,14 @@
             class="shadow-lg"
             v-tooltip.right="publishButtonTooltip"
             @click="publishButtonClicked"
+          ></icon-button>
+          <!-- analyze plio -->
+          <icon-button
+            v-if="isPublished"
+            :titleConfig="analyzePlioTitleClass"
+            :iconConfig="analyzePlioIconConfig"
+            :buttonClass="analyzePlioButtonClass"
+            @click="redirectToDashboard"
           ></icon-button>
         </div>
       </div>
@@ -447,12 +455,20 @@ export default {
       },
       // styling class for the play plio button
       playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
+      // styling class for the analyze plio button
+      analyzePlioButtonClass: "bg-red-500 hover:bg-red-600 p-2 px-4 rounded-md",
       // styling class for the home button on dialog that comes after publishing
       dialogHomeButtonClass: "bg-peach hover:bg-peach-hover p-2 px-4 rounded-md",
       playPlioIconConfig: {
         // config for the icon of the play plio button
         enabled: true,
         iconName: "play",
+        iconClass: "text-white fill-current h-4 w-4",
+      },
+      analyzePlioIconConfig: {
+        // config for the icon of the analyze plio button
+        enabled: true,
+        iconName: "analyze",
         iconClass: "text-white fill-current h-4 w-4",
       },
       homeIconConfig: {
@@ -476,6 +492,7 @@ export default {
       // class for the button to close the dialog that comes after publishing
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
       showImageUploaderDialog: false, // whether to show the image uploader or not
+      loadedPlioDetails: {}, // details of the plio fetched when the page was loaded
     };
   },
   async created() {
@@ -499,6 +516,8 @@ export default {
     items: {
       handler() {
         this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
+        if (this.loadedPlioDetails.items == this.items) return;
+        console.log("1");
         this.checkAndSavePlio();
       },
       deep: true,
@@ -527,10 +546,15 @@ export default {
         this.player.destroy();
       }
       this.videoId = linkValidation["ID"];
+
+      if (this.loadedPlioDetails.videoURL == newVideoURL) return;
+      console.log("2");
       this.checkAndSavePlio();
     },
-    plioTitle() {
+    plioTitle(newTitle) {
       // invoked when the plio title is update
+      if (this.loadedPlioDetails.plioTitle == newTitle) return;
+      console.log("3");
       this.checkAndSavePlio();
     },
   },
@@ -607,6 +631,13 @@ export default {
       return {
         value: this.$t("editor.dialog.published.buttons.home"),
         class: "text-yellow-800",
+      };
+    },
+    analyzePlioTitleClass() {
+      // styling class for the title of analyze plio button
+      return {
+        value: this.$t("editor.buttons.analyze_plio"),
+        class: "text-white",
       };
     },
     copyLinkButtonClass() {
@@ -900,6 +931,14 @@ export default {
         params: { org: this.org, plioId: this.plioId },
       });
     },
+    redirectToDashboard() {
+      // redirect user to the dashboard for this plio if it is published
+      if (!this.isPublished) return;
+      this.$router.push({
+        name: "Dashboard",
+        params: { org: this.org, plioId: this.plioId },
+      });
+    },
     deleteLinkedImage() {
       // unlink image from the question, and delete it on S3
       var imageIdToDelete = this.items[this.currentItemIndex].details.image.id;
@@ -1075,12 +1114,13 @@ export default {
       // fetch plio details
       await PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
+          this.loadedPlioDetails = plioDetails;
           this.items = plioDetails.items || [];
-          this.videoURL = plioDetails.video_url || "";
+          this.videoURL = plioDetails.videoURL || "";
           this.plioTitle = plioDetails.plioTitle || "";
           this.status = plioDetails.status;
-          if (plioDetails.updated_at != undefined && plioDetails.updated_at != "")
-            this.lastUpdated = new Date(plioDetails.updated_at);
+          if (plioDetails.updatedAt != undefined && plioDetails.updatedAt != "")
+            this.lastUpdated = new Date(plioDetails.updatedAt);
           this.hasUnpublishedChanges = false;
           this.videoDBId = plioDetails.videoDBId;
           this.plioDBId = plioDetails.plioDBId;

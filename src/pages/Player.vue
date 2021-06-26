@@ -477,7 +477,7 @@ export default {
           if (plioDetails.status != "published") this.$router.replace({ name: "404" });
           this.items = plioDetails.items || [];
           this.plioDBId = plioDetails.plioDBId;
-          this.videoId = this.getVideoIDfromURL(plioDetails.video_url);
+          this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
         })
         .then(() => this.createSession())
         .then(() => this.logData());

@@ -35,8 +35,9 @@ export default {
       },
       show_video: "Show Video",
       show_question: "Show Question",
-      share_plio: "Share Plio",
-      play_plio: "Play Plio",
+      share_plio: "Share",
+      play_plio: "Play",
+      analyze_plio: "Analyze",
     },
     updated: "Updated at",
     item_editor: {

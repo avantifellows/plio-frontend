@@ -221,7 +221,7 @@ export default {
     },
     updatedAt() {
       // human readable date string
-      return new Date(this.plioDetails.updated_at).toDateString();
+      return new Date(this.plioDetails.updatedAt).toDateString();
     },
     status() {
       // status of the plio - draft or published
