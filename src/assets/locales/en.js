@@ -28,13 +28,15 @@ export default {
         "Subjective Questions are not included while calculating the accuracy in the dashboard",
     },
     buttons: {
-      home: "Home",
+      home: "Go to Home",
       publish: {
         draft: "Publish Plio",
         published: "Publish Changes",
       },
       show_video: "Show Video",
       show_question: "Show Question",
+      share_plio: "Share Plio",
+      play_plio: "Play Plio",
     },
     updated: "Updated at",
     item_editor: {
@@ -266,7 +268,8 @@ export default {
       },
       add_item: {
         published: "You cannot add new questions in a published plio",
-        draft: "Click here to add a question",
+        mcq: "Click here to add a multiple-choice question",
+        subjective: "Click here to add a subjective question",
       },
       item_editor: {
         buttons: {

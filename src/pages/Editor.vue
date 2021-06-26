@@ -6,14 +6,32 @@
       :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
     >
       <!--- preview grid -->
-      <div class="flex flex-col ml-5 mr-5 z-0">
+      <div class="flex flex-col mx-6 z-0">
         <!--- plio link -->
-        <URL
+        <!-- <URL
           :link="plioLink"
           class="justify-center m-4"
           :urlStyleClass="urlStyleClass"
           :isUnderlined="true"
-        ></URL>
+        ></URL> -->
+        <div class="md:m-4 my-8 flex justify-center space-x-4">
+          <!-- share plio -->
+          <icon-button
+            :isDisabled="!isPublished"
+            :titleConfig="sharePlioTitleClass"
+            :iconConfig="sharePlioIconConfig"
+            :buttonClass="sharePlioButtonClass"
+          ></icon-button>
+
+          <!-- play plio -->
+          <icon-button
+            :isDisabled="!isPublished"
+            :titleConfig="playPlioTitleClass"
+            :iconConfig="playPlioIconConfig"
+            :buttonClass="playPlioButtonClass"
+            @click="redirectToPlayer"
+          ></icon-button>
+        </div>
 
         <div class="justify-center">
           <!--- video preview -->
@@ -96,7 +114,6 @@
           <!--- button to go back to home -->
           <icon-button
             :titleConfig="backButtonTitleConfig"
-            :iconConfig="backButtonIconConfig"
             :buttonClass="backButtonClass"
             @click="returnToHome"
           ></icon-button>
@@ -155,7 +172,6 @@
             class="bg-peach rounded-lg p-4 xsm:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
             :class="itemPickerClass"
             v-if="currentItemIndex == null"
-            v-tooltip.bottom="addItemTooltip"
           >
             <p class="text-yellow-900 text-xl font-bold">
               {{ $t("editor.headings.add_question") }}
@@ -166,10 +182,11 @@
                 @click="addNewItem('mcq')"
                 class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                 :class="questionTypeSelectorClass"
+                v-tooltip.bottom="addMCQTooltip"
               >
                 <inline-svg
                   :src="getIconSource('radio-button.svg')"
-                  class="h-4 w-4 fill-current text-primary group-hover:text-white"
+                  class="h-4 w-4 fill-current text-primary group-hover:text-white group-disabled:text-primary"
                 ></inline-svg>
                 <p class="font-bold text-center">{{ $t("generic.mcq") }}</p>
               </button>
@@ -178,10 +195,11 @@
                 @click="addNewItem('subjective')"
                 class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                 :class="questionTypeSelectorClass"
+                v-tooltip.bottom="addSubjectiveQuestionTooltip"
               >
                 <inline-svg
                   :src="getIconSource('subjective-question.svg')"
-                  class="w-20 fill-current text-primary group-hover:text-white"
+                  class="w-20 fill-current text-primary group-hover:text-white group-disabled:text-primary"
                 ></inline-svg>
                 <p class="font-bold text-center">{{ $t("generic.subjective") }}</p>
               </button>
@@ -228,7 +246,6 @@
 
 <script>
 import InputText from "@/components/UI/Text/InputText.vue";
-import URL from "@/components/UI/Text/URL.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
@@ -261,7 +278,6 @@ export default {
   name: "Editor",
   components: {
     InputText,
-    URL,
     SliderWithMarkers,
     VideoPlayer,
     ItemEditor,
@@ -335,6 +351,24 @@ export default {
       // styling class for the minimize button
       maximizeButtonClass:
         "bg-primary hover:bg-primary-hover p-1 lg:p-2 px-2 rounded-md shadow-xl",
+      // styling class for the share plio button
+      sharePlioButtonClass:
+        "bg-yellow-300 hover:bg-yellow-400 hover p-2 px-4 rounded-md shadow-xl",
+      sharePlioIconConfig: {
+        // config for the icon of the share plio button
+        enabled: true,
+        iconName: "share",
+        iconClass: "text-yellow-800 fill-current h-4 w-4",
+      },
+      // styling class for the play plio button
+      playPlioButtonClass:
+        "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md shadow-xl",
+      playPlioIconConfig: {
+        // config for the icon of the play plio button
+        enabled: true,
+        iconName: "play",
+        iconClass: "text-white fill-current h-4 w-4",
+      },
       showImageUploaderDialog: false, // whether to show the image uploader or not
     };
   },
@@ -431,6 +465,20 @@ export default {
         class: "text-white text-xs lg:text-sm tracking-tighter",
       };
     },
+    sharePlioTitleClass() {
+      // styling class for the title of share plio button
+      return {
+        value: this.$t("editor.buttons.share_plio"),
+        class: "text-yellow-800",
+      };
+    },
+    playPlioTitleClass() {
+      // styling class for the title of play plio button
+      return {
+        value: this.$t("editor.buttons.play_plio"),
+        class: "text-white",
+      };
+    },
     showItemModal() {
       // whether the item modal needs to be shown
       return this.hasAnyItems && this.isAnyItemActive;
@@ -519,20 +567,20 @@ export default {
     },
     backButtonClass() {
       // classes for the back button
-      return "bg-gray-100 hover:bg-gray-200 rounded-md shadow-lg ring-primary";
+      return "bg-gray-200 hover:bg-gray-300 rounded-md shadow-lg ring-primary";
     },
     backButtonTitleConfig() {
       // config for text of back button
       return {
         value: this.$t("editor.buttons.home"),
-        class: "p-4 text-primary font-bold",
+        class: "p-4 text-black font-bold",
       };
     },
     publishButtonTitleConfig() {
       // config for text of back button
       return {
         value: this.publishButtonText,
-        class: "bg-green-500 p-4 text-white rounded-md font-bold hover:bg-green-600",
+        class: "bg-green-500 p-4 px-6 text-white rounded-md font-bold hover:bg-green-600",
       };
     },
     publishButtonText() {
@@ -640,10 +688,13 @@ export default {
       // whether adding item is disabled
       return this.isPublished || !this.isVideoIdValid;
     },
-    addItemTooltip() {
-      // tooltip for the add item button
-      if (this.isPublished) return this.$t("tooltip.editor.add_item.published");
-      return this.$t("tooltip.editor.add_item.draft");
+    addMCQTooltip() {
+      // tooltip for adding the mcq question
+      return this.$t("tooltip.editor.add_item.mcq");
+    },
+    addSubjectiveQuestionTooltip() {
+      // tooltip for the subjective question
+      return this.$t("tooltip.editor.add_item.subjective");
     },
     videoLinkInputStyling() {
       // styling classes for the video link input box
@@ -658,6 +709,14 @@ export default {
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
     ...Utilities,
+    redirectToPlayer() {
+      // redirect user to the player for this plio if it is published
+      if (!this.isPublished) return;
+      this.$router.push({
+        name: "Player",
+        params: { org: this.org, plioId: this.plioId },
+      });
+    },
     deleteLinkedImage() {
       // unlink image from the question, and delete it on S3
       var imageIdToDelete = this.items[this.currentItemIndex].details.image.id;
