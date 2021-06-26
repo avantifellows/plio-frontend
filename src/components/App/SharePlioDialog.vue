@@ -35,6 +35,7 @@
 <script>
 import Utilities from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import { mapActions } from "vuex";
 
 export default {
   name: "SharePlioDialog",
@@ -82,10 +83,11 @@ export default {
     },
   },
   methods: {
+    ...mapActions("generic", ["unsetSharePlioDialog"]),
     ...Utilities,
     closeSharePlioDialog() {
       // triggered on clicking the close button
-      this.$emit("close");
+      this.unsetSharePlioDialog();
       this.plioLinkCopied = false;
     },
     copyLinkToClipboard() {
@@ -99,6 +101,5 @@ export default {
       else this.toast.error(this.$t("error.copying"));
     },
   },
-  emits: ["close"],
 };
 </script>

@@ -3,6 +3,7 @@ import createPersistedState from "vuex-persistedstate";
 import createUsersWebSocket from "./plugins/usersWebSocketPlugin";
 import plioItems from "./modules/plioItems";
 import auth from "./modules/auth";
+import generic from "./modules/generic";
 import sync from "./modules/sync";
 import SecureLS from "secure-ls";
 
@@ -30,6 +31,7 @@ export default createStore({
   modules: {
     plioItems,
     auth,
+    generic,
     sync,
   },
 });

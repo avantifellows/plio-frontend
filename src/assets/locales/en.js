@@ -164,6 +164,7 @@ export default {
           edit: "Edit",
           duplicate: "Duplicate",
           analyse: "Analyse",
+          share: "Share",
         },
       },
       search: {
@@ -320,6 +321,10 @@ export default {
       table: {
         plio_list_item: {
           buttons: {
+            share: {
+              published: "Share this plio",
+              draft: "Cannot share a draft plio",
+            },
             play: {
               published: "Play this plio",
               draft: "Cannot play a draft plio",

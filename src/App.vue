@@ -102,6 +102,13 @@
         </div>
       </div>
     </div>
+    <!-- dialog for sharing plio -->
+    <div class="fixed w-full flex justify-center">
+      <SharePlioDialog
+        v-if="isSharePlioDialogShown"
+        :plioLink="plioLinkToShare"
+      ></SharePlioDialog>
+    </div>
   </div>
   <vue-progress-bar></vue-progress-bar>
 </template>
@@ -111,8 +118,9 @@ import WorkspaceSwitcher from "@/components/UI/WorkspaceSwitcher.vue";
 import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
 import UserConfigService from "@/services/Config/User.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
-import { mapActions, mapState, mapGetters } from "vuex";
+import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
 import PlioAPIService from "@/services/API/Plio.js";
+import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 
 export default {
@@ -120,6 +128,7 @@ export default {
     WorkspaceSwitcher,
     LocaleSwitcher,
     IconButton,
+    SharePlioDialog,
   },
   data() {
     return {
@@ -151,6 +160,10 @@ export default {
     UserConfigService.setLocaleFromUserConfig();
   },
   watch: {
+    currentRoute() {
+      // unset the share plio variable if it was set as true when the app is being loaded
+      if (this.isSharePlioDialogShown) this.unsetSharePlioDialog();
+    },
     isAuthenticated(value) {
       // if user was logged in before but has been logged out now
       // show a popup telling the user that they're logged out
@@ -229,6 +242,7 @@ export default {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions("auth", ["unsetAccessToken", "fetchAndUpdateUser"]),
+    ...mapActions("generic", ["unsetSharePlioDialog"]),
     ...mapActions("sync", ["stopLoading"]),
     mountChatwoot() {
       // mounting chatwoot SDK to the DOM
@@ -340,6 +354,9 @@ export default {
         event.preventDefault();
         event.returnValue = "";
       }
+
+      // unset the share plio variable if it was set as true when the app is being loaded
+      if (this.isSharePlioDialogShown) this.unsetSharePlioDialog();
     },
     setLocale(locale) {
       // sets the given locale as the locale for the user
@@ -366,7 +383,11 @@ export default {
       "locale",
     ]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
+    ...mapState("generic", ["isSharePlioDialogShown", "plioLinkToShare"]),
     ...mapState("sync", ["pending"]),
+    currentRoute() {
+      return this.$route.path;
+    },
     showLogout() {
       // whether to show the logout button
       return this.onHomePage;
@@ -421,7 +442,7 @@ export default {
     },
     coverBackground() {
       // whether to apply opacity on the background
-      return this.showLanguagePickerDialog;
+      return this.showLanguagePickerDialog || this.isSharePlioDialogShown;
     },
     allWorkspaces() {
       // list of shortcodes of all workspaces that the user is a part of

@@ -25,38 +25,34 @@
       <!-- action buttons -->
       <div class="flex flex-row justify-start space-x-3">
         <!-- share button -->
-        <!-- <icon-button
-          :titleConfig="playButtonTitleConfig"
-          :iconConfig="playButtonIconConfig"
-          :buttonClass="playButtonClass"
-          @click="playPlio"
-          :isDisabled="!isPublished"
-          v-tooltip="playButtonTooltip"
-        ></icon-button> -->
-
-        <!-- play button -->
         <icon-button
-          :titleConfig="playButtonTitleConfig"
-          :iconConfig="playButtonIconConfig"
-          :buttonClass="playButtonClass"
-          @click="playPlio"
+          :titleConfig="shareButtonTitleConfig"
+          :buttonClass="shareButtonClass"
+          @click="sharePlio"
           :isDisabled="!isPublished"
-          v-tooltip="playButtonTooltip"
+          v-tooltip="shareButtonTooltip"
         ></icon-button>
 
         <!-- edit button -->
         <icon-button
           :titleConfig="editButtonTitleConfig"
-          :iconConfig="editButtonIconConfig"
           :buttonClass="editButtonClass"
           v-tooltip="editButtonTooltip"
           @click="editPlio"
         ></icon-button>
 
+        <!-- play button -->
+        <icon-button
+          :titleConfig="playButtonTitleConfig"
+          :buttonClass="playButtonClass"
+          @click="playPlio"
+          :isDisabled="!isPublished"
+          v-tooltip="playButtonTooltip"
+        ></icon-button>
+
         <!-- duplicate button -->
         <icon-button
           :titleConfig="duplicateButtonTitleConfig"
-          :iconConfig="duplicateButtonIconConfig"
           :buttonClass="duplicateButtonClass"
           @click="duplicateThenRoute"
           v-tooltip="duplicateButtonTooltip"
@@ -105,25 +101,12 @@ export default {
     return {
       // button, icon config and styling classes
       plioDetails: {},
-      playButtonIconConfig: {
-        enabled: false,
-        iconName: "",
-        iconClass: "",
-      },
       playButtonClass:
         "bg-primary hover:bg-primary-hover rounded-md shadow-md h-10 ring-primary",
-      editButtonIconConfig: {
-        enabled: false,
-        iconName: "",
-        iconClass: "",
-      },
+      shareButtonClass:
+        "bg-yellow-300 hover:bg-yellow-400 rounded-md shadow-md h-10 ring-primary",
       editButtonClass:
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
-      duplicateButtonIconConfig: {
-        enabled: false,
-        iconName: "",
-        iconClass: "",
-      },
       duplicateButtonClass:
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       analyseButtonClass:
@@ -149,6 +132,14 @@ export default {
       // text for the status badge
       if (this.status == undefined) return null;
       return this.$t(`generic.status.${this.status}`);
+    },
+    shareButtonTitleConfig() {
+      // title config for the share button
+      return {
+        value: this.$t("home.table.plio_list_item.buttons.share"),
+        class:
+          "p-2 text-sm bp-500:text-base text-yellow-800 font-medium bp-500:font-semibold",
+      };
     },
     playButtonTitleConfig() {
       // title config for the play button
@@ -184,6 +175,11 @@ export default {
       // tooltip for the play button
       if (!this.status) return "";
       return this.$t(`tooltip.home.table.plio_list_item.buttons.play.${this.status}`);
+    },
+    shareButtonTooltip() {
+      // tooltip for the play button
+      if (!this.status) return "";
+      return this.$t(`tooltip.home.table.plio_list_item.buttons.share.${this.status}`);
     },
     editButtonTooltip() {
       // tooltip for the edit button
@@ -251,6 +247,7 @@ export default {
   methods: {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     ...mapActions("plioItems", ["fetchPlio"]),
+    ...mapActions("generic", ["showSharePlioDialog"]),
     async loadPlio() {
       this.startLoading();
       // fetch the details of the plio if they don't exist in the store
@@ -264,6 +261,10 @@ export default {
 
       this.$emit("fetched", dataToEmit);
       this.stopLoading();
+    },
+    sharePlio() {
+      // invoked when share button is clicked
+      this.showSharePlioDialog(this.plioLink);
     },
     playPlio() {
       // invoked when play button is clicked

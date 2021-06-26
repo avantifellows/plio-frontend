@@ -14,7 +14,7 @@
             :titleConfig="sharePlioTitleClass"
             :iconConfig="sharePlioIconConfig"
             :buttonClass="sharePlioButtonClass"
-            @click="showSharePlioDialog"
+            @click="showSharePlioLinkDialog"
           ></icon-button>
 
           <!-- play plio -->
@@ -296,13 +296,6 @@
         </div>
       </div>
     </div>
-
-    <!-- dialog for sharing plio -->
-    <SharePlioDialog
-      v-if="isSharePlioDialogShown"
-      :plioLink="plioLink"
-      @close="closeSharePlioDialog"
-    ></SharePlioDialog>
   </div>
 </template>
 
@@ -325,7 +318,6 @@ import ItemModal from "../components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ConfettiCelebration from "@/components/UI/Animations/ConfettiCelebration.vue";
-import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
 
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
@@ -351,7 +343,6 @@ export default {
     ItemModal,
     ImageUploaderDialog,
     ConfettiCelebration,
-    SharePlioDialog,
   },
   props: {
     plioId: {
@@ -408,7 +399,6 @@ export default {
       plioDBId: null, // store the DB id of plio object
       anyErrorsPresent: false, // store if any errors are present or not
       showPublishedPlioDialog: false, // whether to show the dialog that comes after publishing plio
-      isSharePlioDialogShown: false, // whether to show the dialog for sharing plio
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       // mapping of questionType value to index in the list of question types
       questionTypeToIndex: {
@@ -659,8 +649,7 @@ export default {
         this.isBeingPublished ||
         this.showDialogBox ||
         this.showImageUploaderDialog ||
-        this.showPublishedPlioDialog ||
-        this.isSharePlioDialogShown
+        this.showPublishedPlioDialog
       );
     },
     statusBadgeClass() {
@@ -841,23 +830,20 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
+    ...mapActions("generic", ["showSharePlioDialog"]),
     ...Utilities,
     hidePublishedDialogShowShareDialog() {
       // hides the published plio dialog and shows the share plio dialog
       this.showPublishedPlioDialog = false;
-      this.showSharePlioDialog();
+      this.showSharePlioLinkDialog();
     },
     closePublishedPlioDialog() {
       // close the published plio dialog
       this.showPublishedPlioDialog = false;
     },
-    closeSharePlioDialog() {
-      // close the share plio dialog
-      this.isSharePlioDialogShown = false;
-    },
-    showSharePlioDialog() {
+    showSharePlioLinkDialog() {
       // show the share plio dialog
-      this.isSharePlioDialogShown = true;
+      this.showSharePlioDialog(this.plioLink);
     },
     redirectToPlayer() {
       // redirect user to the player for this plio if it is published
