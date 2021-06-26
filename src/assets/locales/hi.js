@@ -28,17 +28,17 @@ export default {
         "डैशबोर्ड में सटीकता की गणना करते समय विस्तृत प्रश्न शामिल नहीं होते हैं",
     },
     buttons: {
-      home: "होम पर जाएं",
+      home: "होम",
       publish: {
         draft: "प्लायो प्रकाशित करें",
-        published: "परिवर्तन प्रकाशित करें",
+        published: "प्रकाशन",
       },
       add_question: "नया सवाल बनाएं",
       show_video: "वीडियो देखें",
       show_question: "सवाल देखें",
       share_plio: "बाटें",
       play_plio: "चलाएं",
-      analyze_plio: "विश्लेषण करें",
+      analyze_plio: "विश्लेषण",
     },
     updated: "अपडेटेड ऐट",
     item_editor: {

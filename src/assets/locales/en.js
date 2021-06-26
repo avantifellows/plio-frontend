@@ -28,10 +28,10 @@ export default {
         "Subjective Questions are not included while calculating the accuracy in the dashboard",
     },
     buttons: {
-      home: "Go To Home",
+      home: "Home",
       publish: {
         draft: "Publish Plio",
-        published: "Publish Changes",
+        published: "Publish",
       },
       show_video: "Show Video",
       show_question: "Show Question",

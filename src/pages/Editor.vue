@@ -104,7 +104,7 @@
         </div>
 
         <!--- buttons -->
-        <div class="flex justify-between md:justify-start md:space-x-4 mt-10">
+        <div class="flex justify-center space-x-2 mt-10">
           <!--- button to go back to home -->
           <icon-button
             :titleConfig="backButtonTitleConfig"
@@ -124,7 +124,7 @@
           <!-- analyze plio -->
           <icon-button
             v-if="isPublished"
-            :titleConfig="analyzePlioTitleClass"
+            :titleConfig="analyzePlioTitleConfig"
             :iconConfig="analyzePlioIconConfig"
             :buttonClass="analyzePlioButtonClass"
             @click="redirectToDashboard"
@@ -252,7 +252,7 @@
 
     <!-- dialog to show after publishing -->
     <div
-      class="fixed top-1/3 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10"
+      class="fixed top-1/3 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10 mx-2 sm:mx-0"
       v-if="showPublishedPlioDialog"
     >
       <div class="w-full flex justify-end p-2">
@@ -264,12 +264,12 @@
         ></icon-button>
       </div>
 
-      <div class="px-12 pt-4 pb-8">
+      <div class="px-4 xsm:px-8 bp-500:px-12 pt-4 pb-8">
         <!-- title -->
-        <p class="text-2xl text-gray-500 font-bold">
+        <p class="text-md bp-420:text-xl sm:text-2xl text-gray-500 font-bold mx-4">
           {{ $t("editor.dialog.published.title") }}
         </p>
-        <div class="flex flex-col space-y-3 my-8 mx-16">
+        <div class="flex flex-col space-y-3 my-8 mx-4 bp-420:mx-8 bp-500:mx-16">
           <!-- share plio -->
           <icon-button
             :titleConfig="dialogSharePlioTitleClass"
@@ -311,13 +311,13 @@
         ></icon-button>
       </div>
 
-      <div class="px-12 pb-8">
+      <div class="px-4 xsm:px-8 bp-500:px-12 pb-8">
         <!-- title -->
-        <p class="text-2xl text-gray-500 font-bold w-80">
+        <p class="text-2xl text-gray-500 font-bold w-56 sm:w-80">
           {{ $t("editor.dialog.share_plio.title") }}
         </p>
         <div
-          class="flex my-4 p-2 px-4 space-x-4 bg-peach-light border border-gray-600 rounded-md"
+          class="flex flex-col sm:flex-row sm:space-x-4 my-4 p-2 px-4 bg-peach-light border border-gray-600 rounded-md"
         >
           <!-- link -->
           <p class="h-full place-self-center text-gray-600">{{ plioLink }}</p>
@@ -456,7 +456,7 @@ export default {
       // styling class for the play plio button
       playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
       // styling class for the analyze plio button
-      analyzePlioButtonClass: "bg-red-500 hover:bg-red-600 p-2 px-4 rounded-md",
+      analyzePlioButtonClass: "bg-red-500 hover:bg-red-600 p-2 bp-420:px-4 rounded-md",
       // styling class for the home button on dialog that comes after publishing
       dialogHomeButtonClass: "bg-peach hover:bg-peach-hover p-2 px-4 rounded-md",
       playPlioIconConfig: {
@@ -633,11 +633,11 @@ export default {
         class: "text-yellow-800",
       };
     },
-    analyzePlioTitleClass() {
+    analyzePlioTitleConfig() {
       // styling class for the title of analyze plio button
       return {
         value: this.$t("editor.buttons.analyze_plio"),
-        class: "text-white",
+        class: "text-white text-sm bp-420:text-base",
       };
     },
     copyLinkButtonClass() {
@@ -647,7 +647,7 @@ export default {
           "bg-primary hover:bg-primary-hover": !this.plioLinkCopied,
           "bg-green-500 hover:bg-green-600": this.plioLinkCopied,
         },
-        `p-2 px-4 rounded-md`,
+        `p-2 px-4 rounded-md mt-2 sm:mt-0`,
       ];
     },
     copyLinkTitleClass() {
@@ -753,20 +753,20 @@ export default {
     },
     backButtonClass() {
       // classes for the back button
-      return "p-2 px-4 bg-peach hover:bg-peach-hover rounded-md shadow-lg ring-primary";
+      return "p-2 bp-420:px-4 bg-peach hover:bg-peach-hover rounded-md shadow-lg ring-primary";
     },
     backButtonTitleConfig() {
       // config for text of back button
       return {
         value: this.$t("editor.buttons.home"),
-        class: "text-yellow-800 font-bold",
+        class: "text-yellow-800 font-bold text-sm bp-420:text-base",
       };
     },
     publishButtonTitleConfig() {
       // config for text of back button
       return {
         value: this.publishButtonText,
-        class: "text-white font-bold",
+        class: "text-white font-bold text-sm bp-420:text-base",
       };
     },
     publishButtonText() {
@@ -781,7 +781,7 @@ export default {
           "opacity-50 cursor-not-allowed pointer-events-none": !this
             .isPublishButtonEnabled,
         },
-        `rounded-md ring-green-500 bg-green-500 hover:bg-green-600 p-4 px-6`,
+        `rounded-md ring-green-500 bg-green-500 hover:bg-green-600 p-2 bp-420:px-4`,
       ];
     },
     publishButtonTooltip() {
