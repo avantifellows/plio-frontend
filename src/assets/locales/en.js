@@ -117,6 +117,15 @@ export default {
         },
         title: "Hooray! Your Plio is ready 🥳",
       },
+      share_plio: {
+        title: "Share this Plio",
+        buttons: {
+          copy_link: {
+            not_copied: "Copy Link",
+            copied: "Copied!",
+          },
+        },
+      },
       image_uploader: {
         title_non_touch: "Drag and drop or click here to upload",
         title_touch: "Click to take a picture or add from gallery",
