@@ -240,9 +240,11 @@
       @delete-image="deleteLinkedImage"
     ></ImageUploaderDialog>
 
+    <ConfettiCelebration v-if="showPublishedPlioDialog" class="z-0"></ConfettiCelebration>
+
     <!-- dialog to show after publishing -->
     <div
-      class="fixed top-1/3 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg"
+      class="fixed top-1/3 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10"
       v-if="showPublishedPlioDialog"
     >
       <div class="w-full flex justify-end p-2">
@@ -341,6 +343,7 @@ import DialogBox from "@/components/UI/Alert/DialogBox";
 import ItemModal from "../components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
+import ConfettiCelebration from "@/components/UI/Animations/ConfettiCelebration.vue";
 
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
@@ -365,6 +368,7 @@ export default {
     DialogBox,
     ItemModal,
     ImageUploaderDialog,
+    ConfettiCelebration,
   },
   props: {
     plioId: {
