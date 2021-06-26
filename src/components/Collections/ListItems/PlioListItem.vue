@@ -22,13 +22,18 @@
         {{ title }}
       </div>
 
-      <!-- plio link -->
-      <div>
-        <URL :link="plioLink" :urlCopyButtonClass="urlCopyButtonClass"></URL>
-      </div>
-
       <!-- action buttons -->
       <div class="flex flex-row justify-start space-x-3">
+        <!-- share button -->
+        <!-- <icon-button
+          :titleConfig="playButtonTitleConfig"
+          :iconConfig="playButtonIconConfig"
+          :buttonClass="playButtonClass"
+          @click="playPlio"
+          :isDisabled="!isPublished"
+          v-tooltip="playButtonTooltip"
+        ></icon-button> -->
+
         <!-- play button -->
         <icon-button
           :titleConfig="playButtonTitleConfig"
@@ -76,7 +81,6 @@ import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
 import Utilities from "@/services/Functional/Utilities.js";
-import URL from "@/components/UI/Text/URL.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
@@ -92,7 +96,6 @@ export default {
     },
   },
   components: {
-    URL,
     IconButton,
     SimpleBadge,
     PlioListItemSkeleton,
@@ -108,7 +111,7 @@ export default {
         iconClass: "",
       },
       playButtonClass:
-        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
+        "bg-primary hover:bg-primary-hover rounded-md shadow-md h-10 ring-primary",
       editButtonIconConfig: {
         enabled: false,
         iconName: "",
@@ -124,7 +127,7 @@ export default {
       duplicateButtonClass:
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       analyseButtonClass:
-        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
+        "bg-red-500 hover:bg-red-600 rounded-md shadow-md h-10 ring-primary",
       urlCopyButtonClass: "text-yellow-600",
     };
   },
@@ -151,8 +154,7 @@ export default {
       // title config for the play button
       return {
         value: this.$t("home.table.plio_list_item.buttons.play"),
-        class:
-          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
+        class: "p-2 text-sm bp-500:text-base text-white font-medium bp-500:font-semibold",
       };
     },
     editButtonTitleConfig() {
@@ -175,8 +177,7 @@ export default {
       // title config for the analyse button
       return {
         value: this.$t("home.table.plio_list_item.buttons.analyse"),
-        class:
-          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
+        class: "p-2 text-sm bp-500:text-base text-white font-medium bp-500:font-semibold",
       };
     },
     playButtonTooltip() {

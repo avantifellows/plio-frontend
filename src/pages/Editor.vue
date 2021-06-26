@@ -298,38 +298,11 @@
     </div>
 
     <!-- dialog for sharing plio -->
-    <div
-      class="fixed top-1/3 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg"
+    <SharePlioDialog
       v-if="isSharePlioDialogShown"
-    >
-      <div class="w-full flex justify-end p-2">
-        <!-- close button -->
-        <icon-button
-          :iconConfig="closeDialogIconConfig"
-          :buttonClass="closeDialogButtonClass"
-          @click="closeSharePlioDialog"
-        ></icon-button>
-      </div>
-
-      <div class="px-4 xsm:px-8 bp-500:px-12 pb-8">
-        <!-- title -->
-        <p class="text-2xl text-gray-500 font-bold w-56 sm:w-80">
-          {{ $t("editor.dialog.share_plio.title") }}
-        </p>
-        <div
-          class="flex flex-col sm:flex-row sm:space-x-4 my-4 p-2 px-4 bg-peach-light border border-gray-600 rounded-md"
-        >
-          <!-- link -->
-          <p class="h-full place-self-center text-gray-600">{{ plioLink }}</p>
-          <!-- copy link button -->
-          <icon-button
-            :titleConfig="copyLinkTitleClass"
-            :buttonClass="copyLinkButtonClass"
-            @click="copyLinkToClipboard"
-          ></icon-button>
-        </div>
-      </div>
-    </div>
+      :plioLink="plioLink"
+      @close="closeSharePlioDialog"
+    ></SharePlioDialog>
   </div>
 </template>
 
@@ -352,6 +325,7 @@ import ItemModal from "../components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ConfettiCelebration from "@/components/UI/Animations/ConfettiCelebration.vue";
+import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
 
 // used for deep cloning objects
 // var cloneDeep = require("lodash.clonedeep");
@@ -377,6 +351,7 @@ export default {
     ItemModal,
     ImageUploaderDialog,
     ConfettiCelebration,
+    SharePlioDialog,
   },
   props: {
     plioId: {
@@ -434,7 +409,6 @@ export default {
       anyErrorsPresent: false, // store if any errors are present or not
       showPublishedPlioDialog: false, // whether to show the dialog that comes after publishing plio
       isSharePlioDialogShown: false, // whether to show the dialog for sharing plio
-      plioLinkCopied: false, // whether the plio link has been copied or not
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       // mapping of questionType value to index in the list of question types
       questionTypeToIndex: {
@@ -483,14 +457,6 @@ export default {
         iconName: "publish",
         iconClass: "text-white fill-current h-4 w-4",
       },
-      closeDialogIconConfig: {
-        // config for the icon of the button to close the dialog that comes after publishing
-        enabled: true,
-        iconName: "times-circle-solid",
-        iconClass: "text-primary fill-current h-8 w-8",
-      },
-      // class for the button to close the dialog that comes after publishing
-      closeDialogButtonClass: "bg-white w-10 h-10 p-2",
       showImageUploaderDialog: false, // whether to show the image uploader or not
       loadedPlioDetails: {}, // details of the plio fetched when the page was loaded
     };
@@ -638,25 +604,6 @@ export default {
       return {
         value: this.$t("editor.buttons.analyze_plio"),
         class: "text-white text-sm bp-420:text-base",
-      };
-    },
-    copyLinkButtonClass() {
-      // styling class for the copy link button
-      return [
-        {
-          "bg-primary hover:bg-primary-hover": !this.plioLinkCopied,
-          "bg-green-500 hover:bg-green-600": this.plioLinkCopied,
-        },
-        `p-2 px-4 rounded-md mt-2 sm:mt-0`,
-      ];
-    },
-    copyLinkTitleClass() {
-      // styling class for the title of copy link button
-      return {
-        value: this.plioLinkCopied
-          ? this.$t(`editor.dialog.share_plio.buttons.copy_link.copied`)
-          : this.$t("editor.dialog.share_plio.buttons.copy_link.not_copied"),
-        class: "text-white",
       };
     },
     showItemModal() {
@@ -900,16 +847,6 @@ export default {
       this.showPublishedPlioDialog = false;
       this.showSharePlioDialog();
     },
-    copyLinkToClipboard() {
-      // return if the link has already been copied
-      if (this.plioLinkCopied) return;
-
-      // trigged upon clicking the copy link button in the share dialog
-      var success = this.copyToClipboard(this.plioLink);
-
-      if (success) this.plioLinkCopied = true;
-      else this.toast.error(this.$t("error.copying"));
-    },
     closePublishedPlioDialog() {
       // close the published plio dialog
       this.showPublishedPlioDialog = false;
@@ -917,7 +854,6 @@ export default {
     closeSharePlioDialog() {
       // close the share plio dialog
       this.isSharePlioDialogShown = false;
-      this.plioLinkCopied = false;
     },
     showSharePlioDialog() {
       // show the share plio dialog
