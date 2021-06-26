@@ -28,7 +28,7 @@ export default {
         "Subjective Questions are not included while calculating the accuracy in the dashboard",
     },
     buttons: {
-      home: "Go to Home",
+      home: "Go To Home",
       publish: {
         draft: "Publish Plio",
         published: "Publish Changes",
@@ -108,6 +108,14 @@ export default {
         draft: {
           title: "Publishing the plio...",
         },
+      },
+      published: {
+        buttons: {
+          play_plio: "Play",
+          share_plio: "Share",
+          home: "Home",
+        },
+        title: "Hooray! Your Plio is ready 🥳",
       },
       image_uploader: {
         title_non_touch: "Drag and drop or click here to upload",

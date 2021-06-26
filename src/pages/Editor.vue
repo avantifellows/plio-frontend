@@ -7,13 +7,6 @@
     >
       <!--- preview grid -->
       <div class="flex flex-col mx-6 z-0">
-        <!--- plio link -->
-        <!-- <URL
-          :link="plioLink"
-          class="justify-center m-4"
-          :urlStyleClass="urlStyleClass"
-          :isUnderlined="true"
-        ></URL> -->
         <div class="md:m-4 my-8 flex justify-center space-x-4">
           <!-- share plio -->
           <icon-button
@@ -114,12 +107,14 @@
           <!--- button to go back to home -->
           <icon-button
             :titleConfig="backButtonTitleConfig"
+            :iconConfig="homeIconConfig"
             :buttonClass="backButtonClass"
             @click="returnToHome"
           ></icon-button>
           <!--- publish button -->
           <icon-button
             :titleConfig="publishButtonTitleConfig"
+            :iconConfig="publishButtonIconConfig"
             :class="publishButtonClass"
             class="shadow-lg"
             v-tooltip.right="publishButtonTooltip"
@@ -224,6 +219,7 @@
         </div>
       </div>
     </div>
+    <!-- generic dialog box -->
     <dialog-box
       class="fixed top-1/3"
       v-if="showDialogBox"
@@ -234,6 +230,7 @@
       @confirm="dialogConfirmed"
       @cancel="dialogCancelled"
     ></dialog-box>
+    <!-- image uploader dialog box -->
     <ImageUploaderDialog
       v-if="showImageUploaderDialog"
       :uploadedImage="itemImage"
@@ -241,6 +238,50 @@
       @image-selected="uploadImage"
       @delete-image="deleteLinkedImage"
     ></ImageUploaderDialog>
+
+    <!-- dialog to show after publishing -->
+    <div
+      class="fixed top-1/3 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg"
+      v-if="showPublishedPlioDialog"
+    >
+      <div class="w-full flex justify-end p-2">
+        <icon-button
+          :iconConfig="closePublishedDialogIconConfig"
+          :buttonClass="closePublishedDialogButtonClass"
+          @click="closePublishedPlioDialog"
+        ></icon-button>
+      </div>
+
+      <div class="px-12 pt-4 pb-8">
+        <p class="text-2xl text-gray-500 font-bold">
+          {{ $t("editor.dialog.published.title") }}
+        </p>
+        <div class="flex flex-col space-y-3 my-8 mx-16">
+          <!-- share plio -->
+          <icon-button
+            :titleConfig="dialogSharePlioTitleClass"
+            :iconConfig="sharePlioIconConfig"
+            :buttonClass="sharePlioButtonClass"
+          ></icon-button>
+
+          <!-- play plio -->
+          <icon-button
+            :titleConfig="dialogPlayPlioTitleClass"
+            :iconConfig="playPlioIconConfig"
+            :buttonClass="playPlioButtonClass"
+            @click="redirectToPlayer"
+          ></icon-button>
+
+          <!-- go back home -->
+          <icon-button
+            :titleConfig="dialogHomeTitleClass"
+            :iconConfig="homeIconConfig"
+            :buttonClass="dialogHomeButtonClass"
+            @click="returnToHome"
+          ></icon-button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -341,6 +382,7 @@ export default {
       videoDBId: null, // store the DB id of video object linked to the plio
       plioDBId: null, // store the DB id of plio object
       anyErrorsPresent: false, // store if any errors are present or not
+      showPublishedPlioDialog: false, // whether to show the dialog that comes after publishing plio
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       // mapping of questionType value to index in the list of question types
       questionTypeToIndex: {
@@ -352,8 +394,7 @@ export default {
       maximizeButtonClass:
         "bg-primary hover:bg-primary-hover p-1 lg:p-2 px-2 rounded-md shadow-xl",
       // styling class for the share plio button
-      sharePlioButtonClass:
-        "bg-yellow-300 hover:bg-yellow-400 hover p-2 px-4 rounded-md shadow-xl",
+      sharePlioButtonClass: "bg-yellow-300 hover:bg-yellow-400 p-2 px-4 rounded-md",
       sharePlioIconConfig: {
         // config for the icon of the share plio button
         enabled: true,
@@ -361,14 +402,35 @@ export default {
         iconClass: "text-yellow-800 fill-current h-4 w-4",
       },
       // styling class for the play plio button
-      playPlioButtonClass:
-        "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md shadow-xl",
+      playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
+      // styling class for the home button on dialog that comes after publishing
+      dialogHomeButtonClass: "bg-peach hover:bg-peach-hover p-2 px-4 rounded-md",
       playPlioIconConfig: {
         // config for the icon of the play plio button
         enabled: true,
         iconName: "play",
         iconClass: "text-white fill-current h-4 w-4",
       },
+      homeIconConfig: {
+        // config for the icon of the home button
+        enabled: true,
+        iconName: "home",
+        iconClass: "text-yellow-800 fill-current h-4 w-4",
+      },
+      publishButtonIconConfig: {
+        // config for the icon of the publish button
+        enabled: true,
+        iconName: "publish",
+        iconClass: "text-white fill-current h-4 w-4",
+      },
+      closePublishedDialogIconConfig: {
+        // config for the icon of the button to close the dialog that comes after publishing
+        enabled: true,
+        iconName: "times-circle-solid",
+        iconClass: "text-primary fill-current h-8 w-8",
+      },
+      // class for the button to close the dialog that comes after publishing
+      closePublishedDialogButtonClass: "bg-white w-10 h-10 p-2",
       showImageUploaderDialog: false, // whether to show the image uploader or not
     };
   },
@@ -472,11 +534,35 @@ export default {
         class: "text-yellow-800",
       };
     },
+    dialogSharePlioTitleClass() {
+      // styling class for the title of share plio button on dialog box
+      // that comes after publishing
+      return {
+        value: this.$t("editor.dialog.published.buttons.share_plio"),
+        class: "text-yellow-800",
+      };
+    },
     playPlioTitleClass() {
       // styling class for the title of play plio button
       return {
         value: this.$t("editor.buttons.play_plio"),
         class: "text-white",
+      };
+    },
+    dialogPlayPlioTitleClass() {
+      // styling class for the title of play plio button on dialog box
+      // that comes after publishing
+      return {
+        value: this.$t("editor.dialog.published.buttons.play_plio"),
+        class: "text-white",
+      };
+    },
+    dialogHomeTitleClass() {
+      // styling class for the title of go back home button on dialog box
+      // that comes after publishing
+      return {
+        value: this.$t("editor.dialog.published.buttons.home"),
+        class: "text-yellow-800",
       };
     },
     showItemModal() {
@@ -528,7 +614,12 @@ export default {
     },
     blurMainScreen() {
       // whether to blur the main screen with opacity
-      return this.isBeingPublished || this.showDialogBox || this.showImageUploaderDialog;
+      return (
+        this.isBeingPublished ||
+        this.showDialogBox ||
+        this.showImageUploaderDialog ||
+        this.showPublishedPlioDialog
+      );
     },
     statusBadgeClass() {
       // class for the status badge
@@ -567,20 +658,20 @@ export default {
     },
     backButtonClass() {
       // classes for the back button
-      return "bg-gray-200 hover:bg-gray-300 rounded-md shadow-lg ring-primary";
+      return "p-2 px-4 bg-peach hover:bg-peach-hover rounded-md shadow-lg ring-primary";
     },
     backButtonTitleConfig() {
       // config for text of back button
       return {
         value: this.$t("editor.buttons.home"),
-        class: "p-4 text-black font-bold",
+        class: "text-yellow-800 font-bold",
       };
     },
     publishButtonTitleConfig() {
       // config for text of back button
       return {
         value: this.publishButtonText,
-        class: "bg-green-500 p-4 px-6 text-white rounded-md font-bold hover:bg-green-600",
+        class: "text-white font-bold",
       };
     },
     publishButtonText() {
@@ -595,7 +686,7 @@ export default {
           "opacity-50 cursor-not-allowed pointer-events-none": !this
             .isPublishButtonEnabled,
         },
-        `rounded-md ring-green-500`,
+        `rounded-md ring-green-500 bg-green-500 hover:bg-green-600 p-4 px-6`,
       ];
     },
     publishButtonTooltip() {
@@ -709,6 +800,10 @@ export default {
   methods: {
     ...mapActions("sync", ["startUploading", "stopUploading"]),
     ...Utilities,
+    closePublishedPlioDialog() {
+      // close the published plio dialog
+      this.showPublishedPlioDialog = false;
+    },
     redirectToPlayer() {
       // redirect user to the player for this plio if it is published
       if (!this.isPublished) return;
@@ -952,6 +1047,7 @@ export default {
       this.savePlio().then(() => {
         this.isBeingPublished = false;
         this.showDialogBox = false;
+        this.showPublishedPlioDialog = true;
         this.hasUnpublishedChanges = false;
       });
     },
