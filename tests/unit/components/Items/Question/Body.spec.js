@@ -35,6 +35,17 @@ describe("Body.vue", () => {
     expect(wrapper.find('[data-test="option-0"]').text()).toBe(options[0]);
   });
 
+  it("option selected correctly", () => {
+    const options = ["a", ""];
+    const wrapper = mount(Body, {
+      props: {
+        options: options,
+      },
+    });
+    wrapper.find('[data-test="option-0"]').trigger("click");
+    expect(wrapper.emitted()).toHaveProperty("option-selected");
+  });
+
   it("should render subjective question with default values", () => {
     const wrapper = mount(Body, {
       props: {
