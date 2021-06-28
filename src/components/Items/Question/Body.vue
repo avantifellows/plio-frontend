@@ -111,6 +111,7 @@ export default {
     subjectiveAnswer() {
       if (
         this.subjectiveAnswer != null &&
+        this.hasCharLimit &&
         this.subjectiveAnswer.length > this.maxCharLimit
       ) {
         // prevent answers more than the character limit from being entered via copy pasting

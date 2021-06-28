@@ -41,10 +41,12 @@ describe("Body.vue", () => {
         questionType: "subjective",
       },
     });
+    // default
     expect(wrapper.find('[data-test="charLimitContainer"]').exists()).toBe(
       false
     );
 
+    // set char limit
     const charLimitProps = {
       hasCharLimit: true,
       maxCharLimit: 50,
@@ -58,11 +60,30 @@ describe("Body.vue", () => {
       String(charLimitProps.maxCharLimit)
     );
 
+    // add input such that chars left = > 0.2 * maxCharLimit
+    const value = "thetest";
     await wrapper
       .find('[data-test="subjectiveAnswer"]')
       .find('[data-test="input"]')
-      .setValue("a");
-    expect(wrapper.vm.charactersLeft).toBe(charLimitProps.maxCharLimit - 1);
+      .setValue(value);
+    expect(wrapper.vm.charactersLeft).toBe(
+      charLimitProps.maxCharLimit - value.length
+    );
+    expect(wrapper.vm.maxCharLimitClass).toBe("text-gray-400");
+
+    // add input such that chars left = < 0.2 * maxCharLimit, > 0.1 * charLimit
+    await wrapper
+      .find('[data-test="subjectiveAnswer"]')
+      .find('[data-test="input"]')
+      .setValue("thetestthetestthetestthetestthetestthetest");
+    expect(wrapper.vm.maxCharLimitClass).toBe("text-yellow-500");
+
+    // add input such that chars left = < 0.1 * maxCharLimit
+    await wrapper
+      .find('[data-test="subjectiveAnswer"]')
+      .find('[data-test="input"]')
+      .setValue("thetestthetestthetestthetestthetestthetestthetest");
+    expect(wrapper.vm.maxCharLimitClass).toBe("text-red-400");
   });
 
   it("renders disabled subjective answer in preview mode", async () => {
@@ -91,5 +112,50 @@ describe("Body.vue", () => {
       wrapper.find('[data-test="subjectiveAnswer"]').find('[data-test="input"]')
         .element.disabled
     ).toBe(true);
+  });
+
+  it("renders subjective answer when default answer given", async () => {
+    const props = {
+      questionType: "subjective",
+      draftAnswer: "abc",
+    };
+    const wrapper = mount(Body, {
+      props: props,
+    });
+
+    expect(
+      wrapper.find('[data-test="subjectiveAnswer"]').find('[data-test="input"]')
+        .element.value
+    ).toBe(props.draftAnswer);
+  });
+
+  it("renders subjective answer when submitted answer given", async () => {
+    const props = {
+      questionType: "subjective",
+      submittedAnswer: "abc",
+    };
+    const wrapper = mount(Body, {
+      props: props,
+    });
+
+    expect(
+      wrapper.find('[data-test="subjectiveAnswer"]').find('[data-test="input"]')
+        .element.value
+    ).toBe(props.submittedAnswer);
+  });
+
+  it("updates subjective answer through input field", async () => {
+    const wrapper = mount(Body, {
+      props: {
+        questionType: "subjective",
+      },
+    });
+
+    const value = "test";
+    await wrapper
+      .find('[data-test="subjectiveAnswer"]')
+      .find('[data-test="input"]')
+      .setValue(value);
+    expect(wrapper.vm.subjectiveAnswer).toBe(value);
   });
 });
