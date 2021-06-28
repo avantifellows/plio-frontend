@@ -9,6 +9,9 @@ import i18n from "@/services/Localisation/i18n.js";
 import { useToast } from "vue-toastification";
 
 const toast = useToast();
+// these keys should be present as query params when a third party
+// auth is used to access a route
+const requiredAuthKeys = ["auth_type", "unique_id", "access_token"];
 
 const routes = [
   {
@@ -53,6 +56,9 @@ const routes = [
     props: (route) => ({
       experiment: route.query.experiment,
       plioId: route.params.plioId,
+      thirdPartyAuthType: route.query.auth_type,
+      thirdPartyUniqueId: route.query.unique_id,
+      thirdPartyAccessToken: route.query.access_token,
     }),
     meta: { requiresAuth: true },
   },
@@ -100,7 +106,7 @@ The code below works on `isAuthenticated` state and before every route:
 2. Redirects user to home if user is already logged in and visiting a page that is intended for guest (route.meta.guest)
 */
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
   // clear all toasts whenever the route changes
   toast.clear();
 
@@ -114,30 +120,46 @@ router.beforeEach((to, from, next) => {
     toast.error(i18n.global.t("error.auto_logout"));
   }
 
+  // if in the previous session, the user was in a workspace other than the personal workspace,
+  // pass those params in the router going forward. Only do this after checking that any org params
+  // are not explicitly specified in the requested URL. This will lead them to the org workspace's home
+  // where they left off the in the previous session
+  const existingActiveWorkspace = store.state["auth"]["activeWorkspace"];
+  if (existingActiveWorkspace != "" && to.params.org != "")
+    to.params.org = existingActiveWorkspace;
+
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (store.getters["auth/isAuthenticated"]) {
-      next();
+    // app has to be authenticated using third party auth if all the query params
+    // match the keys in `requiredAuthKeys` and they're not empty or undefined
+    let queryParams = Object.keys(to.query);
+    let isThirdPartyAuth =
+      requiredAuthKeys.every((key) => queryParams.includes(key)) &&
+      queryParams.every(
+        (key) => to.query[key] != "" && to.query[key] != undefined
+      );
+
+    if (isThirdPartyAuth) {
+      // skip the login if authenticating via third party
       return;
+    } else {
+      // proceed to login if not authenticating via third party
+      if (store.getters["auth/isAuthenticated"]) return;
+      else
+        return {
+          name: "Login",
+          params: { redirectTo: to.name, params: JSON.stringify(to.params) },
+        };
     }
-    next({
-      name: "Login",
-      params: { redirectTo: to.name, params: JSON.stringify(to.params) },
-    });
-  } else {
-    next();
   }
+
+  return;
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
   if (to.matched.some((record) => record.meta.guest)) {
-    if (store.getters["auth/isAuthenticated"]) {
-      next({ name: "Home" });
-      return;
-    }
-    next();
-  } else {
-    next();
-  }
+    if (store.getters["auth/isAuthenticated"])
+      return { name: "Home", params: to.params };
+  } else return;
 });
 
 /*
@@ -145,25 +167,19 @@ Router auth logic end
 */
 
 // set organization in vuex state if the route org parameter is in vuex user organizations array
-router.beforeEach((to, from, next) => {
-  if (!store.getters["auth/isAuthenticated"]) {
-    next();
-    return;
+router.beforeEach((to) => {
+  if (store.getters["auth/isAuthenticated"]) {
+    if (to.params.org != "" && to.params.org != undefined)
+      store.dispatch("auth/setActiveWorkspace", to.params.org);
+    else store.dispatch("auth/unsetActiveWorkspace");
   }
-  if (to.params.org != "" && to.params.org != undefined) {
-    store.dispatch("auth/setActiveWorkspace", to.params.org);
-  } else {
-    store.dispatch("auth/unsetActiveWorkspace");
-  }
-  next();
+  return;
 });
 
-function restrictUnapprovedUser(to, from, next) {
-  if (store.getters["auth/isUserApproved"]) {
-    next();
-    return;
-  }
-  next({ name: "Home", params: { org: to.params.org }, replace: true });
+function restrictUnapprovedUser(to) {
+  if (!store.getters["auth/isUserApproved"])
+    return { name: "Home", params: { org: to.params.org }, replace: true };
+  else return;
 }
 
 export default router;
