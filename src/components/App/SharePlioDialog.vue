@@ -16,6 +16,26 @@
       <p class="text-2xl text-gray-500 font-bold w-56 sm:w-80">
         {{ $t("editor.dialog.share_plio.title") }}
       </p>
+      <!-- social sharing -->
+      <div class="mt-2 my-4 flex space-x-4">
+        <!-- whatsapp -->
+        <icon-button
+          :iconConfig="whatsAppDialogIconConfig"
+          @click="shareOnWhatsApp"
+        ></icon-button>
+
+        <!-- twitter -->
+        <icon-button
+          :iconConfig="twitterDialogIconConfig"
+          @click="shareOnTwitter"
+        ></icon-button>
+
+        <!-- facebook -->
+        <icon-button
+          :iconConfig="facebookDialogIconConfig"
+          @click="shareOnFacebook"
+        ></icon-button>
+      </div>
       <div
         class="flex flex-col sm:flex-row sm:space-x-4 my-4 p-2 px-4 bg-peach-light border border-gray-600 rounded-md"
       >
@@ -51,17 +71,57 @@ export default {
   data() {
     return {
       closeDialogIconConfig: {
-        // config for the icon of the button to close the dialog that comes after publishing
+        // config for the icon of the close button
         enabled: true,
         iconName: "times-circle-solid",
         iconClass: "text-primary fill-current h-8 w-8",
       },
-      // class for the button to close the dialog that comes after publishing
+      whatsAppDialogIconConfig: {
+        // config for the icon of the whatsapp share button
+        enabled: true,
+        iconName: "whatsapp",
+        iconClass: "text-primary fill-current h-12 w-12",
+      },
+      twitterDialogIconConfig: {
+        // config for the icon of the twitter share button
+        enabled: true,
+        iconName: "twitter",
+        iconClass: "text-primary fill-current h-12 w-12",
+      },
+      linkedinDialogIconConfig: {
+        // config for the icon of the linkedin share button
+        enabled: true,
+        iconName: "linkedin",
+        iconClass: "text-primary fill-current h-12 w-12",
+      },
+      facebookDialogIconConfig: {
+        // config for the icon of the facebook share button
+        enabled: true,
+        iconName: "facebook",
+        iconClass: "text-primary fill-current h-12 w-12",
+      },
+      // class for the close button
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
       plioLinkCopied: false, // whether the plio link has been copied or not
     };
   },
   computed: {
+    socialSharingFormattedLink() {
+      // plio link formatted to be shareable on social media
+      return this.plioLink.replace("#", "%23");
+    },
+    plioLinkValidated() {
+      // formats the plio link as a valid url
+      // using localhost:8080 makes a url invalid for facebook and linkedin
+      // this is a hack to ensure that this functionality does not break while testing locally
+      if (this.plioLink.includes("localhost"))
+        return this.plioLink.replace("localhost:8080", "staging-app.plio.in");
+      return this.plioLink;
+    },
+    socialSharingText() {
+      // text to be used for sharing plio on social platforms
+      return `Check out my new plio: ${this.socialSharingFormattedLink}`;
+    },
     copyLinkButtonClass() {
       // styling class for the copy link button
       return [
@@ -85,6 +145,22 @@ export default {
   methods: {
     ...mapActions("generic", ["unsetSharePlioDialog"]),
     ...Utilities,
+    shareOnWhatsApp() {
+      // share the plio link on whatsapp
+      window.open("https://wa.me/send?text=" + this.socialSharingText).focus();
+    },
+    shareOnTwitter() {
+      // share the plio link on twitter
+      window
+        .open("https://twitter.com/intent/tweet?text=" + this.socialSharingText)
+        .focus();
+    },
+    shareOnFacebook() {
+      // share the plio link on facebook
+      window
+        .open("https://www.facebook.com/sharer/sharer.php?u=" + this.plioLinkValidated)
+        .focus();
+    },
     closeSharePlioDialog() {
       // triggered on clicking the close button
       this.unsetSharePlioDialog();

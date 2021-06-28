@@ -449,6 +449,14 @@ export default {
       },
       showImageUploaderDialog: false, // whether to show the image uploader or not
       loadedPlioDetails: {}, // details of the plio fetched when the page was loaded
+      closeDialogIconConfig: {
+        // config for the icon of the button to close the dialog that comes after publishing
+        enabled: true,
+        iconName: "times-circle-solid",
+        iconClass: "text-primary fill-current h-8 w-8",
+      },
+      // class for the button to close the dialog that comes after publishing
+      closeDialogButtonClass: "bg-white w-10 h-10 p-2",
     };
   },
   async created() {
