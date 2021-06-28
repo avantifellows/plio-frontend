@@ -1,6 +1,10 @@
 <template>
   <div>
-    <select v-model="selectedWorkspace" @change="updateActiveWorkspace">
+    <select
+      v-model="selectedWorkspace"
+      @change="updateActiveWorkspace"
+      data-test="select"
+    >
       <option value="">Personal Workspace</option>
       <option
         v-for="workspace in workspaces"
