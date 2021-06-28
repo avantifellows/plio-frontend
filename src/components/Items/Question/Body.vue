@@ -2,7 +2,7 @@
   <div class="overflow-y-auto flex flex-col">
     <!-- question text -->
     <div :class="questionTextDivClass">
-      <p :class="questionTextClass">
+      <p :class="questionTextClass" data-test="questionText">
         {{ questionText }}
       </p>
     </div>
@@ -25,7 +25,11 @@
         />
       </div>
       <!-- option container -->
-      <div v-if="isQuestionTypeMCQ" :class="optionContainerClass">
+      <div
+        v-if="isQuestionTypeMCQ"
+        :class="optionContainerClass"
+        data-test="optionContainer"
+      >
         <ul class="w-full">
           <li class="list-none space-y-1 flex flex-col">
             <div
@@ -57,23 +61,33 @@
         </ul>
       </div>
       <!-- subjective question answer -->
-      <div v-if="isQuestionTypeSubjective" :class="subjectiveAnswerClass">
+      <div
+        v-if="isQuestionTypeSubjective"
+        :class="subjectiveAnswerClass"
+        data-test="subjectiveAnswerContainer"
+      >
         <!-- input area for the answer -->
         <Textarea
-          :placeholder="subjectiveAnswerInputPlaceholder"
-          class="px-2 w-full"
           v-model:value="subjectiveAnswer"
+          class="px-2 w-full"
           boxStyling="px-4 placeholder-gray-400 bp-420:h-20 sm:h-28 md:h-36 focus:border-gray-200 focus:ring-transparent"
+          :placeholder="subjectiveAnswerInputPlaceholder"
           :isDisabled="isAnswerSubmitted || previewMode"
-          @keypress="checkCharLimit"
           :maxHeightLimit="subjectiveBoxHeightLimit"
+          @keypress="checkCharLimit"
+          data-test="subjectiveAnswer"
         ></Textarea>
         <!-- character limit -->
         <div
           class="h-full flex items-end px-6 mt-2"
           v-if="hasCharLimit && !isAnswerSubmitted"
+          data-test="charLimitContainer"
         >
-          <p class="text-sm sm:text-base lg:text-lg font-bold" :class="maxCharLimitClass">
+          <p
+            class="text-sm sm:text-base lg:text-lg font-bold"
+            :class="maxCharLimitClass"
+            data-test="charLimit"
+          >
             {{ charactersLeft }}
           </p>
         </div>

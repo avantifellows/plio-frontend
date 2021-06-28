@@ -481,7 +481,6 @@ export default {
       handler() {
         this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
         if (this.loadedPlioDetails.items == this.items) return;
-        console.log("1");
         this.checkAndSavePlio();
       },
       deep: true,
@@ -512,13 +511,11 @@ export default {
       this.videoId = linkValidation["ID"];
 
       if (this.loadedPlioDetails.videoURL == newVideoURL) return;
-      console.log("2");
       this.checkAndSavePlio();
     },
     plioTitle(newTitle) {
       // invoked when the plio title is update
       if (this.loadedPlioDetails.plioTitle == newTitle) return;
-      console.log("3");
       this.checkAndSavePlio();
     },
   },
