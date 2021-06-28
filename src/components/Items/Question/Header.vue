@@ -58,7 +58,7 @@ export default {
       // styling class for the title of minimize button
       return {
         value: this.isModalMinimized
-          ? this.$t("editor.buttons.show_item")
+          ? this.$t("editor.buttons.show_question")
           : this.$t("editor.buttons.show_video"),
         class: this.previewMode
           ? "text-white text-xs lg:text-sm"
