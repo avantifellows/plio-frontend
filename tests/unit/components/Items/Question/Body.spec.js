@@ -212,6 +212,24 @@ describe("Body.vue", () => {
       props: props,
     });
 
+    // test first if condition inside checkCharLimit
+    await wrapper
+      .find('[data-test="subjectiveAnswer"]')
+      .find('[data-test="input"]')
+      .trigger("keypress", {
+        key: "a",
+      });
+    expect(checkCharLimitMock).toHaveBeenCalled();
+
+    // test second if condition inside checkCharLimit
+    await wrapper.setProps({
+      hasCharLimit: true,
+      maxCharLimit: 5,
+    });
+    await wrapper
+      .find('[data-test="subjectiveAnswer"]')
+      .find('[data-test="input"]')
+      .setValue("atest");
     await wrapper
       .find('[data-test="subjectiveAnswer"]')
       .find('[data-test="input"]')
