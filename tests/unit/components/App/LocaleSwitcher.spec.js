@@ -7,7 +7,7 @@ describe("LocaleSwitcher.vue", () => {
     expect(wrapper).toBeTruthy();
   });
 
-  it("test updating switcher triggers the update method", () => {
+  it("updating switcher triggers the update method", () => {
     const updateLocale = jest.spyOn(LocaleSwitcher.methods, "updateLocale");
     const wrapper = mount(LocaleSwitcher);
 

@@ -146,8 +146,8 @@ export default {
       if (this.endIcon.isDisabled != null) return this.endIcon.isDisabled;
       return false;
     },
-    isStartIconDisabled() {
-      // is start icon disabled or not
+    isStartIconInteractionDisabled() {
+      // is interaction with start icon disabled or not
       if (this.startIcon.isDisabled != null) return this.startIcon.isDisabled;
       return false;
     },
@@ -198,7 +198,10 @@ export default {
       // gets the start icon name from the prop
       return [
         this.startIcon.class,
-        { "cursor-not-allowed pointer-events-none opacity-50": this.isStartIconDisabled },
+        {
+          "cursor-not-allowed pointer-events-none opacity-50": this
+            .isStartIconInteractionDisabled,
+        },
       ];
     },
     startIconTooltip() {

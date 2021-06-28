@@ -7,7 +7,7 @@ describe("VideoPlayer.vue", () => {
     expect(wrapper).toBeTruthy();
   });
 
-  it("render with valid video ID", async () => {
+  it("should render with valid video ID", async () => {
     const initiatePlayer = jest.spyOn(VideoPlayer.methods, "initiatePlayer");
     const setPlayerProperties = jest.spyOn(
       VideoPlayer.methods,

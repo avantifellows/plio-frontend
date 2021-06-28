@@ -120,11 +120,6 @@ describe("InputNumber.vue", () => {
       props: {
         startIcon: startIcon,
       },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
-        },
-      },
     });
 
     expect(wrapper.get('[data-test="startIcon"]').html()).toContain("img");
@@ -145,11 +140,6 @@ describe("InputNumber.vue", () => {
       props: {
         startIcon: startIcon,
       },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
-        },
-      },
     });
 
     wrapper.get('[data-test="startIcon"]').trigger("click");
@@ -168,11 +158,6 @@ describe("InputNumber.vue", () => {
     const wrapper = mount(InputNumber, {
       props: {
         startIcon: startIcon,
-      },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
-        },
       },
     });
 

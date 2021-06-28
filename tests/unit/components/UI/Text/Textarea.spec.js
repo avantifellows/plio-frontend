@@ -130,11 +130,6 @@ describe("Textarea.vue", () => {
       props: {
         startIcon: startIcon,
       },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
-        },
-      },
     });
 
     expect(wrapper.get('[data-test="startIcon"]').html()).toContain("img");
@@ -155,11 +150,6 @@ describe("Textarea.vue", () => {
       props: {
         startIcon: startIcon,
       },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
-        },
-      },
     });
 
     wrapper.get('[data-test="startIcon"]').trigger("click");
@@ -178,11 +168,6 @@ describe("Textarea.vue", () => {
     const wrapper = mount(Textarea, {
       props: {
         startIcon: startIcon,
-      },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
-        },
       },
     });
 

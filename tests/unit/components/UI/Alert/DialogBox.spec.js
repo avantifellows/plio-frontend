@@ -43,11 +43,6 @@ describe("DialogBox.vue", () => {
           class: iconClass,
         },
       },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
-        },
-      },
     });
     expect(wrapper.get('[data-test="icon"]').html()).toContain("img");
     expect(wrapper.get('[data-test="icon"]').classes()).toEqual(

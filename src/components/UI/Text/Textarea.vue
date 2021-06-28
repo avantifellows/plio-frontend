@@ -122,8 +122,8 @@ export default {
         this.$emit("update:value", localValue);
       },
     },
-    isStartIconDisabled() {
-      // is start icon disabled or not
+    isStartIconInteractionDisabled() {
+      // is interaction with the start icon disabled or not
       if (this.startIcon.isDisabled != null) return this.startIcon.isDisabled;
       return false;
     },
@@ -165,7 +165,10 @@ export default {
       // gets the start icon name from the prop
       return [
         this.startIcon.class,
-        { "cursor-not-allowed pointer-events-none opacity-50": this.isStartIconDisabled },
+        {
+          "cursor-not-allowed pointer-events-none opacity-50": this
+            .isStartIconInteractionDisabled,
+        },
       ];
     },
     startIconObj() {

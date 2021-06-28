@@ -11,7 +11,7 @@ describe("Paginator.vue", () => {
     expect(wrapper.get('[data-test="totalItems"]').text()).toBe("10");
   });
 
-  it("should trigger correctly on click", async () => {
+  it("changes page numbers correctly on clicking previous/next buttons", async () => {
     const wrapper = mount(Paginator, {
       props: {
         totalItems: 15,

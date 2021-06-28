@@ -118,11 +118,6 @@ describe("InputText.vue", () => {
       props: {
         startIcon: startIcon,
       },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
-        },
-      },
     });
 
     expect(wrapper.get('[data-test="startIcon"]').html()).toContain("img");
@@ -143,11 +138,6 @@ describe("InputText.vue", () => {
       props: {
         startIcon: startIcon,
       },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
-        },
-      },
     });
 
     wrapper.get('[data-test="startIcon"]').trigger("click");
@@ -166,11 +156,6 @@ describe("InputText.vue", () => {
     const wrapper = mount(InputText, {
       props: {
         startIcon: startIcon,
-      },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
-        },
       },
     });
 
@@ -194,11 +179,6 @@ describe("InputText.vue", () => {
       props: {
         endIcon: endIcon,
       },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
-        },
-      },
     });
 
     expect(wrapper.get('[data-test="endIcon"]').html()).toContain("img");
@@ -219,11 +199,6 @@ describe("InputText.vue", () => {
     const wrapper = mount(InputText, {
       props: {
         endIcon: endIcon,
-      },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
-        },
       },
     });
 
@@ -246,11 +221,6 @@ describe("InputText.vue", () => {
     const wrapper = mount(InputText, {
       props: {
         endIcon: endIcon,
-      },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
-        },
       },
     });
 
