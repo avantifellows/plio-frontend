@@ -107,8 +107,8 @@
 </template>
 
 <script>
-import WorkspaceSwitcher from "@/components/UI/WorkspaceSwitcher.vue";
-import LocaleSwitcher from "@/components/UI/LocaleSwitcher.vue";
+import WorkspaceSwitcher from "@/components/App/WorkspaceSwitcher.vue";
+import LocaleSwitcher from "@/components/App/LocaleSwitcher.vue";
 import UserConfigService from "@/services/Config/User.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { mapActions, mapState, mapGetters } from "vuex";

@@ -1,6 +1,11 @@
 <template>
   <div>
-    <select v-model="$i18n.locale" @change="updateLocale" class="border-0 pr-8">
+    <select
+      v-model="$i18n.locale"
+      @change="updateLocale"
+      class="border-0 pr-8"
+      data-test="select"
+    >
       <option value="en">English</option>
       <option value="hi">हिंदी</option>
     </select>

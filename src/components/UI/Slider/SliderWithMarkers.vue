@@ -9,6 +9,7 @@
       :step="step"
       class="slider w-full absolute z-50 main-slider-thumb"
       @input="valueUpdated"
+      data-test="mainSlider"
     />
     <input
       type="range"
@@ -28,6 +29,7 @@
       @touchstart="markerSliderTouched(markerIndex)"
       @touchend="markerSliderUnselected"
       @click="updateValueFromMarker(markerIndex)"
+      :data-test="`marker-${markerIndex}`"
     />
   </div>
 </template>
@@ -73,11 +75,6 @@ export default {
     step: {
       default: 1,
       type: Number,
-    },
-    // whether to hide markers which overflow from the slider
-    hideOverflowMarkers: {
-      default: true,
-      type: Boolean,
     },
     isDragDisabled: {
       // whether to make the markers non draggable or not
@@ -139,7 +136,6 @@ export default {
       // invoked when the marker slider value change is done
       this.clickAfterDragEnded = true;
       this.$emit("marker-drag-end", markerIndex);
-      // invoked when a marker has been unselected
       this.activeMarkerIndex = null;
     },
     markerSliderUnselected() {
@@ -176,12 +172,6 @@ export default {
       // whether the given marker index is active
       return this.activeMarkerIndex != null && this.activeMarkerIndex == markerIndex;
     },
-    convertRemToPixels() {
-      return 1.5 * parseInt(this.getBaseFontSize(), 10);
-    },
-    getBaseFontSize() {
-      return window.getComputedStyle(document.body, null).getPropertyValue("font-size");
-    },
   },
   computed: {
     markerArenaWidth() {
@@ -203,9 +193,6 @@ export default {
       // local copy of the markerPositions prop
       get() {
         return this.markerPositions;
-      },
-      set(localMarkerPositions) {
-        this.$emit("update:markerPositions", localMarkerPositions);
       },
     },
     markerRelativePositions() {
