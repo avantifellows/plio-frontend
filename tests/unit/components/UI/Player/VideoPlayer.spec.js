@@ -10,7 +10,7 @@ describe("VideoPlayer.vue", () => {
 
   it("should render with video Id passed on instantiation", async () => {
     const initiatePlayer = jest.spyOn(VideoPlayer.methods, "initiatePlayer");
-    const wrapper = mount(VideoPlayer, {
+    mount(VideoPlayer, {
       props: {
         videoId: "4j4fYyWgl0w",
       },
