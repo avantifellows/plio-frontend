@@ -22,6 +22,19 @@ describe("Body.vue", () => {
     );
   });
 
+  it("renders options", () => {
+    const options = ["a", ""];
+    const wrapper = mount(Body, {
+      props: {
+        options: options,
+      },
+    });
+    expect(wrapper.find('[data-test="option-0"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="option-1"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="option-2"]').exists()).toBe(false);
+    expect(wrapper.find('[data-test="option-0"]').text()).toBe(options[0]);
+  });
+
   it("should render subjective question with default values", () => {
     const wrapper = mount(Body, {
       props: {
@@ -157,5 +170,43 @@ describe("Body.vue", () => {
       .find('[data-test="input"]')
       .setValue(value);
     expect(wrapper.vm.subjectiveAnswer).toBe(value);
+  });
+
+  it("corrects subjective answer when exceeds max limit", async () => {
+    const props = {
+      questionType: "subjective",
+      hasCharLimit: true,
+      maxCharLimit: 10,
+    };
+    const wrapper = mount(Body, {
+      props: props,
+    });
+
+    const value = "thetestthetest";
+    await wrapper
+      .find('[data-test="subjectiveAnswer"]')
+      .find('[data-test="input"]')
+      .setValue(value);
+    expect(wrapper.vm.subjectiveAnswer).toBe(
+      value.slice(0, props.maxCharLimit)
+    );
+  });
+
+  it("char limit checker triggered on keypress", async () => {
+    const checkCharLimitMock = jest.spyOn(Body.methods, "checkCharLimit");
+    const props = {
+      questionType: "subjective",
+    };
+    const wrapper = mount(Body, {
+      props: props,
+    });
+
+    await wrapper
+      .find('[data-test="subjectiveAnswer"]')
+      .find('[data-test="input"]')
+      .trigger("keypress", {
+        key: "a",
+      });
+    expect(checkCharLimitMock).toHaveBeenCalled();
   });
 });

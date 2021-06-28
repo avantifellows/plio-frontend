@@ -54,6 +54,7 @@
                 <div
                   v-html="option"
                   class="ml-2 h-full place-self-center leading-tight"
+                  :data-test="`option-${optionIndex}`"
                 ></div>
               </label>
             </div>
@@ -220,13 +221,12 @@ export default {
     },
     optionBackgroundClass(optionIndex) {
       // returns the background class for the option
-      if (!this.isAnswerSubmitted || !this.isQuestionTypeMCQ) return {};
+      if (!this.isAnswerSubmitted) return {};
       if (optionIndex == this.correctAnswer) return "text-white bg-green-500";
       if (optionIndex == this.submittedAnswer) return "text-white bg-red-500";
     },
     isOptionChecked(optionIndex) {
       // whether the given option index should be checked
-      if (!this.isQuestionTypeMCQ) return false;
       return this.draftAnswer == optionIndex;
     },
   },
