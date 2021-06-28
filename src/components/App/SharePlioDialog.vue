@@ -29,12 +29,6 @@
           :iconConfig="twitterDialogIconConfig"
           @click="shareOnTwitter"
         ></icon-button>
-
-        <!-- facebook -->
-        <icon-button
-          :iconConfig="facebookDialogIconConfig"
-          @click="shareOnFacebook"
-        ></icon-button>
       </div>
       <div
         class="flex flex-col sm:flex-row sm:space-x-4 my-4 p-2 px-4 bg-peach-light border border-gray-600 rounded-md"
@@ -110,14 +104,6 @@ export default {
       // plio link formatted to be shareable on social media
       return this.plioLink.replace("#", "%23");
     },
-    plioLinkValidated() {
-      // formats the plio link as a valid url
-      // using localhost:8080 makes a url invalid for facebook and linkedin
-      // this is a hack to ensure that this functionality does not break while testing locally
-      if (this.plioLink.includes("localhost"))
-        return this.plioLink.replace("localhost:8080", "staging-app.plio.in");
-      return this.plioLink;
-    },
     socialSharingText() {
       // text to be used for sharing plio on social platforms
       return `Check out my new plio: ${this.socialSharingFormattedLink}`;
@@ -153,12 +139,6 @@ export default {
       // share the plio link on twitter
       window
         .open("https://twitter.com/intent/tweet?text=" + this.socialSharingText)
-        .focus();
-    },
-    shareOnFacebook() {
-      // share the plio link on facebook
-      window
-        .open("https://www.facebook.com/sharer/sharer.php?u=" + this.plioLinkValidated)
         .focus();
     },
     closeSharePlioDialog() {
