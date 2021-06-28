@@ -1,10 +1,6 @@
 import { mount } from "@vue/test-utils";
 import InputText from "@/components/UI/Text/InputText";
 
-const InlineSvg = {
-  template: "<img />",
-};
-
 describe("InputText.vue", () => {
   it("should render with default values", () => {
     const wrapper = mount(InputText);
