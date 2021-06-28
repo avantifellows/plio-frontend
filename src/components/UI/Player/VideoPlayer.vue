@@ -6,6 +6,7 @@
       data-plyr-provider="youtube"
       :data-plyr-embed-id="videoId"
       class="w-full"
+      data-test="player"
     ></div>
   </div>
 </template>
@@ -44,7 +45,7 @@ export default {
   watch: {
     currentTime(newTime) {
       // update player time if currentTime is changed
-      this.player.currentTime = newTime;
+      if (this.player != undefined) this.player.currentTime = newTime;
     },
     videoId() {
       if (this.player == undefined) {
