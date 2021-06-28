@@ -1,10 +1,6 @@
 import { mount } from "@vue/test-utils";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 
-const InlineSvg = {
-  template: "<img />",
-};
-
 describe("DialogBox.vue", () => {
   it("should render with default values", () => {
     const wrapper = mount(DialogBox);
@@ -41,11 +37,6 @@ describe("DialogBox.vue", () => {
           enabled: true,
           name: "check",
           class: iconClass,
-        },
-      },
-      global: {
-        stubs: {
-          InlineSvg: InlineSvg,
         },
       },
     });
