@@ -97,6 +97,7 @@
                   :class="tableRowClass"
                   @mouseover="tableRowHoverOn(rowIndex)"
                   @mouseout="tableRowHoverOff"
+                  data-test="row"
                 >
                   <td
                     v-for="(columnName, columnIndex) in columns"
@@ -282,14 +283,6 @@ export default {
       // starts loading and resets the search string
       this.startLoading();
       this.searchString = "";
-    },
-    tableRowTouchOn(rowIndex) {
-      // invoked when a touch event is triggered for a row in the table
-      // redirects to the dashboard page for the selected plio
-      if (this.isPublished(rowIndex) && !this.pending) {
-        // only redirect to the dashboard if the plio is published
-        this.analysePlio(rowIndex);
-      }
     },
     analysePlio(rowIndex) {
       // redirects to the dashboard page for the selected plio

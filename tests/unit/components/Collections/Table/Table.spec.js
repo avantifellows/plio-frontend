@@ -67,7 +67,13 @@ describe("Table.vue", () => {
         columns: tableColumns,
         numTotal: totalNumberOfPlios,
       },
+      data() {
+        return {
+          selectedRowIndex: 0,
+        };
+      },
     });
+
     store.dispatch("sync/startLoading");
     expect(wrapper.vm.tableCellOverlayClass(0, 1)).toEqual({ hidden: true });
   });
@@ -181,5 +187,42 @@ describe("Table.vue", () => {
 
     expect(search).toHaveBeenCalled();
     expect(wrapper.emitted()).toHaveProperty("search-plios");
+  });
+
+  it("selects row on hover", async () => {
+    const tableRowHoverOn = jest.spyOn(Table.methods, "tableRowHoverOn");
+    const wrapper = mount(Table, {
+      props: {
+        data: dummyTableData,
+        columns: tableColumns,
+        numTotal: totalNumberOfPlios,
+      },
+    });
+    // the table would be in pending state
+    await store.dispatch("sync/stopLoading");
+    await wrapper.findAll('[data-test="row"]')[0].trigger("mouseover");
+
+    expect(tableRowHoverOn).toHaveBeenCalled();
+    expect(wrapper.vm.selectedRowIndex).toBe(0);
+  });
+
+  it("deselects row on removing hover", async () => {
+    const tableRowHoverOff = jest.spyOn(Table.methods, "tableRowHoverOff");
+    const wrapper = mount(Table, {
+      props: {
+        data: dummyTableData,
+        columns: tableColumns,
+        numTotal: totalNumberOfPlios,
+      },
+      data() {
+        return {
+          selectedRowIndex: 0,
+        };
+      },
+    });
+    await wrapper.findAll('[data-test="row"]')[0].trigger("mouseout");
+
+    expect(tableRowHoverOff).toHaveBeenCalled();
+    expect(wrapper.vm.selectedRowIndex).toBe(null);
   });
 });
