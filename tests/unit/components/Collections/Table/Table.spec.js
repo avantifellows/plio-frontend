@@ -227,7 +227,6 @@ describe("Table.vue", () => {
   });
 
   it("sorts on arrow click by num viewers", async () => {
-    const sortBy = jest.spyOn(Table.methods, "sortBy");
     const wrapper = mount(Table, {
       props: {
         data: dummyTableData,
