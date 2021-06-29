@@ -31,6 +31,7 @@
           @click="sharePlio"
           :isDisabled="!isPublished"
           v-tooltip="shareButtonTooltip"
+          data-test="shareButton"
         ></icon-button>
 
         <!-- edit button -->
@@ -39,6 +40,7 @@
           :buttonClass="editButtonClass"
           v-tooltip="editButtonTooltip"
           @click="editPlio"
+          data-test="editButton"
         ></icon-button>
 
         <!-- play button -->
@@ -48,6 +50,7 @@
           @click="playPlio"
           :isDisabled="!isPublished"
           v-tooltip="playButtonTooltip"
+          data-test="playButton"
         ></icon-button>
 
         <!-- duplicate button -->
@@ -56,6 +59,7 @@
           :buttonClass="duplicateButtonClass"
           @click="duplicateThenRoute"
           v-tooltip="duplicateButtonTooltip"
+          data-test="duplicateButton"
         ></icon-button>
 
         <!-- analyse button -->
@@ -66,6 +70,7 @@
           :isDisabled="!isPublished"
           @click="analysePlio"
           v-tooltip="analyseButtonTooltip"
+          data-test="analyzeButton"
         ></icon-button>
       </div>
     </div>
