@@ -2,9 +2,26 @@ import { mount } from "@vue/test-utils";
 import PlioListItem from "@/components/Collections/ListItems/PlioListItem";
 import store from "@/store";
 
+function setMatchMedia(value) {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: jest.fn().mockImplementation((query) => ({
+      matches: value,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(), // deprecated
+      removeListener: jest.fn(), // deprecated
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
+}
+
 describe("PlioListItem.vue", () => {
   beforeEach(async () => {
     await store.dispatch("sync/stopLoading");
+    setMatchMedia(false);
   });
 
   it("should render with default values", () => {
@@ -94,7 +111,6 @@ describe("PlioListItem.vue", () => {
   });
 
   it("clicking play redirects to player for published plio ", async () => {
-    const playPlio = jest.spyOn(PlioListItem.methods, "playPlio");
     const plioDetails = {
       updatedAt: new Date(2018, 12, 31),
       status: "published",
@@ -124,7 +140,6 @@ describe("PlioListItem.vue", () => {
     await store.dispatch("sync/stopLoading");
 
     wrapper.find('[data-test="playButton"]').trigger("click");
-    expect(playPlio).toHaveBeenCalled();
     expect(mockRouter.push).toHaveBeenCalledWith({
       name: "Player",
       params: {
@@ -197,7 +212,6 @@ describe("PlioListItem.vue", () => {
   });
 
   it("clicking editor redirects to editor for the plio ", async () => {
-    const editPlio = jest.spyOn(PlioListItem.methods, "editPlio");
     const plioDetails = {
       updatedAt: new Date(2018, 12, 31),
       status: "published",
@@ -227,7 +241,6 @@ describe("PlioListItem.vue", () => {
     await store.dispatch("sync/stopLoading");
 
     wrapper.find('[data-test="editButton"]').trigger("click");
-    expect(editPlio).toHaveBeenCalled();
     expect(mockRouter.push).toHaveBeenCalledWith({
       name: "Editor",
       params: {
@@ -277,5 +290,73 @@ describe("PlioListItem.vue", () => {
 
     wrapper.find('[data-test="shareButton"]').trigger("click");
     expect(sharePlio).toHaveBeenCalled();
+  });
+
+  it("analyze button should show up for touch device ", async () => {
+    // set `matches` as `True` for testing on touch screen devices
+    setMatchMedia(true);
+
+    const wrapper = mount(PlioListItem);
+    expect(wrapper.find('[data-test="analyzeButton"]').exists()).toBe(true);
+  });
+
+  it("analyze disabled for draft plio ", () => {
+    // set `matches` as `True` for testing on touch screen devices
+    setMatchMedia(true);
+
+    const wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "draft",
+          },
+        };
+      },
+    });
+    expect(wrapper.find('[data-test="analyzeButton"]').element.disabled).toBe(
+      true
+    );
+  });
+
+  it("clicking analyze routes to Dashboard ", async () => {
+    // set `matches` as `True` for testing on touch screen devices
+    setMatchMedia(true);
+
+    const plioId = "123";
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+
+    const wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "published",
+          },
+        };
+      },
+      props: {
+        plioId: plioId,
+      },
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
+    // passing in plioID triggers startLoading which keeps the component in pending state
+    await store.dispatch("sync/stopLoading");
+
+    wrapper.find('[data-test="analyzeButton"]').trigger("click");
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: "Dashboard",
+      params: {
+        org: "",
+        plioId: plioId,
+      },
+    });
   });
 });
