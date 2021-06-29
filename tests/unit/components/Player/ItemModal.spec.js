@@ -85,4 +85,162 @@ describe("ItemModal.vue", () => {
     expect(wrapper.vm.isQuestionTypeMCQ).toBe(true);
     expect(wrapper.vm.isQuestionTypeSubjective).toBe(false);
   });
+
+  it("toggles minimize button", () => {
+    const toggleMinimizeMock = jest.spyOn(ItemModal.methods, "toggleMinimize");
+    const wrapper = mount(ItemModal, {
+      props: {
+        itemList: itemList,
+      },
+    });
+    wrapper
+      .find('[data-test="header"]')
+      .find('[data-test="minimize"]')
+      .trigger("click");
+
+    expect(toggleMinimizeMock).toHaveBeenCalled();
+    expect(wrapper.emitted()).toHaveProperty("toggle-minimize");
+  });
+
+  it("skips question", () => {
+    const skipQuestionMock = jest.spyOn(ItemModal.methods, "skipQuestion");
+    const wrapper = mount(ItemModal, {
+      props: {
+        itemList: itemList,
+      },
+    });
+    wrapper
+      .find('[data-test="header"]')
+      .find('[data-test="skip"]')
+      .trigger("click");
+
+    expect(skipQuestionMock).toHaveBeenCalled();
+    expect(wrapper.emitted()).toHaveProperty("skip-question");
+  });
+
+  it("revises question", () => {
+    const reviseQuestionMock = jest.spyOn(ItemModal.methods, "emitRevise");
+    const wrapper = mount(ItemModal, {
+      props: {
+        itemList: itemList,
+      },
+    });
+    wrapper
+      .find('[data-test="footer"]')
+      .find('[data-test="reviseButton"]')
+      .trigger("click");
+
+    expect(reviseQuestionMock).toHaveBeenCalled();
+    expect(wrapper.emitted()).toHaveProperty("revise-question");
+  });
+
+  it("submits subjective question", async () => {
+    var responseList = [];
+    itemList.forEach(() => {
+      responseList.push({
+        answer: null,
+      });
+    });
+    var draftResponses = ["a", null];
+    const submitQuestionMock = jest.spyOn(ItemModal.methods, "submitQuestion");
+    const wrapper = mount(ItemModal, {
+      props: {
+        itemList: itemList,
+        responseList: responseList,
+      },
+    });
+    // enter some value in the input field
+    const body = wrapper.find('[data-test="body"]');
+    await body
+      .find('[data-test="subjectiveAnswer"]')
+      .find('[data-test="input"]')
+      .setValue(draftResponses[0]);
+
+    // submit the answer
+    wrapper
+      .find('[data-test="footer"]')
+      .find('[data-test="submitButton"]')
+      .trigger("click");
+
+    expect(wrapper.vm.localResponseList[0]).toEqual({
+      answer: draftResponses[0],
+    });
+    expect(submitQuestionMock).toHaveBeenCalled();
+    expect(wrapper.emitted()).toHaveProperty("submit-question");
+  });
+
+  it("submits mcq question", async () => {
+    var responseList = [];
+    itemList.forEach(() => {
+      responseList.push({
+        answer: null,
+      });
+    });
+    const submitQuestionMock = jest.spyOn(ItemModal.methods, "submitQuestion");
+    const wrapper = mount(ItemModal, {
+      props: {
+        itemList: itemList,
+        responseList: responseList,
+        selectedItemIndex: 1,
+      },
+    });
+    // enter some value in the input field
+    const body = wrapper.find('[data-test="body"]');
+    await body.find('[data-test="radio-0"]').trigger("click");
+
+    // submit the answer
+    wrapper
+      .find('[data-test="footer"]')
+      .find('[data-test="submitButton"]')
+      .trigger("click");
+
+    expect(wrapper.vm.localResponseList[1]).toEqual({
+      answer: 0,
+    });
+    expect(submitQuestionMock).toHaveBeenCalled();
+    expect(wrapper.emitted()).toHaveProperty("submit-question");
+  });
+
+  it("proceeds with subjective question on answering", () => {
+    const responseList = [{ answer: "a" }, { answer: null }];
+    const proceedQuestionMock = jest.spyOn(
+      ItemModal.methods,
+      "proceedQuestion"
+    );
+    const wrapper = mount(ItemModal, {
+      props: {
+        itemList: itemList,
+        responseList: responseList,
+      },
+    });
+    wrapper
+      .find('[data-test="footer"]')
+      .find('[data-test="proceedButton"]')
+      .trigger("click");
+
+    expect(proceedQuestionMock).toHaveBeenCalled();
+    expect(wrapper.emitted()).toHaveProperty("proceed-question");
+  });
+
+  it("proceeds with mcq question on answering", () => {
+    const responseList = [{ answer: null }, { answer: 0 }];
+    const proceedQuestionMock = jest.spyOn(
+      ItemModal.methods,
+      "proceedQuestion"
+    );
+    const wrapper = mount(ItemModal, {
+      props: {
+        itemList: itemList,
+        responseList: responseList,
+        selectedItemIndex: 1,
+      },
+    });
+    wrapper
+      .find('[data-test="footer"]')
+      .find('[data-test="proceedButton"]')
+      .trigger("click");
+
+    expect(proceedQuestionMock).toHaveBeenCalled();
+    expect(wrapper.emitted()).toHaveProperty("proceed-question");
+  });
 });

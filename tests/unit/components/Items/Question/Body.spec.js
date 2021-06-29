@@ -35,7 +35,7 @@ describe("Body.vue", () => {
     expect(wrapper.find('[data-test="option-0"]').text()).toBe(options[0]);
   });
 
-  it("option selected correctly", () => {
+  it("option text selected correctly", () => {
     const options = ["a", ""];
     const wrapper = mount(Body, {
       props: {
@@ -43,6 +43,17 @@ describe("Body.vue", () => {
       },
     });
     wrapper.find('[data-test="option-0"]').trigger("click");
+    expect(wrapper.emitted()).toHaveProperty("option-selected");
+  });
+
+  it("option radio selected correctly", () => {
+    const options = ["a", ""];
+    const wrapper = mount(Body, {
+      props: {
+        options: options,
+      },
+    });
+    wrapper.find('[data-test="radio-0"]').trigger("click");
     expect(wrapper.emitted()).toHaveProperty("option-selected");
   });
 

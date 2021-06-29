@@ -1,13 +1,5 @@
-// import { calculateButtonPosition } from "@/components/Items/Question/HeaderUtils";
 import { mount } from "@vue/test-utils";
 import Header from "@/components/Items/Question/Header";
-
-// jest.mock("@/components/Items/Question/HeaderUtils")
-// beforeEach(() => calculateButtonPosition.mockClear())
-
-global.document.getElementById = jest.fn(() => ({
-  getBoundingClientRect: jest.fn(),
-}));
 
 describe("Header.vue", () => {
   it("should render with default values", () => {

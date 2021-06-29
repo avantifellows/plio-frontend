@@ -50,6 +50,7 @@
                   @click="selectOption(optionIndex)"
                   :checked="isOptionChecked(optionIndex)"
                   :disabled="isAnswerSubmitted || previewMode"
+                  :data-test="`radio-${optionIndex}`"
                 />
                 <div
                   v-html="option"
