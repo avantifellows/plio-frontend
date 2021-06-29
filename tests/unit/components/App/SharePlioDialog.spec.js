@@ -1,6 +1,11 @@
 import { mount } from "@vue/test-utils";
 import SharePlioDialog from "@/components/App/SharePlioDialog";
 
+// mock document.execCommand
+document.execCommand = jest.fn(() => {
+  return true;
+});
+
 describe("SharePlioDialog.vue", () => {
   it("should render with the required values", () => {
     const wrapper = mount(SharePlioDialog, {
@@ -25,5 +30,41 @@ describe("SharePlioDialog.vue", () => {
     });
     await wrapper.find('[data-test="close"]').trigger("click");
     expect(closeSharePlioDialog).toHaveBeenCalled();
+  });
+
+  it("link formatted correctly", () => {
+    const plioLink = "app.plio.in/#/play/ABC";
+    const wrapper = mount(SharePlioDialog, {
+      props: {
+        plioLink: plioLink,
+      },
+    });
+    expect(wrapper.vm.socialSharingFormattedLink).toBe(
+      "app.plio.in/%23/play/ABC"
+    );
+  });
+
+  it("creates social sharing text correctly", () => {
+    const plioLink = "app.plio.in/#/play/ABC";
+    const wrapper = mount(SharePlioDialog, {
+      props: {
+        plioLink: plioLink,
+      },
+    });
+    expect(wrapper.vm.socialSharingText).toBe(
+      "Check out my new plio: app.plio.in/%23/play/ABC"
+    );
+  });
+
+  it("copies link correctly", () => {
+    const plioLink = "app.plio.in/#/play/ABC";
+    const wrapper = mount(SharePlioDialog, {
+      props: {
+        plioLink: plioLink,
+      },
+    });
+    wrapper.find('[data-test="copy"]').trigger("click");
+    expect(wrapper.vm.plioLinkCopied).toBe(true);
+    expect(document.execCommand).toHaveBeenCalled();
   });
 });

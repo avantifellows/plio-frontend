@@ -43,6 +43,7 @@
           :titleConfig="copyLinkTitleClass"
           :buttonClass="copyLinkButtonClass"
           @click="copyLinkToClipboard"
+          data-test="copy"
         ></icon-button>
       </div>
     </div>
@@ -109,7 +110,9 @@ export default {
     },
     socialSharingText() {
       // text to be used for sharing plio on social platforms
-      return `Check out my new plio: ${this.socialSharingFormattedLink}`;
+      return `${this.$t("generic.dialogs.share.message")}: ${
+        this.socialSharingFormattedLink
+      }`;
     },
     copyLinkButtonClass() {
       // styling class for the copy link button

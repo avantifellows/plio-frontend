@@ -263,6 +263,11 @@ export default {
     mcq: "बहुविकल्पी",
     subjective: "विस्तृत",
     submitted: "निवेदन हो गया",
+    dialogs: {
+      share: {
+        message: "मेरा नया प्लियो देखें",
+      },
+    },
   },
   tooltip: {
     url: "लिंक को कापी करे",

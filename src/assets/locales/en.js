@@ -262,6 +262,11 @@ export default {
     mcq: "Multiple Choice",
     subjective: "Subjective",
     submitted: "Submitted",
+    dialogs: {
+      share: {
+        message: "Check out my new plio",
+      },
+    },
   },
   tooltip: {
     url: "Copy link",
