@@ -76,7 +76,8 @@
         "files": [
           "**/__tests__/*.{j,t}s?(x)",
           "**/tests/unit/**/*.spec.{j,t}s?(x)",
-          "jest.init.js"
+          "jest.init.js",
+          "src/services/Testing/Utilities.js"
         ],
         "env": {
           "jest": true

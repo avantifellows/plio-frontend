@@ -5,7 +5,7 @@
       <!-- table title -->
       <div :class="tableTitleClass">
         <p class="whitespace-nowrap">{{ tableTitle }}</p>
-        <p v-if="!pending">({{ totalNumberOfPlios }})</p>
+        <p v-if="!pending">({{ numTotal }})</p>
         <inline-svg
           v-if="pending"
           :src="require('@/assets/images/spinner-solid.svg')"
@@ -112,6 +112,8 @@
                         :isDisabled="!isPublished(rowIndex)"
                         @click="analysePlio(rowIndex)"
                         v-tooltip="analyseButtonTooltip(rowIndex)"
+                        v-if="!isTouchDevice"
+                        data-test="analyzeButton"
                       ></icon-button>
                     </div>
                     <!-- column content -->
@@ -178,7 +180,7 @@ export default {
       default: "",
       type: String,
     },
-    totalNumberOfPlios: {
+    numTotal: {
       // total number of plios for the user
       default: 0,
       type: Number,

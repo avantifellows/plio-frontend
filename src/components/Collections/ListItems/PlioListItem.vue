@@ -107,9 +107,9 @@ export default {
       // button, icon config and styling classes
       plioDetails: {},
       playButtonClass:
-        "bg-primary hover:bg-primary-hover rounded-md shadow-md h-10 ring-primary",
+        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       shareButtonClass:
-        "bg-yellow-300 hover:bg-yellow-400 rounded-md shadow-md h-10 ring-primary",
+        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       editButtonClass:
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       duplicateButtonClass:
@@ -143,14 +143,15 @@ export default {
       return {
         value: this.$t("home.table.plio_list_item.buttons.share"),
         class:
-          "p-2 text-sm bp-500:text-base text-yellow-800 font-medium bp-500:font-semibold",
+          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     playButtonTitleConfig() {
       // title config for the play button
       return {
         value: this.$t("home.table.plio_list_item.buttons.play"),
-        class: "p-2 text-sm bp-500:text-base text-white font-medium bp-500:font-semibold",
+        class:
+          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     editButtonTitleConfig() {
