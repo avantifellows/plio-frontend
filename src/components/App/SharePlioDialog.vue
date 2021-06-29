@@ -8,12 +8,13 @@
         :iconConfig="closeDialogIconConfig"
         :buttonClass="closeDialogButtonClass"
         @click="closeSharePlioDialog"
+        data-test="close"
       ></icon-button>
     </div>
 
     <div class="px-4 xsm:px-8 bp-500:px-12 pb-8">
       <!-- title -->
-      <p class="text-2xl text-gray-500 font-bold w-56 sm:w-80">
+      <p class="text-2xl text-gray-500 font-bold w-56 sm:w-80" data-test="title">
         {{ $t("editor.dialog.share_plio.title") }}
       </p>
       <!-- social sharing -->
@@ -22,12 +23,14 @@
         <icon-button
           :iconConfig="whatsAppDialogIconConfig"
           @click="shareOnWhatsApp"
+          data-test="whatsapp"
         ></icon-button>
 
         <!-- twitter -->
         <icon-button
           :iconConfig="twitterDialogIconConfig"
           @click="shareOnTwitter"
+          data-test="twitter"
         ></icon-button>
       </div>
       <div
