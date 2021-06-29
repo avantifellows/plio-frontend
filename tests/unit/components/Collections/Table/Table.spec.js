@@ -1,6 +1,7 @@
 import { mount } from "@vue/test-utils";
 import Table from "@/components/Collections/Table/Table";
 import { setMatchMedia } from "@/services/Testing/Utilities";
+import store from "@/store";
 
 var dummyTableData = [
   {
@@ -18,12 +19,14 @@ const totalNumberOfPlios = dummyTableData.length;
 
 describe("Table.vue", () => {
   beforeEach(async () => {
+    await store.dispatch("sync/stopLoading");
     await setMatchMedia(false);
   });
 
   it("should render with default values", () => {
     const wrapper = mount(Table);
-    expect(wrapper).toBeTruthy();
+    expect(wrapper.vm.totalItemsInTable).toBe(0);
+    expect(wrapper.vm.isTableEmpty).toBe(true);
   });
 
   it("renders the right number of rows ", async () => {
@@ -35,6 +38,8 @@ describe("Table.vue", () => {
       },
     });
     expect(wrapper.findAll("th").length).toBe(dummyTableData.length);
+    expect(wrapper.vm.totalItemsInTable).toBe(dummyTableData.length);
+    expect(wrapper.vm.isTableEmpty).toBe(false);
 
     // number of rows * number of columns (the button is rendered for each columns
     // but is hidden on all columns except the last column)
@@ -53,6 +58,18 @@ describe("Table.vue", () => {
       },
     });
     expect(wrapper.findAll('[data-test="analyzeButton"]').length).toBe(0);
+  });
+
+  it("does not render analyze on pending", async () => {
+    const wrapper = mount(Table, {
+      props: {
+        data: dummyTableData,
+        columns: tableColumns,
+        numTotal: totalNumberOfPlios,
+      },
+    });
+    store.dispatch("sync/startLoading");
+    expect(wrapper.vm.tableCellOverlayClass(0, 1)).toEqual({ hidden: true });
   });
 
   it("analyze button should be disabled for draft plio ", async () => {
@@ -100,5 +117,69 @@ describe("Table.vue", () => {
         plioId: dummyTableData[1]["name"]["value"],
       },
     });
+  });
+
+  it("clearing search string resets search", async () => {
+    const wrapper = mount(Table, {
+      props: {
+        data: dummyTableData,
+        columns: tableColumns,
+        numTotal: totalNumberOfPlios,
+      },
+    });
+
+    await wrapper.find('[data-test="searchBar"]').setValue("test");
+    await wrapper.find('[data-test="searchBar"]').setValue("");
+
+    expect(wrapper.emitted()).toHaveProperty("reset-search-string");
+  });
+
+  it("resets search string on button click", async () => {
+    const resetSearchString = jest.spyOn(Table.methods, "resetSearchString");
+    const wrapper = mount(Table, {
+      props: {
+        data: dummyTableData,
+        columns: tableColumns,
+        numTotal: totalNumberOfPlios,
+      },
+    });
+
+    await wrapper.find('[data-test="searchBar"]').setValue("test");
+
+    wrapper.find('[data-test="resetSearch"]').trigger("click");
+    expect(resetSearchString).toHaveBeenCalled();
+    expect(wrapper.vm.searchString).toBeFalsy();
+  });
+
+  it("does not trigger search on button click when search string empty", async () => {
+    const search = jest.spyOn(Table.methods, "search");
+    const wrapper = mount(Table, {
+      props: {
+        data: dummyTableData,
+        columns: tableColumns,
+        numTotal: totalNumberOfPlios,
+      },
+    });
+
+    await wrapper.find('[data-test="searchButton"]').trigger("click");
+
+    expect(search).not.toHaveBeenCalled();
+  });
+
+  it("triggers search on button click when search string non-empty", async () => {
+    const search = jest.spyOn(Table.methods, "search");
+    const wrapper = mount(Table, {
+      props: {
+        data: dummyTableData,
+        columns: tableColumns,
+        numTotal: totalNumberOfPlios,
+      },
+    });
+
+    await wrapper.find('[data-test="searchBar"]').setValue("test");
+    await wrapper.find('[data-test="searchButton"]').trigger("click");
+
+    expect(search).toHaveBeenCalled();
+    expect(wrapper.emitted()).toHaveProperty("search-plios");
   });
 });

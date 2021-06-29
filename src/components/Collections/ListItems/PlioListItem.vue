@@ -27,7 +27,7 @@
         <!-- share button -->
         <icon-button
           :titleConfig="shareButtonTitleConfig"
-          :buttonClass="shareButtonClass"
+          :buttonClass="actionButtonClass"
           @click="sharePlio"
           :isDisabled="!isPublished"
           v-tooltip="shareButtonTooltip"
@@ -37,7 +37,7 @@
         <!-- edit button -->
         <icon-button
           :titleConfig="editButtonTitleConfig"
-          :buttonClass="editButtonClass"
+          :buttonClass="actionButtonClass"
           v-tooltip="editButtonTooltip"
           @click="editPlio"
           data-test="editButton"
@@ -46,7 +46,7 @@
         <!-- play button -->
         <icon-button
           :titleConfig="playButtonTitleConfig"
-          :buttonClass="playButtonClass"
+          :buttonClass="actionButtonClass"
           @click="playPlio"
           :isDisabled="!isPublished"
           v-tooltip="playButtonTooltip"
@@ -56,7 +56,7 @@
         <!-- duplicate button -->
         <icon-button
           :titleConfig="duplicateButtonTitleConfig"
-          :buttonClass="duplicateButtonClass"
+          :buttonClass="actionButtonClass"
           @click="duplicateThenRoute"
           v-tooltip="duplicateButtonTooltip"
           data-test="duplicateButton"
@@ -66,7 +66,7 @@
         <icon-button
           v-if="isTouchDevice"
           :titleConfig="analyseButtonTitleConfig"
-          :buttonClass="analyseButtonClass"
+          :buttonClass="actionButtonClass"
           :isDisabled="!isPublished"
           @click="analysePlio"
           v-tooltip="analyseButtonTooltip"
@@ -106,16 +106,8 @@ export default {
     return {
       // button, icon config and styling classes
       plioDetails: {},
-      playButtonClass:
+      actionButtonClass:
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
-      shareButtonClass:
-        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
-      editButtonClass:
-        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
-      duplicateButtonClass:
-        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
-      analyseButtonClass:
-        "bg-red-500 hover:bg-red-600 rounded-md shadow-md h-10 ring-primary",
       urlCopyButtonClass: "text-yellow-600",
     };
   },
@@ -174,7 +166,8 @@ export default {
       // title config for the analyse button
       return {
         value: this.$t("home.table.plio_list_item.buttons.analyse"),
-        class: "p-2 text-sm bp-500:text-base text-white font-medium bp-500:font-semibold",
+        class:
+          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
       };
     },
     playButtonTooltip() {

@@ -23,6 +23,7 @@
           :placeholder="searchPlaceholder"
           v-model="searchString"
           autocomplete="off"
+          data-test="searchBar"
         />
 
         <!-- 'x' icon to clear the search string -->
@@ -31,6 +32,7 @@
           :src="require('@/assets/images/times-light.svg')"
           class="w-10 hover:stroke-2"
           @click="resetSearchString"
+          data-test="resetSearch"
         ></inline-svg>
 
         <!-- search button to perform the search when clicked -->
@@ -38,6 +40,7 @@
           :class="searchButtonClass"
           @click="search"
           :disabled="!this.isSearchStringPresent"
+          data-test="searchButton"
         >
           <span class="w-auto flex justify-end items-center">
             <inline-svg
@@ -256,6 +259,7 @@ export default {
     },
     totalItemsInTable() {
       // total rows present in the table
+      if (this.localData == undefined) return 0;
       return this.localData.length || 0;
     },
     isTableEmpty() {
@@ -344,9 +348,6 @@ export default {
     isComponent(value) {
       // if a particular entry in the table is a component or not
       return value.type == "component";
-    },
-    capitalize(str) {
-      return str.charAt(0).toUpperCase() + str.slice(1);
     },
     sortBy(columnName) {
       // toggle the sort order for "number_of_viewers" column
