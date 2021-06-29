@@ -71,6 +71,7 @@
                     scope="col"
                     class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider w-2/3"
                     :class="getColumnHeaderStyleClass(columnIndex)"
+                    data-test="tableHeader"
                   >
                     <div class="flex">
                       <div

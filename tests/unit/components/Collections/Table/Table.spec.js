@@ -225,4 +225,17 @@ describe("Table.vue", () => {
     expect(tableRowHoverOff).toHaveBeenCalled();
     expect(wrapper.vm.selectedRowIndex).toBe(null);
   });
+
+  it("sorts on arrow click by num viewers", async () => {
+    const sortBy = jest.spyOn(Table.methods, "sortBy");
+    const wrapper = mount(Table, {
+      props: {
+        data: dummyTableData,
+        columns: tableColumns,
+        numTotal: totalNumberOfPlios,
+      },
+    });
+    await wrapper.findAll('[data-test="tableHeader"]')[1].trigger("click");
+    expect(wrapper.emitted()).toHaveProperty("sort-num-viewers");
+  });
 });
