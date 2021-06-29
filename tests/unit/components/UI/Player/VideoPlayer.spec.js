@@ -21,6 +21,10 @@ describe("VideoPlayer.vue", () => {
 
   it("should render with valid video ID", async () => {
     const initiatePlayer = jest.spyOn(VideoPlayer.methods, "initiatePlayer");
+    const removePlyrPoster = jest.spyOn(
+      VideoPlayer.methods,
+      "removePlyrPoster"
+    );
     const setPlayerProperties = jest.spyOn(
       VideoPlayer.methods,
       "setPlayerProperties"
@@ -32,6 +36,7 @@ describe("VideoPlayer.vue", () => {
     });
 
     expect(initiatePlayer).toHaveBeenCalled();
+    expect(removePlyrPoster).toHaveBeenCalled();
     expect(setPlayerProperties).toHaveBeenCalled();
   });
 });
