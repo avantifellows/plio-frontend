@@ -67,4 +67,19 @@ describe("SharePlioDialog.vue", () => {
     expect(wrapper.vm.plioLinkCopied).toBe(true);
     expect(document.execCommand).toHaveBeenCalled();
   });
+
+  it("copy button text changes if plio link copied", () => {
+    const plioLink = "app.plio.in/#/play/ABC";
+    const wrapper = mount(SharePlioDialog, {
+      props: {
+        plioLink: plioLink,
+      },
+      data() {
+        return {
+          plioLinkCopied: true,
+        };
+      },
+    });
+    expect(wrapper.vm.copyLinkTitleClass.value).toBe("Copied!");
+  });
 });
