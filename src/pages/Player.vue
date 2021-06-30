@@ -247,10 +247,9 @@ export default {
     if (this.isThirdPartyAuth) {
       // convert the third party token into Plio's internal token
       // and set the user accordingly
-      UserAPIService.convertThirdPartyToken({
-        auth_type: this.thirdPartyAuthType,
+      UserAPIService.generateExternalAuthToken({
         unique_id: this.thirdPartyUniqueId,
-        access_token: this.thirdPartyAccessToken,
+        api_key: this.thirdPartyApiKey,
       })
         .then(async (response) => {
           await this.setAccessToken(response.data);
@@ -318,15 +317,11 @@ export default {
       default: "",
       type: String,
     },
-    thirdPartyAuthType: {
-      default: null,
-      type: String,
-    },
     thirdPartyUniqueId: {
       default: null,
       type: String,
     },
-    thirdPartyAccessToken: {
+    thirdPartyApiKey: {
       default: null,
       type: String,
     },
@@ -335,11 +330,7 @@ export default {
     ...mapGetters("auth", ["isAuthenticated"]),
     isThirdPartyAuth() {
       // if the app needs to authenticate using a third party auth or not
-      return (
-        this.thirdPartyAuthType != null &&
-        this.thirdPartyUniqueId != null &&
-        this.thirdPartyAccessToken != null
-      );
+      return this.thirdPartyUniqueId != null && this.thirdPartyApiKey != null;
     },
     currentItemType() {
       // type of the current selected item -
