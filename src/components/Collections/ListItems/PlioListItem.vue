@@ -22,12 +22,14 @@
         {{ title }}
       </div>
 
-      <div class="bp-420:hidden flex justify-center bg-primary rounded-md py-2 shadow-md">
+      <div
+        class="bp-420:hidden flex justify-center bg-primary rounded-md py-2 shadow-md"
+        @click="toggleActionButtonVisibility"
+      >
         <inline-svg
           :src="getIconSource('chevron-down-solid.svg')"
           class="w-4 h-4 text-white fill-current"
           :class="toggleIconClass"
-          @click="toggleActionButtonVisibility"
           data-test="toggleButton"
         ></inline-svg>
       </div>
