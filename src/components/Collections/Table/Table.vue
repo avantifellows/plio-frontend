@@ -126,6 +126,7 @@
                       <div v-if="isComponent(entry[columnName])" class="w-full">
                         <PlioListItem
                           :plioId="entry[columnName].value"
+                          :showActionsByDefault="!rowIndex"
                           @fetched="savePlioDetails(rowIndex, $event)"
                         >
                         </PlioListItem>

@@ -115,6 +115,10 @@ export default {
       default: "",
       type: String,
     },
+    showActionsByDefault: {
+      type: Boolean,
+      default: false,
+    },
   },
   components: {
     IconButton,
@@ -298,7 +302,11 @@ export default {
       if (screenWidth >= 420) this.showActionButtons = true;
       // always hide action buttons if screen-width < 420 if their visibility
       // has not been manually set
-      if (screenWidth < 420 && !this.isActionButtonVisibilitySet)
+      if (
+        screenWidth < 420 &&
+        !this.isActionButtonVisibilitySet &&
+        !this.showActionsByDefault
+      )
         this.showActionButtons = false;
     },
     async loadPlio() {
