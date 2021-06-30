@@ -26,6 +26,7 @@
         <inline-svg
           :src="getIconSource('chevron-down-solid.svg')"
           class="w-4 h-4 text-white fill-current"
+          :class="toggleIconClass"
           @click="toggleActionButtonVisibility"
         ></inline-svg>
       </div>
@@ -34,6 +35,7 @@
       <div
         class="flex flex-col bp-420:flex-row space-y-3 bp-420:space-x-3 bp-420:space-y-0"
         v-if="showActionButtons"
+        data-test="actionButtonsContainer"
       >
         <div class="flex space-x-3 justify-center">
           <!-- analyse button -->
@@ -47,26 +49,6 @@
             data-test="analyzeButton"
           ></icon-button>
 
-          <!-- duplicate button -->
-          <icon-button
-            :titleConfig="duplicateButtonTitleConfig"
-            :buttonClass="actionButtonClass"
-            @click="duplicateThenRoute"
-            v-tooltip="duplicateButtonTooltip"
-            data-test="duplicateButton"
-          ></icon-button>
-
-          <!-- edit button -->
-          <icon-button
-            :titleConfig="editButtonTitleConfig"
-            :buttonClass="actionButtonClass"
-            v-tooltip="editButtonTooltip"
-            @click="editPlio"
-            data-test="editButton"
-          ></icon-button>
-        </div>
-
-        <div class="flex space-x-3 justify-center">
           <!-- play button -->
           <icon-button
             :titleConfig="playButtonTitleConfig"
@@ -85,6 +67,26 @@
             :isDisabled="!isPublished"
             v-tooltip="shareButtonTooltip"
             data-test="shareButton"
+          ></icon-button>
+        </div>
+
+        <div class="flex space-x-3 justify-center">
+          <!-- duplicate button -->
+          <icon-button
+            :titleConfig="duplicateButtonTitleConfig"
+            :buttonClass="actionButtonClass"
+            @click="duplicateThenRoute"
+            v-tooltip="duplicateButtonTooltip"
+            data-test="duplicateButton"
+          ></icon-button>
+
+          <!-- edit button -->
+          <icon-button
+            :titleConfig="editButtonTitleConfig"
+            :buttonClass="actionButtonClass"
+            v-tooltip="editButtonTooltip"
+            @click="editPlio"
+            data-test="editButton"
           ></icon-button>
         </div>
       </div>
@@ -149,6 +151,12 @@ export default {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     ...mapState("plioItems", ["allPlioDetails"]),
+    toggleIconClass() {
+      return [
+        { "transform rotate-180": this.showActionButtons },
+        "transition ease duration-800",
+      ];
+    },
     isTouchDevice() {
       // detects if the user's device has a touch screen or not
       return window.matchMedia("(any-pointer: coarse)").matches;

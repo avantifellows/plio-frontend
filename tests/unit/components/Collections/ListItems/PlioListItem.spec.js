@@ -79,7 +79,43 @@ describe("PlioListItem.vue", () => {
     expect(wrapper.vm.isPublished).toBe(true);
   });
 
+  it("action buttons disabled by default", () => {
+    const wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "draft",
+          },
+        };
+      },
+    });
+    expect(wrapper.find('[data-test="actionButtonsContainer"]').exists()).toBe(
+      false
+    );
+  });
+
+  it("action buttons visible if width >= 420", () => {
+    // needed as buttons are not present by default for screen width < 420
+    jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
+    const wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "draft",
+          },
+        };
+      },
+    });
+    expect(wrapper.find('[data-test="actionButtonsContainer"]').exists()).toBe(
+      true
+    );
+  });
+
   it("play disabled for draft plio ", () => {
+    // needed as buttons are not present by default for screen width < 420
+    jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
     const wrapper = mount(PlioListItem, {
       data() {
         return {
@@ -135,6 +171,8 @@ describe("PlioListItem.vue", () => {
   });
 
   it("duplicate enabled for draft plio ", () => {
+    // needed as buttons are not present by default for screen width < 420
+    jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
     const wrapper = mount(PlioListItem, {
       data() {
         return {
@@ -181,6 +219,8 @@ describe("PlioListItem.vue", () => {
   });
 
   it("edit enabled for draft plio ", () => {
+    // needed as buttons are not present by default for screen width < 420
+    jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
     const wrapper = mount(PlioListItem, {
       data() {
         return {
@@ -236,6 +276,8 @@ describe("PlioListItem.vue", () => {
   });
 
   it("share disabled for draft plio ", () => {
+    // needed as buttons are not present by default for screen width < 420
+    jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
     const wrapper = mount(PlioListItem, {
       data() {
         return {
@@ -278,6 +320,9 @@ describe("PlioListItem.vue", () => {
   });
 
   it("analyze button should show up for touch device ", async () => {
+    // needed as buttons are not present by default for screen width < 420
+    jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
+
     // set `matches` as `True` for testing on touch screen devices
     setMatchMedia(true);
 
@@ -286,6 +331,9 @@ describe("PlioListItem.vue", () => {
   });
 
   it("analyze disabled for draft plio ", () => {
+    // needed as buttons are not present by default for screen width < 420
+    jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
+
     // set `matches` as `True` for testing on touch screen devices
     setMatchMedia(true);
 
