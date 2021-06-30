@@ -95,6 +95,25 @@ describe("PlioListItem.vue", () => {
     );
   });
 
+  it("action buttons visible through props", () => {
+    const wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "draft",
+          },
+        };
+      },
+      props: {
+        showActionsByDefault: true,
+      },
+    });
+    expect(wrapper.find('[data-test="actionButtonsContainer"]').exists()).toBe(
+      true
+    );
+  });
+
   it("action buttons visible if width >= 420", () => {
     // needed as buttons are not present by default for screen width < 420
     jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
