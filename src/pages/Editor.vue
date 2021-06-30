@@ -254,6 +254,7 @@
     <div
       class="fixed top-1/3 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10 mx-2 sm:mx-0"
       v-if="showPublishedPlioDialog"
+      v-click-away="closePublishedPlioDialog"
     >
       <div class="w-full flex justify-end p-2">
         <!-- close button -->
@@ -481,8 +482,6 @@ export default {
     items: {
       handler() {
         this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
-        console.log(this.loadedPlioDetails.items);
-        console.log(this.items);
         if (isEqual(this.loadedPlioDetails.items, this.items)) return;
         this.checkAndSavePlio();
       },
