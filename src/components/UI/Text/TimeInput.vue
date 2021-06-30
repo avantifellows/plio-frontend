@@ -17,6 +17,7 @@
         :boxStyling="[defaultBoxClass, hourInputInvalidClass]"
         :isDisabled="isDisabled"
         v-tooltip.bottom="disabledInputTooltip"
+        data-test="hour"
       ></input-text>
 
       <p class="self-center" v-if="localConfig.showHour && localConfig.showMinute">:</p>
@@ -31,6 +32,7 @@
         :boxStyling="[defaultBoxClass, minuteInputInvalidClass]"
         :isDisabled="isDisabled"
         v-tooltip.bottom="disabledInputTooltip"
+        data-test="minute"
       ></input-text>
 
       <p class="self-center" v-if="localConfig.showMinute && localConfig.showSecond">:</p>
@@ -45,6 +47,7 @@
         :boxStyling="[defaultBoxClass, secondInputInvalidClass]"
         :isDisabled="isDisabled"
         v-tooltip.bottom="disabledInputTooltip"
+        data-test="second"
       ></input-text>
 
       <p class="self-center" v-if="localConfig.showSecond && localConfig.showMillisecond">
@@ -61,6 +64,7 @@
         :boxStyling="[defaultBoxClass, millisecondInputInvalidClass]"
         :isDisabled="isDisabled"
         v-tooltip.bottom="disabledInputTooltip"
+        data-test="millisecond"
       ></input-text>
     </div>
 
@@ -136,7 +140,7 @@ export default {
     timeObject: {
       // the object containing keys with values
       // 'hour', 'minute', 'second', 'millisecond'
-      default: function () {
+      default: () => {
         return {
           hour: 0,
           minute: 0,
