@@ -247,7 +247,7 @@ export default {
     if (this.isThirdPartyAuth) {
       // convert the third party token into Plio's internal token
       // and set the user accordingly
-      UserAPIService.convertApiKeyToToken({
+      UserAPIService.generateExternalAuthToken({
         unique_id: this.thirdPartyUniqueId,
         api_key: this.thirdPartyApiKey,
       })
