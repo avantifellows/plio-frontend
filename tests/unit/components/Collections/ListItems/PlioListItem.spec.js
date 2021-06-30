@@ -392,4 +392,19 @@ describe("PlioListItem.vue", () => {
       },
     });
   });
+
+  it("clicking toggle button toggles visibility of action buttons", () => {
+    const wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "draft",
+          },
+        };
+      },
+    });
+    wrapper.find('[data-test="toggleButton"]').trigger("click");
+    expect(wrapper.vm.showActionButtons).toBe(true);
+  });
 });

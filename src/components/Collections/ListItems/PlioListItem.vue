@@ -28,6 +28,7 @@
           class="w-4 h-4 text-white fill-current"
           :class="toggleIconClass"
           @click="toggleActionButtonVisibility"
+          data-test="toggleButton"
         ></inline-svg>
       </div>
 
