@@ -320,7 +320,8 @@ import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ConfettiCelebration from "@/components/UI/Animations/ConfettiCelebration.vue";
 
 // used for deep cloning objects
-// var cloneDeep = require("lodash.clonedeep");
+var cloneDeep = require("lodash.clonedeep");
+var isEqual = require("lodash.isequal");
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
@@ -480,7 +481,9 @@ export default {
     items: {
       handler() {
         this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
-        if (this.loadedPlioDetails.items == this.items) return;
+        console.log(this.loadedPlioDetails.items);
+        console.log(this.items);
+        if (isEqual(this.loadedPlioDetails.items, this.items)) return;
         this.checkAndSavePlio();
       },
       deep: true,
@@ -1041,7 +1044,7 @@ export default {
       // fetch plio details
       await PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
-          this.loadedPlioDetails = plioDetails;
+          this.loadedPlioDetails = cloneDeep(plioDetails);
           this.items = plioDetails.items || [];
           this.videoURL = plioDetails.videoURL || "";
           this.plioTitle = plioDetails.plioTitle || "";
