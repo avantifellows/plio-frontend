@@ -22,56 +22,71 @@
         {{ title }}
       </div>
 
+      <div class="bp-420:hidden flex justify-center bg-primary rounded-md py-2 shadow-md">
+        <inline-svg
+          :src="getIconSource('chevron-down-solid.svg')"
+          class="w-4 h-4 text-white fill-current"
+          @click="toggleActionButtonVisibility"
+        ></inline-svg>
+      </div>
+
       <!-- action buttons -->
-      <div class="flex flex-row justify-start space-x-3">
-        <!-- share button -->
-        <icon-button
-          :titleConfig="shareButtonTitleConfig"
-          :buttonClass="actionButtonClass"
-          @click="sharePlio"
-          :isDisabled="!isPublished"
-          v-tooltip="shareButtonTooltip"
-          data-test="shareButton"
-        ></icon-button>
+      <div
+        class="flex flex-col bp-420:flex-row space-y-3 bp-420:space-x-3 bp-420:space-y-0"
+        v-if="showActionButtons"
+      >
+        <div class="flex space-x-3 justify-center">
+          <!-- analyse button -->
+          <icon-button
+            v-if="isTouchDevice"
+            :titleConfig="analyseButtonTitleConfig"
+            :buttonClass="actionButtonClass"
+            :isDisabled="!isPublished"
+            @click="analysePlio"
+            v-tooltip="analyseButtonTooltip"
+            data-test="analyzeButton"
+          ></icon-button>
 
-        <!-- edit button -->
-        <icon-button
-          :titleConfig="editButtonTitleConfig"
-          :buttonClass="actionButtonClass"
-          v-tooltip="editButtonTooltip"
-          @click="editPlio"
-          data-test="editButton"
-        ></icon-button>
+          <!-- duplicate button -->
+          <icon-button
+            :titleConfig="duplicateButtonTitleConfig"
+            :buttonClass="actionButtonClass"
+            @click="duplicateThenRoute"
+            v-tooltip="duplicateButtonTooltip"
+            data-test="duplicateButton"
+          ></icon-button>
 
-        <!-- play button -->
-        <icon-button
-          :titleConfig="playButtonTitleConfig"
-          :buttonClass="actionButtonClass"
-          @click="playPlio"
-          :isDisabled="!isPublished"
-          v-tooltip="playButtonTooltip"
-          data-test="playButton"
-        ></icon-button>
+          <!-- edit button -->
+          <icon-button
+            :titleConfig="editButtonTitleConfig"
+            :buttonClass="actionButtonClass"
+            v-tooltip="editButtonTooltip"
+            @click="editPlio"
+            data-test="editButton"
+          ></icon-button>
+        </div>
 
-        <!-- duplicate button -->
-        <icon-button
-          :titleConfig="duplicateButtonTitleConfig"
-          :buttonClass="actionButtonClass"
-          @click="duplicateThenRoute"
-          v-tooltip="duplicateButtonTooltip"
-          data-test="duplicateButton"
-        ></icon-button>
+        <div class="flex space-x-3 justify-center">
+          <!-- play button -->
+          <icon-button
+            :titleConfig="playButtonTitleConfig"
+            :buttonClass="actionButtonClass"
+            @click="playPlio"
+            :isDisabled="!isPublished"
+            v-tooltip="playButtonTooltip"
+            data-test="playButton"
+          ></icon-button>
 
-        <!-- analyse button -->
-        <icon-button
-          v-if="isTouchDevice"
-          :titleConfig="analyseButtonTitleConfig"
-          :buttonClass="actionButtonClass"
-          :isDisabled="!isPublished"
-          @click="analysePlio"
-          v-tooltip="analyseButtonTooltip"
-          data-test="analyzeButton"
-        ></icon-button>
+          <!-- share button -->
+          <icon-button
+            :titleConfig="shareButtonTitleConfig"
+            :buttonClass="actionButtonClass"
+            @click="sharePlio"
+            :isDisabled="!isPublished"
+            v-tooltip="shareButtonTooltip"
+            data-test="shareButton"
+          ></icon-button>
+        </div>
       </div>
     </div>
   </div>
@@ -109,12 +124,25 @@ export default {
       actionButtonClass:
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       urlCopyButtonClass: "text-yellow-600",
+      showActionButtons: true, // whether to show the action buttons
+      // whether the visibility of the action buttons has been manually set
+      isActionButtonVisibilitySet: false,
     };
   },
 
   async created() {
     // load the plio only if the plio id is not empty
     if (this.isPlioIdValid) await this.loadPlio();
+
+    // determine the screen orientation when the list item is created
+    this.checkScreenOrientation();
+    // add listener for screen size being changed
+    window.addEventListener("resize", this.checkScreenOrientation);
+  },
+
+  unmounted() {
+    // remove listeners
+    window.removeEventListener("resize", this.checkScreenOrientation);
   },
 
   computed: {
@@ -232,7 +260,7 @@ export default {
     },
     plioLink() {
       // prepare the link for the plio from the plio ID
-      return Utilities.getPlioLink(this.plioId, this.activeWorkspace);
+      return this.getPlioLink(this.plioId, this.activeWorkspace);
     },
     isUntitled() {
       // if the plio is untitled or not
@@ -247,6 +275,21 @@ export default {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     ...mapActions("plioItems", ["fetchPlio"]),
     ...mapActions("generic", ["showSharePlioDialog"]),
+    ...Utilities,
+    toggleActionButtonVisibility() {
+      // toggles the visibility of the action buttons
+      this.showActionButtons = !this.showActionButtons;
+      this.isActionButtonVisibilitySet = true;
+    },
+    checkScreenOrientation() {
+      var screenWidth = screen.availWidth;
+      // always show action buttons if screen-width >= 420
+      if (screenWidth >= 420) this.showActionButtons = true;
+      // always hide action buttons if screen-width < 420 if their visibility
+      // has not been manually set
+      if (screenWidth < 420 && !this.isActionButtonVisibilitySet)
+        this.showActionButtons = false;
+    },
     async loadPlio() {
       this.startLoading();
       // fetch the details of the plio if they don't exist in the store
