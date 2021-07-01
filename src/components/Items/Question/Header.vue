@@ -6,12 +6,14 @@
       @click="skipClicked"
       :class="{ hidden: isAnswerSubmitted || previewMode }"
       :buttonClass="skipButtonClass"
+      data-test="skip"
     ></icon-button>
     <!-- minimize button -->
     <icon-button
       :titleConfig="minimizeButtonTitleConfig"
       :buttonClass="minimizeButtonClass"
       @click="minimizeModal"
+      data-test="minimize"
       id="minimize"
     ></icon-button>
   </div>
@@ -19,6 +21,8 @@
 
 <script>
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
+// import { calculateButtonPosition } from "@/components/Items/Question/HeaderUtils";
+
 export default {
   data() {
     return {
@@ -54,7 +58,7 @@ export default {
       // styling class for the title of minimize button
       return {
         value: this.isModalMinimized
-          ? this.$t("editor.buttons.show_item")
+          ? this.$t("editor.buttons.show_question")
           : this.$t("editor.buttons.show_video"),
         class: this.previewMode
           ? "text-white text-xs lg:text-sm"
@@ -103,9 +107,9 @@ export default {
     minimizeModal() {
       // on the click of the minimize button, emit the event with a
       // payload containing the position data of the minimize button
-      this.$emit("toggle-minimize", this.calculateButtonPosition());
+      this.$emit("toggle-minimize", this.calculateButtonPosition(this.isFullscreen));
     },
-    calculateButtonPosition() {
+    calculateButtonPosition(isFullscreen = false) {
       // calculate the following position values (in px)
       // centerX, centerY - (X,Y) co-ordinates of the center of minimize button
       // leftX, leftY - (X,Y) co-ordinates of the left most end of minimize button
@@ -116,30 +120,42 @@ export default {
         .getElementById("videoPlayer")
         .getBoundingClientRect();
 
+      return this.getLeftCenterCoordinates(
+        minimizeBtnPositions,
+        plyrInstancePositions,
+        isFullscreen
+      );
+    },
+    getLeftCenterCoordinates(
+      minimizeBtnPositions = {},
+      plyrInstancePositions = {},
+      isFullscreen = false
+    ) {
+      // get left and center coordinates
       var widthMinimizeBtn = minimizeBtnPositions.right - minimizeBtnPositions.left;
       var heightMinimizeBtn = minimizeBtnPositions.bottom - minimizeBtnPositions.top;
-      var centerOfMinimizeBtn_X =
-        (this.isFullscreen
+      var centerOfMinimizeBtnX =
+        (isFullscreen
           ? minimizeBtnPositions.left
           : minimizeBtnPositions.left - plyrInstancePositions.left) +
         widthMinimizeBtn / 2;
-      var centerOfMinimizeBtn_Y =
-        (this.isFullscreen
+      var centerOfMinimizeBtnY =
+        (isFullscreen
           ? minimizeBtnPositions.top
           : minimizeBtnPositions.top - plyrInstancePositions.top) +
         heightMinimizeBtn / 2;
-      var leftOfMinimizeBtn_X = this.isFullscreen
+      var leftOfMinimizeBtnX = isFullscreen
         ? minimizeBtnPositions.left
         : minimizeBtnPositions.left - plyrInstancePositions.left;
-      var leftOfMinimizeBtn_Y = this.isFullscreen
+      var leftOfMinimizeBtnY = isFullscreen
         ? minimizeBtnPositions.top
         : minimizeBtnPositions.top - plyrInstancePositions.top;
 
       return {
-        centerX: centerOfMinimizeBtn_X,
-        centerY: centerOfMinimizeBtn_Y,
-        leftX: leftOfMinimizeBtn_X,
-        leftY: leftOfMinimizeBtn_Y,
+        centerX: centerOfMinimizeBtnX,
+        centerY: centerOfMinimizeBtnY,
+        leftX: leftOfMinimizeBtnX,
+        leftY: leftOfMinimizeBtnY,
       };
     },
   },

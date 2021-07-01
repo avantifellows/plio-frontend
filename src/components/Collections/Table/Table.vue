@@ -5,7 +5,7 @@
       <!-- table title -->
       <div :class="tableTitleClass">
         <p class="whitespace-nowrap">{{ tableTitle }}</p>
-        <p v-if="!pending">({{ totalNumberOfPlios }})</p>
+        <p v-if="!pending">({{ numTotal }})</p>
         <inline-svg
           v-if="pending"
           :src="require('@/assets/images/spinner-solid.svg')"
@@ -23,6 +23,7 @@
           :placeholder="searchPlaceholder"
           v-model="searchString"
           autocomplete="off"
+          data-test="searchBar"
         />
 
         <!-- 'x' icon to clear the search string -->
@@ -31,6 +32,7 @@
           :src="require('@/assets/images/times-light.svg')"
           class="w-10 hover:stroke-2"
           @click="resetSearchString"
+          data-test="resetSearch"
         ></inline-svg>
 
         <!-- search button to perform the search when clicked -->
@@ -38,6 +40,7 @@
           :class="searchButtonClass"
           @click="search"
           :disabled="!this.isSearchStringPresent"
+          data-test="searchButton"
         >
           <span class="w-auto flex justify-end items-center">
             <inline-svg
@@ -68,6 +71,7 @@
                     scope="col"
                     class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider w-2/3"
                     :class="getColumnHeaderStyleClass(columnIndex)"
+                    data-test="tableHeader"
                   >
                     <div class="flex">
                       <div
@@ -94,6 +98,7 @@
                   :class="tableRowClass"
                   @mouseover="tableRowHoverOn(rowIndex)"
                   @mouseout="tableRowHoverOff"
+                  data-test="row"
                 >
                   <td
                     v-for="(columnName, columnIndex) in columns"
@@ -112,6 +117,8 @@
                         :isDisabled="!isPublished(rowIndex)"
                         @click="analysePlio(rowIndex)"
                         v-tooltip="analyseButtonTooltip(rowIndex)"
+                        v-if="!isTouchDevice"
+                        data-test="analyzeButton"
                       ></icon-button>
                     </div>
                     <!-- column content -->
@@ -119,6 +126,7 @@
                       <div v-if="isComponent(entry[columnName])" class="w-full">
                         <PlioListItem
                           :plioId="entry[columnName].value"
+                          :showActionsByDefault="!rowIndex"
                           @fetched="savePlioDetails(rowIndex, $event)"
                         >
                         </PlioListItem>
@@ -178,7 +186,7 @@ export default {
       default: "",
       type: String,
     },
-    totalNumberOfPlios: {
+    numTotal: {
       // total number of plios for the user
       default: 0,
       type: Number,
@@ -254,6 +262,7 @@ export default {
     },
     totalItemsInTable() {
       // total rows present in the table
+      if (this.localData == undefined) return 0;
       return this.localData.length || 0;
     },
     isTableEmpty() {
@@ -276,14 +285,6 @@ export default {
       // starts loading and resets the search string
       this.startLoading();
       this.searchString = "";
-    },
-    tableRowTouchOn(rowIndex) {
-      // invoked when a touch event is triggered for a row in the table
-      // redirects to the dashboard page for the selected plio
-      if (this.isPublished(rowIndex) && !this.pending) {
-        // only redirect to the dashboard if the plio is published
-        this.analysePlio(rowIndex);
-      }
     },
     analysePlio(rowIndex) {
       // redirects to the dashboard page for the selected plio
@@ -342,9 +343,6 @@ export default {
     isComponent(value) {
       // if a particular entry in the table is a component or not
       return value.type == "component";
-    },
-    capitalize(str) {
-      return str.charAt(0).toUpperCase() + str.slice(1);
     },
     sortBy(columnName) {
       // toggle the sort order for "number_of_viewers" column

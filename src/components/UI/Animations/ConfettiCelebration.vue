@@ -1,6 +1,11 @@
 <template>
   <div class="confetti">
-    <div class="confetti-piece" v-for="index in 13" :key="index"></div>
+    <div
+      class="confetti-piece"
+      v-for="index in 13"
+      :key="index"
+      data-test="confetti"
+    ></div>
   </div>
 </template>
 

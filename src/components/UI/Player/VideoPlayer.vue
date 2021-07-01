@@ -79,9 +79,12 @@ export default {
       player.on("exitfullscreen", this.emitExitFullscreen);
       player.on("seeked", this.emitSeeked);
 
+      this.removePlyrPoster();
+    },
+    removePlyrPoster() {
       // allow user to interact with the youtube iframe elements
-      var plyr_poster = document.getElementById("plyr__poster");
-      if (plyr_poster != null) plyr_poster.remove();
+      var plyrPoster = document.getElementById("plyr__poster");
+      if (plyrPoster != null && plyrPoster.remove === "function") plyrPoster.remove();
     },
     emitTimeUpdate() {
       // emit an event saying that the player time has been updated

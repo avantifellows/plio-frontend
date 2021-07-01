@@ -19,6 +19,7 @@
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "lodash.clonedeep": "^4.5.0",
+    "lodash.isequal": "^4.5.0",
     "mixpanel-browser": "^2.41.0",
     "plyr": "^3.6.3",
     "primeicons": "^4.1.0",
@@ -76,7 +77,8 @@
         "files": [
           "**/__tests__/*.{j,t}s?(x)",
           "**/tests/unit/**/*.spec.{j,t}s?(x)",
-          "jest.init.js"
+          "jest.init.js",
+          "src/services/Testing/Utilities.js"
         ],
         "env": {
           "jest": true

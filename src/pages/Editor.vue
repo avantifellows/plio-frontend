@@ -254,6 +254,7 @@
     <div
       class="fixed top-1/3 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10 mx-2 sm:mx-0"
       v-if="showPublishedPlioDialog"
+      v-click-away="closePublishedPlioDialog"
     >
       <div class="w-full flex justify-end p-2">
         <!-- close button -->
@@ -320,7 +321,8 @@ import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ConfettiCelebration from "@/components/UI/Animations/ConfettiCelebration.vue";
 
 // used for deep cloning objects
-// var cloneDeep = require("lodash.clonedeep");
+var cloneDeep = require("lodash.clonedeep");
+var isEqual = require("lodash.isequal");
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
@@ -480,8 +482,7 @@ export default {
     items: {
       handler() {
         this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
-        if (this.loadedPlioDetails.items == this.items) return;
-        console.log("1");
+        if (isEqual(this.loadedPlioDetails.items, this.items)) return;
         this.checkAndSavePlio();
       },
       deep: true,
@@ -512,13 +513,11 @@ export default {
       this.videoId = linkValidation["ID"];
 
       if (this.loadedPlioDetails.videoURL == newVideoURL) return;
-      console.log("2");
       this.checkAndSavePlio();
     },
     plioTitle(newTitle) {
       // invoked when the plio title is update
       if (this.loadedPlioDetails.plioTitle == newTitle) return;
-      console.log("3");
       this.checkAndSavePlio();
     },
   },
@@ -1044,7 +1043,7 @@ export default {
       // fetch plio details
       await PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
-          this.loadedPlioDetails = plioDetails;
+          this.loadedPlioDetails = cloneDeep(plioDetails);
           this.items = plioDetails.items || [];
           this.videoURL = plioDetails.videoURL || "";
           this.plioTitle = plioDetails.plioTitle || "";

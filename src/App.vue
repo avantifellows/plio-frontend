@@ -106,6 +106,7 @@
     <div class="fixed w-full flex justify-center">
       <SharePlioDialog
         v-if="isSharePlioDialogShown"
+        v-click-away="unsetSharePlioDialog"
         :plioLink="plioLinkToShare"
       ></SharePlioDialog>
     </div>
