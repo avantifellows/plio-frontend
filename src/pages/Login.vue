@@ -302,8 +302,6 @@ export default {
     this.$mixpanel.track("View Login", {
       "Login Destination": this.routeParams["params"] || {},
     });
-    // trigger error - to be removed
-    throw "Deliberate error";
   },
   methods: {
     ...mapActions("auth", ["setAccessToken"]),
