@@ -7,15 +7,6 @@ describe("Header.vue", () => {
     expect(wrapper).toBeTruthy();
   });
 
-  it("should render when modal minimized", () => {
-    const wrapper = mount(Header, {
-      props: {
-        isModalMinimized: true,
-      },
-    });
-    expect(wrapper).toBeTruthy();
-  });
-
   it("should render when in preview mode", () => {
     const wrapper = mount(Header, {
       props: {

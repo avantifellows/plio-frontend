@@ -57,9 +57,7 @@ export default {
     minimizeButtonTitleConfig() {
       // styling class for the title of minimize button
       return {
-        value: this.isModalMinimized
-          ? this.$t("editor.buttons.show_question")
-          : this.$t("editor.buttons.show_video"),
+        value: this.$t("editor.buttons.show_video"),
         class: this.previewMode
           ? "text-white text-xs lg:text-sm"
           : "text-white text-md sm:text-base lg:text-xl font-bold",
@@ -76,11 +74,6 @@ export default {
   props: {
     isAnswerSubmitted: {
       // whether the answer has been submitted
-      default: false,
-      type: Boolean,
-    },
-    isModalMinimized: {
-      // whether the item modal is minimized or not
       default: false,
       type: Boolean,
     },
