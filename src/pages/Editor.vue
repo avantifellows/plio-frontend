@@ -850,6 +850,7 @@ export default {
     },
     showSharePlioLinkDialog() {
       // show the share plio dialog
+      this.player.pause();
       this.showSharePlioDialog(this.plioLink);
     },
     redirectToPlayer() {
