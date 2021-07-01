@@ -31,10 +31,13 @@ export default {
       home: "Home",
       publish: {
         draft: "Publish Plio",
-        published: "Publish Changes",
+        published: "Publish",
       },
       show_video: "Show Video",
       show_question: "Show Question",
+      share_plio: "Share",
+      play_plio: "Play",
+      analyze_plio: "Analyze",
     },
     updated: "Updated at",
     item_editor: {
@@ -107,6 +110,23 @@ export default {
           title: "Publishing the plio...",
         },
       },
+      published: {
+        buttons: {
+          play_plio: "Play",
+          share_plio: "Share",
+          home: "Home",
+        },
+        title: "Hooray! Your Plio is ready 🥳",
+      },
+      share_plio: {
+        title: "Share this Plio",
+        buttons: {
+          copy_link: {
+            not_copied: "Copy Link",
+            copied: "Copied!",
+          },
+        },
+      },
       image_uploader: {
         title_non_touch: "Drag and drop or click here to upload",
         title_touch: "Click to take a picture or add from gallery",
@@ -144,6 +164,7 @@ export default {
           edit: "Edit",
           duplicate: "Duplicate",
           analyse: "Analyse",
+          share: "Share",
         },
       },
       search: {
@@ -241,6 +262,11 @@ export default {
     mcq: "Multiple Choice",
     subjective: "Subjective",
     submitted: "Submitted",
+    dialogs: {
+      share: {
+        message: "Check out my new plio",
+      },
+    },
   },
   tooltip: {
     url: "Copy link",
@@ -266,7 +292,8 @@ export default {
       },
       add_item: {
         published: "You cannot add new questions in a published plio",
-        draft: "Click here to add a question",
+        mcq: "Click here to add a multiple-choice question",
+        subjective: "Click here to add a subjective question",
       },
       item_editor: {
         buttons: {
@@ -299,6 +326,10 @@ export default {
       table: {
         plio_list_item: {
           buttons: {
+            share: {
+              published: "Share this plio",
+              draft: "Cannot share a draft plio",
+            },
             play: {
               published: "Play this plio",
               draft: "Cannot play a draft plio",

@@ -37,11 +37,11 @@ describe("SliderWithMarkers.vue", () => {
     const wrapper = mount(SliderWithMarkers);
     const value = 10;
 
-    const slider = wrapper.find('[data-test="mainSlider"]');
-    await slider.setValue(value);
+    await wrapper.find('[data-test="mainSlider"]').setValue(value);
 
     expect(wrapper.emitted()).toHaveProperty("update");
-    expect(slider.element.value).toBe(String(value));
+    expect(wrapper.emitted()).toHaveProperty("update:value");
+    expect(wrapper.emitted("update:value")[0][0]).toBe(value);
   });
 
   it("sets markers correctly", () => {
@@ -105,7 +105,6 @@ describe("SliderWithMarkers.vue", () => {
     expect(wrapper.vm.activeMarkerIndex).toBe(null);
 
     // touch event
-    marker = wrapper.find('[data-test="marker-0"]');
     await marker.trigger("touchstart");
 
     expect(wrapper.vm.activeMarkerIndex).toBe(0);

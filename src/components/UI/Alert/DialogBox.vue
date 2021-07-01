@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="border border-2 shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-800 w-64 m-auto"
-  >
+  <div class="border shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-800 w-64 m-auto">
     <div class="w-full h-full text-center">
       <div class="flex h-full flex-col justify-between">
         <!-- icon -->

@@ -29,7 +29,7 @@
         :data="tableData"
         :columns="tableColumns"
         :tableTitle="tableTitle"
-        :totalNumberOfPlios="totalNumberOfPlios"
+        :numTotal="totalNumberOfPlios"
         :org="org"
         @search-plios="fetchPlioIds($event)"
         @reset-search-string="resetSearchString"
