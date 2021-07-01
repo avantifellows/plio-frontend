@@ -471,9 +471,9 @@ export default {
       // fetch plio details
       PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
         if (plioDetails.status != "published") this.$router.replace({ name: "404" });
-        this.videoID = this.getVideoIDfromURL(plioDetails.video_url);
+        this.videoID = this.getVideoIDfromURL(plioDetails.videoURL);
         this.plioTitle = plioDetails.plioTitle;
-        this.lastUpdated = new Date(plioDetails.updated_at);
+        this.lastUpdated = new Date(plioDetails.updatedAt);
       });
     },
     async loadAnalytics() {

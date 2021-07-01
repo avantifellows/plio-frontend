@@ -71,3 +71,8 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: jest.fn(),
   })),
 });
+
+// mock getBoundingClientRect
+global.document.getElementById = jest.fn(() => ({
+  getBoundingClientRect: jest.fn(),
+}));

@@ -6,6 +6,7 @@
       data-plyr-provider="youtube"
       :data-plyr-embed-id="videoId"
       class="w-full"
+      data-test="player"
     ></div>
   </div>
 </template>
@@ -44,7 +45,7 @@ export default {
   watch: {
     currentTime(newTime) {
       // update player time if currentTime is changed
-      this.player.currentTime = newTime;
+      if (this.player != undefined) this.player.currentTime = newTime;
     },
     videoId() {
       if (this.player == undefined) {
@@ -78,9 +79,12 @@ export default {
       player.on("exitfullscreen", this.emitExitFullscreen);
       player.on("seeked", this.emitSeeked);
 
+      this.removePlyrPoster();
+    },
+    removePlyrPoster() {
       // allow user to interact with the youtube iframe elements
-      var plyr_poster = document.getElementById("plyr__poster");
-      if (plyr_poster != null) plyr_poster.remove();
+      var plyrPoster = document.getElementById("plyr__poster");
+      if (plyrPoster != null && plyrPoster.remove === "function") plyrPoster.remove();
     },
     emitTimeUpdate() {
       // emit an event saying that the player time has been updated

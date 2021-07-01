@@ -22,6 +22,7 @@
 
 <script>
 import { useToast } from "vue-toastification";
+import Utilities from "@/services/Functional/Utilities.js";
 
 export default {
   data() {
@@ -60,12 +61,8 @@ export default {
   methods: {
     copyToClipboard() {
       // copies the link to the clipboard
-      var hiddenElement = document.createElement("textarea");
-      document.body.appendChild(hiddenElement);
-      hiddenElement.value = this.link;
-      hiddenElement.select();
-      var success = document.execCommand("copy");
-      document.body.removeChild(hiddenElement);
+      var success = Utilities.copyToClipboard(this.link);
+
       if (success) this.toast.success(this.$t("success.copying"));
       else this.toast.error(this.$t("error.copying"));
 

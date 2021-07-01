@@ -11,6 +11,8 @@ module.exports = {
     "!src/main.js",
     "!src/**/dist/*.js",
     "!src/components/Vue2PortedPackages/**/*.{js,vue}",
+    "!src/services/Testing/**/*.{js,vue}",
   ],
   setupFiles: ["<rootDir>/jest.init.js"],
+  restoreMocks: true,
 };

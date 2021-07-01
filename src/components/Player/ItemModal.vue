@@ -11,6 +11,7 @@
         :isPortrait="isPortrait"
         @toggle-minimize="toggleMinimize"
         @skip-question="skipQuestion"
+        data-test="header"
       ></item-question-header>
       <!-- main question body -->
       <item-question-body
@@ -29,6 +30,7 @@
         :imageData="imageData"
         :isPortrait="isPortrait"
         :isFullscreen="isFullscreen"
+        data-test="body"
       ></item-question-body>
       <!-- footer -->
       <item-question-footer
@@ -44,6 +46,7 @@
         @proceed-question="proceedQuestion"
         @revise-question="emitRevise"
         @submit-question="submitQuestion"
+        data-test="footer"
       ></item-question-footer>
     </div>
   </div>

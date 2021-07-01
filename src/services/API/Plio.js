@@ -41,10 +41,10 @@ export default {
         // convert str to int
         item.details.correct_answer = parseInt(item.details.correct_answer);
       });
-      plioDetails.video_url = plio.data.video.url;
+      plioDetails.videoURL = plio.data.video.url;
       plioDetails.plioTitle = plio.data.name;
       plioDetails.status = plio.data.status;
-      plioDetails.updated_at = plio.data.updated_at;
+      plioDetails.updatedAt = plio.data.updated_at;
       plioDetails.plioDBId = plio.data.id;
       plioDetails.videoDBId = plio.data.video.id || null;
       return plioDetails;
