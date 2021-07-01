@@ -21,7 +21,6 @@
 
 <script>
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
-// import { calculateButtonPosition } from "@/components/Items/Question/HeaderUtils";
 
 export default {
   data() {

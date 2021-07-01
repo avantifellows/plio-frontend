@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="fixed top-1/3 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg"
-  >
+  <div class="bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg">
     <div class="w-full flex justify-end p-2">
       <!-- close button -->
       <icon-button

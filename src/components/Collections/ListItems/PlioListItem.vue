@@ -116,6 +116,8 @@ export default {
       type: String,
     },
     showActionsByDefault: {
+      // whether to show the action buttons by default
+      // on smaller screen sizes
       type: Boolean,
       default: false,
     },
@@ -135,7 +137,7 @@ export default {
       urlCopyButtonClass: "text-yellow-600",
       showActionButtons: true, // whether to show the action buttons
       // whether the visibility of the action buttons has been manually set
-      isActionButtonVisibilitySet: false,
+      hasUserSetActionVisibility: false,
     };
   },
 
@@ -294,7 +296,7 @@ export default {
     toggleActionButtonVisibility() {
       // toggles the visibility of the action buttons
       this.showActionButtons = !this.showActionButtons;
-      this.isActionButtonVisibilitySet = true;
+      this.hasUserSetActionVisibility = true;
     },
     checkScreenOrientation() {
       var screenWidth = screen.availWidth;
@@ -304,7 +306,7 @@ export default {
       // has not been manually set
       if (
         screenWidth < 420 &&
-        !this.isActionButtonVisibilitySet &&
+        !this.hasUserSetActionVisibility &&
         !this.showActionsByDefault
       )
         this.showActionButtons = false;

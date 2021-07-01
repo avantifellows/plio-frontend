@@ -46,7 +46,7 @@ describe("Table.vue", () => {
     expect(wrapper.findAll('[data-test="analyzeButton"]').length).toBe(4);
   });
 
-  it("does not render analyze on phone ", async () => {
+  it("does not render analyze button on hover on phone ", async () => {
     // set `matches` as `True` for testing on touch screen devices
     setMatchMedia(true);
 
@@ -88,9 +88,14 @@ describe("Table.vue", () => {
     });
     // the button is rendered for each columns but is hidden on all columns
     // except the last column
+    // num rows (2) x num columns (2)
+
+    // disabled for draft plio
     expect(
       wrapper.findAll('[data-test="analyzeButton"]')[1].element.disabled
     ).toBe(true);
+
+    // not disabled for published plio
     expect(
       wrapper.findAll('[data-test="analyzeButton"]')[3].element.disabled
     ).toBe(false);

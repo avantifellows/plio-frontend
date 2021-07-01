@@ -103,7 +103,7 @@
       </div>
     </div>
     <!-- dialog for sharing plio -->
-    <div class="fixed w-full flex justify-center">
+    <div class="fixed top-1/3 w-full flex justify-center">
       <SharePlioDialog
         v-if="isSharePlioDialogShown"
         v-click-away="unsetSharePlioDialog"
@@ -162,7 +162,7 @@ export default {
   },
   watch: {
     currentRoute() {
-      // unset the share plio variable if it was set as true when the app is being loaded
+      // unset `isSharePlioDialogShown` if the share plio dialog is visible when the app is being loaded
       if (this.isSharePlioDialogShown) this.unsetSharePlioDialog();
     },
     isAuthenticated(value) {

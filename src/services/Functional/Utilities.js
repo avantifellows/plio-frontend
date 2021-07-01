@@ -20,7 +20,7 @@ export default {
   },
 
   copyToClipboard(value) {
-    // copies the link to the clipboard
+    // copies the value to the clipboard
     var hiddenElement = document.createElement("textarea");
     document.body.appendChild(hiddenElement);
     hiddenElement.value = value;
