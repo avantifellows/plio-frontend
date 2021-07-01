@@ -322,7 +322,7 @@ import ConfettiCelebration from "@/components/UI/Animations/ConfettiCelebration.
 
 // used for deep cloning objects
 var cloneDeep = require("lodash.clonedeep");
-var isEqual = require("lodash.isequal");
+var isEqual = require("deep-eql");
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
