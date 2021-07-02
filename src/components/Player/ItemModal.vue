@@ -266,7 +266,7 @@ export default {
         this.isPortrait = false;
         return;
       }
-      if (screen.availHeight > 2 * screen.availWidth) this.isPortrait = true;
+      if (screen.availHeight > 1.5 * screen.availWidth) this.isPortrait = true;
       else this.isPortrait = false;
     },
     subjectiveAnswerUpdated(answer) {
