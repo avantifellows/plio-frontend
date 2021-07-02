@@ -11,7 +11,7 @@ import { useToast } from "vue-toastification";
 const toast = useToast();
 // these keys should be present as query params when a third party
 // auth is used to access a route
-const requiredAuthKeys = ["auth_type", "unique_id", "access_token"];
+const requiredAuthKeys = ["unique_id", "api_key"];
 
 const routes = [
   {
@@ -56,9 +56,8 @@ const routes = [
     props: (route) => ({
       experiment: route.query.experiment,
       plioId: route.params.plioId,
-      thirdPartyAuthType: route.query.auth_type,
       thirdPartyUniqueId: route.query.unique_id,
-      thirdPartyAccessToken: route.query.access_token,
+      thirdPartyApiKey: route.query.api_key,
     }),
     meta: { requiresAuth: true },
   },
@@ -68,13 +67,6 @@ const routes = [
     component: Dashboard,
     props: true,
     beforeEnter: restrictUnapprovedUser,
-    meta: { requiresAuth: true },
-  },
-  {
-    path: "/:org?/experiment/:id",
-    name: "ABTesting",
-    component: () => import("@/pages/ABTesting"),
-    props: true,
     meta: { requiresAuth: true },
   },
   {
@@ -183,3 +175,4 @@ function restrictUnapprovedUser(to) {
 }
 
 export default router;
+export { routes };

@@ -5,7 +5,6 @@
  */
 
 import { config } from "@vue/test-utils";
-import InlineSvg from "vue-inline-svg";
 import Toast from "vue-toastification";
 import Tooltip from "primevue/tooltip";
 import VueClickAway from "vue3-click-away";
@@ -22,21 +21,34 @@ const $store = store;
 
 import i18n from "@/services/Localisation/i18n.js";
 const $t = (msg) => i18n.global.t(msg);
+const $i18n = i18n;
+
+// inline-svg stub
+const InlineSvg = {
+  template: "<img />",
+};
+
+// progress bar stub
+const VueProgressBar = {
+  template: "<div></div>",
+};
 
 config.global = {
-  components: {
-    InlineSvg,
-  },
   plugins: [Toast, store],
   mocks: {
     $mixpanel,
     $router,
     $t,
     $store,
+    $i18n,
   },
   directives: {
     tooltip: Tooltip,
     clickAway: VueClickAway,
+  },
+  stubs: {
+    InlineSvg: InlineSvg,
+    VueProgressBar: VueProgressBar,
   },
 };
 
@@ -59,3 +71,8 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: jest.fn(),
   })),
 });
+
+// mock getBoundingClientRect
+global.document.getElementById = jest.fn(() => ({
+  getBoundingClientRect: jest.fn(),
+}));

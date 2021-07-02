@@ -15,9 +15,12 @@
   "dependencies": {
     "@aacassandra/vue3-progressbar": "^1.0.3",
     "@cubejs-client/core": "^0.27.6",
+    "@sentry/browser": "^6.7.2",
+    "@sentry/tracing": "^6.7.2",
     "@tailwindcss/forms": "^0.3.3",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "deep-eql": "^4.0.0",
     "lodash.clonedeep": "^4.5.0",
     "mixpanel-browser": "^2.41.0",
     "plyr": "^3.6.3",
@@ -76,7 +79,8 @@
         "files": [
           "**/__tests__/*.{j,t}s?(x)",
           "**/tests/unit/**/*.spec.{j,t}s?(x)",
-          "jest.init.js"
+          "jest.init.js",
+          "src/services/Testing/Utilities.js"
         ],
         "env": {
           "jest": true

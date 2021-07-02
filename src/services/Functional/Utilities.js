@@ -18,4 +18,15 @@ export default {
     // checks if an object (`obj`) is empty
     return Object.keys(obj).length === 0 && obj.constructor === Object;
   },
+
+  copyToClipboard(value) {
+    // copies the value to the clipboard
+    var hiddenElement = document.createElement("textarea");
+    document.body.appendChild(hiddenElement);
+    hiddenElement.value = value;
+    hiddenElement.select();
+    var success = document.execCommand("copy");
+    document.body.removeChild(hiddenElement);
+    return success;
+  },
 };

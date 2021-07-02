@@ -40,14 +40,16 @@
           role="option"
           class="text-gray-900 cursor-default hover:bg-primary hover:text-white select-none relative p-2"
           @click="setOption(optionIndex)"
+          :data-test="`option-${optionIndex}`"
         >
           <div class="flex space-x-4 items-center">
             <inline-svg
               v-if="doesOptionHaveIcon(option)"
               :src="getIconSource(option.icon)"
               class="w-1/4 h-4 fill-current"
+              data-test="icon"
             ></inline-svg>
-            <p class="block font-normal w-full">{{ option.label }}</p>
+            <p class="block font-normal w-full" data-test="label">{{ option.label }}</p>
           </div>
         </li>
       </ul>

@@ -22,50 +22,76 @@
         {{ title }}
       </div>
 
-      <!-- plio link -->
-      <div>
-        <URL :link="plioLink" :urlCopyButtonClass="urlCopyButtonClass"></URL>
+      <div
+        class="bp-420:hidden flex justify-center bg-primary rounded-md py-2 shadow-md"
+        @click="toggleActionButtonVisibility"
+      >
+        <inline-svg
+          :src="getIconSource('chevron-down-solid.svg')"
+          class="w-4 h-4 text-white fill-current"
+          :class="toggleIconClass"
+          data-test="toggleButton"
+        ></inline-svg>
       </div>
 
       <!-- action buttons -->
-      <div class="flex flex-row justify-start space-x-3">
-        <!-- play button -->
-        <icon-button
-          :titleConfig="playButtonTitleConfig"
-          :iconConfig="playButtonIconConfig"
-          :buttonClass="playButtonClass"
-          @click="playPlio"
-          :isDisabled="!isPublished"
-          v-tooltip="playButtonTooltip"
-        ></icon-button>
+      <div
+        class="flex flex-col bp-420:flex-row space-y-3 bp-420:space-x-3 bp-420:space-y-0"
+        v-if="showActionButtons"
+        data-test="actionButtonsContainer"
+      >
+        <div class="flex space-x-3 justify-center">
+          <!-- analyse button -->
+          <icon-button
+            v-if="isTouchDevice"
+            :titleConfig="analyseButtonTitleConfig"
+            :buttonClass="actionButtonClass"
+            :isDisabled="!isPublished"
+            @click="analysePlio"
+            v-tooltip="analyseButtonTooltip"
+            data-test="analyzeButton"
+          ></icon-button>
 
-        <!-- edit button -->
-        <icon-button
-          :titleConfig="editButtonTitleConfig"
-          :iconConfig="editButtonIconConfig"
-          :buttonClass="editButtonClass"
-          v-tooltip="editButtonTooltip"
-          @click="editPlio"
-        ></icon-button>
+          <!-- play button -->
+          <icon-button
+            :titleConfig="playButtonTitleConfig"
+            :buttonClass="actionButtonClass"
+            @click="playPlio"
+            :isDisabled="!isPublished"
+            v-tooltip="playButtonTooltip"
+            data-test="playButton"
+          ></icon-button>
 
-        <!-- duplicate button -->
-        <icon-button
-          :titleConfig="duplicateButtonTitleConfig"
-          :iconConfig="duplicateButtonIconConfig"
-          :buttonClass="duplicateButtonClass"
-          @click="duplicateThenRoute"
-          v-tooltip="duplicateButtonTooltip"
-        ></icon-button>
+          <!-- share button -->
+          <icon-button
+            :titleConfig="shareButtonTitleConfig"
+            :buttonClass="actionButtonClass"
+            @click="sharePlio"
+            :isDisabled="!isPublished"
+            v-tooltip="shareButtonTooltip"
+            data-test="shareButton"
+          ></icon-button>
+        </div>
 
-        <!-- analyse button -->
-        <icon-button
-          v-if="isTouchDevice"
-          :titleConfig="analyseButtonTitleConfig"
-          :buttonClass="analyseButtonClass"
-          :isDisabled="!isPublished"
-          @click="analysePlio"
-          v-tooltip="analyseButtonTooltip"
-        ></icon-button>
+        <div class="flex space-x-3 justify-center">
+          <!-- duplicate button -->
+          <icon-button
+            :titleConfig="duplicateButtonTitleConfig"
+            :buttonClass="actionButtonClass"
+            @click="duplicateThenRoute"
+            v-tooltip="duplicateButtonTooltip"
+            data-test="duplicateButton"
+          ></icon-button>
+
+          <!-- edit button -->
+          <icon-button
+            :titleConfig="editButtonTitleConfig"
+            :buttonClass="actionButtonClass"
+            v-tooltip="editButtonTooltip"
+            @click="editPlio"
+            data-test="editButton"
+          ></icon-button>
+        </div>
       </div>
     </div>
   </div>
@@ -76,7 +102,6 @@ import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
 import Utilities from "@/services/Functional/Utilities.js";
-import URL from "@/components/UI/Text/URL.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
@@ -90,9 +115,14 @@ export default {
       default: "",
       type: String,
     },
+    showActionsByDefault: {
+      // whether to show the action buttons by default
+      // on smaller screen sizes
+      type: Boolean,
+      default: false,
+    },
   },
   components: {
-    URL,
     IconButton,
     SimpleBadge,
     PlioListItemSkeleton,
@@ -102,42 +132,40 @@ export default {
     return {
       // button, icon config and styling classes
       plioDetails: {},
-      playButtonIconConfig: {
-        enabled: false,
-        iconName: "",
-        iconClass: "",
-      },
-      playButtonClass:
-        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
-      editButtonIconConfig: {
-        enabled: false,
-        iconName: "",
-        iconClass: "",
-      },
-      editButtonClass:
-        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
-      duplicateButtonIconConfig: {
-        enabled: false,
-        iconName: "",
-        iconClass: "",
-      },
-      duplicateButtonClass:
-        "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
-      analyseButtonClass:
+      actionButtonClass:
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       urlCopyButtonClass: "text-yellow-600",
+      showActionButtons: true, // whether to show the action buttons
+      // whether the visibility of the action buttons has been manually set
+      hasUserSetActionVisibility: false,
     };
   },
 
   async created() {
     // load the plio only if the plio id is not empty
     if (this.isPlioIdValid) await this.loadPlio();
+
+    // determine the screen orientation when the list item is created
+    this.checkScreenOrientation();
+    // add listener for screen size being changed
+    window.addEventListener("resize", this.checkScreenOrientation);
+  },
+
+  unmounted() {
+    // remove listeners
+    window.removeEventListener("resize", this.checkScreenOrientation);
   },
 
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     ...mapState("plioItems", ["allPlioDetails"]),
+    toggleIconClass() {
+      return [
+        { "transform rotate-180": this.showActionButtons },
+        "transition ease duration-800",
+      ];
+    },
     isTouchDevice() {
       // detects if the user's device has a touch screen or not
       return window.matchMedia("(any-pointer: coarse)").matches;
@@ -146,6 +174,14 @@ export default {
       // text for the status badge
       if (this.status == undefined) return null;
       return this.$t(`generic.status.${this.status}`);
+    },
+    shareButtonTitleConfig() {
+      // title config for the share button
+      return {
+        value: this.$t("home.table.plio_list_item.buttons.share"),
+        class:
+          "p-2 text-sm bp-500:text-base text-primary font-medium bp-500:font-semibold",
+      };
     },
     playButtonTitleConfig() {
       // title config for the play button
@@ -184,6 +220,11 @@ export default {
       if (!this.status) return "";
       return this.$t(`tooltip.home.table.plio_list_item.buttons.play.${this.status}`);
     },
+    shareButtonTooltip() {
+      // tooltip for the play button
+      if (!this.status) return "";
+      return this.$t(`tooltip.home.table.plio_list_item.buttons.share.${this.status}`);
+    },
     editButtonTooltip() {
       // tooltip for the edit button
       if (!this.status) return "";
@@ -221,7 +262,7 @@ export default {
     },
     updatedAt() {
       // human readable date string
-      return new Date(this.plioDetails.updated_at).toDateString();
+      return new Date(this.plioDetails.updatedAt).toDateString();
     },
     status() {
       // status of the plio - draft or published
@@ -236,7 +277,7 @@ export default {
     },
     plioLink() {
       // prepare the link for the plio from the plio ID
-      return Utilities.getPlioLink(this.plioId, this.activeWorkspace);
+      return this.getPlioLink(this.plioId, this.activeWorkspace);
     },
     isUntitled() {
       // if the plio is untitled or not
@@ -250,6 +291,26 @@ export default {
   methods: {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     ...mapActions("plioItems", ["fetchPlio"]),
+    ...mapActions("generic", ["showSharePlioDialog"]),
+    ...Utilities,
+    toggleActionButtonVisibility() {
+      // toggles the visibility of the action buttons
+      this.showActionButtons = !this.showActionButtons;
+      this.hasUserSetActionVisibility = true;
+    },
+    checkScreenOrientation() {
+      var screenWidth = screen.availWidth;
+      // always show action buttons if screen-width >= 420
+      if (screenWidth >= 420) this.showActionButtons = true;
+      // always hide action buttons if screen-width < 420 if their visibility
+      // has not been manually set
+      if (
+        screenWidth < 420 &&
+        !this.hasUserSetActionVisibility &&
+        !this.showActionsByDefault
+      )
+        this.showActionButtons = false;
+    },
     async loadPlio() {
       this.startLoading();
       // fetch the details of the plio if they don't exist in the store
@@ -263,6 +324,10 @@ export default {
 
       this.$emit("fetched", dataToEmit);
       this.stopLoading();
+    },
+    sharePlio() {
+      // invoked when share button is clicked
+      this.showSharePlioDialog(this.plioLink);
     },
     playPlio() {
       // invoked when play button is clicked
