@@ -1,7 +1,7 @@
 <template>
   <div class="overflow-y-auto flex flex-col">
     <!-- question text -->
-    <div :class="questionTextDivClass">
+    <div class="px-4 md:px-6 xl:px-10">
       <p :class="questionTextClass" data-test="questionText">
         {{ questionText }}
       </p>
@@ -25,11 +25,7 @@
         />
       </div>
       <!-- option container -->
-      <div
-        v-if="isQuestionTypeMCQ"
-        :class="optionContainerClass"
-        data-test="optionContainer"
-      >
+      <div v-if="isQuestionTypeMCQ" class="flex w-full" data-test="optionContainer">
         <ul class="w-full">
           <li class="list-none space-y-1 flex flex-col">
             <div
@@ -65,14 +61,14 @@
       <!-- subjective question answer -->
       <div
         v-if="isQuestionTypeSubjective"
-        :class="subjectiveAnswerClass"
+        class="flex flex-col w-full"
         data-test="subjectiveAnswerContainer"
       >
         <!-- input area for the answer -->
         <Textarea
           v-model:value="subjectiveAnswer"
           class="px-2 w-full"
-          boxStyling="px-4 placeholder-gray-400 bp-420:h-20 sm:h-28 md:h-36 focus:border-gray-200 focus:ring-transparent"
+          :boxStyling="subjectiveAnswerBoxStyling"
           :placeholder="subjectiveAnswerInputPlaceholder"
           :isDisabled="isAnswerSubmitted || previewMode"
           :maxHeightLimit="subjectiveBoxHeightLimit"
@@ -81,7 +77,7 @@
         ></Textarea>
         <!-- character limit -->
         <div
-          class="h-full flex items-end px-6 mt-2"
+          class="flex items-end px-6 mt-2"
           v-if="hasCharLimit && !isAnswerSubmitted"
           data-test="charLimitContainer"
         >
@@ -233,44 +229,27 @@ export default {
   },
   computed: {
     ...mapState("sync", ["pending"]),
-    subjectiveAnswerClass() {
-      // class for the div for entering subjective answer
+    subjectiveAnswerBoxStyling() {
+      // classes for the subjective answer box
       return [
         {
-          "px-4 md:px-6 xl:px-10": !this.previewMode,
-          "px-2 md:px-4 xl:px-8": this.previewMode,
+          "bp-420:h-20 sm:h-28 md:h-36": !this.previewMode,
+          "bp-420:h-16 sm:h-20 md:h-16 text-xs bp-420:text-sm sm:text-base md:text-sm lg:text-base": this
+            .previewMode,
         },
-        "flex flex-col w-full",
-      ];
-    },
-    questionTextDivClass() {
-      // class for the div containing the question text
-      return {
-        "px-4 md:px-6 xl:px-10": !this.previewMode,
-        "px-2 md:px-4 xl:px-8": this.previewMode,
-      };
-    },
-    optionContainerClass() {
-      // styling class for the options container
-      return [
-        {
-          "w-full": !this.isPortrait || (this.isPortrait && !this.isFullscreen),
-          "mx-2": this.previewMode && this.isQuestionImagePresent,
-          "mx-2 md:mx-4 xl:mx-8": this.previewMode && !this.isQuestionImagePresent,
-          "mx-4 md:mx-6 xl:mx-10": !this.previewMode,
-        },
-        "flex",
+        "px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-transparent",
       ];
     },
     questionImageContainerClass() {
       // styling class for the image container
       return [
         {
-          "h-96 mx-10 mb-4": this.isPortrait && !this.previewMode && this.isFullscreen,
-          "h-28 sm:h-36 md:h-60 lg:h-72 xl:h-89 ml-10 w-1/2 lg:w-1/3":
+          "h-56 mb-4": this.isPortrait && !this.previewMode && this.isFullscreen,
+          "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2 bp-500:w-1/3":
             (!this.isPortrait && !this.previewMode) ||
             (this.isPortrait && !this.isFullscreen),
-          "h-32 md:h-40 ml-4 lg:ml-6 xl:ml-8 mb-4 w-1/2": this.previewMode,
+          "h-20 xsm:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
+            .previewMode,
           invisible: this.pending,
         },
         "border rounded-md",
@@ -280,9 +259,14 @@ export default {
       // styling class to decide orientation of image + options depending on portrait/landscape orientation
       return [
         {
-          "flex-row content-center":
+          "content-center":
             this.isQuestionImagePresent && !this.isPortrait && !this.isFullscreen,
           "flex-col": this.isQuestionImagePresent && this.isPortrait && this.isFullscreen,
+          "space-x-2 md:space-x-4":
+            !this.previewMode && !this.isPortrait && this.isQuestionImagePresent,
+          "mx-6 md:mx-10 py-4": !this.previewMode,
+          "mx-4 md:mx-6 sm:py-4 md:py-0 lg:py-2": this.previewMode,
+          "space-x-1 md:space-x-2": this.previewMode && this.isQuestionImagePresent,
         },
         "flex",
       ];

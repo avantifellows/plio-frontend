@@ -50,7 +50,7 @@ export default {
           "sm:p-2 sm:px-10 lg:p-4 lg:px-10 px-4": !this.previewMode,
           "p-1 lg:p-2 px-2": this.previewMode,
         },
-        "bg-primary hover:bg-primary-hover p-1 rounded-md h-full",
+        "bg-primary hover:bg-primary-hover p-1 rounded-md h-full shadow-xl",
       ];
     },
     minimizeButtonTitleConfig() {
