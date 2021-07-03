@@ -274,7 +274,7 @@ export default {
       // teardown chatwoot instance
 
       // reset the instance
-      window.$chatwoot.reset();
+      if (window.$chatwoot != undefined) window.$chatwoot.reset();
 
       // hide the bubble
       var chatwootBubble = document.querySelector(".woot-widget-bubble");
@@ -295,8 +295,8 @@ export default {
 
         // set the user for the chatwoot instance
         window.$chatwoot.setUser(this.user.id, {
-          email: this.user.email,
-          name: this.user.first_name + this.user.last_name,
+          email: this.user.email || "no_email",
+          name: this.user.first_name + this.user.last_name || "no_name",
         });
 
         window.removeEventListener("chatwoot:ready", this.assignUserToChatwoot);
