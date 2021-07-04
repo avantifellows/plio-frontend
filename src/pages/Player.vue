@@ -596,21 +596,24 @@ export default {
       // show the markers for items on top of the video slider
       var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
       this.items.forEach((item, index) => {
+        let existingMarker = document.getElementById(`marker-${index}`);
+        if (existingMarker != undefined) plyrProgressBar.removeChild(existingMarker);
+
         // Add marker to player seek bar
-        var marker = document.createElement("SPAN");
-        marker.setAttribute("id", "marker");
+        var newMarker = document.createElement("SPAN");
+        newMarker.setAttribute("id", `marker-${index}`);
 
         // set marker style
         if (this.isItemResponseDone(index)) {
           this.markerClass[0] = "bg-green-600";
         } else this.markerClass[0] = "bg-red-600";
 
-        marker.classList.add(...this.markerClass);
+        newMarker.classList.add(...this.markerClass);
 
         // set marker position
         var positionPercent = (100 * item.time) / player.duration;
-        marker.style.setProperty("left", `${positionPercent}%`);
-        plyrProgressBar.appendChild(marker);
+        newMarker.style.setProperty("left", `${positionPercent}%`);
+        plyrProgressBar.appendChild(newMarker);
       });
     },
     isItemResponseDone(itemIndex) {
