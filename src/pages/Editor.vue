@@ -177,36 +177,44 @@
             :class="itemPickerClass"
             v-if="currentItemIndex == null"
           >
-            <p class="text-yellow-900 text-xl font-bold">
-              {{ $t("editor.headings.add_question") }}
-            </p>
-            <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
-              <button
-                :disabled="addItemDisabled"
-                @click="addNewItem('mcq')"
-                class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
-                :class="questionTypeSelectorClass"
-                v-tooltip.bottom="addMCQTooltip"
-              >
-                <inline-svg
-                  :src="getIconSource('radio-button.svg')"
-                  class="h-4 w-4 fill-current text-primary group-hover:text-white group-disabled:text-primary"
-                ></inline-svg>
-                <p class="font-bold text-center">{{ $t("generic.mcq") }}</p>
-              </button>
-              <button
-                :disabled="addItemDisabled"
-                @click="addNewItem('subjective')"
-                class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
-                :class="questionTypeSelectorClass"
-                v-tooltip.bottom="addSubjectiveQuestionTooltip"
-              >
-                <inline-svg
-                  :src="getIconSource('subjective-question.svg')"
-                  class="w-20 fill-current text-primary group-hover:text-white group-disabled:text-primary"
-                ></inline-svg>
-                <p class="font-bold text-center">{{ $t("generic.subjective") }}</p>
-              </button>
+            <div class="place-self-center px-10 h-32 flex items-center" v-if="pending">
+              <inline-svg
+                :src="require('@/assets/images/spinner-solid.svg')"
+                class="animate-spin h-5 bp-500:h-6 md:h-8 lg:h-10 object-scale-down"
+              ></inline-svg>
+            </div>
+            <div class="flex flex-col items-center" v-else>
+              <p class="text-yellow-900 text-xl font-bold">
+                {{ $t("editor.headings.add_question") }}
+              </p>
+              <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
+                <button
+                  :disabled="addItemDisabled"
+                  @click="addNewItem('mcq')"
+                  class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
+                  :class="questionTypeSelectorClass"
+                  v-tooltip.bottom="addMCQTooltip"
+                >
+                  <inline-svg
+                    :src="getIconSource('radio-button.svg')"
+                    class="h-4 w-4 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                  ></inline-svg>
+                  <p class="font-bold text-center">{{ $t("generic.mcq") }}</p>
+                </button>
+                <button
+                  :disabled="addItemDisabled"
+                  @click="addNewItem('subjective')"
+                  class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
+                  :class="questionTypeSelectorClass"
+                  v-tooltip.bottom="addSubjectiveQuestionTooltip"
+                >
+                  <inline-svg
+                    :src="getIconSource('subjective-question.svg')"
+                    class="w-20 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                  ></inline-svg>
+                  <p class="font-bold text-center">{{ $t("generic.subjective") }}</p>
+                </button>
+              </div>
             </div>
           </div>
           <!--- item editor  -->
@@ -522,7 +530,7 @@ export default {
     },
   },
   computed: {
-    ...mapState("sync", ["uploading"]),
+    ...mapState("sync", ["uploading", "pending"]),
     itemImage() {
       // URL of the image present for the current item
       if (this.currentItemIndex == null) return null;
@@ -836,7 +844,12 @@ export default {
     },
   },
   methods: {
-    ...mapActions("sync", ["startUploading", "stopUploading"]),
+    ...mapActions("sync", [
+      "startUploading",
+      "stopUploading",
+      "startLoading",
+      "stopLoading",
+    ]),
     ...mapActions("generic", ["showSharePlioDialog"]),
     ...Utilities,
     hidePublishedDialogShowShareDialog() {
@@ -1263,6 +1276,8 @@ export default {
     },
     addNewItem(questionType) {
       this.player.pause();
+      this.startLoading();
+      setTimeout(() => {}, 5000);
       const currentTimestamp = this.currentTimestamp;
       // newItem object will store the information of the newly created
       // item and the question
@@ -1272,6 +1287,7 @@ export default {
         !ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)
       ) {
         this.showCannotAddItemDialog();
+        this.stopLoading();
         return;
       }
       // create item, then create the question, then update local states
@@ -1298,7 +1314,8 @@ export default {
           this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
           this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
           this.markItemSelected(this.currentItemIndex);
-        });
+        })
+        .finally(() => this.stopLoading());
     },
     deleteItemButtonClicked() {
       // invoked when the delete item button is clicked
