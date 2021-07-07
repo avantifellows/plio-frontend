@@ -605,9 +605,6 @@ export default {
       get() {
         return this.itemList;
       },
-      set(localItemList) {
-        this.$emit("update:itemList", localItemList);
-      },
     },
     localSelectedItemIndex: {
       // a local copy of selected item index
@@ -704,9 +701,6 @@ export default {
       // computed array of options
       get() {
         return this.localItemList[this.localSelectedItemIndex].details.options;
-      },
-      set(value) {
-        this.localItemList[this.localSelectedItemIndex].details.options = value;
       },
     },
     correctOptionIndex() {
