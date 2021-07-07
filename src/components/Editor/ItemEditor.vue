@@ -65,7 +65,7 @@
         v-tooltip.left="deleteItemButtonTooltip"
         :buttonClass="deleteItemButtonClass"
         :disabled="isInteractionDisabled"
-        data-test="deleteQuestion"
+        data-test="deleteItem"
       ></icon-button>
     </div>
 
@@ -106,6 +106,7 @@
         :disabledTooltip="timeDisabledTooltip"
         @error-occurred="$emit('error-occurred')"
         @error-resolved="$emit('error-resolved')"
+        data-test="time"
       ></time-input>
 
       <!-- input field for entering options  -->

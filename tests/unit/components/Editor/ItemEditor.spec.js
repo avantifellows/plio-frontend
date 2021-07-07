@@ -31,6 +31,30 @@ describe("ItemEditor.vue", () => {
     });
   });
 
+  it("should render time with milliseconds", () => {
+    const wrapper = mount(ItemEditor, {
+      props: {
+        itemList: [
+          {
+            type: "question",
+            details: {
+              text: "test",
+              type: "mcq",
+              options: ["", ""],
+            },
+            time: 13.3,
+          },
+        ],
+      },
+    });
+    expect(
+      wrapper
+        .find('[data-test="time"]')
+        .find('[data-test="millisecond"]')
+        .find('[data-test="input"]').element.value
+    ).toBe("300");
+  });
+
   it("set correct answer correctly for mcq question", () => {
     const wrapper = mount(ItemEditor, {
       props: {
@@ -157,7 +181,7 @@ describe("ItemEditor.vue", () => {
     // button to add option should be disabled
     expect(wrapper.find('[data-test="addOption"]').element.disabled).toBe(true);
     // button to delete question should be disabled
-    expect(wrapper.find('[data-test="deleteQuestion"]').element.disabled).toBe(
+    expect(wrapper.find('[data-test="deleteItem"]').element.disabled).toBe(
       true
     );
 
@@ -174,6 +198,29 @@ describe("ItemEditor.vue", () => {
         "cursor-not-allowed"
       );
     });
+  });
+
+  it("updates correct answer on selecting option", async () => {
+    const wrapper = mount(ItemEditor, {
+      props: {
+        itemList: [
+          {
+            type: "question",
+            details: {
+              text: "test",
+              type: "mcq",
+              options: ["", ""],
+            },
+            time: 13,
+          },
+        ],
+      },
+    });
+    await wrapper
+      .findAll('[data-test="option"]')[1]
+      .find('[data-test="startIcon"]')
+      .trigger("click");
+    expect(wrapper.vm.localItemList[0].details.correct_answer).toBe(1);
   });
 
   it("image uploader shows up on clicking image button", async () => {
@@ -236,6 +283,26 @@ describe("ItemEditor.vue", () => {
     });
     await wrapper.find('[data-test="addOption"]').trigger("click");
     expect(wrapper.vm.localItemList[0].details.options.length).toBe(3);
+  });
+
+  it("emits on clicking delete item", async () => {
+    const wrapper = mount(ItemEditor, {
+      props: {
+        itemList: [
+          {
+            type: "question",
+            details: {
+              text: "test",
+              type: "mcq",
+              options: ["", ""],
+            },
+            time: 13,
+          },
+        ],
+      },
+    });
+    await wrapper.find('[data-test="deleteItem"]').trigger("click");
+    expect(wrapper.emitted()).toHaveProperty("delete-selected-item");
   });
 
   it("clicking next item navigates to next item", async () => {
