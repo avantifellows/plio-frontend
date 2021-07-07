@@ -32,6 +32,7 @@
         :buttonClass="previousItemButtonClass"
         :disabled="isFirstItem"
         v-tooltip="previousItemTooltip"
+        data-test="previousItem"
       ></icon-button>
 
       <!-- next item button -->
@@ -42,6 +43,7 @@
         :buttonClass="nextItemButtonClass"
         :disabled="isLastItem"
         v-tooltip="nextItemTooltip"
+        data-test="nextItem"
       ></icon-button>
 
       <!-- add item button -->
@@ -52,6 +54,7 @@
         @click="removeSelectedItemIndex"
         v-tooltip.top="addItemButtonTooltip"
         :disabled="isInteractionDisabled"
+        data-test="addItem"
       ></icon-button>
 
       <!-- delete item button -->
@@ -331,10 +334,6 @@ export default {
     toggleQuestionTypeDropdown(newValue) {
       // invoked when the question type dropdown's visibility is toggled
       this.isQuestionDropdownShown = newValue;
-    },
-    getHeading(itemType) {
-      // heading for the current item
-      return this.$t(`editor.item_editor.heading.${itemType}`);
     },
     getOptionInputTitle(optionIndex) {
       // title for the placeholder input
