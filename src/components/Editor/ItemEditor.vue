@@ -155,6 +155,7 @@
             :boxStyling="charLimitBoxClass"
             @keypress="maxCharLimitInputKeypress"
             @keydown="maxCharLimitInputKeydown"
+            data-test="maxCharLimit"
           ></input-text>
           <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">
             {{ $t("editor.item_editor.heading.char_limit.chars_allowed") }}
