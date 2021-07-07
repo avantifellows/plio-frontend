@@ -102,7 +102,7 @@
       ></time-input>
 
       <!-- input field for entering options  -->
-      <div v-if="isQuestionTypeMCQ">
+      <div v-if="isQuestionTypeMCQ" data-test="options">
         <input-text
           v-for="(option, optionIndex) in options"
           class="p-2"
@@ -130,7 +130,11 @@
       </div>
 
       <!-- setting max char limit -->
-      <div v-if="isQuestionTypeSubjective" class="p-2">
+      <div
+        v-if="isQuestionTypeSubjective"
+        class="p-2"
+        data-test="subjectiveQuestionContainer"
+      >
         <!-- checkbox -->
         <label class="inline-flex items-center mt-3">
           <input
@@ -266,7 +270,6 @@ export default {
   props: {
     itemList: {
       // list of items
-      default: () => [],
       type: Array,
       required: true,
     },
