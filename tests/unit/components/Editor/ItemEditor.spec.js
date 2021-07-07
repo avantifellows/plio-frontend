@@ -55,6 +55,196 @@ describe("ItemEditor.vue", () => {
     ).toBe("300");
   });
 
+  it("triggers keyup", async () => {
+    const maxCharLimitInputKeypress = jest.spyOn(
+      ItemEditor.methods,
+      "maxCharLimitInputKeypress"
+    );
+    const wrapper = mount(ItemEditor, {
+      props: {
+        itemList: [
+          {
+            type: "question",
+            details: {
+              text: "test",
+              type: "subjective",
+              has_char_limit: true,
+            },
+            time: 13,
+          },
+        ],
+        questionTypeIndex: 1,
+      },
+    });
+    await wrapper
+      .find('[data-test="maxCharLimit"]')
+      .find('[data-test="input"]')
+      .trigger("keypress", {
+        key: 1,
+      });
+    expect(maxCharLimitInputKeypress).toHaveBeenCalled();
+  });
+
+  it("triggers keydown", () => {
+    const maxCharLimitInputKeydown = jest.spyOn(
+      ItemEditor.methods,
+      "maxCharLimitInputKeydown"
+    );
+    const wrapper = mount(ItemEditor, {
+      props: {
+        itemList: [
+          {
+            type: "question",
+            details: {
+              text: "test",
+              type: "subjective",
+              has_char_limit: true,
+            },
+            time: 13,
+          },
+        ],
+        questionTypeIndex: 1,
+      },
+    });
+    wrapper
+      .find('[data-test="maxCharLimit"]')
+      .find('[data-test="input"]')
+      .trigger("keydown", {
+        key: 1,
+      });
+    expect(maxCharLimitInputKeydown).toHaveBeenCalled();
+  });
+
+  it("changes question type", async () => {
+    const wrapper = mount(ItemEditor, {
+      props: {
+        itemList: [
+          {
+            type: "question",
+            details: {
+              text: "test",
+              type: "subjective",
+              has_char_limit: true,
+            },
+            time: 13,
+          },
+        ],
+        questionTypeIndex: 1,
+      },
+    });
+    // open the dropdown
+    await wrapper
+      .find('[data-test="questionTypeDropdown"]')
+      .find('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // select mcq
+    await wrapper
+      .find('[data-test="questionTypeDropdown"]')
+      .find('[data-test="option-0"]')
+      .trigger("click");
+    expect(wrapper.emitted()["question-type-changed"][0][0]).toBe("mcq");
+  });
+
+  it("updates question text", async () => {
+    const wrapper = mount(ItemEditor, {
+      props: {
+        itemList: [
+          {
+            type: "question",
+            details: {
+              text: "test",
+              type: "mcq",
+            },
+            time: 13,
+          },
+        ],
+      },
+    });
+    const testValue = "test";
+    await wrapper
+      .find('[data-test="questionText"]')
+      .find('[data-test="input"]')
+      .setValue(testValue);
+    expect(wrapper.vm.localItemList[0].details.text).toBe(testValue);
+  });
+
+  it("updates max char limit", async () => {
+    const wrapper = mount(ItemEditor, {
+      props: {
+        itemList: [
+          {
+            type: "question",
+            details: {
+              text: "test",
+              type: "subjective",
+              has_char_limit: true,
+            },
+            time: 13,
+          },
+        ],
+        questionTypeIndex: 1,
+      },
+    });
+    // checkbox should be checked by default
+    expect(wrapper.vm.localItemList[0].details.has_char_limit).toBe(true);
+
+    // uncheck
+    await wrapper.find('[data-test="maxCharLimitCheckbox"]').setChecked(false);
+    expect(wrapper.vm.localItemList[0].details.has_char_limit).toBe(false);
+  });
+
+  it("updates option value", async () => {
+    const wrapper = mount(ItemEditor, {
+      props: {
+        itemList: [
+          {
+            type: "question",
+            details: {
+              text: "test",
+              type: "mcq",
+              options: ["", ""],
+            },
+            time: 13,
+          },
+        ],
+      },
+    });
+
+    const testValue = "test";
+    await wrapper
+      .findAll('[data-test="option"]')[0]
+      .find('[data-test="input"]')
+      .setValue(testValue);
+    expect(wrapper.vm.localItemList[0].details.options[0]).toBe(testValue);
+  });
+
+  it("updates time value", async () => {
+    const wrapper = mount(ItemEditor, {
+      props: {
+        itemList: [
+          {
+            type: "question",
+            details: {
+              text: "test",
+              type: "mcq",
+            },
+            time: 13,
+          },
+        ],
+        videoDuration: 200,
+      },
+    });
+
+    const minuteValue = 20;
+    await wrapper
+      .findAll('[data-test="time"]')[0]
+      .find('[data-test="second"]')
+      .find('[data-test="input"]')
+      .setValue(minuteValue);
+    expect(wrapper.vm.localItemList[0].time).toBe(minuteValue);
+  });
+
   it("set correct answer correctly for mcq question", () => {
     const wrapper = mount(ItemEditor, {
       props: {

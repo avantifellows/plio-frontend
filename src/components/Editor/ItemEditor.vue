@@ -151,6 +151,7 @@
             type="checkbox"
             class="form-checkbox h-5 w-5 text-primary focus:ring-transparent"
             v-model="isMaxCharLimitSet"
+            data-test="maxCharLimitCheckbox"
             checked
           /><span class="ml-2 text-gray-700">{{
             $t("editor.item_editor.heading.set_character_limit")
