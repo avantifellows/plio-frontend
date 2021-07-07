@@ -12,6 +12,7 @@
         :options="questionTypes"
         v-model:selectedIndex="localQuestionTypeIndex"
         :isDisabled="isInteractionDisabled"
+        data-test="questionTypeDropdown"
       ></QuestionTypeDropdown>
     </div>
     <!-- nav bar -->
@@ -61,6 +62,7 @@
         v-tooltip.left="deleteItemButtonTooltip"
         :buttonClass="deleteItemButtonClass"
         :disabled="isInteractionDisabled"
+        data-test="deleteQuestion"
       ></icon-button>
     </div>
 
@@ -76,6 +78,7 @@
           class="p-2 w-full"
           :boxStyling="'pl-4 focus:ring-primary'"
           :maxHeightLimit="questionTextboxHeightLimit"
+          data-test="questionText"
         ></Textarea>
         <!-- add image to item button -->
         <icon-button
@@ -86,6 +89,7 @@
           :buttonClass="addImageButtonClass"
           :isDisabled="isInteractionDisabled"
           @click="showImageUploaderBox"
+          data-test="questionImage"
         ></icon-button>
       </div>
 
@@ -115,6 +119,7 @@
           :boxStyling="getOptionBoxStyling(optionIndex)"
           @start-icon-selected="updateCorrectOption(optionIndex)"
           @end-icon-selected="deleteOption(optionIndex)"
+          data-test="option"
         ></input-text>
       </div>
       <!-- add option button -->
@@ -126,6 +131,7 @@
           :buttonClass="addOptionButtonClass"
           :disabled="isInteractionDisabled"
           v-tooltip.bottom="addOptionTooltip"
+          data-test="addOption"
         ></icon-button>
       </div>
 
