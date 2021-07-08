@@ -81,21 +81,17 @@
         <div class="grid grid-cols-2 space-x-2">
           <div
             class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer"
+            @click="setLocale('en')"
           >
-            <p
-              class="text-xl sm:text-3xl text-black text-center group-hover:text-white"
-              @click="setLocale('en')"
-            >
+            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">
               English
             </p>
           </div>
           <div
             class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer"
+            @click="setLocale('hi')"
           >
-            <p
-              class="text-xl sm:text-3xl text-black text-center group-hover:text-white"
-              @click="setLocale('hi')"
-            >
+            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">
               हिंदी
             </p>
           </div>
@@ -148,7 +144,7 @@ export default {
       this.setupChatwoot();
     }
     // ask user to pick the language if they are visiting for the first time
-    if (this.locale == null) {
+    if (this.locale == null && this.isAuthenticated) {
       this.showLanguagePickerDialog = true;
     }
   },
@@ -180,6 +176,7 @@ export default {
         this.userClickedLogout = false;
         // setup chatwoot bubble
         this.setupChatwoot();
+        if (this.locale == null) this.showLanguagePickerDialog = true;
       }
     },
     onHomePage(value) {
