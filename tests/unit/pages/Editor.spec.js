@@ -4,6 +4,11 @@ import mockAxios from "jest-mock-axios";
 import Editor from "@/pages/Editor.vue";
 import { dummyPlio, dummyItems } from "@/services/Testing/DummyData.js";
 
+afterEach(() => {
+  // cleaning up the mess left behind by the previous test
+  mockAxios.reset();
+});
+
 describe("Editor.vue", () => {
   it("renders properly with default values", () => {
     const wrapper = mount(Editor);
