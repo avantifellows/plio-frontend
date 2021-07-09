@@ -31,6 +31,11 @@ const InlineSvg = {
 import VueProgressBar from "@aacassandra/vue3-progressbar";
 const $Progress = VueProgressBar;
 
+// import GAuth from "vue3-google-oauth2";
+const $gAuth = {
+  signIn: jest.fn(),
+};
+
 config.global = {
   plugins: [Toast, store],
   mocks: {
@@ -40,6 +45,7 @@ config.global = {
     $store,
     $i18n,
     $Progress,
+    $gAuth,
   },
   directives: {
     tooltip: Tooltip,
