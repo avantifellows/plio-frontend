@@ -6,6 +6,11 @@ import { dummyUser } from "@/services/Testing/DummyData.js";
 
 describe("Home.vue", () => {
   it("renders properly with default values", async () => {
+    const wrapper = mount(Home);
+    expect(wrapper).toBeTruthy();
+  });
+
+  it("renders plios for approved user", async () => {
     // set user
     await store.dispatch("auth/setUser", dummyUser);
     const wrapper = mount(Home);
