@@ -240,4 +240,59 @@ describe("Login.vue", () => {
     expect(wrapper.vm.resentOtp).toBe(true);
     expect(wrapper.vm.invalidOtp).toBe(false);
   });
+
+  it("does not log in with Google when null user", async () => {
+    const wrapper = mount(Login);
+
+    // google button should become enabled in a little time
+    setTimeout(async () => {
+      await wrapper.find('[data-test="googleLogin"]').trigger("click");
+      expect(wrapper.vm.isGoogleAuthDisabled).toBe(false);
+    }, 500);
+  });
+
+  it("logs in with Google when valid user returned", async () => {
+    // new mock for GAuth which returns a valid user
+    const gAuth = {
+      signIn: jest.fn(() => {
+        return {
+          getAuthResponse: jest.fn(),
+        };
+      }),
+      instance: 1,
+    };
+
+    const mockRouter = {
+      replace: jest.fn(),
+    };
+
+    const wrapper = mount(Login, {
+      global: {
+        mocks: {
+          $gAuth: gAuth,
+          $router: mockRouter,
+        },
+      },
+    });
+
+    // mock function to convert access token
+    const convertSocialAuthToken = jest
+      .spyOn(UserAPIService, "convertSocialAuthToken")
+      .mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve({ data: dummyUser });
+        });
+      });
+
+    // google button should become enabled in a little time
+    setTimeout(async () => {
+      await wrapper.find('[data-test="googleLogin"]').trigger("click");
+      expect(convertSocialAuthToken).toHaveBeenCalled();
+      expect(wrapper.vm.isGoogleAuthDisabled).toBe(true);
+      expect(mockRouter.replace).toHaveBeenCalledWith({
+        name: "Home",
+        params: {},
+      });
+    }, 500);
+  });
 });

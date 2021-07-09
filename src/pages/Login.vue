@@ -15,6 +15,7 @@
         class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         :disabled="isGoogleAuthDisabled"
         @click="googleLogin"
+        data-test="googleLogin"
       >
         <div class="flex w-full justify-center">
           <!-- logo -->
@@ -358,6 +359,7 @@ export default {
         // set the google login button as disabled
         this.isGoogleAuthDisabled = true;
         let socialAuthToken = googleUser.getAuthResponse();
+        console.log("yolo");
         UserAPIService.convertSocialAuthToken(socialAuthToken.access_token).then(
           (response) => {
             this.setAccessToken(response.data).then(() => this.routeAfterLogin("google"));
