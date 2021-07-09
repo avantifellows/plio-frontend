@@ -34,6 +34,7 @@ const $Progress = VueProgressBar;
 // import GAuth from "vue3-google-oauth2";
 const $gAuth = {
   signIn: jest.fn(),
+  instance: 1,
 };
 
 config.global = {

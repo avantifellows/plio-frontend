@@ -5,9 +5,14 @@ import UserAPIService from "@/services/API/User.js";
 import { dummyAccessToken, dummyUser } from "@/services/Testing/DummyData.js";
 
 describe("Login.vue", () => {
-  it("renders properly with default values", () => {
+  it("renders properly with default values", async () => {
     const wrapper = mount(Login);
     expect(wrapper).toBeTruthy();
+
+    // google button should become enabled in a little time
+    setTimeout(() => {
+      expect(wrapper.vm.isGoogleAuthDisabled).toBe(false);
+    }, 500);
   });
 
   it("activates request otp button for valid phone", async () => {
@@ -209,5 +214,30 @@ describe("Login.vue", () => {
         plioId: "abc",
       },
     });
+  });
+
+  it("resends OTP", async () => {
+    const wrapper = mount(Login);
+
+    // mock function to verify OTP
+    const requestOtp = jest
+      .spyOn(UserAPIService, "requestOtp")
+      .mockImplementation(() => jest.fn());
+
+    // enter valid number
+    await wrapper
+      .find('[data-test="phone"]')
+      .find('[data-test="input"]')
+      .setValue("9191919191");
+    // request OTP
+    await wrapper.find('[data-test="requestOTP"]').trigger("click");
+    // resend OTP
+    await wrapper.find('[data-test="resendOTP"]').trigger("click");
+
+    await flushPromises();
+
+    expect(requestOtp).toHaveBeenCalled();
+    expect(wrapper.vm.resentOtp).toBe(true);
+    expect(wrapper.vm.invalidOtp).toBe(false);
   });
 });
