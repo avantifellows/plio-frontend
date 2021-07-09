@@ -245,10 +245,10 @@ describe("Login.vue", () => {
     const wrapper = mount(Login);
 
     // google button should become enabled in a little time
-    setTimeout(async () => {
-      await wrapper.find('[data-test="googleLogin"]').trigger("click");
-      expect(wrapper.vm.isGoogleAuthDisabled).toBe(false);
-    }, 500);
+    await new Promise((r) => setTimeout(r, 200));
+
+    await wrapper.find('[data-test="googleLogin"]').trigger("click");
+    expect(wrapper.vm.isGoogleAuthDisabled).toBe(false);
   });
 
   it("logs in with Google when valid user returned", async () => {
@@ -256,7 +256,9 @@ describe("Login.vue", () => {
     const gAuth = {
       signIn: jest.fn(() => {
         return {
-          getAuthResponse: jest.fn(),
+          getAuthResponse: jest.fn(() => {
+            return dummyAccessToken;
+          }),
         };
       }),
       instance: 1,
@@ -280,19 +282,33 @@ describe("Login.vue", () => {
       .spyOn(UserAPIService, "convertSocialAuthToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
+          resolve({ data: dummyAccessToken });
+        });
+      });
+
+    // mock function to get user by access token
+    const getUserByAccessToken = jest
+      .spyOn(UserAPIService, "getUserByAccessToken")
+      .mockImplementation(() => {
+        return new Promise((resolve) => {
           resolve({ data: dummyUser });
         });
       });
 
     // google button should become enabled in a little time
-    setTimeout(async () => {
-      await wrapper.find('[data-test="googleLogin"]').trigger("click");
-      expect(convertSocialAuthToken).toHaveBeenCalled();
-      expect(wrapper.vm.isGoogleAuthDisabled).toBe(true);
-      expect(mockRouter.replace).toHaveBeenCalledWith({
-        name: "Home",
-        params: {},
-      });
-    }, 500);
+    await new Promise((r) => setTimeout(r, 200));
+
+    expect(wrapper.vm.isGoogleAuthDisabled).toBe(false);
+    await wrapper.find('[data-test="googleLogin"]').trigger("click");
+
+    await flushPromises();
+
+    expect(convertSocialAuthToken).toHaveBeenCalled();
+    expect(getUserByAccessToken).toHaveBeenCalled();
+    expect(wrapper.vm.isGoogleAuthDisabled).toBe(true);
+    expect(mockRouter.replace).toHaveBeenCalledWith({
+      name: "Home",
+      params: {},
+    });
   });
 });
