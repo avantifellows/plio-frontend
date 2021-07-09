@@ -18,6 +18,8 @@ afterEach(() => {
 describe("Dashboard.vue", () => {
   it("renders values for a published Plio", async () => {
     const plioId = "abc";
+
+    // mock method to fetch dashboard metrics from analytics client
     const getDashboardMetrics = jest
       .spyOn(PlioAPIService, "getDashboardMetrics")
       .mockImplementation(() => {
@@ -168,6 +170,7 @@ describe("Dashboard.vue", () => {
       push: jest.fn(),
     };
     const plioId = "abc";
+    // mock method to fetch dashboard metrics from analytics client
     jest.spyOn(PlioAPIService, "getDashboardMetrics").mockImplementation(() => {
       return new Promise((resolve) => {
         resolve({});
@@ -211,6 +214,7 @@ describe("Dashboard.vue", () => {
   it("downloads report", async () => {
     const downloadReport = jest.spyOn(Dashboard.methods, "downloadReport");
     const plioId = "abc";
+    // mock method to fetch dashboard metrics from analytics client
     jest.spyOn(PlioAPIService, "getDashboardMetrics").mockImplementation(() => {
       return new Promise((resolve) => {
         resolve({});

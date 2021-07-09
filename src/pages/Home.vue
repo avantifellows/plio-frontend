@@ -34,6 +34,7 @@
         @search-plios="fetchPlioIds($event)"
         @reset-search-string="resetSearchString"
         @sort-num-viewers="sortPlios"
+        data-test="table"
       >
       </Table>
 
@@ -47,7 +48,11 @@
       </Paginator>
 
       <!-- no plios exist warning -->
-      <div v-if="!showTable" class="flex flex-col bg-white w-full m-auto mt-32 px-8">
+      <div
+        v-if="!showTable"
+        class="flex flex-col bg-white w-full m-auto mt-32 px-8"
+        data-test="noPlio"
+      >
         <inline-svg
           :src="noPliosIcon"
           class="w-50 h-50 opacity-50 place-self-center m-10"
