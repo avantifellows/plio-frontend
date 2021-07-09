@@ -161,7 +161,7 @@ describe("ItemEditor.vue", () => {
         ],
       },
     });
-    const testValue = "test";
+    const testValue = "test2";
     await wrapper
       .find('[data-test="questionText"]')
       .find('[data-test="input"]')
@@ -169,7 +169,7 @@ describe("ItemEditor.vue", () => {
     expect(wrapper.vm.localItemList[0].details.text).toBe(testValue);
   });
 
-  it("updates max char limit", async () => {
+  it("enables/disables max char limit", async () => {
     const wrapper = mount(ItemEditor, {
       props: {
         itemList: [
@@ -236,13 +236,13 @@ describe("ItemEditor.vue", () => {
       },
     });
 
-    const minuteValue = 20;
+    const secondValue = 20;
     await wrapper
       .findAll('[data-test="time"]')[0]
       .find('[data-test="second"]')
       .find('[data-test="input"]')
-      .setValue(minuteValue);
-    expect(wrapper.vm.localItemList[0].time).toBe(minuteValue);
+      .setValue(secondValue);
+    expect(wrapper.vm.localItemList[0].time).toBe(secondValue);
   });
 
   it("set correct answer correctly for mcq question", () => {
