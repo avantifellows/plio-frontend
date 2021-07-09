@@ -132,4 +132,134 @@ describe("Home.vue", () => {
       },
     });
   });
+
+  it("sorts correctly based on column value", async () => {
+    // set user
+    await store.dispatch("auth/setUser", dummyUser);
+
+    // changing the user to approved makes another API call to list UUIDs
+    // this resets it
+    mockAxios.reset();
+
+    jest
+      .spyOn(PlioAPIService, "getUniqueUsersCountList")
+      .mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve(dummyUniqueUserCountList);
+        });
+      });
+    const wrapper = mount(Home);
+
+    // resolve the `GET` request waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(dummyPlioList, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // invoke sorting
+    await wrapper
+      .find('[data-test="table"]')
+      .findAll('[data-test="tableHeader"]')[1]
+      .trigger("click");
+
+    const sortField = "-unique_viewers";
+    expect(wrapper.vm.sortByField).toBe(sortField);
+    // `getAllPlios` inside services/API/Plio.js should've been called with the ordering params
+    expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
+      params: { ordering: sortField },
+    });
+  });
+
+  it("searches plios when search string is present", async () => {
+    // set user
+    await store.dispatch("auth/setUser", dummyUser);
+
+    // changing the user to approved makes another API call to list UUIDs
+    // this resets it
+    mockAxios.reset();
+
+    jest
+      .spyOn(PlioAPIService, "getUniqueUsersCountList")
+      .mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve(dummyUniqueUserCountList);
+        });
+      });
+    const wrapper = mount(Home);
+
+    // resolve the `GET` request waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(dummyPlioList, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // add some text in the search string
+    const searchString = "abc";
+    await wrapper
+      .find('[data-test="table"]')
+      .find('[data-test="searchBar"]')
+      .setValue(searchString);
+    // trigger search button
+    await wrapper
+      .find('[data-test="table"]')
+      .find('[data-test="searchButton"]')
+      .trigger("click");
+
+    expect(wrapper.vm.searchString).toBe(searchString);
+    // `getAllPlios` inside services/API/Plio.js should've been called with the search params
+    expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
+      params: { search: searchString },
+    });
+  });
+
+  it("fetches all plios when search string is reset", async () => {
+    // set user
+    await store.dispatch("auth/setUser", dummyUser);
+
+    // changing the user to approved makes another API call to list UUIDs
+    // this resets it
+    mockAxios.reset();
+
+    jest
+      .spyOn(PlioAPIService, "getUniqueUsersCountList")
+      .mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve(dummyUniqueUserCountList);
+        });
+      });
+    const wrapper = mount(Home);
+
+    // resolve the `GET` request waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(dummyPlioList, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // add some text in the search string
+    await wrapper
+      .find('[data-test="table"]')
+      .find('[data-test="searchBar"]')
+      .setValue("abc");
+    // trigger search button
+    await wrapper
+      .find('[data-test="table"]')
+      .find('[data-test="searchButton"]')
+      .trigger("click");
+    // reset axios
+    mockAxios.reset();
+    // reset search
+    await wrapper
+      .find('[data-test="table"]')
+      .find('[data-test="resetSearch"]')
+      .trigger("click");
+
+    expect(wrapper.vm.searchString).toBe("");
+    // `getAllPlios` inside services/API/Plio.js should've been called with no additional params
+    expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
+      params: {},
+    });
+  });
 });
