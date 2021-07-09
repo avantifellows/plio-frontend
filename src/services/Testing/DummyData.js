@@ -284,3 +284,21 @@ export const dummyItems = {
     },
   ],
 };
+
+export const dummyEmptyPlioList = {
+  data: {
+    count: 0,
+    page_size: 5,
+    results: [],
+  },
+};
+
+export const dummyPlioList = {
+  data: {
+    count: 5,
+    page_size: 5,
+    results: ["abc", "def", "ghi", "jkl", "mno"],
+  },
+};
+
+export const dummyUniqueUserCountList = [1, 2, 3, 4, 5];
