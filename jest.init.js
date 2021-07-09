@@ -28,10 +28,8 @@ const InlineSvg = {
   template: "<img />",
 };
 
-// progress bar stub
-const VueProgressBar = {
-  template: "<div></div>",
-};
+import VueProgressBar from "@aacassandra/vue3-progressbar";
+const $Progress = VueProgressBar;
 
 config.global = {
   plugins: [Toast, store],
@@ -41,6 +39,7 @@ config.global = {
     $t,
     $store,
     $i18n,
+    $Progress,
   },
   directives: {
     tooltip: Tooltip,

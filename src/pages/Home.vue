@@ -66,6 +66,7 @@
           :buttonClass="createButtonClass"
           class="rounded-md shadow-lg mt-4 place-self-center"
           @click="createNewPlio"
+          data-test="create"
         ></icon-button>
       </div>
     </div>

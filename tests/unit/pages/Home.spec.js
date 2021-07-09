@@ -26,20 +26,25 @@ describe("Home.vue", () => {
     // set user
     await store.dispatch("auth/setUser", dummyUser);
 
-    // mock method to fetch dashboard metrics from analytics client
-    const getAllPlios = jest
-      .spyOn(PlioAPIService, "getAllPlios")
-      .mockImplementation(() => {
-        return new Promise((resolve) => {
-          resolve(dummyEmptyPlioList);
-        });
-      });
+    // changing the user to approved makes another API call to list UUIDs
+    // this resets it
+    mockAxios.reset();
     const wrapper = mount(Home);
+
+    // `getAllPlios` inside services/API/Plio.js should've been called
+    expect(mockAxios.get).toHaveBeenCalledTimes(1);
+    expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
+      params: {},
+    });
+
+    // resolve the `GET` request waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(dummyEmptyPlioList, mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
-    expect(getAllPlios).toHaveBeenCalled();
+    // expect(getAllPlios).toHaveBeenCalled();
     expect(wrapper.find('[data-test="table"]').exists()).toBe(false);
     expect(wrapper.find('[data-test="noPlio"]').exists()).toBe(true);
   });
@@ -48,14 +53,10 @@ describe("Home.vue", () => {
     // set user
     await store.dispatch("auth/setUser", dummyUser);
 
-    // mock method to fetch dashboard metrics from analytics client
-    const getAllPlios = jest
-      .spyOn(PlioAPIService, "getAllPlios")
-      .mockImplementation(() => {
-        return new Promise((resolve) => {
-          resolve(dummyPlioList);
-        });
-      });
+    // changing the user to approved makes another API call to list UUIDs
+    // this resets it
+    mockAxios.reset();
+
     const getUniqueUsersCountList = jest
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
@@ -65,12 +66,70 @@ describe("Home.vue", () => {
       });
     const wrapper = mount(Home);
 
+    // resolve the `GET` request waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(dummyPlioList, mockAxios.queue()[0]);
+
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
-    expect(getAllPlios).toHaveBeenCalled();
     expect(getUniqueUsersCountList).toHaveBeenCalled();
     expect(wrapper.find('[data-test="table"]').exists()).toBe(true);
     expect(wrapper.find('[data-test="noPlio"]').exists()).toBe(false);
+  });
+
+  it("creates new plio on clicking no plios create button", async () => {
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+
+    // set user
+    await store.dispatch("auth/setUser", dummyUser);
+
+    // changing the user to approved makes another API call to list UUIDs
+    // this resets it
+    mockAxios.reset();
+
+    const wrapper = mount(Home, {
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
+
+    // resolve the `GET` request waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(dummyEmptyPlioList, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // trigger click
+    await wrapper.find('[data-test="create"]').trigger("click");
+
+    // `createPlio` inside services/API/Plio.js should've been called
+    expect(mockAxios.post).toHaveBeenCalledTimes(1);
+    expect(mockAxios.post).toHaveBeenCalledWith(`/plios/`);
+
+    // resolve the `POST` request waiting in the queue
+    // using the fake response data
+    const testPlioId = "abcd";
+    mockAxios.mockResponse(
+      { status: 201, data: { uuid: testPlioId } },
+      mockAxios.queue()[0]
+    );
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: "Editor",
+      params: {
+        org: "",
+        plioId: testPlioId,
+      },
+    });
   });
 });
