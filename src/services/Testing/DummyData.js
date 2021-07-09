@@ -59,6 +59,46 @@ export const dummyDraftPlio = {
   },
 };
 
+export const dummyUser = {
+  id: 4,
+  last_login: null,
+  is_superuser: true,
+  first_name: "",
+  last_name: "",
+  is_staff: false,
+  is_active: true,
+  date_joined: "2021-04-21T08:49:09.763295Z",
+  email: "first.last@email.com",
+  mobile: null,
+  avatar_url: null,
+  config: {
+    locale: "en",
+  },
+  created_at: "2021-04-21T08:49:09.763814Z",
+  updated_at: "2021-07-08T09:51:19.145752Z",
+  organizations: [
+    {
+      id: 3,
+      schema_name: "qwertyuiop",
+      name: "Organization 1",
+      shortcode: "o1",
+      created_at: "2021-04-26T09:46:38.972422Z",
+      updated_at: "2021-04-26T09:46:38.972433Z",
+    },
+    {
+      id: 2,
+      schema_name: "asdfghjkla",
+      name: "Organization 2",
+      shortcode: "o2",
+      created_at: "2021-04-21T10:12:51.751152Z",
+      updated_at: "2021-06-30T08:41:41.652160Z",
+    },
+  ],
+  status: "approved",
+  unique_id: null,
+  auth_org: null,
+};
+
 export const dummyPublishedPlio = {
   data: {
     id: 113,
