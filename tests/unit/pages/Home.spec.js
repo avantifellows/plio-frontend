@@ -262,4 +262,32 @@ describe("Home.vue", () => {
       params: {},
     });
   });
+
+  it("destroys all plios on unmount", async () => {
+    // set user
+    await store.dispatch("auth/setUser", dummyUser);
+
+    // changing the user to approved makes another API call to list UUIDs
+    // this resets it
+    mockAxios.reset();
+
+    jest
+      .spyOn(PlioAPIService, "getUniqueUsersCountList")
+      .mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve(dummyUniqueUserCountList);
+        });
+      });
+    const wrapper = mount(Home);
+
+    // resolve the `GET` request waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(dummyPlioList, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    await wrapper.unmount();
+    expect(store.state.plioItems.allPlioDetails).toStrictEqual({});
+  });
 });
