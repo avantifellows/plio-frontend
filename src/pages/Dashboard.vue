@@ -47,6 +47,7 @@
             :buttonClass="editButtonClass"
             class="rounded-md shadow-lg bp-420:ml-4 bp-500:ml-0 sm:ml-4 mt-4 bp-420:mt-0 bp-500:mt-4 sm:mt-0"
             @click="editPlio"
+            data-test="edit"
           ></icon-button>
         </div>
       </div>
@@ -300,6 +301,7 @@
       :buttonClass="downloadReportButtonClass"
       class="rounded-md shadow-lg bp-500:mb-8 sm:mb-20 md:mb-10 xl:mb-0"
       @click="downloadReport"
+      data-test="download"
     ></icon-button>
   </div>
 </template>

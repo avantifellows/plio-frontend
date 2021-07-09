@@ -161,4 +161,82 @@ describe("Dashboard.vue", () => {
       name: "404",
     });
   });
+
+  it("routes to editor on clicking edit", async () => {
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+    const plioId = "abc";
+    jest.spyOn(PlioAPIService, "getDashboardMetrics").mockImplementation(() => {
+      return new Promise((resolve) => {
+        resolve({});
+      });
+    });
+    const wrapper = mount(Dashboard, {
+      props: {
+        plioId: plioId,
+      },
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
+
+    // using some pre-defined dummy data to return as a fake response
+    // from the fake API call
+    let plioResponse = dummyPublishedPlio;
+    let itemResponse = dummyItems;
+
+    // resolve the two `GET` requests waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
+    mockAxios.mockResponse(itemResponse, mockAxios.queue()[1]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    await wrapper.find('[data-test="edit"]').trigger("click");
+
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: "Editor",
+      params: {
+        org: "",
+        plioId: plioId,
+      },
+    });
+  });
+
+  it("downloads report", async () => {
+    const downloadReport = jest.spyOn(Dashboard.methods, "downloadReport");
+    const plioId = "abc";
+    jest.spyOn(PlioAPIService, "getDashboardMetrics").mockImplementation(() => {
+      return new Promise((resolve) => {
+        resolve({});
+      });
+    });
+    const wrapper = mount(Dashboard, {
+      props: {
+        plioId: plioId,
+      },
+    });
+
+    // using some pre-defined dummy data to return as a fake response
+    // from the fake API call
+    let plioResponse = dummyPublishedPlio;
+    let itemResponse = dummyItems;
+
+    // resolve the two `GET` requests waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
+    mockAxios.mockResponse(itemResponse, mockAxios.queue()[1]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    await wrapper.find('[data-test="download"]').trigger("click");
+
+    expect(downloadReport).toHaveBeenCalled();
+  });
 });
