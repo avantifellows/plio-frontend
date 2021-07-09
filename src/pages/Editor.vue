@@ -4,6 +4,7 @@
     <div
       class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
       :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
+      data-test="blurDiv"
     >
       <!--- preview grid -->
       <div class="flex flex-col mx-6 z-0">
