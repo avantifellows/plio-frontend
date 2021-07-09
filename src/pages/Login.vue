@@ -51,6 +51,7 @@
         :staticText="phoneInputStaticText"
         :startIcon="phoneInputIconConfig"
         :placeholder="phoneInputPlaceholder"
+        data-test="phone"
       ></input-number>
       <!-- input box to enter OTP -->
       <input-number
@@ -59,6 +60,7 @@
         :validation="otpInputValidation"
         :maxLength="6"
         v-if="requestedOtp"
+        data-test="otp"
       ></input-number>
       <!-- button to request for OTP -->
       <icon-button
@@ -68,6 +70,7 @@
         :buttonClass="requestOTPButtonClass"
         v-if="!requestedOtp && isRequestOtpEnabled"
         :isDisabled="!isRequestOtpEnabled"
+        data-test="requestOTP"
       ></icon-button>
       <!-- button to submit OTP -->
       <icon-button
@@ -78,6 +81,7 @@
         :buttonClass="submitOTPButtonClass"
         v-if="requestedOtp"
         :disabled="!isSubmitOTPEnabled || submitOTPIconConfig.enabled"
+        data-test="submitOTP"
       ></icon-button>
       <!-- button to request resending OTP -->
       <icon-button
@@ -87,6 +91,7 @@
         class="mt-2"
         :isDisabled="submitOTPIconConfig.enabled"
         v-if="requestedOtp && !resentOtp"
+        data-test="resendOTP"
       ></icon-button>
       <!-- text to show when OTP has been resent -->
       <p v-if="resentOtp" class="text-center mt-2">
