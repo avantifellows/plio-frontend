@@ -359,7 +359,6 @@ export default {
         // set the google login button as disabled
         this.isGoogleAuthDisabled = true;
         let socialAuthToken = googleUser.getAuthResponse();
-        console.log("yolo");
         UserAPIService.convertSocialAuthToken(socialAuthToken.access_token).then(
           (response) => {
             this.setAccessToken(response.data).then(() => this.routeAfterLogin("google"));
