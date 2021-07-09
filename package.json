@@ -81,7 +81,8 @@
           "**/__tests__/*.{j,t}s?(x)",
           "**/tests/unit/**/*.spec.{j,t}s?(x)",
           "jest.init.js",
-          "src/services/Testing/Utilities.js"
+          "src/services/Testing/Utilities.js",
+          "__mocks__/**/*.js"
         ],
         "env": {
           "jest": true
