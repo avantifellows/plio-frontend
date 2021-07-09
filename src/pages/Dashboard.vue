@@ -397,7 +397,7 @@ export default {
       // number of questions answered on average by a user
       if (this.plioAnalytics["num-questions-answered"] != null)
         return Math.round(this.plioAnalytics["num-questions-answered"]);
-      return "0%";
+      return "0";
     },
     editButtonTextConfig() {
       // config for the text of the edit plio button

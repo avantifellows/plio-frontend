@@ -41,7 +41,7 @@ describe("Dashboard.vue", () => {
 
     // using some pre-defined dummy data to return as a fake response
     // from the fake API call
-    let plioResponse = dummyDraftPlio;
+    let plioResponse = dummyPublishedPlio;
     let itemResponse = dummyItems;
 
     // resolve the two `GET` requests waiting in the queue
@@ -86,5 +86,79 @@ describe("Dashboard.vue", () => {
         dummyPlioAnalytics["GroupedSessionRetention.averageOneMinuteRetention"]
       ) + "%"
     );
+  });
+
+  it("renders analytics values when none available", async () => {
+    const plioId = "abc";
+    jest.spyOn(PlioAPIService, "getDashboardMetrics").mockImplementation(() => {
+      return new Promise((resolve) => {
+        resolve({});
+      });
+    });
+    const wrapper = mount(Dashboard, {
+      props: {
+        plioId: plioId,
+      },
+    });
+
+    // using some pre-defined dummy data to return as a fake response
+    // from the fake API call
+    let plioResponse = dummyPublishedPlio;
+    let itemResponse = dummyItems;
+
+    // resolve the two `GET` requests waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
+    mockAxios.mockResponse(itemResponse, mockAxios.queue()[1]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    expect(wrapper.find('[data-test="numViewers"]').text()).toBe("0");
+    expect(wrapper.find('[data-test="watchTime"]').text()).toBe("0 secs");
+    expect(wrapper.find('[data-test="completion"]').text()).toBe("0%");
+    expect(wrapper.find('[data-test="questionAnswered"]').text()).toBe("0");
+    expect(wrapper.find('[data-test="accuracy"]').text()).toBe("0%");
+    expect(wrapper.find('[data-test="retention"]').text()).toBe("0%");
+  });
+
+  it("routes to 404 for draft plio", async () => {
+    // mock router
+    const mockRouter = {
+      replace: jest.fn(),
+    };
+    const plioId = "abc";
+    jest.spyOn(PlioAPIService, "getDashboardMetrics").mockImplementation(() => {
+      return new Promise((resolve) => {
+        resolve({});
+      });
+    });
+    mount(Dashboard, {
+      props: {
+        plioId: plioId,
+      },
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
+
+    // using some pre-defined dummy data to return as a fake response
+    // from the fake API call
+    let plioResponse = dummyDraftPlio;
+    let itemResponse = dummyItems;
+
+    // resolve the two `GET` requests waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
+    mockAxios.mockResponse(itemResponse, mockAxios.queue()[1]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    expect(mockRouter.replace).toHaveBeenCalledWith({
+      name: "404",
+    });
   });
 });
