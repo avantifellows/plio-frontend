@@ -4,6 +4,10 @@ import mockAxios from "jest-mock-axios";
 import Editor from "@/pages/Editor.vue";
 import { dummyPlio, dummyItems } from "@/services/Testing/DummyData.js";
 
+beforeEach(() => {
+  jest.useFakeTimers();
+});
+
 afterEach(() => {
   // cleaning up the mess left behind by the previous test
   mockAxios.reset();
@@ -100,5 +104,48 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
     expect(wrapper.vm.videoDBId).toEqual(dummyPlio.data.video.id);
     expect(wrapper.vm.plioDBId).toEqual(dummyPlio.data.id);
+  });
+
+  it("saves plio in regular intervals if there's a change", async () => {
+    const savePlio = jest
+      .spyOn(Editor.methods, "savePlio")
+      .mockImplementation(() => {
+        return;
+      });
+    jest.spyOn(Editor.methods, "loadPlio").mockImplementation(() => {
+      return new Promise((resolve) => resolve());
+    });
+    const wrapper = mount(Editor);
+    const timeInterval = wrapper.vm.saveInterval;
+
+    // setInterval would've been called again after 5 seconds
+    // but as `changeInProgress` is false, `savePlio` will not be called
+    jest.advanceTimersByTime(timeInterval);
+    expect(savePlio).not.toHaveBeenCalled();
+
+    // change `changeInProgress` to true,
+    // and check before & after 5 seconds
+    await wrapper.setData({ changeInProgress: true });
+    expect(savePlio).not.toHaveBeenCalled();
+    jest.advanceTimersByTime(timeInterval);
+    expect(savePlio).toHaveBeenCalled();
+  });
+
+  it("saves plio when items are changed", async () => {
+    const checkAndSavePlio = jest.spyOn(Editor.methods, "checkAndSavePlio");
+    const wrapper = mount(Editor);
+
+    // items not changed, method not called at first
+    expect(checkAndSavePlio).not.toHaveBeenCalled();
+
+    // add items to the component, the method should've been called
+    await wrapper.setData({ items: dummyItems.data });
+    expect(checkAndSavePlio).toHaveBeenCalled();
+
+    // update the items, method should've been called
+    let updatedDummyItems = dummyItems.data;
+    updatedDummyItems[0].time = 20;
+    await wrapper.setData({ items: updatedDummyItems });
+    expect(checkAndSavePlio).toHaveBeenCalled();
   });
 });
