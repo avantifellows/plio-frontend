@@ -9,7 +9,12 @@
           v-if="pending"
           class="animate-pulse h-24 md:h-32 xl:h-42 my-2 md:my-4 lg:my-0 xl:my-6 w-full place-self-center bg-gray-500 rounded-md"
         ></p>
-        <img v-else :src="videoThumbnailURL" class="rounded-md h-48 bp-500:h-auto" />
+        <img
+          v-else
+          :src="videoThumbnailURL"
+          class="rounded-md h-48 bp-500:h-auto"
+          data-test="thumbnail"
+        />
       </div>
       <div
         class="col-span-3 lg:col-span-4 flex flex-col justify-between mt-4 bp-500:mr-0 bp-500:ml-8 lg:ml-14"
@@ -23,6 +28,7 @@
           <p
             class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl tracking-tight font-bold text-yellow-900"
             :class="plioTitleClass"
+            data-test="title"
           >
             {{ displayPlioTitle }}
           </p>
@@ -67,7 +73,7 @@
             <p :class="textMetricTitleClass">
               {{ $t("dashboard.summary.number_of_viewers") }}
             </p>
-            <p :class="textMetricValueClass">
+            <p :class="textMetricValueClass" data-test="numViewers">
               {{ numberOfViewers }}
             </p>
           </div>
@@ -90,7 +96,7 @@
             <p :class="textMetricTitleClass">
               {{ $t("dashboard.summary.avg_watch_time") }}
             </p>
-            <p :class="textMetricValueClass">
+            <p :class="textMetricValueClass" data-test="watchTime">
               {{ averageWatchTime }}
             </p>
           </div>
@@ -122,7 +128,7 @@
             </div>
             <div v-else>
               <!-- value -->
-              <p :class="cardMetricValueClass">
+              <p :class="cardMetricValueClass" data-test="completion">
                 {{ completionRate }}
               </p>
               <div :class="cardMetricTitleClass">
@@ -163,7 +169,7 @@
               </div>
               <div v-else>
                 <!-- value -->
-                <p :class="cardMetricValueClass">
+                <p :class="cardMetricValueClass" data-test="retention">
                   {{ oneMinuteRetention }}
                 </p>
                 <div :class="cardMetricTitleClass">
@@ -206,7 +212,7 @@
             </div>
             <div v-else>
               <!-- value -->
-              <p :class="cardMetricValueClass">
+              <p :class="cardMetricValueClass" data-test="accuracy">
                 {{ accuracy }}
               </p>
               <div :class="cardMetricTitleClass">
@@ -247,7 +253,7 @@
               </div>
               <div v-else>
                 <!-- value -->
-                <p :class="cardMetricValueClass">
+                <p :class="cardMetricValueClass" data-test="questionAnswered">
                   {{ numQuestionsAnswered }}
                 </p>
                 <div :class="cardMetricTitleClass">
