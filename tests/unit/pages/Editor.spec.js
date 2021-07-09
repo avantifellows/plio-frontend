@@ -79,13 +79,13 @@ describe("Editor.vue", () => {
 
     // using some pre-defined dummy data to return as a fake response
     // from the fake API call
-    let response1 = dummyPlio;
-    let response2 = dummyItems;
+    let plioResponse = dummyPlio;
+    let itemResponse = dummyItems;
 
     // resolve the two `GET` requests waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(response1, mockAxios.queue()[0]);
-    mockAxios.mockResponse(response2, mockAxios.queue()[1]);
+    mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
+    mockAxios.mockResponse(itemResponse, mockAxios.queue()[1]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
