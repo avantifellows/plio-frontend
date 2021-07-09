@@ -16,6 +16,7 @@
             :iconConfig="sharePlioIconConfig"
             :buttonClass="sharePlioButtonClass"
             @click="showSharePlioLinkDialog"
+            data-test="sharePlioButton"
           ></icon-button>
 
           <!-- play plio -->
@@ -30,14 +31,18 @@
 
         <div class="justify-center">
           <!--- video preview -->
-          <div v-if="!isVideoIdValid" class="flex justify-center">
+          <div
+            v-if="!isVideoIdValid"
+            class="flex justify-center"
+            data-test="videoPreviewSkeleton"
+          >
             <div class="flex relative justify-center w-full">
               <div
                 class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-96 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
               ></div>
             </div>
           </div>
-          <div v-else>
+          <div v-else data-test="videoPreview">
             <div class="relative">
               <!-- video player -->
               <video-player
@@ -49,6 +54,7 @@
                 ref="videoPlayer"
                 id="videoPlayer"
                 class="z-0"
+                data-test="videoPlayer"
               ></video-player>
               <!-- maximize button -->
               <transition name="maximize-btn-transition">
@@ -159,6 +165,7 @@
             :boxStyling="videoLinkInputStyling"
             :isDisabled="isPublished"
             v-tooltip.top="videoLinkTooltip"
+            data-test="videoLinkInput"
           ></input-text>
 
           <!--- plio title -->

@@ -148,4 +148,99 @@ describe("Editor.vue", () => {
     await wrapper.setData({ items: updatedDummyItems });
     expect(checkAndSavePlio).toHaveBeenCalled();
   });
+
+  it("handles video link updation correctly", async () => {
+    const checkAndSavePlio = jest.spyOn(Editor.methods, "checkAndSavePlio");
+    const wrapper = mount(Editor);
+    await wrapper
+      .find('[data-test="videoLinkInput"]')
+      .find('[data-test="input"]')
+      .setValue("invalid video url");
+
+    expect(wrapper.vm.isVideoIdValid).toBeFalsy();
+    expect(
+      wrapper.find('[data-test="videoPreviewSkeleton"]').exists()
+    ).toBeTruthy();
+    expect(wrapper.find('[data-test="videoPreview"]').exists()).toBeFalsy();
+    expect(
+      wrapper
+        .find('[data-test="videoLinkInput"]')
+        .find('[data-test="validationMessage"]')
+        .text()
+    ).toBe("Invalid Link");
+    expect(
+      wrapper
+        .find('[data-test="videoLinkInput"]')
+        .find('[data-test="validationMessage"]')
+        .classes()
+    ).toContain("text-red-600");
+
+    await wrapper
+      .find('[data-test="videoLinkInput"]')
+      .find('[data-test="input"]')
+      .setValue("https://www.youtube.com/watch?v=jdYJf_ybyVo");
+
+    expect(wrapper.vm.videoId).toBe("jdYJf_ybyVo");
+    expect(checkAndSavePlio).toHaveBeenCalled();
+    expect(wrapper.vm.isVideoIdValid).toBeTruthy();
+    expect(
+      wrapper
+        .find('[data-test="videoLinkInput"]')
+        .find('[data-test="validationMessage"]')
+        .exists()
+    ).toBeFalsy();
+  });
+
+  it("share plio button works correctly", async () => {
+    const showSharePlioLinkDialog = jest.spyOn(
+      Editor.methods,
+      "showSharePlioLinkDialog"
+    );
+    const showSharePlioDialog = jest.spyOn(
+      Editor.methods,
+      "showSharePlioDialog"
+    );
+    const wrapper = mount(Editor, {
+      global: {
+        stubs: {
+          DialogBox: {
+            template: "<span />",
+          },
+        },
+      },
+    });
+    await wrapper.setData({ videoId: "jdYJf_ybyVo" });
+
+    expect(
+      wrapper.find('[data-test="sharePlioButton"]').element.disabled
+    ).toBeTruthy();
+    expect(
+      wrapper
+        .find('[data-test="sharePlioButton"]')
+        .find('[data-test="title"]')
+        .text()
+    ).toBe("Share");
+    expect(
+      wrapper
+        .find('[data-test="sharePlioButton"]')
+        .find('[data-test="title"]')
+        .classes()
+    ).toContain("text-yellow-800");
+    expect(
+      wrapper
+        .find('[data-test="sharePlioButton"]')
+        .find('[data-test="title"]')
+        .classes()
+    ).toContain("text-yellow-800");
+
+    await wrapper.setData({ status: "published" });
+
+    expect(
+      wrapper.find('[data-test="sharePlioButton"]').element.disabled
+    ).toBeFalsy();
+
+    await wrapper.find('[data-test="sharePlioButton"]').trigger("click");
+    expect(showSharePlioLinkDialog).toHaveBeenCalled();
+    expect(showSharePlioDialog).toHaveBeenCalled();
+  });
 });
