@@ -306,7 +306,7 @@ describe("Home.vue", () => {
           resolve(dummyUniqueUserCountList);
         });
       });
-    const wrapper = mount(Home);
+    mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
