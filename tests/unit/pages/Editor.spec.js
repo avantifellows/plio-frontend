@@ -3,14 +3,21 @@ import mockAxios from "jest-mock-axios";
 
 import Editor from "@/pages/Editor.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
+import ItemEditor from "@/components/Editor/ItemEditor.vue";
+import InputText from "@/components/UI/Text/InputText.vue";
 import {
   dummyPlio,
   dummyItems,
   imageData,
 } from "@/services/Testing/DummyData.js";
+import store from "@/store";
+
+var cloneDeep = require("lodash.clonedeep");
+let dummyItemsCopy;
 
 beforeEach(() => {
   jest.useFakeTimers();
+  dummyItemsCopy = cloneDeep(dummyItems);
 });
 
 afterEach(() => {
@@ -89,7 +96,7 @@ describe("Editor.vue", () => {
     // using some pre-defined dummy data to return as a fake response
     // from the fake API call
     let plioResponse = dummyPlio;
-    let itemResponse = dummyItems;
+    let itemResponse = dummyItemsCopy;
 
     // resolve the two `GET` requests waiting in the queue
     // using the fake response data
@@ -100,8 +107,10 @@ describe("Editor.vue", () => {
     await flushPromises();
 
     // use `wrapper.vm.__` to access the updated data variables inside the component
-    expect(wrapper.vm.loadedPlioDetails.items).toStrictEqual(dummyItems.data);
-    expect(wrapper.vm.items).toStrictEqual(dummyItems.data);
+    expect(wrapper.vm.loadedPlioDetails.items).toStrictEqual(
+      dummyItemsCopy.data
+    );
+    expect(wrapper.vm.items).toStrictEqual(dummyItemsCopy.data);
     expect(wrapper.vm.videoURL).toEqual(dummyPlio.data.video.url);
     expect(wrapper.vm.plioTitle).toEqual(dummyPlio.data.name);
     expect(wrapper.vm.status).toEqual(dummyPlio.data.status);
@@ -144,11 +153,11 @@ describe("Editor.vue", () => {
     expect(checkAndSavePlio).not.toHaveBeenCalled();
 
     // add items to the component, the method should've been called
-    await wrapper.setData({ items: dummyItems.data });
+    await wrapper.setData({ items: dummyItemsCopy.data });
     expect(checkAndSavePlio).toHaveBeenCalled();
 
     // update the items, method should've been called
-    let updatedDummyItems = dummyItems.data;
+    let updatedDummyItems = dummyItemsCopy.data;
     updatedDummyItems[0].time = 20;
     await wrapper.setData({ items: updatedDummyItems });
     expect(checkAndSavePlio).toHaveBeenCalled();
@@ -290,7 +299,7 @@ describe("Editor.vue", () => {
     const maximizeModal = jest.spyOn(Editor.methods, "maximizeModal");
     const wrapper = mount(Editor);
     await wrapper.setData({
-      items: dummyItems.data,
+      items: dummyItemsCopy.data,
       currentItemIndex: 1,
       isModalMinimized: true,
       videoId: "jdYJf_ybyVo",
@@ -309,16 +318,16 @@ describe("Editor.vue", () => {
 
     // set some valid items and select the first item
     await wrapper.setData({
-      items: dummyItems.data,
+      items: dummyItemsCopy.data,
       currentItemIndex: 0,
     });
 
     // the correct timestamp value should be populated in itemTimestamps
-    expect(wrapper.vm.itemTimestamps[0]).toBe(dummyItems.data[0].time);
+    expect(wrapper.vm.itemTimestamps[0]).toBe(dummyItemsCopy.data[0].time);
 
     // update items with an invalid time value -> will call itemTimestamps watcher
     // the invalid time value should be fixed back to `MINIMUM_QUESTION_TIMESTAMP`
-    let updatedDummyItems = dummyItems.data;
+    let updatedDummyItems = dummyItemsCopy.data;
     updatedDummyItems[0].time = 0.1;
     await wrapper.setData({ items: updatedDummyItems });
 
@@ -340,14 +349,14 @@ describe("Editor.vue", () => {
     const wrapper = mount(Editor);
 
     await wrapper.setData({
-      items: dummyItems.data,
+      items: dummyItemsCopy.data,
       currentItemIndex: 0,
     });
 
     expect(wrapper.vm.itemImage).toBe(null);
 
     const imageURL = "test url";
-    const dummyItemsWithImage = dummyItems.data;
+    const dummyItemsWithImage = dummyItemsCopy.data;
     dummyItemsWithImage[0].details.image = {
       id: 56,
       url: imageURL,
@@ -367,23 +376,23 @@ describe("Editor.vue", () => {
     const wrapper = mount(Editor);
     await wrapper.setData({
       currentItemIndex: 0,
-      items: dummyItems.data,
+      items: dummyItemsCopy.data,
     });
     expect(wrapper.vm.itemType).toBe(null);
     await wrapper.setData({
       isItemSelected: true,
     });
-    expect(wrapper.vm.itemType).toBe(dummyItems.data[0].type);
+    expect(wrapper.vm.itemType).toBe(dummyItemsCopy.data[0].type);
   });
 
   it("computes correctOptionInex correctly", async () => {
     const wrapper = mount(Editor);
     await wrapper.setData({
-      items: dummyItems.data,
+      items: dummyItemsCopy.data,
       currentItemIndex: 0,
     });
     expect(wrapper.vm.correctOptionIndex).toBe(
-      dummyItems.data[0].details.correct_answer
+      dummyItemsCopy.data[0].details.correct_answer
     );
   });
 
@@ -574,7 +583,7 @@ describe("Editor.vue", () => {
     const deleteLinkedImage = jest.spyOn(Editor.methods, "deleteLinkedImage");
     const wrapper = mount(Editor);
 
-    const dummyItemsWithImage = dummyItems.data;
+    const dummyItemsWithImage = dummyItemsCopy.data;
     dummyItemsWithImage[0].details.image = {
       id: 56,
       url: "https://plio-prod-assets.s3.amazonaws.com/images/hxojrjdasf.png",
@@ -603,7 +612,7 @@ describe("Editor.vue", () => {
     const submitImage = jest.spyOn(ImageUploaderDialog.methods, "submitImage");
     const wrapper = mount(Editor);
     await wrapper.setData({
-      items: dummyItems.data,
+      items: dummyItemsCopy.data,
       showImageUploaderDialog: true,
       currentItemIndex: 0,
     });
@@ -635,5 +644,161 @@ describe("Editor.vue", () => {
 
     await flushPromises();
     expect(wrapper.vm.items[0].details.image).toBe("mock response");
+  });
+
+  it("delete option functionality works correctly", async () => {
+    const endIconSelected = jest.spyOn(InputText.methods, "endIconSelected");
+    const itemEditorDeleteOption = jest.spyOn(
+      ItemEditor.methods,
+      "deleteOption"
+    );
+    const editorDeleteOption = jest.spyOn(Editor.methods, "deleteOption");
+    const wrapper = mount(Editor);
+    await wrapper.setData({
+      items: dummyItemsCopy.data,
+      currentItemIndex: 0,
+      videoDuration: 200,
+      status: "draft",
+      currentQuestionTypeIndex: 0,
+    });
+
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[4];
+
+    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+
+    expect(endIconSelected).toHaveBeenCalled();
+    expect(inputTextWrapper.emitted()).toHaveProperty("end-icon-selected");
+
+    expect(itemEditorDeleteOption).toHaveBeenCalled();
+    expect(itemEditorWrapper.emitted()).toHaveProperty("delete-option");
+
+    expect(editorDeleteOption).toHaveBeenCalled();
+    expect(wrapper.vm.dialogTitle).toBe(
+      "Are you sure you want to delete this option?"
+    );
+    expect(wrapper.vm.dialogDescription).toBe("");
+    expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
+    expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Yes");
+    expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
+      "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0"
+    );
+    expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeTruthy();
+    expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("No");
+    expect(wrapper.vm.dialogCancelButtonConfig.class).toBe(
+      "bg-white hover:bg-gray-100 focus:outline-none text-primary"
+    );
+    expect(wrapper.vm.optionIndexToDelete).toBe(0);
+    expect(wrapper.vm.dialogAction).toBe("deleteOption");
+    expect(wrapper.vm.showDialogBox).toBeTruthy();
+  });
+
+  it("add new item functionality works correctly", async () => {
+    const mockPlayer = {
+      pause: jest.fn(),
+      destroy: jest.fn(),
+    };
+    const addNewItem = jest.spyOn(Editor.methods, "addNewItem");
+    const showCannotAddItemDialog = jest.spyOn(
+      Editor.methods,
+      "showCannotAddItemDialog"
+    );
+    const getDetailsForNewQuestion = jest.spyOn(
+      Editor.methods,
+      "getDetailsForNewQuestion"
+    );
+    const markItemSelected = jest.spyOn(Editor.methods, "markItemSelected");
+    const wrapper = mount(Editor, {
+      global: {
+        mocks: {
+          player: mockPlayer,
+        },
+      },
+    });
+    await wrapper.setData({
+      items: dummyItemsCopy.data,
+      currentItemIndex: null,
+      videoId: "jdYJf_ybyVo",
+      currentTimestamp: 15.6,
+    });
+    await store.dispatch("sync/stopLoading");
+
+    await wrapper.find('[data-test="addMCQItem"]').trigger("click");
+    expect(addNewItem).toHaveBeenCalled();
+    expect(showCannotAddItemDialog).toHaveBeenCalled();
+    expect(wrapper.vm.pending).toBeFalsy();
+
+    await wrapper.setData({
+      items: dummyItems.data,
+      currentItemIndex: null,
+      videoId: "jdYJf_ybyVo",
+      currentTimestamp: 12,
+      plioDBId: 13,
+    });
+    await store.dispatch("sync/stopLoading");
+
+    await wrapper.find('[data-test="addMCQItem"]').trigger("click");
+    expect(addNewItem).toHaveBeenCalled();
+
+    expect(mockAxios.post).toHaveBeenCalledWith("/items/", {
+      plio: 13,
+      type: "question",
+      time: 12,
+      meta: { source: { name: "default" } },
+    });
+    // using some pre-defined dummy data to return as a fake response
+    // from the fake API call
+    let createdItemResponse = {
+      data: {
+        id: 212,
+        plio: 13,
+        type: "question",
+        time: 12,
+        meta: {
+          source: {
+            name: "default",
+          },
+        },
+        created_at: "2021-07-10T22:50:55.102379Z",
+        updated_at: "2021-07-10T22:50:55.102466Z",
+      },
+    };
+
+    // resolve the two `GET` requests waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(createdItemResponse, mockAxios.lastReqGet());
+    await flushPromises();
+    expect(getDetailsForNewQuestion).toHaveBeenCalled();
+
+    expect(mockAxios.post).toHaveBeenCalledWith("/questions/", {
+      correct_answer: 0,
+      text: "",
+      type: "mcq",
+      options: ["", ""],
+      max_char_limit: 100,
+      item: createdItemResponse.data.id,
+    });
+
+    let createdQuestionResponse = {
+      data: {
+        id: 212,
+        item: 212,
+        text: "",
+        type: "mcq",
+        options: ["", ""],
+        correct_answer: "0",
+        image: null,
+        has_char_limit: false,
+        max_char_limit: 100,
+        created_at: "2021-07-10T22:50:55.280135Z",
+        updated_at: "2021-07-10T22:50:55.280210Z",
+      },
+    };
+
+    mockAxios.mockResponse(createdQuestionResponse, mockAxios.lastReqGet());
+    await flushPromises();
+
+    expect(markItemSelected).toHaveBeenCalled();
+    expect(wrapper.vm.pending).toBeFalsy();
   });
 });

@@ -206,6 +206,7 @@
                   class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                   :class="questionTypeSelectorClass"
                   v-tooltip.bottom="addMCQTooltip"
+                  data-test="addMCQItem"
                 >
                   <inline-svg
                     :src="getIconSource('radio-button.svg')"
@@ -219,6 +220,7 @@
                   class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                   :class="questionTypeSelectorClass"
                   v-tooltip.bottom="addSubjectiveQuestionTooltip"
+                  data-test="addSubjectiveItem"
                 >
                   <inline-svg
                     :src="getIconSource('subjective-question.svg')"
@@ -244,6 +246,7 @@
             @error-resolved="setErrorResolved"
             @question-type-changed="questionTypeChanged"
             @show-image-uploader="toggleImageUploaderBox"
+            data-test="itemEditor"
           ></item-editor>
         </div>
       </div>
@@ -1261,7 +1264,6 @@ export default {
     addNewItem(questionType) {
       this.player.pause();
       this.startLoading();
-      setTimeout(() => {}, 5000);
       const currentTimestamp = this.currentTimestamp;
       // newItem object will store the information of the newly created
       // item and the question
@@ -1340,14 +1342,13 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class: `bg-primary-button hover:bg-primary-button-hover
-          focus:outline-none focus:ring-0`,
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
         text: this.$t("generic.no"),
-        class: `bg-white hover:bg-gray-100 focus:outline-none
-          text-primary`,
+        class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
       };
 
       // set the index to delete, set the dialog action, show the dialog
