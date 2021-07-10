@@ -33,6 +33,11 @@ const VueProgressBar = {
   template: "<div></div>",
 };
 
+// stub for <transition> tags
+const transition = {
+  template: "<div></div>",
+};
+
 config.global = {
   plugins: [Toast, store],
   mocks: {
@@ -49,6 +54,7 @@ config.global = {
   stubs: {
     InlineSvg: InlineSvg,
     VueProgressBar: VueProgressBar,
+    transition: transition,
   },
 };
 

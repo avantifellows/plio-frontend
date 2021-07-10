@@ -26,6 +26,7 @@
             :iconConfig="playPlioIconConfig"
             :buttonClass="playPlioButtonClass"
             @click="redirectToPlayer"
+            data-test="playPlioButton"
           ></icon-button>
         </div>
 
@@ -57,7 +58,7 @@
                 data-test="videoPlayer"
               ></video-player>
               <!-- maximize button -->
-              <transition name="maximize-btn-transition">
+              <transition name="maximize-btn-transition" data-test="transitionMaximize">
                 <icon-button
                   v-if="showItemModal && isModalMinimized"
                   :titleConfig="maximizeButtonTitleClass"
@@ -65,6 +66,7 @@
                   @click="maximizeModal"
                   class="absolute z-20"
                   id="maximizeButton"
+                  data-test="maximizeButton"
                 ></icon-button>
               </transition>
               <!-- transition for minimizing/maximizing item modal -->

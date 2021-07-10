@@ -243,4 +243,118 @@ describe("Editor.vue", () => {
     expect(showSharePlioLinkDialog).toHaveBeenCalled();
     expect(showSharePlioDialog).toHaveBeenCalled();
   });
+
+  it("play button works correctly", async () => {
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+    const plioId = "123";
+    const redirectToPlayer = jest.spyOn(Editor.methods, "redirectToPlayer");
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
+    expect(
+      wrapper.find('[data-test="playPlioButton"]').element.disabled
+    ).toBeTruthy();
+
+    await wrapper.setData({ status: "published" });
+    expect(
+      wrapper.find('[data-test="playPlioButton"]').element.disabled
+    ).toBeFalsy();
+
+    await wrapper.find('[data-test="playPlioButton"]').trigger("click");
+    expect(redirectToPlayer).toHaveBeenCalled();
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: "Player",
+      params: {
+        org: "",
+        plioId: plioId,
+      },
+    });
+  });
+
+  it("maximize modal functions correctly", async () => {
+    const maximizeModal = jest.spyOn(Editor.methods, "maximizeModal");
+    const wrapper = mount(Editor);
+    await wrapper.setData({
+      items: dummyItems.data,
+      currentItemIndex: 1,
+      isModalMinimized: true,
+      videoId: "jdYJf_ybyVo",
+    });
+
+    await wrapper.find('[data-test="maximizeButton"]').trigger("click");
+    expect(maximizeModal).toHaveBeenCalled();
+    expect(wrapper.vm.isModalMinimized).toBe(false);
+  });
+
+  it("checks that no question time is smaller than minimum question timestamp", async () => {
+    const wrapper = mount(Editor, { shallow: true });
+    // defined in Editor.vue, cannot access the variable from there,
+    // hence harcoding here
+    const MINIMUM_QUESTION_TIMESTAMP = 0.6;
+
+    // set some valid items and select the first item
+    await wrapper.setData({
+      items: dummyItems.data,
+      currentItemIndex: 0,
+    });
+
+    // the correct timestamp value should be populated in itemTimestamps
+    expect(wrapper.vm.itemTimestamps[0]).toBe(dummyItems.data[0].time);
+
+    // update items with an invalid time value -> will call itemTimestamps watcher
+    // the invalid time value should be fixed back to `MINIMUM_QUESTION_TIMESTAMP`
+    let updatedDummyItems = dummyItems.data;
+    updatedDummyItems[0].time = 0.1;
+    await wrapper.setData({ items: updatedDummyItems });
+
+    expect(wrapper.vm.items[0].time).toBe(MINIMUM_QUESTION_TIMESTAMP);
+  });
+
+  it("handles title updation correctly", async () => {
+    const checkAndSavePlio = jest.spyOn(Editor.methods, "checkAndSavePlio");
+    const wrapper = mount(Editor);
+
+    await wrapper.setData({ plioTitle: "title for plio" });
+    expect(wrapper.vm.loadedPlioDetails.plioTitle).not.toBe(
+      wrapper.vm.plioTitle
+    );
+    expect(checkAndSavePlio).toHaveBeenCalled();
+  });
+
+  it("computes the itemImage property correctly", async () => {
+    const wrapper = mount(Editor);
+
+    await wrapper.setData({
+      items: dummyItems.data,
+      currentItemIndex: 0,
+    });
+
+    expect(wrapper.vm.itemImage).toBe(null);
+
+    const imageURL = "test url";
+    const dummyItemsWithImage = dummyItems.data;
+    dummyItemsWithImage[0].details.image = {
+      id: 56,
+      url: imageURL,
+      alt_text: "Image",
+      created_at: "2021-07-02T12:58:41.683683Z",
+      updated_at: "2021-07-02T12:58:41.684174Z",
+    };
+
+    await wrapper.setData({
+      items: dummyItemsWithImage,
+    });
+
+    expect(wrapper.vm.itemImage).toBe(imageURL);
+  });
 });
