@@ -267,6 +267,7 @@
       @close-dialog="toggleImageUploaderBox"
       @image-selected="uploadImage"
       @delete-image="deleteLinkedImage"
+      data-test="imageUploaderDialog"
     ></ImageUploaderDialog>
 
     <ConfettiCelebration v-if="showPublishedPlioDialog" class="z-0"></ConfettiCelebration>

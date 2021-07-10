@@ -2,7 +2,12 @@ import { mount, flushPromises } from "@vue/test-utils";
 import mockAxios from "jest-mock-axios";
 
 import Editor from "@/pages/Editor.vue";
-import { dummyPlio, dummyItems } from "@/services/Testing/DummyData.js";
+import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
+import {
+  dummyPlio,
+  dummyItems,
+  imageData,
+} from "@/services/Testing/DummyData.js";
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -563,5 +568,72 @@ describe("Editor.vue", () => {
         plioId: "",
       },
     });
+  });
+
+  it("deletes linked image properly", async () => {
+    const deleteLinkedImage = jest.spyOn(Editor.methods, "deleteLinkedImage");
+    const wrapper = mount(Editor);
+
+    const dummyItemsWithImage = dummyItems.data;
+    dummyItemsWithImage[0].details.image = {
+      id: 56,
+      url: "https://plio-prod-assets.s3.amazonaws.com/images/hxojrjdasf.png",
+      alt_text: "Image",
+      created_at: "2021-07-02T12:58:41.683683Z",
+      updated_at: "2021-07-02T12:58:41.684174Z",
+    };
+
+    await wrapper.setData({
+      showImageUploaderDialog: true,
+      items: dummyItemsWithImage,
+      itemImage: dummyItemsWithImage[0].details.image.url,
+      currentItemIndex: 0,
+    });
+
+    await wrapper
+      .find('[data-test="imageUploaderDialog"]')
+      .find('[data-test="deleteImageButton"]')
+      .trigger("click");
+    expect(deleteLinkedImage).toHaveBeenCalled();
+  });
+
+  it("uploads image properly via ImageUploaderDialog", async () => {
+    mockAxios.reset();
+    const uploadImage = jest.spyOn(Editor.methods, "uploadImage");
+    const submitImage = jest.spyOn(ImageUploaderDialog.methods, "submitImage");
+    const wrapper = mount(Editor);
+    await wrapper.setData({
+      items: dummyItems.data,
+      showImageUploaderDialog: true,
+      currentItemIndex: 0,
+    });
+
+    let imageUploaderWrapper = wrapper.findComponent(ImageUploaderDialog);
+    imageUploaderWrapper.setData({
+      localImageData: imageData,
+    });
+
+    await imageUploaderWrapper
+      .find('[data-test="submitImageButton"]')
+      .trigger("click");
+
+    expect(submitImage).toHaveBeenCalled();
+    expect(uploadImage).toHaveBeenCalled();
+
+    expect(mockAxios.post).toHaveBeenCalledTimes(1);
+    expect(mockAxios.post).toHaveBeenCalledWith(
+      `/images/`,
+      mockAxios.lastReqGet().data
+    );
+
+    mockAxios.mockResponse(
+      {
+        data: "mock response",
+      },
+      mockAxios.lastReqGet()
+    );
+
+    await flushPromises();
+    expect(wrapper.vm.items[0].details.image).toBe("mock response");
   });
 });
