@@ -357,4 +357,211 @@ describe("Editor.vue", () => {
 
     expect(wrapper.vm.itemImage).toBe(imageURL);
   });
+
+  it("computes itemType correctly", async () => {
+    const wrapper = mount(Editor);
+    await wrapper.setData({
+      currentItemIndex: 0,
+      items: dummyItems.data,
+    });
+    expect(wrapper.vm.itemType).toBe(null);
+    await wrapper.setData({
+      isItemSelected: true,
+    });
+    expect(wrapper.vm.itemType).toBe(dummyItems.data[0].type);
+  });
+
+  it("computes correctOptionInex correctly", async () => {
+    const wrapper = mount(Editor);
+    await wrapper.setData({
+      items: dummyItems.data,
+      currentItemIndex: 0,
+    });
+    expect(wrapper.vm.correctOptionIndex).toBe(
+      dummyItems.data[0].details.correct_answer
+    );
+  });
+
+  it("renders publish button tooltip correctly", async () => {
+    const wrapper = mount(Editor);
+    await wrapper.setData({
+      status: "published",
+      hasUnpublishedChanges: true,
+    });
+    expect(wrapper.vm.publishButtonTooltip).toBe(
+      "Click to publish your changes"
+    );
+    expect(
+      wrapper.find('[data-test="publishButton"]').element.$_ptooltipValue
+    ).toBe("Click to publish your changes");
+  });
+
+  it("shows dialog correctly when publish button is clicked", async () => {
+    const wrapper = mount(Editor);
+
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+    expect(wrapper.vm.publishDialogTitle).toBe(
+      "Are you sure you want to publish the plio?"
+    );
+    expect(wrapper.vm.dialogTitle).toBe(
+      "Are you sure you want to publish the plio?"
+    );
+    expect(wrapper.vm.publishDialogDescription).toBe(
+      "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question"
+    );
+    expect(wrapper.vm.dialogDescription).toBe(
+      "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question"
+    );
+    expect(wrapper.vm.dialogConfirmButtonConfig).toStrictEqual({
+      enabled: true,
+      text: "Yes",
+      class:
+        "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+    });
+    expect(wrapper.vm.dialogCancelButtonConfig).toStrictEqual({
+      enabled: true,
+      text: "No",
+      class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
+    });
+    expect(wrapper.vm.dialogAction).toBe("publish");
+    expect(wrapper.vm.showDialogBox).toBeTruthy();
+
+    await wrapper.setData({ status: "published" });
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+    expect(wrapper.vm.publishDialogTitle).toBe(
+      "Are you sure you want to publish your changes?"
+    );
+    expect(wrapper.vm.dialogTitle).toBe(
+      "Are you sure you want to publish your changes?"
+    );
+    expect(wrapper.vm.publishDialogDescription).toBe(
+      "The plio will be permananently changed once you publish the changes"
+    );
+    expect(wrapper.vm.dialogDescription).toBe(
+      "The plio will be permananently changed once you publish the changes"
+    );
+  });
+
+  it("dialog box buttons work correctly", async () => {
+    const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
+    const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
+    const publishButtonClicked = jest.spyOn(
+      Editor.methods,
+      "publishButtonClicked"
+    );
+    const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
+    const wrapper = mount(Editor);
+
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+    expect(publishButtonClicked).toHaveBeenCalled();
+
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
+    expect(dialogConfirmed).toHaveBeenCalled();
+    expect(wrapper.vm.dialogDescription).toBe("");
+    expect(confirmPublish).toHaveBeenCalled();
+    expect(wrapper.vm.dialogAction).toBe("");
+    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.dialogTitle).toBe("Publishing the plio...");
+    expect(wrapper.vm.publishInProgressDialogTitle).toBe(
+      "Publishing the changes.."
+    );
+    expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeFalsy();
+    expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("");
+    expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe("");
+    expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeFalsy();
+    expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("");
+    expect(wrapper.vm.dialogCancelButtonConfig.class).toBe("");
+    expect(publishPlio).toHaveBeenCalled();
+  });
+
+  it("share plio button inside the share dialog works correctly", async () => {
+    const hidePublishedDialogShowShareDialog = jest.spyOn(
+      Editor.methods,
+      "hidePublishedDialogShowShareDialog"
+    );
+    const showSharePlioLinkDialog = jest.spyOn(
+      Editor.methods,
+      "showSharePlioLinkDialog"
+    );
+    const showSharePlioDialog = jest.spyOn(
+      Editor.methods,
+      "showSharePlioDialog"
+    );
+    jest.spyOn(Editor.methods, "savePlio").mockImplementation(() => {
+      return new Promise((resolve) => resolve());
+    });
+
+    // mock player
+    const mockPlayer = {
+      pause: jest.fn(),
+      destroy: jest.fn(),
+    };
+
+    const wrapper = mount(Editor, {
+      shallow: true,
+      global: {
+        mocks: {
+          player: mockPlayer,
+        },
+      },
+    });
+    await wrapper.setData({
+      showPublishedPlioDialog: true,
+      videoId: "jdYJf_ybyVo",
+    });
+
+    await wrapper.find('[data-test="dialogShareButton"]').trigger("click");
+    expect(hidePublishedDialogShowShareDialog).toHaveBeenCalled();
+    expect(wrapper.vm.showPublishedPlioDialog).toBeFalsy();
+    expect(showSharePlioLinkDialog).toHaveBeenCalled();
+    expect(showSharePlioDialog).toHaveBeenCalled();
+  });
+
+  it("closes the published plio dialog properly", async () => {
+    const closePublishedPlioDialog = jest.spyOn(
+      Editor.methods,
+      "closePublishedPlioDialog"
+    );
+    const wrapper = mount(Editor);
+    await wrapper.setData({
+      showPublishedPlioDialog: true,
+      videoId: "jdYJf_ybyVo",
+    });
+
+    await wrapper
+      .find('[data-test="closePublishedPlioDialogButton"]')
+      .trigger("click");
+    expect(closePublishedPlioDialog).toHaveBeenCalled();
+    expect(wrapper.vm.showPublishedPlioDialog).toBeFalsy();
+  });
+
+  it("redirects to dashboard when analyse button is clicked", async () => {
+    const redirectToDashboard = jest.spyOn(
+      Editor.methods,
+      "redirectToDashboard"
+    );
+    const mockRouter = { push: jest.fn() };
+    const wrapper = mount(Editor, {
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
+    await wrapper.setData({
+      status: "published",
+    });
+    await wrapper.find('[data-test="analyseButton"]').trigger("click");
+    expect(redirectToDashboard).toHaveBeenCalled();
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: "Dashboard",
+      params: {
+        org: "",
+        plioId: "",
+      },
+    });
+  });
 });

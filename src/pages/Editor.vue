@@ -129,6 +129,7 @@
             class="shadow-lg"
             v-tooltip.right="publishButtonTooltip"
             @click="publishButtonClicked"
+            data-test="publishButton"
           ></icon-button>
           <!-- analyze plio -->
           <icon-button
@@ -137,6 +138,7 @@
             :iconConfig="analyzePlioIconConfig"
             :buttonClass="analyzePlioButtonClass"
             @click="redirectToDashboard"
+            data-test="analyseButton"
           ></icon-button>
         </div>
       </div>
@@ -256,6 +258,7 @@
       :cancelButtonConfig="dialogCancelButtonConfig"
       @confirm="dialogConfirmed"
       @cancel="dialogCancelled"
+      data-test="dialogBox"
     ></dialog-box>
     <!-- image uploader dialog box -->
     <ImageUploaderDialog
@@ -280,6 +283,7 @@
           :iconConfig="closeDialogIconConfig"
           :buttonClass="closeDialogButtonClass"
           @click="closePublishedPlioDialog"
+          data-test="closePublishedPlioDialogButton"
         ></icon-button>
       </div>
 
@@ -295,6 +299,7 @@
             :iconConfig="sharePlioIconConfig"
             :buttonClass="sharePlioButtonClass"
             @click="hidePublishedDialogShowShareDialog"
+            data-test="dialogShareButton"
           ></icon-button>
 
           <!-- play plio -->
@@ -562,16 +567,11 @@ export default {
         "hover:bg-primary hover:text-white hover:border-primary": !this.addItemDisabled,
       };
     },
-    currentItemType() {
-      // type of the current selected item -
-      // eg - question, note etc
-      return this.items[this.currentItemIndex].type;
-    },
     maximizeButtonTitleClass() {
       // styling class for the title of minimize button
       return {
         value: this.isModalMinimized
-          ? this.$t(`editor.buttons.show_${this.currentItemType}`)
+          ? this.$t(`editor.buttons.show_${this.itemType}`)
           : this.$t("editor.buttons.show_video"),
         class: "text-white text-xs lg:text-sm tracking-tighter",
       };
@@ -647,10 +647,6 @@ export default {
         invalidMessage: this.$t("editor.video_input.validation.invalid"),
       };
     },
-    urlStyleClass() {
-      // style for the URL
-      return "text-sm sm:text-md lg:text-lg h-full text-yellow-600 font-bold tracking-tighter";
-    },
     player() {
       // returns the player instance
       return this.$refs.videoPlayer.player;
@@ -702,14 +698,6 @@ export default {
       // class for the sync status text
       return {
         "text-red-500": this.isPublished && this.hasUnpublishedChanges,
-      };
-    },
-    backButtonIconConfig() {
-      // config for icon of back button
-      return {
-        enabled: true,
-        iconName: "chevron-left-solid",
-        iconClass: "w-4 h-4 ml-2 text-primary",
       };
     },
     backButtonClass() {
@@ -768,10 +756,6 @@ export default {
       // whether the plio has been pubished
       return this.status == "published";
     },
-    isDraftCreated() {
-      // whether the draft has been created
-      return this.plioId != "";
-    },
     videoInputPlaceholder() {
       // placeholder text for the video link input box
       return this.$t("editor.video_input.placeholder");
@@ -819,17 +803,6 @@ export default {
         return this.$t("editor.dialog.publishing.published.title");
       }
       return this.$t("editor.dialog.publishing.draft.title");
-    },
-    addItemButtonClass() {
-      // styling class for add item button
-      // disabled the button if plio is published
-      var classObject = [
-        { "cursor-not-allowed": this.addItemDisabled },
-
-        `rounded-md font-bold p-5 h-12 w-full bg-primary-button ring-primary
-        hover:bg-primary-button-hover disabled:opacity-50 shadow-lg`,
-      ];
-      return classObject;
     },
     addItemDisabled() {
       // whether adding item is disabled
