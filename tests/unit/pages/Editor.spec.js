@@ -411,6 +411,14 @@ describe("Editor.vue", () => {
   });
 
   it("shows dialog correctly when publish button is clicked", async () => {
+    const savePlio = jest
+      .spyOn(Editor.methods, "savePlio")
+      .mockImplementation(() => {
+        return new Promise((resolve) => resolve());
+      });
+    const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
+    const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
+    const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
     const wrapper = mount(Editor);
 
     await wrapper.find('[data-test="publishButton"]').trigger("click");
@@ -454,6 +462,22 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogDescription).toBe(
       "The plio will be permananently changed once you publish the changes"
     );
+
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
+    expect(dialogConfirmed).toHaveBeenCalled();
+    expect(confirmPublish).toHaveBeenCalled();
+    expect(publishPlio).toHaveBeenCalled();
+    expect(wrapper.vm.status).toBe("published");
+    expect(savePlio).toHaveBeenCalled();
+
+    await flushPromises();
+    expect(wrapper.vm.isBeingPublished).toBeFalsy();
+    expect(wrapper.vm.showDialogBox).toBeFalsy();
+    expect(wrapper.vm.showPublishedPlioDialog).toBeTruthy();
+    expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
   });
 
   it("dialog box buttons work correctly", async () => {
@@ -653,6 +677,15 @@ describe("Editor.vue", () => {
       "deleteOption"
     );
     const editorDeleteOption = jest.spyOn(Editor.methods, "deleteOption");
+    const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
+    const confirmDeleteOption = jest.spyOn(
+      Editor.methods,
+      "confirmDeleteOption"
+    );
+    const showCannotDeleteOptionDialog = jest.spyOn(
+      Editor.methods,
+      "showCannotDeleteOptionDialog"
+    );
     const wrapper = mount(Editor);
     await wrapper.setData({
       items: dummyItemsCopy.data,
@@ -691,6 +724,80 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.optionIndexToDelete).toBe(0);
     expect(wrapper.vm.dialogAction).toBe("deleteOption");
     expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
+
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
+    expect(dialogConfirmed).toHaveBeenCalled();
+    expect(confirmDeleteOption).toHaveBeenCalled();
+    expect(showCannotDeleteOptionDialog).toHaveBeenCalled();
+
+    expect(wrapper.vm.dialogTitle).toBe("Cannot delete the option");
+    expect(wrapper.vm.dialogDescription).toBe(
+      "A question must have at least 2 options"
+    );
+    expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
+    expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Got it");
+    expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
+      "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0"
+    );
+    expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeFalsy();
+    expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("");
+    expect(wrapper.vm.dialogCancelButtonConfig.class).toBe("");
+    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
+
+    let updatedDummyItems = dummyItemsCopy.data;
+    updatedDummyItems[0].details.options.push("option 3");
+    await wrapper.setData({
+      items: updatedDummyItems,
+      currentItemIndex: 0,
+      videoDuration: 200,
+      status: "draft",
+      currentQuestionTypeIndex: 0,
+    });
+
+    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+
+    expect(endIconSelected).toHaveBeenCalled();
+    expect(inputTextWrapper.emitted()).toHaveProperty("end-icon-selected");
+
+    expect(itemEditorDeleteOption).toHaveBeenCalled();
+    expect(itemEditorWrapper.emitted()).toHaveProperty("delete-option");
+
+    expect(editorDeleteOption).toHaveBeenCalled();
+    expect(wrapper.vm.dialogTitle).toBe(
+      "Are you sure you want to delete this option?"
+    );
+    expect(wrapper.vm.dialogDescription).toBe("");
+    expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
+    expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Yes");
+    expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
+      "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0"
+    );
+    expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeTruthy();
+    expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("No");
+    expect(wrapper.vm.dialogCancelButtonConfig.class).toBe(
+      "bg-white hover:bg-gray-100 focus:outline-none text-primary"
+    );
+    expect(wrapper.vm.optionIndexToDelete).toBe(0);
+    expect(wrapper.vm.dialogAction).toBe("deleteOption");
+    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
+
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
+    expect(dialogConfirmed).toHaveBeenCalled();
+    expect(confirmDeleteOption).toHaveBeenCalled();
+    expect(wrapper.vm.optionIndexToDelete).toBe(-1);
+    expect(wrapper.vm.items[0].details.options.length).toBe(2);
   });
 
   it("add new item functionality works correctly", async () => {
@@ -800,5 +907,64 @@ describe("Editor.vue", () => {
 
     expect(markItemSelected).toHaveBeenCalled();
     expect(wrapper.vm.pending).toBeFalsy();
+  });
+
+  it("delete item functionality works correctly", async () => {
+    const deleteSelectedItem = jest.spyOn(
+      ItemEditor.methods,
+      "deleteSelectedItem"
+    );
+    const deleteItemButtonClicked = jest.spyOn(
+      Editor.methods,
+      "deleteItemButtonClicked"
+    );
+    const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
+    const editorDeleteSelectedItem = jest.spyOn(
+      Editor.methods,
+      "deleteSelectedItem"
+    );
+    const wrapper = mount(Editor);
+    await wrapper.setData({
+      items: dummyItemsCopy.data,
+      currentItemIndex: 0,
+      videoDuration: 200,
+      status: "draft",
+      currentQuestionTypeIndex: 0,
+      itemType: "question",
+    });
+
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    await itemEditorWrapper.find('[data-test="deleteItem"]').trigger("click");
+
+    expect(deleteSelectedItem).toHaveBeenCalled();
+    expect(itemEditorWrapper.emitted()).toHaveProperty("delete-selected-item");
+    expect(deleteItemButtonClicked).toHaveBeenCalled();
+    expect(wrapper.vm.dialogTitle).toBe(
+      "Are you sure you want to delete this?"
+    );
+    expect(wrapper.vm.dialogDescription).toBe(
+      "This will permanently delete this question"
+    );
+    expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
+    expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Yes");
+    expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
+      "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0"
+    );
+    expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeTruthy();
+    expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("No");
+    expect(wrapper.vm.dialogCancelButtonConfig.class).toBe(
+      "bg-white hover:bg-gray-100 focus:outline-none text-primary"
+    );
+    expect(wrapper.vm.dialogAction).toBe("deleteItem");
+    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
+
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
+    expect(dialogConfirmed).toHaveBeenCalled();
+    expect(editorDeleteSelectedItem).toHaveBeenCalled();
+    expect(wrapper.vm.items.length).toBeLessThan(dummyItemsCopy.data.length);
   });
 });

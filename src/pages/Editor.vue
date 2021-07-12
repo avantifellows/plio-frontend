@@ -1138,7 +1138,7 @@ export default {
       // call separate methods depening on the dialog action that
       // was set
       if (this.dialogAction == "publish") this.confirmPublish();
-      else if (this.dialogAction == "deleteItem") this.confirmDeleteItem();
+      else if (this.dialogAction == "deleteItem") this.deleteSelectedItem();
       else if (this.dialogAction == "deleteOption") this.confirmDeleteOption();
       else if (this.dialogAction == "closeDialog") this.showDialogBox = false;
 
@@ -1213,10 +1213,6 @@ export default {
       };
       // publish the plio or its changes
       this.publishPlio();
-    },
-    confirmDeleteItem() {
-      // delete the selected item after user confirms
-      this.deleteSelectedItem();
     },
     confirmDeleteOption() {
       // invoked when the confirm button of the dialog box for deleting option is clicked
