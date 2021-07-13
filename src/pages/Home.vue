@@ -47,7 +47,10 @@
       </Paginator>
 
       <!-- no plios exist warning -->
-      <div v-if="!showTable" class="flex flex-col bg-white w-full m-auto mt-32 px-8">
+      <div
+        v-if="!showTable"
+        class="flex flex-col bg-white w-full m-auto mt-32 px-8"
+      >
         <inline-svg
           :src="noPliosIcon"
           class="w-50 h-50 opacity-50 place-self-center m-10"
@@ -90,7 +93,8 @@ export default {
   },
   watch: {
     async activeWorkspace() {
-      if (this.isUserApproved) await this.fetchPlioIds();
+      if (this.isUserApproved)
+        await this.fetchPlioIds({ changedWorkspace: true });
     },
     isUserApproved(value) {
       // fetch plios again if user approval status changes
@@ -172,10 +176,14 @@ export default {
       //if params contain a searchString or pageNumber, save it into a variable,
       //else save the variable as undefined
       var searchString =
-        params != undefined && "searchString" in params ? params.searchString : undefined;
+        params != undefined && "searchString" in params
+          ? params.searchString
+          : undefined;
 
       var pageNumber =
-        params != undefined && "pageNumber" in params ? params.pageNumber : undefined;
+        params != undefined && "pageNumber" in params
+          ? params.pageNumber
+          : undefined;
 
       // if the params contain a valid searchString, update the local searchString variable
       if (searchString != undefined && searchString != "")
@@ -183,6 +191,8 @@ export default {
 
       // if the params contain a valid pageNumber, update the local currentPageNumber variable
       if (pageNumber != undefined) this.currentPageNumber = pageNumber;
+
+      if (changedWorkspace) this.currentPageNumber = undefined;
 
       await PlioAPIService.getAllPlios(
         uuidOnly,
@@ -203,9 +213,11 @@ export default {
         })
         .then(async (plioIdList) => {
           // fetch the list of unique users for each plio
-          await PlioAPIService.getUniqueUsersCountList(plioIdList).then((response) => {
-            this.countUniqueUsersList = response;
-          });
+          await PlioAPIService.getUniqueUsersCountList(plioIdList).then(
+            (response) => {
+              this.countUniqueUsersList = response;
+            }
+          );
           return Promise.resolve(plioIdList);
         })
         .then((plioIdList) => this.prepareTableData(plioIdList)); // prepare the data for the table
@@ -242,7 +254,11 @@ export default {
         const plioId = plioIdList[plioIndex];
         var tableRow = {};
 
-        for (let colIndex = 0; colIndex < this.tableColumns.length; colIndex++) {
+        for (
+          let colIndex = 0;
+          colIndex < this.tableColumns.length;
+          colIndex++
+        ) {
           const column = this.tableColumns[colIndex];
           switch (column) {
             case "name":
