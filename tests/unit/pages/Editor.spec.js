@@ -6,7 +6,7 @@ import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
 import {
-  dummyPlio,
+  dummyDraftPlio,
   dummyItems,
   imageData,
 } from "@/services/Testing/DummyData.js";
@@ -95,7 +95,7 @@ describe("Editor.vue", () => {
 
     // using some pre-defined dummy data to return as a fake response
     // from the fake API call
-    let plioResponse = dummyPlio;
+    let plioResponse = dummyDraftPlio;
     let itemResponse = dummyItemsCopy;
 
     // resolve the two `GET` requests waiting in the queue
@@ -111,13 +111,15 @@ describe("Editor.vue", () => {
       dummyItemsCopy.data
     );
     expect(wrapper.vm.items).toStrictEqual(dummyItemsCopy.data);
-    expect(wrapper.vm.videoURL).toEqual(dummyPlio.data.video.url);
-    expect(wrapper.vm.plioTitle).toEqual(dummyPlio.data.name);
-    expect(wrapper.vm.status).toEqual(dummyPlio.data.status);
-    expect(wrapper.vm.lastUpdated).toEqual(new Date(dummyPlio.data.updated_at));
+    expect(wrapper.vm.videoURL).toEqual(dummyDraftPlio.data.video.url);
+    expect(wrapper.vm.plioTitle).toEqual(dummyDraftPlio.data.name);
+    expect(wrapper.vm.status).toEqual(dummyDraftPlio.data.status);
+    expect(wrapper.vm.lastUpdated).toEqual(
+      new Date(dummyDraftPlio.data.updated_at)
+    );
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
-    expect(wrapper.vm.videoDBId).toEqual(dummyPlio.data.video.id);
-    expect(wrapper.vm.plioDBId).toEqual(dummyPlio.data.id);
+    expect(wrapper.vm.videoDBId).toEqual(dummyDraftPlio.data.video.id);
+    expect(wrapper.vm.plioDBId).toEqual(dummyDraftPlio.data.id);
   });
 
   it("saves plio in regular intervals if there's a change", async () => {
