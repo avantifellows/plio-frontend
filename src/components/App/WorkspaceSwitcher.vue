@@ -44,7 +44,8 @@ export default {
         "Current Workspace": this.selectedWorkspace,
       });
       this.setActiveWorkspace(this.selectedWorkspace);
-      this.setUserSwitchedWorkspace(); //when the workspace is updated, setting this variable, so that it helps with the pagination of the table
+     // when the workspace is updated, set `userSwitchedWorkspace` store variable as `true`
+      this.setUserSwitchedWorkspace();
       this.$router.push({
         name: "Home",
         params: { org: this.activeWorkspace },
