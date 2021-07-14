@@ -28,9 +28,15 @@ const InlineSvg = {
   template: "<img />",
 };
 
-// progress bar stub
-const VueProgressBar = {
+const $Progress = {
+  start: jest.fn(),
+  finish: jest.fn(),
   template: "<div></div>",
+};
+
+const $gAuth = {
+  signIn: jest.fn(),
+  instance: 1,
 };
 
 config.global = {
@@ -41,6 +47,8 @@ config.global = {
     $t,
     $store,
     $i18n,
+    $Progress,
+    $gAuth,
   },
   directives: {
     tooltip: Tooltip,
@@ -48,7 +56,6 @@ config.global = {
   },
   stubs: {
     InlineSvg: InlineSvg,
-    VueProgressBar: VueProgressBar,
   },
 };
 

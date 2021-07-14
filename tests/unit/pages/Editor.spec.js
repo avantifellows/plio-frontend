@@ -2,7 +2,7 @@ import { mount, flushPromises } from "@vue/test-utils";
 import mockAxios from "jest-mock-axios";
 
 import Editor from "@/pages/Editor.vue";
-import { dummyPlio, dummyItems } from "@/services/Testing/DummyData.js";
+import { dummyDraftPlio, dummyItems } from "@/services/Testing/DummyData.js";
 
 afterEach(() => {
   // cleaning up the mess left behind by the previous test
@@ -79,7 +79,7 @@ describe("Editor.vue", () => {
 
     // using some pre-defined dummy data to return as a fake response
     // from the fake API call
-    let plioResponse = dummyPlio;
+    let plioResponse = dummyDraftPlio;
     let itemResponse = dummyItems;
 
     // resolve the two `GET` requests waiting in the queue
@@ -93,12 +93,14 @@ describe("Editor.vue", () => {
     // use `wrapper.vm.__` to access the updated data variables inside the component
     expect(wrapper.vm.loadedPlioDetails.items).toStrictEqual(dummyItems.data);
     expect(wrapper.vm.items).toStrictEqual(dummyItems.data);
-    expect(wrapper.vm.videoURL).toEqual(dummyPlio.data.video.url);
-    expect(wrapper.vm.plioTitle).toEqual(dummyPlio.data.name);
-    expect(wrapper.vm.status).toEqual(dummyPlio.data.status);
-    expect(wrapper.vm.lastUpdated).toEqual(new Date(dummyPlio.data.updated_at));
+    expect(wrapper.vm.videoURL).toEqual(dummyDraftPlio.data.video.url);
+    expect(wrapper.vm.plioTitle).toEqual(dummyDraftPlio.data.name);
+    expect(wrapper.vm.status).toEqual(dummyDraftPlio.data.status);
+    expect(wrapper.vm.lastUpdated).toEqual(
+      new Date(dummyDraftPlio.data.updated_at)
+    );
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
-    expect(wrapper.vm.videoDBId).toEqual(dummyPlio.data.video.id);
-    expect(wrapper.vm.plioDBId).toEqual(dummyPlio.data.id);
+    expect(wrapper.vm.videoDBId).toEqual(dummyDraftPlio.data.video.id);
+    expect(wrapper.vm.plioDBId).toEqual(dummyDraftPlio.data.id);
   });
 });
