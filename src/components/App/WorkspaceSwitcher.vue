@@ -49,8 +49,6 @@ export default {
         name: "Home",
         params: { org: this.activeWorkspace },
       });
-
-      
     },
   },
   mounted() {
