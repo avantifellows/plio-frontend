@@ -24,7 +24,6 @@ export default {
   name: "WorkspaceSwitcher",
   computed: {
     ...mapState("auth", ["activeWorkspace", "user"]),
-    ...mapState("generic", ["userSwitchedWorkspace"]),
     workspaces() {
       return this.user ? this.user.organizations : [];
     },
@@ -45,12 +44,13 @@ export default {
         "Current Workspace": this.selectedWorkspace,
       });
       this.setActiveWorkspace(this.selectedWorkspace);
+      this.setUserSwitchedWorkspace(); //when the workspace is updated, setting this variable, so that it helps with the pagination of the table
       this.$router.push({
         name: "Home",
         params: { org: this.activeWorkspace },
       });
 
-      this.setUserSwitchedWorkspace();
+      
     },
   },
   mounted() {

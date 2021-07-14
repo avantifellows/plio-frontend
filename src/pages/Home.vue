@@ -193,7 +193,11 @@ export default {
       // if the params contain a valid pageNumber, update the local currentPageNumber variable
       if (pageNumber != undefined) this.currentPageNumber = pageNumber;
 
-      if (this.userSwitchedWorkspace) this.currentPageNumber = undefined;
+      // if the user manually changed the workspace, reset the current page to default (or the beginning)
+      if (this.userSwitchedWorkspace){
+         this.currentPageNumber = undefined;
+         this.unsetUserSwitchedWorkspace();
+         }
 
       await PlioAPIService.getAllPlios(
         uuidOnly,
@@ -222,7 +226,7 @@ export default {
           return Promise.resolve(plioIdList);
         })
         .then((plioIdList) => this.prepareTableData(plioIdList)); // prepare the data for the table
-      this.unsetUserSwitchedWorkspace();
+      
     },
 
     createNewPlio() {
@@ -280,9 +284,6 @@ export default {
       }
       this.tableData = tableData;
       if (this.pending) this.stopLoading();
-    },
-    resetPageNumber() {
-      this.currentPageNumber = undefined;
     },
   },
 
