@@ -24,6 +24,7 @@ export default {
   name: "WorkspaceSwitcher",
   computed: {
     ...mapState("auth", ["activeWorkspace", "user"]),
+    ...mapState("generic", ["userSwitchedWorkspace"]),
     workspaces() {
       return this.user ? this.user.organizations : [];
     },
@@ -35,6 +36,7 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setActiveWorkspace"]),
+    ...mapActions("generic", ["setUserSwitchedWorkspace"]),
     updateActiveWorkspace() {
       this.$mixpanel.register({
         "Current Workspace": this.selectedWorkspace,
@@ -43,7 +45,12 @@ export default {
         "Current Workspace": this.selectedWorkspace,
       });
       this.setActiveWorkspace(this.selectedWorkspace);
-      this.$router.push({ name: "Home", params: { org: this.activeWorkspace } });
+      this.$router.push({
+        name: "Home",
+        params: { org: this.activeWorkspace },
+      });
+
+      this.setUserSwitchedWorkspace();
     },
   },
   mounted() {

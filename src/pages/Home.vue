@@ -93,8 +93,7 @@ export default {
   },
   watch: {
     async activeWorkspace() {
-      if (this.isUserApproved)
-        await this.fetchPlioIds({ changedWorkspace: true });
+      if (this.isUserApproved) await this.fetchPlioIds();
     },
     isUserApproved(value) {
       // fetch plios again if user approval status changes
@@ -135,6 +134,7 @@ export default {
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
+    ...mapState("generic", ["userSwitchedWorkspace"]),
     ...mapGetters("auth", ["isUserApproved"]),
     createButtonTextConfig() {
       // config for the text of the main create button
@@ -155,6 +155,7 @@ export default {
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
+    ...mapActions("generic", ["unsetUserSwitchedWorkspace"]),
     async sortPlios(sortByField) {
       // invoked when the user clicks the sort icon next to a column
       this.sortByField = sortByField;
@@ -192,7 +193,7 @@ export default {
       // if the params contain a valid pageNumber, update the local currentPageNumber variable
       if (pageNumber != undefined) this.currentPageNumber = pageNumber;
 
-      if (changedWorkspace) this.currentPageNumber = undefined;
+      if (this.userSwitchedWorkspace) this.currentPageNumber = undefined;
 
       await PlioAPIService.getAllPlios(
         uuidOnly,
@@ -221,6 +222,7 @@ export default {
           return Promise.resolve(plioIdList);
         })
         .then((plioIdList) => this.prepareTableData(plioIdList)); // prepare the data for the table
+      this.unsetUserSwitchedWorkspace();
     },
 
     createNewPlio() {
@@ -278,6 +280,9 @@ export default {
       }
       this.tableData = tableData;
       if (this.pending) this.stopLoading();
+    },
+    resetPageNumber() {
+      this.currentPageNumber = undefined;
     },
   },
 
