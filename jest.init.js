@@ -28,10 +28,12 @@ const InlineSvg = {
   template: "<img />",
 };
 
-import VueProgressBar from "@aacassandra/vue3-progressbar";
-const $Progress = VueProgressBar;
+const $Progress = {
+  start: jest.fn(),
+  finish: jest.fn(),
+  template: "<div></div>",
+};
 
-// import GAuth from "vue3-google-oauth2";
 const $gAuth = {
   signIn: jest.fn(),
   instance: 1,
@@ -54,7 +56,6 @@ config.global = {
   },
   stubs: {
     InlineSvg: InlineSvg,
-    VueProgressBar: VueProgressBar,
   },
 };
 

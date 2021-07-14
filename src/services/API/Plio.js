@@ -32,25 +32,23 @@ export default {
       apiClient().get(itemsEndpoint, {
         params: { plio: plioId },
       }),
-    ])
-      .then(([plio, items]) => {
-        // preparing plio details to be consumed by
-        // the components
-        var plioDetails = {};
-        plioDetails.items = items.data;
-        plioDetails.items.forEach((item) => {
-          // convert str to int
-          item.details.correct_answer = parseInt(item.details.correct_answer);
-        });
-        plioDetails.videoURL = plio.data.video.url;
-        plioDetails.plioTitle = plio.data.name;
-        plioDetails.status = plio.data.status;
-        plioDetails.updatedAt = plio.data.updated_at;
-        plioDetails.plioDBId = plio.data.id;
-        plioDetails.videoDBId = plio.data.video.id || null;
-        return plioDetails;
-      })
-      .catch((error) => console.log(error));
+    ]).then(([plio, items]) => {
+      // preparing plio details to be consumed by
+      // the components
+      var plioDetails = {};
+      plioDetails.items = items.data;
+      plioDetails.items.forEach((item) => {
+        // convert str to int
+        item.details.correct_answer = parseInt(item.details.correct_answer);
+      });
+      plioDetails.videoURL = plio.data.video.url;
+      plioDetails.plioTitle = plio.data.name;
+      plioDetails.status = plio.data.status;
+      plioDetails.updatedAt = plio.data.updated_at;
+      plioDetails.plioDBId = plio.data.id;
+      plioDetails.videoDBId = plio.data.video.id || null;
+      return plioDetails;
+    });
   },
 
   getAllPlios(
