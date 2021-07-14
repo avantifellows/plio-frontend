@@ -1,7 +1,7 @@
 const state = {
   isSharePlioDialogShown: false,
   plioLinkToShare: null,
-  userSwitchedWorkspace: false,
+  userSwitchedWorkspace: false, 
 };
 const getters = {};
 const actions = {
@@ -33,6 +33,7 @@ const mutations = {
   unsetSharePlioDialog(state) {
     state.isSharePlioDialogShown = false;
   },
+  //shows that the user manually changed the workspace using the Workspace Switcher
   setUserSwitchedWorkspace(state){
     state.userSwitchedWorkspace = true;
   },
