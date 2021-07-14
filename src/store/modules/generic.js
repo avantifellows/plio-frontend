@@ -1,7 +1,7 @@
 const state = {
   isSharePlioDialogShown: false,
   plioLinkToShare: null,
-  userSwitchedWorkspace: false, 
+  userSwitchedWorkspace: false,
 };
 const getters = {};
 const actions = {
@@ -15,12 +15,12 @@ const actions = {
   unsetSharePlioDialog({ commit }) {
     commit("unsetSharePlioDialog");
   },
-  setUserSwitchedWorkspace({commit}){
-    commit("setUserSwitchedWorkspace")
-  }, 
-  unsetUserSwitchedWorkspace({commit}){
-    commit("unsetUserSwitchedWorkspace")
-  }
+  setUserSwitchedWorkspace({ commit }) {
+    commit("setUserSwitchedWorkspace");
+  },
+  unsetUserSwitchedWorkspace({ commit }) {
+    commit("unsetUserSwitchedWorkspace");
+  },
 };
 
 const mutations = {
@@ -34,12 +34,12 @@ const mutations = {
     state.isSharePlioDialogShown = false;
   },
   //shows that the user manually changed the workspace using the Workspace Switcher
-  setUserSwitchedWorkspace(state){
+  setUserSwitchedWorkspace(state) {
     state.userSwitchedWorkspace = true;
   },
-  unsetUserSwitchedWorkspace(state){
+  unsetUserSwitchedWorkspace(state) {
     state.userSwitchedWorkspace = false;
-  }
+  },
 };
 
 export default {
