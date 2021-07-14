@@ -182,10 +182,10 @@
 </template>
 
 <script>
-import IconButton from "../UI/Buttons/IconButton.vue";
-import Dropdown from "../UI/DropDownMenu/Dropdown.vue";
+import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import Dropdown from "@/components/UI/DropDownMenu/Dropdown.vue";
 import QuestionTypeDropdown from "@/components/Editor/QuestionTypeDropdown.vue";
-import InputText from "../UI/Text/InputText.vue";
+import InputText from "@/components/UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
 import ItemFunctionalService from "@/services/Functional/Item.js";

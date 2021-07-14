@@ -16,6 +16,7 @@
             :iconConfig="sharePlioIconConfig"
             :buttonClass="sharePlioButtonClass"
             @click="showSharePlioLinkDialog"
+            data-test="sharePlioButton"
           ></icon-button>
 
           <!-- play plio -->
@@ -25,19 +26,24 @@
             :iconConfig="playPlioIconConfig"
             :buttonClass="playPlioButtonClass"
             @click="redirectToPlayer"
+            data-test="playPlioButton"
           ></icon-button>
         </div>
 
         <div class="justify-center">
           <!--- video preview -->
-          <div v-if="!isVideoIdValid" class="flex justify-center">
+          <div
+            v-if="!isVideoIdValid"
+            class="flex justify-center"
+            data-test="videoPreviewSkeleton"
+          >
             <div class="flex relative justify-center w-full">
               <div
                 class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-96 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
               ></div>
             </div>
           </div>
-          <div v-else>
+          <div v-else data-test="videoPreview">
             <div class="relative">
               <!-- video player -->
               <video-player
@@ -49,9 +55,10 @@
                 ref="videoPlayer"
                 id="videoPlayer"
                 class="z-0"
+                data-test="videoPlayer"
               ></video-player>
               <!-- maximize button -->
-              <transition name="maximize-btn-transition">
+              <transition name="maximize-btn-transition" data-test="transitionMaximize">
                 <icon-button
                   v-if="showItemModal && isModalMinimized"
                   :titleConfig="maximizeButtonTitleClass"
@@ -59,6 +66,7 @@
                   @click="maximizeModal"
                   class="absolute z-20"
                   id="maximizeButton"
+                  data-test="maximizeButton"
                 ></icon-button>
               </transition>
               <!-- transition for minimizing/maximizing item modal -->
@@ -121,6 +129,7 @@
             class="shadow-lg"
             v-tooltip.right="publishButtonTooltip"
             @click="publishButtonClicked"
+            data-test="publishButton"
           ></icon-button>
           <!-- analyze plio -->
           <icon-button
@@ -129,6 +138,7 @@
             :iconConfig="analyzePlioIconConfig"
             :buttonClass="analyzePlioButtonClass"
             @click="redirectToDashboard"
+            data-test="analyseButton"
           ></icon-button>
         </div>
       </div>
@@ -159,6 +169,7 @@
             :boxStyling="videoLinkInputStyling"
             :isDisabled="isPublished"
             v-tooltip.top="videoLinkTooltip"
+            data-test="videoLinkInput"
           ></input-text>
 
           <!--- plio title -->
@@ -195,6 +206,7 @@
                   class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                   :class="questionTypeSelectorClass"
                   v-tooltip.bottom="addMCQTooltip"
+                  data-test="addMCQItem"
                 >
                   <inline-svg
                     :src="getIconSource('radio-button.svg')"
@@ -208,6 +220,7 @@
                   class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                   :class="questionTypeSelectorClass"
                   v-tooltip.bottom="addSubjectiveQuestionTooltip"
+                  data-test="addSubjectiveItem"
                 >
                   <inline-svg
                     :src="getIconSource('subjective-question.svg')"
@@ -233,6 +246,7 @@
             @error-resolved="setErrorResolved"
             @question-type-changed="questionTypeChanged"
             @show-image-uploader="toggleImageUploaderBox"
+            data-test="itemEditor"
           ></item-editor>
         </div>
       </div>
@@ -247,6 +261,7 @@
       :cancelButtonConfig="dialogCancelButtonConfig"
       @confirm="dialogConfirmed"
       @cancel="dialogCancelled"
+      data-test="dialogBox"
     ></dialog-box>
     <!-- image uploader dialog box -->
     <ImageUploaderDialog
@@ -255,6 +270,7 @@
       @close-dialog="toggleImageUploaderBox"
       @image-selected="uploadImage"
       @delete-image="deleteLinkedImage"
+      data-test="imageUploaderDialog"
     ></ImageUploaderDialog>
 
     <ConfettiCelebration v-if="showPublishedPlioDialog" class="z-0"></ConfettiCelebration>
@@ -271,6 +287,7 @@
           :iconConfig="closeDialogIconConfig"
           :buttonClass="closeDialogButtonClass"
           @click="closePublishedPlioDialog"
+          data-test="closePublishedPlioDialogButton"
         ></icon-button>
       </div>
 
@@ -286,6 +303,7 @@
             :iconConfig="sharePlioIconConfig"
             :buttonClass="sharePlioButtonClass"
             @click="hidePublishedDialogShowShareDialog"
+            data-test="dialogShareButton"
           ></icon-button>
 
           <!-- play plio -->
@@ -553,16 +571,11 @@ export default {
         "hover:bg-primary hover:text-white hover:border-primary": !this.addItemDisabled,
       };
     },
-    currentItemType() {
-      // type of the current selected item -
-      // eg - question, note etc
-      return this.items[this.currentItemIndex].type;
-    },
     maximizeButtonTitleClass() {
       // styling class for the title of minimize button
       return {
         value: this.isModalMinimized
-          ? this.$t(`editor.buttons.show_${this.currentItemType}`)
+          ? this.$t(`editor.buttons.show_${this.itemType}`)
           : this.$t("editor.buttons.show_video"),
         class: "text-white text-xs lg:text-sm tracking-tighter",
       };
@@ -638,10 +651,6 @@ export default {
         invalidMessage: this.$t("editor.video_input.validation.invalid"),
       };
     },
-    urlStyleClass() {
-      // style for the URL
-      return "text-sm sm:text-md lg:text-lg h-full text-yellow-600 font-bold tracking-tighter";
-    },
     player() {
       // returns the player instance
       return this.$refs.videoPlayer.player;
@@ -693,14 +702,6 @@ export default {
       // class for the sync status text
       return {
         "text-red-500": this.isPublished && this.hasUnpublishedChanges,
-      };
-    },
-    backButtonIconConfig() {
-      // config for icon of back button
-      return {
-        enabled: true,
-        iconName: "chevron-left-solid",
-        iconClass: "w-4 h-4 ml-2 text-primary",
       };
     },
     backButtonClass() {
@@ -759,10 +760,6 @@ export default {
       // whether the plio has been pubished
       return this.status == "published";
     },
-    isDraftCreated() {
-      // whether the draft has been created
-      return this.plioId != "";
-    },
     videoInputPlaceholder() {
       // placeholder text for the video link input box
       return this.$t("editor.video_input.placeholder");
@@ -810,17 +807,6 @@ export default {
         return this.$t("editor.dialog.publishing.published.title");
       }
       return this.$t("editor.dialog.publishing.draft.title");
-    },
-    addItemButtonClass() {
-      // styling class for add item button
-      // disabled the button if plio is published
-      var classObject = [
-        { "cursor-not-allowed": this.addItemDisabled },
-
-        `rounded-md font-bold p-5 h-12 w-full bg-primary-button ring-primary
-        hover:bg-primary-button-hover disabled:opacity-50 shadow-lg`,
-      ];
-      return classObject;
     },
     addItemDisabled() {
       // whether adding item is disabled
@@ -1152,7 +1138,7 @@ export default {
       // call separate methods depening on the dialog action that
       // was set
       if (this.dialogAction == "publish") this.confirmPublish();
-      else if (this.dialogAction == "deleteItem") this.confirmDeleteItem();
+      else if (this.dialogAction == "deleteItem") this.deleteSelectedItem();
       else if (this.dialogAction == "deleteOption") this.confirmDeleteOption();
       else if (this.dialogAction == "closeDialog") this.showDialogBox = false;
 
@@ -1228,10 +1214,6 @@ export default {
       // publish the plio or its changes
       this.publishPlio();
     },
-    confirmDeleteItem() {
-      // delete the selected item after user confirms
-      this.deleteSelectedItem();
-    },
     confirmDeleteOption() {
       // invoked when the confirm button of the dialog box for deleting option is clicked
       // there should always be at least 2 options, allow deletion only
@@ -1278,7 +1260,6 @@ export default {
     addNewItem(questionType) {
       this.player.pause();
       this.startLoading();
-      setTimeout(() => {}, 5000);
       const currentTimestamp = this.currentTimestamp;
       // newItem object will store the information of the newly created
       // item and the question
@@ -1357,14 +1338,13 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class: `bg-primary-button hover:bg-primary-button-hover
-          focus:outline-none focus:ring-0`,
+        class:
+          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
         text: this.$t("generic.no"),
-        class: `bg-white hover:bg-gray-100 focus:outline-none
-          text-primary`,
+        class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
       };
 
       // set the index to delete, set the dialog action, show the dialog

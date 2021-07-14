@@ -34,6 +34,11 @@ const $Progress = {
   template: "<div></div>",
 };
 
+// stub for <transition> tags
+const transition = {
+  template: "<div></div>",
+};
+// stub for $gAuth
 const $gAuth = {
   signIn: jest.fn(),
   instance: 1,
@@ -56,6 +61,7 @@ config.global = {
   },
   stubs: {
     InlineSvg: InlineSvg,
+    transition: transition,
   },
 };
 
