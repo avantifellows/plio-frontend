@@ -44,16 +44,17 @@ export default {
         "Current Workspace": this.selectedWorkspace,
       });
       this.setActiveWorkspace(this.selectedWorkspace);
-     // when the workspace is updated, set `userSwitchedWorkspace` store variable as `true`
-      this.setUserSwitchedWorkspace();
       this.$router.push({
         name: "Home",
         params: { org: this.activeWorkspace },
       });
+      //event captured in App, helps in re-rendering Home component
+      this.$emit("user-switched-workspace");
     },
   },
   mounted() {
     this.selectedWorkspace = this.activeWorkspace;
   },
+  emits: ["user-switched-workspace"],
 };
 </script>

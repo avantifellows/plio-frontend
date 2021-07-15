@@ -131,7 +131,6 @@ export default {
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
-    ...mapState("generic", ["userSwitchedWorkspace"]),
     ...mapGetters("auth", ["isUserApproved"]),
     createButtonTextConfig() {
       // config for the text of the main create button
@@ -152,7 +151,6 @@ export default {
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
-    ...mapActions("generic", ["unsetUserSwitchedWorkspace"]),
     async sortPlios(sortByField) {
       // invoked when the user clicks the sort icon next to a column
       this.sortByField = sortByField;
@@ -162,7 +160,7 @@ export default {
       // reset the search string to ""
       // fetch all the plios again
       if (this.searchString != "") {
-        this.searchString = "";
+        this.resetPageAndString();
         await this.fetchPlioIds();
       }
     },
@@ -186,11 +184,6 @@ export default {
       if (searchString != undefined && searchString != "") {
         this.searchString = searchString;
         this.currentPageNumber = undefined;
-      }
-      // if the user manually changed the workspace, reset the current page to default (or the beginning)
-      if (this.userSwitchedWorkspace) {
-        this.currentPageNumber = undefined;
-        this.unsetUserSwitchedWorkspace();
       }
 
       await PlioAPIService.getAllPlios(
@@ -271,6 +264,11 @@ export default {
       }
       this.tableData = tableData;
       if (this.pending) this.stopLoading();
+    },
+
+    resetPageAndString() {
+      this.searchString = "";
+      this.currentPageNumber = undefined;
     },
   },
 
