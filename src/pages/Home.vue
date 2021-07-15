@@ -166,7 +166,7 @@ export default {
       // reset the search string to ""
       // fetch all the plios again
       if (this.searchString != "") {
-        this.searchString = "";
+        this.resetPageAndString();
         await this.fetchPlioIds();
       }
     },
@@ -183,12 +183,14 @@ export default {
       var pageNumber =
         params != undefined && "pageNumber" in params ? params.pageNumber : undefined;
 
-      // if the params contain a valid searchString, update the local searchString variable
-      if (searchString != undefined && searchString != "")
-        this.searchString = searchString;
-
       // if the params contain a valid pageNumber, update the local currentPageNumber variable
       if (pageNumber != undefined) this.currentPageNumber = pageNumber;
+
+      // if the params contain a valid searchString, update the local searchString variable and resets the page number to search the string in all pages
+      if (searchString != undefined && searchString != "") {
+        this.searchString = searchString;
+        this.currentPageNumber = undefined;
+      }
 
       await PlioAPIService.getAllPlios(
         uuidOnly,
@@ -268,6 +270,11 @@ export default {
       }
       this.tableData = tableData;
       if (this.pending) this.stopLoading();
+    },
+
+    resetPageAndString() {
+      this.searchString = "";
+      this.currentPageNumber = undefined;
     },
   },
 

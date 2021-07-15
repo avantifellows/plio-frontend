@@ -21,7 +21,10 @@
 
         <!-- workspace switcher -->
         <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
-          <WorkspaceSwitcher class="flex justify-center"></WorkspaceSwitcher>
+          <WorkspaceSwitcher
+            class="flex justify-center"
+            @user-switched-workspace="forceRerender"
+          ></WorkspaceSwitcher>
         </div>
 
         <!-- page heading -->
@@ -70,7 +73,7 @@
           </div>
         </div>
       </div>
-      <router-view />
+      <router-view :key="componentKey" />
     </div>
     <!-- first-time language picker -->
     <div class="fixed w-full my-5 flex justify-center" v-if="showLanguagePickerDialog">
@@ -132,6 +135,7 @@ export default {
       showLanguagePickerDialog: false, // whether to show a language picker dialog box
       toast: useToast(), // use the toast component
       userClickedLogout: false, // if the user has clicked the logout button
+      componentKey: 0,
     };
   },
   async created() {
@@ -242,6 +246,9 @@ export default {
     ...mapActions("auth", ["unsetAccessToken", "fetchAndUpdateUser"]),
     ...mapActions("generic", ["unsetSharePlioDialog"]),
     ...mapActions("sync", ["stopLoading"]),
+    forceRerender() {
+      this.componentKey += 1;
+    },
     mountChatwoot() {
       // mounting chatwoot SDK to the DOM
       let chatwootScript = document.createElement("script");
