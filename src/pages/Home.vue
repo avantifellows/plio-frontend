@@ -179,13 +179,14 @@ export default {
       var pageNumber =
         params != undefined && "pageNumber" in params ? params.pageNumber : undefined;
 
-      // if the params contain a valid searchString, update the local searchString variable
-      if (searchString != undefined && searchString != "")
-        this.searchString = searchString;
-
       // if the params contain a valid pageNumber, update the local currentPageNumber variable
       if (pageNumber != undefined) this.currentPageNumber = pageNumber;
 
+      // if the params contain a valid searchString, update the local searchString variable and resets the page number to search the string in all pages
+      if (searchString != undefined && searchString != "") {
+        this.searchString = searchString;
+        this.currentPageNumber = undefined;
+      }
       // if the user manually changed the workspace, reset the current page to default (or the beginning)
       if (this.userSwitchedWorkspace) {
         this.currentPageNumber = undefined;
