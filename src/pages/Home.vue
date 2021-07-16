@@ -186,6 +186,12 @@ export default {
         this.currentPageNumber = undefined;
       }
 
+      // if the user manually changed the workspace, reset the current page to default (or the beginning)
+      if (this.userSwitchedWorkspace) {
+        this.currentPageNumber = undefined;
+        this.unsetUserSwitchedWorkspace();
+      }
+
       await PlioAPIService.getAllPlios(
         uuidOnly,
         this.currentPageNumber,
