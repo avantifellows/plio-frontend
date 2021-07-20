@@ -81,6 +81,7 @@
                   :itemList="items"
                   :previewMode="true"
                   @toggle-minimize="minimizeModal"
+                  data-test="itemModal"
                 ></item-modal>
               </transition>
             </div>

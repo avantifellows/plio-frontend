@@ -969,4 +969,19 @@ describe("Editor.vue", () => {
     expect(editorDeleteSelectedItem).toHaveBeenCalled();
     expect(wrapper.vm.items.length).toBeLessThan(dummyItemsCopy.data.length);
   });
+
+  it("minimizes modal correctly", async () => {
+    const minimizeModal = jest.spyOn(Editor.methods, "minimizeModal");
+    const wrapper = mount(Editor);
+
+    await wrapper.setData({
+      isModalMinimized: false,
+      items: dummyItemsCopy.data,
+      currentItemIndex: 0,
+      videoId: "jdYJf_ybyVo",
+    });
+
+    await wrapper.find('[data-test="itemModal"]').trigger("click");
+    expect(minimizeModal).toHaveBeenCalled();
+  });
 });
