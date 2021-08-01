@@ -252,7 +252,8 @@ export default {
         api_key: this.thirdPartyApiKey,
       })
         .then(async (response) => {
-          await this.setAccessToken(response.data);
+          await this.setAccessToken(response.data.token);
+          await this.setActiveWorkspace(response.data.active_workspace);
           thirdPartyAuthPromiseResolve();
         })
         .catch((error) => {
@@ -387,7 +388,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions("auth", ["setAccessToken"]),
+    ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
     mountOnFullscreenPlyr(elementToMount) {
       var plyrInstance = document.getElementsByClassName("plyr")[0];
       plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
