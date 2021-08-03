@@ -18,6 +18,7 @@ export default {
   data() {
     return {
       player: null,
+      playerplayerControlsHidden: false,
     };
   },
   props: {
@@ -78,6 +79,7 @@ export default {
       player.on("enterfullscreen", this.emitEnterFullscreen);
       player.on("exitfullscreen", this.emitExitFullscreen);
       player.on("seeked", this.emitSeeked);
+      player.on("progress", this.handleProgress);
 
       this.removePlyrPoster();
     },
@@ -95,6 +97,8 @@ export default {
     emitReady() {
       // emit an event indicating that the player instance is ready
       this.$emit("ready");
+      // hide the play buttons - will be made visible when buffering is complete
+      this.toggleControlVisibility();
     },
     emitPlay() {
       // emit an event indicating that the player has been played
@@ -115,6 +119,27 @@ export default {
     emitExitFullscreen() {
       // emit an event indicating that the player is exiting fullscreen
       this.$emit("exitfullscreen");
+    },
+    handleProgress() {
+      // check if some buffering is done and unhide the controls if hidden
+      if (this.player.buffered > 0 && this.playerControlsHidden) {
+        this.toggleControlVisibility();
+      }
+    },
+    toggleControlVisibility() {
+      // select the control elements and hide / show them
+      let controlElements = document.querySelectorAll(".plyr__control");
+      if (this.playerControlsHidden) {
+        controlElements.forEach((control) => {
+          control.style.display = "";
+        });
+        this.playerControlsHidden = false;
+      } else {
+        controlElements.forEach((control) => {
+          control.style.display = "none";
+        });
+        this.playerControlsHidden = true;
+      }
     },
   },
   computed: {
