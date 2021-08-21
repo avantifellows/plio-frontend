@@ -289,6 +289,7 @@ export default {
       },
       video_input: {
         published: "You cannot edit the video URL in a published plio",
+        draft: "You cannot edit the video URL after you publish",
       },
       add_item: {
         published: "You cannot add new questions in a published plio",
