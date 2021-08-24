@@ -252,8 +252,8 @@ export default {
         api_key: this.thirdPartyApiKey,
       })
         .then(async (response) => {
-          await this.setAccessToken(response.data.token);
-          await this.setActiveWorkspace(response.data.active_workspace);
+          await this.setAccessToken(response.data);
+          await this.setActiveWorkspace(this.org);
           thirdPartyAuthPromiseResolve();
         })
         .catch((error) => {

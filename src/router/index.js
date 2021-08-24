@@ -56,6 +56,7 @@ const routes = [
     props: (route) => ({
       experiment: route.query.experiment,
       plioId: route.params.plioId,
+      org: route.params.org,
       thirdPartyUniqueId: route.query.unique_id,
       thirdPartyApiKey: route.query.api_key,
     }),
