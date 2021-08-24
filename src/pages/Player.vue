@@ -253,7 +253,7 @@ export default {
       })
         .then(async (response) => {
           await this.setAccessToken(response.data.token);
-          await this.setActiveWorkspace(response.data.active_workspace);
+          await this.setActiveWorkspace(this.org);
           thirdPartyAuthPromiseResolve();
         })
         .catch((error) => {
