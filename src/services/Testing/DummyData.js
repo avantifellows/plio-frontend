@@ -306,3 +306,35 @@ export const dummyUniqueUserCountList = [1, 2, 3, 4, 5];
 export const dummyAccessToken = {
   access_token: "1234",
 };
+
+export const dummyPlioPlay = {
+  plioDBId: 1,
+  plioTitle: "dummy plio",
+  status: "published",
+  updatedAt: "2020-08-19T11:04:10.729434Z",
+  videoDBId: 1,
+  videoURL:
+    "https://www.youtube.com/watch?v=6bSM4_Q5nW4&list=RD6bSM4_Q5nW4&start_radio=1",
+  items: [],
+};
+
+export const dummySession = {
+  created_at: "2021-08-24T14:17:17.034110Z",
+  experiment: null,
+  has_video_played: false,
+  id: 1,
+  is_first: false,
+  last_event: null,
+  plio: {
+    id: 1,
+    name: "dummy plio",
+    uuid: "jdzdfnaznb",
+    failsafe_url: "",
+    status: "published",
+  },
+  retention: "NaN",
+  session_answers: [],
+  updated_at: "2021-08-24T14:17:17.034270Z",
+  user: {},
+  watch_time: 0.7,
+};

@@ -302,12 +302,14 @@ export default {
     await this.fetchPlioCreateSession();
 
     // update source for the plio
-    if (this.$route.query.src) {
+    if (this?.$route?.query?.src) {
       this.source = this.$route.query.src;
     }
 
     // add listener for screen size being changed
     window.addEventListener("resize", this.setScreenProperties);
+
+    console.log('finally done');
   },
   beforeUnmount() {
     // remove timeout
@@ -360,6 +362,8 @@ export default {
       };
     },
     isVideoIdValid() {
+      console.log('isVideoIdValid', this.videoId);
+      console.log('isVideoIdValid', this.videoId != "");
       // whether the video Id is valid
       return this.videoId != "";
     },
@@ -493,6 +497,8 @@ export default {
         this.updateSession();
         // create an event for the user watching the plio
         this.createEvent("watching");
+        console.log('after create event watching');
+
         this.$mixpanel.people.increment(
           "Total Watch Time",
           this.watchTimeIncrement.toFixed(2)
@@ -594,6 +600,7 @@ export default {
     },
     playerReady() {
       // invoked when the player is ready
+      console.log('playerReady');
       this.showItemMarkersOnSlider(this.player);
       this.setScreenProperties();
       this.player.currentTime = this.currentTimestamp;
@@ -700,12 +707,16 @@ export default {
       // create a new event
       if (!this.hasSessionStarted) return;
       // create event only when the session has been initiated
+      console.log('eventType', eventType);
+      console.log('eventDetails', eventDetails);
+      // console.log('this.player.currentTime', this.player.currentTime);
       var eventData = {
         type: eventType,
         details: eventDetails,
         player_time: this.player.currentTime,
         session: this.sessionDBId,
       };
+      console.log('createEvent');
       EventAPIService.createEvent(eventData);
     },
     goFullscreen() {
