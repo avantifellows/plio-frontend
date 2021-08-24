@@ -246,7 +246,7 @@ export default {
     auto_logout: "You have been logged out!",
   },
   success: {
-    copying: "URL Copied Successfully",
+    copying: "Link Copied Successfully",
   },
   generic: {
     status: {
@@ -279,7 +279,7 @@ export default {
         },
         draft: {
           enabled: "Click to publish the plio",
-          disabled: "Enter a valid video URL first",
+          disabled: "Enter a valid video link first",
         },
       },
       status: {
@@ -288,8 +288,9 @@ export default {
           "This plio is currently in draft mode and only accessible to you. To make it publicly accessible, publish the plio",
       },
       video_input: {
-        published: "You cannot edit the video URL in a published plio",
-        draft: "You cannot edit the video URL after you publish",
+        published: "You cannot edit the video link in a published plio",
+        draft:
+          "Paste the link of the YouTube video you want to make interactive",
       },
       add_item: {
         published: "You cannot add new questions in a published plio",
