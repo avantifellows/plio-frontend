@@ -289,7 +289,7 @@ export default {
       },
       video_input: {
         published: "You cannot edit the video link in a published plio",
-        draft: "Add the link to the YouTube video you want to make interactive",
+        draft: "Paste the link of the YouTube video you want to make interactive",
       },
       add_item: {
         published: "You cannot add new questions in a published plio",
