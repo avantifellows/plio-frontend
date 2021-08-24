@@ -144,7 +144,7 @@ export default {
       this.setupChatwoot();
     }
     // ask user to pick the language if they are visiting for the first time
-    if (this.locale == null && this.isAuthenticated) {
+    if (this.locale == null && this.user != null) {
       this.showLanguagePickerDialog = true;
     }
   },
