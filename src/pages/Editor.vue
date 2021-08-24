@@ -4,6 +4,7 @@
     <div
       class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
       :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
+      data-test="blurDiv"
     >
       <!--- preview grid -->
       <div class="flex flex-col mx-6 z-0">
@@ -839,8 +840,7 @@ export default {
     },
     videoLinkTooltip() {
       // tooltip for the video link input box
-      if (this.isPublished) return this.$t("tooltip.editor.video_input.published");
-      return undefined;
+      return this.isPublished ? this.$t("tooltip.editor.video_input.published") : this.$t("tooltip.editor.video_input.draft");
     },
   },
   methods: {

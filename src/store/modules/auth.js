@@ -87,7 +87,9 @@ const actions = {
   async fetchAndUpdateUser({ dispatch, state }) {
     await UserAPIService.getUserByAccessToken(
       state.accessToken.access_token
-    ).then((response) => dispatch("setUser", response.data));
+    ).then(async (response) => {
+      await dispatch("setUser", response.data);
+    });
   },
   async getAnalyticsAccessToken({ commit }) {
     await AnalyticsAPIService.getAnalyticsAccessToken().then((response) =>

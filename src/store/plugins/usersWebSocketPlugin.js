@@ -8,7 +8,10 @@ export default function createUsersWebSocket() {
     if (unsubscribeCallback != null) unsubscribeCallback();
 
     var UsersWebsocket;
-    if (store.getters["auth/isAuthenticated"]) {
+    if (
+      store.getters["auth/isAuthenticated"] &&
+      process.env.VUE_APP_BACKEND_WEBSOCKET != undefined
+    ) {
       // create a websocket connection if user is authenticated
       UsersWebsocket = new WebSocket(
         process.env.VUE_APP_BACKEND_WEBSOCKET +

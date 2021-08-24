@@ -12,6 +12,7 @@
         :options="questionTypes"
         v-model:selectedIndex="localQuestionTypeIndex"
         :isDisabled="isInteractionDisabled"
+        data-test="questionTypeDropdown"
       ></QuestionTypeDropdown>
     </div>
     <!-- nav bar -->
@@ -31,6 +32,7 @@
         :buttonClass="previousItemButtonClass"
         :disabled="isFirstItem"
         v-tooltip="previousItemTooltip"
+        data-test="previousItem"
       ></icon-button>
 
       <!-- next item button -->
@@ -41,6 +43,7 @@
         :buttonClass="nextItemButtonClass"
         :disabled="isLastItem"
         v-tooltip="nextItemTooltip"
+        data-test="nextItem"
       ></icon-button>
 
       <!-- add item button -->
@@ -51,6 +54,7 @@
         @click="removeSelectedItemIndex"
         v-tooltip.top="addItemButtonTooltip"
         :disabled="isInteractionDisabled"
+        data-test="addItem"
       ></icon-button>
 
       <!-- delete item button -->
@@ -58,9 +62,9 @@
         class="rounded-xl bg-delete-button w-8 h-8 shadow-lg px-2"
         :iconConfig="deleteItemIconConfig"
         @click="deleteSelectedItem"
-        v-tooltip.left="deleteItemButtonTooltip"
         :buttonClass="deleteItemButtonClass"
         :disabled="isInteractionDisabled"
+        data-test="deleteItem"
       ></icon-button>
     </div>
 
@@ -76,6 +80,7 @@
           class="p-2 w-full"
           :boxStyling="'pl-4 focus:ring-primary'"
           :maxHeightLimit="questionTextboxHeightLimit"
+          data-test="questionText"
         ></Textarea>
         <!-- add image to item button -->
         <icon-button
@@ -86,6 +91,7 @@
           :buttonClass="addImageButtonClass"
           :isDisabled="isInteractionDisabled"
           @click="showImageUploaderBox"
+          data-test="questionImage"
         ></icon-button>
       </div>
 
@@ -99,10 +105,11 @@
         :disabledTooltip="timeDisabledTooltip"
         @error-occurred="$emit('error-occurred')"
         @error-resolved="$emit('error-resolved')"
+        data-test="time"
       ></time-input>
 
       <!-- input field for entering options  -->
-      <div v-if="isQuestionTypeMCQ">
+      <div v-if="isQuestionTypeMCQ" data-test="options">
         <input-text
           v-for="(option, optionIndex) in options"
           class="p-2"
@@ -115,6 +122,7 @@
           :boxStyling="getOptionBoxStyling(optionIndex)"
           @start-icon-selected="updateCorrectOption(optionIndex)"
           @end-icon-selected="deleteOption(optionIndex)"
+          data-test="option"
         ></input-text>
       </div>
       <!-- add option button -->
@@ -126,17 +134,23 @@
           :buttonClass="addOptionButtonClass"
           :disabled="isInteractionDisabled"
           v-tooltip.bottom="addOptionTooltip"
+          data-test="addOption"
         ></icon-button>
       </div>
 
       <!-- setting max char limit -->
-      <div v-if="isQuestionTypeSubjective" class="p-2">
+      <div
+        v-if="isQuestionTypeSubjective"
+        class="p-2"
+        data-test="subjectiveQuestionContainer"
+      >
         <!-- checkbox -->
         <label class="inline-flex items-center mt-3">
           <input
             type="checkbox"
             class="form-checkbox h-5 w-5 text-primary focus:ring-transparent"
             v-model="isMaxCharLimitSet"
+            data-test="maxCharLimitCheckbox"
             checked
           /><span class="ml-2 text-gray-700">{{
             $t("editor.item_editor.heading.set_character_limit")
@@ -155,6 +169,7 @@
             :boxStyling="charLimitBoxClass"
             @keypress="maxCharLimitInputKeypress"
             @keydown="maxCharLimitInputKeydown"
+            data-test="maxCharLimit"
           ></input-text>
           <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">
             {{ $t("editor.item_editor.heading.char_limit.chars_allowed") }}
@@ -265,7 +280,6 @@ export default {
   props: {
     itemList: {
       // list of items
-      default: () => [],
       type: Array,
       required: true,
     },
@@ -321,10 +335,6 @@ export default {
     toggleQuestionTypeDropdown(newValue) {
       // invoked when the question type dropdown's visibility is toggled
       this.isQuestionDropdownShown = newValue;
-    },
-    getHeading(itemType) {
-      // heading for the current item
-      return this.$t(`editor.item_editor.heading.${itemType}`);
     },
     getOptionInputTitle(optionIndex) {
       // title for the placeholder input
@@ -594,9 +604,6 @@ export default {
       get() {
         return this.itemList;
       },
-      set(localItemList) {
-        this.$emit("update:itemList", localItemList);
-      },
     },
     localSelectedItemIndex: {
       // a local copy of selected item index
@@ -693,9 +700,6 @@ export default {
       // computed array of options
       get() {
         return this.localItemList[this.localSelectedItemIndex].details.options;
-      },
-      set(value) {
-        this.localItemList[this.localSelectedItemIndex].details.options = value;
       },
     },
     correctOptionIndex() {
