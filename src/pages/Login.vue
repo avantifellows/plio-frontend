@@ -326,7 +326,7 @@ export default {
     },
     googleButtonClass() {
       // class for the google sign in button
-      return "border-black border hover:bg-gray-200 ring-gray-200 rounded-md py-4 lg:py-6";
+      return "border-black border hover:bg-gray-200 ring-gray-200 rounded-md py-4";
     },
   },
   created() {

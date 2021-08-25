@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div class="flex relative" :class="containerStyling">
+    <div class="flex relative rounded-lg" :class="containerStyling">
       <!-- start icon -->
       <div
         v-if="isStartIconEnabled"
@@ -46,7 +46,7 @@
 
       <!-- input text area -->
       <input
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-xs sm:text-md md:text-base border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full border-gray-200"
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded-lg text-xs sm:text-md md:text-base border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full border-gray-200"
         name="placeholder"
         :placeholder="placeholder"
         v-model="localValue"
