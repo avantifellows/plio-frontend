@@ -45,6 +45,41 @@ describe("Editor.vue", () => {
     );
   });
 
+  it("dialog box buttons work correctly", async () => {
+    const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
+    const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
+    const publishButtonClicked = jest.spyOn(
+      Editor.methods,
+      "publishButtonClicked"
+    );
+    const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
+    const wrapper = mount(Editor, { shallow: false });
+
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+    expect(publishButtonClicked).toHaveBeenCalled();
+
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
+    expect(dialogConfirmed).toHaveBeenCalled();
+    expect(wrapper.vm.dialogDescription).toBe("");
+    expect(confirmPublish).toHaveBeenCalled();
+    expect(wrapper.vm.dialogAction).toBe("");
+    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.dialogTitle).toBe("Publishing the plio...");
+    expect(wrapper.vm.publishInProgressDialogTitle).toBe(
+      "Publishing the changes.."
+    );
+    expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeFalsy();
+    expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("");
+    expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe("");
+    expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeFalsy();
+    expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("");
+    expect(wrapper.vm.dialogCancelButtonConfig.class).toBe("");
+    expect(publishPlio).toHaveBeenCalled();
+  });
+
   it("blurs the main screen when dialog box is shown", async () => {
     const wrapper = mount(Editor, { shallow: true });
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
@@ -480,41 +515,6 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.showDialogBox).toBeFalsy();
     expect(wrapper.vm.showPublishedPlioDialog).toBeTruthy();
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
-  });
-
-  it("dialog box buttons work correctly", async () => {
-    const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
-    const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
-    const publishButtonClicked = jest.spyOn(
-      Editor.methods,
-      "publishButtonClicked"
-    );
-    const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
-    const wrapper = mount(Editor);
-
-    await wrapper.find('[data-test="publishButton"]').trigger("click");
-    expect(publishButtonClicked).toHaveBeenCalled();
-
-    await wrapper
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="confirmButton"]')
-      .trigger("click");
-    expect(dialogConfirmed).toHaveBeenCalled();
-    expect(wrapper.vm.dialogDescription).toBe("");
-    expect(confirmPublish).toHaveBeenCalled();
-    expect(wrapper.vm.dialogAction).toBe("");
-    expect(wrapper.vm.showDialogBox).toBeTruthy();
-    expect(wrapper.vm.dialogTitle).toBe("Publishing the plio...");
-    expect(wrapper.vm.publishInProgressDialogTitle).toBe(
-      "Publishing the changes.."
-    );
-    expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeFalsy();
-    expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("");
-    expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe("");
-    expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeFalsy();
-    expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("");
-    expect(wrapper.vm.dialogCancelButtonConfig.class).toBe("");
-    expect(publishPlio).toHaveBeenCalled();
   });
 
   it("share plio button inside the share dialog works correctly", async () => {
@@ -981,7 +981,11 @@ describe("Editor.vue", () => {
       videoId: "jdYJf_ybyVo",
     });
 
-    await wrapper.find('[data-test="itemModal"]').trigger("click");
+    await wrapper
+      .find('[data-test="itemModal"]')
+      .find('[data-test="header"]')
+      .find('[data-test="minimize"]')
+      .trigger("click");
     expect(minimizeModal).toHaveBeenCalled();
   });
 });
