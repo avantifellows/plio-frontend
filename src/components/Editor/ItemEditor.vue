@@ -62,7 +62,6 @@
         class="rounded-xl bg-delete-button w-8 h-8 shadow-lg px-2"
         :iconConfig="deleteItemIconConfig"
         @click="deleteSelectedItem"
-        v-tooltip.left="deleteItemButtonTooltip"
         :buttonClass="deleteItemButtonClass"
         :disabled="isInteractionDisabled"
         data-test="deleteItem"

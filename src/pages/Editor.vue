@@ -827,8 +827,7 @@ export default {
     },
     videoLinkTooltip() {
       // tooltip for the video link input box
-      if (this.isPublished) return this.$t("tooltip.editor.video_input.published");
-      return undefined;
+      return this.isPublished ? this.$t("tooltip.editor.video_input.published") : this.$t("tooltip.editor.video_input.draft");
     },
   },
   methods: {

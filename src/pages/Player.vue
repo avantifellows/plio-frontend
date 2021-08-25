@@ -253,6 +253,7 @@ export default {
       })
         .then(async (response) => {
           await this.setAccessToken(response.data);
+          await this.setActiveWorkspace(this.org);
           thirdPartyAuthPromiseResolve();
         })
         .catch((error) => {
@@ -387,7 +388,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions("auth", ["setAccessToken"]),
+    ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
     mountOnFullscreenPlyr(elementToMount) {
       var plyrInstance = document.getElementsByClassName("plyr")[0];
       plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
