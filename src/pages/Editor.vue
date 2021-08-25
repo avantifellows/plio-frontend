@@ -574,7 +574,6 @@ export default {
     },
     maximizeButtonTitleClass() {
       // styling class for the title of minimize button
-      console.log(this.itemType);
       return {
         value: this.isModalMinimized
           ? this.$t(`editor.buttons.show_${this.itemType}`)
