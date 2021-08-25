@@ -122,7 +122,7 @@ export default {
       // pass any classes that need to be added to the container of the input
       // boxes
       default: () => {},
-      type: Object,
+      type: [String, Object],
     },
     maxLength: {
       // maximum length for the input
