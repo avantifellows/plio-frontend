@@ -353,20 +353,11 @@ describe("Editor.vue", () => {
     // hence harcoding here
     const MINIMUM_QUESTION_TIMESTAMP = 0.6;
 
-    // set some valid items and select the first item
-    await wrapper.setData({
-      items: dummyItemsCopy.data,
-      currentItemIndex: 0,
-    });
-
-    // the correct timestamp value should be populated in itemTimestamps
-    expect(wrapper.vm.itemTimestamps[0]).toBe(dummyItemsCopy.data[0].time);
-
     // update items with an invalid time value -> will call itemTimestamps watcher
     // the invalid time value should be fixed back to `MINIMUM_QUESTION_TIMESTAMP`
     let updatedDummyItems = dummyItemsCopy.data;
     updatedDummyItems[0].time = 0.1;
-    await wrapper.setData({ items: updatedDummyItems });
+    await wrapper.setData({ items: updatedDummyItems, currentItemIndex: 0 });
 
     expect(wrapper.vm.items[0].time).toBe(MINIMUM_QUESTION_TIMESTAMP);
   });
@@ -385,13 +376,6 @@ describe("Editor.vue", () => {
   it("computes the itemImage property correctly", async () => {
     const wrapper = mount(Editor);
 
-    await wrapper.setData({
-      items: dummyItemsCopy.data,
-      currentItemIndex: 0,
-    });
-
-    expect(wrapper.vm.itemImage).toBe(null);
-
     const imageURL = "test url";
     const dummyItemsWithImage = dummyItemsCopy.data;
     dummyItemsWithImage[0].details.image = {
@@ -404,6 +388,7 @@ describe("Editor.vue", () => {
 
     await wrapper.setData({
       items: dummyItemsWithImage,
+      currentItemIndex: 0,
     });
 
     expect(wrapper.vm.itemImage).toBe(imageURL);
@@ -927,7 +912,7 @@ describe("Editor.vue", () => {
     );
     const wrapper = mount(Editor);
     await wrapper.setData({
-      items: dummyItemsCopy.data,
+      items: cloneDeep(dummyItemsCopy.data),
       currentItemIndex: 0,
       videoDuration: 200,
       status: "draft",
@@ -936,6 +921,7 @@ describe("Editor.vue", () => {
     });
 
     const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+
     await itemEditorWrapper.find('[data-test="deleteItem"]').trigger("click");
 
     expect(deleteSelectedItem).toHaveBeenCalled();

@@ -574,6 +574,7 @@ export default {
     },
     maximizeButtonTitleClass() {
       // styling class for the title of minimize button
+      console.log(this.itemType);
       return {
         value: this.isModalMinimized
           ? this.$t(`editor.buttons.show_${this.itemType}`)
@@ -827,7 +828,9 @@ export default {
     },
     videoLinkTooltip() {
       // tooltip for the video link input box
-      return this.isPublished ? this.$t("tooltip.editor.video_input.published") : this.$t("tooltip.editor.video_input.draft");
+      return this.isPublished
+        ? this.$t("tooltip.editor.video_input.published")
+        : this.$t("tooltip.editor.video_input.draft");
     },
   },
   methods: {
