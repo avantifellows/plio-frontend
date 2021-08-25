@@ -117,6 +117,8 @@ export default {
       // is either of the confirm or cancel buttons visible
       // the only way to hide each of those two buttons is by
       // adding the `hidden` class to each of those button classes
+      if (this.confirmButtonClass == undefined || this.cancelButtonClass == undefined)
+        return false;
       return (
         this.confirmButtonClass.indexOf("hidden") == -1 &&
         this.cancelButtonClass.indexOf("hidden") == -1
