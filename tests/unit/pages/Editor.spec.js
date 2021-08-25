@@ -194,9 +194,8 @@ describe("Editor.vue", () => {
     expect(checkAndSavePlio).toHaveBeenCalled();
 
     // update the items, method should've been called
-    let updatedDummyItems = dummyItemsCopy.data;
-    updatedDummyItems[0].time = 20;
-    await wrapper.setData({ items: updatedDummyItems });
+    dummyItemsCopy.data[0].time = 20;
+    await wrapper.setData({ items: dummyItemsCopy.data });
     expect(checkAndSavePlio).toHaveBeenCalled();
   });
 
@@ -817,6 +816,8 @@ describe("Editor.vue", () => {
     });
     await store.dispatch("sync/stopLoading");
 
+    // trying to add an item where another item already exists is not possible
+    // this will show an error dialog
     await wrapper.find('[data-test="addMCQItem"]').trigger("click");
     expect(addNewItem).toHaveBeenCalled();
     expect(showCannotAddItemDialog).toHaveBeenCalled();
@@ -831,6 +832,8 @@ describe("Editor.vue", () => {
     });
     await store.dispatch("sync/stopLoading");
 
+    // the item will be added now because the timestamp is not clashing
+    // with the timestamp of another item
     await wrapper.find('[data-test="addMCQItem"]').trigger("click");
     expect(addNewItem).toHaveBeenCalled();
 
