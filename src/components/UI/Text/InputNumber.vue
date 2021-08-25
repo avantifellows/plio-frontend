@@ -1,6 +1,6 @@
 <template>
   <div class="grid grid-cols-1">
-    <div class="flex justify-between">
+    <div class="flex justify-between" v-if="isTitlePresent">
       <!-- title for the input box -->
       <p class="text-xs pl-2" data-test="title">{{ title }}</p>
       <!-- input validation -->
@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div class="flex relative">
+    <div class="flex relative" :class="containerStyling">
       <!-- start icon -->
       <div
         v-if="isStartIconEnabled"
@@ -46,7 +46,7 @@
 
       <!-- input text area -->
       <input
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full border-gray-200"
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-xs sm:text-md md:text-base border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full border-gray-200"
         name="placeholder"
         :placeholder="placeholder"
         v-model="localValue"
@@ -118,6 +118,12 @@ export default {
       default: () => {},
       type: Object,
     },
+    containerStyling: {
+      // pass any classes that need to be added to the container of the input
+      // boxes
+      default: () => {},
+      type: Object,
+    },
     maxLength: {
       // maximum length for the input
       default: null,
@@ -149,6 +155,10 @@ export default {
       set(localValue) {
         this.$emit("update:value", localValue);
       },
+    },
+    isTitlePresent() {
+      // whether the title has been provided
+      return this.title != ""
     },
     isStartIconInteractionDisabled() {
       // is interaction with the start icon disabled or not

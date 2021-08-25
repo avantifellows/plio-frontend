@@ -20,7 +20,7 @@
 
           <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
             <img class="w-8" src="@/assets/images/interaction.png" />
-            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">Multiple Interactions</p>
+            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">Choose From Multiple Interactions</p>
             <p class="mt-2 text-sm sm:text-base">Choose between interactions like Subjective Questions and MCQs</p>
           </div>
         </div>
@@ -28,7 +28,7 @@
         <div class="grid grid-cols-2">
           <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
             <img class="w-8" src="@/assets/images/download.png" />
-            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">No download required</p>
+            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">No Download Required</p>
             <p class="mt-2 text-sm sm:text-base">Sharing interactive videos is as simple as sharing a link.</p>
           </div>
 
@@ -79,6 +79,7 @@
       <!-- input box to enter phone number -->
       <input-number
         v-model:value="phoneInput"
+        containerStyling="border-black border h-12 lg:h-16"
         :validation="phoneInputValidation"
         :maxLength="10"
         :staticText="phoneInputStaticText"
