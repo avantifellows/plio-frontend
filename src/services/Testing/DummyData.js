@@ -313,8 +313,7 @@ export const dummyPlioPlay = {
   status: "published",
   updatedAt: "2020-08-19T11:04:10.729434Z",
   videoDBId: 1,
-  videoURL:
-    "https://www.youtube.com/watch?v=6bSM4_Q5nW4&list=RD6bSM4_Q5nW4&start_radio=1",
+  videoURL: "https://www.youtube.com/watch?v=6bSM4_Q5nW4",
   items: [],
 };
 

@@ -53,22 +53,17 @@ describe("Player.vue", () => {
       },
     });
 
-    expect(mockAxios.post).toHaveBeenCalledTimes(1);
-
     console.log("mockAxios.queue()", mockAxios.queue());
+
+    // Wait until the DOM updates.
+    await flushPromises();
 
     // blur classes should not be present initially
     // console.log(wrapper.html());
 
-    // wait until the DOM updates after promises resolve
-    await flushPromises();
+    // // wait until the DOM updates after promises resolve
+    // await flushPromises();
 
-    // expect(wrapper.get('[data-plyr="fullscreen"]')).toBeTruthy();
-    // // setting `isBeingPublished` to true, that will blur the screen
-    // await wrapper.setData({ isBeingPublished: true });
-    // // blur classes should be present now
-    // expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
-    //   expect.arrayContaining(["opacity-30", "pointer-events-none"])
-    // );
+    expect(wrapper.get('[data-plyr="fullscreen"]')).toBeTruthy();
   });
 });

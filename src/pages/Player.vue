@@ -78,7 +78,7 @@ import VideoSkeleton from "../components/UI/Skeletons/VideoSkeleton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import UserAPIService from "@/services/API/User.js";
 import SessionAPIService from "@/services/API/Session.js";
-import EventAPIService from "@/services/API/Event.js";
+// import EventAPIService from "@/services/API/Event.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import ItemModal from "../components/Player/ItemModal.vue";
@@ -308,8 +308,6 @@ export default {
 
     // add listener for screen size being changed
     window.addEventListener("resize", this.setScreenProperties);
-
-    console.log('finally done');
   },
   beforeUnmount() {
     // remove timeout
@@ -362,8 +360,6 @@ export default {
       };
     },
     isVideoIdValid() {
-      console.log('isVideoIdValid', this.videoId);
-      console.log('isVideoIdValid', this.videoId != "");
       // whether the video Id is valid
       return this.videoId != "";
     },
@@ -434,7 +430,7 @@ export default {
     },
     videoSeeked() {
       // invoked when a seek operation ends
-      this.createEvent("video_seeked", { currentTime: this.player.currentTime });
+      this.createEvent("video_seeked", { currentTime: this.player?.currentTime });
     },
     optionSelected(optionIndex) {
       // invoked when an option of a question is selected
@@ -488,7 +484,7 @@ export default {
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
         })
         .then(() => this.createSession())
-        .then(() => this.logData());
+        // .then(() => this.logData());
     },
     logData() {
       // periodically logs data to the server
@@ -660,7 +656,7 @@ export default {
       this.watchTime += PLYR_INTERVAL_TIME;
       this.watchTimeIncrement += PLYR_INTERVAL_TIME;
       // update retention
-      var currentTime = Math.trunc(this.player.currentTime);
+      var currentTime = Math.trunc(this.player?.currentTime);
       if (currentTime != this.lastTimestampRetention) {
         this.retention[currentTime] += 1;
         this.lastTimestampRetention = currentTime;
@@ -705,19 +701,17 @@ export default {
     },
     createEvent(eventType, eventDetails = {}) {
       // create a new event
+      console.log('eventDetails', eventDetails);
       if (!this.hasSessionStarted) return;
       // create event only when the session has been initiated
-      console.log('eventType', eventType);
-      console.log('eventDetails', eventDetails);
-      // console.log('this.player.currentTime', this.player.currentTime);
-      var eventData = {
-        type: eventType,
-        details: eventDetails,
-        player_time: this.player.currentTime,
-        session: this.sessionDBId,
-      };
+      // var eventData = {
+      //   type: eventType,
+      //   details: eventDetails,
+      //   player_time: this.player?.currentTime,
+      //   session: this.sessionDBId,
+      // };
       console.log('createEvent');
-      EventAPIService.createEvent(eventData);
+      // EventAPIService.createEvent(eventData);
     },
     goFullscreen() {
       this.isFullscreen = true;

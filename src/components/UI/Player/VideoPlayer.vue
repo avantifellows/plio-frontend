@@ -68,6 +68,7 @@ export default {
       // creates a new instance of plyr and sets its properties
       this.player = new Plyr("#player", this.plyrConfig);
       this.setPlayerProperties(this.player);
+      console.log('Video player init');
     },
     setPlayerProperties(player) {
       // set properties of the player
