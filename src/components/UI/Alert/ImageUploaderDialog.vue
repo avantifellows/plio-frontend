@@ -67,6 +67,7 @@
         :titleConfig="deleteButtonTitleConfig"
         :buttonClass="deleteButtonClass"
         @click="deleteAndUnsetImage"
+        data-test="deleteImageButton"
       ></icon-button>
 
       <!-- done button -->
@@ -74,6 +75,7 @@
         :titleConfig="doneButtonTitleConfig"
         :buttonClass="doneButtonClass"
         @click="submitImage"
+        data-test="submitImageButton"
       ></icon-button>
     </div>
   </div>
