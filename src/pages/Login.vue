@@ -44,7 +44,7 @@
       <button
         type="button"
         :class="googleButtonClass"
-        class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="flex justify-center items-center transition ease-in duration-200 text-center font-semibold focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         :disabled="isGoogleAuthDisabled"
         @click="googleLogin"
         data-test="googleLogin"
@@ -322,11 +322,11 @@ export default {
     },
     googleButtonTitleClass() {
       // class for the title of the google sign in button
-      return "text-gray-600 ml-2 text-sm md:text-md xl:text-xl";
+      return "text-gray-600 ml-2 text-sm md:text-md lg:text-xl";
     },
     googleButtonClass() {
       // class for the google sign in button
-      return "border-black border hover:bg-gray-200 ring-gray-200 rounded-md py-4";
+      return "border-black border hover:bg-gray-200 ring-gray-200 rounded-md py-4 lg:py-6";
     },
   },
   created() {
