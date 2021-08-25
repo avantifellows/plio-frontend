@@ -7,35 +7,35 @@
       <!-- plio logo as a banner -->
       <div class="w-full flex flex-col items-center">
         <img class="h-full w-8 md:w-10 object-scale-down" src="@/assets/images/logo.png" />
-        <p class="mt-2 text-center text-md sm:text-xl font-bold text-primary">Make Videos Interactive</p>
+        <p class="mt-2 text-center text-md sm:text-xl font-bold text-primary">{{ $t('login.heading') }}</p>
       </div>
 
       <div class="grid grid-rows-2 my-4">
         <div class="grid grid-cols-2">
           <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
             <img class="w-8" src="@/assets/images/youtube.png" />
-            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">Interactive YouTube videos</p>
-            <p class="mt-2 text-sm sm:text-base">Convert any passive youtube video into an interactive lesson</p>
+            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">{{ $t('login.sub_headings.interactive.title') }}</p>
+            <p class="mt-2 text-sm sm:text-base">{{ $t('login.sub_headings.interactive.description') }}</p>
           </div>
 
           <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
             <img class="w-8" src="@/assets/images/interaction.png" />
-            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">Choose From Multiple Interactions</p>
-            <p class="mt-2 text-sm sm:text-base">Choose between interactions like Subjective Questions and MCQs</p>
+            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">{{ $t('login.sub_headings.interactions.title') }}</p>
+            <p class="mt-2 text-sm sm:text-base">{{ $t('login.sub_headings.interactions.description') }}</p>
           </div>
         </div>
 
         <div class="grid grid-cols-2">
           <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
             <img class="w-8" src="@/assets/images/download.png" />
-            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">No Download Required</p>
-            <p class="mt-2 text-sm sm:text-base">Sharing interactive videos is as simple as sharing a link.</p>
+            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">{{ $t('login.sub_headings.download.title') }}</p>
+            <p class="mt-2 text-sm sm:text-base">{{ $t('login.sub_headings.download.description') }}</p>
           </div>
 
           <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
             <img class="w-8" src="@/assets/images/analytics.png" />
-            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">Rich Analytics</p>
-            <p class="mt-2 text-sm sm:text-base">Go beyond traditional YouTube metrics to understand your audience better</p>
+            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">{{ $t('login.sub_headings.analytics.title') }}</p>
+            <p class="mt-2 text-sm sm:text-base">{{ $t('login.sub_headings.analytics.description') }}</p>
           </div>
         </div>
       </div>
