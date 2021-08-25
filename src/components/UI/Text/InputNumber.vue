@@ -1,6 +1,6 @@
 <template>
   <div class="grid grid-cols-1">
-    <div class="flex justify-between" v-if="isTitlePresent">
+    <div class="flex justify-between" v-if="isTitlePresent || isValidationEnabled">
       <!-- title for the input box -->
       <p class="text-xs pl-2" data-test="title">{{ title }}</p>
       <!-- input validation -->
