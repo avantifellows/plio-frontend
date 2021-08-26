@@ -114,7 +114,7 @@
         </div>
 
         <!--- buttons -->
-        <div class="flex justify-center space-x-2 mt-10" v-if="isVideoIdValid" data-test="lowerButtons">
+        <div class="flex justify-center space-x-2 my-6" v-if="isVideoIdValid" data-test="lowerButtons">
           <!--- button to go back to home -->
           <icon-button
             :titleConfig="backButtonTitleConfig"
