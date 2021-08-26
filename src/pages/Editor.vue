@@ -1,6 +1,6 @@
 <template>
   <!--- base grid -->
-  <div class="flex relative justify-center md:mx-4 lg:mx-10 xl:mx-20">
+  <div class="flex relative justify-center md:mx-4 lg:mx-10 xl:mx-20" :class="{'top-3/4': !isVideoIdValid }">
     <div
       class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
       :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
@@ -776,6 +776,7 @@ export default {
     },
     videoInputTitle() {
       // title text for the video link input box
+      if (!this.isVideoIdValid) return ""
       return this.$t("editor.video_input.title");
     },
     titleInputPlaceholder() {
