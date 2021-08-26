@@ -1,18 +1,50 @@
 <template>
-  <div class="sm:grid sm:grid-cols-4 md:grid-cols-4 p-2 bp-320:p-4 sm:p-6 md:p-10">
+  <div class="sm:grid sm:grid-cols-4 md:grid-cols-7 md:-mt-8 bg-white">
     <!-- main grid with the login functionality -->
     <div
-      class="flex flex-col w-full sm:col-span-full md:col-start-2 md:col-span-2 border shadow-xl bg-white rounded-md p-4 md:p-8 border-primary max-w-3xl mx-auto"
+      class="flex flex-col w-full sm:col-span-full md:col-start-2 md:col-span-5 border shadow-xl bg-white rounded-md p-2 bp-420:p-4 lg:px-8 border-primary"
     >
       <!-- plio logo as a banner -->
-      <div class="w-20 justify-self-start place-self-center mb-10">
-        <img class="h-full w-full object-scale-down" src="@/assets/images/logo.png" />
+      <div class="w-full flex flex-col items-center">
+        <img class="h-full w-8 md:w-10 object-scale-down" src="@/assets/images/logo.png" />
+        <p class="mt-2 text-center text-md sm:text-xl font-bold text-primary">{{ $t('login.heading') }}</p>
       </div>
+
+      <div class="grid grid-rows-2 my-4">
+        <div class="grid grid-cols-2">
+          <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
+            <img class="w-8" src="@/assets/images/youtube.png" />
+            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">{{ $t('login.sub_headings.interactive.title') }}</p>
+            <p class="mt-2 text-sm sm:text-base">{{ $t('login.sub_headings.interactive.description') }}</p>
+          </div>
+
+          <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
+            <img class="w-8" src="@/assets/images/interaction.png" />
+            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">{{ $t('login.sub_headings.interactions.title') }}</p>
+            <p class="mt-2 text-sm sm:text-base">{{ $t('login.sub_headings.interactions.description') }}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2">
+          <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
+            <img class="w-8" src="@/assets/images/download.png" />
+            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">{{ $t('login.sub_headings.download.title') }}</p>
+            <p class="mt-2 text-sm sm:text-base">{{ $t('login.sub_headings.download.description') }}</p>
+          </div>
+
+          <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
+            <img class="w-8" src="@/assets/images/analytics.png" />
+            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">{{ $t('login.sub_headings.analytics.title') }}</p>
+            <p class="mt-2 text-sm sm:text-base">{{ $t('login.sub_headings.analytics.description') }}</p>
+          </div>
+        </div>
+      </div>
+
       <!-- google sign in button -->
       <button
         type="button"
         :class="googleButtonClass"
-        class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="flex justify-center items-center transition ease-in duration-200 text-center font-semibold focus:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         :disabled="isGoogleAuthDisabled"
         @click="googleLogin"
         data-test="googleLogin"
@@ -37,16 +69,17 @@
 
       <!-- "OR" divider between google login and phone login -->
       <div class="flex flex-row space-x-2">
-        <hr class="border-b w-1/2 my-auto border-gray-400" />
-        <p class="text-center text-xl sm:text-2xl my-5 whitespace-nowrap">
+        <hr class="border-b w-1/2 my-5 border-gray-400" />
+        <p class="text-center text-base lg:text-2xl my-2 whitespace-nowrap">
           {{ $t("login.or") }}
         </p>
-        <hr class="border-b w-1/2 my-auto border-gray-400" />
+        <hr class="border-b w-1/2 my-5 border-gray-400" />
       </div>
 
       <!-- input box to enter phone number -->
       <input-number
         v-model:value="phoneInput"
+        containerStyling="border-black border h-12 lg:h-16"
         :validation="phoneInputValidation"
         :maxLength="10"
         :staticText="phoneInputStaticText"
@@ -289,11 +322,11 @@ export default {
     },
     googleButtonTitleClass() {
       // class for the title of the google sign in button
-      return "text-gray-600 ml-2 md:text-md text-sm lg:text-xl";
+      return "text-gray-600 ml-2 text-sm md:text-md lg:text-xl";
     },
     googleButtonClass() {
       // class for the google sign in button
-      return "bg-gray-100 hover:bg-gray-200 ring-gray-200 rounded-md py-6";
+      return "border-black border hover:bg-gray-200 ring-gray-200 rounded-md py-4 lg:py-6";
     },
   },
   created() {
