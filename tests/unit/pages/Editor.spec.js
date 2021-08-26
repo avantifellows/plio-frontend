@@ -53,7 +53,14 @@ describe("Editor.vue", () => {
       "publishButtonClicked"
     );
     const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
-    const wrapper = mount(Editor, { shallow: false });
+    const wrapper = mount(Editor, {
+      shallow: false,
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
 
     await wrapper.find('[data-test="publishButton"]').trigger("click");
     expect(publishButtonClicked).toHaveBeenCalled();
@@ -78,6 +85,66 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("");
     expect(wrapper.vm.dialogCancelButtonConfig.class).toBe("");
     expect(publishPlio).toHaveBeenCalled();
+  });
+
+  it("shows only the video preview + video input field when video ID is not set", () => {
+    const wrapper = mount(Editor, { shallow: true });
+
+    // things that should not be visible
+    expect(
+      wrapper
+        .get('[data-test="blurDiv"]')
+        .get('[data-test="inputDiv"]')
+        .find('[data-test="itemDiv"]')
+        .exists()
+    ).toBeFalsy();
+    expect(
+      wrapper
+        .get('[data-test="blurDiv"]')
+        .get('[data-test="inputDiv"]')
+        .get('[data-test="meta"]')
+        .find('[data-test="plioName"]')
+        .exists()
+    ).toBeFalsy();
+    expect(
+      wrapper
+        .get('[data-test="blurDiv"]')
+        .get('[data-test="previewDiv"]')
+        .find('[data-test="lowerButton"]')
+        .exists()
+    ).toBeFalsy();
+    expect(
+      wrapper
+        .get('[data-test="blurDiv"]')
+        .get('[data-test="previewDiv"]')
+        .find('[data-test="upperButtons"]')
+        .exists()
+    ).toBeFalsy();
+
+    // things that should be visible
+    expect(
+      wrapper
+        .get('[data-test="blurDiv"]')
+        .get('[data-test="inputDiv"]')
+        .get('[data-test="meta"]')
+        .find('[data-test="videoLinkInput"]')
+        .exists()
+    ).toBeTruthy();
+    expect(
+      wrapper
+        .get('[data-test="blurDiv"]')
+        .get('[data-test="inputDiv"]')
+        .get('[data-test="meta"]')
+        .find('[data-test="videoLinkInfo"]')
+        .exists()
+    ).toBeTruthy();
+    expect(
+      wrapper
+        .get('[data-test="blurDiv"]')
+        .get('[data-test="previewDiv"]')
+        .find('[data-test="videoPreviewSkeleton"]')
+        .exists()
+    ).toBeTruthy();
   });
 
   it("blurs the main screen when dialog box is shown", async () => {
