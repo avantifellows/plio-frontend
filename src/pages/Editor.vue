@@ -7,7 +7,7 @@
       data-test="blurDiv"
     >
       <!--- preview grid -->
-      <div class="flex flex-col mx-6 z-0">
+      <div class="flex flex-col mx-6 z-0" v-if="isVideoIdValid">
         <div class="my-8 flex justify-center space-x-4">
           <!-- share plio -->
           <icon-button
@@ -145,9 +145,17 @@
       </div>
 
       <!--- input grid -->
-      <div class="flex flex-col m-5 justify-start">
+      <div class="flex flex-col m-5 justify-start" :class="{ 'col-span-2': !isVideoIdValid }">
         <div class="grid gap-y-4">
-          <div class="flex w-full justify-between">
+          <!-- info about pasting youtube link -->
+          <div class="flex items-center space-x-2 bg-primary rounded-lg p-4" v-if="!isVideoIdValid">
+            <inline-svg
+              :src="getIconSource('publish.svg')"
+              class="w-8 h-8 text-white fill-current"
+            ></inline-svg>
+            <p class="text-white text-xs bp-500:text-base">{{ $t('editor.video_input.info') }}</p>
+          </div>
+          <div class="flex w-full justify-between" v-if="isVideoIdValid">
             <!--- publish/draft badge -->
             <simple-badge
               :text="statusBadge"
@@ -180,10 +188,11 @@
             v-model:value="plioTitle"
             ref="title"
             :boxStyling="'pl-4'"
+            v-if="isVideoIdValid"
           ></input-text>
         </div>
 
-        <div class="flex justify-center py-2 mt-8 sm:mt-10 mb-16">
+        <div class="flex justify-center py-2 mt-8 sm:mt-10 mb-16" v-if="isVideoIdValid">
           <!-- boxes for adding different types of items -->
           <div
             class="bg-peach rounded-lg p-4 xsm:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
