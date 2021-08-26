@@ -188,6 +188,29 @@ export default {
     },
   },
   login: {
+    heading: "Make Videos Interactive",
+    sub_headings: {
+      interactive: {
+        title: "Interactive YouTube videos",
+        description:
+          "Convert any passive youtube video into an interactive lesson",
+      },
+      interactions: {
+        title: "Choose From Multiple Interactions",
+        description:
+          "Choose between interactions like Subjective Questions and MCQs",
+      },
+      download: {
+        title: "No Download Required",
+        description:
+          "Sharing interactive videos is as simple as sharing a link",
+      },
+      analytics: {
+        title: "Rich Analytics",
+        description:
+          "Go beyond traditional YouTube metrics to understand your audience better",
+      },
+    },
     phone: {
       prompt: "Please enter your mobile number",
       validation: {

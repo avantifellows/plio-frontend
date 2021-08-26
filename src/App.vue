@@ -5,7 +5,9 @@
       :class="{ 'opacity-20 pointer-events-none': coverBackground }"
       @keydown="keyboardPressed"
     >
-      <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
+      <div
+        class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white"
+        >
         <!-- top left logo -->
         <router-link
           :to="{ name: 'Home', params: { org: activeWorkspace } }"
