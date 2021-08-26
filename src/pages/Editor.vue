@@ -1,14 +1,14 @@
 <template>
   <!--- base grid -->
-  <div class="flex relative justify-center md:mx-4 lg:mx-10 xl:mx-20" :class="{'top-3/4': !isVideoIdValid }">
+  <div class="flex relative justify-center md:mx-4 lg:mx-10 xl:mx-20">
     <div
       class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
       :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
       data-test="blurDiv"
     >
       <!--- preview grid -->
-      <div class="flex flex-col mx-6 z-0" v-if="isVideoIdValid">
-        <div class="my-8 flex justify-center space-x-4">
+      <div class="flex flex-col mx-6 z-0" :class="{ 'mt-6': !isVideoIdValid || !isPublished }">
+        <div class="my-8 flex justify-center space-x-4" v-if="isVideoIdValid & isPublished">
           <!-- share plio -->
           <icon-button
             :isDisabled="!isPublished"
@@ -114,7 +114,7 @@
         </div>
 
         <!--- buttons -->
-        <div class="flex justify-center space-x-2 mt-10">
+        <div class="flex justify-center space-x-2 mt-10" v-if="isVideoIdValid">
           <!--- button to go back to home -->
           <icon-button
             :titleConfig="backButtonTitleConfig"
@@ -145,7 +145,7 @@
       </div>
 
       <!--- input grid -->
-      <div class="flex flex-col m-5 justify-start" :class="{ 'col-span-2': !isVideoIdValid }">
+      <div class="flex flex-col m-5 justify-start">
         <div class="grid gap-y-4">
           <!-- info about pasting youtube link -->
           <div class="flex items-center space-x-2 bg-primary rounded-lg p-4" v-if="!isVideoIdValid">
