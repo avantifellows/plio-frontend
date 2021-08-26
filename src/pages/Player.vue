@@ -229,8 +229,20 @@ export default {
   watch: {
     isFullscreen(newIsFullscreen) {
       // track the fullscreen status
-      if (newIsFullscreen) this.player.fullscreen.enter();
-      else this.player.fullscreen.exit();
+
+      if (newIsFullscreen) {
+        // trigger player fullscreen enter only if it is not already entered full screen
+        // by other modes like player controls or double click on the video.
+        if (!this.player.fullscreen.active) {
+          this.player.fullscreen.enter();
+        }
+      } else {
+        // trigger player full screen exit only if it is not already exited full screen
+        // by other modes like player controls or double click on the video.
+        if (this.player.fullscreen.active) {
+          this.player.fullscreen.exit();
+        }
+      }
     },
   },
   async created() {
