@@ -230,6 +230,9 @@ export default {
     isFullscreen(newIsFullscreen) {
       // track the fullscreen status
 
+      console.log('newIsFullscreen', newIsFullscreen);
+      console.log('this.player.fullscreen', this.player.fullscreen);
+
       if (newIsFullscreen) {
         // trigger player fullscreen enter only if it is not already entered full screen
         // by other modes like player controls or double click on the video.
