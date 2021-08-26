@@ -91,60 +91,43 @@ describe("Editor.vue", () => {
     const wrapper = mount(Editor, { shallow: true });
 
     // things that should not be visible
-    expect(
-      wrapper
-        .get('[data-test="blurDiv"]')
-        .get('[data-test="inputDiv"]')
-        .find('[data-test="itemDiv"]')
-        .exists()
-    ).toBeFalsy();
-    expect(
-      wrapper
-        .get('[data-test="blurDiv"]')
-        .get('[data-test="inputDiv"]')
-        .get('[data-test="meta"]')
-        .find('[data-test="plioName"]')
-        .exists()
-    ).toBeFalsy();
-    expect(
-      wrapper
-        .get('[data-test="blurDiv"]')
-        .get('[data-test="previewDiv"]')
-        .find('[data-test="lowerButton"]')
-        .exists()
-    ).toBeFalsy();
-    expect(
-      wrapper
-        .get('[data-test="blurDiv"]')
-        .get('[data-test="previewDiv"]')
-        .find('[data-test="upperButtons"]')
-        .exists()
-    ).toBeFalsy();
+    expect(wrapper.find('[data-test="itemDiv"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="plioName"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="lowerButton"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="upperButtons"]').exists()).toBeFalsy();
 
     // things that should be visible
+    expect(wrapper.find('[data-test="videoLinkInput"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="videoLinkInfo"]').exists()).toBeTruthy();
     expect(
-      wrapper
-        .get('[data-test="blurDiv"]')
-        .get('[data-test="inputDiv"]')
-        .get('[data-test="meta"]')
-        .find('[data-test="videoLinkInput"]')
-        .exists()
+      wrapper.find('[data-test="videoPreviewSkeleton"]').exists()
     ).toBeTruthy();
-    expect(
-      wrapper
-        .get('[data-test="blurDiv"]')
-        .get('[data-test="inputDiv"]')
-        .get('[data-test="meta"]')
-        .find('[data-test="videoLinkInfo"]')
-        .exists()
-    ).toBeTruthy();
-    expect(
-      wrapper
-        .get('[data-test="blurDiv"]')
-        .get('[data-test="previewDiv"]')
-        .find('[data-test="videoPreviewSkeleton"]')
-        .exists()
-    ).toBeTruthy();
+  });
+
+  it("share + play buttons appear on publishing", async () => {
+    const wrapper = mount(Editor);
+
+    await wrapper.setData({
+      videoId: "abcdefgh",
+    });
+
+    // share and play plio buttons should not be visible when video ID is set
+    expect(wrapper.find('[data-test="sharePlioButton"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeFalsy();
+
+    // click on the publish button
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+    // confirm that you want to publish
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
+
+    await flushPromises();
+
+    // share and play plio buttons should not be visible when video ID is set
+    expect(wrapper.find('[data-test="sharePlioButton"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeTruthy();
   });
 
   it("blurs the main screen when dialog box is shown", async () => {
