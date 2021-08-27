@@ -38,90 +38,7 @@
       >
         {{ title }}
       </div>
-
-      <div
-        class="bp-420:hidden flex justify-center bg-primary rounded-md py-2 shadow-md hidden"
-        @click="toggleActionButtonVisibility"
-      >
-        <inline-svg
-          :src="getIconSource('chevron-down-solid.svg')"
-          class="w-4 h-4 text-white fill-current"
-          :class="toggleIconClass"
-          data-test="toggleButton"
-        ></inline-svg>
-      </div>
-
-      <!-- action buttons -->
-      <div
-        class="flex flex-col bp-420:flex-row space-y-3 bp-420:space-x-3 bp-420:space-y-0 hidden"
-        v-if="showActionButtons"
-        data-test="actionButtonsContainer"
-      >
-        <div class="flex space-x-3 justify-center">
-          <!-- analyse button -->
-          <icon-button
-            v-if="isTouchDevice"
-            :titleConfig="analyseButtonTitleConfig"
-            :buttonClass="actionButtonClass"
-            :isDisabled="!isPublished"
-            @click="analysePlio"
-            v-tooltip="analyseButtonTooltip"
-            data-test="analyzeButton"
-          ></icon-button>
-
-          <!-- play button -->
-          <icon-button
-            :titleConfig="playButtonTitleConfig"
-            :buttonClass="actionButtonClass"
-            @click="playPlio"
-            :isDisabled="!isPublished"
-            v-tooltip="playButtonTooltip"
-            data-test="playButton"
-          ></icon-button>
-
-          <!--aur  share button -->
-          <icon-button
-            :titleConfig="shareButtonTitleConfig"
-            :buttonClass="actionButtonClass"
-            @click="sharePlio"
-            :isDisabled="!isPublished"
-            v-tooltip="shareButtonTooltip"
-            data-test="shareButton"
-          ></icon-button>
-        </div>
-
-        <div class="flex space-x-3 justify-center">
-          <!-- duplicate button -->
-          <icon-button
-            :titleConfig="duplicateButtonTitleConfig"
-            :buttonClass="actionButtonClass"
-            @click="duplicateThenRoute"
-            v-tooltip="duplicateButtonTooltip"
-            data-test="duplicateButton"
-          ></icon-button>
-
-          <!-- edit button -->
-          <icon-button
-            :titleConfig="editButtonTitleConfig"
-            :buttonClass="actionButtonClass"
-            v-tooltip="editButtonTooltip"
-            @click="editPlio"
-            data-test="editButton"
-          ></icon-button>
-        </div>
-      </div>
     </div>
-
-    <!-- action buttons -->
-    <!-- <div class="absolute w-full flex justify-end"> -->
-      <!-- <inline-svg
-          :src="getIconSource('chevron-down-solid.svg')"
-          class="w-4 h-4 text-gray-600 fill-current mr-8"
-        ></inline-svg> -->
-        <!-- <OptionDropdown
-        :options="plioActionOptions"
-      ></OptionDropdown> -->
-    <!-- </div> -->
   </div>
 </template>
 
@@ -130,7 +47,6 @@ import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
 import Utilities from "@/services/Functional/Utilities.js";
-import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import OptionDropdown from "@/components/App/OptionDropdown.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
@@ -152,7 +68,6 @@ export default {
     },
   },
   components: {
-    IconButton,
     SimpleBadge,
     PlioListItemSkeleton,
     OptionDropdown
