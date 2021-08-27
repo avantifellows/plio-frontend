@@ -5,9 +5,7 @@
       :class="{ 'opacity-20 pointer-events-none': coverBackground }"
       @keydown="keyboardPressed"
     >
-      <div
-        class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white"
-        >
+      <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
         <!-- top left logo -->
         <router-link
           :to="{ name: 'Home', params: { org: activeWorkspace } }"
@@ -198,6 +196,8 @@ export default {
             name: "Home",
             query: this.$route.query,
           });
+          // make sure to unset the active workspace as well
+          this.unsetActiveWorkspace();
         }
       }
 
@@ -241,7 +241,11 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions("auth", ["unsetAccessToken", "fetchAndUpdateUser"]),
+    ...mapActions("auth", [
+      "unsetAccessToken",
+      "fetchAndUpdateUser",
+      "unsetActiveWorkspace",
+    ]),
     ...mapActions("generic", ["unsetSharePlioDialog"]),
     ...mapActions("sync", ["stopLoading"]),
     mountChatwoot() {
