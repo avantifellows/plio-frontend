@@ -53,7 +53,14 @@ describe("Editor.vue", () => {
       "publishButtonClicked"
     );
     const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
-    const wrapper = mount(Editor, { shallow: false });
+    const wrapper = mount(Editor, {
+      shallow: false,
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
 
     await wrapper.find('[data-test="publishButton"]').trigger("click");
     expect(publishButtonClicked).toHaveBeenCalled();
@@ -78,6 +85,49 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("");
     expect(wrapper.vm.dialogCancelButtonConfig.class).toBe("");
     expect(publishPlio).toHaveBeenCalled();
+  });
+
+  it("shows only the video preview + video input field when video ID is not set", () => {
+    const wrapper = mount(Editor, { shallow: true });
+
+    // things that should not be visible
+    expect(wrapper.find('[data-test="itemDiv"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="plioName"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="lowerButton"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="upperButtons"]').exists()).toBeFalsy();
+
+    // things that should be visible
+    expect(wrapper.find('[data-test="videoLinkInput"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="videoLinkInfo"]').exists()).toBeTruthy();
+    expect(
+      wrapper.find('[data-test="videoPreviewSkeleton"]').exists()
+    ).toBeTruthy();
+  });
+
+  it("share + play buttons appear on publishing", async () => {
+    const wrapper = mount(Editor);
+
+    await wrapper.setData({
+      videoId: "abcdefgh",
+    });
+
+    // share and play plio buttons should not be visible when video ID is set
+    expect(wrapper.find('[data-test="sharePlioButton"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeFalsy();
+
+    // click on the publish button
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+    // confirm that you want to publish
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
+
+    await flushPromises();
+
+    // share and play plio buttons should not be visible when video ID is set
+    expect(wrapper.find('[data-test="sharePlioButton"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeTruthy();
   });
 
   it("blurs the main screen when dialog box is shown", async () => {
@@ -260,29 +310,6 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({ videoId: "jdYJf_ybyVo" });
-
-    expect(
-      wrapper.find('[data-test="sharePlioButton"]').element.disabled
-    ).toBeTruthy();
-    expect(
-      wrapper
-        .find('[data-test="sharePlioButton"]')
-        .find('[data-test="title"]')
-        .text()
-    ).toBe("Share");
-    expect(
-      wrapper
-        .find('[data-test="sharePlioButton"]')
-        .find('[data-test="title"]')
-        .classes()
-    ).toContain("text-yellow-800");
-    expect(
-      wrapper
-        .find('[data-test="sharePlioButton"]')
-        .find('[data-test="title"]')
-        .classes()
-    ).toContain("text-yellow-800");
-
     await wrapper.setData({ status: "published" });
 
     expect(
@@ -305,15 +332,17 @@ describe("Editor.vue", () => {
       props: {
         plioId: plioId,
       },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
       global: {
         mocks: {
           $router: mockRouter,
         },
       },
     });
-    expect(
-      wrapper.find('[data-test="playPlioButton"]').element.disabled
-    ).toBeTruthy();
 
     await wrapper.setData({ status: "published" });
     expect(
@@ -418,7 +447,13 @@ describe("Editor.vue", () => {
   });
 
   it("renders publish button tooltip correctly", async () => {
-    const wrapper = mount(Editor);
+    const wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
     await wrapper.setData({
       status: "published",
       hasUnpublishedChanges: true,
@@ -440,7 +475,13 @@ describe("Editor.vue", () => {
     const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
     const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
-    const wrapper = mount(Editor);
+    const wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
 
     await wrapper.find('[data-test="publishButton"]').trigger("click");
     expect(wrapper.vm.publishDialogTitle).toBe(
@@ -574,6 +615,11 @@ describe("Editor.vue", () => {
           $router: mockRouter,
         },
       },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
     });
     await wrapper.setData({
       status: "published",
@@ -672,7 +718,13 @@ describe("Editor.vue", () => {
       Editor.methods,
       "showCannotDeleteOptionDialog"
     );
-    const wrapper = mount(Editor);
+    const wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
     await wrapper.setData({
       items: dummyItemsCopy.data,
       currentItemIndex: 0,
@@ -913,7 +965,13 @@ describe("Editor.vue", () => {
       Editor.methods,
       "deleteSelectedItem"
     );
-    const wrapper = mount(Editor);
+    const wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
     await wrapper.setData({
       items: cloneDeep(dummyItemsCopy.data),
       currentItemIndex: 0,
