@@ -1,17 +1,33 @@
 <template>
   <PlioListItemSkeleton v-if="pending" class="w-full" />
-  <div v-else class="rounded-sm p-2 w-auto">
-    <div class="grid grid-flow-row auto-rows-min gap-2">
+  <div v-else class="flex relative rounded-sm p-2 w-auto">
+    <div class="grid grid-flow-row auto-rows-min gap-2 w-full">
       <!-- last updated date -->
       <div class="flex flex-row justify-start space-x-3">
         <p class="text-xs place-self-center">{{ updatedAt }}</p>
 
-        <!-- status badge -->
-        <simple-badge
-          :text="statusBadge"
-          :badgeClass="statusBadgeClass"
-          v-tooltip.top="statusBadgeTooltip"
-        ></simple-badge>
+        <div class="flex relative">
+          <!-- status badge -->
+          <simple-badge
+            :text="statusBadge"
+            class="absolute"
+            :badgeClass="statusBadgeClass"
+            v-tooltip.top="statusBadgeTooltip"
+          ></simple-badge>
+
+          <simple-badge
+            text="published"
+            class="invisible"
+            :badgeClass="statusBadgeClass"
+            v-tooltip.top="statusBadgeTooltip"
+          ></simple-badge>
+        </div>
+
+        <OptionDropdown
+        :options="plioActionOptions"
+        :scrollY="scrollY"
+        class="flex-grow flex relative justify-end sm:justify-start"
+      ></OptionDropdown>
       </div>
 
       <!-- plio title -->
@@ -23,7 +39,7 @@
       </div>
 
       <div
-        class="bp-420:hidden flex justify-center bg-primary rounded-md py-2 shadow-md"
+        class="bp-420:hidden flex justify-center bg-primary rounded-md py-2 shadow-md hidden"
         @click="toggleActionButtonVisibility"
       >
         <inline-svg
@@ -36,7 +52,7 @@
 
       <!-- action buttons -->
       <div
-        class="flex flex-col bp-420:flex-row space-y-3 bp-420:space-x-3 bp-420:space-y-0"
+        class="flex flex-col bp-420:flex-row space-y-3 bp-420:space-x-3 bp-420:space-y-0 hidden"
         v-if="showActionButtons"
         data-test="actionButtonsContainer"
       >
@@ -62,7 +78,7 @@
             data-test="playButton"
           ></icon-button>
 
-          <!-- share button -->
+          <!--aur  share button -->
           <icon-button
             :titleConfig="shareButtonTitleConfig"
             :buttonClass="actionButtonClass"
@@ -94,6 +110,17 @@
         </div>
       </div>
     </div>
+
+    <!-- action buttons -->
+    <!-- <div class="absolute w-full flex justify-end"> -->
+      <!-- <inline-svg
+          :src="getIconSource('chevron-down-solid.svg')"
+          class="w-4 h-4 text-gray-600 fill-current mr-8"
+        ></inline-svg> -->
+        <!-- <OptionDropdown
+        :options="plioActionOptions"
+      ></OptionDropdown> -->
+    <!-- </div> -->
   </div>
 </template>
 
@@ -104,6 +131,7 @@ import QuestionAPIService from "@/services/API/Question.js";
 import Utilities from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
+import OptionDropdown from "@/components/App/OptionDropdown.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
 import { mapState, mapActions } from "vuex";
 
@@ -126,6 +154,7 @@ export default {
     IconButton,
     SimpleBadge,
     PlioListItemSkeleton,
+    OptionDropdown
   },
 
   data() {
@@ -138,9 +167,9 @@ export default {
       showActionButtons: true, // whether to show the action buttons
       // whether the visibility of the action buttons has been manually set
       hasUserSetActionVisibility: false,
+      scrollY: window.scrollY
     };
   },
-
   async created() {
     // load the plio only if the plio id is not empty
     if (this.isPlioIdValid) await this.loadPlio();
@@ -149,13 +178,15 @@ export default {
     this.checkScreenOrientation();
     // add listener for screen size being changed
     window.addEventListener("resize", this.checkScreenOrientation);
-  },
 
+    window.addEventListener('scroll', this.handleScroll);
+  },
   unmounted() {
     // remove listeners
     window.removeEventListener("resize", this.checkScreenOrientation);
-  },
 
+    window.removeEventListener('scroll', this.handleScroll);
+  },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
@@ -165,6 +196,39 @@ export default {
         { "transform rotate-180": this.showActionButtons },
         "transition ease duration-800",
       ];
+    },
+
+    plioActionOptions() {
+      let options = [
+        {
+          value: "edit",
+          label: "Edit",
+          icon: "edit.svg",
+        },
+        {
+          value: "play",
+          label: "Play",
+          icon: "play.svg",
+        },
+        {
+          value: "share",
+          label: "Share",
+          icon: "share.svg",
+        },
+        {
+          value: "duplicate",
+          label: "Duplicate",
+          icon: "copy.svg",
+        },
+      ]
+      if (this.isTouchDevice) {
+        options.push({
+          value: "analyse",
+          label: "Analyse",
+          icon: "analyze.svg",
+        })
+      }
+      return options
     },
     isTouchDevice() {
       // detects if the user's device has a touch screen or not
@@ -298,6 +362,10 @@ export default {
       this.showActionButtons = !this.showActionButtons;
       this.hasUserSetActionVisibility = true;
     },
+    handleScroll() {
+      this.scrollY = window.scrollY
+    },
+
     checkScreenOrientation() {
       var screenWidth = screen.availWidth;
       // always show action buttons if screen-width >= 420

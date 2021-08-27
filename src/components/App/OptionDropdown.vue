@@ -1,45 +1,40 @@
 <template>
   <div>
-    <div :class="selectedOptionClass" class="relative">
-      <!-- selected option -->
+    <div class="flex justify-end">
+      <!-- dropdown -->
       <button
         type="button"
         @click="toggleDropdownDisplay"
         :disabled="isDisabled"
-        class="disabled:opacity-50 w-full flex space-x-2 bg-primary rounded-lg shadow-lg p-2 text-left cursor-default focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:text-sm items-center"
+        class="disabled:opacity-50 sm:w-full flex space-x-2 p-2 text-left cursor-default focus:outline-none sm:text-sm items-center"
         data-test="toggleButton"
       >
-        <span class="flex flex-1 space-x-2 items-center">
-          <inline-svg
-            v-if="selectedOptionHasIcon"
-            :src="getIconSource(selectedOption.icon)"
-            class="text-white h-4 w-full bp-420:w-2/3 bp-500:w-full sm:w-2/3 fill-current"
-          ></inline-svg>
-        </span>
         <!-- dropdown icon -->
         <inline-svg
-          :src="getIconSource('chevron-down-solid-white.svg')"
-          class="h-4 w-4 text-primary fill-current"
+          :src="getIconSource('chevron-down-solid.svg')"
+          class="h-4 w-4 fill-current hover:cursor-pointer"
           :class="dropdownIconClass"
         ></inline-svg>
       </button>
     </div>
     <!-- options -->
     <div
-      class="absolute mt-1 w-2/3 bp-500:w-1/2 sm:w-1/3 md:w-1/2 xl:w-1/3 z-50 bg-white shadow-lg"
+      class="fixed w-2/3 bp-500:w-1/2 sm:w-1/4 xl:w-1/6 z-10 bg-white shadow-lg"
+      :style="optionBoxStyling"
       v-if="showDropdown"
       v-click-away="hideDropdown"
+      id="options"
     >
       <ul
         tabindex="-1"
         role="listbox"
-        class="max-h-56 text-base py-2 ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
+        class="max-h-56 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
       >
         <li
           v-for="(option, optionIndex) in options"
           :key="optionIndex"
           role="option"
-          class="text-gray-900 cursor-default hover:bg-primary hover:text-white select-none relative p-2"
+          class="text-gray-900 cursor-default hover:bg-primary hover:cursor-pointer hover:text-white select-none relative p-2 px-4"
           @click="setOption(optionIndex)"
           :data-test="`option-${optionIndex}`"
         >
@@ -47,7 +42,7 @@
             <inline-svg
               v-if="doesOptionHaveIcon(option)"
               :src="getIconSource(option.icon)"
-              class="w-1/4 h-4 fill-current"
+              class="w-4 h-4 fill-current"
               data-test="icon"
             ></inline-svg>
             <p class="block font-normal w-full" data-test="label">{{ option.label }}</p>
@@ -62,11 +57,13 @@
 import Utilties from "@/services/Functional/Utilities.js";
 
 export default {
-  name: "QuestionTypeDropdown",
+  name: "OptionDropdown",
   data() {
     return {
       localSelectedIndex: this.selectedIndex, // index of the selected option
       showDropdown: false, // whether to show the dropdown for choosing an option
+      defaultOptionMarginRem: 2,
+      optionBoxStyling: {},
     };
   },
   props: {
@@ -85,8 +82,15 @@ export default {
       default: false,
       type: Boolean,
     },
+    scrollY: {
+        default: 0,
+        type: Number
+    }
   },
   computed: {
+    defaultOptionMargin() {
+        return this.convertRemToPixels(this.defaultOptionMarginRem)
+    },
     selectedOptionHasIcon() {
       // whether the selected option has an icon
       return this.selectedOption != undefined && this.selectedOption.icon != null;
@@ -94,33 +98,50 @@ export default {
     dropdownIconClass() {
       return [
         { "transform rotate-180": this.showDropdown },
-        "transition ease duration-800",
+        "transition ease duration-800 text-gray-600",
       ];
     },
     selectedOption() {
       // the selected option
       return this.options[this.localSelectedIndex];
     },
-    selectedOptionClass() {
-      // class for the selected option
-      return {
-        "w-1/4 bp-500:w-1/6 md:w-1/4 lg:w-1/6": this.showDropdown,
-        "w-3/4 bp-500:w-1/2 md:w-3/4 lg:w-1/2": !this.showDropdown,
-      };
-    },
   },
   watch: {
     selectedIndex() {
       this.localSelectedIndex = this.selectedIndex;
+    },
+    defaultOptionMarginRem() {
+        this.setOptionBoxStyling()
     },
     isDisabled(value) {
       if (value && this.showDropdown) {
         this.hideDropdown();
       }
     },
+    scrollY() {
+        this.setOptionBoxStyling()
+    },
+    showDropdown() {
+        if (!this.showDropdown) {
+            this.defaultOptionMarginRem = 2
+        }
+    }
+  },
+  created() {
+      this.setOptionBoxStyling()
   },
   methods: {
     ...Utilties,
+    setOptionBoxStyling() {
+        if (!this.scrollY) {
+            this.optionBoxStyling = { 'margin-top': `${this.defaultOptionMarginRem}rem` }
+        } else {
+            this.optionBoxStyling = { 'margin-top': `-${this.scrollY - this.defaultOptionMargin}px`}
+        }
+    },
+    convertRemToPixels(rem) {
+        return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+    },
     doesOptionHaveIcon(option) {
       // whether the given option has an icon
       return option != undefined && option.icon != null;
@@ -136,9 +157,31 @@ export default {
       this.$emit("update:selectedIndex", index);
       this.toggleDropdownDisplay();
     },
+    isOptionsOverflowBottom() {
+        // checks whether the bottom of the options overflows the screen
+        const optionsContainer = document.querySelector('#options')
+        const rectangle = optionsContainer.getBoundingClientRect()
+        console.log(rectangle.bottom)
+        console.log(window.innerHeight)
+        console.log(this.scrollY)
+        return rectangle.bottom > window.innerHeight
+    },
     toggleDropdownDisplay() {
       // toggle the dropdown for choosing an option
       this.showDropdown = !this.showDropdown;
+      this.$nextTick(() => {
+          if (this.showDropdown) {
+            // dropdown is going to be shown
+            if (this.isOptionsOverflowBottom()) {
+                this.defaultOptionMarginRem = -12
+            } else {
+                this.defaultOptionMarginRem = 2
+            }
+          }
+          console.log(this.defaultOptionMarginRem)
+          console.log(this.defaultOptionMargin)
+          console.log(this.optionBoxStyling)
+      })
       this.$emit("toggle-visibility", this.showDropdown);
     },
   },
