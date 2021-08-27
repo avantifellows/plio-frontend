@@ -2,7 +2,6 @@ import { mount } from "@vue/test-utils";
 import PlioListItem from "@/components/Collections/ListItems/PlioListItem";
 import store from "@/store";
 import { setMatchMedia } from "@/services/Testing/Utilities";
-import OptionDropdown from "@/components/App/OptionDropdown";
 
 describe("PlioListItem.vue", () => {
   beforeEach(async () => {
