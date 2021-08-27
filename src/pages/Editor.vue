@@ -8,7 +8,7 @@
     >
       <!--- preview grid -->
       <div class="flex flex-col mx-6 z-0" :class="{ 'mt-6': !isVideoIdValid || !isPublished }" data-test="previewDiv">
-        <div class="my-8 flex justify-center space-x-4" v-if="isVideoIdValid & isPublished" data-test="upperButtons">
+        <div class="my-8 flex justify-center space-x-4" v-if="isVideoIdValid && isPublished" data-test="upperButtons">
           <!-- share plio -->
           <icon-button
             :isDisabled="!isPublished"
