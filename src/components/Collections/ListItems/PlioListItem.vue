@@ -27,6 +27,7 @@
         :options="plioActionOptions"
         :scrollY="scrollY"
         class="flex-grow flex relative justify-end sm:justify-start"
+        @select="runAction"
       ></OptionDropdown>
       </div>
 
@@ -202,29 +203,29 @@ export default {
       let options = [
         {
           value: "edit",
-          label: "Edit",
+          label: this.$t("home.table.plio_list_item.buttons.edit"),
           icon: "edit.svg",
         },
         {
           value: "play",
-          label: "Play",
+          label: this.$t("home.table.plio_list_item.buttons.play"),
           icon: "play.svg",
         },
         {
           value: "share",
-          label: "Share",
+          label: this.$t("home.table.plio_list_item.buttons.share"),
           icon: "share.svg",
         },
         {
           value: "duplicate",
-          label: "Duplicate",
+          label: this.$t("home.table.plio_list_item.buttons.duplicate"),
           icon: "copy.svg",
         },
       ]
       if (this.isTouchDevice) {
         options.push({
           value: "analyse",
-          label: "Analyse",
+          label: this.$t("home.table.plio_list_item.buttons.analyse"),
           icon: "analyze.svg",
         })
       }
@@ -357,6 +358,26 @@ export default {
     ...mapActions("plioItems", ["fetchPlio"]),
     ...mapActions("generic", ["showSharePlioDialog"]),
     ...Utilities,
+    runAction(_, action) {
+      // invoked when one of the action buttons is clicked
+      switch(action) {
+        case "play":
+          this.playPlio()
+          break
+        case "edit":
+          this.editPlio()
+          break
+        case "share":
+          this.sharePlio()
+          break
+        case "duplicate":
+          this.duplicateThenRoute()
+          break
+        case "analyse":
+          this.analysePlio()
+          break
+      }
+    },
     toggleActionButtonVisibility() {
       // toggles the visibility of the action buttons
       this.showActionButtons = !this.showActionButtons;

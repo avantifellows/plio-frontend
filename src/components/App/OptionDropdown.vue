@@ -5,7 +5,6 @@
       <button
         type="button"
         @click="toggleDropdownDisplay"
-        :disabled="isDisabled"
         class="disabled:opacity-50 sm:w-full flex space-x-2 p-2 text-left cursor-default focus:outline-none sm:text-sm items-center"
         data-test="toggleButton"
       >
@@ -60,7 +59,6 @@ export default {
   name: "OptionDropdown",
   data() {
     return {
-      localSelectedIndex: this.selectedIndex, // index of the selected option
       showDropdown: false, // whether to show the dropdown for choosing an option
       defaultOptionMarginRem: 2,
       optionBoxStyling: {},
@@ -72,16 +70,6 @@ export default {
       type: Array,
       default: () => [],
     },
-    selectedIndex: {
-      // the default selected index
-      type: Number,
-      default: 0,
-    },
-    isDisabled: {
-      // whether the dropdown is disabled
-      default: false,
-      type: Boolean,
-    },
     scrollY: {
         default: 0,
         type: Number
@@ -91,32 +79,16 @@ export default {
     defaultOptionMargin() {
         return this.convertRemToPixels(this.defaultOptionMarginRem)
     },
-    selectedOptionHasIcon() {
-      // whether the selected option has an icon
-      return this.selectedOption != undefined && this.selectedOption.icon != null;
-    },
     dropdownIconClass() {
       return [
         { "transform rotate-180": this.showDropdown },
         "transition ease duration-800 text-gray-600",
       ];
     },
-    selectedOption() {
-      // the selected option
-      return this.options[this.localSelectedIndex];
-    },
   },
   watch: {
-    selectedIndex() {
-      this.localSelectedIndex = this.selectedIndex;
-    },
     defaultOptionMarginRem() {
         this.setOptionBoxStyling()
-    },
-    isDisabled(value) {
-      if (value && this.showDropdown) {
-        this.hideDropdown();
-      }
     },
     scrollY() {
         this.setOptionBoxStyling()
@@ -153,9 +125,8 @@ export default {
     },
     setOption(index) {
       // sets the given index as the selected option index
-      this.localSelectedIndex = index;
-      this.$emit("update:selectedIndex", index);
       this.toggleDropdownDisplay();
+      this.$emit('select', index, this.options[index].value)
     },
     isOptionsOverflowBottom() {
         // checks whether the bottom of the options overflows the screen
@@ -179,7 +150,7 @@ export default {
       this.$emit("toggle-visibility", this.showDropdown);
     },
   },
-  emits: ["update:selectedIndex", "toggle-visibility"],
+  emits: ['select', "toggle-visibility"],
 };
 </script>
 
