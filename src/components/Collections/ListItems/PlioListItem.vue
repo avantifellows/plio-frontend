@@ -125,11 +125,13 @@ export default {
           value: "play",
           label: this.$t("home.table.plio_list_item.buttons.play"),
           icon: "play.svg",
+          disabled: !this.isPublished
         },
         {
           value: "share",
           label: this.$t("home.table.plio_list_item.buttons.share"),
           icon: "share.svg",
+          disabled: !this.isPublished
         },
         {
           value: "duplicate",
@@ -142,6 +144,7 @@ export default {
           value: "analyse",
           label: this.$t("home.table.plio_list_item.buttons.analyse"),
           icon: "analyze.svg",
+          disabled: !this.isPublished
         })
       }
       return options

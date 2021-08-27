@@ -33,8 +33,10 @@
           v-for="(option, optionIndex) in options"
           :key="optionIndex"
           role="option"
-          class="text-gray-900 cursor-default hover:bg-primary hover:cursor-pointer hover:text-white select-none relative p-2 px-4"
+          class="text-gray-900 select-none relative p-2 px-4"
+          :class="optionClass(optionIndex)"
           @click="setOption(optionIndex)"
+          :disabled="isOptionDisabled(optionIndex)"
           :data-test="`option-${optionIndex}`"
         >
           <div class="flex space-x-4 items-center">
@@ -104,6 +106,17 @@ export default {
   },
   methods: {
     ...Utilties,
+    optionClass(index) {
+        // class for each option
+        return {
+            'opacity-50 cursor-not-allowed': this.isOptionDisabled(index),
+            'hover:bg-primary hover:cursor-pointer hover:text-white': !this.isOptionDisabled(index)
+        }
+    },
+    isOptionDisabled(index) {
+        // whether the option at the given index is disabled
+        return this.options[index].disabled
+    },
     setOptionBoxStyling() {
         if (!this.scrollY) {
             this.optionBoxStyling = { 'margin-top': `${this.defaultOptionMarginRem}rem` }
@@ -125,6 +138,7 @@ export default {
     },
     setOption(index) {
       // sets the given index as the selected option index
+      if (this.isOptionDisabled(index)) return
       this.toggleDropdownDisplay();
       this.$emit('select', index, this.options[index].value)
     },
