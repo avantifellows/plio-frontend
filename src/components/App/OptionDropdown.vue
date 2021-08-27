@@ -40,12 +40,14 @@
           :data-test="`option-${optionIndex}`"
         >
           <div class="flex space-x-4 items-center">
+            <!-- option icon -->
             <inline-svg
               v-if="doesOptionHaveIcon(option)"
               :src="getIconSource(option.icon)"
               class="w-4 h-4 fill-current"
               data-test="icon"
             ></inline-svg>
+            <!-- option icon -->
             <p class="block font-normal w-full" data-test="label">{{ option.label }}</p>
           </div>
         </li>
@@ -62,8 +64,8 @@ export default {
   data() {
     return {
       showDropdown: false, // whether to show the dropdown for choosing an option
-      defaultOptionMarginRem: 2,
-      optionBoxStyling: {},
+      defaultOptionMarginRem: 2, // default margin-top (in rem) of the option dropdown without any scrolling effect
+      optionBoxStyling: {}, // styling for the option dropdown
     };
   },
   props: {
@@ -73,15 +75,18 @@ export default {
       default: () => [],
     },
     scrollY: {
+        // the number of pixels have been scrolled vertically
         default: 0,
         type: Number
     }
   },
   computed: {
     defaultOptionMargin() {
+        // default margin-top (in pixels) of the option dropdown without any scrolling effect
         return this.convertRemToPixels(this.defaultOptionMarginRem)
     },
     dropdownIconClass() {
+        // class for the dropdown icon
       return [
         { "transform rotate-180": this.showDropdown },
         "transition ease duration-800 text-gray-600",
@@ -90,18 +95,22 @@ export default {
   },
   watch: {
     defaultOptionMarginRem() {
+        // update option box margin when the default top margin is updated
         this.setOptionBoxStyling()
     },
     scrollY() {
+        // update option box margin when the page is scrolled is updated
         this.setOptionBoxStyling()
     },
     showDropdown() {
+        // if the dropdown is closed, reset the option box's margin-top
         if (!this.showDropdown) {
             this.defaultOptionMarginRem = 2
         }
     }
   },
   created() {
+      // set the option box margin when the page is created
       this.setOptionBoxStyling()
   },
   methods: {
@@ -118,6 +127,7 @@ export default {
         return this.options[index].disabled
     },
     setOptionBoxStyling() {
+        // sets the option box margin based on various parameters
         if (!this.scrollY) {
             this.optionBoxStyling = { 'margin-top': `${this.defaultOptionMarginRem}rem` }
         } else {
@@ -125,6 +135,7 @@ export default {
         }
     },
     convertRemToPixels(rem) {
+        // converts value in rem to pixels
         return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
     },
     doesOptionHaveIcon(option) {
@@ -152,8 +163,10 @@ export default {
       // toggle the dropdown for choosing an option
       this.showDropdown = !this.showDropdown;
       this.$nextTick(() => {
+          // enter if the dropdown is going to be shown
           if (this.showDropdown) {
-            // dropdown is going to be shown
+            // if the dropdown is going to go below the screen
+            // set the margin-top to fix that
             if (this.isOptionsOverflowBottom()) {
                 this.defaultOptionMarginRem = -12
             } else {

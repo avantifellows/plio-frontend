@@ -44,12 +44,14 @@
           :data-test="`option-${optionIndex}`"
         >
           <div class="flex space-x-4 items-center">
+            <!-- option icon -->
             <inline-svg
               v-if="doesOptionHaveIcon(option)"
               :src="getIconSource(option.icon)"
               class="w-1/4 h-4 fill-current"
               data-test="icon"
             ></inline-svg>
+            <!-- option label -->
             <p class="block font-normal w-full" data-test="label">{{ option.label }}</p>
           </div>
         </li>

@@ -15,20 +15,25 @@
             v-tooltip.top="statusBadgeTooltip"
           ></simple-badge>
 
+          <!--
+            dummy badge to ensure that the dropdown button
+            is placed at the same spot for both draft and published plios
+          -->
           <simple-badge
-            text="published"
+            :text="$t(`generic.status.published`)"
             class="invisible"
             :badgeClass="statusBadgeClass"
             v-tooltip.top="statusBadgeTooltip"
           ></simple-badge>
         </div>
 
+        <!-- the dropdown containing the action buttons -->
         <OptionDropdown
-        :options="plioActionOptions"
-        :scrollY="scrollY"
-        class="flex-grow flex relative justify-end sm:justify-start"
-        @select="runAction"
-      ></OptionDropdown>
+          :options="plioActionOptions"
+          :scrollY="scrollY"
+          class="flex-grow flex relative justify-end sm:justify-start"
+          @select="runAction"
+        ></OptionDropdown>
       </div>
 
       <!-- plio title -->
@@ -83,7 +88,7 @@ export default {
       showActionButtons: true, // whether to show the action buttons
       // whether the visibility of the action buttons has been manually set
       hasUserSetActionVisibility: false,
-      scrollY: window.scrollY
+      scrollY: window.scrollY // the number of pixels scrolled vertically
     };
   },
   async created() {
@@ -94,13 +99,12 @@ export default {
     this.checkScreenOrientation();
     // add listener for screen size being changed
     window.addEventListener("resize", this.checkScreenOrientation);
-
+    // add listener for scrolling
     window.addEventListener('scroll', this.handleScroll);
   },
   unmounted() {
     // remove listeners
     window.removeEventListener("resize", this.checkScreenOrientation);
-
     window.removeEventListener('scroll', this.handleScroll);
   },
   computed: {
@@ -115,6 +119,7 @@ export default {
     },
 
     plioActionOptions() {
+      // the list of action buttons
       let options = [
         {
           value: "edit",
@@ -302,6 +307,7 @@ export default {
       this.hasUserSetActionVisibility = true;
     },
     handleScroll() {
+      // handles all scrolling events
       this.scrollY = window.scrollY
     },
 
