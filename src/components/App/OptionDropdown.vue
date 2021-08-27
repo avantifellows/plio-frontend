@@ -182,3 +182,7 @@ export default {
   emits: ["update:selectedIndex", "toggle-visibility"],
 };
 </script>
+
+<style scoped>
+li+li { border-top: 1px solid #D1D5DB }
+</style>
