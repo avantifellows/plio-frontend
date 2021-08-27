@@ -26,7 +26,7 @@
     </div>
     <!-- options -->
     <div
-      class="absolute mt-1 w-2/3 bp-500:w-1/2 sm:w-1/3 md:w-1/2 xl:w-1/3 z-50 bg-white shadow-lg"
+      class="absolute mt-1 w-2/3 bp-500:w-1/2 sm:w-1/3 md:w-1/2 xl:w-1/3 z-10 bg-white shadow-lg"
       v-if="showDropdown"
       v-click-away="hideDropdown"
     >
