@@ -161,9 +161,6 @@ export default {
         // checks whether the bottom of the options overflows the screen
         const optionsContainer = document.querySelector('#options')
         const rectangle = optionsContainer.getBoundingClientRect()
-        console.log(rectangle.bottom)
-        console.log(window.innerHeight)
-        console.log(this.scrollY)
         return rectangle.bottom > window.innerHeight
     },
     toggleDropdownDisplay() {
@@ -178,9 +175,6 @@ export default {
                 this.defaultOptionMarginRem = 2
             }
           }
-          console.log(this.defaultOptionMarginRem)
-          console.log(this.defaultOptionMargin)
-          console.log(this.optionBoxStyling)
       })
       this.$emit("toggle-visibility", this.showDropdown);
     },
