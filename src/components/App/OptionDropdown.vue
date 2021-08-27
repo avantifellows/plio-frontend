@@ -23,6 +23,7 @@
       v-if="showDropdown"
       v-click-away="hideDropdown"
       id="options"
+      data-test="optionsContainer"
     >
       <ul
         tabindex="-1"
@@ -37,7 +38,7 @@
           :class="optionClass(optionIndex)"
           @click="setOption(optionIndex)"
           :disabled="isOptionDisabled(optionIndex)"
-          :data-test="`option-${optionIndex}`"
+          data-test="option"
         >
           <div class="flex space-x-4 items-center">
             <!-- option icon -->

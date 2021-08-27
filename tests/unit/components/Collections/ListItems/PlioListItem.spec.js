@@ -2,6 +2,7 @@ import { mount } from "@vue/test-utils";
 import PlioListItem from "@/components/Collections/ListItems/PlioListItem";
 import store from "@/store";
 import { setMatchMedia } from "@/services/Testing/Utilities";
+import OptionDropdown from "@/components/App/OptionDropdown";
 
 describe("PlioListItem.vue", () => {
   beforeEach(async () => {
@@ -79,7 +80,7 @@ describe("PlioListItem.vue", () => {
     expect(wrapper.vm.isPublished).toBe(true);
   });
 
-  it("action buttons disabled by default", () => {
+  it("clicking dropdown shows action buttons", async () => {
     const wrapper = mount(PlioListItem, {
       data() {
         return {
@@ -90,12 +91,22 @@ describe("PlioListItem.vue", () => {
         };
       },
     });
-    expect(wrapper.find('[data-test="actionButtonsContainer"]').exists()).toBe(
-      false
-    );
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // there should be 4 buttons - edit, play, share, duplicate
+    expect(
+      wrapper
+        .get('[data-test="optionDropdown"]')
+        .findAll('[data-test="option"]').length
+    ).toBe(4);
   });
 
-  it("action buttons visible through props", () => {
+  it("play disabled for draft plio ", async () => {
     const wrapper = mount(PlioListItem, {
       data() {
         return {
@@ -105,49 +116,20 @@ describe("PlioListItem.vue", () => {
           },
         };
       },
-      props: {
-        showActionsByDefault: true,
-      },
     });
-    expect(wrapper.find('[data-test="actionButtonsContainer"]').exists()).toBe(
-      true
-    );
-  });
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
 
-  it("action buttons visible if width >= 420", () => {
-    // needed as buttons are not present by default for screen width < 420
-    jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
-    const wrapper = mount(PlioListItem, {
-      data() {
-        return {
-          plioDetails: {
-            updatedAt: new Date(2018, 12, 31),
-            status: "draft",
-          },
-        };
-      },
-    });
-    expect(wrapper.find('[data-test="actionButtonsContainer"]').exists()).toBe(
-      true
-    );
-  });
-
-  it("play disabled for draft plio ", () => {
-    // needed as buttons are not present by default for screen width < 420
-    jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
-    const wrapper = mount(PlioListItem, {
-      data() {
-        return {
-          plioDetails: {
-            updatedAt: new Date(2018, 12, 31),
-            status: "draft",
-          },
-        };
-      },
-    });
-    expect(wrapper.find('[data-test="playButton"]').element.disabled).toBe(
-      true
-    );
+    // cursor not allowed - when play button is disabled
+    expect(
+      wrapper
+        .get('[data-test="optionDropdown"]')
+        .findAll('[data-test="option"]')[1]
+        .classes()
+    ).toContain("cursor-not-allowed");
   });
 
   it("clicking play redirects to player for published plio ", async () => {
@@ -179,7 +161,18 @@ describe("PlioListItem.vue", () => {
     // passing in plioID triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
-    wrapper.find('[data-test="playButton"]').trigger("click");
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // click the play button
+    wrapper
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[1]
+      .trigger("click");
+
     expect(mockRouter.push).toHaveBeenCalledWith({
       name: "Player",
       params: {
@@ -187,24 +180,6 @@ describe("PlioListItem.vue", () => {
         plioId: plioId,
       },
     });
-  });
-
-  it("duplicate enabled for draft plio ", () => {
-    // needed as buttons are not present by default for screen width < 420
-    jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
-    const wrapper = mount(PlioListItem, {
-      data() {
-        return {
-          plioDetails: {
-            updatedAt: new Date(2018, 12, 31),
-            status: "draft",
-          },
-        };
-      },
-    });
-    expect(wrapper.find('[data-test="duplicateButton"]').element.disabled).toBe(
-      false
-    );
   });
 
   it("clicking duplicate triggers duplicate function ", async () => {
@@ -232,30 +207,23 @@ describe("PlioListItem.vue", () => {
     // passing in plioID triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
-    wrapper.find('[data-test="duplicateButton"]').trigger("click");
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // click the duplicate button
+    wrapper
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[3]
+      .trigger("click");
+
     expect(duplicatePlio).toHaveBeenCalled();
     expect(duplicateThenRoute).toHaveBeenCalled();
   });
 
-  it("edit enabled for draft plio ", () => {
-    // needed as buttons are not present by default for screen width < 420
-    jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
-    const wrapper = mount(PlioListItem, {
-      data() {
-        return {
-          plioDetails: {
-            updatedAt: new Date(2018, 12, 31),
-            status: "draft",
-          },
-        };
-      },
-    });
-    expect(wrapper.find('[data-test="editButton"]').element.disabled).toBe(
-      false
-    );
-  });
-
-  it("clicking editor redirects to editor for the plio ", async () => {
+  it("clicking edit redirects to editor for the plio ", async () => {
     const plioDetails = {
       updatedAt: new Date(2018, 12, 31),
       status: "published",
@@ -284,7 +252,18 @@ describe("PlioListItem.vue", () => {
     // passing in plioID triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
-    wrapper.find('[data-test="editButton"]').trigger("click");
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // click the edit button
+    wrapper
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[0]
+      .trigger("click");
+
     expect(mockRouter.push).toHaveBeenCalledWith({
       name: "Editor",
       params: {
@@ -294,7 +273,7 @@ describe("PlioListItem.vue", () => {
     });
   });
 
-  it("share disabled for draft plio ", () => {
+  it("share disabled for draft plio ", async () => {
     // needed as buttons are not present by default for screen width < 420
     jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
     const wrapper = mount(PlioListItem, {
@@ -307,9 +286,20 @@ describe("PlioListItem.vue", () => {
         };
       },
     });
-    expect(wrapper.find('[data-test="shareButton"]').element.disabled).toBe(
-      true
-    );
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // cursor not allowed - when share button is disabled
+    expect(
+      wrapper
+        .get('[data-test="optionDropdown"]')
+        .findAll('[data-test="option"]')[2]
+        .classes()
+    ).toContain("cursor-not-allowed");
   });
 
   it("clicking share shows the share dialog ", async () => {
@@ -334,25 +324,42 @@ describe("PlioListItem.vue", () => {
     // passing in plioID triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
-    wrapper.find('[data-test="shareButton"]').trigger("click");
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // click the share button
+    wrapper
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[2]
+      .trigger("click");
+
     expect(sharePlio).toHaveBeenCalled();
   });
 
   it("analyze button should show up for touch device ", async () => {
-    // needed as buttons are not present by default for screen width < 420
-    jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
-
     // set `matches` as `True` for testing on touch screen devices
     setMatchMedia(true);
 
     const wrapper = mount(PlioListItem);
-    expect(wrapper.find('[data-test="analyzeButton"]').exists()).toBe(true);
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // there should be 5 buttons - edit, play, share, duplicate, analyse
+    expect(
+      wrapper
+        .get('[data-test="optionDropdown"]')
+        .findAll('[data-test="option"]').length
+    ).toBe(5);
   });
 
-  it("analyze disabled for draft plio ", () => {
-    // needed as buttons are not present by default for screen width < 420
-    jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
-
+  it("analyze disabled for draft plio ", async () => {
     // set `matches` as `True` for testing on touch screen devices
     setMatchMedia(true);
 
@@ -366,9 +373,20 @@ describe("PlioListItem.vue", () => {
         };
       },
     });
-    expect(wrapper.find('[data-test="analyzeButton"]').element.disabled).toBe(
-      true
-    );
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // cursor not allowed - when analyse button is disabled
+    expect(
+      wrapper
+        .get('[data-test="optionDropdown"]')
+        .findAll('[data-test="option"]')[4]
+        .classes()
+    ).toContain("cursor-not-allowed");
   });
 
   it("clicking analyze routes to Dashboard ", async () => {
@@ -402,7 +420,18 @@ describe("PlioListItem.vue", () => {
     // passing in plioID triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
-    wrapper.find('[data-test="analyzeButton"]').trigger("click");
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // click the analyse button
+    wrapper
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[4]
+      .trigger("click");
+
     expect(mockRouter.push).toHaveBeenCalledWith({
       name: "Dashboard",
       params: {
@@ -410,20 +439,5 @@ describe("PlioListItem.vue", () => {
         plioId: plioId,
       },
     });
-  });
-
-  it("clicking toggle button toggles visibility of action buttons", () => {
-    const wrapper = mount(PlioListItem, {
-      data() {
-        return {
-          plioDetails: {
-            updatedAt: new Date(2018, 12, 31),
-            status: "draft",
-          },
-        };
-      },
-    });
-    wrapper.find('[data-test="toggleButton"]').trigger("click");
-    expect(wrapper.vm.showActionButtons).toBe(true);
   });
 });
