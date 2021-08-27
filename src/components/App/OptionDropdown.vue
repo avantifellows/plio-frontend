@@ -78,6 +78,11 @@ export default {
         // the number of pixels have been scrolled vertically
         default: 0,
         type: Number
+    },
+    isTouchDevice: {
+        // whether the device being used on is a touch device
+        default: false,
+        type: Boolean
     }
   },
   computed: {
@@ -168,7 +173,14 @@ export default {
             // if the dropdown is going to go below the screen
             // set the margin-top to fix that
             if (this.isOptionsOverflowBottom()) {
-                this.defaultOptionMarginRem = -12
+                if (this.isTouchDevice) {
+                    // adds an extra button for analyse
+                    // so, the value is larger
+                    this.defaultOptionMarginRem = -13
+                }
+                else {
+                    this.defaultOptionMarginRem = -10
+                }
             } else {
                 this.defaultOptionMarginRem = 2
             }

@@ -31,6 +31,7 @@
         <OptionDropdown
           :options="plioActionOptions"
           :scrollY="scrollY"
+          :isTouchDevice="isTouchDevice"
           class="flex-grow flex relative justify-end sm:justify-start"
           @select="runAction"
         ></OptionDropdown>
