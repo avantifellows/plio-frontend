@@ -155,7 +155,7 @@
             ></inline-svg>
             <p class="text-white text-xs bp-500:text-base">{{ $t('editor.video_input.info') }}</p>
           </div>
-          <div class="flex w-full justify-between" v-if="isVideoIdValid">
+          <div class="flex w-full justify-between" v-else>
             <!--- publish/draft badge -->
             <simple-badge
               :text="statusBadge"

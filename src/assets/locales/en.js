@@ -11,14 +11,14 @@ export default {
   },
   editor: {
     video_input: {
-      placeholder: "Enter link to the YouTube video",
+      placeholder: "Enter the link of the YouTube video",
       title: "YouTube video link",
       validation: {
         valid: "",
         invalid: "Invalid Link",
       },
       info:
-        "To get started, you need to paste the link to the YouTube video that you want to make interactive",
+        "To get started, you need to paste the link of the YouTube video that you want to make interactive",
     },
     plio_title: {
       placeholder: "Enter the name of the Plio",
