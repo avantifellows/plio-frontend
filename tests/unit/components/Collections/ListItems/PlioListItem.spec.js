@@ -37,7 +37,9 @@ describe("PlioListItem.vue", () => {
         };
       },
     });
-    expect(wrapper.vm.updatedAt).toBe(plioDetails.updatedAt.toDateString());
+    expect(wrapper.vm.updatedAt).toBe(
+      plioDetails.updatedAt.toDateString().slice(4)
+    );
     expect(wrapper.vm.status).toBe(plioDetails.status);
     expect(wrapper.vm.title).toBe(plioDetails.plioTitle);
     expect(wrapper.vm.statusBadge).toBe("Draft");
