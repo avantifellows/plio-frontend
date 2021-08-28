@@ -167,7 +167,9 @@ export default {
     },
     updatedAt() {
       // human readable date string
-      return new Date(this.plioDetails.updatedAt).toDateString();
+      // removed the first four characters of the output as they represent the day
+      // and lead to inconsistent length of the string
+      return new Date(this.plioDetails.updatedAt).toDateString().slice(4);
     },
     status() {
       // status of the plio - draft or published
