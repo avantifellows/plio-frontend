@@ -34,7 +34,7 @@ describe("OptionDropdown.vue", () => {
   it("sets margin of the option container correctly", async () => {
     Object.defineProperty(window, "getComputedStyle", {
       writable: true,
-      value: jest.fn().mockImplementation((query) => ({
+      value: jest.fn().mockImplementation(() => ({
         fontSize: 10,
       })),
     });
