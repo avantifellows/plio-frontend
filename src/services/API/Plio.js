@@ -4,7 +4,7 @@ import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
 import {
   pliosEndpoint,
-  itemsEndpoint,
+  //   itemsEndpoint,
   listPliosEndpoint,
   duplicateEndpoint,
   plioDataDumpEndpoint,
@@ -27,16 +27,11 @@ export default {
       plioEndpoint += "/play";
     }
 
-    return Promise.all([
-      apiClient().get(plioEndpoint),
-      apiClient().get(itemsEndpoint, {
-        params: { plio: plioId },
-      }),
-    ]).then(([plio, items]) => {
+    return Promise.all([apiClient().get(plioEndpoint)]).then(([plio]) => {
       // preparing plio details to be consumed by
       // the components
       var plioDetails = {};
-      plioDetails.items = items.data;
+      plioDetails.items = plio.data.items;
       plioDetails.items.forEach((item) => {
         // convert str to int
         item.details.correct_answer = parseInt(item.details.correct_answer);
