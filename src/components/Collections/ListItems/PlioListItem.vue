@@ -120,12 +120,7 @@ export default {
           label: this.$t("home.table.plio_list_item.buttons.share"),
           icon: "share.svg",
           disabled: !this.isPublished
-        },
-        {
-          value: "duplicate",
-          label: this.$t("home.table.plio_list_item.buttons.duplicate"),
-          icon: "copy.svg",
-        },
+        }
       ]
       if (this.isTouchDevice) {
         options.push({
@@ -135,6 +130,14 @@ export default {
           disabled: !this.isPublished
         })
       }
+      let moreOptions = [
+        {
+          value: "duplicate",
+          label: this.$t("home.table.plio_list_item.buttons.duplicate"),
+          icon: "copy.svg",
+        },
+      ]
+      options.push(...moreOptions)
       return options
     },
     isTouchDevice() {

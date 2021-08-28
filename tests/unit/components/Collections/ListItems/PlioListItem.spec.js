@@ -385,7 +385,7 @@ describe("PlioListItem.vue", () => {
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
-        .findAll('[data-test="option"]')[4]
+        .findAll('[data-test="option"]')[3]
         .classes()
     ).toContain("cursor-not-allowed");
   });
@@ -430,7 +430,7 @@ describe("PlioListItem.vue", () => {
     // click the analyse button
     wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[4]
+      .findAll('[data-test="option"]')[3]
       .trigger("click");
 
     expect(mockRouter.push).toHaveBeenCalledWith({
