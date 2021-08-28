@@ -47,6 +47,18 @@
       </div>
     </div>
   </div>
+  <!-- generic dialog box -->
+  <dialog-box
+    class="fixed left-1/3 z-10"
+    v-if="showDialogBox"
+    :title="dialogTitle"
+    :description="dialogDescription"
+    :confirmButtonConfig="dialogConfirmButtonConfig"
+    :cancelButtonConfig="dialogCancelButtonConfig"
+    @confirm="dialogConfirmed"
+    @cancel="dialogCancelled"
+    data-test="dialogBox"
+  ></dialog-box>
 </template>
 
 <script>
@@ -56,6 +68,7 @@ import QuestionAPIService from "@/services/API/Question.js";
 import Utilities from "@/services/Functional/Utilities.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import OptionDropdown from "@/components/App/OptionDropdown.vue";
+import DialogBox from "@/components/UI/Alert/DialogBox";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
 import { mapState, mapActions } from "vuex";
 
@@ -71,7 +84,8 @@ export default {
   components: {
     SimpleBadge,
     PlioListItemSkeleton,
-    OptionDropdown
+    OptionDropdown,
+    DialogBox
   },
 
   data() {
@@ -81,7 +95,12 @@ export default {
       actionButtonClass:
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       urlCopyButtonClass: "text-yellow-600",
-      scrollY: window.scrollY // the number of pixels scrolled vertically
+      scrollY: window.scrollY, // the number of pixels scrolled vertically
+      showDialogBox: false,
+      dialogTitle: "",
+      dialogDescription: "",
+      dialogConfirmButtonConfig: {},
+      dialogCancelButtonConfig: {}
     };
   },
   async created() {
@@ -135,6 +154,11 @@ export default {
           value: "duplicate",
           label: this.$t("home.table.plio_list_item.buttons.duplicate"),
           icon: "copy.svg",
+        },
+        {
+          value: "delete",
+          label: this.$t("home.table.plio_list_item.buttons.delete"),
+          icon: "delete2.svg",
         },
       ]
       options.push(...moreOptions)
@@ -201,7 +225,7 @@ export default {
   methods: {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     ...mapActions("plioItems", ["fetchPlio"]),
-    ...mapActions("generic", ["showSharePlioDialog"]),
+    ...mapActions("generic", ["showSharePlioDialog", "setDialogBoxShown"]),
     ...Utilities,
     runAction(_, action) {
       // invoked when one of the action buttons is clicked
@@ -220,6 +244,26 @@ export default {
           break
         case "analyse":
           this.analysePlio()
+          break
+        case "delete":
+          // configure the dialog box
+          if (!this.dialogTitle) {
+            this.dialogTitle = this.$t("home.table.plio_list_item.dialog.delete.title")
+            this.dialogDescription = this.$t("home.table.plio_list_item.dialog.delete.description")
+            this.dialogConfirmButtonConfig = {
+              enabled: true,
+              text: this.$t("generic.yes"),
+              class:
+                "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+            };
+            this.dialogCancelButtonConfig = {
+              enabled: true,
+              text: this.$t("generic.no"),
+              class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
+            };
+          }
+          this.showDialogBox = true;
+          this.setDialogBoxShown()
           break
       }
     },
@@ -258,6 +302,12 @@ export default {
         name: "Editor",
         params: { plioId: this.plioId, org: this.activeWorkspace },
       });
+    },
+    dialogConfirmed() {
+
+    },
+    dialogCancelled() {
+      this.showDialogBox = false;
     },
     async duplicatePlio() {
       // invoked when duplicate button is clicked

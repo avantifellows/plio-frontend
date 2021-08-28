@@ -1,5 +1,6 @@
 const state = {
   isSharePlioDialogShown: false,
+  isDialogBoxShown: false,
   plioLinkToShare: null,
 };
 const getters = {};
@@ -14,6 +15,12 @@ const actions = {
   unsetSharePlioDialog({ commit }) {
     commit("unsetSharePlioDialog");
   },
+  setDialogBoxShown({ commit }) {
+    commit("setDialogBoxShown");
+  },
+  unsetDialogBoxShown({ commit }) {
+    commit("unsetDialogBoxShown");
+  },
 };
 
 const mutations = {
@@ -25,6 +32,12 @@ const mutations = {
   },
   unsetSharePlioDialog(state) {
     state.isSharePlioDialogShown = false;
+  },
+  setDialogBoxShown(state) {
+    state.isDialogBoxShown = true;
+  },
+  unsetDialogBoxShown(state) {
+    state.isDialogBoxShown = false;
   },
 };
 
