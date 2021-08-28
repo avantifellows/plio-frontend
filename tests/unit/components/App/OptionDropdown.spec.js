@@ -30,4 +30,66 @@ describe("OptionDropdown.vue", () => {
 
     expect(wrapper.findAll('[data-test="option"]').length).toBe(2);
   });
+
+  it("sets margin of the option container correctly", async () => {
+    Object.defineProperty(window, "getComputedStyle", {
+      writable: true,
+      value: jest.fn().mockImplementation((query) => ({
+        fontSize: 10,
+      })),
+    });
+
+    const wrapper = mount(OptionDropdown, {
+      props: {
+        options: [
+          {
+            value: "a",
+            label: "A",
+          },
+          {
+            value: "b",
+            label: "B",
+          },
+        ],
+      },
+      global: {
+        mocks: {
+          getComputedStyle: getComputedStyle,
+        },
+      },
+    });
+    expect(wrapper.vm.optionBoxStyling).toStrictEqual({
+      "margin-top": "2rem",
+    });
+  });
+
+  it("sets margin of the option container correctly on scroll", async () => {
+    Object.defineProperty(window, "getComputedStyle", {
+      writable: true,
+      value: jest.fn().mockImplementation((query) => ({
+        fontSize: 10,
+      })),
+    });
+
+    const wrapper = mount(OptionDropdown, {
+      props: {
+        options: [
+          {
+            value: "a",
+            label: "A",
+          },
+          {
+            value: "b",
+            label: "B",
+          },
+        ],
+      },
+      props: {
+        scrollY: 100,
+      },
+    });
+    expect(wrapper.vm.optionBoxStyling).toStrictEqual({
+      "margin-top": "-80px",
+    });
+  });
 });
