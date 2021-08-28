@@ -58,6 +58,7 @@
     @confirm="dialogConfirmed"
     @cancel="dialogCancelled"
     data-test="dialogBox"
+    v-click-away="dialogCancelled"
   ></dialog-box>
 </template>
 
