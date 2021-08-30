@@ -1,6 +1,6 @@
 const state = {
   isSharePlioDialogShown: false,
-  isDialogBoxShown: false,
+  isBackgroundDisabled: false,
   plioLinkToShare: null,
 };
 const getters = {};
@@ -15,11 +15,11 @@ const actions = {
   unsetSharePlioDialog({ commit }) {
     commit("unsetSharePlioDialog");
   },
-  setDialogBoxShown({ commit }) {
-    commit("setDialogBoxShown");
+  disableBackground({ commit }) {
+    commit("disableBackground");
   },
-  unsetDialogBoxShown({ commit }) {
-    commit("unsetDialogBoxShown");
+  enableBackground({ commit }) {
+    commit("enableBackground");
   },
 };
 
@@ -33,11 +33,11 @@ const mutations = {
   unsetSharePlioDialog(state) {
     state.isSharePlioDialogShown = false;
   },
-  setDialogBoxShown(state) {
-    state.isDialogBoxShown = true;
+  disableBackground(state) {
+    state.isBackgroundDisabled = true;
   },
-  unsetDialogBoxShown(state) {
-    state.isDialogBoxShown = false;
+  enableBackground(state) {
+    state.isBackgroundDisabled = false;
   },
 };
 

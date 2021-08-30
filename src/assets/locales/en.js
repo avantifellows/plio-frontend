@@ -176,6 +176,12 @@ export default {
               "This will permananently delete this plio and all the data associated with it, including all the responses. Once deleted, the data cannot be covered.",
           },
         },
+        toast: {
+          delete: {
+            success: "Plio deleted successfully",
+            error: "There was an error. Please try again!",
+          },
+        },
       },
       search: {
         placeholder: "Search",

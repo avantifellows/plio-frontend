@@ -49,7 +49,7 @@
   </div>
   <!-- generic dialog box -->
   <dialog-box
-    class="fixed left-1/3 z-10"
+    class="fixed top-1/3 left-1/4 sm:left-1/3 z-10"
     v-if="showDialogBox"
     :title="dialogTitle"
     :description="dialogDescription"
@@ -72,6 +72,7 @@ import OptionDropdown from "@/components/App/OptionDropdown.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
 import { mapState, mapActions } from "vuex";
+import { useToast } from "vue-toastification";
 
 export default {
   name: "PlioThumbnail",
@@ -101,7 +102,8 @@ export default {
       dialogTitle: "",
       dialogDescription: "",
       dialogConfirmButtonConfig: {},
-      dialogCancelButtonConfig: {}
+      dialogCancelButtonConfig: {},
+      toast: useToast(), // use the toast component
     };
   },
   async created() {
@@ -224,9 +226,8 @@ export default {
   },
 
   methods: {
-    ...mapActions("sync", ["startLoading", "stopLoading"]),
     ...mapActions("plioItems", ["fetchPlio"]),
-    ...mapActions("generic", ["showSharePlioDialog", "setDialogBoxShown"]),
+    ...mapActions("generic", ["showSharePlioDialog", "disableBackground", "enableBackground"]),
     ...Utilities,
     runAction(_, action) {
       // invoked when one of the action buttons is clicked
@@ -264,7 +265,6 @@ export default {
             };
           }
           this.showDialogBox = true;
-          this.setDialogBoxShown()
           break
       }
     },
@@ -273,7 +273,6 @@ export default {
       this.scrollY = window.scrollY
     },
     async loadPlio() {
-      this.startLoading();
       // fetch the details of the plio if they don't exist in the store
       if (!(this.plioId in this.allPlioDetails)) await this.fetchPlio(this.plioId);
 
@@ -284,7 +283,6 @@ export default {
       };
 
       this.$emit("fetched", dataToEmit);
-      this.stopLoading();
     },
     sharePlio() {
       // invoked when share button is clicked
@@ -305,7 +303,29 @@ export default {
       });
     },
     dialogConfirmed() {
+      // triggered upon clicking on the confirm button of the dialog box
 
+      // blur background and disable all buttons to prevent any action
+      // from taking action while the deletion is in progress
+      this.disableBackground()
+      PlioAPIService.deletePlio(this.plioId)
+        .then(() => {
+          // restore background
+          this.enableBackground()
+          // hide dialog box
+          this.showDialogBox = false
+          // notify of success
+          this.toast.success(this.$t("home.table.plio_list_item.toast.delete.success"))
+          this.$emit('deleted')
+        })
+        .catch(() => {
+          // restore background
+          this.enableBackground()
+          // hide dialog box
+          this.showDialogBox = false
+          // notify of error
+          this.toast.error(this.$t("home.table.plio_list_item.toast.delete.error"))
+        });
     },
     dialogCancelled() {
       this.showDialogBox = false;
@@ -356,6 +376,12 @@ export default {
       });
     },
   },
-  emits: ["fetched"],
+  emits: ["fetched", "deleted"],
 };
 </script>
+
+<style scoped>
+/* .left-1/5 {
+  left: 20%;
+} */
+</style>

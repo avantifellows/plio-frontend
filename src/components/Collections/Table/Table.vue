@@ -127,6 +127,8 @@
                         <PlioListItem
                           :plioId="entry[columnName].value"
                           @fetched="savePlioDetails(rowIndex, $event)"
+                          @deleted="deletePlio"
+                          :key="entry[columnName].value"
                         >
                         </PlioListItem>
                       </div>
@@ -279,7 +281,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions("sync", ["startLoading"]),
+    ...mapActions("sync", ["startLoading", "stopLoading"]),
     resetSearchString() {
       // starts loading and resets the search string
       this.startLoading();
@@ -354,6 +356,9 @@ export default {
         );
       }
     },
+    deletePlio() {
+      this.$emit('delete-plio')
+    },
     savePlioDetails(rowIndex, plioDetails) {
       // save the plio's status after they are fetched from the PlioListItem
 
@@ -386,6 +391,6 @@ export default {
     },
   },
 
-  emits: ["search-plios", "reset-search-string", "sort-num-viewers"],
+  emits: ["search-plios", "reset-search-string", "sort-num-viewers", 'delete-plio'],
 };
 </script>

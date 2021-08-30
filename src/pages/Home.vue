@@ -34,6 +34,7 @@
         @search-plios="fetchPlioIds($event)"
         @reset-search-string="resetSearchString"
         @sort-num-viewers="sortPlios"
+        @delete-plio="refreshPlioList"
         data-test="table"
       >
       </Table>
@@ -157,6 +158,11 @@ export default {
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
+    async refreshPlioList() {
+      this.startLoading()
+      // this.tableData = this.dummyTableData;
+      if (this.isUserApproved) await this.fetchPlioIds();
+    },
     async sortPlios(sortByField) {
       // invoked when the user clicks the sort icon next to a column
       this.sortByField = sortByField;
@@ -267,7 +273,12 @@ export default {
         tableData.push(tableRow);
       }
       this.tableData = tableData;
-      if (this.pending) this.stopLoading();
+      this.$nextTick(() => {
+        // wait for values to be filled in the elements
+        setTimeout(() => {
+          this.stopLoading();
+        }, 1000)
+      })
     },
   },
 

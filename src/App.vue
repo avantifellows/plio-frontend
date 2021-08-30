@@ -137,6 +137,8 @@ export default {
   async created() {
     // reset the value of pending while creating the component
     if (this.pending) this.stopLoading();
+    // reset the value of whether background is disabled
+    if (this.isBackgroundDisabled) this.enableBackground()
     // place a listener for the event of closing of the browser
     window.addEventListener("beforeunload", this.onClose);
     if (this.isAuthenticated) {
@@ -246,7 +248,7 @@ export default {
       "fetchAndUpdateUser",
       "unsetActiveWorkspace",
     ]),
-    ...mapActions("generic", ["unsetSharePlioDialog"]),
+    ...mapActions("generic", ["unsetSharePlioDialog", "enableBackground"]),
     ...mapActions("sync", ["stopLoading"]),
     mountChatwoot() {
       // mounting chatwoot SDK to the DOM
@@ -387,7 +389,7 @@ export default {
       "locale",
     ]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
-    ...mapState("generic", ["isSharePlioDialogShown", "plioLinkToShare"]),
+    ...mapState("generic", ["isSharePlioDialogShown", "plioLinkToShare", "isBackgroundDisabled"]),
     ...mapState("sync", ["pending"]),
     currentRoute() {
       return this.$route.path;
@@ -446,7 +448,7 @@ export default {
     },
     coverBackground() {
       // whether to apply opacity on the background
-      return this.showLanguagePickerDialog || this.isSharePlioDialogShown;
+      return this.showLanguagePickerDialog || this.isSharePlioDialogShown || this.isBackgroundDisabled;
     },
     allWorkspaces() {
       // list of shortcodes of all workspaces that the user is a part of
