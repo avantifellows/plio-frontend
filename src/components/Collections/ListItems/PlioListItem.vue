@@ -49,7 +49,8 @@
   </div>
   <!-- generic dialog box -->
   <dialog-box
-    class="fixed top-1/3 left-1/4 sm:left-1/3 z-10"
+    class="fixed top-1/3 bp-420:left-1/4 sm:left-1/3 z-10"
+    :style="dialogStyle"
     v-if="showDialogBox"
     :title="dialogTitle"
     :description="dialogDescription"
@@ -104,11 +105,15 @@ export default {
       dialogConfirmButtonConfig: {},
       dialogCancelButtonConfig: {},
       toast: useToast(), // use the toast component
+      windowWidth: window.innerWidth, // width for the window
     };
   },
   async created() {
     // load the plio only if the plio id is not empty
     if (this.isPlioIdValid) await this.loadPlio();
+
+    // add listener for resize
+    window.addEventListener('resize', this.handleResize);
 
     // add listener for scrolling
     window.addEventListener('scroll', this.handleScroll);
@@ -116,12 +121,20 @@ export default {
   unmounted() {
     // remove listeners
     window.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener('resize', this.handleResize);
   },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     ...mapState("plioItems", ["allPlioDetails"]),
 
+    dialogStyle() {
+      // dynamic style for the dialog box
+      if (this.windowWidth > 420) return ''
+      if (this.windowWidth > 400) return 'left: 20%'
+      if (this.windowWidth > 340) return 'left: 15%'
+      return 'left: 10%'
+    },
 
     plioActionOptions() {
       // the list of action buttons
@@ -229,6 +242,9 @@ export default {
     ...mapActions("plioItems", ["fetchPlio"]),
     ...mapActions("generic", ["showSharePlioDialog", "disableBackground", "enableBackground"]),
     ...Utilities,
+    handleResize() {
+      this.windowWidth = window.innerWidth
+    },
     runAction(_, action) {
       // invoked when one of the action buttons is clicked
       switch(action) {
@@ -379,9 +395,3 @@ export default {
   emits: ["fetched", "deleted"],
 };
 </script>
-
-<style scoped>
-/* .left-1/5 {
-  left: 20%;
-} */
-</style>
