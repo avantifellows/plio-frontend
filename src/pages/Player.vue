@@ -48,7 +48,7 @@
       <!-- transition for minimizing/maximizing item modal -->
       <transition enter-active-class="grow" leave-active-class="shrink">
         <!-- item modal component -->
-        <item-modal
+        <!-- <item-modal
           v-if="!isModalMinimized"
           id="modal"
           class="absolute z-10"
@@ -66,7 +66,12 @@
           @submit-question="submitQuestion"
           @option-selected="optionSelected"
           @toggle-minimize="minimizeModal"
-        ></item-modal>
+        ></item-modal> -->
+        <Scorecard
+          id="modal"
+          class="absolute z-10"
+          :class="{ hidden: !showItemModal }"
+        ></Scorecard>
       </transition>
     </div>
   </div>
@@ -81,8 +86,9 @@ import SessionAPIService from "@/services/API/Session.js";
 import EventAPIService from "@/services/API/Event.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
-import ItemModal from "../components/Player/ItemModal.vue";
+// import ItemModal from "../components/Player/ItemModal.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import Scorecard from "@/components/Items/Scorecard/Body.vue";
 import { useToast } from "vue-toastification";
 import { mapActions, mapGetters } from "vuex";
 
@@ -162,8 +168,9 @@ export default {
   components: {
     VideoPlayer,
     VideoSkeleton,
-    ItemModal,
+    // ItemModal,
     IconButton,
+    Scorecard,
   },
   data() {
     return {
