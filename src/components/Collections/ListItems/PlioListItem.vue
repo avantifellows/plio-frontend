@@ -32,7 +32,7 @@
           :options="plioActionOptions"
           :scrollY="scrollY"
           :isTouchDevice="isTouchDevice"
-          class="flex-grow flex relative justify-end sm:justify-start"
+          class="flex-grow flex justify-end sm:justify-start"
           @select="runAction"
           data-test="optionDropdown"
         ></OptionDropdown>
@@ -169,8 +169,7 @@ export default {
     },
     updatedAt() {
       // human readable date string
-      // removed the first four characters of the output as they represent the day
-      // and lead to inconsistent length of the string
+      // format: month (3-letter) day year
       return new Date(this.plioDetails.updatedAt).toDateString().slice(4);
     },
     status() {
