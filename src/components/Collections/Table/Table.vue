@@ -281,7 +281,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions("sync", ["startLoading", "stopLoading"]),
+    ...mapActions("sync", ["startLoading"]),
     resetSearchString() {
       // starts loading and resets the search string
       this.startLoading();
@@ -357,7 +357,8 @@ export default {
       }
     },
     deletePlio() {
-      this.$emit('delete-plio')
+      // invoked when a plio is deleted
+      this.$emit("delete-plio");
     },
     savePlioDetails(rowIndex, plioDetails) {
       // save the plio's status after they are fetched from the PlioListItem
@@ -391,6 +392,6 @@ export default {
     },
   },
 
-  emits: ["search-plios", "reset-search-string", "sort-num-viewers", 'delete-plio'],
+  emits: ["search-plios", "reset-search-string", "sort-num-viewers", "delete-plio"],
 };
 </script>

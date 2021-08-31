@@ -34,7 +34,7 @@
         @search-plios="fetchPlioIds($event)"
         @reset-search-string="resetSearchString"
         @sort-num-viewers="sortPlios"
-        @delete-plio="refreshPlioList"
+        @delete-plio="fetchPlioIds"
         data-test="table"
       >
       </Table>
@@ -158,11 +158,6 @@ export default {
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
-    async refreshPlioList() {
-      this.startLoading()
-      // this.tableData = this.dummyTableData;
-      if (this.isUserApproved) await this.fetchPlioIds();
-    },
     async sortPlios(sortByField) {
       // invoked when the user clicks the sort icon next to a column
       this.sortByField = sortByField;
@@ -249,7 +244,10 @@ export default {
     },
 
     async prepareTableData(plioIdList) {
+      // holds the data to be fed to the table
       var tableData = [];
+
+      // fill in the data for each plio
       for (let plioIndex = 0; plioIndex < plioIdList.length; plioIndex++) {
         const plioId = plioIdList[plioIndex];
         var tableRow = {};
@@ -272,13 +270,14 @@ export default {
 
         tableData.push(tableRow);
       }
+
+      // update the table's data
       this.tableData = tableData;
+
+      // wait for the DOM to update
       this.$nextTick(() => {
-        // wait for values to be filled in the elements
-        setTimeout(() => {
-          this.stopLoading();
-        }, 1000)
-      })
+        this.stopLoading();
+      });
     },
   },
 

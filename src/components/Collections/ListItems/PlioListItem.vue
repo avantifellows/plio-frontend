@@ -99,12 +99,12 @@ export default {
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       urlCopyButtonClass: "text-yellow-600",
       scrollY: window.scrollY, // the number of pixels scrolled vertically
-      showDialogBox: false,
-      dialogTitle: "",
-      dialogDescription: "",
-      dialogConfirmButtonConfig: {},
-      dialogCancelButtonConfig: {},
-      toast: useToast(), // use the toast component
+      showDialogBox: false, // whether to show the dialog box
+      dialogTitle: "", // title for the dialog box
+      dialogDescription: "", // description for the dialog box
+      dialogConfirmButtonConfig: {}, // config of the confirm button of the dialog box
+      dialogCancelButtonConfig: {}, // config of the cancel button of the dialog box
+      toast: useToast(), // toast component
       windowWidth: window.innerWidth, // width for the window
     };
   },
@@ -130,6 +130,8 @@ export default {
 
     dialogStyle() {
       // dynamic style for the dialog box
+      // these styles were not available as part of tailwind
+      // seemed too specific to add them to the config
       if (this.windowWidth > 420) return "";
       if (this.windowWidth > 400) return "left: 20%";
       if (this.windowWidth > 340) return "left: 15%";
@@ -246,6 +248,7 @@ export default {
     ]),
     ...Utilities,
     handleResize() {
+      // invoked when the screen is resized
       this.windowWidth = window.innerWidth;
     },
     runAction(_, action) {
@@ -285,6 +288,7 @@ export default {
               class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
             };
           }
+          // show the dialog box
           this.showDialogBox = true;
           break;
       }
@@ -349,6 +353,7 @@ export default {
         });
     },
     dialogCancelled() {
+      // triggered upon clicking on the cancel button of the dialog box
       this.showDialogBox = false;
     },
     async duplicatePlio() {
