@@ -242,4 +242,24 @@ describe("Table.vue", () => {
     await wrapper.findAll('[data-test="tableHeader"]')[1].trigger("click");
     expect(wrapper.emitted()).toHaveProperty("sort-num-viewers");
   });
+
+  // it("emits on deleting plio", async () => {
+  //   const wrapper = mount(Table, {
+  //     props: {
+  //       data: dummyTableData,
+  //       columns: tableColumns,
+  //       numTotal: totalNumberOfPlios,
+  //     },
+  //   });
+  //   // find the first plio list item
+  //   const plioListItem = wrapper.findAll('[data-test="plioListItem"]')[0]
+
+  //   // click the options dropdown
+  //   await plioListItem.find('[data-test="toggleButton"]').trigger("click");
+
+  //   // click on delete
+
+  //   await wrapper.findAll('[data-test="tableHeader"]')[1].trigger("click");
+  //   expect(wrapper.emitted()).toHaveProperty("sort-num-viewers");
+  // });
 });

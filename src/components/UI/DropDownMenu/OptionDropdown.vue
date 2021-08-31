@@ -181,8 +181,11 @@ export default {
     isOptionsOverflowBottom() {
       // checks whether the bottom of the options overflows the screen
       const optionsContainer = document.querySelector("#dropdownOptions");
-      const rectangle = optionsContainer.getBoundingClientRect();
-      return rectangle.bottom >= window.innerHeight;
+      if (optionsContainer != null) {
+        const rectangle = optionsContainer.getBoundingClientRect();
+        return rectangle.bottom >= window.innerHeight;
+      }
+      return false;
     },
     toggleDropdownDisplay() {
       // toggle the dropdown for choosing an option

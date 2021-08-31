@@ -123,7 +123,11 @@
                     </div>
                     <!-- column content -->
                     <div class="flex w-full">
-                      <div v-if="isComponent(entry[columnName])" class="w-full">
+                      <div
+                        v-if="isComponent(entry[columnName])"
+                        class="w-full"
+                        data-test="plioListItem"
+                      >
                         <PlioListItem
                           :plioId="entry[columnName].value"
                           @fetched="savePlioDetails(rowIndex, $event)"
