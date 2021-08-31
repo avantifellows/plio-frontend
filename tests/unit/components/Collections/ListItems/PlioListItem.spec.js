@@ -99,12 +99,12 @@ describe("PlioListItem.vue", () => {
       .get('[data-test="toggleButton"]')
       .trigger("click");
 
-    // there should be 4 buttons - edit, play, share, duplicate
+    // there should be 5 buttons - edit, play, share, duplicate, delete
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
         .findAll('[data-test="option"]').length
-    ).toBe(4);
+    ).toBe(5);
   });
 
   it("play disabled for draft plio ", async () => {
@@ -352,12 +352,12 @@ describe("PlioListItem.vue", () => {
       .get('[data-test="toggleButton"]')
       .trigger("click");
 
-    // there should be 5 buttons - edit, play, share, duplicate, analyse
+    // there should be 6 buttons - edit, play, share, duplicate, delete, analyse
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
         .findAll('[data-test="option"]').length
-    ).toBe(5);
+    ).toBe(6);
   });
 
   it("analyze disabled for draft plio ", async () => {
