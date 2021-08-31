@@ -731,24 +731,24 @@ describe("PlioListItem.vue", () => {
     await wrapper.setData({
       windowWidth: 410,
     });
-    expect(
-      wrapper.get('[data-test="dialogBox"]').attributes("style")
-    ).not.toEqual("{left: 20%}");
+    expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
+      "left: 20%;"
+    );
 
     // screen size < 400 but > 340
     await wrapper.setData({
-      windowWidth: 410,
+      windowWidth: 350,
     });
-    expect(
-      wrapper.get('[data-test="dialogBox"]').attributes("style")
-    ).not.toEqual("{left: 15%}");
+    expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
+      "left: 15%;"
+    );
 
     // screen size < 340
     await wrapper.setData({
-      windowWidth: 410,
+      windowWidth: 320,
     });
-    expect(
-      wrapper.get('[data-test="dialogBox"]').attributes("style")
-    ).not.toEqual("{left: 10%}");
+    expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
+      "left: 10%;"
+    );
   });
 });
