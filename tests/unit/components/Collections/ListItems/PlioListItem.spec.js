@@ -597,7 +597,7 @@ describe("PlioListItem.vue", () => {
       .findAll('[data-test="option"]')[4]
       .trigger("click");
 
-    // click the cancel button of the dialog box
+    // click the confirm button of the dialog box
     await wrapper
       .find('[data-test="dialogBox"]')
       .find('[data-test="confirmButton"]')
@@ -626,5 +626,60 @@ describe("PlioListItem.vue", () => {
     expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeFalsy();
     // check emit
     expect(wrapper.emitted()).toHaveProperty("deleted");
+  });
+
+  it("delete confirmation dialog box margin is set correctly ", async () => {
+    // margin value changes based on window width
+    const wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "draft",
+          },
+        };
+      },
+    });
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // click the delete button
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[4]
+      .trigger("click");
+
+    // there should be no style attribute by default
+    expect(wrapper.get('[data-test="dialogBox"]').attributes()).not.toContain(
+      "style"
+    );
+
+    // screen size < 420 but > 400
+    await wrapper.setData({
+      windowWidth: 410,
+    });
+    expect(
+      wrapper.get('[data-test="dialogBox"]').attributes("style")
+    ).not.toEqual("{left: 20%}");
+
+    // screen size < 400 but > 340
+    await wrapper.setData({
+      windowWidth: 410,
+    });
+    expect(
+      wrapper.get('[data-test="dialogBox"]').attributes("style")
+    ).not.toEqual("{left: 15%}");
+
+    // screen size < 340
+    await wrapper.setData({
+      windowWidth: 410,
+    });
+    expect(
+      wrapper.get('[data-test="dialogBox"]').attributes("style")
+    ).not.toEqual("{left: 10%}");
   });
 });

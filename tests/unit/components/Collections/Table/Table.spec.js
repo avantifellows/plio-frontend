@@ -1,7 +1,8 @@
-import { mount } from "@vue/test-utils";
+import { mount, flushPromises } from "@vue/test-utils";
 import Table from "@/components/Collections/Table/Table";
 import { setMatchMedia } from "@/services/Testing/Utilities";
 import store from "@/store";
+import mockAxios from "jest-mock-axios";
 
 var dummyTableData = [
   {
@@ -243,23 +244,50 @@ describe("Table.vue", () => {
     expect(wrapper.emitted()).toHaveProperty("sort-num-viewers");
   });
 
-  // it("emits on deleting plio", async () => {
-  //   const wrapper = mount(Table, {
-  //     props: {
-  //       data: dummyTableData,
-  //       columns: tableColumns,
-  //       numTotal: totalNumberOfPlios,
-  //     },
-  //   });
-  //   // find the first plio list item
-  //   const plioListItem = wrapper.findAll('[data-test="plioListItem"]')[0]
+  it("emits on deleting plio", async () => {
+    const wrapper = mount(Table, {
+      props: {
+        data: dummyTableData,
+        columns: tableColumns,
+        numTotal: totalNumberOfPlios,
+      },
+    });
 
-  //   // click the options dropdown
-  //   await plioListItem.find('[data-test="toggleButton"]').trigger("click");
+    // the table would be in pending state
+    await store.dispatch("sync/stopLoading");
 
-  //   // click on delete
+    // cleanup past requests
+    mockAxios.reset();
 
-  //   await wrapper.findAll('[data-test="tableHeader"]')[1].trigger("click");
-  //   expect(wrapper.emitted()).toHaveProperty("sort-num-viewers");
-  // });
+    // find the first plio list item
+    const plioListItem = wrapper.findAll('[data-test="plioListItem"]')[0];
+
+    // click the options dropdown
+    await plioListItem.find('[data-test="toggleButton"]').trigger("click");
+
+    // click on delete
+    await plioListItem
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[4]
+      .trigger("click");
+
+    // click the confirm button of the dialog box
+    await plioListItem
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
+
+    // mock the response to the request
+    mockAxios.mockResponse(
+      {
+        status: 204,
+      },
+      mockAxios.queue()[0]
+    );
+
+    await flushPromises();
+
+    // check emit
+    expect(wrapper.emitted()).toHaveProperty("delete-plio");
+  });
 });
