@@ -628,6 +628,75 @@ describe("PlioListItem.vue", () => {
     expect(wrapper.emitted()).toHaveProperty("deleted");
   });
 
+  it("error in deletion closes dialog box", async () => {
+    const plioId = "123";
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+    // spy on the enableBackground and disableBackground methods
+    const disableBackground = jest.spyOn(
+      PlioListItem.methods,
+      "disableBackground"
+    );
+    const enableBackground = jest.spyOn(
+      PlioListItem.methods,
+      "enableBackground"
+    );
+
+    const wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "published",
+          },
+        };
+      },
+      props: {
+        plioId: plioId,
+      },
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
+    // passing in plioID triggers startLoading which keeps the component in pending state
+    await store.dispatch("sync/stopLoading");
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // cleanup past requests
+    mockAxios.reset();
+
+    // click the delete button
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[4]
+      .trigger("click");
+
+    // click the confirm button of the dialog box
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
+
+    // mock the response to the request
+    mockAxios.mockError();
+
+    await flushPromises();
+
+    // background should be enabled
+    expect(enableBackground).toHaveBeenCalled();
+    // there should be no dialog box now
+    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeFalsy();
+  });
+
   it("delete confirmation dialog box margin is set correctly ", async () => {
     // margin value changes based on window width
     const wrapper = mount(PlioListItem, {
