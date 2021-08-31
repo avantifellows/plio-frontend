@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import OptionDropdown from "@/components/App/OptionDropdown";
+import OptionDropdown from "@/components/UI/DropDownMenu/OptionDropdown";
 
 describe("OptionDropdown.vue", () => {
   it("should render with default values", () => {

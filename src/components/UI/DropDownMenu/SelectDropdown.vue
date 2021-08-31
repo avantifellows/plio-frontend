@@ -17,7 +17,7 @@
 
 <script>
 export default {
-  name: "Dropdown",
+  name: "SelectDropdown",
   props: {
     optionsList: {
       default: () => [],

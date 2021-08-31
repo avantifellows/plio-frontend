@@ -55,7 +55,7 @@ import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
 import Utilities from "@/services/Functional/Utilities.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
-import OptionDropdown from "@/components/App/OptionDropdown.vue";
+import OptionDropdown from "@/components/UI/DropDownMenu/OptionDropdown.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
 import { mapState, mapActions } from "vuex";
 
@@ -71,7 +71,7 @@ export default {
   components: {
     SimpleBadge,
     PlioListItemSkeleton,
-    OptionDropdown
+    OptionDropdown,
   },
 
   data() {
@@ -81,7 +81,7 @@ export default {
       actionButtonClass:
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       urlCopyButtonClass: "text-yellow-600",
-      scrollY: window.scrollY // the number of pixels scrolled vertically
+      scrollY: window.scrollY, // the number of pixels scrolled vertically
     };
   },
   async created() {
@@ -89,17 +89,16 @@ export default {
     if (this.isPlioIdValid) await this.loadPlio();
 
     // add listener for scrolling
-    window.addEventListener('scroll', this.handleScroll);
+    window.addEventListener("scroll", this.handleScroll);
   },
   unmounted() {
     // remove listeners
-    window.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener("scroll", this.handleScroll);
   },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     ...mapState("plioItems", ["allPlioDetails"]),
-
 
     plioActionOptions() {
       // the list of action buttons
@@ -113,22 +112,22 @@ export default {
           value: "play",
           label: this.$t("home.table.plio_list_item.buttons.play"),
           icon: "play.svg",
-          disabled: !this.isPublished
+          disabled: !this.isPublished,
         },
         {
           value: "share",
           label: this.$t("home.table.plio_list_item.buttons.share"),
           icon: "share.svg",
-          disabled: !this.isPublished
-        }
-      ]
+          disabled: !this.isPublished,
+        },
+      ];
       if (this.isTouchDevice) {
         options.push({
           value: "analyse",
           label: this.$t("home.table.plio_list_item.buttons.analyse"),
           icon: "analyze.svg",
-          disabled: !this.isPublished
-        })
+          disabled: !this.isPublished,
+        });
       }
       let moreOptions = [
         {
@@ -136,9 +135,9 @@ export default {
           label: this.$t("home.table.plio_list_item.buttons.duplicate"),
           icon: "copy.svg",
         },
-      ]
-      options.push(...moreOptions)
-      return options
+      ];
+      options.push(...moreOptions);
+      return options;
     },
     isTouchDevice() {
       // detects if the user's device has a touch screen or not
@@ -205,27 +204,27 @@ export default {
     ...Utilities,
     runAction(_, action) {
       // invoked when one of the action buttons is clicked
-      switch(action) {
+      switch (action) {
         case "play":
-          this.playPlio()
-          break
+          this.playPlio();
+          break;
         case "edit":
-          this.editPlio()
-          break
+          this.editPlio();
+          break;
         case "share":
-          this.sharePlio()
-          break
+          this.sharePlio();
+          break;
         case "duplicate":
-          this.duplicateThenRoute()
-          break
+          this.duplicateThenRoute();
+          break;
         case "analyse":
-          this.analysePlio()
-          break
+          this.analysePlio();
+          break;
       }
     },
     handleScroll() {
       // handles all scrolling events
-      this.scrollY = window.scrollY
+      this.scrollY = window.scrollY;
     },
     async loadPlio() {
       this.startLoading();
