@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-click-away="hideDropdown">
     <div class="flex justify-end">
       <!-- dropdown -->
       <button
@@ -21,7 +21,6 @@
       class="fixed w-2/3 bp-500:w-1/2 sm:w-1/4 xl:w-1/6 z-10 bg-white shadow-lg"
       :style="optionBoxStyling"
       v-if="showDropdown"
-      v-click-away="hideDropdown"
       id="dropdownOptions"
       data-test="optionsContainer"
     >
