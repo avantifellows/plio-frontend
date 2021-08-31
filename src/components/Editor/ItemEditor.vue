@@ -18,11 +18,11 @@
     <!-- nav bar -->
     <div class="flex space-x-1 flex-row w-full p-4 justify-end">
       <!-- dropdown for choosing items -->
-      <Dropdown
+      <SelectDropdown
         :optionsList="itemOptionsList"
         v-model:value="localSelectedItemIndex"
         class="mr-0"
-      ></Dropdown>
+      ></SelectDropdown>
 
       <!-- previous item button -->
       <icon-button
@@ -182,7 +182,7 @@
 
 <script>
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
-import Dropdown from "@/components/UI/DropDownMenu/Dropdown.vue";
+import SelectDropdown from "@/components/UI/DropDownMenu/SelectDropdown.vue";
 import QuestionTypeDropdown from "@/components/Editor/QuestionTypeDropdown.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
@@ -305,7 +305,7 @@ export default {
     },
   },
   components: {
-    Dropdown,
+    SelectDropdown,
     IconButton,
     InputText,
     TimeInput,
