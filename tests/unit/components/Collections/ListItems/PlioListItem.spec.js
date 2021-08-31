@@ -634,11 +634,6 @@ describe("PlioListItem.vue", () => {
     const mockRouter = {
       push: jest.fn(),
     };
-    // spy on the enableBackground and disableBackground methods
-    const disableBackground = jest.spyOn(
-      PlioListItem.methods,
-      "disableBackground"
-    );
     const enableBackground = jest.spyOn(
       PlioListItem.methods,
       "enableBackground"
