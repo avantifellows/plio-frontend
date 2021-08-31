@@ -32,7 +32,7 @@
           :options="plioActionOptions"
           :scrollY="scrollY"
           :isTouchDevice="isTouchDevice"
-          class="flex-grow flex relative justify-end sm:justify-start"
+          class="flex-grow flex justify-end sm:justify-start"
           @select="runAction"
           data-test="optionDropdown"
         ></OptionDropdown>
@@ -69,8 +69,8 @@ import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
 import Utilities from "@/services/Functional/Utilities.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
-import OptionDropdown from "@/components/App/OptionDropdown.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
+import OptionDropdown from "@/components/UI/DropDownMenu/OptionDropdown.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
 import { mapState, mapActions } from "vuex";
 import { useToast } from "vue-toastification";
@@ -88,7 +88,7 @@ export default {
     SimpleBadge,
     PlioListItemSkeleton,
     OptionDropdown,
-    DialogBox
+    DialogBox,
   },
 
   data() {
@@ -113,15 +113,15 @@ export default {
     if (this.isPlioIdValid) await this.loadPlio();
 
     // add listener for resize
-    window.addEventListener('resize', this.handleResize);
+    window.addEventListener("resize", this.handleResize);
 
     // add listener for scrolling
-    window.addEventListener('scroll', this.handleScroll);
+    window.addEventListener("scroll", this.handleScroll);
   },
   unmounted() {
     // remove listeners
-    window.removeEventListener('scroll', this.handleScroll);
-    window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener("scroll", this.handleScroll);
+    window.removeEventListener("resize", this.handleResize);
   },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
@@ -130,10 +130,10 @@ export default {
 
     dialogStyle() {
       // dynamic style for the dialog box
-      if (this.windowWidth > 420) return ''
-      if (this.windowWidth > 400) return 'left: 20%'
-      if (this.windowWidth > 340) return 'left: 15%'
-      return 'left: 10%'
+      if (this.windowWidth > 420) return "";
+      if (this.windowWidth > 400) return "left: 20%";
+      if (this.windowWidth > 340) return "left: 15%";
+      return "left: 10%";
     },
 
     plioActionOptions() {
@@ -148,22 +148,22 @@ export default {
           value: "play",
           label: this.$t("home.table.plio_list_item.buttons.play"),
           icon: "play.svg",
-          disabled: !this.isPublished
+          disabled: !this.isPublished,
         },
         {
           value: "share",
           label: this.$t("home.table.plio_list_item.buttons.share"),
           icon: "share.svg",
-          disabled: !this.isPublished
-        }
-      ]
+          disabled: !this.isPublished,
+        },
+      ];
       if (this.isTouchDevice) {
         options.push({
           value: "analyse",
           label: this.$t("home.table.plio_list_item.buttons.analyse"),
           icon: "analyze.svg",
-          disabled: !this.isPublished
-        })
+          disabled: !this.isPublished,
+        });
       }
       let moreOptions = [
         {
@@ -176,9 +176,9 @@ export default {
           label: this.$t("home.table.plio_list_item.buttons.delete"),
           icon: "delete2.svg",
         },
-      ]
-      options.push(...moreOptions)
-      return options
+      ];
+      options.push(...moreOptions);
+      return options;
     },
     isTouchDevice() {
       // detects if the user's device has a touch screen or not
@@ -210,8 +210,7 @@ export default {
     },
     updatedAt() {
       // human readable date string
-      // removed the first four characters of the output as they represent the day
-      // and lead to inconsistent length of the string
+      // format: month (3-letter) day year
       return new Date(this.plioDetails.updatedAt).toDateString().slice(4);
     },
     status() {
@@ -240,34 +239,40 @@ export default {
 
   methods: {
     ...mapActions("plioItems", ["fetchPlio"]),
-    ...mapActions("generic", ["showSharePlioDialog", "disableBackground", "enableBackground"]),
+    ...mapActions("generic", [
+      "showSharePlioDialog",
+      "disableBackground",
+      "enableBackground",
+    ]),
     ...Utilities,
     handleResize() {
-      this.windowWidth = window.innerWidth
+      this.windowWidth = window.innerWidth;
     },
     runAction(_, action) {
       // invoked when one of the action buttons is clicked
-      switch(action) {
+      switch (action) {
         case "play":
-          this.playPlio()
-          break
+          this.playPlio();
+          break;
         case "edit":
-          this.editPlio()
-          break
+          this.editPlio();
+          break;
         case "share":
-          this.sharePlio()
-          break
+          this.sharePlio();
+          break;
         case "duplicate":
-          this.duplicateThenRoute()
-          break
+          this.duplicateThenRoute();
+          break;
         case "analyse":
-          this.analysePlio()
-          break
+          this.analysePlio();
+          break;
         case "delete":
           // configure the dialog box
           if (!this.dialogTitle) {
-            this.dialogTitle = this.$t("home.table.plio_list_item.dialog.delete.title")
-            this.dialogDescription = this.$t("home.table.plio_list_item.dialog.delete.description")
+            this.dialogTitle = this.$t("home.table.plio_list_item.dialog.delete.title");
+            this.dialogDescription = this.$t(
+              "home.table.plio_list_item.dialog.delete.description"
+            );
             this.dialogConfirmButtonConfig = {
               enabled: true,
               text: this.$t("generic.yes"),
@@ -281,12 +286,12 @@ export default {
             };
           }
           this.showDialogBox = true;
-          break
+          break;
       }
     },
     handleScroll() {
       // handles all scrolling events
-      this.scrollY = window.scrollY
+      this.scrollY = window.scrollY;
     },
     async loadPlio() {
       // fetch the details of the plio if they don't exist in the store
@@ -323,24 +328,24 @@ export default {
 
       // blur background and disable all buttons to prevent any action
       // from taking action while the deletion is in progress
-      this.disableBackground()
+      this.disableBackground();
       PlioAPIService.deletePlio(this.plioId)
         .then(() => {
           // restore background
-          this.enableBackground()
+          this.enableBackground();
           // hide dialog box
-          this.showDialogBox = false
+          this.showDialogBox = false;
           // notify of success
-          this.toast.success(this.$t("home.table.plio_list_item.toast.delete.success"))
-          this.$emit('deleted')
+          this.toast.success(this.$t("home.table.plio_list_item.toast.delete.success"));
+          this.$emit("deleted");
         })
         .catch(() => {
           // restore background
-          this.enableBackground()
+          this.enableBackground();
           // hide dialog box
-          this.showDialogBox = false
+          this.showDialogBox = false;
           // notify of error
-          this.toast.error(this.$t("home.table.plio_list_item.toast.delete.error"))
+          this.toast.error(this.$t("home.table.plio_list_item.toast.delete.error"));
         });
     },
     dialogCancelled() {
