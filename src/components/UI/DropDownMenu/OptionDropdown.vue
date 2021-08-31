@@ -140,11 +140,22 @@ export default {
     },
     setOptionBoxStyling() {
       // sets the option box margin based on various parameters
+      // we need to set this manually as the div has its position as fixed
       if (!this.scrollY) {
+        // if there is no scrolling, simply set the margin to the default margin
         this.optionBoxStyling = { "margin-top": `${this.defaultOptionMarginRem}rem` };
       } else {
+        // if the user has scrolled, we need to shift the options container accordingly
+        let optionsMargin;
+
+        if (this.scrollY <= this.defaultOptionMarginPx) {
+          optionsMargin = `${this.defaultOptionMarginPx - this.scrollY}px`;
+        } else {
+          optionsMargin = `-${this.scrollY - this.defaultOptionMarginPx}px`;
+        }
+
         this.optionBoxStyling = {
-          "margin-top": `-${this.scrollY - this.defaultOptionMarginPx}px`,
+          "margin-top": optionsMargin,
         };
       }
     },
