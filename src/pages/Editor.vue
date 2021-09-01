@@ -7,8 +7,8 @@
       data-test="blurDiv"
     >
       <!--- preview grid -->
-      <div class="flex flex-col mx-6 z-0">
-        <div class="my-8 flex justify-center space-x-4">
+      <div class="flex flex-col mx-6 z-0" :class="{ 'mt-6': !isVideoIdValid || !isPublished }" data-test="previewDiv">
+        <div class="my-8 flex justify-center space-x-4" v-if="isVideoIdValid && isPublished" data-test="upperButtons">
           <!-- share plio -->
           <icon-button
             :isDisabled="!isPublished"
@@ -30,7 +30,7 @@
           ></icon-button>
         </div>
 
-        <div class="justify-center">
+        <div class="justify-center" data-test="video">
           <!--- video preview -->
           <div
             v-if="!isVideoIdValid"
@@ -114,7 +114,7 @@
         </div>
 
         <!--- buttons -->
-        <div class="flex justify-center space-x-2 mt-10">
+        <div class="flex justify-center space-x-2 my-6" v-if="isVideoIdValid" data-test="lowerButtons">
           <!--- button to go back to home -->
           <icon-button
             :titleConfig="backButtonTitleConfig"
@@ -145,9 +145,17 @@
       </div>
 
       <!--- input grid -->
-      <div class="flex flex-col m-5 justify-start">
-        <div class="grid gap-y-4">
-          <div class="flex w-full justify-between">
+      <div class="flex flex-col m-5 justify-start" data-test="inputDiv">
+        <div class="grid gap-y-4" data-test="meta">
+          <!-- info about pasting youtube link -->
+          <div class="flex items-center space-x-2 bg-primary rounded-lg p-4" v-if="!isVideoIdValid" data-test="videoLinkInfo">
+            <inline-svg
+              :src="getIconSource('publish.svg')"
+              class="w-8 h-8 text-white fill-current"
+            ></inline-svg>
+            <p class="text-white text-xs bp-500:text-base">{{ $t('editor.video_input.info') }}</p>
+          </div>
+          <div class="flex w-full justify-between" v-else>
             <!--- publish/draft badge -->
             <simple-badge
               :text="statusBadge"
@@ -180,10 +188,12 @@
             v-model:value="plioTitle"
             ref="title"
             :boxStyling="'pl-4'"
+            v-if="isVideoIdValid"
+            data-test="plioName"
           ></input-text>
         </div>
 
-        <div class="flex justify-center py-2 mt-8 sm:mt-10 mb-16">
+        <div class="flex justify-center py-2 mt-8 sm:mt-10 mb-16" v-if="isVideoIdValid" data-test="itemDiv">
           <!-- boxes for adding different types of items -->
           <div
             class="bg-peach rounded-lg p-4 xsm:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
@@ -773,6 +783,7 @@ export default {
     },
     videoInputTitle() {
       // title text for the video link input box
+      if (!this.isVideoIdValid) return ""
       return this.$t("editor.video_input.title");
     },
     titleInputPlaceholder() {
