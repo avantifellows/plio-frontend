@@ -296,6 +296,7 @@ export default {
       draft: "प्रारूप",
       published: "प्रकाशित",
     },
+    preview: "पूर्व दर्शन",
     yes: "हाँ",
     no: "नहीं",
     got_it: "समझ आ गया",

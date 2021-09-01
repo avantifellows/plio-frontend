@@ -49,10 +49,13 @@
               <div
                 class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-96 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
               ></div>
-              <img
-                class="w-16 bp-500:w-24 md:w-16 lg:w-24 absolute"
-                src="@/assets/images/youtube.png"
-              />
+              <div class="absolute flex flex-col items-center">
+                <img
+                  class="w-12 bp-420:w-16 bp-500:w-24 md:w-16 lg:w-24"
+                  src="@/assets/images/youtube.png"
+                />
+                <p class="text-sm bp-420:text-base">{{ $t("generic.preview") }}</p>
+              </div>
             </div>
           </div>
           <div v-else data-test="videoPreview">
@@ -171,9 +174,9 @@
           >
             <inline-svg
               :src="getIconSource('publish.svg')"
-              class="w-8 h-8 text-white fill-current"
+              class="w-12 h-12 text-white fill-current"
             ></inline-svg>
-            <p class="text-white text-xs bp-500:text-base">
+            <p class="text-white text-xs bp-500:text-base md:text-sm lg:text-base">
               {{ $t("editor.video_input.info.1") }}
               <a href="https://youtube.com/upload" class="underline font-bold">{{
                 $t("editor.video_input.info.2")

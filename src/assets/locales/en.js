@@ -295,6 +295,7 @@ export default {
       draft: "Draft",
       published: "Published",
     },
+    preview: "Preview",
     yes: "Yes",
     no: "No",
     got_it: "Got it",
