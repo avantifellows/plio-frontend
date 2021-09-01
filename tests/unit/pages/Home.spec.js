@@ -34,7 +34,9 @@ describe("Home.vue", () => {
     // `getAllPlios` inside services/API/Plio.js should've been called
     expect(mockAxios.get).toHaveBeenCalledTimes(1);
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
-      params: {},
+      params: {
+        page: 1,
+      },
     });
 
     // resolve the `GET` request waiting in the queue
@@ -167,7 +169,10 @@ describe("Home.vue", () => {
     expect(wrapper.vm.sortByField).toBe(sortField);
     // `getAllPlios` inside services/API/Plio.js should've been called with the ordering params
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
-      params: { ordering: sortField },
+      params: {
+        ordering: sortField,
+        page: 1,
+      },
     });
   });
 
@@ -210,7 +215,10 @@ describe("Home.vue", () => {
     expect(wrapper.vm.searchString).toBe(searchString);
     // `getAllPlios` inside services/API/Plio.js should've been called with the search params
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
-      params: { search: searchString },
+      params: {
+        search: searchString,
+        page: 1,
+      },
     });
   });
 
@@ -259,7 +267,9 @@ describe("Home.vue", () => {
     expect(wrapper.vm.searchString).toBe("");
     // `getAllPlios` inside services/API/Plio.js should've been called with no additional params
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
-      params: {},
+      params: {
+        page: 1,
+      },
     });
   });
 
@@ -320,7 +330,9 @@ describe("Home.vue", () => {
 
     await store.dispatch("auth/setActiveWorkspace", "test");
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
-      params: {},
+      params: {
+        page: 1,
+      },
     });
   });
 });
