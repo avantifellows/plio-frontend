@@ -34,7 +34,7 @@
         @search-plios="fetchPlioIds($event)"
         @reset-search-string="resetSearchString"
         @sort-num-viewers="sortPlios"
-        @delete-plio="fetchPlioIds"
+        @delete-plio="plioDeleted"
         @loaded="stopLoading"
         data-test="table"
       >
@@ -45,6 +45,7 @@
         v-if="showTable"
         :totalItems="totalNumberOfPlios"
         :pageSize="numberOfPliosPerPage"
+        :initialPage="currentPageNumber"
         @page-selected="fetchPlioIds($event)"
       >
       </Paginator>
@@ -123,7 +124,7 @@ export default {
       numberOfPliosPerPage: 5, // number of plios to show on one page (default: 5)
       searchString: "", // the search string to filter the plios on
       sortByField: undefined, // string which holds the field to sort the plios on
-      currentPageNumber: undefined, // holds the current page number
+      currentPageNumber: 1, // holds the current page number
     };
   },
   async created() {
@@ -159,6 +160,16 @@ export default {
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
+    plioDeleted() {
+      // invoked when a plio is deleted
+
+      // handle the case when there is only one plio on the current page
+      // and the current page is not the first page
+      if (this.tableData.length == 1 && this.currentPageNumber != 1) {
+        this.currentPageNumber -= 1;
+      }
+      this.fetchPlioIds();
+    },
     async sortPlios(sortByField) {
       // invoked when the user clicks the sort icon next to a column
       this.sortByField = sortByField;
