@@ -219,6 +219,7 @@ export default {
         "w-full text-gray-700 leading-tight p-2 pl-4 focus:outline-none",
       // sort order for the "number of viewers" column. 1 - ascending, -1 - descending
       numViewersSortOrder: 1,
+      numPliosLoaded: 0, // number of plios which have completed loading
     };
   },
 
@@ -230,6 +231,11 @@ export default {
     searchString(value) {
       // emit a message whenever the search string becomes empty
       if (value == "") this.$emit("reset-search-string");
+    },
+    data() {
+      // whenever the data changes, reset the number of plios which
+      // have completed loading
+      this.numPliosLoaded = 0;
     },
   },
 
@@ -375,6 +381,14 @@ export default {
           ...plioDetails,
         };
       }
+
+      // increment the number of plios which have been loaded
+      this.numPliosLoaded += 1;
+
+      // if all the plios in the table have been loaded, emit
+      if (this.numPliosLoaded == this.localData.length) {
+        this.$emit("loaded");
+      }
     },
     getColumnHeaderStyleClass(columnIndex) {
       return {
@@ -396,6 +410,12 @@ export default {
     },
   },
 
-  emits: ["search-plios", "reset-search-string", "sort-num-viewers", "delete-plio"],
+  emits: [
+    "search-plios",
+    "reset-search-string",
+    "sort-num-viewers",
+    "delete-plio",
+    "loaded",
+  ],
 };
 </script>

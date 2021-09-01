@@ -35,6 +35,7 @@
         @reset-search-string="resetSearchString"
         @sort-num-viewers="sortPlios"
         @delete-plio="fetchPlioIds"
+        @loaded="stopLoading"
         data-test="table"
       >
       </Table>
@@ -273,11 +274,6 @@ export default {
 
       // update the table's data
       this.tableData = tableData;
-
-      // wait for the DOM to update
-      this.$nextTick(() => {
-        this.stopLoading();
-      });
     },
   },
 

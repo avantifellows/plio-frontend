@@ -112,6 +112,17 @@ export default {
     // load the plio only if the plio id is not empty
     if (this.isPlioIdValid) await this.loadPlio();
 
+    this.$nextTick(() => {
+      // wait for the DOM to be updated
+      if (this.plioDetails.updatedAt != undefined) {
+        // only consider the plio loaded if the data is valid
+        this.$emit("fetched", {
+          status: this.status,
+          title: this.title,
+        });
+      }
+    });
+
     // add listener for resize
     window.addEventListener("resize", this.handleResize);
 
@@ -302,12 +313,6 @@ export default {
       if (!(this.plioId in this.allPlioDetails)) await this.fetchPlio(this.plioId);
 
       this.plioDetails = this.allPlioDetails[this.plioId];
-      var dataToEmit = {
-        status: this.status,
-        title: this.title,
-      };
-
-      this.$emit("fetched", dataToEmit);
     },
     sharePlio() {
       // invoked when share button is clicked
