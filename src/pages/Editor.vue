@@ -274,7 +274,11 @@
       data-test="imageUploaderDialog"
     ></ImageUploaderDialog>
 
-    <ConfettiCelebration v-if="showPublishedPlioDialog" class="z-0"></ConfettiCelebration>
+    <canvas
+      id="sharePlioConfettiCanvas"
+      class="fixed z-50"
+      v-if="showPublishedPlioDialog"
+    ></canvas>
 
     <!-- dialog to show after publishing -->
     <div
@@ -346,7 +350,10 @@ import DialogBox from "@/components/UI/Alert/DialogBox";
 import ItemModal from "../components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
-import ConfettiCelebration from "@/components/UI/Animations/ConfettiCelebration.vue";
+
+const confetti = require("canvas-confetti");
+const confettiCanvas = document.getElementById("sharePlioConfettiCanvas");
+const confettiHandler = confetti.create(confettiCanvas, { resize: true });
 
 // used for deep cloning objects
 var cloneDeep = require("lodash.clonedeep");
@@ -372,7 +379,6 @@ export default {
     DialogBox,
     ItemModal,
     ImageUploaderDialog,
-    ConfettiCelebration,
   },
   props: {
     plioId: {
@@ -841,6 +847,32 @@ export default {
     ]),
     ...mapActions("generic", ["showSharePlioDialog"]),
     ...Utilities,
+    throwConfetti() {
+      var end = Date.now() + 10 * 1000;
+      var colors = ["#ff718d", "#fdff6a"];
+
+      const frame = () => {
+        confettiHandler({
+          particleCount: 2,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: colors,
+        });
+        confettiHandler({
+          particleCount: 2,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: colors,
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      };
+      frame();
+    },
     hidePublishedDialogShowShareDialog() {
       // hides the published plio dialog and shows the share plio dialog
       this.showPublishedPlioDialog = false;
@@ -1108,6 +1140,7 @@ export default {
         this.isBeingPublished = false;
         this.showDialogBox = false;
         this.showPublishedPlioDialog = true;
+        this.throwConfetti();
         this.hasUnpublishedChanges = false;
       });
     },

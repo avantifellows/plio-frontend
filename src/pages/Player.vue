@@ -48,7 +48,7 @@
       <!-- transition for minimizing/maximizing item modal -->
       <transition enter-active-class="grow" leave-active-class="shrink">
         <!-- item modal component -->
-        <!-- <item-modal
+        <item-modal
           v-if="!isModalMinimized"
           id="modal"
           class="absolute z-10"
@@ -66,13 +66,18 @@
           @submit-question="submitQuestion"
           @option-selected="optionSelected"
           @toggle-minimize="minimizeModal"
-        ></item-modal> -->
-        <Scorecard
-          id="modal"
-          class="absolute z-10"
-          :class="{ hidden: !showItemModal }"
-        ></Scorecard>
+        ></item-modal>
       </transition>
+      <Scorecard
+        id="scorecardmodal"
+        class="absolute z-10"
+        :class="{ hidden: !showScorecard }"
+        :metrics="scorecardMetrics"
+        :progressPercentage="scorecardProgress"
+        :showScorecard="showScorecard"
+        @watch-again="watchAgain"
+        ref="scorecard"
+      ></Scorecard>
     </div>
   </div>
 </template>
@@ -86,9 +91,9 @@ import SessionAPIService from "@/services/API/Session.js";
 import EventAPIService from "@/services/API/Event.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
-// import ItemModal from "../components/Player/ItemModal.vue";
+import ItemModal from "../components/Player/ItemModal.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
-import Scorecard from "@/components/Items/Scorecard/Body.vue";
+import Scorecard from "@/components/Items/Scorecard/Scorecard.vue";
 import { useToast } from "vue-toastification";
 import { mapActions, mapGetters } from "vuex";
 
@@ -168,7 +173,7 @@ export default {
   components: {
     VideoPlayer,
     VideoSkeleton,
-    // ItemModal,
+    ItemModal,
     IconButton,
     Scorecard,
   },
@@ -218,6 +223,17 @@ export default {
         "pointer-events-none",
         "rounded-md",
       ],
+      scorecardMarkerClass: [
+        "absolute",
+        "z-10",
+        "transform",
+        "translate",
+        "-translate-x-2/4",
+        "translate-y-6",
+        "bottom-full",
+        "pointer-events-none",
+        "text-2xl",
+      ],
       playerHeight: 0, // height of the player - updated once the player is ready
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       isFullscreen: false, // is the player in fullscreen
@@ -231,6 +247,10 @@ export default {
       // styling class for the minimize button
       maximizeButtonClass:
         "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-6 sm:pr-6 lg:p-4 lg:pl-6 lg:pr-6 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+      numOfCorrect: 0, // number of correctly answered questions (valid for MCQ only)
+      numOfWrong: 0, // number of wrongly answered questions (valid for MCQ only)
+      numOfSkipped: 0, // number of skipped questions
+      showScorecard: false, // to show the scorecard or not
     };
   },
   watch: {
@@ -250,6 +270,17 @@ export default {
           this.player.fullscreen.exit();
         }
       }
+    },
+    itemResponses: {
+      handler(value) {
+        // whenever itemResponses update, re-render the markers
+        // and re-calculate the scorecard metrics
+        if (value != undefined && this.player != undefined) {
+          this.showItemMarkersOnSlider(this.player);
+          this.calculateScorecardMetrics();
+        }
+      },
+      deep: true,
     },
   },
   async created() {
@@ -348,6 +379,44 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
+    scorecardProgress() {
+      // progress value (0-100) to be passed to the Scorecard component
+      const totalAttempted = this.numOfCorrect + this.numOfWrong;
+      if (totalAttempted == 0) return 0;
+      return (this.numOfCorrect / (this.numOfCorrect + this.numOfWrong)) * 100;
+    },
+    scorecardMetrics() {
+      // define all the metrics to show in the scorecard here
+      return [
+        {
+          name: "numberOfCorrect",
+          icon: {
+            source: "check.svg",
+            color: "text-green-500",
+          },
+          value: this.numOfCorrect,
+          description: "Correct",
+        },
+        {
+          name: "numberOfWrong",
+          icon: {
+            source: "times-solid.svg",
+            color: "text-red-500",
+          },
+          value: this.numOfWrong,
+          description: "Wrong",
+        },
+        {
+          name: "numberOfSkipped",
+          icon: {
+            source: "forward-solid.svg",
+            color: "text-yellow-700",
+          },
+          value: this.numOfSkipped,
+          description: "Skipped",
+        },
+      ];
+    },
     isThirdPartyAuth() {
       // if the app needs to authenticate using a third party auth or not
       return this.thirdPartyUniqueId != null && this.thirdPartyApiKey != null;
@@ -408,6 +477,33 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
+    calculateScorecardMetrics() {
+      // calculate scorecard metrics using `itemResponses`
+      if (this.itemResponses != undefined && this.items != undefined) {
+        this.numOfCorrect = 0;
+        this.numOfWrong = 0;
+        this.numOfSkipped = 0;
+        this.itemResponses.forEach((itemResponse, itemIndex) => {
+          const userAnswer = this.itemResponses[itemIndex].answer;
+          if (this.isItemMCQ(itemIndex)) {
+            const correctAnswer = this.items[itemIndex].details.correct_answer;
+            if (!isNaN(userAnswer)) {
+              if (userAnswer == correctAnswer) this.numOfCorrect += 1;
+              else this.numOfWrong += 1;
+            } else this.numOfSkipped += 1;
+          } else if (this.isItemSubjective(itemIndex)) {
+            if (userAnswer == null) this.numOfSkipped += 1;
+          }
+        });
+      }
+    },
+    watchAgain() {
+      // when watch again is clicked on the scorecard, remove the scorecard
+      // restart the video and remove the confetti
+      this.showScorecard = false;
+      this.player.restart();
+      this.$refs.scorecard.resetConfetti();
+    },
     mountOnFullscreenPlyr(elementToMount) {
       var plyrInstance = document.getElementsByClassName("plyr")[0];
       plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
@@ -469,11 +565,17 @@ export default {
       });
       // update the marker colors on the player
       this.showItemMarkersOnSlider(this.player);
+
+      // recalculate the scorecard metrics
+      this.calculateScorecardMetrics();
     },
     skipQuestion() {
       // invoked when the user skips the question
       this.closeItemModal();
       this.createEvent("question_skipped", { itemIndex: this.currentItemIndex });
+
+      // recalculate the scorecard metrics
+      this.calculateScorecardMetrics();
     },
     proceedQuestion() {
       // invoked when the user has answered the question and wishes to proceed
@@ -602,6 +704,7 @@ export default {
     playerReady() {
       // invoked when the player is ready
       this.showItemMarkersOnSlider(this.player);
+      this.showScorecardMarkerOnSlider(this.player);
       this.setScreenProperties();
       this.player.currentTime = this.currentTimestamp;
       this.$mixpanel.track("Visit Player", {
@@ -636,6 +739,25 @@ export default {
         plyrProgressBar.appendChild(newMarker);
       });
     },
+    showScorecardMarkerOnSlider() {
+      // show the marker for scorecard on top of the video slider
+      var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
+      let existingMarker = document.getElementById(`marker-scorecard`);
+      if (existingMarker != undefined) plyrProgressBar.removeChild(existingMarker);
+
+      // Add marker to player seek bar
+      var newMarker = document.createElement("P");
+      newMarker.setAttribute("id", `marker-scorecard`);
+
+      // what the marker should look like - trophy cup emoji
+      newMarker.innerText = "🏆";
+      newMarker.classList.add(...this.scorecardMarkerClass);
+
+      // set marker position
+      var positionPercent = ((this.player.duration - 1) / this.player.duration) * 100;
+      newMarker.style.setProperty("left", `${positionPercent}%`);
+      plyrProgressBar.appendChild(newMarker);
+    },
     isItemResponseDone(itemIndex) {
       // whether the response to an item is complete
       if (this.itemResponses && this.itemResponses[itemIndex]) {
@@ -653,9 +775,20 @@ export default {
         this.items[itemIndex].details.type == "mcq"
       );
     },
+    isItemSubjective(itemIndex) {
+      // whether the given item index is an MCQ question
+      return (
+        this.items[itemIndex].type == "question" &&
+        this.items[itemIndex].details.type == "subjective"
+      );
+    },
     videoTimestampUpdated(timestamp) {
       // invoked when the current time in the video is updated
       this.checkItemToSelect(timestamp);
+
+      // check if scorecard needs to be shown
+      this.checkForScorecardPopup(timestamp);
+
       // update watch time
       this.watchTime += PLYR_INTERVAL_TIME;
       this.watchTimeIncrement += PLYR_INTERVAL_TIME;
@@ -665,6 +798,15 @@ export default {
         this.retention[currentTime] += 1;
         this.lastTimestampRetention = currentTime;
       }
+    },
+    checkForScorecardPopup(timestamp) {
+      if (timestamp >= this.player.duration - 1) {
+        this.showScorecard = true;
+
+        // if the video is in fullscreen mode, show the modal on top of it
+        var modal = document.getElementById("scorecardmodal");
+        if (modal != undefined) this.mountOnFullscreenPlyr(modal);
+      } else this.showScorecard = false;
     },
     checkItemToSelect(timestamp) {
       // checks if an item is to be selected and marks/unmarks accordingly
