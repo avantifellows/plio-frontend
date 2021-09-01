@@ -11,9 +11,13 @@ import {
   dummyUniqueUserCountList,
 } from "@/services/Testing/DummyData.js";
 
-afterEach(() => {
+var cloneDeep = require("lodash.clonedeep");
+
+afterEach(async () => {
   // cleaning up the mess left behind by the previous test
   mockAxios.reset();
+  // reset active workspace
+  await store.dispatch("auth/setActiveWorkspace", "");
 });
 
 describe("Home.vue", () => {
@@ -334,5 +338,92 @@ describe("Home.vue", () => {
         page: 1,
       },
     });
+  });
+
+  it("fetches plios when a plio is deleted", async () => {
+    // set user
+    await store.dispatch("auth/setUser", dummyUser);
+
+    // changing the user to approved makes another API call to list UUIDs
+    // this resets it
+    mockAxios.reset();
+
+    // mock the plioDeleted method
+    const plioDeleted = jest.spyOn(Home.methods, "plioDeleted");
+
+    const wrapper = mount(Home);
+
+    // resolve the `GET` request waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(dummyPlioList, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // reset axios
+    mockAxios.reset();
+
+    // trigger emit from table
+    wrapper.vm.$refs.table.$emit("delete-plio");
+
+    expect(plioDeleted).toHaveBeenCalled();
+  });
+
+  it("fetches plios from last page if last plio from current page is deleted", async () => {
+    // set user
+    await store.dispatch("auth/setUser", dummyUser);
+
+    // changing the user to approved makes another API call to list UUIDs
+    // this resets it
+    mockAxios.reset();
+
+    // mock getUniqueUsersCountList method
+    jest
+      .spyOn(PlioAPIService, "getUniqueUsersCountList")
+      .mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve(dummyUniqueUserCountList);
+        });
+      });
+
+    const wrapper = mount(Home, {
+      data() {
+        return {
+          // set the page number to not be the first page
+          currentPageNumber: 2,
+        };
+      },
+    });
+
+    // mock how the response for page 2 with one plio would look like
+    let plioList = cloneDeep(dummyPlioList);
+    plioList.data.count = 6;
+    plioList.data.page_size = 5;
+    plioList.data.results = [plioList.data.results[0]];
+
+    // resolve the `GET` request waiting in the queue
+    // using the fake response data
+    // only send in one plio as we want to simulate the case when
+    // the last plio from the current page (not the first page) is deleted
+    mockAxios.mockResponse(plioList, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    mockAxios.mockResponse(
+      {
+        access_token: "",
+        expires_in: "",
+      },
+      mockAxios.queue()[0]
+    );
+
+    await flushPromises();
+
+    // trigger emit from table
+    wrapper.vm.$refs.table.$emit("delete-plio");
+
+    // current page number should be changed
+    expect(wrapper.vm.currentPageNumber).toBe(1);
   });
 });

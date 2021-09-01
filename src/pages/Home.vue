@@ -37,6 +37,7 @@
         @delete-plio="plioDeleted"
         @loaded="stopLoading"
         data-test="table"
+        ref="table"
       >
       </Table>
 
