@@ -7,8 +7,16 @@
       data-test="blurDiv"
     >
       <!--- preview grid -->
-      <div class="flex flex-col mx-6 z-0" :class="{ 'mt-6': !isVideoIdValid || !isPublished }" data-test="previewDiv">
-        <div class="my-8 flex justify-center space-x-4" v-if="isVideoIdValid && isPublished" data-test="upperButtons">
+      <div
+        class="flex flex-col mx-6 z-0"
+        :class="{ 'mt-6': !isVideoIdValid || !isPublished }"
+        data-test="previewDiv"
+      >
+        <div
+          class="my-8 flex justify-center space-x-4"
+          v-if="isVideoIdValid && isPublished"
+          data-test="upperButtons"
+        >
           <!-- share plio -->
           <icon-button
             :isDisabled="!isPublished"
@@ -37,10 +45,14 @@
             class="flex justify-center"
             data-test="videoPreviewSkeleton"
           >
-            <div class="flex relative justify-center w-full">
+            <div class="flex relative justify-center items-center w-full">
               <div
                 class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-96 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
               ></div>
+              <img
+                class="w-16 bp-500:w-24 md:w-16 lg:w-24 absolute"
+                src="@/assets/images/youtube.png"
+              />
             </div>
           </div>
           <div v-else data-test="videoPreview">
@@ -114,7 +126,11 @@
         </div>
 
         <!--- buttons -->
-        <div class="flex justify-center space-x-2 my-6" v-if="isVideoIdValid" data-test="lowerButtons">
+        <div
+          class="flex justify-center space-x-2 my-6"
+          v-if="isVideoIdValid"
+          data-test="lowerButtons"
+        >
           <!--- button to go back to home -->
           <icon-button
             :titleConfig="backButtonTitleConfig"
@@ -148,12 +164,22 @@
       <div class="flex flex-col m-5 justify-start" data-test="inputDiv">
         <div class="grid gap-y-4" data-test="meta">
           <!-- info about pasting youtube link -->
-          <div class="flex items-center space-x-2 bg-primary rounded-lg p-4" v-if="!isVideoIdValid" data-test="videoLinkInfo">
+          <div
+            class="flex items-center space-x-2 bg-primary rounded-lg p-4"
+            v-if="!isVideoIdValid"
+            data-test="videoLinkInfo"
+          >
             <inline-svg
               :src="getIconSource('publish.svg')"
               class="w-8 h-8 text-white fill-current"
             ></inline-svg>
-            <p class="text-white text-xs bp-500:text-base">{{ $t('editor.video_input.info') }}</p>
+            <p class="text-white text-xs bp-500:text-base">
+              {{ $t("editor.video_input.info.1") }}
+              <a href="https://youtube.com/upload" class="underline font-bold">{{
+                $t("editor.video_input.info.2")
+              }}</a>
+              {{ $t("editor.video_input.info.3") }}
+            </p>
           </div>
           <div class="flex w-full justify-between" v-else>
             <!--- publish/draft badge -->
@@ -193,7 +219,11 @@
           ></input-text>
         </div>
 
-        <div class="flex justify-center py-2 mt-8 sm:mt-10 mb-16" v-if="isVideoIdValid" data-test="itemDiv">
+        <div
+          class="flex justify-center py-2 mt-8 sm:mt-10 mb-16"
+          v-if="isVideoIdValid"
+          data-test="itemDiv"
+        >
           <!-- boxes for adding different types of items -->
           <div
             class="bg-peach rounded-lg p-4 xsm:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
@@ -777,7 +807,7 @@ export default {
     },
     videoInputTitle() {
       // title text for the video link input box
-      if (!this.isVideoIdValid) return ""
+      if (!this.isVideoIdValid) return "";
       return this.$t("editor.video_input.title");
     },
     titleInputPlaceholder() {
