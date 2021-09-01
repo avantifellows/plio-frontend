@@ -348,6 +348,15 @@ describe("Home.vue", () => {
     // this resets it
     mockAxios.reset();
 
+    // mock getUniqueUsersCountList method
+    jest
+      .spyOn(PlioAPIService, "getUniqueUsersCountList")
+      .mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve(dummyUniqueUserCountList);
+        });
+      });
+
     // mock the plioDeleted method
     const plioDeleted = jest.spyOn(Home.methods, "plioDeleted");
 
@@ -358,6 +367,16 @@ describe("Home.vue", () => {
     mockAxios.mockResponse(dummyPlioList, mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    mockAxios.mockResponse(
+      {
+        access_token: "",
+        expires_in: "",
+      },
+      mockAxios.queue()[0]
+    );
+
     await flushPromises();
 
     // reset axios
