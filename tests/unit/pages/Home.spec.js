@@ -386,13 +386,10 @@ describe("Home.vue", () => {
         });
       });
 
-    const wrapper = mount(Home, {
-      data() {
-        return {
-          // set the page number to not be the first page
-          currentPageNumber: 2,
-        };
-      },
+    const wrapper = mount(Home);
+    await wrapper.setData({
+      // set the page number to not be the first page
+      currentPageNumber: 2,
     });
 
     // mock how the response for page 2 with one plio would look like
