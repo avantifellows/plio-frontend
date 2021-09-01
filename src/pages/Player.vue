@@ -704,7 +704,7 @@ export default {
     playerReady() {
       // invoked when the player is ready
       this.showItemMarkersOnSlider(this.player);
-      this.showScorecardMarkerOnSlider(this.player);
+      this.showScorecardMarkerOnSlider();
       this.setScreenProperties();
       this.player.currentTime = this.currentTimestamp;
       this.$mixpanel.track("Visit Player", {
