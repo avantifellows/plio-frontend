@@ -3,6 +3,10 @@ import Table from "@/components/Collections/Table/Table";
 import { setMatchMedia } from "@/services/Testing/Utilities";
 import store from "@/store";
 import mockAxios from "jest-mock-axios";
+import {
+  dummyPublishedPlio,
+  dummyItems,
+} from "@/services/Testing/DummyData.js";
 
 var dummyTableData = [
   {
@@ -22,6 +26,11 @@ describe("Table.vue", () => {
   beforeEach(async () => {
     await store.dispatch("sync/stopLoading");
     await setMatchMedia(false);
+  });
+
+  afterEach(() => {
+    // cleanup all pending requests from the last test
+    mockAxios.reset();
   });
 
   it("should render with default values", () => {
@@ -242,6 +251,29 @@ describe("Table.vue", () => {
     });
     await wrapper.findAll('[data-test="tableHeader"]')[1].trigger("click");
     expect(wrapper.emitted()).toHaveProperty("sort-num-viewers");
+  });
+
+  it("emits after all plios have been loaded", async () => {
+    const wrapper = mount(Table, {
+      props: {
+        data: dummyTableData,
+        columns: tableColumns,
+        numTotal: totalNumberOfPlios,
+      },
+    });
+
+    // resolve the two `GET` requests (for each plio) waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(dummyPublishedPlio, mockAxios.queue()[0]);
+    mockAxios.mockResponse(dummyPublishedPlio, mockAxios.queue()[1]);
+    mockAxios.mockResponse(dummyItems, mockAxios.queue()[2]);
+    mockAxios.mockResponse(dummyItems, mockAxios.queue()[3]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    expect(wrapper.emitted()).toHaveProperty("loaded");
+    expect(wrapper.vm.numPliosLoaded).toBe(2);
   });
 
   it("emits on deleting plio", async () => {
