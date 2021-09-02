@@ -4,6 +4,7 @@
       v-model="selectedWorkspace"
       @change="updateActiveWorkspace"
       data-test="select"
+      :disabled="isDisabled"
     >
       <option value="">Personal Workspace</option>
       <option
@@ -26,6 +27,13 @@ export default {
     ...mapState("auth", ["activeWorkspace", "user"]),
     workspaces() {
       return this.user ? this.user.organizations : [];
+    },
+  },
+  props: {
+    isDisabled: {
+      // whether the switcher should be disabled
+      type: Boolean,
+      default: false,
     },
   },
   data() {

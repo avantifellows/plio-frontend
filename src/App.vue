@@ -21,7 +21,10 @@
 
         <!-- workspace switcher -->
         <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
-          <WorkspaceSwitcher class="flex justify-center"></WorkspaceSwitcher>
+          <WorkspaceSwitcher
+            class="flex justify-center"
+            :isDisabled="pending"
+          ></WorkspaceSwitcher>
         </div>
 
         <!-- page heading -->
@@ -138,7 +141,7 @@ export default {
     // reset the value of pending while creating the component
     if (this.pending) this.stopLoading();
     // reset the value of whether background is disabled
-    if (this.isBackgroundDisabled) this.enableBackground()
+    if (this.isBackgroundDisabled) this.enableBackground();
     // place a listener for the event of closing of the browser
     window.addEventListener("beforeunload", this.onClose);
     if (this.isAuthenticated) {
@@ -389,7 +392,11 @@ export default {
       "locale",
     ]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
-    ...mapState("generic", ["isSharePlioDialogShown", "plioLinkToShare", "isBackgroundDisabled"]),
+    ...mapState("generic", [
+      "isSharePlioDialogShown",
+      "plioLinkToShare",
+      "isBackgroundDisabled",
+    ]),
     ...mapState("sync", ["pending"]),
     currentRoute() {
       return this.$route.path;
@@ -448,7 +455,11 @@ export default {
     },
     coverBackground() {
       // whether to apply opacity on the background
-      return this.showLanguagePickerDialog || this.isSharePlioDialogShown || this.isBackgroundDisabled;
+      return (
+        this.showLanguagePickerDialog ||
+        this.isSharePlioDialogShown ||
+        this.isBackgroundDisabled
+      );
     },
     allWorkspaces() {
       // list of shortcodes of all workspaces that the user is a part of
