@@ -249,7 +249,6 @@ describe("Table.vue", () => {
   });
 
   it("shows warning on search when there are no plios matching the search string", async () => {
-    const search = jest.spyOn(Table.methods, "search");
     const wrapper = mount(Table, {
       props: {
         data: [],
