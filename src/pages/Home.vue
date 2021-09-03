@@ -100,6 +100,8 @@ export default {
   },
   watch: {
     async activeWorkspace() {
+      // reset currentPageNumber
+      this.currentPageNumber = 1;
       if (this.isUserApproved) await this.fetchPlioIds();
     },
     isUserApproved(value) {
