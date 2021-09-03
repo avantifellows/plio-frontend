@@ -1,12 +1,18 @@
-import { mount } from "@vue/test-utils";
+import { mount, flushPromises } from "@vue/test-utils";
 import PlioListItem from "@/components/Collections/ListItems/PlioListItem";
 import store from "@/store";
 import { setMatchMedia } from "@/services/Testing/Utilities";
+import mockAxios from "jest-mock-axios";
 
 describe("PlioListItem.vue", () => {
   beforeEach(async () => {
     await store.dispatch("sync/stopLoading");
     setMatchMedia(false);
+  });
+
+  afterEach(() => {
+    // cleaning up the mess left behind by the previous test
+    mockAxios.reset();
   });
 
   it("should render with default values", () => {
@@ -99,12 +105,12 @@ describe("PlioListItem.vue", () => {
       .get('[data-test="toggleButton"]')
       .trigger("click");
 
-    // there should be 4 buttons - edit, play, share, duplicate
+    // there should be 5 buttons - edit, play, share, duplicate, delete
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
         .findAll('[data-test="option"]').length
-    ).toBe(4);
+    ).toBe(5);
   });
 
   it("play disabled for draft plio ", async () => {
@@ -352,12 +358,12 @@ describe("PlioListItem.vue", () => {
       .get('[data-test="toggleButton"]')
       .trigger("click");
 
-    // there should be 5 buttons - edit, play, share, duplicate, analyse
+    // there should be 6 buttons - edit, play, share, duplicate, delete, analyse
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
         .findAll('[data-test="option"]').length
-    ).toBe(5);
+    ).toBe(6);
   });
 
   it("analyze disabled for draft plio ", async () => {
@@ -440,5 +446,304 @@ describe("PlioListItem.vue", () => {
         plioId: plioId,
       },
     });
+  });
+
+  it("clicking on delete launches a dialog box", async () => {
+    const plioId = "123";
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+
+    const wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "published",
+          },
+        };
+      },
+      props: {
+        plioId: plioId,
+      },
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
+    // passing in plioID triggers startLoading which keeps the component in pending state
+    await store.dispatch("sync/stopLoading");
+
+    // there should be no dialog box
+    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeFalsy();
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // click the delete button
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[4]
+      .trigger("click");
+
+    // there should be a dialog box now
+    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
+  });
+
+  it("choosing no after clicking on delete closes the dialog box", async () => {
+    const plioId = "123";
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+
+    const wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "published",
+          },
+        };
+      },
+      props: {
+        plioId: plioId,
+      },
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
+    // passing in plioID triggers startLoading which keeps the component in pending state
+    await store.dispatch("sync/stopLoading");
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // click the delete button
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[4]
+      .trigger("click");
+
+    // click the cancel button of the dialog box
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="cancelButton"]')
+      .trigger("click");
+
+    // there should be no dialog box now
+    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeFalsy();
+  });
+
+  it("choosing yes after clicking on delete triggers deletion", async () => {
+    const plioId = "123";
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+    // spy on the enableBackground and disableBackground methods
+    const disableBackground = jest.spyOn(
+      PlioListItem.methods,
+      "disableBackground"
+    );
+    const enableBackground = jest.spyOn(
+      PlioListItem.methods,
+      "enableBackground"
+    );
+
+    const wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "published",
+          },
+        };
+      },
+      props: {
+        plioId: plioId,
+      },
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
+    // passing in plioID triggers startLoading which keeps the component in pending state
+    await store.dispatch("sync/stopLoading");
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // cleanup past requests
+    mockAxios.reset();
+
+    // click the delete button
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[4]
+      .trigger("click");
+
+    // click the confirm button of the dialog box
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
+
+    // `deletePlio` inside services/API/Plio.js should've been called
+    expect(mockAxios.delete).toHaveBeenCalled();
+    expect(mockAxios.delete).toHaveBeenCalledWith(`/plios/${plioId}`);
+
+    // background should be disabled
+    expect(disableBackground).toHaveBeenCalled();
+
+    // mock the response to the request
+    mockAxios.mockResponse(
+      {
+        status: 204,
+      },
+      mockAxios.queue()[0]
+    );
+
+    await flushPromises();
+
+    // background should be enabled
+    expect(enableBackground).toHaveBeenCalled();
+    // there should be no dialog box now
+    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeFalsy();
+    // check emit
+    expect(wrapper.emitted()).toHaveProperty("deleted");
+  });
+
+  it("error in deletion closes dialog box", async () => {
+    const plioId = "123";
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+    const enableBackground = jest.spyOn(
+      PlioListItem.methods,
+      "enableBackground"
+    );
+
+    const wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "published",
+          },
+        };
+      },
+      props: {
+        plioId: plioId,
+      },
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
+    // passing in plioID triggers startLoading which keeps the component in pending state
+    await store.dispatch("sync/stopLoading");
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // cleanup past requests
+    mockAxios.reset();
+
+    // click the delete button
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[4]
+      .trigger("click");
+
+    // click the confirm button of the dialog box
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
+
+    // mock the response to the request
+    mockAxios.mockError();
+
+    await flushPromises();
+
+    // background should be enabled
+    expect(enableBackground).toHaveBeenCalled();
+    // there should be no dialog box now
+    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeFalsy();
+  });
+
+  it("delete confirmation dialog box margin is set correctly ", async () => {
+    // margin value changes based on window width
+    const wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "draft",
+          },
+        };
+      },
+    });
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // click the delete button
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[4]
+      .trigger("click");
+
+    // there should be no style attribute by default
+    expect(wrapper.get('[data-test="dialogBox"]').attributes()).not.toContain(
+      "style"
+    );
+
+    // screen size < 420 but > 400
+    await wrapper.setData({
+      windowWidth: 410,
+    });
+    expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
+      "left: 20%;"
+    );
+
+    // screen size < 400 but > 340
+    await wrapper.setData({
+      windowWidth: 350,
+    });
+    expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
+      "left: 15%;"
+    );
+
+    // screen size < 340
+    await wrapper.setData({
+      windowWidth: 320,
+    });
+    expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
+      "left: 10%;"
+    );
   });
 });
