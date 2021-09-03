@@ -355,8 +355,12 @@ export default {
       return value.type == "component";
     },
     sortBy(columnName) {
-      // toggle the sort order for "number_of_viewers" column
-      // and emit it to the parent
+      /*
+       * toggle the sort order for "number_of_viewers" column
+       * and emit it to the parent
+       */
+      // do not perform any action if no rows are present
+      if (!this.localData.length) return;
       if (columnName == "number_of_viewers") {
         this.numViewersSortOrder = this.numViewersSortOrder * -1;
         this.$emit(
