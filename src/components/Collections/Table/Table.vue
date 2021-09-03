@@ -229,6 +229,10 @@ export default {
   },
 
   watch: {
+    activeWorkspace() {
+      // reset search string
+      this.resetSearchString();
+    },
     searchString(value) {
       // emit a message whenever the search string becomes empty
       if (value == "") this.$emit("reset-search-string");
@@ -242,6 +246,7 @@ export default {
 
   computed: {
     ...mapState("sync", ["pending"]),
+    ...mapState("auth", ["activeWorkspace"]),
     isTouchDevice() {
       // detects if the user's device has a touchscreen or not
       return window.matchMedia("(any-pointer: coarse)").matches;
