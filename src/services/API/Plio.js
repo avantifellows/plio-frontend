@@ -26,23 +26,25 @@ export default {
       plioEndpoint += "/play";
     }
 
-    return Promise.all([apiClient().get(plioEndpoint)]).then(([plio]) => {
-      // preparing plio details to be consumed by
-      // the components
-      var plioDetails = {};
-      plioDetails.items = plio.data.items;
-      plioDetails.items.forEach((item) => {
-        // convert str to int
-        item.details.correct_answer = parseInt(item.details.correct_answer);
+    return apiClient()
+      .get(plioEndpoint)
+      .then((plio) => {
+        // preparing plio details to be consumed by
+        // the components
+        var plioDetails = {};
+        plioDetails.items = plio.data.items;
+        plioDetails.items.forEach((item) => {
+          // convert str to int
+          item.details.correct_answer = parseInt(item.details.correct_answer);
+        });
+        plioDetails.videoURL = plio.data.video.url;
+        plioDetails.plioTitle = plio.data.name;
+        plioDetails.status = plio.data.status;
+        plioDetails.updatedAt = plio.data.updated_at;
+        plioDetails.plioDBId = plio.data.id;
+        plioDetails.videoDBId = plio.data.video.id || null;
+        return plioDetails;
       });
-      plioDetails.videoURL = plio.data.video.url;
-      plioDetails.plioTitle = plio.data.name;
-      plioDetails.status = plio.data.status;
-      plioDetails.updatedAt = plio.data.updated_at;
-      plioDetails.plioDBId = plio.data.id;
-      plioDetails.videoDBId = plio.data.video.id || null;
-      return plioDetails;
-    });
   },
 
   getAllPlios(
