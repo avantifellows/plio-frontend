@@ -47,6 +47,20 @@
       </div>
     </div>
   </div>
+  <!-- generic dialog box -->
+  <dialog-box
+    class="fixed top-1/3 bp-420:left-1/4 sm:left-1/3 z-10"
+    :style="dialogStyle"
+    v-if="showDialogBox"
+    :title="dialogTitle"
+    :description="dialogDescription"
+    :confirmButtonConfig="dialogConfirmButtonConfig"
+    :cancelButtonConfig="dialogCancelButtonConfig"
+    @confirm="dialogConfirmed"
+    @cancel="dialogCancelled"
+    data-test="dialogBox"
+    v-click-away="dialogCancelled"
+  ></dialog-box>
 </template>
 
 <script>
@@ -55,9 +69,11 @@ import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
 import Utilities from "@/services/Functional/Utilities.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
+import DialogBox from "@/components/UI/Alert/DialogBox";
 import OptionDropdown from "@/components/UI/DropDownMenu/OptionDropdown.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
 import { mapState, mapActions } from "vuex";
+import { useToast } from "vue-toastification";
 
 export default {
   name: "PlioThumbnail",
@@ -72,6 +88,7 @@ export default {
     SimpleBadge,
     PlioListItemSkeleton,
     OptionDropdown,
+    DialogBox,
   },
 
   data() {
@@ -82,11 +99,32 @@ export default {
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       urlCopyButtonClass: "text-yellow-600",
       scrollY: window.scrollY, // the number of pixels scrolled vertically
+      showDialogBox: false, // whether to show the dialog box
+      dialogTitle: "", // title for the dialog box
+      dialogDescription: "", // description for the dialog box
+      dialogConfirmButtonConfig: {}, // config of the confirm button of the dialog box
+      dialogCancelButtonConfig: {}, // config of the cancel button of the dialog box
+      toast: useToast(), // toast component
+      windowWidth: window.innerWidth, // width for the window
     };
   },
   async created() {
     // load the plio only if the plio id is not empty
     if (this.isPlioIdValid) await this.loadPlio();
+
+    this.$nextTick(() => {
+      // wait for the DOM to be updated
+      if (this.plioDetails.updatedAt != undefined) {
+        // only consider the plio loaded if the data is valid
+        this.$emit("fetched", {
+          status: this.status,
+          title: this.title,
+        });
+      }
+    });
+
+    // add listener for resize
+    window.addEventListener("resize", this.handleResize);
 
     // add listener for scrolling
     window.addEventListener("scroll", this.handleScroll);
@@ -94,11 +132,24 @@ export default {
   unmounted() {
     // remove listeners
     window.removeEventListener("scroll", this.handleScroll);
+    window.removeEventListener("resize", this.handleResize);
   },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
     ...mapState("plioItems", ["allPlioDetails"]),
+
+    dialogStyle() {
+      /*
+       * dynamic style for the dialog box
+       * these styles were not available as part of tailwind
+       * seemed too specific to add them to the config
+       */
+      if (this.windowWidth > 420) return "";
+      if (this.windowWidth > 400) return "left: 20%";
+      if (this.windowWidth > 340) return "left: 15%";
+      return "left: 10%";
+    },
 
     plioActionOptions() {
       // the list of action buttons
@@ -134,6 +185,11 @@ export default {
           value: "duplicate",
           label: this.$t("home.table.plio_list_item.buttons.duplicate"),
           icon: "copy.svg",
+        },
+        {
+          value: "delete",
+          label: this.$t("home.table.plio_list_item.buttons.delete"),
+          icon: "delete2.svg",
         },
       ];
       options.push(...moreOptions);
@@ -197,10 +253,17 @@ export default {
   },
 
   methods: {
-    ...mapActions("sync", ["startLoading", "stopLoading"]),
     ...mapActions("plioItems", ["fetchPlio"]),
-    ...mapActions("generic", ["showSharePlioDialog"]),
+    ...mapActions("generic", [
+      "showSharePlioDialog",
+      "disableBackground",
+      "enableBackground",
+    ]),
     ...Utilities,
+    handleResize() {
+      // invoked when the screen is resized
+      this.windowWidth = window.innerWidth;
+    },
     runAction(_, action) {
       // invoked when one of the action buttons is clicked
       switch (action) {
@@ -219,6 +282,27 @@ export default {
         case "analyse":
           this.analysePlio();
           break;
+        case "delete":
+          // configure the dialog box
+          this.dialogTitle = this.$t("home.table.plio_list_item.dialog.delete.title");
+          this.dialogDescription = this.$t(
+            "home.table.plio_list_item.dialog.delete.description"
+          );
+          this.dialogConfirmButtonConfig = {
+            enabled: true,
+            text: this.$t("generic.yes"),
+            class:
+              "bg-white hover:bg-gray-100 focus:outline-none focus:ring-0 text-primary",
+          };
+          this.dialogCancelButtonConfig = {
+            enabled: true,
+            text: this.$t("generic.no"),
+            class:
+              "bg-primary-button hover:bg-primary-button-hover focus:outline-none text-white",
+          };
+          // show the dialog box
+          this.showDialogBox = true;
+          break;
       }
     },
     handleScroll() {
@@ -226,18 +310,10 @@ export default {
       this.scrollY = window.scrollY;
     },
     async loadPlio() {
-      this.startLoading();
       // fetch the details of the plio if they don't exist in the store
       if (!(this.plioId in this.allPlioDetails)) await this.fetchPlio(this.plioId);
 
       this.plioDetails = this.allPlioDetails[this.plioId];
-      var dataToEmit = {
-        status: this.status,
-        title: this.title,
-      };
-
-      this.$emit("fetched", dataToEmit);
-      this.stopLoading();
     },
     sharePlio() {
       // invoked when share button is clicked
@@ -256,6 +332,35 @@ export default {
         name: "Editor",
         params: { plioId: this.plioId, org: this.activeWorkspace },
       });
+    },
+    dialogConfirmed() {
+      // triggered upon clicking on the confirm button of the dialog box
+
+      // blur background and disable all buttons to prevent any action
+      // from taking action while the deletion is in progress
+      this.disableBackground();
+      PlioAPIService.deletePlio(this.plioId)
+        .then(() => {
+          // restore background
+          this.enableBackground();
+          // hide dialog box
+          this.showDialogBox = false;
+          // notify of success
+          this.toast.success(this.$t("home.table.plio_list_item.toast.delete.success"));
+          this.$emit("deleted");
+        })
+        .catch(() => {
+          // restore background
+          this.enableBackground();
+          // hide dialog box
+          this.showDialogBox = false;
+          // notify of error
+          this.toast.error(this.$t("home.table.plio_list_item.toast.delete.error"));
+        });
+    },
+    dialogCancelled() {
+      // triggered upon clicking on the cancel button of the dialog box
+      this.showDialogBox = false;
     },
     async duplicatePlio() {
       // invoked when duplicate button is clicked
@@ -303,6 +408,6 @@ export default {
       });
     },
   },
-  emits: ["fetched"],
+  emits: ["fetched", "deleted"],
 };
 </script>
