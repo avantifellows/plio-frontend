@@ -140,7 +140,7 @@ export default {
     ...mapState("plioItems", ["allPlioDetails"]),
 
     dialogStyle() {
-      /*
+      /**
        * dynamic style for the dialog box
        * these styles were not available as part of tailwind
        * seemed too specific to add them to the config

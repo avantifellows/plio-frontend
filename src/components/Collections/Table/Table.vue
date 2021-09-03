@@ -19,9 +19,10 @@
         <!-- search bar input -->
         <input
           :class="searchInputBoxClass"
-          type="text"
           :placeholder="searchPlaceholder"
           v-model="searchString"
+          @keypress="searchIfEnter($event)"
+          type="text"
           autocomplete="off"
           data-test="searchBar"
         />
@@ -292,6 +293,20 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startLoading"]),
+    searchIfEnter(event) {
+      /**
+       * detect if enter has been pressed after entering
+       * a text to search
+       */
+      // check if the key pressed is the enter key
+      if (event.key === "Enter" || event.keyCode === 13) {
+        /**
+         * event.key is the modern way of detecting keys
+         * event.keyCode is deprecated (left here for for legacy browsers support)
+         */
+        this.search();
+      }
+    },
     resetSearchString() {
       // resets the search string
       this.searchString = "";
@@ -355,7 +370,7 @@ export default {
       return value.type == "component";
     },
     sortBy(columnName) {
-      /*
+      /**
        * toggle the sort order for "number_of_viewers" column
        * and emit it to the parent
        */

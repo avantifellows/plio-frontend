@@ -378,7 +378,7 @@ export default {
       this.showLanguagePickerDialog = false;
     },
     keyboardPressed() {
-      /*
+      /**
        * triggered when any keyboard button is pressed
        */
 
