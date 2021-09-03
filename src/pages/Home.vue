@@ -216,7 +216,6 @@ export default {
           // to handle the case when the user lands on the homepage for the first time
           // if no plios exist, then hide the table else show it
           if (params == undefined) {
-            console.log(response);
             if (response.data.count <= 0) {
               this.showTable = false;
               this.stopLoading();
