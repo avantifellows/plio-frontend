@@ -173,7 +173,7 @@ export default {
           delete: {
             title: "Are you sure you want to delete this plio?",
             description:
-              "This will permananently delete this plio and all the data associated with it, including all the responses. Once deleted, the data cannot be covered.",
+              "This will permananently delete this plio and all the data associated with it, including all the responses. Once deleted, the data cannot be recovered.",
           },
         },
         toast: {
