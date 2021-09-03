@@ -304,7 +304,7 @@ export default {
          * event.key is the modern way of detecting keys
          * event.keyCode is deprecated (left here for for legacy browsers support)
          */
-        if (this.searchString != "") this.search();
+        if (this.searchString.trim() != "") this.search();
       }
     },
     resetSearchString() {
