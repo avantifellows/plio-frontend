@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import Utilties from "@/services/Functional/Utilities.js";
+import Utilities from "@/services/Functional/Utilities.js";
 
 export default {
   name: "QuestionTypeDropdown",
@@ -122,7 +122,7 @@ export default {
     },
   },
   methods: {
-    ...Utilties,
+    ...Utilities,
     doesOptionHaveIcon(option) {
       // whether the given option has an icon
       return option != undefined && option.icon != null;

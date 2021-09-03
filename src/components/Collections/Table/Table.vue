@@ -155,21 +155,30 @@
                     </div>
                   </td>
                 </tr>
-                <!-- no search results warning -->
-                <tr v-if="isSearchStringPresent && isTableEmpty">
-                  <td :colspan="columns.length" class="text-center">
-                    <div
-                      class="text-xl tracking-tight font-extrabold text-gray-900 sm:text-2xl md:text-3xl inline-flex p-6"
-                    >
-                      {{ $t("home.table.search.no_plios_found") }}
-                    </div>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- no search results warning -->
+    <div
+      v-if="isSearchStringPresent && isTableEmpty"
+      class="flex flex-col justify-center items-center py-12 space-y-2"
+    >
+      <inline-svg
+        :src="getIconSource('exclamation-circle-solid.svg')"
+        class="h-8 sm:h-12"
+      ></inline-svg>
+      <p class="text-center font-bold text-base sm:text-xl">
+        {{ $t("home.table.search.no_plios_found.title.1") }}
+        "{{ searchString }}"
+        {{ $t("home.table.search.no_plios_found.title.2") }}
+      </p>
+      <p class="text-center text-sm sm:text-base w-full bp-500:w-3/4 md:w-1/2 xl:w-1/3">
+        {{ $t("home.table.search.no_plios_found.description") }}
+      </p>
     </div>
   </div>
 </template>
@@ -177,6 +186,7 @@
 <script>
 import PlioListItem from "@/components/Collections/ListItems/PlioListItem.vue";
 import IconButton from "@/components/UI/Buttons/IconButton";
+import Utilities from "@/services/Functional/Utilities.js";
 import { mapState, mapActions } from "vuex";
 
 export default {
@@ -297,6 +307,7 @@ export default {
     },
   },
   methods: {
+    ...Utilities,
     ...mapActions("sync", ["startLoading"]),
     searchIfEnter(event) {
       /**
