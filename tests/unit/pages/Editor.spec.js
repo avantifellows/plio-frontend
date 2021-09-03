@@ -188,9 +188,9 @@ describe("Editor.vue", () => {
 
     // use `wrapper.vm.__` to access the updated data variables inside the component
     expect(wrapper.vm.loadedPlioDetails.items).toStrictEqual(
-      dummyItemsCopy.data
+      dummyDraftPlio.data.items
     );
-    expect(wrapper.vm.items).toStrictEqual(dummyItemsCopy.data);
+    expect(wrapper.vm.items).toStrictEqual(dummyDraftPlio.data.items);
     expect(wrapper.vm.videoURL).toEqual(dummyDraftPlio.data.video.url);
     expect(wrapper.vm.plioTitle).toEqual(dummyDraftPlio.data.name);
     expect(wrapper.vm.status).toEqual(dummyDraftPlio.data.status);
