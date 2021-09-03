@@ -102,6 +102,8 @@ export default {
     async activeWorkspace() {
       // reset currentPageNumber
       this.currentPageNumber = 1;
+      // reset search string
+      this.resetSearchString();
       if (this.isUserApproved) await this.fetchPlioIds();
     },
     isUserApproved(value) {
@@ -261,7 +263,7 @@ export default {
     },
 
     async prepareTableData(plioIdList) {
-      /*
+      /**
        * prepares the data for the plios to be fed into the table
        */
 

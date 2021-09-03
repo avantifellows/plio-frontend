@@ -204,6 +204,50 @@ describe("Table.vue", () => {
     expect(wrapper.emitted()).toHaveProperty("search-plios");
   });
 
+  it("triggers search on pressing enter when search string non-empty", async () => {
+    const search = jest.spyOn(Table.methods, "search");
+    const wrapper = mount(Table, {
+      props: {
+        data: dummyTableData,
+        columns: tableColumns,
+        numTotal: totalNumberOfPlios,
+      },
+    });
+
+    // enter some search string
+    await wrapper.find('[data-test="searchBar"]').setValue("test");
+
+    // trigger the enter key press
+    await wrapper.find('[data-test="searchBar"]').trigger("keypress", {
+      key: "Enter",
+    });
+
+    expect(search).toHaveBeenCalled();
+    expect(wrapper.emitted()).toHaveProperty("search-plios");
+  });
+
+  it("does not trigger search on pressing enter when search string empty", async () => {
+    const search = jest.spyOn(Table.methods, "search");
+    const wrapper = mount(Table, {
+      props: {
+        data: dummyTableData,
+        columns: tableColumns,
+        numTotal: totalNumberOfPlios,
+      },
+    });
+
+    // trigger the enter key press
+    await wrapper.find('[data-test="searchBar"]').trigger("keypress", {
+      key: "Enter",
+    });
+
+    /**
+     * since we did not set any value for the search string, it would be
+     * empty and hence, the search function should not be called
+     */
+    expect(search).not.toHaveBeenCalled();
+  });
+
   it("selects row on hover", async () => {
     const tableRowHoverOn = jest.spyOn(Table.methods, "tableRowHoverOn");
     const wrapper = mount(Table, {
