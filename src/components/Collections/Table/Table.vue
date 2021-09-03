@@ -21,7 +21,7 @@
           :class="searchInputBoxClass"
           :placeholder="searchPlaceholder"
           v-model="searchString"
-          @keypress="searchIfEnter($event)"
+          @keypress="searchIfEnter"
           type="text"
           autocomplete="off"
           data-test="searchBar"
