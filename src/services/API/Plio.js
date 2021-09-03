@@ -37,10 +37,6 @@ export default {
       // the components
       var plioDetails = {};
       plioDetails.items = items.data;
-      plioDetails.items.forEach((item) => {
-        // convert str to int
-        item.details.correct_answer = parseInt(item.details.correct_answer);
-      });
       plioDetails.videoURL = plio.data.video.url;
       plioDetails.plioTitle = plio.data.name;
       plioDetails.status = plio.data.status;

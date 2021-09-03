@@ -33,13 +33,13 @@
       <ul
         tabindex="-1"
         role="listbox"
-        class="max-h-56 text-base py-2 ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
+        class="max-h-56 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
       >
         <li
           v-for="(option, optionIndex) in options"
           :key="optionIndex"
           role="option"
-          class="text-gray-900 cursor-default hover:bg-primary hover:text-white select-none relative p-2"
+          class="text-gray-900 cursor-default hover:bg-primary hover:cursor-pointer hover:text-white select-none relative p-2"
           @click="setOption(optionIndex)"
           :data-test="`option-${optionIndex}`"
         >

@@ -109,7 +109,7 @@
       ></time-input>
 
       <!-- input field for entering options  -->
-      <div v-if="isQuestionTypeMCQ" data-test="options">
+      <div v-if="areOptionsVisible" data-test="options">
         <input-text
           v-for="(option, optionIndex) in options"
           class="p-2"
@@ -120,13 +120,13 @@
           :startIcon="getCorrectOptionIconConfig(optionIndex)"
           :endIcon="getDeleteOptionIconConfig"
           :boxStyling="getOptionBoxStyling(optionIndex)"
-          @start-icon-selected="updateCorrectOption(optionIndex)"
+          @start-icon-selected="updateCorrectAnswer(optionIndex)"
           @end-icon-selected="deleteOption(optionIndex)"
           data-test="option"
         ></input-text>
       </div>
       <!-- add option button -->
-      <div class="flex justify-end mr-2 mt-2" v-if="isQuestionTypeMCQ">
+      <div class="flex justify-end mr-2 mt-2" v-if="areOptionsVisible">
         <icon-button
           :titleConfig="addOptionButtonTitleConfig"
           class="float-right"
@@ -254,6 +254,11 @@ export default {
           label: this.$t("generic.subjective"),
           icon: "subjective-question.svg",
         },
+        {
+          value: "checkbox",
+          label: this.$t("generic.checkbox"),
+          icon: "checkbox.svg",
+        },
       ],
       isQuestionDropdownShown: false, // whether the question type dropdown is shown
       questionTextboxHeightLimit: 200, // maximum allowed height of the question text box in px
@@ -267,6 +272,8 @@ export default {
         iconClass:
           "w-6 h-6 text-primary group-hover:text-white group-disabled:text-primary",
       },
+      // set containing the question types in which options are present
+      questionTypesWithOptions: new Set(["mcq", "checkbox"]),
     };
   },
 
@@ -393,8 +400,10 @@ export default {
       return this.$t("tooltip.editor.item_editor.correct_option.unmarked");
     },
     isOptionMarkedCorrect(optionIndex) {
-      // whether the given option index is the right option
-      return optionIndex == this.correctOptionIndex;
+      // whether the given option index is marked as a correct option
+      if (this.isQuestionTypeMCQ) return optionIndex == this.correctAnswer;
+      if (this.isQuestionTypeCheckbox) return this.correctAnswer.has(optionIndex);
+      return false;
     },
     getOptionBoxStyling(optionIndex) {
       // returns the styling for the option box for the given index
@@ -447,16 +456,43 @@ export default {
       // will be listened by Editor.vue
       this.$emit("delete-selected-item");
     },
-    updateCorrectOption(selectedOptionIndex) {
+    updateCorrectAnswer(selectedOptionIndex) {
       // when some option is selected as correct, update it in the
       // item list
-      this.localItemList[
-        this.localSelectedItemIndex
-      ].details.correct_answer = selectedOptionIndex;
+      if (this.isQuestionTypeMCQ) {
+        // for mcq, simply update the correct answer to the given index
+        this.localItemList[
+          this.localSelectedItemIndex
+        ].details.correct_answer = selectedOptionIndex;
+      } else if (this.isQuestionTypeCheckbox) {
+        console.log("here");
+        /*
+         * for checkbox question, if the selected index was previously marked
+         * as a correct option, unmark it. otherwise, mark it as a correct option
+         */
+        if (this.correctAnswer.has(selectedOptionIndex)) {
+          this.localItemList[this.localSelectedItemIndex].details.correct_answer.delete(
+            selectedOptionIndex
+          );
+        } else {
+          this.localItemList[this.localSelectedItemIndex].details.correct_answer.add(
+            selectedOptionIndex
+          );
+        }
+        console.log(this.cor);
+      }
     },
   },
 
   computed: {
+    isQuestionTypeMCQ() {
+      // is the current item a mcq question
+      return this.questionType == "mcq";
+    },
+    isQuestionTypeCheckbox() {
+      // is the current item a checkbox question
+      return this.questionType == "checkbox";
+    },
     addImageButtonTitleConfig() {
       // title config for the add image button
       return {
@@ -499,9 +535,9 @@ export default {
       // type of the question being created
       return this.questionTypes[this.localQuestionTypeIndex]["value"];
     },
-    isQuestionTypeMCQ() {
-      // whether the type of the question being created is mcq
-      return this.questionType == "mcq";
+    areOptionsVisible() {
+      // whether options need to be shown
+      return this.questionTypesWithOptions.has(this.questionType);
     },
     isQuestionTypeSubjective() {
       // whether the type of the question being created is subjective
@@ -587,10 +623,16 @@ export default {
         class: "p-4 text-white rounded-md font-bold",
       };
     },
+    isDeleteOptionEnabled() {
+      /** whether options can be deleted
+       *  not allowed if only 2 options are remaining
+       */
+      return this.options.length > 2;
+    },
     getDeleteOptionIconConfig() {
       // config for the delete option icon
       return {
-        enabled: true,
+        enabled: this.isDeleteOptionEnabled,
         name: "delete",
         class: "bg-red-500 cursor-pointer w-8 h-8 hover:bg-red-700 rounded-md",
         tooltip: this.isInteractionDisabled
@@ -702,9 +744,12 @@ export default {
         return this.localItemList[this.localSelectedItemIndex].details.options;
       },
     },
-    correctOptionIndex() {
+    correctAnswer() {
       // get the index of the correct answer in the list of options
-      return this.localItemList[this.localSelectedItemIndex].details.correct_answer;
+      let rawCorrectAnswer = this.localItemList[this.localSelectedItemIndex].details
+        .correct_answer;
+      if (this.isQuestionTypeCheckbox) return new Set(rawCorrectAnswer);
+      return rawCorrectAnswer;
     },
     isAnyError() {
       // returns if any error is present after checking individual error

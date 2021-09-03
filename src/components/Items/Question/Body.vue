@@ -25,7 +25,7 @@
         />
       </div>
       <!-- option container -->
-      <div v-if="isQuestionTypeMCQ" class="flex w-full" data-test="optionContainer">
+      <div v-if="areOptionsVisible" class="flex w-full" data-test="optionContainer">
         <ul class="w-full">
           <li class="list-none space-y-1 flex flex-col">
             <div
@@ -103,6 +103,8 @@ export default {
     return {
       subjectiveAnswer: "", // holds the answer to the subjective question
       subjectiveBoxHeightLimit: 250, // maximum allowed height of the subjective answer text box in px
+      // set containing the question types in which options are present
+      questionTypesWithOptions: new Set(["mcq", "checkbox"]),
     };
   },
   watch: {
@@ -315,9 +317,9 @@ export default {
       }
       return this.draftAnswer;
     },
-    isQuestionTypeMCQ() {
-      // whether the question type is mcq
-      return this.questionType == "mcq";
+    areOptionsVisible() {
+      // whether options need to be shown
+      return this.questionTypesWithOptions.has(this.questionType);
     },
     isQuestionTypeSubjective() {
       // whether the question type is mcq

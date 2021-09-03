@@ -229,7 +229,7 @@
         >
           <!-- boxes for adding different types of items -->
           <div
-            class="bg-peach rounded-lg p-4 xsm:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
+            class="bg-peach rounded-lg p-4 lg:p-8 w-full flex flex-col items-center shadow-lg"
             :class="itemPickerClass"
             v-if="currentItemIndex == null"
           >
@@ -239,38 +239,59 @@
                 class="animate-spin h-5 bp-500:h-6 md:h-8 lg:h-10 object-scale-down"
               ></inline-svg>
             </div>
-            <div class="flex flex-col items-center" v-else>
-              <p class="text-yellow-900 text-xl font-bold">
+            <div class="flex flex-col items-center w-full" v-else>
+              <!-- add new question text -->
+              <p class="text-yellow-900 test-base lg:text-xl font-bold">
                 {{ $t("editor.headings.add_question") }}
               </p>
-              <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
+              <div class="grid grid-cols-3 mt-6 w-full justify-items-center">
+                <!-- choose mcq question -->
                 <button
                   :disabled="addItemDisabled"
                   @click="addNewItem('mcq')"
-                  class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                   :class="questionTypeSelectorClass"
                   v-tooltip.bottom="addMCQTooltip"
                   data-test="addMCQItem"
                 >
                   <inline-svg
                     :src="getIconSource('radio-button.svg')"
-                    class="h-4 w-4 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                    class="w-4 h-8 fill-current text-primary group-hover:text-white group-disabled:text-primary"
                   ></inline-svg>
-                  <p class="font-bold text-center">{{ $t("generic.mcq") }}</p>
+                  <p :class="questionTypeHeadingClass">
+                    {{ $t("generic.mcq") }}
+                  </p>
                 </button>
+
+                <!-- choose subjective question -->
                 <button
                   :disabled="addItemDisabled"
                   @click="addNewItem('subjective')"
-                  class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                   :class="questionTypeSelectorClass"
                   v-tooltip.bottom="addSubjectiveQuestionTooltip"
                   data-test="addSubjectiveItem"
                 >
                   <inline-svg
                     :src="getIconSource('subjective-question.svg')"
-                    class="w-20 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                    class="w-12 bp-420:w-16 h-8 pb-2 fill-current text-primary group-hover:text-white group-disabled:text-primary"
                   ></inline-svg>
-                  <p class="font-bold text-center">{{ $t("generic.subjective") }}</p>
+                  <p :class="questionTypeHeadingClass">
+                    {{ $t("generic.subjective") }}
+                  </p>
+                </button>
+
+                <!-- choose checkbox question -->
+                <button
+                  :disabled="addItemDisabled"
+                  @click="addNewItem('checkbox')"
+                  :class="questionTypeSelectorClass"
+                  v-tooltip.bottom="addCheckboxQuestionTooltip"
+                  data-test="addCheckboxQuestionItem"
+                >
+                  <inline-svg
+                    :src="getIconSource('checkbox.svg')"
+                    class="w-10 h-8 pb-2 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                  ></inline-svg>
+                  <p :class="questionTypeHeadingClass">{{ $t("generic.checkbox") }}</p>
                 </button>
               </div>
             </div>
@@ -477,6 +498,7 @@ export default {
       questionTypeToIndex: {
         mcq: 0,
         subjective: 1,
+        checkbox: 2,
       },
       isModalMinimized: false, // whether the preview modal is minimized or not
       // styling class for the minimize button
@@ -530,6 +552,9 @@ export default {
       },
       // class for the button to close the dialog that comes after publishing
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
+      // class for the heading of each question type
+      questionTypeHeadingClass:
+        "font-bold text-center text-xs bp-420:text-sm lg:test-base",
     };
   },
   async created() {
@@ -611,9 +636,12 @@ export default {
     },
     questionTypeSelectorClass() {
       // class for the question type selectors
-      return {
-        "hover:bg-primary hover:text-white hover:border-primary": !this.addItemDisabled,
-      };
+      return [
+        {
+          "hover:bg-primary hover:text-white hover:border-primary": !this.addItemDisabled,
+        },
+        `w-11/12 group flex flex-col bp-420:space-y-2 focus:outline-none bg-white p-2 bp-420:p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed`,
+      ];
     },
     maximizeButtonTitleClass() {
       // styling class for the title of minimize button
@@ -864,6 +892,10 @@ export default {
     addSubjectiveQuestionTooltip() {
       // tooltip for the subjective question
       return this.$t("tooltip.editor.add_item.subjective");
+    },
+    addCheckboxQuestionTooltip() {
+      // tooltip for the checkbox question
+      return this.$t("tooltip.editor.add_item.checkbox");
     },
     videoLinkInputStyling() {
       // styling classes for the video link input box
@@ -1222,28 +1254,6 @@ export default {
       // show the dialogue
       this.showDialogBox = true;
     },
-    showCannotDeleteOptionDialog() {
-      // set up the dialog properties when user tries to delete an option
-      // for a question with only 2 options
-      this.dialogTitle = this.$t("editor.dialog.cannot_delete_option.title");
-      this.dialogDescription = this.$t("editor.dialog.cannot_delete_option.description");
-      this.dialogConfirmButtonConfig = {
-        enabled: true,
-        text: this.$t("generic.got_it"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
-      };
-      this.dialogCancelButtonConfig = {
-        enabled: false,
-        text: "",
-        class: "",
-      };
-
-      // carry out the closeDialog action when dialog is closed
-      this.dialogAction = "closeDialog";
-      // show the dialogue
-      this.showDialogBox = true;
-    },
     confirmPublish() {
       this.showDialogBox = true;
       this.dialogTitle = this.publishInProgressDialogTitle;
@@ -1261,13 +1271,10 @@ export default {
       this.publishPlio();
     },
     confirmDeleteOption() {
-      // invoked when the confirm button of the dialog box for deleting option is clicked
-      // there should always be at least 2 options, allow deletion only
-      // if the number of options is >= 3
-      if (this.items[this.currentItemIndex].details.options.length < 3) {
-        this.showCannotDeleteOptionDialog();
-        return;
-      }
+      /*
+       * invoked when the confirm button of the dialog box for
+       * deleting option is clicked
+       */
 
       // delete the option
       this.items[this.currentItemIndex].details.options.splice(
@@ -1296,7 +1303,12 @@ export default {
     getDetailsForNewQuestion(questionType) {
       // barebones question structure
       var details = {};
-      details["correct_answer"] = 0;
+
+      if (questionType == "mcq") {
+        details["correct_answer"] = 0;
+      } else if (questionType == "checkbox") {
+        details["correct_answer"] = [0];
+      }
       details["text"] = "";
       details["type"] = questionType;
       details["options"] = ["", ""];

@@ -304,6 +304,7 @@ export default {
     },
     mcq: "Multiple Choice",
     subjective: "Subjective",
+    checkbox: "Checkbox",
     submitted: "Submitted",
     dialogs: {
       share: {
@@ -339,6 +340,7 @@ export default {
         published: "You cannot add new questions in a published plio",
         mcq: "Click here to add a multiple-choice question",
         subjective: "Click here to add a subjective question",
+        checkbox: "Click here to add a checkbox question",
       },
       item_editor: {
         buttons: {

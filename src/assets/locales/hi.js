@@ -305,6 +305,7 @@ export default {
     },
     mcq: "बहुविकल्पी",
     subjective: "विस्तृत",
+    checkbox: "Checkbox",
     submitted: "निवेदन हो गया",
     dialogs: {
       share: {
@@ -341,6 +342,7 @@ export default {
         published: "आप एक प्रकाशित प्लायो में नए प्रश्न नहीं जोड़ सकते",
         mcq: "बहुविकल्पीय प्रश्न जोड़ने के लिए यहां क्लिक करें",
         subjective: "विस्तृत प्रश्न जोड़ने के लिए यहां क्लिक करें",
+        checkbox: "विस्तृत प्रश्न जोड़ने के लिए यहां क्लिक करें",
       },
       item_editor: {
         buttons: {
