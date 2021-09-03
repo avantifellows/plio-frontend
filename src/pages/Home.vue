@@ -214,8 +214,10 @@ export default {
           // to handle the case when the user lands on the homepage for the first time
           // if no plios exist, then hide the table else show it
           if (params == undefined) {
-            if (response.data.count <= 0) this.showTable = false;
-            else this.showTable = true;
+            if (response.data.count <= 0) {
+              this.showTable = false;
+              this.stopLoading();
+            } else this.showTable = true;
           }
           this.totalNumberOfPlios = response.data.count; // set total number of plios and show the paginator
           this.numberOfPliosPerPage = response.data.page_size; // set the page size
