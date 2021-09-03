@@ -165,17 +165,21 @@
     <!-- no search results warning -->
     <div
       v-if="isSearchStringPresent && isTableEmpty"
+      data-test="noPliosWarning"
       class="flex flex-col justify-center items-center py-12 space-y-2"
     >
+      <!-- icon -->
       <inline-svg
         :src="getIconSource('exclamation-circle-solid.svg')"
         class="h-8 sm:h-12"
       ></inline-svg>
+      <!-- heading -->
       <p class="text-center font-bold text-base sm:text-xl">
         {{ $t("home.table.search.no_plios_found.title.1") }}
         "{{ searchString }}"
         {{ $t("home.table.search.no_plios_found.title.2") }}
       </p>
+      <!-- sub-heading -->
       <p class="text-center text-sm sm:text-base w-full bp-500:w-3/4 md:w-1/2 xl:w-1/3">
         {{ $t("home.table.search.no_plios_found.description") }}
       </p>
