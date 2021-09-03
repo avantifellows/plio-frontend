@@ -5,6 +5,7 @@
       @change="updateActiveWorkspace"
       data-test="select"
       class="rounded-md border-gray-400 focus:outline-none focus:border-gray-400 focus:ring-0"
+      :disabled="isDisabled"
     >
       <option value="">Personal Workspace</option>
       <option
@@ -27,6 +28,13 @@ export default {
     ...mapState("auth", ["activeWorkspace", "user"]),
     workspaces() {
       return this.user ? this.user.organizations : [];
+    },
+  },
+  props: {
+    isDisabled: {
+      // whether the switcher should be disabled
+      type: Boolean,
+      default: false,
     },
   },
   data() {

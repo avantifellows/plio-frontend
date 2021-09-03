@@ -21,7 +21,10 @@
 
         <!-- workspace switcher -->
         <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
-          <WorkspaceSwitcher class="flex justify-center"></WorkspaceSwitcher>
+          <WorkspaceSwitcher
+            class="flex justify-center"
+            :isDisabled="pending"
+          ></WorkspaceSwitcher>
         </div>
 
         <!-- page heading -->
