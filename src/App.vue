@@ -2,7 +2,7 @@
   <div class="flex relative">
     <div
       class="w-full"
-      :class="{ 'opacity-20 pointer-events-none': coverBackground }"
+      :class="{ 'opacity-20 pointer-events-none': isBackgroundDisabledLocal }"
       @keydown="keyboardPressed"
     >
       <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
@@ -378,10 +378,12 @@ export default {
       this.showLanguagePickerDialog = false;
     },
     keyboardPressed() {
-      // triggered when any keyboard button is pressed
+      /*
+       * triggered when any keyboard button is pressed
+       */
 
-      // prevent keyboard buttons from working if coverBackground = true
-      if (this.coverBackground) event.preventDefault();
+      // prevent keyboard buttons from working if isBackgroundDisabledLocal = true
+      if (this.isBackgroundDisabledLocal) event.preventDefault();
     },
   },
   computed: {
@@ -453,8 +455,8 @@ export default {
       }
       return pageName;
     },
-    coverBackground() {
-      // whether to apply opacity on the background
+    isBackgroundDisabledLocal() {
+      // whether the background should be disabled
       return (
         this.showLanguagePickerDialog ||
         this.isSharePlioDialogShown ||
