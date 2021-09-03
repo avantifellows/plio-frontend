@@ -19,9 +19,10 @@
         <!-- search bar input -->
         <input
           :class="searchInputBoxClass"
-          type="text"
           :placeholder="searchPlaceholder"
           v-model="searchString"
+          @keypress="searchIfEnter"
+          type="text"
           autocomplete="off"
           data-test="searchBar"
         />
@@ -30,7 +31,7 @@
         <inline-svg
           v-if="isSearchStringPresent"
           :src="require('@/assets/images/times-light.svg')"
-          class="w-10 hover:stroke-2"
+          class="w-10 hover:stroke-2 mx-2 hover:cursor-pointer"
           @click="resetSearchString"
           data-test="resetSearch"
         ></inline-svg>
@@ -123,11 +124,16 @@
                     </div>
                     <!-- column content -->
                     <div class="flex w-full">
-                      <div v-if="isComponent(entry[columnName])" class="w-full">
+                      <div
+                        v-if="isComponent(entry[columnName])"
+                        class="w-full"
+                        data-test="plioListItem"
+                      >
                         <PlioListItem
                           :plioId="entry[columnName].value"
-                          :showActionsByDefault="!rowIndex"
                           @fetched="savePlioDetails(rowIndex, $event)"
+                          @deleted="deletePlio"
+                          :key="entry[columnName].value"
                         >
                         </PlioListItem>
                       </div>
@@ -208,12 +214,13 @@ export default {
         "flex flex-row space-x-2 text-base sm:text-lg md:text-xl xl:text-2xl font-bold p-2 items-center",
       // classes for the search bar container
       searchContainerClass:
-        "bg-white rounded-md flex shadow-md border border-grey-light w-full xsm:w-2/3 sm:w-2/3 md:w-1/3 float-right mb-2 mt-2",
+        "bg-white rounded-md flex shadow-md border focus:outline-none border-grey-light w-full xsm:w-2/3 sm:w-2/3 md:w-1/3 float-right mb-2 mt-2",
       // classes for search bar input box
       searchInputBoxClass:
-        "w-full text-gray-700 leading-tight p-2 pl-4 focus:outline-none",
+        "w-full rounded-md text-gray-700 leading-tight p-2 pl-4 focus:outline-none focus:ring-0 border-none",
       // sort order for the "number of viewers" column. 1 - ascending, -1 - descending
       numViewersSortOrder: 1,
+      numPliosLoaded: 0, // number of plios which have completed loading
     };
   },
 
@@ -222,14 +229,24 @@ export default {
   },
 
   watch: {
+    activeWorkspace() {
+      // reset search string
+      this.resetSearchString();
+    },
     searchString(value) {
       // emit a message whenever the search string becomes empty
       if (value == "") this.$emit("reset-search-string");
+    },
+    data() {
+      // whenever the data changes, reset the number of plios which
+      // have completed loading
+      this.numPliosLoaded = 0;
     },
   },
 
   computed: {
     ...mapState("sync", ["pending"]),
+    ...mapState("auth", ["activeWorkspace"]),
     isTouchDevice() {
       // detects if the user's device has a touchscreen or not
       return window.matchMedia("(any-pointer: coarse)").matches;
@@ -281,9 +298,22 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startLoading"]),
+    searchIfEnter(event) {
+      /**
+       * detect if enter has been pressed after entering
+       * a text to search
+       */
+      // check if the key pressed is the enter key
+      if (event.key === "Enter" || event.keyCode === 13) {
+        /**
+         * event.key is the modern way of detecting keys
+         * event.keyCode is deprecated (left here for for legacy browsers support)
+         */
+        if (this.searchString.trim() != "") this.search();
+      }
+    },
     resetSearchString() {
-      // starts loading and resets the search string
-      this.startLoading();
+      // resets the search string
       this.searchString = "";
     },
     analysePlio(rowIndex) {
@@ -345,8 +375,12 @@ export default {
       return value.type == "component";
     },
     sortBy(columnName) {
-      // toggle the sort order for "number_of_viewers" column
-      // and emit it to the parent
+      /**
+       * toggle the sort order for "number_of_viewers" column
+       * and emit it to the parent
+       */
+      // do not perform any action if no rows are present
+      if (!this.localData.length) return;
       if (columnName == "number_of_viewers") {
         this.numViewersSortOrder = this.numViewersSortOrder * -1;
         this.$emit(
@@ -354,6 +388,10 @@ export default {
           this.numViewersSortOrder == -1 ? "-unique_viewers" : "unique_viewers"
         );
       }
+    },
+    deletePlio() {
+      // invoked when a plio is deleted
+      this.$emit("delete-plio");
     },
     savePlioDetails(rowIndex, plioDetails) {
       // save the plio's status after they are fetched from the PlioListItem
@@ -365,6 +403,14 @@ export default {
           ...this.localData[rowIndex]["name"],
           ...plioDetails,
         };
+      }
+
+      // increment the number of plios which have been loaded
+      this.numPliosLoaded += 1;
+
+      // if all the plios in the table have been loaded, emit
+      if (this.numPliosLoaded == this.localData.length) {
+        this.$emit("loaded");
       }
     },
     getColumnHeaderStyleClass(columnIndex) {
@@ -387,6 +433,12 @@ export default {
     },
   },
 
-  emits: ["search-plios", "reset-search-string", "sort-num-viewers"],
+  emits: [
+    "search-plios",
+    "reset-search-string",
+    "sort-num-viewers",
+    "delete-plio",
+    "loaded",
+  ],
 };
 </script>

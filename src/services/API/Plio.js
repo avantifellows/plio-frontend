@@ -112,6 +112,11 @@ export default {
     return apiClient().post(pliosEndpoint + plioId + duplicateEndpoint);
   },
 
+  deletePlio(plioId) {
+    // deletes the plio associated with the given plioId
+    return apiClient().delete(pliosEndpoint + plioId);
+  },
+
   getPlioDataDump(plioId) {
     // get the data dump for the plio
     return apiClient().get(pliosEndpoint + plioId + plioDataDumpEndpoint, {
