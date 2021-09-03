@@ -19,9 +19,10 @@
         <!-- search bar input -->
         <input
           :class="searchInputBoxClass"
-          type="text"
           :placeholder="searchPlaceholder"
           v-model="searchString"
+          @keypress="searchIfEnter"
+          type="text"
           autocomplete="off"
           data-test="searchBar"
         />
@@ -228,6 +229,10 @@ export default {
   },
 
   watch: {
+    activeWorkspace() {
+      // reset search string
+      this.resetSearchString();
+    },
     searchString(value) {
       // emit a message whenever the search string becomes empty
       if (value == "") this.$emit("reset-search-string");
@@ -241,6 +246,7 @@ export default {
 
   computed: {
     ...mapState("sync", ["pending"]),
+    ...mapState("auth", ["activeWorkspace"]),
     isTouchDevice() {
       // detects if the user's device has a touchscreen or not
       return window.matchMedia("(any-pointer: coarse)").matches;
@@ -292,6 +298,20 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startLoading"]),
+    searchIfEnter(event) {
+      /**
+       * detect if enter has been pressed after entering
+       * a text to search
+       */
+      // check if the key pressed is the enter key
+      if (event.key === "Enter" || event.keyCode === 13) {
+        /**
+         * event.key is the modern way of detecting keys
+         * event.keyCode is deprecated (left here for for legacy browsers support)
+         */
+        if (this.searchString.trim() != "") this.search();
+      }
+    },
     resetSearchString() {
       // resets the search string
       this.searchString = "";
@@ -355,7 +375,7 @@ export default {
       return value.type == "component";
     },
     sortBy(columnName) {
-      /*
+      /**
        * toggle the sort order for "number_of_viewers" column
        * and emit it to the parent
        */
