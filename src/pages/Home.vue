@@ -214,6 +214,7 @@ export default {
           // to handle the case when the user lands on the homepage for the first time
           // if no plios exist, then hide the table else show it
           if (params == undefined) {
+            console.log(response);
             if (response.data.count <= 0) {
               this.showTable = false;
               this.stopLoading();
@@ -259,6 +260,16 @@ export default {
     },
 
     async prepareTableData(plioIdList) {
+      /*
+       * prepares the data for the plios to be fed into the table
+       */
+
+      if (!plioIdList.length) {
+        // no plios found
+        this.stopLoading();
+        this.tableData = [];
+      }
+
       // holds the data to be fed to the table
       var tableData = [];
 
