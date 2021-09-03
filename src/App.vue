@@ -2,7 +2,7 @@
   <div class="flex relative">
     <div
       class="w-full"
-      :class="{ 'opacity-20 pointer-events-none': coverBackground }"
+      :class="{ 'opacity-20 pointer-events-none': isBackgroundDisabledLocal }"
       @keydown="keyboardPressed"
     >
       <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
@@ -138,7 +138,7 @@ export default {
     // reset the value of pending while creating the component
     if (this.pending) this.stopLoading();
     // reset the value of whether background is disabled
-    if (this.isBackgroundDisabled) this.enableBackground()
+    if (this.isBackgroundDisabled) this.enableBackground();
     // place a listener for the event of closing of the browser
     window.addEventListener("beforeunload", this.onClose);
     if (this.isAuthenticated) {
@@ -375,10 +375,12 @@ export default {
       this.showLanguagePickerDialog = false;
     },
     keyboardPressed() {
-      // triggered when any keyboard button is pressed
+      /*
+       * triggered when any keyboard button is pressed
+       */
 
-      // prevent keyboard buttons from working if coverBackground = true
-      if (this.coverBackground) event.preventDefault();
+      // prevent keyboard buttons from working if isBackgroundDisabledLocal = true
+      if (this.isBackgroundDisabledLocal) event.preventDefault();
     },
   },
   computed: {
@@ -389,7 +391,11 @@ export default {
       "locale",
     ]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
-    ...mapState("generic", ["isSharePlioDialogShown", "plioLinkToShare", "isBackgroundDisabled"]),
+    ...mapState("generic", [
+      "isSharePlioDialogShown",
+      "plioLinkToShare",
+      "isBackgroundDisabled",
+    ]),
     ...mapState("sync", ["pending"]),
     currentRoute() {
       return this.$route.path;
@@ -446,9 +452,13 @@ export default {
       }
       return pageName;
     },
-    coverBackground() {
-      // whether to apply opacity on the background
-      return this.showLanguagePickerDialog || this.isSharePlioDialogShown || this.isBackgroundDisabled;
+    isBackgroundDisabledLocal() {
+      // whether the background should be disabled
+      return (
+        this.showLanguagePickerDialog ||
+        this.isSharePlioDialogShown ||
+        this.isBackgroundDisabled
+      );
     },
     allWorkspaces() {
       // list of shortcodes of all workspaces that the user is a part of
