@@ -178,9 +178,12 @@
             ></inline-svg>
             <p class="text-white text-xs bp-500:text-base md:text-sm lg:text-base">
               {{ $t("editor.video_input.info.1") }}
-              <a href="https://youtube.com/upload" class="underline font-bold">{{
-                $t("editor.video_input.info.2")
-              }}</a>
+              <a
+                href="https://youtube.com/upload"
+                target="_blank"
+                class="underline font-bold"
+                >{{ $t("editor.video_input.info.2") }}</a
+              >
               {{ $t("editor.video_input.info.3") }}
             </p>
           </div>
