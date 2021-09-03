@@ -140,9 +140,11 @@ export default {
     ...mapState("plioItems", ["allPlioDetails"]),
 
     dialogStyle() {
-      // dynamic style for the dialog box
-      // these styles were not available as part of tailwind
-      // seemed too specific to add them to the config
+      /*
+       * dynamic style for the dialog box
+       * these styles were not available as part of tailwind
+       * seemed too specific to add them to the config
+       */
       if (this.windowWidth > 420) return "";
       if (this.windowWidth > 400) return "left: 20%";
       if (this.windowWidth > 340) return "left: 15%";
@@ -282,23 +284,22 @@ export default {
           break;
         case "delete":
           // configure the dialog box
-          if (!this.dialogTitle) {
-            this.dialogTitle = this.$t("home.table.plio_list_item.dialog.delete.title");
-            this.dialogDescription = this.$t(
-              "home.table.plio_list_item.dialog.delete.description"
-            );
-            this.dialogConfirmButtonConfig = {
-              enabled: true,
-              text: this.$t("generic.yes"),
-              class:
-                "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
-            };
-            this.dialogCancelButtonConfig = {
-              enabled: true,
-              text: this.$t("generic.no"),
-              class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
-            };
-          }
+          this.dialogTitle = this.$t("home.table.plio_list_item.dialog.delete.title");
+          this.dialogDescription = this.$t(
+            "home.table.plio_list_item.dialog.delete.description"
+          );
+          this.dialogConfirmButtonConfig = {
+            enabled: true,
+            text: this.$t("generic.yes"),
+            class:
+              "bg-white hover:bg-gray-100 focus:outline-none focus:ring-0 text-primary",
+          };
+          this.dialogCancelButtonConfig = {
+            enabled: true,
+            text: this.$t("generic.no"),
+            class:
+              "bg-primary-button hover:bg-primary-button-hover focus:outline-none text-white",
+          };
           // show the dialog box
           this.showDialogBox = true;
           break;
