@@ -5,7 +5,7 @@
     <div v-else class="flex relative shadow-lg">
       <!-- fullscreen button overlay -->
       <div
-        v-if="showItemModal && !isFullscreen"
+        v-if="(showItemModal || showScorecard) && !isFullscreen"
         class="z-50 absolute bp-500:hidden w-full h-full bg-transparent"
       >
         <div class="opacity-90 w-full h-full absolute bg-white"></div>
@@ -77,6 +77,7 @@
         :showScorecard="showScorecard"
         :plioTitle="plioTitle"
         :greeting="$t('player.scorecard.greeting')"
+        :isPortrait="isPortrait"
         @watch-again="watchAgain"
         ref="scorecard"
       ></Scorecard>
@@ -254,6 +255,7 @@ export default {
       numOfSkipped: 0, // number of skipped questions
       showScorecard: false, // to show the scorecard or not
       plioTitle: "", // title of the plio
+      isPortrait: false,
     };
   },
   watch: {
@@ -691,6 +693,9 @@ export default {
     setScreenProperties() {
       // sets various properties based on the device screen
       this.playerHeight = document.getElementById("videoPlayer").clientHeight;
+
+      if (screen.availHeight > 1.5 * screen.availWidth) this.isPortrait = true;
+      else this.isPortrait = false;
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL

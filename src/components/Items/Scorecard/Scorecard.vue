@@ -114,6 +114,10 @@ export default {
       default: "",
       type: String,
     },
+    isPortrait: {
+      default: false,
+      type: Boolean,
+    },
   },
   data() {
     return {
@@ -162,20 +166,24 @@ export default {
     circularProgressRadius() {
       // reactively control the radius of the circular progress bar
       // according to the screen width
-      if (this.innerWidth >= 1200) return 150;
-      else if (this.innerWidth < 1200 && this.innerWidth >= 1024) return 120;
-      else if (this.innerWidth < 1024 && this.innerWidth >= 768) return 100;
-      else if (this.innerWidth < 768 && this.innerWidth >= 640) return 80;
-      return 50;
+      if (!this.isPortrait) {
+        if (this.innerWidth >= 1200) return 150;
+        else if (this.innerWidth < 1200 && this.innerWidth >= 1024) return 120;
+        else if (this.innerWidth < 1024 && this.innerWidth >= 768) return 100;
+        else if (this.innerWidth < 768 && this.innerWidth >= 640) return 80;
+        return 50;
+      } else return 100;
     },
     circularProgressStroke() {
       // reactively control the stroke of the circular progress bar
       // according to the screen width
-      if (this.innerWidth >= 1200) return 20;
-      else if (this.innerWidth < 1200 && this.innerWidth >= 1024) return 18;
-      else if (this.innerWidth < 1024 && this.innerWidth >= 768) return 15;
-      else if (this.innerWidth < 768 && this.innerWidth >= 640) return 12;
-      return 8;
+      if (!this.isPortrait) {
+        if (this.innerWidth >= 1200) return 20;
+        else if (this.innerWidth < 1200 && this.innerWidth >= 1024) return 18;
+        else if (this.innerWidth < 1024 && this.innerWidth >= 768) return 15;
+        else if (this.innerWidth < 768 && this.innerWidth >= 640) return 12;
+        return 8;
+      } else return 15;
     },
     watchAgainButtonTitleConfig() {
       // config for the text of the watch again button
