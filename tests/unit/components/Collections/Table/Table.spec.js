@@ -3,10 +3,7 @@ import Table from "@/components/Collections/Table/Table";
 import { setMatchMedia } from "@/services/Testing/Utilities";
 import store from "@/store";
 import mockAxios from "jest-mock-axios";
-import {
-  dummyPublishedPlio,
-  dummyItems,
-} from "@/services/Testing/DummyData.js";
+import { dummyPublishedPlio } from "@/services/Testing/DummyData.js";
 
 var dummyTableData = [
   {
@@ -310,8 +307,6 @@ describe("Table.vue", () => {
     // using the fake response data
     mockAxios.mockResponse(dummyPublishedPlio, mockAxios.queue()[0]);
     mockAxios.mockResponse(dummyPublishedPlio, mockAxios.queue()[1]);
-    mockAxios.mockResponse(dummyItems, mockAxios.queue()[2]);
-    mockAxios.mockResponse(dummyItems, mockAxios.queue()[3]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();

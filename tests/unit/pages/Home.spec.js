@@ -6,6 +6,7 @@ import store from "@/store";
 import mockAxios from "jest-mock-axios";
 import {
   dummyUser,
+  dummyPublishedPlio,
   dummyEmptyPlioList,
   dummyPlioList,
   dummyUniqueUserCountList,
@@ -369,13 +370,7 @@ describe("Home.vue", () => {
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
-    mockAxios.mockResponse(
-      {
-        access_token: "",
-        expires_in: "",
-      },
-      mockAxios.queue()[0]
-    );
+    mockAxios.mockResponse(dummyPublishedPlio, mockAxios.queue()[0]);
 
     await flushPromises();
 
