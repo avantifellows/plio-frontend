@@ -2,8 +2,15 @@
   <div class="flex flex-col bg-peach w-full h-full overflow-hidden">
     <div class="flex justify-center w-2/3 mx-auto my-auto h-full py-8">
       <div class="flex flex-col justify-center" id="">
-        <!-- scorecard title -->
-        <div class="text-center text-2xl font-extrabold">{{ title }}</div>
+        <!-- scorecard greeting -->
+        <div class="text-center text-base md:text-xl lg:text-2xl font-extrabold">
+          {{ plioTitle }}
+        </div>
+
+        <!-- scorecard greeting -->
+        <div class="text-center text-sm md:text-lg lg:text-xl font-extrabold">
+          {{ greeting }}
+        </div>
 
         <!-- canvas element for drawing the confetti -->
         <canvas id="confetticanvas" class="fixed z-50"></canvas>
@@ -11,10 +18,11 @@
         <!-- circular progress bar -->
         <CircularProgress
           class="relative mx-auto"
-          :radius="130"
+          :radius="circularProgressRadius"
           :progress="localProgressPercentage"
-          :stroke="20"
+          :stroke="circularProgressStroke"
           :progressNumberIndicator="progressNumberIndicator"
+          :key="reRenderKey"
         >
         </CircularProgress>
 
@@ -22,18 +30,22 @@
         <div class="flex flex-row justify-between gap-4">
           <div
             v-for="metric in metrics"
-            class="w-full rounded-2xl bg-pastel-yellow grid grid-rows-3 border-2"
+            class="w-full rounded-2xl bg-pastel-yellow grid grid-rows-2 lg:grid-rows-3 border-2"
             :key="metric"
           >
-            <div class="row-span-2 w-full h-full flex flex-row justify-center">
+            <div class="lg:row-span-2 w-full h-full flex flex-row justify-center gap-3">
               <inline-svg
                 :src="getIconSource(metric.icon.source)"
-                class="h-10 w-10 place-self-center"
+                class="h-4 md:h-6 lg:h-10 w-4 md:w-6 lg:w-10 place-self-center"
                 :class="metric.icon.color"
               ></inline-svg>
-              <p class="text-4xl font-bold my-auto">{{ metric.value }}</p>
+              <p class="text-base md:text-2xl lg:text-4xl font-bold my-auto">
+                {{ metric.value }}
+              </p>
             </div>
-            <div class="text-center text-xl font-medium">{{ metric.description }}</div>
+            <div class="text-center text-sm md:text-base lg:text-xl font-medium">
+              {{ metric.description }}
+            </div>
           </div>
         </div>
 
@@ -87,8 +99,8 @@ export default {
       default: 0,
       type: Number,
     },
-    title: {
-      // title of the scorecard
+    greeting: {
+      // greeting of the scorecard
       default: "Hooray! Congratulations on completing the Plio!",
       type: String,
     },
@@ -96,6 +108,11 @@ export default {
       // indicator of when the scorecard has popped up
       default: false,
       type: Boolean,
+    },
+    plioTitle: {
+      // plio's title
+      default: "",
+      type: String,
     },
   },
   data() {
@@ -110,6 +127,8 @@ export default {
       // variable to store the animation frame request
       // used when confetti popping has to be stopped
       animationFrameRequest: null,
+      innerWidth: window.innerWidth, // variable to hold the width of window
+      reRenderKey: 0, // a key to re-render a component
     };
   },
   watch: {
@@ -131,23 +150,55 @@ export default {
       }
     },
   },
-  created() {},
+  created() {
+    // reactively handle screen resizing
+    window.addEventListener("resize", this.handleScreenSizeChange);
+  },
   mounted() {},
+  unmounted() {
+    window.removeEventListener("resize", this.handleScreenSizeChange);
+  },
   computed: {
+    circularProgressRadius() {
+      // reactively control the radius of the circular progress bar
+      // according to the screen width
+      if (this.innerWidth >= 1200) return 150;
+      else if (this.innerWidth < 1200 && this.innerWidth >= 1024) return 120;
+      else if (this.innerWidth < 1024 && this.innerWidth >= 768) return 100;
+      else if (this.innerWidth < 768 && this.innerWidth >= 640) return 80;
+      return 50;
+    },
+    circularProgressStroke() {
+      // reactively control the stroke of the circular progress bar
+      // according to the screen width
+      if (this.innerWidth >= 1200) return 20;
+      else if (this.innerWidth < 1200 && this.innerWidth >= 1024) return 18;
+      else if (this.innerWidth < 1024 && this.innerWidth >= 768) return 15;
+      else if (this.innerWidth < 768 && this.innerWidth >= 640) return 12;
+      return 8;
+    },
     watchAgainButtonTitleConfig() {
       // config for the text of the watch again button
       return {
         value: "Watch again",
-        class: "text-white text-md font-bold",
+        class: "text-white text-sm sm:text-base lg:text-lg font-bold",
       };
     },
     watchAgainButtonClass() {
       // class for the watch again button
-      return "bg-primary hover:bg-primary-hover px-2 rounded-md shadow-xl";
+      return "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-10 sm:pr-10 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none";
     },
   },
   methods: {
     ...Utilties,
+    handleScreenSizeChange() {
+      // invoked when the screen size is changing
+      this.innerWidth = window.innerWidth;
+
+      // re-render all components that are using the reRenderKey
+      // here - Scorecard gets rerender -- to properly place the progress bar
+      this.reRenderKey = !this.reRenderKey;
+    },
     throwConfetti() {
       // keep throwing some confetti until our specified time runs out
       var end = Date.now() + 10 * 1000;

@@ -25,9 +25,14 @@
       />
     </svg>
     <!-- progress indicator in the center of the circle  -->
-    <div v-if="toShowNumberIndicator" class="absolute mx-28 -my-44">
-      <div class="text-4xl font-bold text-center">{{ Math.trunc(progress) }}%</div>
-      <div class="text-xl font-bold text-center">
+    <div
+      v-if="toShowNumberIndicator"
+      class="absolute inset-1/3 flex flex-col justify-center"
+    >
+      <div class="text-sm sm:text-base md:text-2xl lg:text-4xl font-bold text-center">
+        {{ Math.trunc(progress) }}%
+      </div>
+      <div class="text-xsm sm:text-sm md:text-base lg:text-xl font-bold text-center">
         {{ progressNumberIndicator.additionalText }}
       </div>
     </div>
@@ -53,17 +58,14 @@ export default {
       type: Object,
     },
   },
-  data() {
-    // refer - https://css-tricks.com/building-progress-ring-quickly/
-    const normalizedRadius = this.radius - this.stroke * 2;
-    const circumference = normalizedRadius * 2 * Math.PI;
-
-    return {
-      normalizedRadius,
-      circumference,
-    };
-  },
   computed: {
+    normalizedRadius() {
+      // refer - https://css-tricks.com/building-progress-ring-quickly/
+      return this.radius - this.stroke * 2;
+    },
+    circumference() {
+      return this.normalizedRadius * 2 * Math.PI;
+    },
     strokeDashoffset() {
       return this.circumference - (this.progress / 100) * this.circumference;
     },

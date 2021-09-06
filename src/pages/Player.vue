@@ -75,6 +75,7 @@
         :metrics="scorecardMetrics"
         :progressPercentage="scorecardProgress"
         :showScorecard="showScorecard"
+        :plioTitle="plioTitle"
         @watch-again="watchAgain"
         ref="scorecard"
       ></Scorecard>
@@ -251,6 +252,7 @@ export default {
       numOfWrong: 0, // number of wrongly answered questions (valid for MCQ only)
       numOfSkipped: 0, // number of skipped questions
       showScorecard: false, // to show the scorecard or not
+      plioTitle: "", // title of the plio
     };
   },
   watch: {
@@ -409,7 +411,7 @@ export default {
         {
           name: "numberOfSkipped",
           icon: {
-            source: "forward-solid.svg",
+            source: "hrline.svg",
             color: "text-yellow-700",
           },
           value: this.numOfSkipped,
@@ -591,6 +593,7 @@ export default {
           this.items = plioDetails.items || [];
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
+          this.plioTitle = plioDetails.plioTitle;
         })
         .then(() => this.createSession())
         .then(() => this.logData());
@@ -754,7 +757,7 @@ export default {
       newMarker.classList.add(...this.scorecardMarkerClass);
 
       // set marker position
-      var positionPercent = ((this.player.duration - 1) / this.player.duration) * 100;
+      var positionPercent = ((this.player.duration - 0.5) / this.player.duration) * 100;
       newMarker.style.setProperty("left", `${positionPercent}%`);
       plyrProgressBar.appendChild(newMarker);
     },
