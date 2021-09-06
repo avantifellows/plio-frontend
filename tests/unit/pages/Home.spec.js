@@ -370,6 +370,8 @@ describe("Home.vue", () => {
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
+    // the page makes getPlio query for every plio in the plioList/dummyPlioList
+    // mocking the published plio as the response for each plio details
     mockAxios.mockResponse(dummyPublishedPlio, mockAxios.queue()[0]);
 
     await flushPromises();
@@ -421,13 +423,9 @@ describe("Home.vue", () => {
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
-    mockAxios.mockResponse(
-      {
-        access_token: "",
-        expires_in: "",
-      },
-      mockAxios.queue()[0]
-    );
+    // the page makes getPlio query for every plio in the plioList/dummyPlioList
+    // mocking the published plio as the response for each plio details
+    mockAxios.mockResponse(dummyPublishedPlio, mockAxios.queue()[0]);
 
     await flushPromises();
 
