@@ -76,6 +76,7 @@
         :progressPercentage="scorecardProgress"
         :showScorecard="showScorecard"
         :plioTitle="plioTitle"
+        :greeting="$t('player.scorecard.greeting')"
         @watch-again="watchAgain"
         ref="scorecard"
       ></Scorecard>
@@ -397,7 +398,7 @@ export default {
             color: "text-green-500",
           },
           value: this.numOfCorrect,
-          description: "Correct",
+          description: this.$t("player.scorecard.metric.description.correct"),
         },
         {
           name: "numberOfWrong",
@@ -406,7 +407,7 @@ export default {
             color: "text-red-500",
           },
           value: this.numOfWrong,
-          description: "Wrong",
+          description: this.$t("player.scorecard.metric.description.wrong"),
         },
         {
           name: "numberOfSkipped",
@@ -415,7 +416,7 @@ export default {
             color: "text-yellow-700",
           },
           value: this.numOfSkipped,
-          description: "Skipped",
+          description: this.$t("player.scorecard.metric.description.skipped"),
         },
       ];
     },

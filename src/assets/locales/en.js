@@ -261,6 +261,20 @@ export default {
       enter: "Go Fullscreen",
       exit: "Exit Fullscreen",
     },
+    scorecard: {
+      greeting: "Hooray! Congratulations on completing the Plio!",
+      metric: {
+        description: {
+          correct: "Correct",
+          wrong: "Wrong",
+          skipped: "Skipped",
+          progress: "Accuracy",
+        },
+      },
+      buttons: {
+        watchAgain: "Watch Again",
+      },
+    },
   },
   error: {
     404: "Page Not Found",

@@ -262,6 +262,20 @@ export default {
       enter: "पूर्ण स्क्रीन में प्रवेश करें",
       exit: "पूर्ण स्क्रीन से निकास लें ",
     },
+    scorecard: {
+      greeting: "प्लायो पूरा करने के लिए आपको बधाई!",
+      metric: {
+        description: {
+          correct: "सही",
+          wrong: "गलत",
+          skipped: "छोड़े",
+          progress: "यथार्थता",
+        },
+      },
+      buttons: {
+        watchAgain: "फिरसे देखें",
+      },
+    },
   },
   error: {
     404: "वेब पेज मौजुद नहीं हैं ",

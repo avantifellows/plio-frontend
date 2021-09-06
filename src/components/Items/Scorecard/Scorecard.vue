@@ -33,7 +33,7 @@
             class="w-full rounded-2xl bg-pastel-yellow grid grid-rows-2 lg:grid-rows-3 border-2"
             :key="metric"
           >
-            <div class="lg:row-span-2 w-full h-full flex flex-row justify-center gap-3">
+            <div class="lg:row-span-2 w-full h-full flex flex-row justify-center gap-2">
               <inline-svg
                 :src="getIconSource(metric.icon.source)"
                 class="h-4 md:h-6 lg:h-10 w-4 md:w-6 lg:w-10 place-self-center"
@@ -101,7 +101,7 @@ export default {
     },
     greeting: {
       // greeting of the scorecard
-      default: "Hooray! Congratulations on completing the Plio!",
+      default: "",
       type: String,
     },
     showScorecard: {
@@ -122,7 +122,7 @@ export default {
       progressNumberIndicator: {
         // what to show in between the progress bar
         enabled: true,
-        additionalText: "Accuracy",
+        additionalText: this.$t("player.scorecard.metric.description.progress"),
       },
       // variable to store the animation frame request
       // used when confetti popping has to be stopped
@@ -180,7 +180,7 @@ export default {
     watchAgainButtonTitleConfig() {
       // config for the text of the watch again button
       return {
-        value: "Watch again",
+        value: this.$t("player.scorecard.buttons.watchAgain"),
         class: "text-white text-sm sm:text-base lg:text-lg font-bold",
       };
     },
