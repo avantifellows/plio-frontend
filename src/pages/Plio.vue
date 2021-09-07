@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-200 h-screen p-2 lg:p-5">
+  <div class="">
     <!-- skeleton loading -->
     <video-skeleton v-if="!isPlioLoaded"></video-skeleton>
     <div v-else class="flex relative shadow-lg">

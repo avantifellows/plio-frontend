@@ -5,7 +5,10 @@
       :class="{ 'opacity-20 pointer-events-none': isBackgroundDisabledLocal }"
       @keydown="keyboardPressed"
     >
-      <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
+      <div
+        class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white"
+        :class="navBarClass"
+      >
         <!-- top left logo -->
         <router-link
           :to="{ name: 'Home', params: { org: activeWorkspace } }"
@@ -400,6 +403,12 @@ export default {
       "isBackgroundDisabled",
     ]),
     ...mapState("sync", ["pending"]),
+    navBarClass() {
+      // dynamic classes for the nav bar
+      return {
+        hidden: this.onPlioPage,
+      };
+    },
     currentRoute() {
       return this.$route.path;
     },
@@ -430,6 +439,10 @@ export default {
     onHomePage() {
       // whether the current page is the home page
       return this.$route.name == "Home";
+    },
+    onPlioPage() {
+      // whether the current page is the plio embed page
+      return this.$route.name == "Plio";
     },
     onEditorPage() {
       // whether the current page is the editor page

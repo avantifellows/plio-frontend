@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "@/pages/Home.vue";
 import Editor from "@/pages/Editor.vue";
 import Player from "@/pages/Player.vue";
+import Plio from "@/pages/Plio.vue";
 import Dashboard from "@/pages/Dashboard.vue";
 import Login from "@/pages/Login";
 import store from "../store";
@@ -72,6 +73,15 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: "Player - Plio",
+    },
+  },
+  {
+    path: "/:org?/plio/:plioId",
+    name: "Plio",
+    component: Plio,
+    props: true,
+    meta: {
+      title: "Plio",
     },
   },
   {
