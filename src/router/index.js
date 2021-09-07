@@ -25,7 +25,10 @@ const routes = [
     name: "Home",
     component: Home,
     props: true,
-    meta: { requiresAuth: true },
+    meta: {
+      requiresAuth: true,
+      title: "Home - Plio",
+    },
   },
   {
     path: "/:org?/edit/:plioId",
@@ -33,7 +36,10 @@ const routes = [
     component: Editor,
     props: true,
     beforeEnter: restrictUnapprovedUser,
-    meta: { requiresAuth: true },
+    meta: {
+      requiresAuth: true,
+      title: "Editor - Plio",
+    },
   },
   {
     // type: the type of component invoking this path (optional)
@@ -42,7 +48,10 @@ const routes = [
     name: "Login",
     component: Login,
     props: true,
-    meta: { guest: true },
+    meta: {
+      guest: true,
+      title: "Login - Plio",
+    },
   },
   {
     path: "/:org?/play/:plioId",
@@ -60,7 +69,10 @@ const routes = [
       thirdPartyUniqueId: route.query.unique_id,
       thirdPartyApiKey: route.query.api_key,
     }),
-    meta: { requiresAuth: true },
+    meta: {
+      requiresAuth: true,
+      title: "Player - Plio",
+    },
   },
   {
     path: "/:org?/analyse/:plioId",
@@ -68,7 +80,10 @@ const routes = [
     component: Dashboard,
     props: true,
     beforeEnter: restrictUnapprovedUser,
-    meta: { requiresAuth: true },
+    meta: {
+      requiresAuth: true,
+      title: "Dashboard - Plio",
+    },
   },
   {
     path: "/404-not-found",
@@ -158,6 +173,30 @@ router.beforeEach((to) => {
 /*
 Router auth logic end
 */
+
+// set title and meta tags
+router.beforeEach((to, from) => {
+  // This goes through the matched routes from last to first, finding the closest route with a title.
+  // e.g., if we have `/some/deep/nested/route` and `/some`, `/deep`, and `/nested` have titles,
+  // `/nested`'s will be chosen.
+  const nearestWithTitle = to.matched
+    .slice()
+    .reverse()
+    .find((r) => r.meta && r.meta.title);
+  const previousNearestWithMeta = from.matched
+    .slice()
+    .reverse()
+    .find((r) => r.meta && r.meta.metaTags);
+
+  // If a route with a title was found, set the document (page) title to that value.
+  if (nearestWithTitle) {
+    document.title = nearestWithTitle.meta.title;
+  } else if (previousNearestWithMeta) {
+    document.title = previousNearestWithMeta.meta.title;
+  }
+
+  return;
+});
 
 // set organization in vuex state if the route org parameter is in vuex user organizations array
 router.beforeEach((to) => {

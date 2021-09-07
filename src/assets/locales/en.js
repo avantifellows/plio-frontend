@@ -17,8 +17,11 @@ export default {
         valid: "",
         invalid: "Invalid Link",
       },
-      info:
-        "To get started, you need to paste the link of the YouTube video that you want to make interactive",
+      info: {
+        1: "To get started, you need to paste the link of the YouTube video that you want to make interactive. If you don't have a link, you can ",
+        2: "upload the video to YouTube",
+        3: " and get the link.",
+      },
     },
     plio_title: {
       placeholder: "Enter the name of the Plio",
@@ -167,11 +170,32 @@ export default {
           duplicate: "Duplicate",
           analyse: "Analyse",
           share: "Share",
+          delete: "Delete",
+        },
+        dialog: {
+          delete: {
+            title: "Are you sure you want to delete this plio?",
+            description:
+              "This will permananently delete this plio and all the data associated with it, including all the responses. Once deleted, the data cannot be recovered.",
+          },
+        },
+        toast: {
+          delete: {
+            success: "Plio deleted successfully",
+            error: "There was an error. Please try again!",
+          },
         },
       },
       search: {
         placeholder: "Search",
-        no_plios_found: "No Plios Found",
+        no_plios_found: {
+          title: {
+            1: "Sorry, we couldn't find any plios matching",
+            2: "",
+          },
+          description:
+            "Please don't worry. Try double-checking the spelling or even searching by status (draft/published)",
+        },
       },
       buttons: {
         analyse: "Analyse Plio",
@@ -292,6 +316,7 @@ export default {
       draft: "Draft",
       published: "Published",
     },
+    preview: "Preview",
     yes: "Yes",
     no: "No",
     got_it: "Got it",

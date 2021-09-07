@@ -34,7 +34,10 @@
         @search-plios="fetchPlioIds($event)"
         @reset-search-string="resetSearchString"
         @sort-num-viewers="sortPlios"
+        @delete-plio="plioDeleted"
+        @loaded="stopLoading"
         data-test="table"
+        ref="table"
       >
       </Table>
 
@@ -43,6 +46,7 @@
         v-if="showTable"
         :totalItems="totalNumberOfPlios"
         :pageSize="numberOfPliosPerPage"
+        :initialPage="currentPageNumber"
         @page-selected="fetchPlioIds($event)"
       >
       </Paginator>
@@ -96,6 +100,10 @@ export default {
   },
   watch: {
     async activeWorkspace() {
+      // reset currentPageNumber
+      this.currentPageNumber = 1;
+      // reset search string
+      this.resetSearchString();
       if (this.isUserApproved) await this.fetchPlioIds();
     },
     isUserApproved(value) {
@@ -121,7 +129,7 @@ export default {
       numberOfPliosPerPage: 5, // number of plios to show on one page (default: 5)
       searchString: "", // the search string to filter the plios on
       sortByField: undefined, // string which holds the field to sort the plios on
-      currentPageNumber: undefined, // holds the current page number
+      currentPageNumber: 1, // holds the current page number
     };
   },
   async created() {
@@ -157,6 +165,16 @@ export default {
   methods: {
     ...mapActions("plioItems", ["purgeAllPlios"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
+    plioDeleted() {
+      // invoked when a plio is deleted
+
+      // handle the case when there is only one plio on the current page
+      // and the current page is not the first page
+      if (this.tableData.length == 1 && this.currentPageNumber != 1) {
+        this.currentPageNumber -= 1;
+      }
+      this.fetchPlioIds();
+    },
     async sortPlios(sortByField) {
       // invoked when the user clicks the sort icon next to a column
       this.sortByField = sortByField;
@@ -200,8 +218,10 @@ export default {
           // to handle the case when the user lands on the homepage for the first time
           // if no plios exist, then hide the table else show it
           if (params == undefined) {
-            if (response.data.count <= 0) this.showTable = false;
-            else this.showTable = true;
+            if (response.data.count <= 0) {
+              this.showTable = false;
+              this.stopLoading();
+            } else this.showTable = true;
           }
           this.totalNumberOfPlios = response.data.count; // set total number of plios and show the paginator
           this.numberOfPliosPerPage = response.data.page_size; // set the page size
@@ -243,7 +263,20 @@ export default {
     },
 
     async prepareTableData(plioIdList) {
+      /**
+       * prepares the data for the plios to be fed into the table
+       */
+
+      if (!plioIdList.length) {
+        // no plios found
+        this.stopLoading();
+        this.tableData = [];
+      }
+
+      // holds the data to be fed to the table
       var tableData = [];
+
+      // fill in the data for each plio
       for (let plioIndex = 0; plioIndex < plioIdList.length; plioIndex++) {
         const plioId = plioIdList[plioIndex];
         var tableRow = {};
@@ -266,8 +299,9 @@ export default {
 
         tableData.push(tableRow);
       }
+
+      // update the table's data
       this.tableData = tableData;
-      if (this.pending) this.stopLoading();
     },
   },
 

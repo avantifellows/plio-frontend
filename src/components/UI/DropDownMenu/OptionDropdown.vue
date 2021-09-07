@@ -27,7 +27,7 @@
       <ul
         tabindex="-1"
         role="listbox"
-        class="max-h-56 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
+        class="text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
       >
         <li
           v-for="(option, optionIndex) in options"
@@ -57,11 +57,11 @@
 </template>
 
 <script>
-import Utilties from "@/services/Functional/Utilities.js";
+import Utilities from "@/services/Functional/Utilities.js";
 
 const DEFAULT_OPTIONS_MARGIN_TOP = 2;
-const OPTIONS_OVERFLOW_MARGIN_TOP_DESKTOP = -10;
-const OPTIONS_OVERFLOW_MARGIN_TOP_TOUCH = -13;
+const OPTIONS_OVERFLOW_MARGIN_TOP_DESKTOP = -12;
+const OPTIONS_OVERFLOW_MARGIN_TOP_TOUCH = -16;
 
 export default {
   name: "OptionDropdown",
@@ -123,7 +123,7 @@ export default {
     this.setOptionBoxStyling();
   },
   methods: {
-    ...Utilties,
+    ...Utilities,
     optionClass(index) {
       // class for each option
       return {
@@ -180,8 +180,11 @@ export default {
     isOptionsOverflowBottom() {
       // checks whether the bottom of the options overflows the screen
       const optionsContainer = document.querySelector("#dropdownOptions");
-      const rectangle = optionsContainer.getBoundingClientRect();
-      return rectangle.bottom >= window.innerHeight;
+      if (optionsContainer != null) {
+        const rectangle = optionsContainer.getBoundingClientRect();
+        return rectangle.bottom >= window.innerHeight;
+      }
+      return false;
     },
     toggleDropdownDisplay() {
       // toggle the dropdown for choosing an option
