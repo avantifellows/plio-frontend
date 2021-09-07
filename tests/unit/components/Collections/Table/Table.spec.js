@@ -248,6 +248,27 @@ describe("Table.vue", () => {
     expect(search).not.toHaveBeenCalled();
   });
 
+  it("shows warning on search when there are no plios matching the search string", async () => {
+    const wrapper = mount(Table, {
+      props: {
+        data: [],
+        columns: tableColumns,
+        numTotal: totalNumberOfPlios,
+      },
+    });
+    await store.dispatch("sync/stopLoading");
+
+    // no plios warning should not be shown at first
+    expect(wrapper.find('[data-test="noPliosWarning"]').exists()).toBeFalsy();
+
+    // enter some search string that would not match any of the plios
+    await wrapper.find('[data-test="searchBar"]').setValue("test");
+    await wrapper.find('[data-test="searchButton"]').trigger("click");
+
+    // no plios warning should now be shown
+    expect(wrapper.find('[data-test="noPliosWarning"]').exists()).toBeTruthy();
+  });
+
   it("selects row on hover", async () => {
     const tableRowHoverOn = jest.spyOn(Table.methods, "tableRowHoverOn");
     const wrapper = mount(Table, {
