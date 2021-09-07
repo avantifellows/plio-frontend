@@ -11,6 +11,7 @@ import {
 } from "@/services/API/Endpoints.js";
 import {
   dashboardSessionMetricsQuery,
+  oneMinuteRetentionQuery,
   dashboardSessionAnswerMetricsQuery,
   uniqueUsersListQuery,
 } from "@/services/API/Queries/Plio.js";
@@ -158,12 +159,27 @@ export default {
     // get the metrics for each plio for the dashboard
     var metrics = {};
 
-    // get session level metrics
+    // get session level metrics (except 1-minute retention)
     var resultSet = await analyticsAPIClient().load(
       dashboardSessionMetricsQuery(plioId)
     );
     var resultKeys = resultSet.seriesNames().map((x) => x.key);
     var resultChartPivot = resultSet.chartPivot()[0];
+    resultKeys.forEach((key) => {
+      metrics[key] = resultChartPivot[key];
+    });
+
+    /**
+     * get 1-minute retention separately as this value becomes NaN
+     * for some users and while calculating the average, those rows are
+     * omitted; this affects the calculation of the total number of unique
+     * viewers;
+     */
+    resultSet = await analyticsAPIClient().load(
+      oneMinuteRetentionQuery(plioId)
+    );
+    resultKeys = resultSet.seriesNames().map((x) => x.key);
+    resultChartPivot = resultSet.chartPivot()[0];
     resultKeys.forEach((key) => {
       metrics[key] = resultChartPivot[key];
     });
