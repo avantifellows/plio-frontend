@@ -389,7 +389,7 @@ import Utilities from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
-import ItemModal from "../components/Player/ItemModal.vue";
+import ItemModal from "@/components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ConfettiCelebration from "@/components/UI/Animations/ConfettiCelebration.vue";

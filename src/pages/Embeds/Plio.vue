@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div>
     <!-- skeleton loading -->
     <video-skeleton v-if="!isPlioLoaded"></video-skeleton>
     <div v-else class="flex relative shadow-lg">
@@ -74,14 +74,14 @@
 
 <script>
 import VideoPlayer from "@/components/UI/Player/VideoPlayer";
-import VideoSkeleton from "../components/UI/Skeletons/VideoSkeleton.vue";
+import VideoSkeleton from "@/components/UI/Skeletons/VideoSkeleton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
-import UserAPIService from "@/services/API/User.js";
+// import UserAPIService from "@/services/API/User.js";
 import SessionAPIService from "@/services/API/Session.js";
 import EventAPIService from "@/services/API/Event.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
-import ItemModal from "../components/Player/ItemModal.vue";
+import ItemModal from "@/components/Player/ItemModal.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 import { mapActions, mapGetters } from "vuex";
@@ -128,11 +128,9 @@ export default {
         invertTime: false,
       },
       videoId: "", // video Id for the Plio
-      source: "unknown", // source from where the plio was accessed - can be passed as param in the plio url
       componentProperties: {}, // properties of the plio player
       items: [], // holds the list of all items for this plio
       itemResponses: [], // holds the responses to each item
-      videoSource: "youtube", // source for the video
       watchTime: 0, // keeps a count of the watch time in seconds for the plio by the user
       watchTimeIncrement: 0, // maintains the increase in watch time since the last time it was logged
       currentItemIndex: null, // current item being displayed
@@ -191,60 +189,46 @@ export default {
     // and the authenticated user is set.
     // If the app does not need third party auth, resolve the promise instantly.
     // All the remaining code will run only when this promise is resolved.
-    let thirdPartyAuthPromiseResolve;
-    let thirdPartyAuthPromise = new Promise((resolve) => {
-      thirdPartyAuthPromiseResolve = resolve;
-    });
+    // let thirdPartyAuthPromiseResolve;
+    // let thirdPartyAuthPromise = new Promise((resolve) => {
+    //   thirdPartyAuthPromiseResolve = resolve;
+    // });
 
-    if (this.isThirdPartyAuth) {
-      // convert the third party token into Plio's internal token
-      // and set the user accordingly
-      UserAPIService.generateExternalAuthToken({
-        unique_id: this.thirdPartyUniqueId,
-        api_key: this.thirdPartyApiKey,
-      })
-        .then(async (response) => {
-          await this.setAccessToken(response.data);
-          await this.setActiveWorkspace(this.org);
-          thirdPartyAuthPromiseResolve();
-        })
-        .catch((error) => {
-          // if there's some error in the query params,
-          // reload the page and remove the auth query params
-          // if the user is authenticated -- they will be able to see the plio
-          // if the user is not -- they will be asked to log in and then see the plio
-          if (error.response.status === 400) {
-            this.$router.replace({
-              name: "Player",
-              params: {
-                org: this.org,
-                plioId: this.plioId,
-              },
-            });
-            thirdPartyAuthPromiseResolve();
-          }
-        });
-    } else thirdPartyAuthPromiseResolve();
+    // if (this.isThirdPartyAuth) {
+    //   // convert the third party token into Plio's internal token
+    //   // and set the user accordingly
+    //   UserAPIService.generateExternalAuthToken({
+    //     unique_id: this.thirdPartyUniqueId,
+    //     api_key: this.thirdPartyApiKey,
+    //   })
+    //     .then(async (response) => {
+    //       await this.setAccessToken(response.data);
+    //       await this.setActiveWorkspace(this.org);
+    //       thirdPartyAuthPromiseResolve();
+    //     })
+    //     .catch((error) => {
+    //       // if there's some error in the query params,
+    //       // reload the page and remove the auth query params
+    //       // if the user is authenticated -- they will be able to see the plio
+    //       // if the user is not -- they will be asked to log in and then see the plio
+    //       if (error.response.status === 400) {
+    //         this.$router.replace({
+    //           name: "Player",
+    //           params: {
+    //             org: this.org,
+    //             plioId: this.plioId,
+    //           },
+    //         });
+    //         thirdPartyAuthPromiseResolve();
+    //       }
+    //     });
+    // } else thirdPartyAuthPromiseResolve();
 
-    // wait for the third party auth process to complete and then proceed
-    await thirdPartyAuthPromise;
-    this.$mixpanel.people.set_once({
-      "First Plio Viewed": new Date().toISOString(),
-    });
-    this.$mixpanel.people.set({
-      "Last Plio Viewed": new Date().toISOString(),
-    });
-
-    // load the systemwide component properties
-    this.componentProperties = require("@/services/Config/" + "Player.json");
+    // // wait for the third party auth process to complete and then proceed
+    // await thirdPartyAuthPromise;
 
     // load plio details
     await this.fetchPlioCreateSession();
-
-    // update source for the plio
-    if (this.$route.query.src) {
-      this.source = this.$route.query.src;
-    }
 
     // add listener for screen size being changed
     window.addEventListener("resize", this.setScreenProperties);
@@ -258,10 +242,6 @@ export default {
     window.removeEventListener("resize", this.setScreenProperties);
   },
   props: {
-    experiment: {
-      default: "",
-      type: String,
-    },
     plioId: {
       default: "",
       type: String,
