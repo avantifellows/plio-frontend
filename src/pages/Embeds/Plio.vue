@@ -76,7 +76,7 @@
 import VideoPlayer from "@/components/UI/Player/VideoPlayer";
 import VideoSkeleton from "@/components/UI/Skeletons/VideoSkeleton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
-// import UserAPIService from "@/services/API/User.js";
+import UserAPIService from "@/services/API/User.js";
 import SessionAPIService from "@/services/API/Session.js";
 import EventAPIService from "@/services/API/Event.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
@@ -189,43 +189,43 @@ export default {
     // and the authenticated user is set.
     // If the app does not need third party auth, resolve the promise instantly.
     // All the remaining code will run only when this promise is resolved.
-    // let thirdPartyAuthPromiseResolve;
-    // let thirdPartyAuthPromise = new Promise((resolve) => {
-    //   thirdPartyAuthPromiseResolve = resolve;
-    // });
+    let thirdPartyAuthPromiseResolve;
+    let thirdPartyAuthPromise = new Promise((resolve) => {
+      thirdPartyAuthPromiseResolve = resolve;
+    });
 
-    // if (this.isThirdPartyAuth) {
-    //   // convert the third party token into Plio's internal token
-    //   // and set the user accordingly
-    //   UserAPIService.generateExternalAuthToken({
-    //     unique_id: this.thirdPartyUniqueId,
-    //     api_key: this.thirdPartyApiKey,
-    //   })
-    //     .then(async (response) => {
-    //       await this.setAccessToken(response.data);
-    //       await this.setActiveWorkspace(this.org);
-    //       thirdPartyAuthPromiseResolve();
-    //     })
-    //     .catch((error) => {
-    //       // if there's some error in the query params,
-    //       // reload the page and remove the auth query params
-    //       // if the user is authenticated -- they will be able to see the plio
-    //       // if the user is not -- they will be asked to log in and then see the plio
-    //       if (error.response.status === 400) {
-    //         this.$router.replace({
-    //           name: "Player",
-    //           params: {
-    //             org: this.org,
-    //             plioId: this.plioId,
-    //           },
-    //         });
-    //         thirdPartyAuthPromiseResolve();
-    //       }
-    //     });
-    // } else thirdPartyAuthPromiseResolve();
+    if (this.isThirdPartyAuth) {
+      // convert the third party token into Plio's internal token
+      // and set the user accordingly
+      UserAPIService.generateExternalAuthToken({
+        unique_id: this.thirdPartyUniqueId,
+        api_key: this.thirdPartyApiKey,
+      })
+        .then(async (response) => {
+          await this.setAccessToken(response.data);
+          await this.setActiveWorkspace(this.org);
+          thirdPartyAuthPromiseResolve();
+        })
+        .catch((error) => {
+          // if there's some error in the query params,
+          // reload the page and remove the auth query params
+          // if the user is authenticated -- they will be able to see the plio
+          // if the user is not -- they will be asked to log in and then see the plio
+          if (error.response.status === 400) {
+            this.$router.replace({
+              name: "Player",
+              params: {
+                org: this.org,
+                plioId: this.plioId,
+              },
+            });
+            thirdPartyAuthPromiseResolve();
+          }
+        });
+    } else thirdPartyAuthPromiseResolve();
 
-    // // wait for the third party auth process to complete and then proceed
-    // await thirdPartyAuthPromise;
+    // wait for the third party auth process to complete and then proceed
+    await thirdPartyAuthPromise;
 
     // load plio details
     await this.fetchPlioCreateSession();
@@ -372,14 +372,18 @@ export default {
       this.closeItemModal();
     },
     submitQuestion() {
-      // invoked when a question response is submitted
-      // update the session answer on server
-      SessionAPIService.updateSessionAnswer(this.itemResponses[this.currentItemIndex]);
-      // create an event for the submit action
-      this.createEvent("question_answered", {
-        itemIndex: this.currentItemIndex,
-        answer: this.itemResponses[this.currentItemIndex].answer,
-      });
+      /**
+       * invoked when a question response is submitted
+       */
+      // update the session answer on server if the user is authenticated
+      if (!this.isAuthenticated) {
+        SessionAPIService.updateSessionAnswer(this.itemResponses[this.currentItemIndex]);
+        // create an event for the submit action
+        this.createEvent("question_answered", {
+          itemIndex: this.currentItemIndex,
+          answer: this.itemResponses[this.currentItemIndex].answer,
+        });
+      }
       // update the marker colors on the player
       this.showItemMarkersOnSlider(this.player);
     },
@@ -407,7 +411,12 @@ export default {
         .then(() => this.logData());
     },
     logData() {
-      // periodically logs data to the server
+      /**
+       * periodically logs data to the server
+       */
+      // do not log data if the user is not authenticated
+      if (!this.isAuthenticated) return;
+
       if (this.hasSessionStarted) {
         // update session data
         this.updateSession();
@@ -435,7 +444,12 @@ export default {
       this.player.pause();
     },
     createSession() {
-      // creates new user-plio session
+      /**
+       * creates new user-plio session
+       */
+      // do not create a session if a user is not authenticated
+      if (!this.isAuthenticated) return;
+
       SessionAPIService.createSession(this.plioDBId).then((sessionDetails) => {
         this.sessionDBId = sessionDetails.id;
         // reset the user to where they left off if they are returning
@@ -476,7 +490,12 @@ export default {
       });
     },
     updateSession() {
-      // update the session data on the server
+      /**
+       * update the session data on the server
+       */
+      // do not try updating the session if the user is not authenticated
+      if (!this.isAuthenticated) return;
+
       var sessionDetails = {
         plio: this.plioDBId,
         watch_time: this.watchTime,
@@ -617,8 +636,10 @@ export default {
       this.createEvent("exit_fullscreen");
     },
     createEvent(eventType, eventDetails = {}) {
-      // create a new event
-      if (!this.hasSessionStarted) return;
+      /**
+       * create a new event
+       */
+      if (!this.hasSessionStarted || !this.isAuthenticated) return;
       // create event only when the session has been initiated
       var eventData = {
         type: eventType,
