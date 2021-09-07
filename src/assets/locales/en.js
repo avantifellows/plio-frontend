@@ -188,7 +188,14 @@ export default {
       },
       search: {
         placeholder: "Search",
-        no_plios_found: "No Plios Found",
+        no_plios_found: {
+          title: {
+            1: "Sorry, we couldn't find any plios matching",
+            2: "",
+          },
+          description:
+            "Please don't worry. Try double-checking the spelling or even searching by status (draft/published)",
+        },
       },
       buttons: {
         analyse: "Analyse Plio",
