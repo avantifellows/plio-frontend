@@ -32,7 +32,7 @@
 
         <!-- page heading -->
         <div
-          v-if="isAuthenticated"
+          v-if="isAuthenticated && !isNavBarHidden"
           class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center"
         >
           <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
@@ -406,8 +406,12 @@ export default {
     navBarClass() {
       // dynamic classes for the nav bar
       return {
-        hidden: this.onPlioPage,
+        hidden: this.isNavBarHidden,
       };
+    },
+    isNavBarHidden() {
+      // whether the nav bar is hidden
+      return this.onPlioPage;
     },
     currentRoute() {
       return this.$route.path;

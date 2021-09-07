@@ -152,7 +152,7 @@ export default {
       playerHeight: 0, // height of the player - updated once the player is ready
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       isFullscreen: false, // is the player in fullscreen
-      currentTimestamp: null, // tracks the current timestamp in the video
+      currentTimestamp: 0, // tracks the current timestamp in the video
       plioDBId: null, // id for this plio in the plio DB table
       sessionDBId: null, // id for this session in the plio DB table
       retention: [], // array to store video retention value
@@ -376,7 +376,7 @@ export default {
        * invoked when a question response is submitted
        */
       // update the session answer on server if the user is authenticated
-      if (!this.isAuthenticated) {
+      if (this.isAuthenticated) {
         SessionAPIService.updateSessionAnswer(this.itemResponses[this.currentItemIndex]);
         // create an event for the submit action
         this.createEvent("question_answered", {
@@ -448,7 +448,21 @@ export default {
        * creates new user-plio session
        */
       // do not create a session if a user is not authenticated
-      if (!this.isAuthenticated) return;
+      if (!this.isAuthenticated) {
+        // initiate itemResponses as empty set of answers
+        this.items.forEach((item) => {
+          if (item.type == "question" && item.details["type"] == "mcq") {
+            this.itemResponses.push({
+              answer: NaN,
+            });
+          } else {
+            this.itemResponses.push({
+              answer: null,
+            });
+          }
+        });
+        return;
+      }
 
       SessionAPIService.createSession(this.plioDBId).then((sessionDetails) => {
         this.sessionDBId = sessionDetails.id;
@@ -591,9 +605,9 @@ export default {
       // update watch time
       this.watchTime += PLYR_INTERVAL_TIME;
       this.watchTimeIncrement += PLYR_INTERVAL_TIME;
-      // update retention
+      // update retention if the array is defined
       var currentTime = Math.trunc(this.player.currentTime);
-      if (currentTime != this.lastTimestampRetention) {
+      if (currentTime != this.lastTimestampRetention && this.retention.length) {
         this.retention[currentTime] += 1;
         this.lastTimestampRetention = currentTime;
       }
