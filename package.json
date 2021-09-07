@@ -55,6 +55,7 @@
     "babel-plugin-transform-remove-console": "^6.9.4",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.0.0-0",
+    "jest-canvas-mock": "^2.3.1",
     "jest-mock-axios": "^4.4.0",
     "jest-transform-stub": "^2.0.0",
     "postcss": "^7.0.35",

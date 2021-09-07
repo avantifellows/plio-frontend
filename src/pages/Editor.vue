@@ -324,6 +324,7 @@
       id="sharePlioConfettiCanvas"
       class="fixed z-50"
       v-if="showPublishedPlioDialog"
+      data-test="sharePlioConfettiCanvas"
     ></canvas>
 
     <!-- dialog to show after publishing -->
@@ -397,9 +398,8 @@ import ItemModal from "../components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 
+// importing the confetti.js module
 const confetti = require("canvas-confetti");
-const confettiCanvas = document.getElementById("sharePlioConfettiCanvas");
-const confettiHandler = confetti.create(confettiCanvas, { resize: true });
 
 // used for deep cloning objects
 var cloneDeep = require("lodash.clonedeep");
@@ -437,6 +437,10 @@ export default {
     },
   },
   data() {
+    // setting up the confetti handler, giving it access to a canvas element
+    const confettiCanvas = document.getElementById("sharePlioConfettiCanvas");
+    const confettiHandler = confetti.create(confettiCanvas, { resize: true });
+
     return {
       items: [], // list of all items created for this plio
       videoDuration: 0,
@@ -539,6 +543,7 @@ export default {
       },
       // class for the button to close the dialog that comes after publishing
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
+      confettiHandler: confettiHandler,
     };
   },
   async created() {
@@ -899,14 +904,14 @@ export default {
       var colors = ["#ff718d", "#fdff6a"];
 
       const frame = () => {
-        confettiHandler({
+        this.confettiHandler({
           particleCount: 2,
           angle: 60,
           spread: 55,
           origin: { x: 0 },
           colors: colors,
         });
-        confettiHandler({
+        this.confettiHandler({
           particleCount: 2,
           angle: 120,
           spread: 55,

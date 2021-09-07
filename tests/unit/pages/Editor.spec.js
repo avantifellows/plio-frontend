@@ -1,5 +1,6 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import mockAxios from "jest-mock-axios";
+import "jest-canvas-mock";
 
 import Editor from "@/pages/Editor.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
@@ -477,8 +478,16 @@ describe("Editor.vue", () => {
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
     const wrapper = mount(Editor, {
       data() {
+        const confetti = require("canvas-confetti");
+        // have to create it manually as jest creates a DIV instead of CANVAS on it's own
+        const confettiCanvas = document.createElement("canvas");
+        confettiCanvas.setAttribute("id", "sharePlioConfettiCanvas");
+        const confettiHandler = confetti.create(confettiCanvas, {
+          resize: true,
+        });
         return {
           videoId: "abcdefgh",
+          confettiHandler: confettiHandler,
         };
       },
     });
