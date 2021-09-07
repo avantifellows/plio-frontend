@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import Utilties from "@/services/Functional/Utilities.js";
+import Utilities from "@/services/Functional/Utilities.js";
 
 const DEFAULT_OPTIONS_MARGIN_TOP = 2;
 const OPTIONS_OVERFLOW_MARGIN_TOP_DESKTOP = -12;
@@ -123,7 +123,7 @@ export default {
     this.setOptionBoxStyling();
   },
   methods: {
-    ...Utilties,
+    ...Utilities,
     optionClass(index) {
       // class for each option
       return {
