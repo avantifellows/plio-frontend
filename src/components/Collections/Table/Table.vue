@@ -176,7 +176,7 @@
       <!-- heading -->
       <p class="text-center font-bold text-base sm:text-xl">
         {{ $t("home.table.search.no_plios_found.title.1") }}
-        "{{ searchString }}"
+        "{{ lastSearchString }}"
         {{ $t("home.table.search.no_plios_found.title.2") }}
       </p>
       <!-- sub-heading -->
@@ -219,6 +219,9 @@ export default {
   data() {
     return {
       searchString: "", // the string to use when filtering the results
+      // the string which was used for the last search; this value won't be reactive
+      // with the user input in the search bar
+      lastSearchString: "",
       selectedRowIndex: null, // index of the row currently in focus / being hovered on
       // classes for the analyse button
       analyseButtonClass:
@@ -444,6 +447,7 @@ export default {
     },
     search() {
       // emit the search string whenever the user presses the search icon
+      this.lastSearchString = this.searchString;
       this.$emit("search-plios", { searchString: this.searchString });
     },
   },
