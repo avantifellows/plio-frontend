@@ -14,11 +14,9 @@ import {
 import store from "@/store";
 
 var cloneDeep = require("lodash.clonedeep");
-let dummyItemsCopy;
 
 beforeEach(() => {
   jest.useFakeTimers();
-  dummyItemsCopy = cloneDeep(dummyItems);
 });
 
 afterEach(() => {
@@ -172,31 +170,26 @@ describe("Editor.vue", () => {
       },
     });
     // `getPlio` inside services/API/Plio.js should've been called
-    // 2 `GET` requests are made
-    expect(mockAxios.get).toHaveBeenCalledTimes(2);
+    // 1 `GET` request is made
+    expect(mockAxios.get).toHaveBeenCalledTimes(1);
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
-    expect(mockAxios.get).toHaveBeenCalledWith("/items/", {
-      params: { plio: `${plioId}` },
-    });
 
     // using some pre-defined dummy data to return as a fake response
     // from the fake API call
     let plioResponse = dummyDraftPlio;
-    let itemResponse = dummyItemsCopy;
 
-    // resolve the two `GET` requests waiting in the queue
+    // resolve the `GET` request waiting in the queue
     // using the fake response data
     mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
-    mockAxios.mockResponse(itemResponse, mockAxios.queue()[1]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
     // use `wrapper.vm.__` to access the updated data variables inside the component
     expect(wrapper.vm.loadedPlioDetails.items).toStrictEqual(
-      dummyItemsCopy.data
+      dummyDraftPlio.data.items
     );
-    expect(wrapper.vm.items).toStrictEqual(dummyItemsCopy.data);
+    expect(wrapper.vm.items).toStrictEqual(dummyDraftPlio.data.items);
     expect(wrapper.vm.videoURL).toEqual(dummyDraftPlio.data.video.url);
     expect(wrapper.vm.plioTitle).toEqual(dummyDraftPlio.data.name);
     expect(wrapper.vm.status).toEqual(dummyDraftPlio.data.status);
@@ -241,12 +234,13 @@ describe("Editor.vue", () => {
     expect(checkAndSavePlio).not.toHaveBeenCalled();
 
     // add items to the component, the method should've been called
-    await wrapper.setData({ items: dummyItemsCopy.data });
+    await wrapper.setData({ items: dummyDraftPlio.data.items });
     expect(checkAndSavePlio).toHaveBeenCalled();
 
     // update the items, method should've been called
-    dummyItemsCopy.data[0].time = 20;
-    await wrapper.setData({ items: dummyItemsCopy.data });
+    let updatedDummyItems = cloneDeep(dummyDraftPlio.data.items);
+    updatedDummyItems.time = 20;
+    await wrapper.setData({ items: updatedDummyItems });
     expect(checkAndSavePlio).toHaveBeenCalled();
   });
 
@@ -365,7 +359,7 @@ describe("Editor.vue", () => {
     const maximizeModal = jest.spyOn(Editor.methods, "maximizeModal");
     const wrapper = mount(Editor);
     await wrapper.setData({
-      items: dummyItemsCopy.data,
+      items: dummyDraftPlio.data.items,
       currentItemIndex: 1,
       isModalMinimized: true,
       videoId: "jdYJf_ybyVo",
@@ -384,7 +378,7 @@ describe("Editor.vue", () => {
 
     // update items with an invalid time value -> will call itemTimestamps watcher
     // the invalid time value should be fixed back to `MINIMUM_QUESTION_TIMESTAMP`
-    let updatedDummyItems = dummyItemsCopy.data;
+    let updatedDummyItems = cloneDeep(dummyDraftPlio.data.items);
     updatedDummyItems[0].time = 0.1;
     await wrapper.setData({ items: updatedDummyItems, currentItemIndex: 0 });
 
@@ -406,7 +400,7 @@ describe("Editor.vue", () => {
     const wrapper = mount(Editor);
 
     const imageURL = "test url";
-    const dummyItemsWithImage = dummyItemsCopy.data;
+    const dummyItemsWithImage = cloneDeep(dummyDraftPlio.data.items);
     dummyItemsWithImage[0].details.image = {
       id: 56,
       url: imageURL,
@@ -427,23 +421,23 @@ describe("Editor.vue", () => {
     const wrapper = mount(Editor);
     await wrapper.setData({
       currentItemIndex: 0,
-      items: dummyItemsCopy.data,
+      items: dummyDraftPlio.data.items,
     });
     expect(wrapper.vm.itemType).toBe(null);
     await wrapper.setData({
       isItemSelected: true,
     });
-    expect(wrapper.vm.itemType).toBe(dummyItemsCopy.data[0].type);
+    expect(wrapper.vm.itemType).toBe(dummyDraftPlio.data.items[0].type);
   });
 
   it("computes correctOptionInex correctly", async () => {
     const wrapper = mount(Editor);
     await wrapper.setData({
-      items: dummyItemsCopy.data,
+      items: dummyDraftPlio.data.items,
       currentItemIndex: 0,
     });
     expect(wrapper.vm.correctOptionIndex).toBe(
-      dummyItemsCopy.data[0].details.correct_answer
+      dummyDraftPlio.data.items[0].details.correct_answer
     );
   });
 
@@ -650,7 +644,7 @@ describe("Editor.vue", () => {
     const deleteLinkedImage = jest.spyOn(Editor.methods, "deleteLinkedImage");
     const wrapper = mount(Editor);
 
-    const dummyItemsWithImage = dummyItemsCopy.data;
+    const dummyItemsWithImage = cloneDeep(dummyDraftPlio.data.items);
     dummyItemsWithImage[0].details.image = {
       id: 56,
       url: "https://plio-prod-assets.s3.amazonaws.com/images/hxojrjdasf.png",
@@ -679,7 +673,7 @@ describe("Editor.vue", () => {
     const submitImage = jest.spyOn(ImageUploaderDialog.methods, "submitImage");
     const wrapper = mount(Editor);
     await wrapper.setData({
-      items: dummyItemsCopy.data,
+      items: dummyDraftPlio.data.items,
       showImageUploaderDialog: true,
       currentItemIndex: 0,
     });
@@ -737,7 +731,7 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      items: dummyItemsCopy.data,
+      items: dummyDraftPlio.data.items,
       currentItemIndex: 0,
       videoDuration: 200,
       status: "draft",
@@ -801,7 +795,7 @@ describe("Editor.vue", () => {
       .find('[data-test="confirmButton"]')
       .trigger("click");
 
-    let updatedDummyItems = dummyItemsCopy.data;
+    let updatedDummyItems = cloneDeep(dummyDraftPlio.data.items);
     updatedDummyItems[0].details.options.push("option 3");
     await wrapper.setData({
       items: updatedDummyItems,
@@ -872,7 +866,7 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      items: dummyItemsCopy.data,
+      items: dummyDraftPlio.data.items,
       currentItemIndex: null,
       videoId: "jdYJf_ybyVo",
       currentTimestamp: 15.6,
@@ -984,7 +978,7 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      items: cloneDeep(dummyItemsCopy.data),
+      items: cloneDeep(dummyDraftPlio.data.items),
       currentItemIndex: 0,
       videoDuration: 200,
       status: "draft",
@@ -1025,7 +1019,9 @@ describe("Editor.vue", () => {
       .trigger("click");
     expect(dialogConfirmed).toHaveBeenCalled();
     expect(editorDeleteSelectedItem).toHaveBeenCalled();
-    expect(wrapper.vm.items.length).toBeLessThan(dummyItemsCopy.data.length);
+    expect(wrapper.vm.items.length).toBeLessThan(
+      dummyDraftPlio.data.items.length
+    );
   });
 
   it("minimizes modal correctly", async () => {
@@ -1034,7 +1030,7 @@ describe("Editor.vue", () => {
 
     await wrapper.setData({
       isModalMinimized: false,
-      items: dummyItemsCopy.data,
+      items: dummyDraftPlio.data.items,
       currentItemIndex: 0,
       videoId: "jdYJf_ybyVo",
     });
