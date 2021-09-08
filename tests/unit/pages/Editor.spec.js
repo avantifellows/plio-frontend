@@ -476,6 +476,7 @@ describe("Editor.vue", () => {
     const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
     const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
+    const throwConfetti = jest.spyOn(Editor.methods, "throwConfetti");
     const wrapper = mount(Editor, {
       data() {
         const confetti = require("canvas-confetti");
@@ -549,6 +550,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.showDialogBox).toBeFalsy();
     expect(wrapper.vm.showPublishedPlioDialog).toBeTruthy();
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
+    expect(throwConfetti).toHaveBeenCalled();
   });
 
   it("share plio button inside the share dialog works correctly", async () => {

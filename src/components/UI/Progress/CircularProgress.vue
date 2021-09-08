@@ -28,6 +28,7 @@
     <div
       v-if="toShowNumberIndicator"
       class="absolute inset-1/3 flex flex-col justify-center"
+      data-test="numberIndicator"
     >
       <div class="text-sm sm:text-base md:text-2xl lg:text-4xl font-bold text-center">
         {{ Math.trunc(progress) }}%
