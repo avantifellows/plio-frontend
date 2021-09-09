@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-200 p-2 lg:p-5">
+  <div>
     <!-- plio -->
     <plio
       :plioId="plioId"

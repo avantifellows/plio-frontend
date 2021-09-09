@@ -39,8 +39,15 @@ export default {
     this.$nextTick(() => {
       if (this.isVideoIdValid) {
         this.initiatePlayer();
+        this.setAspectRatio();
       }
     });
+    // add listener for resize
+    window.addEventListener("resize", this.setAspectRatio);
+  },
+  unmounted() {
+    // remove listeners
+    window.removeEventListener("resize", this.setAspectRatio);
   },
   watch: {
     currentTime(newTime) {
@@ -64,6 +71,18 @@ export default {
     },
   },
   methods: {
+    setAspectRatio() {
+      /**
+       * sets the aspect ratio based on the current window height and width
+       */
+      // refer to this comment from the creator of plyr on how he
+      // handles responsiveness: https://github.com/sampotts/plyr/issues/339#issuecomment-287603966
+      // the solution below is just generalizing what he had done
+      let paddingBottom = (100 * window.innerHeight) / window.innerWidth;
+      document.getElementsByClassName(
+        "plyr__video-embed"
+      )[0].style.paddingBottom = `${paddingBottom}%`;
+    },
     initiatePlayer() {
       // creates a new instance of plyr and sets its properties
       this.player = new Plyr("#player", this.plyrConfig);
@@ -138,5 +157,9 @@ export default {
 <style lang="scss">
 .plyr__poster {
   z-index: -1 !important;
+}
+.plyr iframe[id^="youtube"] {
+  top: -50%;
+  height: 200%;
 }
 </style>

@@ -169,7 +169,7 @@
           <!-- info about pasting youtube link -->
           <div
             class="flex items-center space-x-2 bg-primary rounded-lg p-4"
-            v-if="!isVideoIdValid"
+            v-if="!isVideoIdValid & !pending"
             data-test="videoLinkInfo"
           >
             <inline-svg
@@ -721,7 +721,8 @@ export default {
         this.isBeingPublished ||
         this.showDialogBox ||
         this.showImageUploaderDialog ||
-        this.showPublishedPlioDialog
+        this.showPublishedPlioDialog ||
+        this.pending
       );
     },
     statusBadgeClass() {
@@ -1090,7 +1091,10 @@ export default {
       this.isItemSelected = false;
     },
     async loadPlio() {
-      // fetch plio details
+      /**
+       * fetch plio details
+       */
+      this.startLoading();
       await PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
           this.loadedPlioDetails = cloneDeep(plioDetails);
@@ -1103,6 +1107,7 @@ export default {
           this.hasUnpublishedChanges = false;
           this.videoDBId = plioDetails.videoDBId;
           this.plioDBId = plioDetails.plioDBId;
+          this.stopLoading();
         })
         .then(() => {
           this.$mixpanel.track("Visit Editor", {

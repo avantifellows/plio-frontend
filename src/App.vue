@@ -30,14 +30,6 @@
           ></WorkspaceSwitcher>
         </div>
 
-        <!-- page heading -->
-        <div
-          v-if="isAuthenticated && !isNavBarHidden"
-          class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center"
-        >
-          <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
-        </div>
-
         <!-- create plio button -->
         <div
           v-if="showCreateButton"
@@ -411,7 +403,7 @@ export default {
     },
     isNavBarHidden() {
       // whether the nav bar is hidden
-      return this.onPlioPage;
+      return this.onPlioPage || this.onPlayerPage;
     },
     currentRoute() {
       return this.$route.path;
@@ -463,14 +455,6 @@ export default {
     showCreateButton() {
       // whether to show the Create button
       return this.isAuthenticated && this.$route.name == "Home" && this.isUserApproved;
-    },
-    currentPageName() {
-      // name of the current page as saved in assets/locales
-      var pageName;
-      if (this.$route.name) {
-        pageName = this.$t("nav." + this.$route.name.toLowerCase());
-      }
-      return pageName;
     },
     isBackgroundDisabledLocal() {
       // whether the background should be disabled

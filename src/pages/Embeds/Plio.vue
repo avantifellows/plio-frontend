@@ -2,21 +2,7 @@
   <div>
     <!-- skeleton loading -->
     <video-skeleton v-if="!isPlioLoaded"></video-skeleton>
-    <div v-else class="flex relative shadow-lg">
-      <!-- fullscreen button overlay -->
-      <div
-        v-if="showItemModal && !isFullscreen"
-        class="z-50 absolute bp-500:hidden w-full h-full bg-transparent"
-      >
-        <div class="opacity-90 w-full h-full absolute bg-white"></div>
-        <div class="flex w-full h-full">
-          <icon-button
-            :titleConfig="fullscreenButtonTitleConfig"
-            :buttonClass="fullscreenButtonClass"
-            @click="goFullscreen"
-          ></icon-button>
-        </div>
-      </div>
+    <div v-else class="flex relative shadow-lg h-screen">
       <!-- video player component -->
       <video-player
         :videoId="videoId"
@@ -68,6 +54,14 @@
           @toggle-minimize="minimizeModal"
         ></item-modal>
       </transition>
+      <!-- back button -->
+      <icon-button
+        class="absolute z-20"
+        :iconConfig="backButtonIconConfig"
+        :buttonClass="backButtonClass"
+        @click="returnToHome"
+      >
+      </icon-button>
     </div>
   </div>
 </template>
@@ -116,14 +110,15 @@ export default {
           "mute",
           "volume",
           "fullscreen",
+          "settings",
         ],
-
-        ratio: "16:7",
 
         keyboard: {
           focused: false,
           global: false,
         },
+
+        clickToPlay: false,
 
         invertTime: false,
       },
@@ -261,6 +256,23 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
+    backButtonIconConfig() {
+      // config for the icon of the back button
+      return {
+        enabled: true,
+        iconName: "left",
+        iconClass: this.backButtonIconClass,
+      };
+    },
+    backButtonIconClass() {
+      return [
+        {
+          "text-black": this.showItemModal,
+          "text-gray-200": !this.showItemModal,
+        },
+        `fill-current h-8 w-8 m-4 rounded-md`,
+      ];
+    },
     isThirdPartyAuth() {
       // if the app needs to authenticate using a third party auth or not
       return this.thirdPartyUniqueId != null && this.thirdPartyApiKey != null;
@@ -321,6 +333,10 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
+    returnToHome() {
+      // returns the user back to Home
+      this.$router.push({ name: "Home", params: { org: this.org } });
+    },
     mountOnFullscreenPlyr(elementToMount) {
       var plyrInstance = document.getElementsByClassName("plyr")[0];
       plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
