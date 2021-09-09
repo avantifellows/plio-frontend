@@ -58,7 +58,6 @@
       <icon-button
         class="absolute z-20"
         :iconConfig="backButtonIconConfig"
-        :buttonClass="backButtonClass"
         @click="returnToHome"
       >
       </icon-button>

@@ -169,7 +169,7 @@
           <!-- info about pasting youtube link -->
           <div
             class="flex items-center space-x-2 bg-primary rounded-lg p-4"
-            v-if="!isVideoIdValid & !pending"
+            v-if="!isVideoIdValid && !pending"
             data-test="videoLinkInfo"
           >
             <inline-svg
