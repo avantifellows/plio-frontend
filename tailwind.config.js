@@ -30,6 +30,8 @@ module.exports = {
       "primary-button": "#F78000",
       "primary-button-hover": "#db7506",
       "delete-button": "#E80000",
+      brown: "#78350F",
+      "dark-brown": "#4E342E",
     }),
     screens: {
       "bp-320": "320px",

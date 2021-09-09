@@ -13,13 +13,12 @@
         data-test="previewDiv"
       >
         <div
-          class="my-8 flex justify-center space-x-4"
+          class="my-8 flex justify-center space-x-1 xsm:space-x-2 sm:space-x-4"
           v-if="isVideoIdValid && isPublished"
           data-test="upperButtons"
         >
           <!-- share plio -->
           <icon-button
-            :isDisabled="!isPublished"
             :titleConfig="sharePlioTitleClass"
             :iconConfig="sharePlioIconConfig"
             :buttonClass="sharePlioButtonClass"
@@ -29,12 +28,20 @@
 
           <!-- play plio -->
           <icon-button
-            :isDisabled="!isPublished"
             :titleConfig="playPlioTitleClass"
             :iconConfig="playPlioIconConfig"
             :buttonClass="playPlioButtonClass"
             @click="redirectToPlayer"
             data-test="playPlioButton"
+          ></icon-button>
+
+          <!-- embed plio -->
+          <icon-button
+            :titleConfig="embedPlioTitleClass"
+            :iconConfig="embedPlioIconConfig"
+            :buttonClass="embedPlioButtonClass"
+            @click="showEmbedPlioDialog"
+            data-test="embedPlioButton"
           ></icon-button>
         </div>
 
@@ -324,7 +331,7 @@
 
     <!-- dialog to show after publishing -->
     <div
-      class="fixed top-1/3 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10 mx-2 sm:mx-0"
+      class="fixed top-1/4 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10 mx-2 sm:mx-0"
       v-if="showPublishedPlioDialog"
       v-click-away="closePublishedPlioDialog"
     >
@@ -359,6 +366,15 @@
             :iconConfig="playPlioIconConfig"
             :buttonClass="playPlioButtonClass"
             @click="redirectToPlayer"
+          ></icon-button>
+
+          <!-- embed plio -->
+          <icon-button
+            :titleConfig="dialogEmbedPlioTitleClass"
+            :iconConfig="embedPlioIconConfig"
+            :buttonClass="embedPlioButtonClass"
+            @click="showEmbedPlioDialog"
+            data-test="embedPlioButton"
           ></icon-button>
 
           <!-- go back home -->
@@ -474,7 +490,7 @@ export default {
       videoDBId: null, // store the DB id of video object linked to the plio
       plioDBId: null, // store the DB id of plio object
       anyErrorsPresent: false, // store if any errors are present or not
-      showPublishedPlioDialog: false, // whether to show the dialog that comes after publishing plio
+      showPublishedPlioDialog: true, // whether to show the dialog that comes after publishing plio
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       // mapping of questionType value to index in the list of question types
       questionTypeToIndex: {
@@ -491,10 +507,12 @@ export default {
         // config for the icon of the share plio button
         enabled: true,
         iconName: "share",
-        iconClass: "text-yellow-800 fill-current h-4 w-4",
+        iconClass: "text-yellow-800 fill-current h-3 xsm:h-4 w-3 xsm:w-4",
       },
       // styling class for the play plio button
       playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
+      // styling class for the embed plio button
+      embedPlioButtonClass: "bg-brown hover:bg-dark-brown p-2 px-4 rounded-md",
       // styling class for the analyze plio button
       analyzePlioButtonClass: "bg-red-500 hover:bg-red-600 p-2 bp-420:px-4 rounded-md",
       // styling class for the home button on dialog that comes after publishing
@@ -503,7 +521,13 @@ export default {
         // config for the icon of the play plio button
         enabled: true,
         iconName: "play",
-        iconClass: "text-white fill-current h-4 w-4",
+        iconClass: "text-white fill-current h-3 xsm:h-4 w-3 xsm:w-4",
+      },
+      embedPlioIconConfig: {
+        // config for the icon of the embed plio button
+        enabled: true,
+        iconName: "code-braces",
+        iconClass: "text-white fill-current h-3 xsm:h-4 w-3 xsm:w-4",
       },
       analyzePlioIconConfig: {
         // config for the icon of the analyze plio button
@@ -631,7 +655,7 @@ export default {
       // styling class for the title of share plio button
       return {
         value: this.$t("editor.buttons.share_plio"),
-        class: "text-yellow-800",
+        class: "text-sm xsm:test-base text-yellow-800",
       };
     },
     dialogSharePlioTitleClass() {
@@ -646,7 +670,7 @@ export default {
       // styling class for the title of play plio button
       return {
         value: this.$t("editor.buttons.play_plio"),
-        class: "text-white",
+        class: "text-sm xsm:test-base text-white",
       };
     },
     dialogPlayPlioTitleClass() {
@@ -654,6 +678,21 @@ export default {
       // that comes after publishing
       return {
         value: this.$t("editor.dialog.published.buttons.play_plio"),
+        class: "text-white",
+      };
+    },
+    embedPlioTitleClass() {
+      // styling class for the title of embed plio button
+      return {
+        value: this.$t("editor.buttons.embed_plio"),
+        class: "text-sm xsm:test-base text-white",
+      };
+    },
+    dialogEmbedPlioTitleClass() {
+      // styling class for the title of embed plio button on dialog box
+      // that comes after publishing
+      return {
+        value: this.$t("editor.dialog.published.buttons.embed_plio"),
         class: "text-white",
       };
     },
@@ -898,6 +937,7 @@ export default {
       // close the published plio dialog
       this.showPublishedPlioDialog = false;
     },
+    showEmbedPlioDialog() {},
     showSharePlioLinkDialog() {
       // show the share plio dialog
       this.player.pause();

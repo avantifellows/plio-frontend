@@ -43,6 +43,7 @@ export default {
       show_question: "सवाल देखें",
       share_plio: "बाटें",
       play_plio: "चलाएं",
+      embed_plio: "एम्बेड",
       analyze_plio: "विश्लेषण",
     },
     updated: "अपडेटेड ऐट",
@@ -119,6 +120,7 @@ export default {
       published: {
         buttons: {
           play_plio: "चलाएं",
+          embed_plio: "एम्बेड",
           share_plio: "बाटें",
           home: "होम",
         },

@@ -42,6 +42,7 @@ export default {
       show_question: "Show Question",
       share_plio: "Share",
       play_plio: "Play",
+      embed_plio: "Embed",
       analyze_plio: "Analyze",
     },
     updated: "Updated at",
@@ -118,6 +119,7 @@ export default {
       published: {
         buttons: {
           play_plio: "Play",
+          embed_plio: "Embed",
           share_plio: "Share",
           home: "Home",
         },
