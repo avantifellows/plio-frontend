@@ -54,13 +54,6 @@
           @toggle-minimize="minimizeModal"
         ></item-modal>
       </transition>
-      <!-- back button -->
-      <icon-button
-        class="absolute z-20"
-        :iconConfig="backButtonIconConfig"
-        @click="returnToHome"
-      >
-      </icon-button>
     </div>
   </div>
 </template>
@@ -176,6 +169,12 @@ export default {
         }
       }
     },
+    isPlioLoaded(value) {
+      if (value) this.$emit("loaded");
+    },
+    showItemModal(value) {
+      this.$emit("item-toggle", value);
+    },
   },
   async created() {
     // Creating a promise for the third party auth functionality.
@@ -255,23 +254,6 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
-    backButtonIconConfig() {
-      // config for the icon of the back button
-      return {
-        enabled: true,
-        iconName: "left",
-        iconClass: this.backButtonIconClass,
-      };
-    },
-    backButtonIconClass() {
-      return [
-        {
-          "text-black": this.showItemModal,
-          "text-gray-200": !this.showItemModal,
-        },
-        `fill-current h-8 w-8 m-4 rounded-md`,
-      ];
-    },
     isThirdPartyAuth() {
       // if the app needs to authenticate using a third party auth or not
       return this.thirdPartyUniqueId != null && this.thirdPartyApiKey != null;
@@ -332,10 +314,6 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
-    returnToHome() {
-      // returns the user back to Home
-      this.$router.push({ name: "Home", params: { org: this.org } });
-    },
     mountOnFullscreenPlyr(elementToMount) {
       var plyrInstance = document.getElementsByClassName("plyr")[0];
       plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
@@ -682,5 +660,6 @@ export default {
       this.isFullscreen = true;
     },
   },
+  emits: ["loaded", "item-toggle"],
 };
 </script>

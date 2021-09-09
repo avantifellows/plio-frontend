@@ -421,7 +421,9 @@
           class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 my-4 p-2 px-4 bg-peach-light border border-gray-600 rounded-md"
         >
           <!-- link -->
-          <p class="h-full place-self-center text-sm bp-500:text-base text-gray-600">
+          <p
+            class="w-full break-all place-self-center text-sm bp-500:text-base text-gray-600"
+          >
             {{ embedCode }}
           </p>
           <!-- copy link button -->
