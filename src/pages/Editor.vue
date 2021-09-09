@@ -121,15 +121,17 @@
             ></slider-with-markers>
           </div>
         </div>
-
+        <!-- info for subjective question -->
         <div
           v-if="isQuestionTypeSubjective"
           class="mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
         >
+          <!-- icon -->
           <inline-svg
             :src="getIconSource('exclamation-circle-solid.svg')"
             class="w-10 h-10 text-yellow-600 fill-current"
           ></inline-svg>
+          <!-- text -->
           <p class="text-yellow-600">
             {{ $t("editor.headings.subjective_question_warning") }}
           </p>
@@ -327,12 +329,15 @@
       data-test="imageUploaderDialog"
     ></ImageUploaderDialog>
 
-    <ConfettiCelebration v-if="showPublishedPlioDialog" class="z-0"></ConfettiCelebration>
+    <ConfettiCelebration
+      v-if="isPublishedPlioDialogShown"
+      class="z-0"
+    ></ConfettiCelebration>
 
     <!-- dialog to show after publishing -->
     <div
       class="fixed top-1/4 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10 mx-2 sm:mx-0"
-      v-if="showPublishedPlioDialog"
+      v-if="isPublishedPlioDialogShown"
       v-click-away="closePublishedPlioDialog"
     >
       <div class="w-full flex justify-end p-2">
@@ -373,7 +378,7 @@
             :titleConfig="dialogEmbedPlioTitleClass"
             :iconConfig="embedPlioIconConfig"
             :buttonClass="embedPlioButtonClass"
-            @click="showEmbedPlioDialog"
+            @click="hidePublishedDialogShowEmbedDialog"
             data-test="embedPlioButton"
           ></icon-button>
 
@@ -384,6 +389,67 @@
             :buttonClass="dialogHomeButtonClass"
             @click="returnToHome"
           ></icon-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- dialog to show for embedding -->
+    <div
+      class="fixed top-1/4 bg-white mx-2 sm:mx-0 bp-420:w-3/4 bp-500:w-3/4 md:w-2/3 lg:w-1/2 rounded-lg flex flex-col border border-gray-700 shadow-lg"
+      v-if="isEmbedPlioDialogShown"
+      v-click-away="closeEmbedPlioDialog"
+    >
+      <div class="w-full flex justify-end p-2">
+        <!-- close button -->
+        <icon-button
+          :iconConfig="closeDialogIconConfig"
+          :buttonClass="closeDialogButtonClass"
+          @click="closeEmbedPlioDialog"
+          data-test="close"
+        ></icon-button>
+      </div>
+
+      <div class="px-4 bp-420:px-6 bp-500:px-8 pb-8">
+        <!-- title -->
+        <p
+          class="text-xl bp-500:text-2xl text-gray-500 font-bold w-56 sm:w-80"
+          data-test="title"
+        >
+          {{ $t("editor.dialog.embed_plio.title") }}
+        </p>
+        <div
+          class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 my-4 p-2 px-4 bg-peach-light border border-gray-600 rounded-md"
+        >
+          <!-- link -->
+          <p class="h-full place-self-center text-sm bp-500:text-base text-gray-600">
+            {{ embedCode }}
+          </p>
+          <!-- copy link button -->
+          <icon-button
+            :titleConfig="copyLinkTitleClass"
+            :buttonClass="copyLinkButtonClass"
+            @click="copyLinkToClipboard"
+            data-test="copy"
+          ></icon-button>
+        </div>
+        <!-- info on receiving data from embeds -->
+        <div class="w-full p-2 rounded-md border border-yellow-400 flex space-x-4">
+          <!-- icon -->
+          <inline-svg
+            :src="getIconSource('exclamation-circle-solid.svg')"
+            class="w-10 h-10 text-yellow-600 fill-current"
+          ></inline-svg>
+          <!-- text -->
+          <p class="text-yellow-600">
+            {{ embedPlioReceiveDataInfo.start }}
+            <a
+              :href="embedPlioDataInfoLink"
+              target="_blank"
+              class="font-bold underline"
+              >{{ embedPlioReceiveDataInfo.link }}</a
+            >
+            {{ embedPlioReceiveDataInfo.end }}
+          </p>
         </div>
       </div>
     </div>
@@ -409,6 +475,7 @@ import ItemModal from "@/components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ConfettiCelebration from "@/components/UI/Animations/ConfettiCelebration.vue";
+import { useToast } from "vue-toastification";
 
 // used for deep cloning objects
 var cloneDeep = require("lodash.clonedeep");
@@ -490,7 +557,8 @@ export default {
       videoDBId: null, // store the DB id of video object linked to the plio
       plioDBId: null, // store the DB id of plio object
       anyErrorsPresent: false, // store if any errors are present or not
-      showPublishedPlioDialog: true, // whether to show the dialog that comes after publishing plio
+      isPublishedPlioDialogShown: false, // whether to show the dialog that comes after publishing plio
+      isEmbedPlioDialogShown: false, // whether to show the dialog with info on embedding plio
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       // mapping of questionType value to index in the list of question types
       questionTypeToIndex: {
@@ -557,6 +625,8 @@ export default {
       },
       // class for the button to close the dialog that comes after publishing
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
+      plioEmbedCodeCopied: false, // whether the plio embed code has been copied or not
+      toast: useToast(), // use the toast component
     };
   },
   async created() {
@@ -621,6 +691,47 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
+    embedPlioDataInfoLink() {
+      if (this.isPersonalWorkspace)
+        return "https://docs.google.com/forms/d/e/1FAIpQLSdSq3KZOTEAnNsE5BfRPNPpmROQQ3gPFYJS8xJ9RB2j5LsAQQ/viewform";
+      return "https://docs.plio.in/plio-for-teams/#single-sign-on-sso";
+    },
+    embedPlioReceiveDataInfo() {
+      if (this.isPersonalWorkspace) {
+        return {
+          start: this.$t("editor.dialog.embed_plio.info.embed_data.personal_workspace.1"),
+          link: this.$t("editor.dialog.embed_plio.info.embed_data.personal_workspace.2"),
+          end: this.$t("editor.dialog.embed_plio.info.embed_data.personal_workspace.3"),
+        };
+      }
+      return {
+        start: this.$t("editor.dialog.embed_plio.info.embed_data.org_workspace.1"),
+        link: this.$t("editor.dialog.embed_plio.info.embed_data.org_workspace.2"),
+        end: this.$t("editor.dialog.embed_plio.info.embed_data.org_workspace.3"),
+      };
+    },
+    isPersonalWorkspace() {
+      return this.org == "";
+    },
+    copyLinkButtonClass() {
+      // styling class for the copy link button
+      return [
+        {
+          "bg-primary hover:bg-primary-hover": !this.plioEmbedCodeCopied,
+          "bg-green-500 hover:bg-green-600": this.plioEmbedCodeCopied,
+        },
+        `p-2 px-4 rounded-md mt-2 sm:mt-0`,
+      ];
+    },
+    copyLinkTitleClass() {
+      // styling class for the title of copy link button
+      return {
+        value: this.plioEmbedCodeCopied
+          ? this.$t(`editor.dialog.embed_plio.buttons.copy_link.copied`)
+          : this.$t("editor.dialog.embed_plio.buttons.copy_link.not_copied"),
+        class: "text-white",
+      };
+    },
     itemImage() {
       // URL of the image present for the current item
       if (this.currentItemIndex == null) return null;
@@ -760,7 +871,8 @@ export default {
         this.isBeingPublished ||
         this.showDialogBox ||
         this.showImageUploaderDialog ||
-        this.showPublishedPlioDialog ||
+        this.isPublishedPlioDialogShown ||
+        this.isEmbedPlioDialogShown ||
         this.pending
       );
     },
@@ -868,6 +980,10 @@ export default {
       // prepare the link for the plio from the plio ID
       return this.getPlioLink(this.plioId, this.org);
     },
+    embedCode() {
+      // code to be copied for embedding the plio
+      return this.getEmbedCode(this.plioId, this.org);
+    },
     isVideoIdValid() {
       // whether the video Id is valid
       return this.videoId != "";
@@ -928,16 +1044,40 @@ export default {
     ]),
     ...mapActions("generic", ["showSharePlioDialog"]),
     ...Utilities,
+    copyLinkToClipboard() {
+      // triggered on clicking the copy link button
+      // return if the link has already been copied
+      if (this.plioEmbedCodeCopied) return;
+
+      var success = this.copyToClipboard(this.embedCode);
+
+      if (success) this.plioEmbedCodeCopied = true;
+      else this.toast.error(this.$t("error.copying"));
+    },
     hidePublishedDialogShowShareDialog() {
       // hides the published plio dialog and shows the share plio dialog
-      this.showPublishedPlioDialog = false;
+      this.isPublishedPlioDialogShown = false;
       this.showSharePlioLinkDialog();
+    },
+    hidePublishedDialogShowEmbedDialog() {
+      // hides the published plio dialog and shows the embed plio dialog
+      this.isPublishedPlioDialogShown = false;
+      this.showEmbedPlioDialog();
     },
     closePublishedPlioDialog() {
       // close the published plio dialog
-      this.showPublishedPlioDialog = false;
+      this.isPublishedPlioDialogShown = false;
     },
-    showEmbedPlioDialog() {},
+    closeEmbedPlioDialog() {
+      // close the embed plio dialog
+      this.isEmbedPlioDialogShown = false;
+      this.plioEmbedCodeCopied = false;
+    },
+    showEmbedPlioDialog() {
+      // show the embed plio dialog
+      this.player.pause();
+      this.isEmbedPlioDialogShown = true;
+    },
     showSharePlioLinkDialog() {
       // show the share plio dialog
       this.player.pause();
@@ -1199,7 +1339,7 @@ export default {
       this.savePlio().then(() => {
         this.isBeingPublished = false;
         this.showDialogBox = false;
-        this.showPublishedPlioDialog = true;
+        this.isPublishedPlioDialogShown = true;
         this.hasUnpublishedChanges = false;
       });
     },

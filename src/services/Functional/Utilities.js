@@ -9,6 +9,21 @@ export default {
     return baseURL + "/play/" + plioId;
   },
 
+  getPlioEmbedLink(plioId, activeWorkspace) {
+    // get the link for embedding the plio from the plio ID and activeWorkspace
+    if (plioId == "") return "";
+    var baseURL = process.env.VUE_APP_FRONTEND + "/#";
+    baseURL = baseURL.replace("http://", "");
+    baseURL = baseURL.replace("https://", "");
+    if (activeWorkspace != "") baseURL += "/" + activeWorkspace;
+    return baseURL + "/plio/" + plioId;
+  },
+
+  getEmbedCode(plioId, activeWorkspace) {
+    const plioEmbedLink = this.getPlioEmbedLink(plioId, activeWorkspace);
+    return `<iframe src='${plioEmbedLink}' width=100% height=640px></iframe>`;
+  },
+
   getIconSource(iconName) {
     // returns the source of an icon given the name
     return require(`@/assets/images/${iconName}`);

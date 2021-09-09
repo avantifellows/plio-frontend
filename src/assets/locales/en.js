@@ -134,6 +134,29 @@ export default {
           },
         },
       },
+      embed_plio: {
+        title: "Embed this Plio",
+        buttons: {
+          copy_link: {
+            not_copied: "Copy",
+            copied: "Copied!",
+          },
+        },
+        info: {
+          embed_data: {
+            personal_workspace: {
+              1: "You will not receive any data from the embedded plio if your viewers haven't already logged in to plio in your current workspace. Fill ",
+              2: "this",
+              3: " form if you want to apply for an organizational workspace to receive data using Single Sign-On (SSO).",
+            },
+            org_workspace: {
+              1: "By default, you will not receive any data from the embedded plio if your viewers haven't already logged in to plio. However, you can receive data using Single Sign-On (SSO). Click ",
+              2: "here",
+              3: " to understand how to use it!",
+            },
+          },
+        },
+      },
       image_uploader: {
         title_non_touch: "Drag and drop or click here to upload",
         title_touch: "Click to take a picture or add from gallery",
