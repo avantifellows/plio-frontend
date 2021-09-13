@@ -395,7 +395,7 @@
 
     <!-- dialog to show for embedding -->
     <div
-      class="fixed top-1/4 bg-white mx-2 sm:mx-0 bp-420:w-3/4 bp-500:w-3/4 md:w-2/3 lg:w-1/2 rounded-lg flex flex-col border border-gray-700 shadow-lg"
+      class="fixed top-1/6 bg-white mx-2 sm:mx-0 bp-420:w-3/4 bp-500:w-3/4 md:w-2/3 lg:w-1/2 rounded-lg flex flex-col border border-gray-700 shadow-lg"
       v-if="isEmbedPlioDialogShown"
       v-click-away="closeEmbedPlioDialog"
     >
@@ -435,11 +435,13 @@
           ></icon-button>
         </div>
         <!-- info on receiving data from embeds -->
-        <div class="w-full p-2 rounded-md border border-yellow-400 flex space-x-4">
+        <div
+          class="w-full p-4 sm:p-2 rounded-md border border-yellow-400 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
+        >
           <!-- icon -->
           <inline-svg
             :src="getIconSource('exclamation-circle-solid.svg')"
-            class="w-10 h-10 text-yellow-600 fill-current"
+            class="w-8 sm:w-1/4 md:w-1/5 xl:w-1/6 h-8 text-yellow-600 fill-current"
           ></inline-svg>
           <!-- text -->
           <p class="text-yellow-600">
@@ -1353,8 +1355,7 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
@@ -1398,8 +1399,7 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.got_it"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: false,
@@ -1420,8 +1420,7 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.got_it"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: false,
@@ -1545,8 +1544,7 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
@@ -1574,8 +1572,7 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,

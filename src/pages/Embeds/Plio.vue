@@ -309,7 +309,7 @@ export default {
     },
     fullscreenButtonClass() {
       // class for the fullscreen button
-      return `ring-2 ring-red-100 bg-primary-button hover:bg-primary-button-hover p-4 rounded-md shadow-xl place-self-center animate-bounce m-auto`;
+      return `ring-2 ring-red-100 bg-primary hover:bg-primary-hover p-4 rounded-md shadow-xl place-self-center animate-bounce m-auto`;
     },
   },
   methods: {

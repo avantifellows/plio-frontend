@@ -298,7 +298,7 @@ export default {
             enabled: true,
             text: this.$t("generic.no"),
             class:
-              "bg-primary-button hover:bg-primary-button-hover focus:outline-none text-white",
+              "bg-primary hover:bg-primary-hover focus:outline-none text-white",
           };
           // show the dialog box
           this.showDialogBox = true;

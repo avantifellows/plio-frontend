@@ -276,7 +276,7 @@ export default {
       // classes for search bar button
       return [
         { "pointer-events-none": !this.isSearchStringPresent },
-        "bg-grey-lightest border-grey border-l shadow hover:bg-primary-button p-4 text-primary hover:text-white",
+        "bg-grey-lightest border-grey border-l shadow hover:bg-primary p-4 text-primary hover:text-white",
       ];
     },
     analyseButtonTitleConfig() {

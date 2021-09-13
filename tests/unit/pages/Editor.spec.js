@@ -494,7 +494,7 @@ describe("Editor.vue", () => {
       enabled: true,
       text: "Yes",
       class:
-        "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
     });
     expect(wrapper.vm.dialogCancelButtonConfig).toStrictEqual({
       enabled: true,
@@ -746,7 +746,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Yes");
     expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
-      "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0"
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
     );
     expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("No");
@@ -773,7 +773,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Got it");
     expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
-      "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0"
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
     );
     expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeFalsy();
     expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("");
@@ -810,7 +810,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Yes");
     expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
-      "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0"
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
     );
     expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("No");
@@ -991,7 +991,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Yes");
     expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
-      "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0"
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
     );
     expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("No");
