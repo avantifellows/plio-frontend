@@ -39,6 +39,7 @@ export default {
     this.$nextTick(() => {
       if (this.isVideoIdValid) {
         this.initiatePlayer();
+        // sets the aspect ratio while the player is getting ready
         this.setAspectRatio();
       }
     });
@@ -90,13 +91,13 @@ export default {
     },
     setPlayerProperties(player) {
       // set properties of the player
-      player.on("timeupdate", this.emitTimeUpdate);
-      player.on("ready", this.emitReady);
-      player.on("play", this.emitPlay);
-      player.on("pause", this.emitPause);
-      player.on("enterfullscreen", this.emitEnterFullscreen);
-      player.on("exitfullscreen", this.emitExitFullscreen);
-      player.on("seeked", this.emitSeeked);
+      player.on("timeupdate", this.playerTimeUpdated);
+      player.on("ready", this.playerReady);
+      player.on("play", this.playerPlayed);
+      player.on("pause", this.playerPaused);
+      player.on("enterfullscreen", this.enteredFullscreen);
+      player.on("exitfullscreen", this.exitedFullscreen);
+      player.on("seeked", this.playerSeekEnded);
 
       this.removePlyrPoster();
     },
@@ -105,34 +106,37 @@ export default {
       var plyrPoster = document.getElementById("plyr__poster");
       if (plyrPoster != null && plyrPoster.remove === "function") plyrPoster.remove();
     },
-    emitTimeUpdate() {
-      // emit an event saying that the player time has been updated
+    playerTimeUpdated() {
+      // invoked when the player time has been updated
       var updatedTime = Number(this.player.currentTime.toFixed(2));
       this.$emit("update:currentTime", updatedTime);
       this.$emit("update", updatedTime);
     },
-    emitReady() {
-      // emit an event indicating that the player instance is ready
+    playerReady() {
+      // invoked when the player instance is ready
       this.$emit("ready");
+      // sets the aspect ratio when the player is ready
+      // this is required for safari
+      this.setAspectRatio();
     },
-    emitPlay() {
-      // emit an event indicating that the player has been played
+    playerPlayed() {
+      // invoked when the player has been played
       this.$emit("play");
     },
-    emitSeeked() {
-      // emit an event indicating that a seek operation has ended
+    playerSeekEnded() {
+      // invoked when a seek operation has ended
       this.$emit("seeked");
     },
-    emitPause() {
-      // emit an event indicating that the player has been paused
+    playerPaused() {
+      // invoked when the player has been paused
       this.$emit("pause");
     },
-    emitEnterFullscreen() {
-      // emit an event indicating that the player is entering fullscreen
+    enteredFullscreen() {
+      // invoked when the player is entering fullscreen
       this.$emit("enterfullscreen");
     },
-    emitExitFullscreen() {
-      // emit an event indicating that the player is exiting fullscreen
+    exitedFullscreen() {
+      // invoked when the player is exiting fullscreen
       this.$emit("exitfullscreen");
     },
   },
