@@ -1,4 +1,4 @@
-import { mount, flushPromises } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import Scorecard from "@/components/Items/Scorecard/Scorecard";
 
 beforeEach(() => {
