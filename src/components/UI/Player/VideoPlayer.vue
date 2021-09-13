@@ -33,6 +33,11 @@ export default {
       default: 0,
       type: Number,
     },
+    coverFullscreen: {
+      // whether the player should cover the full screen
+      default: true,
+      type: Boolean,
+    },
   },
   created() {
     // start the player
@@ -75,7 +80,10 @@ export default {
     setAspectRatio() {
       /**
        * sets the aspect ratio based on the current window height and width
+       * to cover the full screen
        */
+      // if the player should not cover the fullscreen, then do not proceed
+      if (!this.coverFullscreen) return;
       // refer to this comment from the creator of plyr on how he
       // handles responsiveness: https://github.com/sampotts/plyr/issues/339#issuecomment-287603966
       // the solution below is just generalizing what he had done

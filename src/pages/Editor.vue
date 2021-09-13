@@ -71,6 +71,7 @@
               <video-player
                 :videoId="videoId"
                 :plyrConfig="plyrConfig"
+                :coverFullscreen="false"
                 @update="videoTimestampUpdated"
                 @ready="playerReady"
                 @play="playerPlayed"
