@@ -24,15 +24,22 @@ const getters = {
   },
   isUserApproved: (state) =>
     state.user != null && state.user.status == "approved",
-  activeWorkspaceSchema: (state) => {
-    let activeOrganizationSchema = "public";
+  activeOrganization: (state) => {
     if (state.activeWorkspace != "") {
-      let activeOrganization = state.user.organizations.find((organization) => {
+      return state.user.organizations.find((organization) => {
         return organization.shortcode == state.activeWorkspace;
       });
-      activeOrganizationSchema = activeOrganization.schema_name;
     }
-    return activeOrganizationSchema;
+    return {
+      schema_name: "public",
+      api_key: "",
+    };
+  },
+  activeWorkspaceSchema: (_, getters) => {
+    return getters.activeOrganization.schema_name;
+  },
+  activeWorkspaceApiKey: (_, getters) => {
+    return getters.activeOrganization.api_key;
   },
   isAnalyticsAccessTokenValid: (state) => {
     if (state.analyticsAccessToken === null) return false;
