@@ -396,7 +396,8 @@
 
     <!-- dialog to show for embedding -->
     <div
-      class="fixed top-1/6 bg-white mx-2 sm:mx-0 bp-420:w-3/4 bp-500:w-3/4 md:w-2/3 lg:w-1/2 rounded-lg flex flex-col border border-gray-700 shadow-lg"
+      class="fixed bg-white mx-2 sm:mx-0 bp-420:w-11/12 md:w-2/3 lg:w-1/2 rounded-lg flex flex-col border border-gray-700 shadow-lg"
+      :class="embedDialogClass"
       v-if="isEmbedPlioDialogShown"
       v-click-away="closeEmbedPlioDialog"
     >
@@ -418,23 +419,48 @@
         >
           {{ $t("editor.dialog.embed_plio.title") }}
         </p>
-        <div
-          class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 my-4 p-2 px-4 bg-peach-light border border-gray-600 rounded-md"
-        >
-          <!-- link -->
-          <p
-            class="w-full break-all place-self-center text-sm bp-500:text-base text-gray-600"
-          >
-            {{ embedCode }}
+        <!-- embed code without sso -->
+        <div class="my-4" :class="embedCodeContainerClass">
+          <!-- without sso title -->
+          <p v-if="!isPersonalWorkspace" :class="embedCodeTitleClass">
+            {{ $t("editor.dialog.embed_plio.headings.without_sso") }}
           </p>
-          <!-- copy link button -->
-          <icon-button
-            :titleConfig="copyLinkTitleClass"
-            :buttonClass="copyLinkButtonClass"
-            @click="copyLinkToClipboard"
-            data-test="copy"
-          ></icon-button>
+          <div :class="embedCodeBoxClass">
+            <!-- link -->
+            <p :class="embedCodeValueClass">
+              {{ embedCode }}
+            </p>
+            <!-- copy link button -->
+            <icon-button
+              :titleConfig="copyEmbedCodeWithoutSSOTitleClass"
+              :buttonClass="copyEmbedCodeWithoutSSOButtonClass"
+              @click="copyEmbedCodeWithoutSSO"
+              data-test="copy"
+            ></icon-button>
+          </div>
         </div>
+
+        <!-- embed code with sso -->
+        <div class="my-4" :class="embedCodeContainerClass" v-if="!isPersonalWorkspace">
+          <!-- with sso title -->
+          <p :class="embedCodeTitleClass">
+            {{ $t("editor.dialog.embed_plio.headings.with_sso") }}
+          </p>
+          <div :class="embedCodeBoxClass">
+            <!-- link -->
+            <p :class="embedCodeValueClass">
+              {{ embedCodeSSO }}
+            </p>
+            <!-- copy link button -->
+            <icon-button
+              :titleConfig="copyEmbedCodeWithSSOTitleClass"
+              :buttonClass="copyEmbedCodeWithSSOButtonClass"
+              @click="copyEmbedCodeWithSSO"
+              data-test="copy"
+            ></icon-button>
+          </div>
+        </div>
+
         <!-- info on receiving data from embeds -->
         <div
           class="w-full p-4 sm:p-2 rounded-md border border-yellow-400 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
@@ -442,10 +468,10 @@
           <!-- icon -->
           <inline-svg
             :src="getIconSource('exclamation-circle-solid.svg')"
-            class="w-8 sm:w-1/4 md:w-1/5 xl:w-1/6 h-8 text-yellow-600 fill-current"
+            class="w-6 sm:w-1/4 md:w-1/5 xl:w-1/6 h-6 text-yellow-600 fill-current"
           ></inline-svg>
           <!-- text -->
-          <p class="text-yellow-600">
+          <p class="text-yellow-600 text-sm">
             {{ embedPlioReceiveDataInfo.start }}
             <a
               :href="embedPlioDataInfoLink"
@@ -477,7 +503,7 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import ItemModal from "@/components/Player/ItemModal.vue";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ConfettiCelebration from "@/components/UI/Animations/ConfettiCelebration.vue";
 import { useToast } from "vue-toastification";
@@ -630,8 +656,14 @@ export default {
       },
       // class for the button to close the dialog that comes after publishing
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
-      plioEmbedCodeCopied: false, // whether the plio embed code has been copied or not
+      plioEmbedCodeWithoutSSOCopied: false, // whether the plio embed code without sso has been copied or not
+      plioEmbedCodeWithSSOCopied: false, // whether the plio embed code with sso has been copied or not
       toast: useToast(), // use the toast component
+      embedCodeTitleClass: "text-sm",
+      embedCodeValueClass:
+        "w-full break-all place-self-center text-sm bp-500:text-base text-gray-600",
+      embedCodeBoxClass:
+        "flex flex-col items-center bp-500:flex-row space-y-2 bp-500:space-y-0 bp-500:space-x-4 p-2 px-4 bg-peach-light border border-gray-600 rounded-md",
     };
   },
   async created() {
@@ -696,6 +728,18 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
+    ...mapGetters("auth", ["activeWorkspaceApiKey"]),
+    embedDialogClass() {
+      return {
+        "top-1/6": this.isPersonalWorkspace,
+        "top-1/100 xsm:top-1/20 bp-500:top-auto": !this.isPersonalWorkspace,
+      };
+    },
+    embedCodeContainerClass() {
+      return {
+        "flex flex-col space-y-2": !this.isPersonalWorkspace,
+      };
+    },
     embedPlioDataInfoLink() {
       if (this.isPersonalWorkspace)
         return "https://docs.google.com/forms/d/e/1FAIpQLSdSq3KZOTEAnNsE5BfRPNPpmROQQ3gPFYJS8xJ9RB2j5LsAQQ/viewform";
@@ -718,24 +762,21 @@ export default {
     isPersonalWorkspace() {
       return this.org == "";
     },
-    copyLinkButtonClass() {
-      // styling class for the copy link button
-      return [
-        {
-          "bg-primary hover:bg-primary-hover": !this.plioEmbedCodeCopied,
-          "bg-green-500 hover:bg-green-600": this.plioEmbedCodeCopied,
-        },
-        `p-2 px-4 rounded-md mt-2 sm:mt-0`,
-      ];
+    copyEmbedCodeWithoutSSOButtonClass() {
+      // class for the copy embed code without sso button
+      return this.getCopyButtonClass(this.plioEmbedCodeWithoutSSOCopied);
     },
-    copyLinkTitleClass() {
-      // styling class for the title of copy link button
-      return {
-        value: this.plioEmbedCodeCopied
-          ? this.$t(`editor.dialog.embed_plio.buttons.copy_link.copied`)
-          : this.$t("editor.dialog.embed_plio.buttons.copy_link.not_copied"),
-        class: "text-white",
-      };
+    copyEmbedCodeWithoutSSOTitleClass() {
+      // class for the title of the copy embed code without sso button
+      return this.getCopyButtonTitleClass(this.plioEmbedCodeWithoutSSOCopied);
+    },
+    copyEmbedCodeWithSSOButtonClass() {
+      // class for the copy embed code with sso button
+      return this.getCopyButtonClass(this.plioEmbedCodeWithSSOCopied);
+    },
+    copyEmbedCodeWithSSOTitleClass() {
+      // class for the title of the copy embed code with sso button
+      return this.getCopyButtonTitleClass(this.plioEmbedCodeWithSSOCopied);
     },
     itemImage() {
       // URL of the image present for the current item
@@ -989,6 +1030,10 @@ export default {
       // code to be copied for embedding the plio
       return this.getEmbedCode(this.plioId, this.org);
     },
+    embedCodeSSO() {
+      // code to be copied for embedding the plio with SSO
+      return this.getEmbedCode(this.plioId, this.org, true, this.activeWorkspaceApiKey);
+    },
     isVideoIdValid() {
       // whether the video Id is valid
       return this.videoId != "";
@@ -1049,15 +1094,48 @@ export default {
     ]),
     ...mapActions("generic", ["showSharePlioDialog"]),
     ...Utilities,
-    copyLinkToClipboard() {
-      // triggered on clicking the copy link button
+    getCopyButtonTitleClass(copied = false) {
+      return {
+        value: copied
+          ? this.$t(`editor.dialog.embed_plio.buttons.copy_link.copied`)
+          : this.$t("editor.dialog.embed_plio.buttons.copy_link.not_copied"),
+        class: "text-white",
+      };
+    },
+    getCopyButtonClass(copied = false) {
+      return [
+        {
+          "bg-primary hover:bg-primary-hover": !copied,
+          "bg-green-500 hover:bg-green-600": copied,
+        },
+        `p-2 px-4 rounded-md mt-2 sm:mt-0 h-full w-full bp-500:w-auto`,
+      ];
+    },
+    copyEmbedCodeWithoutSSO() {
+      /**
+       * triggered on copying the embed code without sso
+       */
       // return if the link has already been copied
-      if (this.plioEmbedCodeCopied) return;
+      if (this.plioEmbedCodeWithoutSSOCopied) return;
+      const success = this.copyToClipboard(this.embedCode);
 
-      var success = this.copyToClipboard(this.embedCode);
+      if (success) {
+        this.plioEmbedCodeWithoutSSOCopied = true;
+        this.plioEmbedCodeWithSSOCopied = false;
+      } else this.toast.error(this.$t("error.copying"));
+    },
+    copyEmbedCodeWithSSO() {
+      /**
+       * triggered on copying the embed code with sso
+       */
+      // return if the link has already been copied
+      if (this.plioEmbedCodeWithSSOCopied) return;
+      const success = this.copyToClipboard(this.embedCodeSSO);
 
-      if (success) this.plioEmbedCodeCopied = true;
-      else this.toast.error(this.$t("error.copying"));
+      if (success) {
+        this.plioEmbedCodeWithSSOCopied = true;
+        this.plioEmbedCodeWithoutSSOCopied = false;
+      } else this.toast.error(this.$t("error.copying"));
     },
     hidePublishedDialogShowShareDialog() {
       // hides the published plio dialog and shows the share plio dialog
@@ -1076,7 +1154,8 @@ export default {
     closeEmbedPlioDialog() {
       // close the embed plio dialog
       this.isEmbedPlioDialogShown = false;
-      this.plioEmbedCodeCopied = false;
+      this.plioEmbedCodeWithoutSSOCopied = false;
+      this.plioEmbedCodeWithSSOCopied = false;
     },
     showEmbedPlioDialog() {
       // show the embed plio dialog

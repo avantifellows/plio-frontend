@@ -136,6 +136,10 @@ export default {
       },
       embed_plio: {
         title: "Embed this Plio",
+        headings: {
+          without_sso: "Without Single Sign-On (SSO)",
+          with_sso: "With Single Sign-On (SSO)",
+        },
         buttons: {
           copy_link: {
             not_copied: "Copy",
@@ -145,7 +149,7 @@ export default {
         info: {
           embed_data: {
             personal_workspace: {
-              1: "You will not receive any data from the embedded plio if your viewers haven't already logged in to plio in your current workspace. Fill ",
+              1: "In your current plan, you will not receive any data from the embedded plio if your viewers haven't already logged in to plio. Fill ",
               2: "this",
               3: " form if you want to apply for an organizational workspace to receive data using Single Sign-On (SSO).",
             },

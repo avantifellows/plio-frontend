@@ -17,8 +17,24 @@ export default {
     return baseURL + "/plio/" + plioId;
   },
 
-  getEmbedCode(plioId, activeWorkspace) {
-    const plioEmbedLink = this.getPlioEmbedLink(plioId, activeWorkspace);
+  addSSOParamsToLink(link, activeWorkspaceApiKey = null) {
+    const api_key =
+      activeWorkspaceApiKey != null ? activeWorkspaceApiKey : "YOUR_API_KEY";
+    return `${link}?api_key=${api_key}&unique_id=UNIQUE_ID`;
+  },
+
+  getEmbedCode(
+    plioId,
+    activeWorkspace,
+    sso = false,
+    activeWorkspaceApiKey = null
+  ) {
+    let plioEmbedLink = this.getPlioEmbedLink(plioId, activeWorkspace);
+    if (sso)
+      plioEmbedLink = this.addSSOParamsToLink(
+        plioEmbedLink,
+        activeWorkspaceApiKey
+      );
     return `<iframe src='${plioEmbedLink}' width=100% height=640px></iframe>`;
   },
 

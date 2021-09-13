@@ -137,6 +137,10 @@ export default {
       },
       embed_plio: {
         title: "इस प्लायो को एम्बेड करें",
+        headings: {
+          without_sso: "सिंगल साइन-ऑन (SSO) के बिना",
+          with_sso: "सिंगल साइन-ऑन (SSO) के साथ",
+        },
         buttons: {
           copy_link: {
             not_copied: "कॉपी",
