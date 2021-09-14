@@ -170,7 +170,7 @@
     >
       <!-- icon -->
       <inline-svg
-        :src="getIconSource('exclamation-circle-solid.svg')"
+        :src="getImageSource('exclamation-circle-solid.svg')"
         class="h-8 sm:h-12"
       ></inline-svg>
       <!-- heading -->

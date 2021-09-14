@@ -12,13 +12,13 @@
         <span class="flex flex-1 space-x-2 items-center">
           <inline-svg
             v-if="selectedOptionHasIcon"
-            :src="getIconSource(selectedOption.icon)"
+            :src="getImageSource(selectedOption.icon)"
             class="text-white h-4 w-full bp-420:w-2/3 bp-500:w-full sm:w-2/3 fill-current"
           ></inline-svg>
         </span>
         <!-- dropdown icon -->
         <inline-svg
-          :src="getIconSource('chevron-down-solid-white.svg')"
+          :src="getImageSource('chevron-down-solid-white.svg')"
           class="h-4 w-4 text-primary fill-current"
           :class="dropdownIconClass"
         ></inline-svg>
@@ -47,7 +47,7 @@
             <!-- option icon -->
             <inline-svg
               v-if="doesOptionHaveIcon(option)"
-              :src="getIconSource(option.icon)"
+              :src="getImageSource(option.icon)"
               class="w-1/4 h-4 fill-current"
               data-test="icon"
             ></inline-svg>

@@ -10,7 +10,7 @@
       >
         <!-- dropdown icon -->
         <inline-svg
-          :src="getIconSource('chevron-down-solid.svg')"
+          :src="getImageSource('chevron-down-solid.svg')"
           class="h-4 w-4 fill-current hover:cursor-pointer"
           :class="dropdownIconClass"
         ></inline-svg>
@@ -43,7 +43,7 @@
             <!-- option icon -->
             <inline-svg
               v-if="doesOptionHaveIcon(option)"
-              :src="getIconSource(option.icon)"
+              :src="getImageSource(option.icon)"
               class="w-4 h-4 fill-current"
               data-test="icon"
             ></inline-svg>

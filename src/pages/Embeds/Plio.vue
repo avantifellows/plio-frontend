@@ -170,9 +170,11 @@ export default {
       }
     },
     isPlioLoaded(value) {
+      // emit if a plio has completed loading
       if (value) this.$emit("loaded");
     },
     showItemModal(value) {
+      // emit if an item's visibility has been toggled
       this.$emit("item-toggle", value);
     },
   },
@@ -442,7 +444,7 @@ export default {
        */
       // do not create a session if a user is not authenticated
       if (!this.isAuthenticated) {
-        // initiate itemResponses as empty set of answers
+        // initiate itemResponses as an empty set of answers
         this.items.forEach((item) => {
           if (item.type == "question" && item.details["type"] == "mcq") {
             this.itemResponses.push({

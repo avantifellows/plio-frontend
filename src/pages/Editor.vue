@@ -129,7 +129,7 @@
         >
           <!-- icon -->
           <inline-svg
-            :src="getIconSource('exclamation-circle-solid.svg')"
+            :src="getImageSource('exclamation-circle-solid.svg')"
             class="w-10 h-10 text-yellow-600 fill-current"
           ></inline-svg>
           <!-- text -->
@@ -140,7 +140,7 @@
 
         <!--- buttons -->
         <div
-          class="flex justify-center space-x-2 my-6"
+          class="flex justify-center space-x-1 xsm:space-x-2 my-12"
           v-if="isVideoIdValid"
           data-test="lowerButtons"
         >
@@ -158,7 +158,7 @@
             :class="publishButtonClass"
             class="shadow-lg"
             v-tooltip.right="publishButtonTooltip"
-            @click="publishButtonClicked"
+            @click="showPublishConfirmationDialogBox"
             data-test="publishButton"
           ></icon-button>
           <!-- analyze plio -->
@@ -183,7 +183,7 @@
             data-test="videoLinkInfo"
           >
             <inline-svg
-              :src="getIconSource('publish.svg')"
+              :src="getImageSource('publish.svg')"
               class="w-12 h-12 text-white fill-current"
             ></inline-svg>
             <p class="text-white text-xs bp-500:text-base md:text-sm lg:text-base">
@@ -266,7 +266,7 @@
                   data-test="addMCQItem"
                 >
                   <inline-svg
-                    :src="getIconSource('radio-button.svg')"
+                    :src="getImageSource('radio-button.svg')"
                     class="h-4 w-4 fill-current text-primary group-hover:text-white group-disabled:text-primary"
                   ></inline-svg>
                   <p class="font-bold text-center">{{ $t("generic.mcq") }}</p>
@@ -280,7 +280,7 @@
                   data-test="addSubjectiveItem"
                 >
                   <inline-svg
-                    :src="getIconSource('subjective-question.svg')"
+                    :src="getImageSource('subjective-question.svg')"
                     class="w-20 fill-current text-primary group-hover:text-white group-disabled:text-primary"
                   ></inline-svg>
                   <p class="font-bold text-center">{{ $t("generic.subjective") }}</p>
@@ -297,7 +297,7 @@
             :isInteractionDisabled="isPublished"
             v-model:questionTypeIndex="currentQuestionTypeIndex"
             @update:selectedItemIndex="navigateToItem"
-            @delete-selected-item="deleteItemButtonClicked"
+            @delete-selected-item="showDeleteItemDialogBox"
             @delete-option="deleteOption"
             @error-occurred="setErrorOccurred"
             @error-resolved="setErrorResolved"
@@ -467,7 +467,7 @@
         >
           <!-- icon -->
           <inline-svg
-            :src="getIconSource('exclamation-circle-solid.svg')"
+            :src="getImageSource('exclamation-circle-solid.svg')"
             class="w-6 sm:w-1/4 md:w-1/5 xl:w-1/6 h-6 text-yellow-600 fill-current"
           ></inline-svg>
           <!-- text -->
@@ -730,22 +730,29 @@ export default {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapGetters("auth", ["activeWorkspaceApiKey"]),
     embedDialogClass() {
+      // class for the dialog box showing the embed codes
       return {
         "top-1/6": this.isPersonalWorkspace,
         "top-1/100 xsm:top-1/20 bp-500:top-auto": !this.isPersonalWorkspace,
       };
     },
     embedCodeContainerClass() {
+      // class for the container within the dialog box containing the embed code
       return {
         "flex flex-col space-y-2": !this.isPersonalWorkspace,
       };
     },
     embedPlioDataInfoLink() {
-      if (this.isPersonalWorkspace)
+      // the link to be used in the informational text shown for embedding plios
+      if (this.isPersonalWorkspace) {
+        // redirect to the form to apply for an organizational workspace
         return "https://docs.google.com/forms/d/e/1FAIpQLSdSq3KZOTEAnNsE5BfRPNPpmROQQ3gPFYJS8xJ9RB2j5LsAQQ/viewform";
-      return "https://docs.plio.in/plio-for-teams/#single-sign-on-sso";
+      }
+      // redirect to the section in the docs explaining how to receive data from embedded plio
+      return "https://docs.plio.in/plio-for-teams/#receiving-data-from-embedded-plio";
     },
     embedPlioReceiveDataInfo() {
+      // the informational text to be shown in the dialog box for embedding plio
       if (this.isPersonalWorkspace) {
         return {
           start: this.$t("editor.dialog.embed_plio.info.embed_data.personal_workspace.1"),
@@ -760,6 +767,7 @@ export default {
       };
     },
     isPersonalWorkspace() {
+      // whether the current workspace is an organizational workspace
       return this.org == "";
     },
     copyEmbedCodeWithoutSSOButtonClass() {
@@ -1094,6 +1102,12 @@ export default {
     ]),
     ...mapActions("generic", ["showSharePlioDialog"]),
     ...Utilities,
+    /**
+     * class for the text inside the copy buttons of the embed plio dialog box
+     *
+     * @param {Boolean} copied whether the text to be copied has been copied
+     *
+     */
     getCopyButtonTitleClass(copied = false) {
       return {
         value: copied
@@ -1102,6 +1116,12 @@ export default {
         class: "text-white",
       };
     },
+    /**
+     * class for the copy buttons of the embed plio dialog box
+     *
+     * @param {Boolean} copied whether the text to be copied has been copied
+     *
+     */
     getCopyButtonClass(copied = false) {
       return [
         {
@@ -1111,10 +1131,10 @@ export default {
         `p-2 px-4 rounded-md mt-2 sm:mt-0 h-full w-full bp-500:w-auto`,
       ];
     },
+    /**
+     * copies the embed code without sso
+     */
     copyEmbedCodeWithoutSSO() {
-      /**
-       * triggered on copying the embed code without sso
-       */
       // return if the link has already been copied
       if (this.plioEmbedCodeWithoutSSOCopied) return;
       const success = this.copyToClipboard(this.embedCode);
@@ -1124,10 +1144,10 @@ export default {
         this.plioEmbedCodeWithSSOCopied = false;
       } else this.toast.error(this.$t("error.copying"));
     },
+    /**
+     * copies the embed code with sso
+     */
     copyEmbedCodeWithSSO() {
-      /**
-       * triggered on copying the embed code with sso
-       */
       // return if the link has already been copied
       if (this.plioEmbedCodeWithSSOCopied) return;
       const success = this.copyToClipboard(this.embedCodeSSO);
@@ -1137,76 +1157,111 @@ export default {
         this.plioEmbedCodeWithoutSSOCopied = false;
       } else this.toast.error(this.$t("error.copying"));
     },
+    /**
+     * hides the published plio dialog and shows the share plio dialog
+     */
     hidePublishedDialogShowShareDialog() {
-      // hides the published plio dialog and shows the share plio dialog
       this.isPublishedPlioDialogShown = false;
       this.showSharePlioLinkDialog();
     },
+    /**
+     * hides the published plio dialog and shows the embed plio dialog
+     */
     hidePublishedDialogShowEmbedDialog() {
-      // hides the published plio dialog and shows the embed plio dialog
       this.isPublishedPlioDialogShown = false;
       this.showEmbedPlioDialog();
     },
+    /**
+     * closes the published plio dialog
+     */
     closePublishedPlioDialog() {
-      // close the published plio dialog
       this.isPublishedPlioDialogShown = false;
     },
+    /**
+     * closes the embed plio dialog
+     */
     closeEmbedPlioDialog() {
-      // close the embed plio dialog
       this.isEmbedPlioDialogShown = false;
       this.plioEmbedCodeWithoutSSOCopied = false;
       this.plioEmbedCodeWithSSOCopied = false;
     },
+    /**
+     * shows the embed plio dialog
+     */
     showEmbedPlioDialog() {
-      // show the embed plio dialog
       this.player.pause();
       this.isEmbedPlioDialogShown = true;
     },
+    /**
+     * shows the share plio dialog
+     */
     showSharePlioLinkDialog() {
-      // show the share plio dialog
       this.player.pause();
       this.showSharePlioDialog(this.plioLink);
     },
+    /**
+     * redirects the user to the player for this plio if it is published
+     */
     redirectToPlayer() {
-      // redirect user to the player for this plio if it is published
       if (!this.isPublished) return;
       this.$router.push({
         name: "Player",
         params: { org: this.org, plioId: this.plioId },
       });
     },
+    /**
+     * redirects the user to the dashboard for this plio if it is published
+     */
     redirectToDashboard() {
-      // redirect user to the dashboard for this plio if it is published
       if (!this.isPublished) return;
       this.$router.push({
         name: "Dashboard",
         params: { org: this.org, plioId: this.plioId },
       });
     },
+    /**
+     * unlinks the image from the current question, and deletes it from S3
+     */
     deleteLinkedImage() {
-      // unlink image from the question, and delete it on S3
       var imageIdToDelete = this.items[this.currentItemIndex].details.image.id;
       ImageAPIService.deleteImage(imageIdToDelete);
       this.items[this.currentItemIndex].details.image = null;
     },
+    /**
+     * upload the image file to the server and update
+     * the question object with the linked image data
+     *
+     * @param {File} imageFile the image content to be uploaded
+     */
     uploadImage(imageFile) {
-      // POST the image file to the backend.
-      // and update the question object with the linked image data
+      this.startLoading();
       ImageAPIService.uploadImage(imageFile).then((response) => {
         this.items[this.currentItemIndex].details.image = response.data;
+        this.stopLoading();
       });
     },
+    /**
+     * toggles the visibility of the image uploader dialog box
+     */
     toggleImageUploaderBox() {
-      // show or hide the image uploader dialog box
       this.showImageUploaderDialog = !this.showImageUploaderDialog;
     },
+    /**
+     * invoked when the question type is changed
+     * updates the question type in the item list
+     *
+     * @param {String} newQuestionType the new type of the question
+     */
     questionTypeChanged(newQuestionType) {
-      // invoked when the question type is changed
       this.items[this.currentItemIndex].details.type = newQuestionType;
     },
+    /**
+     * minimizes the modal
+     *
+     * @param {Object} positions contains the coordinates required to hide the
+     *                           minimize button and show the maximize button
+     */
     minimizeModal(positions) {
-      // invoked when minimize button is clicked
-
       // set some CSS variables which tells the animation
       // where the modal should shrink to and where the maximize button should pop up
       let root = document.documentElement;
@@ -1217,14 +1272,23 @@ export default {
 
       this.isModalMinimized = true;
     },
+    /**
+     * toggles the visibility of the minimize / maximize buttons
+     */
     maximizeModal() {
-      // invoked when maximize button is clicked
       this.isModalMinimized = !this.isModalMinimized;
     },
+    /**
+     * returns the user back to Home
+     */
     returnToHome() {
-      // returns the user back to Home
       this.$router.push({ name: "Home", params: { org: this.org } });
     },
+    /**
+     * navigate the player to the item selected in the item editor
+     *
+     * @param {String} itemIndex the index of the item to be selected
+     */
     navigateToItem(itemIndex) {
       if (itemIndex == null) return;
 
@@ -1234,29 +1298,38 @@ export default {
         this.itemSelected(itemIndex);
       }
     },
+    /**
+     * sort the items according to new timestamps
+     * and reset the currentItemIndex
+     */
     checkAndFixItemOrder() {
-      // sort the items according to new timestamps
-      // and reset the currentItemIndex
+      // only proceed if an item is currently selected
       if (this.currentItemIndex != null) {
         var currentItem = this.items[this.currentItemIndex];
         this.sortItems();
         this.currentItemIndex = this.items.indexOf(currentItem);
       }
     },
+    /**
+     * sort items based on ascending time values
+     */
     sortItems() {
-      // sort items based on ascending time values
       this.items.sort(function (a, b) {
         return a["time"] - b["time"];
       });
     },
+    /**
+     * invoked when dragging the marker for an item is completed
+     *
+     * @param {Number} itemIndex the index of the item whose marker was being dragged
+     */
     itemMarkerTimestampDragEnd(itemIndex) {
-      // invoked when the drag on the marker for an item is completed
+      // get the time to which the user wants to drag the marker
       var timeBeforeDragEnded = this.items[itemIndex].time;
       var itemTimestamp = this.itemTimestamps[itemIndex];
 
       // check if the time after drag is valid and if not, set the item time
-      // back to the one before the drag
-      // else proceed with the new time
+      // back to the one before the drag; else proceed with the new time
       if (
         !ItemFunctionalService.isTimestampValid(
           itemTimestamp,
@@ -1280,8 +1353,13 @@ export default {
       this.updatePlayerTimestamp(itemTimestamp);
       this.markItemSelected(this.currentItemIndex);
     },
+    /**
+     * checks if an item should be selected based on the given timestamp
+     * and selects/unselects accordingly
+     *
+     * @param {Number} timestamp the timestamp to be used for checking if an item should be selected
+     */
     checkItemToSelect(timestamp) {
-      // checks if an item is to be selected and marks/unmarks accordingly
       if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
         return;
       this.lastCheckTimestamp = timestamp;
@@ -1295,22 +1373,38 @@ export default {
         this.isModalMinimized = false;
       } else this.markNoItemSelected();
     },
+    /**
+     * updates the player time to the given timestamp
+     *
+     * @param {Number} timestamp the timestamp that the player should be set to
+     */
     updatePlayerTimestamp(timestamp) {
-      // update player time to the given timestamp
       this.player.currentTime = timestamp;
     },
+    /**
+     * invoked when the time slider is updated
+     *
+     * @param {Number} timestamp the current value of the time slider
+     */
     sliderUpdated(timestamp) {
-      // invoked when the time slider is updated
       this.updatePlayerTimestamp(timestamp);
       this.checkItemToSelect(timestamp);
     },
+    /**
+     * invoked when an item marker has been selected
+     *
+     * @param {Number} itemIndex index of the item whose marker is selected
+     */
     itemSelected(itemIndex) {
-      // invoked when an item marker has been selected
       this.updatePlayerTimestamp(this.currentTimestamp);
       this.markItemSelected(itemIndex);
     },
+    /**
+     * marks the item at the given index as selected
+     *
+     * @param {Number} itemIndex the index of the item to be marked as selected
+     */
     markItemSelected(itemIndex) {
-      // mark the item at the given index as selected
       if (itemIndex != null) {
         this.isItemSelected = true;
         this.player.pause();
@@ -1320,13 +1414,17 @@ export default {
         ];
       }
     },
+    /**
+     * marks that no item has been currently selected
+     */
     markNoItemSelected() {
-      // mark that no item has been currently selected
       this.isItemSelected = false;
       this.currentItemIndex = null;
     },
+    /**
+     * updates the value of slider when the video's timestamp is updated
+     */
     videoTimestampUpdated(timestamp) {
-      // update the value of slider when the video's timestamp is updated
       if (this.isItemSelected) {
         // handles the case when the marker has been selected (and hence, video should pause)
         // but the emit from the video time update is still on the way
@@ -1336,13 +1434,17 @@ export default {
       this.currentTimestamp = timestamp;
       this.checkItemToSelect(timestamp);
     },
+    /**
+     * sets variables once the player instance is ready
+     */
     playerReady() {
-      // set variables once the player instance is ready
       this.videoDuration = this.player.duration;
       if (!this.plioTitle) this.plioTitle = this.player.config.title;
     },
+    /**
+     * checks if the video link is valid
+     */
     isVideoLinkValid(link) {
-      // checks if the link is valid
       var pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
       var matches = link.match(pattern);
       if (matches) {
@@ -1354,10 +1456,10 @@ export default {
       // invoked when the player is played from a paused state
       this.isItemSelected = false;
     },
+    /**
+     * fetches the details of the plio
+     */
     async loadPlio() {
-      /**
-       * fetch plio details
-       */
       this.startLoading();
       await PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
@@ -1380,8 +1482,10 @@ export default {
           });
         });
     },
+    /**
+     * ensures that update requests are made after a minimum time interval
+     */
     checkAndSavePlio() {
-      // ensures that requests are made after a minimum time interval
       // don't update changes automatically once published
       if (this.isPublished) {
         this.hasUnpublishedChanges = true;
@@ -1397,8 +1501,10 @@ export default {
         this.savePlio();
       }
     },
+    /**
+     * updates the plio data on the server
+     */
     savePlio() {
-      // saves the plio data on remote
       this.changeInProgress = false;
       this.startUploading();
       this.lastUpdated = new Date();
@@ -1415,6 +1521,9 @@ export default {
         return;
       });
     },
+    /**
+     * publishes the plio
+     */
     publishPlio() {
       // mark the plio as published if in draft mode
       // and update the changes only if already published
@@ -1427,8 +1536,10 @@ export default {
         this.hasUnpublishedChanges = false;
       });
     },
-    publishButtonClicked() {
-      // invoked when the publish button is clicked
+    /**
+     * shows the dialog box for confirming whether to publish the plio
+     */
+    showPublishConfirmationDialogBox() {
       // set dialog properties
       this.dialogTitle = this.publishDialogTitle;
       this.dialogDescription = this.publishDialogDescription;
@@ -1447,8 +1558,12 @@ export default {
       // show the dialogue
       this.showDialogBox = true;
     },
+    /**
+     * invoked when the confirm button of the dialog box is clicked
+     * calls the appropriate method based on the dialogAction
+     */
     dialogConfirmed() {
-      // invoked when the confirm button of the dialog box is clicked
+      // reset the dialog box
       this.showDialogBox = false;
       this.dialogDescription = "";
 
@@ -1462,18 +1577,27 @@ export default {
       // reset the dialog action value
       this.dialogAction = "";
     },
+    /**
+     * invoked when the cancel button of the dialog box is clicked;
+     * calls the appropriate method based on the dialogAction
+     */
     dialogCancelled() {
-      // invoked when the cancel button of the dialog box is clicked
+      // reset the dialog box
       this.showDialogBox = false;
       if (this.dialogAction == "deleteOption") this.cancelDeleteOption();
     },
+    /**
+     * cancels the deletion of the marked option
+     */
     cancelDeleteOption() {
-      // invoked when the cancel button of the dialog box for deleting option is clicked
       this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
+    /**
+     * shows a dialog box when the user tries to add an item
+     * at an invalid timestamp
+     */
     showCannotAddItemDialog() {
-      // set up the dialog properties when user tries to add an item
-      // at an invalid time
+      // set up the dialog properties
       this.dialogTitle = this.$t("editor.dialog.cannot_add_question.title");
       this.dialogDescription = this.$t("editor.dialog.cannot_add_question.description");
       this.dialogConfirmButtonConfig = {
@@ -1492,9 +1616,12 @@ export default {
       // show the dialogue
       this.showDialogBox = true;
     },
+    /**
+     * shows a dialog box when the user tries to delete an option
+     * for a question with only 2 options
+     */
     showCannotDeleteOptionDialog() {
-      // set up the dialog properties when user tries to delete an option
-      // for a question with only 2 options
+      // set up the dialog properties
       this.dialogTitle = this.$t("editor.dialog.cannot_delete_option.title");
       this.dialogDescription = this.$t("editor.dialog.cannot_delete_option.description");
       this.dialogConfirmButtonConfig = {
@@ -1513,6 +1640,9 @@ export default {
       // show the dialogue
       this.showDialogBox = true;
     },
+    /**
+     * hides the dialog box and invokes the method for publishing the plio
+     */
     confirmPublish() {
       this.showDialogBox = true;
       this.dialogTitle = this.publishInProgressDialogTitle;
@@ -1529,8 +1659,11 @@ export default {
       // publish the plio or its changes
       this.publishPlio();
     },
+    /**
+     * deletes the option marked to be deleted if the question contains
+     * more than 2 options
+     */
     confirmDeleteOption() {
-      // invoked when the confirm button of the dialog box for deleting option is clicked
       // there should always be at least 2 options, allow deletion only
       // if the number of options is >= 3
       if (this.items[this.currentItemIndex].details.options.length < 3) {
@@ -1549,21 +1682,32 @@ export default {
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
+    /**
+     * returns the type of item being added when add item button is clicked
+     */
     getItemTypeForNewItem() {
-      // returns the type of item being added when add item button is clicked
+      // hard-coded for now as the only item type that we support is "question"
       return "question";
     },
+    /**
+     * returns a metadata object which contains only the name of the source from where
+     * the question is coming from.
+     */
     getMetadataForNewItem() {
-      // returns a metadata object which contains only the name of the source from where
-      // the question is coming from.
       // currently the source is only "default" as questions will be created on the editor only
       var meta = {};
       meta["source"] = {};
       meta["source"]["name"] = "default";
       return meta;
     },
+    /**
+     * returns an object containing the default values required
+     * for creating a new question of the given question type
+     *
+     * @param {String} questionType type of the question
+     */
     getDetailsForNewQuestion(questionType) {
-      // barebones question structure
+      // default structure for a new question
       var details = {};
       details["correct_answer"] = 0;
       details["text"] = "";
@@ -1572,6 +1716,11 @@ export default {
       details["max_char_limit"] = 100;
       return details;
     },
+    /**
+     * creates a new item of the given question type and adds it to the item list
+     *
+     * @param {String} questionType the type of the question to be added
+     */
     addNewItem(questionType) {
       this.player.pause();
       this.startLoading();
@@ -1614,8 +1763,10 @@ export default {
         })
         .finally(() => this.stopLoading());
     },
-    deleteItemButtonClicked() {
-      // invoked when the delete item button is clicked
+    /**
+     * shows the dialog box for confirming whether the item should be deleted
+     */
+    showDeleteItemDialogBox() {
       // set dialog properties
       this.dialogTitle = this.$t(`editor.dialog.delete_item.${this.itemType}.title`);
       this.dialogDescription = this.$t(
@@ -1636,16 +1787,22 @@ export default {
       // show the dialogue
       this.showDialogBox = true;
     },
+    /**
+     * remove the current item from the item list
+     */
     deleteSelectedItem() {
-      // remove current item from the item list
       // set currentItemIndex to null to hide the item editor
       var itemToDelete = this.items.splice(this.currentItemIndex, 1);
       ItemAPIService.deleteItem(itemToDelete[0].id);
       this.currentItemIndex = null;
       this.showDialogBox = false;
     },
+    /**
+     * deletes the option of the current item at the given index
+     *
+     * @param {Number} optionIndex the index of the option to be deleted
+     */
     deleteOption(optionIndex) {
-      // invoked when delete option button is clicked
       // set dialog properties
       this.dialogTitle = this.$t("editor.dialog.delete_option.title");
       this.dialogDescription = "";
@@ -1665,12 +1822,16 @@ export default {
       this.dialogAction = "deleteOption";
       this.showDialogBox = true;
     },
+    /**
+     * sets that some unresolved errors are present
+     */
     setErrorOccurred() {
-      // invoked when some error is present
       this.anyErrorsPresent = true;
     },
+    /**
+     * sets that all errors have been resolved
+     */
     setErrorResolved() {
-      // invoked when erros have been resolved
       this.anyErrorsPresent = false;
     },
   },
