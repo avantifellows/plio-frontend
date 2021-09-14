@@ -51,9 +51,9 @@ describe("Editor.vue", () => {
   it("dialog box buttons work correctly", async () => {
     const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
-    const publishButtonClicked = jest.spyOn(
+    const showPublishConfirmationDialogBox = jest.spyOn(
       Editor.methods,
-      "publishButtonClicked"
+      "showPublishConfirmationDialogBox"
     );
     const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
     const wrapper = mount(Editor, {
@@ -66,7 +66,7 @@ describe("Editor.vue", () => {
     });
 
     await wrapper.find('[data-test="publishButton"]').trigger("click");
-    expect(publishButtonClicked).toHaveBeenCalled();
+    expect(showPublishConfirmationDialogBox).toHaveBeenCalled();
 
     await wrapper
       .find('[data-test="dialogBox"]')
@@ -977,9 +977,9 @@ describe("Editor.vue", () => {
       ItemEditor.methods,
       "deleteSelectedItem"
     );
-    const deleteItemButtonClicked = jest.spyOn(
+    const showDeleteItemDialogBox = jest.spyOn(
       Editor.methods,
-      "deleteItemButtonClicked"
+      "showDeleteItemDialogBox"
     );
     const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
     const editorDeleteSelectedItem = jest.spyOn(
@@ -1008,7 +1008,7 @@ describe("Editor.vue", () => {
 
     expect(deleteSelectedItem).toHaveBeenCalled();
     expect(itemEditorWrapper.emitted()).toHaveProperty("delete-selected-item");
-    expect(deleteItemButtonClicked).toHaveBeenCalled();
+    expect(showDeleteItemDialogBox).toHaveBeenCalled();
     expect(wrapper.vm.dialogTitle).toBe(
       "Are you sure you want to delete this?"
     );
