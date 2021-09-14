@@ -1,4 +1,4 @@
-import { flushPromises, mount, shallowMount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import Player from "@/pages/Player.vue";
 import mockAxios from "jest-mock-axios";
 import {
@@ -52,6 +52,8 @@ describe("Player.vue", () => {
       },
     });
 
+    expect(wrapper).toBeTruthy();
+
     // post request made to retrieve the SSO token
     expect(mockAxios.post).toHaveBeenCalledTimes(1);
     expect(mockAxios.post).toHaveBeenCalledWith(
@@ -73,10 +75,10 @@ describe("Player.vue", () => {
       Player.methods,
       "calculateScorecardMetrics"
     );
-    const showItemMarkersOnSlider = jest
+    jest
       .spyOn(Player.methods, "showItemMarkersOnSlider")
       .mockImplementation(() => jest.fn());
-    const fetchPlioCreateSession = jest
+    jest
       .spyOn(Player.methods, "fetchPlioCreateSession")
       .mockImplementation(() => {
         return new Promise((resolve) => resolve());
