@@ -31,6 +31,11 @@ describe("Editor.vue", () => {
 
   it("blurs the main screen when plio is being published", async () => {
     const wrapper = mount(Editor);
+
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
+
     // blur classes should not be present initially
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
@@ -85,8 +90,12 @@ describe("Editor.vue", () => {
     expect(publishPlio).toHaveBeenCalled();
   });
 
-  it("shows only the video preview + video input field when video ID is not set", () => {
+  it("shows only the video preview + video input field when video ID is not set", async () => {
     const wrapper = mount(Editor, { shallow: true });
+
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
 
     // things that should not be visible
     expect(wrapper.find('[data-test="itemDiv"]').exists()).toBeFalsy();
@@ -130,6 +139,11 @@ describe("Editor.vue", () => {
 
   it("blurs the main screen when dialog box is shown", async () => {
     const wrapper = mount(Editor, { shallow: true });
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
+
+    // blur classes should not be present initially
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
     );
@@ -141,6 +155,11 @@ describe("Editor.vue", () => {
 
   it("blurs the main screen when image uploader dialog is shown", async () => {
     const wrapper = mount(Editor);
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
+
+    // blur classes should not be present initially
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
     );
@@ -152,10 +171,15 @@ describe("Editor.vue", () => {
 
   it("blurs the main screen when published plio dialog is shown", async () => {
     const wrapper = mount(Editor);
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
+
+    // blur classes should not be present initially
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
     );
-    await wrapper.setData({ showPublishedPlioDialog: true });
+    await wrapper.setData({ isPublishedPlioDialogShown: true });
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.arrayContaining(["opacity-30", "pointer-events-none"])
     );
@@ -532,7 +556,7 @@ describe("Editor.vue", () => {
     await flushPromises();
     expect(wrapper.vm.isBeingPublished).toBeFalsy();
     expect(wrapper.vm.showDialogBox).toBeFalsy();
-    expect(wrapper.vm.showPublishedPlioDialog).toBeTruthy();
+    expect(wrapper.vm.isPublishedPlioDialogShown).toBeTruthy();
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
   });
 
@@ -568,13 +592,13 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      showPublishedPlioDialog: true,
+      isPublishedPlioDialogShown: true,
       videoId: "jdYJf_ybyVo",
     });
 
     await wrapper.find('[data-test="dialogShareButton"]').trigger("click");
     expect(hidePublishedDialogShowShareDialog).toHaveBeenCalled();
-    expect(wrapper.vm.showPublishedPlioDialog).toBeFalsy();
+    expect(wrapper.vm.isPublishedPlioDialogShown).toBeFalsy();
     expect(showSharePlioLinkDialog).toHaveBeenCalled();
     expect(showSharePlioDialog).toHaveBeenCalled();
   });
@@ -586,7 +610,7 @@ describe("Editor.vue", () => {
     );
     const wrapper = mount(Editor);
     await wrapper.setData({
-      showPublishedPlioDialog: true,
+      isPublishedPlioDialogShown: true,
       videoId: "jdYJf_ybyVo",
     });
 
@@ -594,7 +618,7 @@ describe("Editor.vue", () => {
       .find('[data-test="closePublishedPlioDialogButton"]')
       .trigger("click");
     expect(closePublishedPlioDialog).toHaveBeenCalled();
-    expect(wrapper.vm.showPublishedPlioDialog).toBeFalsy();
+    expect(wrapper.vm.isPublishedPlioDialogShown).toBeFalsy();
   });
 
   it("redirects to dashboard when analyse button is clicked", async () => {
@@ -685,15 +709,18 @@ describe("Editor.vue", () => {
       mockAxios.lastReqGet().data
     );
 
+    const mockImageResponse = {
+      key: "value",
+    };
     mockAxios.mockResponse(
       {
-        data: "mock response",
+        data: mockImageResponse,
       },
       mockAxios.lastReqGet()
     );
 
     await flushPromises();
-    expect(wrapper.vm.items[0].details.image).toBe("mock response");
+    expect(wrapper.vm.items[0].details.image).toStrictEqual(mockImageResponse);
   });
 
   it("delete option functionality works correctly", async () => {
@@ -1032,3 +1059,5 @@ describe("Editor.vue", () => {
     expect(minimizeModal).toHaveBeenCalled();
   });
 });
+
+// should be blurred when loading editor
