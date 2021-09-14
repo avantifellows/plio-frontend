@@ -93,4 +93,7 @@ global.document.getElementById = jest.fn(() => ({
       height: 100,
     };
   }),
+  setAttribute: jest.fn(() => {
+    return;
+  }),
 }));

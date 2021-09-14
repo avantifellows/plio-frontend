@@ -1,4 +1,4 @@
-import { mount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer";
 
@@ -35,6 +35,13 @@ describe("VideoPlayer.vue", () => {
       videoId: "4j4fYyWgl0w",
     });
 
+    expect(initiatePlayer).toHaveBeenCalled();
+    expect(removePlyrPoster).toHaveBeenCalled();
+    expect(setPlayerProperties).toHaveBeenCalled();
+
+    await wrapper.setProps({
+      videoId: "qJWALEoGge4",
+    });
     expect(initiatePlayer).toHaveBeenCalled();
     expect(removePlyrPoster).toHaveBeenCalled();
     expect(setPlayerProperties).toHaveBeenCalled();
