@@ -16,7 +16,7 @@
       v-if="isPlioLoaded"
       class="absolute"
       :iconConfig="backButtonIconConfig"
-      @click="returnToHome"
+      @click="goBack"
     >
     </icon-button>
   </div>
@@ -36,7 +36,16 @@ export default {
       source: "unknown", // source from where the plio was accessed - can be passed as param in the plio url
       isPlioLoaded: false, // whether plio has been loaded
       isItemShown: false, // whether an item is being shown
+      previousPage: null, // the last page in the history
     };
+  },
+  /**
+   * set the previous page in history
+   */
+  beforeRouteEnter(_, from, next) {
+    next((vm) => {
+      vm.previousPage = from.path;
+    });
   },
   async created() {
     // mixpanel user interaction logging
@@ -91,9 +100,14 @@ export default {
     },
   },
   methods: {
-    returnToHome() {
-      // returns the user back to Home
-      this.$router.push({ name: "Home", params: { org: this.org } });
+    /**
+     * returns the user back to where they came from if the page they came from
+     * was one of the pages of Plio; else, redirects them to home
+     */
+    goBack() {
+      // check if the previous page was one of plio
+      if (this.previousPage != "/") history.back();
+      else this.$router.push({ name: "Home", params: { org: this.org } });
     },
     plioLoaded() {
       // invoked when plio has been loaded
