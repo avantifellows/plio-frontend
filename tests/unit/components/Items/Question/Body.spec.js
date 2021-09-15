@@ -1,6 +1,10 @@
 import { mount } from "@vue/test-utils";
 import Body from "@/components/Items/Question/Body";
 
+afterEach(() => {
+  jest.useRealTimers();
+});
+
 describe("Body.vue", () => {
   it("should render with default values", () => {
     const wrapper = mount(Body);
@@ -248,5 +252,20 @@ describe("Body.vue", () => {
         key: "a",
       });
     expect(checkCharLimitMock).toHaveBeenCalled();
+  });
+
+  it("starts loading image if imageData is passed", () => {
+    const startImageLoading = jest.spyOn(Body.methods, "startImageLoading");
+    const wrapper = mount(Body, {
+      props: {
+        questionType: "mcq",
+        imageData: {
+          url: "mock",
+          alt_text: "mock",
+        },
+      },
+    });
+
+    expect(startImageLoading).toHaveBeenCalled();
   });
 });

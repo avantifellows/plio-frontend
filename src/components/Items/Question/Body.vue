@@ -21,6 +21,7 @@
           class="object-contain h-full w-full"
           :alt="imageData.alt_text"
           @load="imageLoaded"
+          ref="questionImage"
           :class="{ invisible: isImageLoading }"
         />
       </div>
