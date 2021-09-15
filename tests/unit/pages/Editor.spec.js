@@ -23,6 +23,11 @@ afterEach(() => {
   mockAxios.reset();
 });
 
+// mock document.execCommand
+document.execCommand = jest.fn(() => {
+  return true;
+});
+
 describe("Editor.vue", () => {
   it("renders properly with default values", () => {
     const wrapper = mount(Editor);
@@ -111,7 +116,7 @@ describe("Editor.vue", () => {
     ).toBeTruthy();
   });
 
-  it("share + play buttons appear on publishing", async () => {
+  it("share + play + embed buttons appear on publishing", async () => {
     const wrapper = mount(Editor);
 
     await wrapper.setData({
@@ -121,6 +126,7 @@ describe("Editor.vue", () => {
     // share and play plio buttons should not be visible when video ID is set
     expect(wrapper.find('[data-test="sharePlioButton"]').exists()).toBeFalsy();
     expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="embedPlioButton"]').exists()).toBeFalsy();
 
     // click on the publish button
     await wrapper.find('[data-test="publishButton"]').trigger("click");
@@ -132,9 +138,10 @@ describe("Editor.vue", () => {
 
     await flushPromises();
 
-    // share and play plio buttons should not be visible when video ID is set
+    // share, play and embed plio buttons should be visible when video ID is set
     expect(wrapper.find('[data-test="sharePlioButton"]').exists()).toBeTruthy();
     expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="embedPlioButton"]').exists()).toBeTruthy();
   });
 
   it("blurs the main screen when dialog box is shown", async () => {
@@ -169,7 +176,7 @@ describe("Editor.vue", () => {
     );
   });
 
-  it("blurs the main screen when published plio dialog is shown", async () => {
+  it("blurs the main screen and show dialog when published plio dialog is shown", async () => {
     const wrapper = mount(Editor);
     // editor goes into pending = true state upon loading
     // this resets pending to false
@@ -179,10 +186,15 @@ describe("Editor.vue", () => {
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
     );
+    // published dialog should not be shown initially
+    expect(wrapper.find('[data-test="publishedDialog"]').exists()).toBeFalsy();
+
     await wrapper.setData({ isPublishedPlioDialogShown: true });
+
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.arrayContaining(["opacity-30", "pointer-events-none"])
     );
+    expect(wrapper.find('[data-test="publishedDialog"]').exists()).toBeTruthy();
   });
 
   it("loads a plio and populates local variables properly", async () => {
@@ -363,9 +375,6 @@ describe("Editor.vue", () => {
     });
 
     await wrapper.setData({ status: "published" });
-    expect(
-      wrapper.find('[data-test="playPlioButton"]').element.disabled
-    ).toBeFalsy();
 
     await wrapper.find('[data-test="playPlioButton"]').trigger("click");
     expect(redirectToPlayer).toHaveBeenCalled();
@@ -374,6 +383,155 @@ describe("Editor.vue", () => {
       params: {
         org: "",
         plioId: plioId,
+      },
+    });
+  });
+
+  it("embed button shows dialog with embed code", async () => {
+    const plioId = "123";
+    const showEmbedPlioDialog = jest.spyOn(
+      Editor.methods,
+      "showEmbedPlioDialog"
+    );
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    // embed dialog should not be shown initially
+    expect(wrapper.find('[data-test="embedDialog"]').exists()).toBeFalsy();
+
+    await wrapper.setData({ status: "published" });
+
+    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
+    expect(showEmbedPlioDialog).toHaveBeenCalled();
+
+    // embed dialog should be shown now
+    expect(wrapper.find('[data-test="embedDialog"]').exists()).toBeTruthy();
+    expect(wrapper.vm.isEmbedPlioDialogShown).toBe(true);
+  });
+
+  it("clicking on close button closes the embed dialog", async () => {
+    const plioId = "123";
+    const closeEmbedPlioDialog = jest.spyOn(
+      Editor.methods,
+      "closeEmbedPlioDialog"
+    );
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    // embed dialog should not be shown initially
+    expect(wrapper.find('[data-test="embedDialog"]').exists()).toBeFalsy();
+
+    await wrapper.setData({ status: "published" });
+
+    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
+
+    // click on the close button of the embed dialog
+    await wrapper.find('[data-test="closeEmbedPlioDialog"]').trigger("click");
+    expect(closeEmbedPlioDialog).toHaveBeenCalled();
+    expect(wrapper.vm.isEmbedPlioDialogShown).toBe(false);
+    expect(wrapper.vm.plioEmbedCodeWithoutSSOCopied).toBe(false);
+    expect(wrapper.vm.plioEmbedCodeWithSSOCopied).toBe(false);
+  });
+
+  it("clicking on close button closes the embed dialog", async () => {
+    const plioId = "123";
+    const closeEmbedPlioDialog = jest.spyOn(
+      Editor.methods,
+      "closeEmbedPlioDialog"
+    );
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    // embed dialog should not be shown initially
+    expect(wrapper.find('[data-test="embedDialog"]').exists()).toBeFalsy();
+
+    await wrapper.setData({ status: "published" });
+
+    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
+
+    // click on the close button of the embed dialog
+    await wrapper.find('[data-test="closeEmbedPlioDialog"]').trigger("click");
+    expect(closeEmbedPlioDialog).toHaveBeenCalled();
+    expect(wrapper.vm.isEmbedPlioDialogShown).toBe(false);
+    expect(wrapper.vm.plioEmbedCodeWithoutSSOCopied).toBe(false);
+    expect(wrapper.vm.plioEmbedCodeWithSSOCopied).toBe(false);
+  });
+
+  it("clicking on the copy button in the embed dialog copies the embed code", async () => {
+    const plioId = "123";
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    await wrapper.setData({ status: "published" });
+
+    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
+
+    // embed dialog should be shown now
+    await wrapper
+      .find('[data-test="copyEmbedCodeWithoutSSOButton"]')
+      .trigger("click");
+
+    expect(wrapper.vm.plioEmbedCodeWithoutSSOCopied).toBeTruthy();
+    expect(document.execCommand).toHaveBeenCalled();
+  });
+
+  it("home button works correctly", async () => {
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+    const returnToHome = jest.spyOn(Editor.methods, "returnToHome");
+    const wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
+
+    await wrapper.find('[data-test="homeButton"]').trigger("click");
+    expect(returnToHome).toHaveBeenCalled();
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: "Home",
+      params: {
+        org: "",
       },
     });
   });
@@ -560,7 +718,101 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
   });
 
-  it("share plio button inside the share dialog works correctly", async () => {
+  it("play plio button inside the published dialog works correctly", async () => {
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+    const plioId = "123";
+    const redirectToPlayer = jest.spyOn(Editor.methods, "redirectToPlayer");
+
+    jest.spyOn(Editor.methods, "savePlio").mockImplementation(() => {
+      return new Promise((resolve) => resolve());
+    });
+
+    // mock player as player.pause() will be invoked
+    const mockPlayer = {
+      pause: jest.fn(),
+      destroy: jest.fn(),
+    };
+
+    const wrapper = mount(Editor, {
+      shallow: true,
+      props: {
+        plioId: plioId,
+      },
+      global: {
+        mocks: {
+          player: mockPlayer,
+          $router: mockRouter,
+        },
+      },
+    });
+    await wrapper.setData({
+      isPublishedPlioDialogShown: true,
+      videoId: "jdYJf_ybyVo",
+      status: "published",
+    });
+
+    await wrapper
+      .find('[data-test="publishedDialogPlayButton"]')
+      .trigger("click");
+
+    expect(redirectToPlayer).toHaveBeenCalled();
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: "Player",
+      params: {
+        org: "",
+        plioId: plioId,
+      },
+    });
+  });
+
+  it("home button inside the published dialog works correctly", async () => {
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+    const returnToHome = jest.spyOn(Editor.methods, "returnToHome");
+
+    jest.spyOn(Editor.methods, "savePlio").mockImplementation(() => {
+      return new Promise((resolve) => resolve());
+    });
+
+    // mock player as player.pause() will be invoked
+    const mockPlayer = {
+      pause: jest.fn(),
+      destroy: jest.fn(),
+    };
+
+    const wrapper = mount(Editor, {
+      shallow: true,
+      global: {
+        mocks: {
+          player: mockPlayer,
+          $router: mockRouter,
+        },
+      },
+    });
+    await wrapper.setData({
+      isPublishedPlioDialogShown: true,
+      videoId: "jdYJf_ybyVo",
+    });
+
+    await wrapper
+      .find('[data-test="publishedDialogHomeButton"]')
+      .trigger("click");
+
+    expect(returnToHome).toHaveBeenCalled();
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: "Home",
+      params: {
+        org: "",
+      },
+    });
+  });
+
+  it("share plio button inside the published dialog works correctly", async () => {
     const hidePublishedDialogShowShareDialog = jest.spyOn(
       Editor.methods,
       "hidePublishedDialogShowShareDialog"
@@ -577,7 +829,7 @@ describe("Editor.vue", () => {
       return new Promise((resolve) => resolve());
     });
 
-    // mock player
+    // mock player as player.pause() will be invoked
     const mockPlayer = {
       pause: jest.fn(),
       destroy: jest.fn(),
@@ -596,7 +848,9 @@ describe("Editor.vue", () => {
       videoId: "jdYJf_ybyVo",
     });
 
-    await wrapper.find('[data-test="dialogShareButton"]').trigger("click");
+    await wrapper
+      .find('[data-test="publishedDialogShareButton"]')
+      .trigger("click");
     expect(hidePublishedDialogShowShareDialog).toHaveBeenCalled();
     expect(wrapper.vm.isPublishedPlioDialogShown).toBeFalsy();
     expect(showSharePlioLinkDialog).toHaveBeenCalled();
@@ -1061,3 +1315,6 @@ describe("Editor.vue", () => {
 });
 
 // should be blurred when loading editor
+// see published dialog becomes visible when its boolean is set to true
+// action buttons within published dialog works correctly
+// - do this for embed at the last

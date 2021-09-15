@@ -150,6 +150,7 @@
             :iconConfig="homeIconConfig"
             :buttonClass="backButtonClass"
             @click="returnToHome"
+            data-test="homeButton"
           ></icon-button>
           <!--- publish button -->
           <icon-button
@@ -340,6 +341,7 @@
       class="fixed top-1/4 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10 mx-2 sm:mx-0"
       v-if="isPublishedPlioDialogShown"
       v-click-away="closePublishedPlioDialog"
+      data-test="publishedDialog"
     >
       <div class="w-full flex justify-end p-2">
         <!-- close button -->
@@ -363,7 +365,7 @@
             :iconConfig="sharePlioIconConfig"
             :buttonClass="sharePlioButtonClass"
             @click="hidePublishedDialogShowShareDialog"
-            data-test="dialogShareButton"
+            data-test="publishedDialogShareButton"
           ></icon-button>
 
           <!-- play plio -->
@@ -372,6 +374,7 @@
             :iconConfig="playPlioIconConfig"
             :buttonClass="playPlioButtonClass"
             @click="redirectToPlayer"
+            data-test="publishedDialogPlayButton"
           ></icon-button>
 
           <!-- embed plio -->
@@ -380,7 +383,7 @@
             :iconConfig="embedPlioIconConfig"
             :buttonClass="embedPlioButtonClass"
             @click="hidePublishedDialogShowEmbedDialog"
-            data-test="embedPlioButton"
+            data-test="publishedDialogEmbedButton"
           ></icon-button>
 
           <!-- go back home -->
@@ -389,6 +392,7 @@
             :iconConfig="homeIconConfig"
             :buttonClass="dialogHomeButtonClass"
             @click="returnToHome"
+            data-test="publishedDialogHomeButton"
           ></icon-button>
         </div>
       </div>
@@ -400,6 +404,7 @@
       :class="embedDialogClass"
       v-if="isEmbedPlioDialogShown"
       v-click-away="closeEmbedPlioDialog"
+      data-test="embedDialog"
     >
       <div class="w-full flex justify-end p-2">
         <!-- close button -->
@@ -407,7 +412,7 @@
           :iconConfig="closeDialogIconConfig"
           :buttonClass="closeDialogButtonClass"
           @click="closeEmbedPlioDialog"
-          data-test="close"
+          data-test="closeEmbedPlioDialog"
         ></icon-button>
       </div>
 
@@ -435,7 +440,7 @@
               :titleConfig="copyEmbedCodeWithoutSSOTitleClass"
               :buttonClass="copyEmbedCodeWithoutSSOButtonClass"
               @click="copyEmbedCodeWithoutSSO"
-              data-test="copy"
+              data-test="copyEmbedCodeWithoutSSOButton"
             ></icon-button>
           </div>
         </div>
@@ -456,7 +461,7 @@
               :titleConfig="copyEmbedCodeWithSSOTitleClass"
               :buttonClass="copyEmbedCodeWithSSOButtonClass"
               @click="copyEmbedCodeWithSSO"
-              data-test="copy"
+              data-test="copyEmbedCodeWithSSOButton"
             ></icon-button>
           </div>
         </div>

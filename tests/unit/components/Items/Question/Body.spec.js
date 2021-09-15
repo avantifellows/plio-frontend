@@ -1,10 +1,6 @@
 import { mount } from "@vue/test-utils";
 import Body from "@/components/Items/Question/Body";
 
-afterEach(() => {
-  jest.useRealTimers();
-});
-
 describe("Body.vue", () => {
   it("should render with default values", () => {
     const wrapper = mount(Body);
