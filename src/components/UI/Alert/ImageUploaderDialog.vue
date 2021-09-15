@@ -55,6 +55,7 @@
         @input="loadAndPreviewImage"
         :class="uploaderInputClass"
         :key="reRenderKey"
+        ref="imageUploader"
       ></VueImageUploader>
     </div>
 
