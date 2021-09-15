@@ -425,9 +425,9 @@
           {{ $t("editor.dialog.embed_plio.title") }}
         </p>
         <!-- embed code without sso -->
-        <div class="my-4" :class="embedCodeContainerClass">
+        <div class="my-4" :class="embedCodeContainerClass" data-test="embedCodeNoSSO">
           <!-- without sso title -->
-          <p v-if="!isPersonalWorkspace" :class="embedCodeTitleClass">
+          <p v-if="!isPersonalWorkspace" :class="embedCodeTitleClass" data-test="heading">
             {{ $t("editor.dialog.embed_plio.headings.without_sso") }}
           </p>
           <div :class="embedCodeBoxClass">
@@ -446,7 +446,12 @@
         </div>
 
         <!-- embed code with sso -->
-        <div class="my-4" :class="embedCodeContainerClass" v-if="!isPersonalWorkspace">
+        <div
+          class="my-4"
+          :class="embedCodeContainerClass"
+          v-if="!isPersonalWorkspace"
+          data-test="embedCodeWithSSO"
+        >
           <!-- with sso title -->
           <p :class="embedCodeTitleClass">
             {{ $t("editor.dialog.embed_plio.headings.with_sso") }}

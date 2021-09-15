@@ -846,6 +846,115 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.isEmbedPlioDialogShown).toBe(true);
   });
 
+  it("shows appropriate view for personal vs org workspace", async () => {
+    // set the list of organizations for the user
+    const orgDetails = {
+      shortcode: "testorg",
+      api_key: "testkey",
+    };
+    await store.dispatch("auth/setUser", {
+      organizations: [orgDetails],
+    });
+
+    const plioId = "123";
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    await wrapper.setData({ status: "published" });
+    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
+
+    // there should only be the embed code without SSO
+    expect(wrapper.find("[data-test=embedCodeWithSSO]").exists()).toBeFalsy();
+    // the heading for the embed code should not be shown
+    expect(
+      wrapper
+        .find("[data-test=embedCodeNoSSO]")
+        .find("[data-test=heading]")
+        .exists()
+    ).toBeFalsy();
+
+    /**
+     * change active workspace now and also update the props
+     */
+    await store.dispatch("auth/setActiveWorkspace", orgDetails.shortcode);
+    await wrapper.setProps({
+      org: orgDetails.shortcode,
+    });
+
+    // active workspace api key should now be updated
+    expect(store.getters["auth/activeWorkspaceApiKey"]).toBe(
+      orgDetails.api_key
+    );
+
+    // both the embed codes with and without SSO should be visible
+    expect(wrapper.find("[data-test=embedCodeWithSSO]").exists()).toBeTruthy();
+    expect(wrapper.find("[data-test=embedCodeNoSSO]").exists()).toBeTruthy();
+    // the heading for the embed code without SSO should now be shown
+    expect(
+      wrapper
+        .find("[data-test=embedCodeNoSSO]")
+        .find("[data-test=heading]")
+        .exists()
+    ).toBeTruthy();
+  });
+
+  it("copying the with/without SSO code sets the copy statuses correctly", async () => {
+    // set the list of organizations for the user
+    const orgDetails = {
+      shortcode: "testorg",
+      api_key: "testkey",
+    };
+    await store.dispatch("auth/setUser", {
+      organizations: [orgDetails],
+    });
+
+    const plioId = "123";
+
+    // change active workspace and set org in the props
+    await store.dispatch("auth/setActiveWorkspace", orgDetails.shortcode);
+
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+        org: orgDetails.shortcode,
+      },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    await wrapper.setData({ status: "published" });
+    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
+
+    // copy embed code without SSO
+    await wrapper
+      .find('[data-test="copyEmbedCodeWithoutSSOButton"]')
+      .trigger("click");
+    // embed code without sso should be marked as copied and embed code with
+    // sso as not copied
+    expect(wrapper.vm.plioEmbedCodeWithoutSSOCopied).toBe(true);
+    expect(wrapper.vm.plioEmbedCodeWithSSOCopied).toBe(false);
+
+    // copy embed code with SSO
+    await wrapper
+      .find('[data-test="copyEmbedCodeWithSSOButton"]')
+      .trigger("click");
+    // embed code with sso should be marked as copied and embed code without
+    // sso as not copied
+    expect(wrapper.vm.plioEmbedCodeWithSSOCopied).toBe(true);
+    expect(wrapper.vm.plioEmbedCodeWithoutSSOCopied).toBe(false);
+  });
+
   it("home button inside the published dialog works correctly", async () => {
     // mock router
     const mockRouter = {
