@@ -768,6 +768,84 @@ describe("Editor.vue", () => {
     });
   });
 
+  it("embed plio button inside the published dialog works correctly", async () => {
+    const plioId = "123";
+
+    const hidePublishedDialogShowEmbedDialog = jest.spyOn(
+      Editor.methods,
+      "hidePublishedDialogShowEmbedDialog"
+    );
+    const showEmbedPlioDialog = jest.spyOn(
+      Editor.methods,
+      "showEmbedPlioDialog"
+    );
+
+    jest.spyOn(Editor.methods, "savePlio").mockImplementation(() => {
+      return new Promise((resolve) => resolve());
+    });
+
+    // mock player as player.pause() will be invoked
+    const mockPlayer = {
+      pause: jest.fn(),
+      destroy: jest.fn(),
+    };
+
+    const wrapper = mount(Editor, {
+      shallow: true,
+      props: {
+        plioId: plioId,
+      },
+      global: {
+        mocks: {
+          player: mockPlayer,
+        },
+      },
+    });
+    await wrapper.setData({
+      isPublishedPlioDialogShown: true,
+      videoId: "jdYJf_ybyVo",
+      status: "published",
+    });
+
+    await wrapper
+      .find('[data-test="publishedDialogEmbedButton"]')
+      .trigger("click");
+
+    expect(hidePublishedDialogShowEmbedDialog).toHaveBeenCalled();
+    expect(wrapper.vm.isPublishedPlioDialogShown).toBeFalsy();
+    expect(showEmbedPlioDialog).toHaveBeenCalled();
+  });
+
+  it("embed button shows dialog with embed code", async () => {
+    const plioId = "123";
+    const showEmbedPlioDialog = jest.spyOn(
+      Editor.methods,
+      "showEmbedPlioDialog"
+    );
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    // embed dialog should not be shown initially
+    expect(wrapper.find('[data-test="embedDialog"]').exists()).toBeFalsy();
+
+    await wrapper.setData({ status: "published" });
+
+    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
+    expect(showEmbedPlioDialog).toHaveBeenCalled();
+
+    // embed dialog should be shown now
+    expect(wrapper.find('[data-test="embedDialog"]').exists()).toBeTruthy();
+    expect(wrapper.vm.isEmbedPlioDialogShown).toBe(true);
+  });
+
   it("home button inside the published dialog works correctly", async () => {
     // mock router
     const mockRouter = {
