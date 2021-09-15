@@ -252,7 +252,7 @@ describe("Body.vue", () => {
 
   it("starts loading image if imageData is passed", () => {
     const startImageLoading = jest.spyOn(Body.methods, "startImageLoading");
-    const wrapper = mount(Body, {
+    mount(Body, {
       props: {
         questionType: "mcq",
         imageData: {
