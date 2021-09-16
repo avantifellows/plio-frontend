@@ -498,6 +498,7 @@ export default {
             } else this.numOfSkipped += 1;
           } else if (this.isItemSubjective(itemIndex)) {
             if (userAnswer == null) this.numOfSkipped += 1;
+            else this.numOfCorrect += 1;
           }
         });
       }

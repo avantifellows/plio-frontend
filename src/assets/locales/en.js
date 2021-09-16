@@ -30,7 +30,7 @@ export default {
     headings: {
       add_question: "Add a new question",
       subjective_question_warning:
-        "Subjective Questions are not included while calculating the accuracy in the dashboard",
+        "All answers to subjective questions are considered correct",
     },
     buttons: {
       home: "Home",
