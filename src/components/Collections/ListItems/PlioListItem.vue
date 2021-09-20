@@ -280,6 +280,12 @@ export default {
       // invoked when the screen is resized
       this.windowWidth = window.innerWidth;
 
+      /**
+       * there are 3 conditions which require different values for the margin top:
+       * 1. not a touch screen device
+       * 2. touch screen device with screen width < 640
+       * 3. touch screen device with screen width >= 640
+       */
       if (this.isTouchDevice) {
         if (this.isMobileScreen) this.optionsOverflowMarginTop = -18;
         else this.optionsOverflowMarginTop = -16;
@@ -339,11 +345,11 @@ export default {
       this.plioDetails = this.allPlioDetails[this.plioId];
     },
     sharePlio() {
-      // invoked when share button is clicked
+      // show the dialog containing the plio link to be shared
       this.showSharePlioDialog(this.plioLink);
     },
     embedPlio() {
-      // invoked when embed button is clicked
+      // show the dialog containing the code to embed plio
       this.showEmbedPlioDialog(this.plioId);
     },
     playPlio() {

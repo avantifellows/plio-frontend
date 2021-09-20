@@ -119,14 +119,18 @@ export default {
       },
       // class for the button to close the dialog that comes after publishing
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
+      // config for the copy status of the embed codes
       plioEmbedCodeCopyConfig: {
         copied: false,
         sso: false,
       },
       toast: useToast(), // use the toast component
+      // class for the heading of the embed code
       embedCodeTitleClass: "text-sm",
+      // class for the value of the embed code
       embedCodeValueClass:
         "w-full break-all place-self-center text-sm bp-500:text-base text-gray-600",
+      // class for the box containing the embed code
       embedCodeBoxClass:
         "flex flex-col items-center bp-500:flex-row space-y-2 bp-500:space-y-0 bp-500:space-x-4 p-2 px-4 bg-peach-light border border-gray-600 rounded-md",
     };

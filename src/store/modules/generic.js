@@ -3,7 +3,7 @@ const state = {
   isEmbedPlioDialogShown: true, // whether to show the dialog with info on embedding plio
   isBackgroundDisabled: false,
   plioLinkToShare: null,
-  plioIdToEmbed: null,
+  plioIdToEmbed: null, // uuid of the plio to be embedded
 };
 const getters = {};
 const actions = {

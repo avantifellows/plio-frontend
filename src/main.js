@@ -50,6 +50,7 @@ const vueProgressBarOptions = {
 const filterBeforeCreate = (toast, toasts) => {
   // adapted from here - https://github.com/Maronato/vue-toastification#filterbeforecreate
   // Prevents toasts with the same content from appearing simultaneously, discarding duplicates
+  // and prevent toasts from showing up for an embedded plio
   if (
     toasts.filter((t) => t.content === toast.content).length !== 0 ||
     router.currentRoute._value.path == "/plio"
