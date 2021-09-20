@@ -445,8 +445,8 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="closeEmbedPlioDialog"]').trigger("click");
     expect(closeEmbedPlioDialog).toHaveBeenCalled();
     expect(wrapper.vm.isEmbedPlioDialogShown).toBe(false);
-    expect(wrapper.vm.plioEmbedCodeWithoutSSOCopied).toBe(false);
-    expect(wrapper.vm.plioEmbedCodeWithSSOCopied).toBe(false);
+    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBe(false);
+    expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(false);
   });
 
   it("clicking on close button closes the embed dialog", async () => {
@@ -477,8 +477,8 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="closeEmbedPlioDialog"]').trigger("click");
     expect(closeEmbedPlioDialog).toHaveBeenCalled();
     expect(wrapper.vm.isEmbedPlioDialogShown).toBe(false);
-    expect(wrapper.vm.plioEmbedCodeWithoutSSOCopied).toBe(false);
-    expect(wrapper.vm.plioEmbedCodeWithSSOCopied).toBe(false);
+    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBe(false);
+    expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(false);
   });
 
   it("clicking on the copy button in the embed dialog copies the embed code", async () => {
@@ -503,7 +503,7 @@ describe("Editor.vue", () => {
       .find('[data-test="copyEmbedCodeWithoutSSOButton"]')
       .trigger("click");
 
-    expect(wrapper.vm.plioEmbedCodeWithoutSSOCopied).toBeTruthy();
+    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBeTruthy();
     expect(document.execCommand).toHaveBeenCalled();
   });
 
@@ -942,8 +942,8 @@ describe("Editor.vue", () => {
       .trigger("click");
     // embed code without sso should be marked as copied and embed code with
     // sso as not copied
-    expect(wrapper.vm.plioEmbedCodeWithoutSSOCopied).toBe(true);
-    expect(wrapper.vm.plioEmbedCodeWithSSOCopied).toBe(false);
+    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBe(true);
+    expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(false);
 
     // copy embed code with SSO
     await wrapper
@@ -951,8 +951,8 @@ describe("Editor.vue", () => {
       .trigger("click");
     // embed code with sso should be marked as copied and embed code without
     // sso as not copied
-    expect(wrapper.vm.plioEmbedCodeWithSSOCopied).toBe(true);
-    expect(wrapper.vm.plioEmbedCodeWithoutSSOCopied).toBe(false);
+    expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(true);
+    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBe(false);
   });
 
   it("home button inside the published dialog works correctly", async () => {

@@ -149,12 +149,12 @@ export default {
         info: {
           embed_data: {
             personal_workspace: {
-              1: "In your current plan, you will not receive any data from the embedded plio if your viewers haven't already logged in to plio. Fill ",
+              1: "In your current plan, you will not receive any data from the embedded plio if your viewers haven't already logged in to Plio. Fill ",
               2: "this",
-              3: " form if you want to apply for an organizational workspace to receive data using Single Sign-On (SSO).",
+              3: " form if you want to apply for a team workspace to receive data using Single Sign-On (SSO).",
             },
             org_workspace: {
-              1: "By default, you will not receive any data from the embedded plio if your viewers haven't already logged in to plio. However, you can receive data using Single Sign-On (SSO). Click ",
+              1: "By default, you will not receive any data from the embedded plio if your viewers haven't already logged in to Plio. However, you can receive data using Single Sign-On (SSO). Click ",
               2: "here",
               3: " to understand how to use it!",
             },

@@ -439,7 +439,7 @@
             <icon-button
               :titleConfig="copyEmbedCodeWithoutSSOTitleClass"
               :buttonClass="copyEmbedCodeWithoutSSOButtonClass"
-              @click="copyEmbedCodeWithoutSSO"
+              @click="copyEmbedCode(false, embedCode)"
               data-test="copyEmbedCodeWithoutSSOButton"
             ></icon-button>
           </div>
@@ -465,7 +465,7 @@
             <icon-button
               :titleConfig="copyEmbedCodeWithSSOTitleClass"
               :buttonClass="copyEmbedCodeWithSSOButtonClass"
-              @click="copyEmbedCodeWithSSO"
+              @click="copyEmbedCode(true, embedCodeSSO)"
               data-test="copyEmbedCodeWithSSOButton"
             ></icon-button>
           </div>
@@ -478,7 +478,7 @@
           <!-- icon -->
           <inline-svg
             :src="getImageSource('exclamation-circle-solid.svg')"
-            class="w-6 sm:w-1/4 md:w-1/5 xl:w-1/6 h-6 text-yellow-600 fill-current"
+            class="w-6 sm:w-1/4 md:w-1/5 xl:w-1/6 h-6 text-yellow-600 fill-current place-self-center"
           ></inline-svg>
           <!-- text -->
           <p class="text-yellow-600 text-sm">
@@ -666,8 +666,10 @@ export default {
       },
       // class for the button to close the dialog that comes after publishing
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
-      plioEmbedCodeWithoutSSOCopied: false, // whether the plio embed code without sso has been copied or not
-      plioEmbedCodeWithSSOCopied: false, // whether the plio embed code with sso has been copied or not
+      plioEmbedCodeCopyConfig: {
+        copied: false,
+        sso: false,
+      },
       toast: useToast(), // use the toast component
       embedCodeTitleClass: "text-sm",
       embedCodeValueClass:
@@ -739,6 +741,16 @@ export default {
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapGetters("auth", ["activeWorkspaceApiKey"]),
+    isPlioEmbedCodeWithoutSSOCopied() {
+      // whether the plio embed code without sso has been copied or not
+      return !this.plioEmbedCodeCopyConfig.sso && this.plioEmbedCodeCopyConfig.copied;
+    },
+
+    isPlioEmbedCodeWithSSOCopied() {
+      // whether the plio embed code with sso has been copied or not
+      return this.plioEmbedCodeCopyConfig.sso && this.plioEmbedCodeCopyConfig.copied;
+    },
+
     embedDialogClass() {
       // class for the dialog box showing the embed codes
       return {
@@ -782,19 +794,19 @@ export default {
     },
     copyEmbedCodeWithoutSSOButtonClass() {
       // class for the copy embed code without sso button
-      return this.getCopyButtonClass(this.plioEmbedCodeWithoutSSOCopied);
+      return this.getCopyButtonClass(this.isPlioEmbedCodeWithoutSSOCopied);
     },
     copyEmbedCodeWithoutSSOTitleClass() {
       // class for the title of the copy embed code without sso button
-      return this.getCopyButtonTitleClass(this.plioEmbedCodeWithoutSSOCopied);
+      return this.getCopyButtonTitleClass(this.isPlioEmbedCodeWithoutSSOCopied);
     },
     copyEmbedCodeWithSSOButtonClass() {
       // class for the copy embed code with sso button
-      return this.getCopyButtonClass(this.plioEmbedCodeWithSSOCopied);
+      return this.getCopyButtonClass(this.isPlioEmbedCodeWithSSOCopied);
     },
     copyEmbedCodeWithSSOTitleClass() {
       // class for the title of the copy embed code with sso button
-      return this.getCopyButtonTitleClass(this.plioEmbedCodeWithSSOCopied);
+      return this.getCopyButtonTitleClass(this.isPlioEmbedCodeWithSSOCopied);
     },
     itemImage() {
       // URL of the image present for the current item
@@ -1142,30 +1154,31 @@ export default {
       ];
     },
     /**
-     * copies the embed code without sso
+     * copies the embed code with/without sso
+     *
+     * @param {Boolean} sso whether the code to be copied has SSO params
+     * @param {String} codeToCopy the actual code that needs to be copied
      */
-    copyEmbedCodeWithoutSSO() {
+    copyEmbedCode(sso, codeToCopy) {
       // return if the link has already been copied
-      if (this.plioEmbedCodeWithoutSSOCopied) return;
-      const success = this.copyToClipboard(this.embedCode);
+      if (
+        (!sso && this.isPlioEmbedCodeWithoutSSOCopied) ||
+        (sso && this.isPlioEmbedCodeSSOCopied)
+      )
+        return;
+      const success = this.copyToClipboard(codeToCopy);
 
       if (success) {
-        this.plioEmbedCodeWithoutSSOCopied = true;
-        this.plioEmbedCodeWithSSOCopied = false;
+        this.plioEmbedCodeCopyConfig.copied = true;
+        this.plioEmbedCodeCopyConfig.sso = sso;
       } else this.toast.error(this.$t("error.copying"));
     },
     /**
-     * copies the embed code with sso
+     * resets the config of the embed codes being copied
      */
-    copyEmbedCodeWithSSO() {
-      // return if the link has already been copied
-      if (this.plioEmbedCodeWithSSOCopied) return;
-      const success = this.copyToClipboard(this.embedCodeSSO);
-
-      if (success) {
-        this.plioEmbedCodeWithSSOCopied = true;
-        this.plioEmbedCodeWithoutSSOCopied = false;
-      } else this.toast.error(this.$t("error.copying"));
+    resetEmbedCodeCopyConfig() {
+      this.plioEmbedCodeCopyConfig.copied = false;
+      this.plioEmbedCodeCopyConfig.sso = false;
     },
     /**
      * hides the published plio dialog and shows the share plio dialog
@@ -1192,8 +1205,7 @@ export default {
      */
     closeEmbedPlioDialog() {
       this.isEmbedPlioDialogShown = false;
-      this.plioEmbedCodeWithoutSSOCopied = false;
-      this.plioEmbedCodeWithSSOCopied = false;
+      this.resetEmbedCodeCopyConfig();
     },
     /**
      * shows the embed plio dialog
