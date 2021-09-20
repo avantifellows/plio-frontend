@@ -202,6 +202,7 @@ export default {
           analyse: "विश्लेषण",
           share: "बाटें",
           delete: "हटाएं",
+          embed: "एम्बेड",
         },
         dialog: {
           delete: {

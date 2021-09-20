@@ -200,6 +200,7 @@ export default {
           analyse: "Analyse",
           share: "Share",
           delete: "Delete",
+          embed: "Embed",
         },
         dialog: {
           delete: {

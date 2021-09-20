@@ -24,6 +24,11 @@ const getters = {
   },
   isUserApproved: (state) =>
     state.user != null && state.user.status == "approved",
+
+  isPersonalWorkspace: (state) => {
+    // whether the current workspace is an organizational workspace
+    return state.activeWorkspace == "";
+  },
   activeOrganization: (state) => {
     // gets the current active organization
     if (state.activeWorkspace != "") {

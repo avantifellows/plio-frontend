@@ -104,6 +104,13 @@
         :plioLink="plioLinkToShare"
       ></SharePlioDialog>
     </div>
+    <!-- dialog for embedding plio -->
+    <div class="fixed w-full flex justify-center">
+      <EmbedPlioDialog
+        v-if="isEmbedPlioDialogShown"
+        :plioId="plioIdToEmbed"
+      ></EmbedPlioDialog>
+    </div>
   </div>
   <vue-progress-bar></vue-progress-bar>
 </template>
@@ -114,6 +121,7 @@ import LocaleSwitcher from "@/components/App/LocaleSwitcher.vue";
 import UserConfigService from "@/services/Config/User.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
+import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
@@ -124,6 +132,7 @@ export default {
     LocaleSwitcher,
     IconButton,
     SharePlioDialog,
+    EmbedPlioDialog,
   },
   data() {
     return {
@@ -391,7 +400,9 @@ export default {
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("generic", [
       "isSharePlioDialogShown",
+      "isEmbedPlioDialogShown",
       "plioLinkToShare",
+      "plioIdToEmbed",
       "isBackgroundDisabled",
     ]),
     ...mapState("sync", ["pending"]),
@@ -461,6 +472,7 @@ export default {
       return (
         this.showLanguagePickerDialog ||
         this.isSharePlioDialogShown ||
+        this.isEmbedPlioDialogShown ||
         this.isBackgroundDisabled
       );
     },

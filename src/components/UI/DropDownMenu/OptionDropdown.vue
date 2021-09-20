@@ -60,8 +60,6 @@
 import Utilities from "@/services/Functional/Utilities.js";
 
 const DEFAULT_OPTIONS_MARGIN_TOP = 2;
-const OPTIONS_OVERFLOW_MARGIN_TOP_DESKTOP = -12;
-const OPTIONS_OVERFLOW_MARGIN_TOP_TOUCH = -16;
 
 export default {
   name: "OptionDropdown",
@@ -83,10 +81,10 @@ export default {
       default: 0,
       type: Number,
     },
-    isTouchDevice: {
-      // whether the device being used on is a touch device
-      default: false,
-      type: Boolean,
+    overflowMarginTop: {
+      // margin to be set from the top when the options would overflow from the screen
+      default: 0,
+      type: Number,
     },
   },
   computed: {
@@ -195,13 +193,7 @@ export default {
           // if the dropdown is going to go below the screen
           // set the margin-top to fix that
           if (this.isOptionsOverflowBottom()) {
-            if (this.isTouchDevice) {
-              // adds an extra button for analyse
-              // so, the value is larger
-              this.defaultOptionMarginRem = OPTIONS_OVERFLOW_MARGIN_TOP_TOUCH;
-            } else {
-              this.defaultOptionMarginRem = OPTIONS_OVERFLOW_MARGIN_TOP_DESKTOP;
-            }
+            this.defaultOptionMarginRem = this.overflowMarginTop;
           } else {
             this.defaultOptionMarginRem = DEFAULT_OPTIONS_MARGIN_TOP;
           }

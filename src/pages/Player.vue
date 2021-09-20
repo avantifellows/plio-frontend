@@ -56,7 +56,7 @@ export default {
       "Last Plio Viewed": new Date().toISOString(),
     });
 
-    // TODO: this is currently not add to the session
+    // TODO: this is currently not added to the session
     // update source for the plio
     if (this.$route.query.src) {
       this.source = this.$route.query.src;
