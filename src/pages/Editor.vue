@@ -471,6 +471,14 @@ export default {
         controls: ["play-large", "play", "volume", "current-time"],
         invertTime: false,
       },
+      closeDialogIconConfig: {
+        // config for the icon of the button to close the dialog that comes after publishing
+        enabled: true,
+        iconName: "times-circle-solid",
+        iconClass: "text-primary fill-current h-8 w-8",
+      },
+      // class for the button to close the dialog that comes after publishing
+      closeDialogButtonClass: "bg-white w-10 h-10 p-2",
       sliderStep: 0.1, // timestep for the slider
       itemTimestamps: [], // stores the list of the timestamps of all items
       videoURL: "", // full video url

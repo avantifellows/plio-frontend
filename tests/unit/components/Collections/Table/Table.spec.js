@@ -360,7 +360,7 @@ describe("Table.vue", () => {
     // click on delete
     await plioListItem
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[4]
+      .findAll('[data-test="option"]')[5]
       .trigger("click");
 
     // click the confirm button of the dialog box
