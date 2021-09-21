@@ -87,30 +87,33 @@ describe("PlioListItem.vue", () => {
     expect(wrapper.vm.isPublished).toBe(true);
   });
 
-  it("clicking dropdown shows action buttons", async () => {
+  it("sets whether the current screen is mobile screen based on window width ", async () => {
+    const plioDetails = {
+      updatedAt: new Date(2018, 12, 31),
+      status: "published",
+    };
+
     const wrapper = mount(PlioListItem, {
+      props: {
+        plioId: "123",
+      },
       data() {
         return {
-          plioDetails: {
-            updatedAt: new Date(2018, 12, 31),
-            status: "draft",
-          },
+          plioDetails: plioDetails,
         };
       },
     });
 
-    // click the option dropdown
-    await wrapper
-      .get('[data-test="optionDropdown"]')
-      .get('[data-test="toggleButton"]')
-      .trigger("click");
+    // the default screen size should be classified as false
+    expect(wrapper.vm.isMobileScreen).toBeFalsy();
 
-    // there should be 6 buttons - edit, play, share, embed, duplicate, delete
-    expect(
-      wrapper
-        .get('[data-test="optionDropdown"]')
-        .findAll('[data-test="option"]').length
-    ).toBe(6);
+    // update the value of the window width
+    await wrapper.setData({
+      windowWidth: 500,
+    });
+
+    // now the screen size should be classified as true
+    expect(wrapper.vm.isMobileScreen).toBeTruthy();
   });
 
   it("play disabled for draft plio ", async () => {
@@ -344,6 +347,43 @@ describe("PlioListItem.vue", () => {
       .trigger("click");
 
     expect(sharePlio).toHaveBeenCalled();
+  });
+
+  it("clicking embed shows the embed dialog ", async () => {
+    const embedPlio = jest.spyOn(PlioListItem.methods, "embedPlio");
+
+    const plioDetails = {
+      updatedAt: new Date(2018, 12, 31),
+      status: "published",
+    };
+    const plioId = "123";
+
+    const wrapper = mount(PlioListItem, {
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          plioDetails: plioDetails,
+        };
+      },
+    });
+    // passing in plioID triggers startLoading which keeps the component in pending state
+    await store.dispatch("sync/stopLoading");
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // click the embed button
+    wrapper
+      .get('[data-test="optionDropdown"]')
+      .findAll('[data-test="option"]')[3]
+      .trigger("click");
+
+    expect(embedPlio).toHaveBeenCalled();
   });
 
   it("analyze button should show up for touch device ", async () => {
