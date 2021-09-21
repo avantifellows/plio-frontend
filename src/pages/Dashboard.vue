@@ -349,7 +349,7 @@ export default {
       textMetricValueClass:
         "text-yellow-900 text-center sm:text-left text-xl lg:text-2xl xl:text-3xl font-bold",
       // styling class for the title of the first type of metric
-      textMetricTitleClass: "text-yellow-900 text-xsm bp-420:text-xs bp-500:text-sm",
+      textMetricTitleClass: "text-yellow-900 text-bp-360 bp-420:text-xs bp-500:text-sm",
       // styling class for the second type of metric
       cardMetricValueClass:
         "w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900",

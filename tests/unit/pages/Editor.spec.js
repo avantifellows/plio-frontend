@@ -1,6 +1,5 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import mockAxios from "jest-mock-axios";
-import "jest-canvas-mock";
 
 import Editor from "@/pages/Editor.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";

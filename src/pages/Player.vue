@@ -5,7 +5,7 @@
     <div v-else class="flex relative shadow-lg">
       <!-- fullscreen button overlay -->
       <div
-        v-if="(showItemModal || showScorecard) && !isFullscreen"
+        v-if="(showItemModal || isScorecardShown) && !isFullscreen"
         class="z-50 absolute bp-500:hidden w-full h-full bg-transparent"
       >
         <div class="opacity-90 w-full h-full absolute bg-white"></div>
@@ -71,14 +71,13 @@
       <Scorecard
         id="scorecardmodal"
         class="absolute z-10"
-        :class="{ hidden: !showScorecard }"
+        :class="{ hidden: !isScorecardShown }"
         :metrics="scorecardMetrics"
         :progressPercentage="scorecardProgress"
-        :showScorecard="showScorecard"
+        :isShown="isScorecardShown"
         :plioTitle="plioTitle"
         :greeting="$t('player.scorecard.greeting')"
-        :isPortrait="isPortrait"
-        @watch-again="watchAgain"
+        @restart-video="restartVideo"
         ref="scorecard"
       ></Scorecard>
     </div>
@@ -96,7 +95,7 @@ import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import ItemModal from "../components/Player/ItemModal.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
-import Scorecard from "@/components/Items/Scorecard/Scorecard.vue";
+import Scorecard from "@/components/Items/Scorecard.vue";
 import { useToast } from "vue-toastification";
 import { mapActions, mapGetters } from "vuex";
 
@@ -112,65 +111,11 @@ const PLYR_INTERVAL_TIME = 0.05;
 const UPLOAD_INTERVAL = 10000;
 var UPLOAD_INTERVAL_TIMEOUT = null;
 
-// supports indexOf for older browsers
-if (!Array.prototype.indexOf) {
-  Array.prototype.indexOf = function (elt /*, from*/) {
-    var len = this.length >>> 0;
-
-    var from = Number(arguments[1]) || 0;
-    from = from < 0 ? Math.ceil(from) : Math.floor(from);
-    if (from < 0) from += len;
-
-    for (; from < len; from++) {
-      if (from in this && this[from] === elt) return from;
-    }
-    return -1;
-  };
-}
-
-// supports Array.prototype.fill for older browsers
-if (!Array.prototype.fill) {
-  Object.defineProperty(Array.prototype, "fill", {
-    value: function (value) {
-      // Steps 1-2.
-      if (this == null) {
-        throw new TypeError("this is null or not defined");
-      }
-
-      var O = Object(this);
-
-      // Steps 3-5.
-      var len = O.length >>> 0;
-
-      // Steps 6-7.
-      var start = arguments[1];
-      var relativeStart = start >> 0;
-
-      // Step 8.
-      var k =
-        relativeStart < 0
-          ? Math.max(len + relativeStart, 0)
-          : Math.min(relativeStart, len);
-
-      // Steps 9-10.
-      var end = arguments[2];
-      var relativeEnd = end === undefined ? len : end >> 0;
-
-      // Step 11.
-      var finalValue =
-        relativeEnd < 0 ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
-
-      // Step 12.
-      while (k < finalValue) {
-        O[k] = value;
-        k++;
-      }
-
-      // Step 13.
-      return O;
-    },
-  });
-}
+/**
+ * How many seconds before the end of the video
+ * should the scorecard pop up
+ */
+const SCORECARD_POPUP_TIME_FROM_END = 0.5;
 
 export default {
   components: {
@@ -250,12 +195,11 @@ export default {
       // styling class for the minimize button
       maximizeButtonClass:
         "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-6 sm:pr-6 lg:p-4 lg:pl-6 lg:pr-6 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
-      numOfCorrect: 0, // number of correctly answered questions (valid for MCQ only)
-      numOfWrong: 0, // number of wrongly answered questions (valid for MCQ only)
-      numOfSkipped: 0, // number of skipped questions
-      showScorecard: false, // to show the scorecard or not
+      numCorrect: 0, // number of correctly answered questions
+      numWrong: 0, // number of wrongly answered questions
+      numSkipped: 0, // number of skipped questions
+      isScorecardShown: false, // to show the scorecard or not
       plioTitle: "", // title of the plio
-      isPortrait: false,
     };
   },
   watch: {
@@ -278,11 +222,10 @@ export default {
     },
     itemResponses: {
       handler(value) {
-        // whenever itemResponses update, re-render the markers
+        // whenever itemResponses is updated, re-render the markers
         // and re-calculate the scorecard metrics
         if (value != undefined && this.player != undefined) {
           this.showItemMarkersOnSlider(this.player);
-          this.calculateScorecardMetrics();
         }
       },
       deep: true,
@@ -386,39 +329,36 @@ export default {
     ...mapGetters("auth", ["isAuthenticated"]),
     scorecardProgress() {
       // progress value (0-100) to be passed to the Scorecard component
-      const totalAttempted = this.numOfCorrect + this.numOfWrong;
+      const totalAttempted = this.numCorrect + this.numWrong;
       if (totalAttempted == 0) return 0;
-      return (this.numOfCorrect / (this.numOfCorrect + this.numOfWrong)) * 100;
+      return (this.numCorrect / totalAttempted) * 100;
     },
     scorecardMetrics() {
       // define all the metrics to show in the scorecard here
       return [
         {
-          name: "numberOfCorrect",
+          name: this.$t("player.scorecard.metric.description.correct"),
           icon: {
             source: "check.svg",
-            color: "text-green-500",
+            class: "text-green-500",
           },
-          value: this.numOfCorrect,
-          description: this.$t("player.scorecard.metric.description.correct"),
+          value: this.numCorrect,
         },
         {
-          name: "numberOfWrong",
+          name: this.$t("player.scorecard.metric.description.wrong"),
           icon: {
             source: "times-solid.svg",
-            color: "text-red-500",
+            class: "text-red-500",
           },
-          value: this.numOfWrong,
-          description: this.$t("player.scorecard.metric.description.wrong"),
+          value: this.numWrong,
         },
         {
-          name: "numberOfSkipped",
+          name: this.$t("player.scorecard.metric.description.skipped"),
           icon: {
             source: "hrline.svg",
-            color: "text-yellow-700",
+            class: "text-yellow-700",
           },
-          value: this.numOfSkipped,
-          description: this.$t("player.scorecard.metric.description.skipped"),
+          value: this.numSkipped,
         },
       ];
     },
@@ -482,31 +422,80 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
-    calculateScorecardMetrics() {
-      // calculate scorecard metrics using `itemResponses`
-      if (this.itemResponses != undefined && this.items != undefined) {
-        this.numOfCorrect = 0;
-        this.numOfWrong = 0;
-        this.numOfSkipped = 0;
+    /**
+     * Update the number of correct answers
+     * @param  {Number} itemIndex -  The index of the item to be considered for the calculation
+     * @param  {String, Number, Object} userAnswer - User's answer to that item
+     */
+    updateNumCorrect(itemIndex, userAnswer) {
+      if (this.isItemMCQ(itemIndex)) {
+        const correctAnswer = this.items[itemIndex].details.correct_answer;
+        if (!isNaN(userAnswer) && userAnswer == correctAnswer) {
+          this.numCorrect += 1;
+        }
+      } else if (
+        this.isItemSubjective(itemIndex) &&
+        userAnswer != null &&
+        userAnswer.trim() != ""
+      ) {
+        this.numCorrect += 1;
+      }
+      return;
+    },
+    /**
+     * Update the number of wrong answers
+     * @param  {Number} itemIndex -  The index of the item to be considered for the calculation
+     * @param  {String, Number, Object} userAnswer - User's answer to that item
+     */
+    updateNumWrong(itemIndex, userAnswer) {
+      if (this.isItemMCQ(itemIndex)) {
+        const correctAnswer = this.items[itemIndex].details.correct_answer;
+        if (!isNaN(userAnswer) && userAnswer != correctAnswer) {
+          this.numWrong += 1;
+        }
+      }
+      return;
+    },
+    /**
+     * Update the number of skipped answers
+     * @param  {Number} itemIndex -  The index of the item to be considered for the calculation
+     * @param  {String, Number, Object} userAnswer - User's answer to that item
+     */
+    updateNumSkipped(itemIndex, userAnswer) {
+      if (this.isItemMCQ(itemIndex) && isNaN(userAnswer)) {
+        this.numSkipped += 1;
+      } else if (this.isItemSubjective(itemIndex)) {
+        if (userAnswer == null || userAnswer.trim() == "") this.numSkipped += 1;
+      }
+      return;
+    },
+    /**
+     * Calculate the scorecard metrics
+     * @param {Number} [itemIndex = null] - If null, iterate through all items else just consider the provided item
+     */
+    calculateScorecardMetrics(itemIndex = null) {
+      if (itemIndex == null) {
+        this.numCorrect = 0;
+        this.numWrong = 0;
+        this.numSkipped = 0;
         this.itemResponses.forEach((itemResponse, itemIndex) => {
-          const userAnswer = this.itemResponses[itemIndex].answer;
-          if (this.isItemMCQ(itemIndex)) {
-            const correctAnswer = this.items[itemIndex].details.correct_answer;
-            if (!isNaN(userAnswer)) {
-              if (userAnswer == correctAnswer) this.numOfCorrect += 1;
-              else this.numOfWrong += 1;
-            } else this.numOfSkipped += 1;
-          } else if (this.isItemSubjective(itemIndex)) {
-            if (userAnswer == null) this.numOfSkipped += 1;
-            else this.numOfCorrect += 1;
-          }
+          const userAnswer = itemResponse.answer;
+          this.updateNumCorrect(itemIndex, userAnswer);
+          this.updateNumWrong(itemIndex, userAnswer);
+          this.updateNumSkipped(itemIndex, userAnswer);
         });
+      } else {
+        const userAnswer = this.itemResponses[itemIndex].answer;
+        this.updateNumCorrect(itemIndex, userAnswer);
+        this.updateNumWrong(itemIndex, userAnswer);
+        this.updateNumSkipped(itemIndex, userAnswer);
       }
     },
-    watchAgain() {
-      // when watch again is clicked on the scorecard, remove the scorecard
-      // restart the video and remove the confetti
-      this.showScorecard = false;
+    /**
+     * remove the scorecard, restart the video and remove the confetti
+     */
+    restartVideo() {
+      this.isScorecardShown = false;
       this.player.restart();
       this.$refs.scorecard.resetConfetti();
     },
@@ -573,7 +562,7 @@ export default {
       this.showItemMarkersOnSlider(this.player);
 
       // recalculate the scorecard metrics
-      this.calculateScorecardMetrics();
+      this.calculateScorecardMetrics(this.currentItemIndex);
     },
     skipQuestion() {
       // invoked when the user skips the question
@@ -581,7 +570,7 @@ export default {
       this.createEvent("question_skipped", { itemIndex: this.currentItemIndex });
 
       // recalculate the scorecard metrics
-      this.calculateScorecardMetrics();
+      this.calculateScorecardMetrics(this.currentItemIndex);
     },
     proceedQuestion() {
       // invoked when the user has answered the question and wishes to proceed
@@ -669,6 +658,8 @@ export default {
           }
           this.itemResponses.push(itemResponse);
         });
+        // once itemResponses is full, calculate all the scorecard metrics
+        this.calculateScorecardMetrics();
       });
     },
     updateSession() {
@@ -694,9 +685,6 @@ export default {
     setScreenProperties() {
       // sets various properties based on the device screen
       this.playerHeight = document.getElementById("videoPlayer").clientHeight;
-
-      if (screen.availHeight > 1.5 * screen.availWidth) this.isPortrait = true;
-      else this.isPortrait = false;
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL
@@ -752,11 +740,9 @@ export default {
     showScorecardMarkerOnSlider() {
       // show the marker for scorecard on top of the video slider
       var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
-      let existingMarker = document.getElementById(`marker-scorecard`);
-      if (existingMarker != undefined) plyrProgressBar.removeChild(existingMarker);
 
       // Add marker to player seek bar
-      var newMarker = document.createElement("P");
+      var newMarker = document.createElement("p");
       newMarker.setAttribute("id", `marker-scorecard`);
 
       // what the marker should look like - trophy cup emoji
@@ -764,7 +750,9 @@ export default {
       newMarker.classList.add(...this.scorecardMarkerClass);
 
       // set marker position
-      var positionPercent = ((this.player.duration - 0.5) / this.player.duration) * 100;
+      var positionPercent =
+        ((this.player.duration - SCORECARD_POPUP_TIME_FROM_END) / this.player.duration) *
+        100;
       newMarker.style.setProperty("left", `${positionPercent}%`);
       plyrProgressBar.appendChild(newMarker);
     },
@@ -785,8 +773,11 @@ export default {
         this.items[itemIndex].details.type == "mcq"
       );
     },
+    /**
+     * Whether the given item index is a subjective question
+     * @param {Number} itemIndex - index of an item in the items array
+     */
     isItemSubjective(itemIndex) {
-      // whether the given item index is an MCQ question
       return (
         this.items[itemIndex].type == "question" &&
         this.items[itemIndex].details.type == "subjective"
@@ -809,14 +800,19 @@ export default {
         this.lastTimestampRetention = currentTime;
       }
     },
+    // checks if the scorecard needs to pop up or not
     checkForScorecardPopup(timestamp) {
       if (timestamp >= this.player.duration - 1) {
-        this.showScorecard = true;
+        this.isScorecardShown = true;
 
-        // if the video is in fullscreen mode, show the modal on top of it
-        var modal = document.getElementById("scorecardmodal");
-        if (modal != undefined) this.mountOnFullscreenPlyr(modal);
-      } else this.showScorecard = false;
+        if (this.isFullscreen) {
+          // if the video is in fullscreen mode, show the modal on top of it
+          var scorecardModal = document.getElementById("scorecardmodal");
+          if (scorecardModal != undefined) {
+            this.mountOnFullscreenPlyr(scorecardModal);
+          }
+        }
+      } else this.isScorecardShown = false;
     },
     checkItemToSelect(timestamp) {
       // checks if an item is to be selected and marks/unmarks accordingly

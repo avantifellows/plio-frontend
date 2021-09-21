@@ -38,7 +38,25 @@ describe("VideoPlayer.vue", () => {
     expect(initiatePlayer).toHaveBeenCalled();
     expect(removePlyrPoster).toHaveBeenCalled();
     expect(setPlayerProperties).toHaveBeenCalled();
+  });
 
+  it("should re-render when video ID is changed", async () => {
+    const initiatePlayer = jest.spyOn(VideoPlayer.methods, "initiatePlayer");
+    const removePlyrPoster = jest.spyOn(
+      VideoPlayer.methods,
+      "removePlyrPoster"
+    );
+    const setPlayerProperties = jest.spyOn(
+      VideoPlayer.methods,
+      "setPlayerProperties"
+    );
+    const wrapper = mount(VideoPlayer, {
+      props: {
+        videoId: "4j4fYyWgl0w",
+      },
+    });
+
+    // changing the video ID
     await wrapper.setProps({
       videoId: "qJWALEoGge4",
     });

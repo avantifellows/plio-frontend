@@ -248,7 +248,7 @@ export default {
           "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2 bp-500:w-1/3":
             (!this.isPortrait && !this.previewMode) ||
             (this.isPortrait && !this.isFullscreen),
-          "h-20 xsm:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
+          "h-20 bp-360:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
             .previewMode,
           invisible: this.pending,
         },

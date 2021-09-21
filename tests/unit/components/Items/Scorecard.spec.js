@@ -11,7 +11,7 @@ describe("Scorecard.vue", () => {
     expect(wrapper).toBeTruthy();
   });
 
-  it("should show/hide the scorecard popup using showScorecard prop", async () => {
+  it("should show/hide the scorecard popup using isShown prop", async () => {
     const progressPercentage = 50;
     const throwConfetti = jest.spyOn(Scorecard.methods, "throwConfetti");
     const wrapper = mount(Scorecard, {
@@ -21,23 +21,21 @@ describe("Scorecard.vue", () => {
     });
 
     await wrapper.setProps({
-      showScorecard: true,
+      isShown: true,
     });
     await flushPromises();
     await jest.advanceTimersByTime(1000);
 
     expect(wrapper.vm.localProgressPercentage).toBe(progressPercentage);
-    expect(wrapper.vm.showConfetti).toBeTruthy();
     expect(throwConfetti).toHaveBeenCalled();
 
     await wrapper.setProps({
-      showScorecard: false,
+      isShown: false,
     });
     await flushPromises();
     await jest.advanceTimersByTime(1000);
 
     expect(wrapper.vm.localProgressPercentage).toBe(0);
-    expect(wrapper.vm.showConfetti).not.toBeTruthy();
   });
 
   it("should adjust the radius/stroke of the progress bar according to screen size and orientation", async () => {
@@ -59,36 +57,24 @@ describe("Scorecard.vue", () => {
     expect(wrapper.vm.circularProgressRadius).toBe(120);
     expect(wrapper.vm.circularProgressStroke).toBe(18);
 
-    await wrapper.setProps({
-      isPortrait: false,
-    });
     await wrapper.setData({
       innerWidth: 800,
     });
     expect(wrapper.vm.circularProgressRadius).toBe(100);
     expect(wrapper.vm.circularProgressStroke).toBe(15);
 
-    await wrapper.setProps({
-      isPortrait: false,
-    });
     await wrapper.setData({
       innerWidth: 700,
     });
     expect(wrapper.vm.circularProgressRadius).toBe(80);
     expect(wrapper.vm.circularProgressStroke).toBe(12);
 
-    await wrapper.setProps({
-      isPortrait: false,
-    });
     await wrapper.setData({
       innerWidth: 1200,
     });
     expect(wrapper.vm.circularProgressRadius).toBe(150);
     expect(wrapper.vm.circularProgressStroke).toBe(20);
 
-    await wrapper.setProps({
-      isPortrait: false,
-    });
     await wrapper.setData({
       innerWidth: 500,
     });

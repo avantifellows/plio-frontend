@@ -232,7 +232,7 @@
         >
           <!-- boxes for adding different types of items -->
           <div
-            class="bg-peach rounded-lg p-4 xsm:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
+            class="bg-peach rounded-lg p-4 bp-360:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
             :class="itemPickerClass"
             v-if="currentItemIndex == null"
           >
@@ -343,7 +343,7 @@
         ></icon-button>
       </div>
 
-      <div class="px-4 xsm:px-8 bp-500:px-12 pt-4 pb-8">
+      <div class="px-4 bp-360:px-8 bp-500:px-12 pt-4 pb-8">
         <!-- title -->
         <p class="text-md bp-420:text-xl sm:text-2xl text-gray-500 font-bold mx-4">
           {{ $t("editor.dialog.published.title") }}

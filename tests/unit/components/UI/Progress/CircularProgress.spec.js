@@ -1,5 +1,4 @@
 import { mount } from "@vue/test-utils";
-
 import CircularProgress from "@/components/UI/Progress/CircularProgress.vue";
 
 describe("CircularProgress.vue", () => {
@@ -34,6 +33,6 @@ describe("CircularProgress.vue", () => {
     expect(wrapper.vm.strokeDashoffset).toBe(expectedStrokeDashoffset);
     expect(wrapper.vm.toShowNumberIndicator).toBeTruthy();
 
-    expect(wrapper.find('[data-test="numberIndicator"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="result"]').exists()).toBeTruthy();
   });
 });

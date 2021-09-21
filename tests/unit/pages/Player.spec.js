@@ -18,11 +18,11 @@ describe("Player.vue", () => {
     expect(wrapper).toBeTruthy();
   });
 
-  it("detects and handles SAML SSO", async () => {
+  it("detects SAML SSO", async () => {
     const wrapper = mount(Player);
 
     // no SSO in the beginning
-    expect(wrapper.vm.isThirdPartyAuth).not.toBeTruthy();
+    expect(wrapper.vm.isThirdPartyAuth).toBeFalsy();
     // setting props for SS)
     await wrapper.setProps({
       thirdPartyApiKey: "apiKey",

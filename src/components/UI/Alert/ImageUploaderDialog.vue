@@ -13,7 +13,7 @@
     </div>
 
     <!-- body -->
-    <div class="h-48 xsm:h-56 bp-420:h-72 bp-500:h-96 w-full bg-white px-10 relative">
+    <div class="h-48 bp-360:h-56 bp-420:h-72 bp-500:h-96 w-full bg-white px-10 relative">
       <!-- image preview -->
       <img v-if="showImagePreview" :src="imageToPreview" :class="imagePreviewClass" />
 
@@ -37,7 +37,7 @@
           class="transform -rotate-12 w-2/3 h-2/3 m-auto text-primary"
         ></inline-svg>
         <div
-          class="mx-auto mb-2 text-xs xsm:text-sm bp-420:text-base sm:text-base md:text-lg font-semibold px-2 text-center"
+          class="mx-auto mb-2 text-xs bp-360:text-sm bp-420:text-base sm:text-base md:text-lg font-semibold px-2 text-center"
         >
           {{ clickHereToUploadMessage }}
         </div>
@@ -144,7 +144,7 @@ export default {
           "text-red-500 font-semibold animate-bounce": this.isFileSizeLimitExceeded,
           "text-black": !this.isFileSizeLimitExceeded,
         },
-        "mx-auto mb-8 text-xs xsm:text-sm bp-420:text-base sm:text-base md:text-lg px-2 text-center",
+        "mx-auto mb-8 text-xs bp-360:text-sm bp-420:text-base sm:text-base md:text-lg px-2 text-center",
       ];
     },
     uploaderInputClass() {

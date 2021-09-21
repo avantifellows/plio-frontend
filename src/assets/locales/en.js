@@ -286,13 +286,13 @@ export default {
       exit: "Exit Fullscreen",
     },
     scorecard: {
-      greeting: "Hooray! Congratulations on completing the Plio!",
+      greeting: "Hooray! Congratulations on completing the plio!",
       metric: {
         description: {
           correct: "Correct",
           wrong: "Wrong",
           skipped: "Skipped",
-          progress: "Accuracy",
+          accuracy: "Accuracy",
         },
       },
       buttons: {

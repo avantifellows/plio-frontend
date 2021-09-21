@@ -292,8 +292,8 @@ export default {
         description: {
           correct: "सही",
           wrong: "गलत",
-          skipped: "छोड़े",
-          progress: "यथार्थता",
+          skipped: "छोड़े गए प्रश्न",
+          accuracy: "यथार्थता",
         },
       },
       buttons: {

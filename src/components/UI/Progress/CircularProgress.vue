@@ -3,7 +3,7 @@
     <svg :height="radius * 2" :width="radius * 2">
       <!-- background circle -->
       <circle
-        stroke="#C4C5C5"
+        :stroke="progressBarBackgroundColor"
         :stroke-dasharray="circumference + ' ' + circumference"
         :style="{ strokeDashoffset: 0 }"
         :stroke-width="stroke"
@@ -14,7 +14,7 @@
       />
       <!-- the actual progress circle -->
       <circle
-        stroke="#2B9D05"
+        :stroke="progressBarForegroundColor"
         :stroke-dasharray="circumference + ' ' + circumference"
         :style="{ strokeDashoffset: strokeDashoffset }"
         :stroke-width="stroke"
@@ -26,15 +26,19 @@
     </svg>
     <!-- progress indicator in the center of the circle  -->
     <div
-      v-if="toShowNumberIndicator"
+      v-if="isResultShown"
       class="absolute inset-1/3 flex flex-col justify-center"
-      data-test="numberIndicator"
+      data-test="result"
     >
-      <div class="text-sm sm:text-base md:text-2xl lg:text-4xl font-bold text-center">
-        {{ Math.trunc(progress) }}%
+      <div
+        class="text-lg bp-360:text-xl bp-500: sm:text-base md:text-2xl lg:text-4xl font-bold text-center"
+      >
+        {{ Math.trunc(progressBarPercent) }}%
       </div>
-      <div class="text-xsm sm:text-sm md:text-base lg:text-xl font-bold text-center">
-        {{ progressNumberIndicator.additionalText }}
+      <div
+        class="text-md bp-350:text-lg sm:text-sm md:text-base lg:text-xl font-bold text-center"
+      >
+        {{ result.title }}
       </div>
     </div>
   </div>
@@ -43,35 +47,49 @@
 <script>
 export default {
   name: "CircularProgress",
+  data() {
+    return {
+      progressBarBackgroundColor: "#C4C5C5",
+      progressBarForegroundColor: "#2B9D05",
+    };
+  },
   props: {
     radius: Number, // radius of ring
-    progress: Number, // progress of the ring
+    progressBarPercent: Number, // progress of the ring
     stroke: Number, // thickness of the ring
-    progressNumberIndicator: {
-      // to show a number indicator in between and if yes
-      // what additional text to show along with it
+    /**to show a result in the center of the progress bar
+     * and if enabled, what is the title of the result to show
+     * along with it
+     */
+    result: {
       default: () => {
         return {
           enabled: false,
-          additionalText: "",
+          title: "",
         };
       },
       type: Object,
     },
   },
   computed: {
+    /** Calculating a reduced radius as we don't want the ring to overflow
+     * the svg viewbox if the stroke is high
+     * Reference - https://css-tricks.com/building-progress-ring-quickly/
+     */
     normalizedRadius() {
-      // refer - https://css-tricks.com/building-progress-ring-quickly/
       return this.radius - this.stroke * 2;
     },
+    // Circumference of the inner circle of the ring
     circumference() {
       return this.normalizedRadius * 2 * Math.PI;
     },
+    // refer to https://css-tricks.com/building-progress-ring-quickly/
     strokeDashoffset() {
-      return this.circumference - (this.progress / 100) * this.circumference;
+      return this.circumference - (this.progressBarPercent / 100) * this.circumference;
     },
-    toShowNumberIndicator() {
-      return this.progressNumberIndicator.enabled;
+    // Whether a result will be shown in the center of the progress bar
+    isResultShown() {
+      return this.result.enabled;
     },
   },
 };
