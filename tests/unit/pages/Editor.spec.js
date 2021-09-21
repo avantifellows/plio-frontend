@@ -23,11 +23,6 @@ afterEach(() => {
   mockAxios.reset();
 });
 
-// mock document.execCommand
-document.execCommand = jest.fn(() => {
-  return true;
-});
-
 describe("Editor.vue", () => {
   it("renders properly with default values", () => {
     const wrapper = mount(Editor);
