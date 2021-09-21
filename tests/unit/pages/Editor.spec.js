@@ -81,7 +81,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogDescription).toBe("");
     expect(confirmPublish).toHaveBeenCalled();
     expect(wrapper.vm.dialogAction).toBe("");
-    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
     expect(wrapper.vm.dialogTitle).toBe("Publishing the plio...");
     expect(wrapper.vm.publishInProgressDialogTitle).toBe(
       "Publishing the changes.."
@@ -154,7 +154,7 @@ describe("Editor.vue", () => {
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
     );
-    await wrapper.setData({ showDialogBox: true });
+    await wrapper.setData({ isDialogBoxShown: true });
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.arrayContaining(["opacity-30", "pointer-events-none"])
     );
@@ -170,7 +170,7 @@ describe("Editor.vue", () => {
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
     );
-    await wrapper.setData({ showImageUploaderDialog: true });
+    await wrapper.setData({ isImageUploaderDialogShown: true });
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.arrayContaining(["opacity-30", "pointer-events-none"])
     );
@@ -387,126 +387,6 @@ describe("Editor.vue", () => {
     });
   });
 
-  it("embed button shows dialog with embed code", async () => {
-    const plioId = "123";
-    const showEmbedPlioDialog = jest.spyOn(
-      Editor.methods,
-      "showEmbedPlioDialog"
-    );
-    const wrapper = mount(Editor, {
-      props: {
-        plioId: plioId,
-      },
-      data() {
-        return {
-          videoId: "abcdefgh",
-        };
-      },
-    });
-
-    // embed dialog should not be shown initially
-    expect(wrapper.find('[data-test="embedDialog"]').exists()).toBeFalsy();
-
-    await wrapper.setData({ status: "published" });
-
-    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
-    expect(showEmbedPlioDialog).toHaveBeenCalled();
-
-    // embed dialog should be shown now
-    expect(wrapper.find('[data-test="embedDialog"]').exists()).toBeTruthy();
-    expect(wrapper.vm.isEmbedPlioDialogShown).toBe(true);
-  });
-
-  it("clicking on close button closes the embed dialog", async () => {
-    const plioId = "123";
-    const closeEmbedPlioDialog = jest.spyOn(
-      Editor.methods,
-      "closeEmbedPlioDialog"
-    );
-    const wrapper = mount(Editor, {
-      props: {
-        plioId: plioId,
-      },
-      data() {
-        return {
-          videoId: "abcdefgh",
-        };
-      },
-    });
-
-    // embed dialog should not be shown initially
-    expect(wrapper.find('[data-test="embedDialog"]').exists()).toBeFalsy();
-
-    await wrapper.setData({ status: "published" });
-
-    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
-
-    // click on the close button of the embed dialog
-    await wrapper.find('[data-test="closeEmbedPlioDialog"]').trigger("click");
-    expect(closeEmbedPlioDialog).toHaveBeenCalled();
-    expect(wrapper.vm.isEmbedPlioDialogShown).toBe(false);
-    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBe(false);
-    expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(false);
-  });
-
-  it("clicking on close button closes the embed dialog", async () => {
-    const plioId = "123";
-    const closeEmbedPlioDialog = jest.spyOn(
-      Editor.methods,
-      "closeEmbedPlioDialog"
-    );
-    const wrapper = mount(Editor, {
-      props: {
-        plioId: plioId,
-      },
-      data() {
-        return {
-          videoId: "abcdefgh",
-        };
-      },
-    });
-
-    // embed dialog should not be shown initially
-    expect(wrapper.find('[data-test="embedDialog"]').exists()).toBeFalsy();
-
-    await wrapper.setData({ status: "published" });
-
-    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
-
-    // click on the close button of the embed dialog
-    await wrapper.find('[data-test="closeEmbedPlioDialog"]').trigger("click");
-    expect(closeEmbedPlioDialog).toHaveBeenCalled();
-    expect(wrapper.vm.isEmbedPlioDialogShown).toBe(false);
-    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBe(false);
-    expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(false);
-  });
-
-  it("clicking on the copy button in the embed dialog copies the embed code", async () => {
-    const plioId = "123";
-    const wrapper = mount(Editor, {
-      props: {
-        plioId: plioId,
-      },
-      data() {
-        return {
-          videoId: "abcdefgh",
-        };
-      },
-    });
-
-    await wrapper.setData({ status: "published" });
-
-    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
-
-    // embed dialog should be shown now
-    await wrapper
-      .find('[data-test="copyEmbedCodeWithoutSSOButton"]')
-      .trigger("click");
-
-    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBeTruthy();
-    expect(document.execCommand).toHaveBeenCalled();
-  });
-
   it("home button works correctly", async () => {
     // mock router
     const mockRouter = {
@@ -684,7 +564,7 @@ describe("Editor.vue", () => {
       class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
     });
     expect(wrapper.vm.dialogAction).toBe("publish");
-    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
 
     await wrapper.setData({ status: "published" });
     await wrapper.find('[data-test="publishButton"]').trigger("click");
@@ -713,7 +593,7 @@ describe("Editor.vue", () => {
 
     await flushPromises();
     expect(wrapper.vm.isBeingPublished).toBeFalsy();
-    expect(wrapper.vm.showDialogBox).toBeFalsy();
+    expect(wrapper.vm.isDialogBoxShown).toBeFalsy();
     expect(wrapper.vm.isPublishedPlioDialogShown).toBeTruthy();
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
   });
@@ -814,9 +694,12 @@ describe("Editor.vue", () => {
     expect(hidePublishedDialogShowEmbedDialog).toHaveBeenCalled();
     expect(wrapper.vm.isPublishedPlioDialogShown).toBeFalsy();
     expect(showEmbedPlioDialog).toHaveBeenCalled();
+
+    // reset the status of the embed plio variable
+    await store.dispatch("generic/unsetEmbedPlioDialog");
   });
 
-  it("embed button shows dialog with embed code", async () => {
+  it("clicking on embed shows dialog with embed code and blurs screen", async () => {
     const plioId = "123";
     const showEmbedPlioDialog = jest.spyOn(
       Editor.methods,
@@ -832,127 +715,22 @@ describe("Editor.vue", () => {
         };
       },
     });
+    await store.dispatch("sync/stopLoading");
 
-    // embed dialog should not be shown initially
-    expect(wrapper.find('[data-test="embedDialog"]').exists()).toBeFalsy();
+    // embed dialog variable should be false initially and the background
+    // should not be disabled
+    expect(wrapper.vm.isEmbedPlioDialogShown).toBeFalsy();
+    expect(wrapper.vm.isBackgroundDisabled).toBeFalsy();
 
     await wrapper.setData({ status: "published" });
 
     await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
     expect(showEmbedPlioDialog).toHaveBeenCalled();
 
-    // embed dialog should be shown now
-    expect(wrapper.find('[data-test="embedDialog"]').exists()).toBeTruthy();
-    expect(wrapper.vm.isEmbedPlioDialogShown).toBe(true);
-  });
-
-  it("shows appropriate view for personal vs org workspace", async () => {
-    // set the list of organizations for the user
-    const orgDetails = {
-      shortcode: "testorg",
-      api_key: "testkey",
-    };
-    await store.dispatch("auth/setUser", {
-      organizations: [orgDetails],
-    });
-
-    const plioId = "123";
-    const wrapper = mount(Editor, {
-      props: {
-        plioId: plioId,
-      },
-      data() {
-        return {
-          videoId: "abcdefgh",
-        };
-      },
-    });
-
-    await wrapper.setData({ status: "published" });
-    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
-
-    // there should only be the embed code without SSO
-    expect(wrapper.find("[data-test=embedCodeWithSSO]").exists()).toBeFalsy();
-    // the heading for the embed code should not be shown
-    expect(
-      wrapper
-        .find("[data-test=embedCodeNoSSO]")
-        .find("[data-test=heading]")
-        .exists()
-    ).toBeFalsy();
-
-    /**
-     * change active workspace now and also update the props
-     */
-    await store.dispatch("auth/setActiveWorkspace", orgDetails.shortcode);
-    await wrapper.setProps({
-      org: orgDetails.shortcode,
-    });
-
-    // active workspace api key should now be updated
-    expect(store.getters["auth/activeWorkspaceApiKey"]).toBe(
-      orgDetails.api_key
-    );
-
-    // both the embed codes with and without SSO should be visible
-    expect(wrapper.find("[data-test=embedCodeWithSSO]").exists()).toBeTruthy();
-    expect(wrapper.find("[data-test=embedCodeNoSSO]").exists()).toBeTruthy();
-    // the heading for the embed code without SSO should now be shown
-    expect(
-      wrapper
-        .find("[data-test=embedCodeNoSSO]")
-        .find("[data-test=heading]")
-        .exists()
-    ).toBeTruthy();
-  });
-
-  it("copying the with/without SSO code sets the copy statuses correctly", async () => {
-    // set the list of organizations for the user
-    const orgDetails = {
-      shortcode: "testorg",
-      api_key: "testkey",
-    };
-    await store.dispatch("auth/setUser", {
-      organizations: [orgDetails],
-    });
-
-    const plioId = "123";
-
-    // change active workspace and set org in the props
-    await store.dispatch("auth/setActiveWorkspace", orgDetails.shortcode);
-
-    const wrapper = mount(Editor, {
-      props: {
-        plioId: plioId,
-        org: orgDetails.shortcode,
-      },
-      data() {
-        return {
-          videoId: "abcdefgh",
-        };
-      },
-    });
-
-    await wrapper.setData({ status: "published" });
-    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
-
-    // copy embed code without SSO
-    await wrapper
-      .find('[data-test="copyEmbedCodeWithoutSSOButton"]')
-      .trigger("click");
-    // embed code without sso should be marked as copied and embed code with
-    // sso as not copied
-    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBe(true);
-    expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(false);
-
-    // copy embed code with SSO
-    await wrapper
-      .find('[data-test="copyEmbedCodeWithSSOButton"]')
-      .trigger("click");
-    // embed code with sso should be marked as copied and embed code without
-    // sso as not copied
-    expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(true);
-    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBe(false);
+    // embed dialog variable should be now true and the background
+    // should be disabled
+    expect(wrapper.vm.isEmbedPlioDialogShown).toBeTruthy();
+    expect(wrapper.vm.isBackgroundDisabled).toBeTruthy();
   });
 
   it("home button inside the published dialog works correctly", async () => {
@@ -1108,7 +886,7 @@ describe("Editor.vue", () => {
     };
 
     await wrapper.setData({
-      showImageUploaderDialog: true,
+      isImageUploaderDialogShown: true,
       items: dummyItemsWithImage,
       itemImage: dummyItemsWithImage[0].details.image.url,
       currentItemIndex: 0,
@@ -1128,7 +906,7 @@ describe("Editor.vue", () => {
     const wrapper = mount(Editor);
     await wrapper.setData({
       items: dummyDraftPlio.data.items,
-      showImageUploaderDialog: true,
+      isImageUploaderDialogShown: true,
       currentItemIndex: 0,
     });
 
@@ -1223,7 +1001,7 @@ describe("Editor.vue", () => {
     );
     expect(wrapper.vm.optionIndexToDelete).toBe(0);
     expect(wrapper.vm.dialogAction).toBe("deleteOption");
-    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
     expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
 
     await wrapper
@@ -1246,7 +1024,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeFalsy();
     expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("");
     expect(wrapper.vm.dialogCancelButtonConfig.class).toBe("");
-    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
     await wrapper
       .find('[data-test="dialogBox"]')
       .find('[data-test="confirmButton"]')
@@ -1287,7 +1065,7 @@ describe("Editor.vue", () => {
     );
     expect(wrapper.vm.optionIndexToDelete).toBe(0);
     expect(wrapper.vm.dialogAction).toBe("deleteOption");
-    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
     expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
 
     await wrapper
@@ -1467,7 +1245,7 @@ describe("Editor.vue", () => {
       "bg-white hover:bg-gray-100 focus:outline-none text-primary"
     );
     expect(wrapper.vm.dialogAction).toBe("deleteItem");
-    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
     expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
 
     await wrapper
@@ -1500,8 +1278,3 @@ describe("Editor.vue", () => {
     expect(minimizeModal).toHaveBeenCalled();
   });
 });
-
-// should be blurred when loading editor
-// see published dialog becomes visible when its boolean is set to true
-// action buttons within published dialog works correctly
-// - do this for embed at the last

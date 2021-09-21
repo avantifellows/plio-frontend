@@ -167,8 +167,8 @@ export default {
   },
   watch: {
     currentRoute() {
-      // unset `isSharePlioDialogShown` if the share plio dialog is visible when the app is being loaded
-      if (this.isSharePlioDialogShown) this.unsetSharePlioDialog();
+      // when the page is being changed, reset the state variables
+      this.resetState();
     },
     isAuthenticated(value) {
       // if user was logged in before but has been logged out now
@@ -255,7 +255,11 @@ export default {
       "fetchAndUpdateUser",
       "unsetActiveWorkspace",
     ]),
-    ...mapActions("generic", ["unsetSharePlioDialog", "enableBackground"]),
+    ...mapActions("generic", [
+      "unsetSharePlioDialog",
+      "unsetEmbedPlioDialog",
+      "enableBackground",
+    ]),
     ...mapActions("sync", ["stopLoading"]),
     mountChatwoot() {
       // mounting chatwoot SDK to the DOM
@@ -368,8 +372,15 @@ export default {
         event.returnValue = "";
       }
 
-      // unset the share plio variable if it was set as true when the app is being loaded
+      // when the page is being closed, reset the state variables
+      this.resetState();
+    },
+    /**
+     * resets various state variables in the store
+     */
+    resetState() {
       if (this.isSharePlioDialogShown) this.unsetSharePlioDialog();
+      if (this.isEmbedPlioDialogShown) this.unsetEmbedPlioDialog();
     },
     setLocale(locale) {
       // sets the given locale as the locale for the user

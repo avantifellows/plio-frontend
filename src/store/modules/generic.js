@@ -1,6 +1,6 @@
 const state = {
   isSharePlioDialogShown: false,
-  isEmbedPlioDialogShown: true, // whether to show the dialog with info on embedding plio
+  isEmbedPlioDialogShown: false, // whether to show the dialog with info on embedding plio
   isBackgroundDisabled: false,
   plioLinkToShare: null,
   plioIdToEmbed: null, // uuid of the plio to be embedded

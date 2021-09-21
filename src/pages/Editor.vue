@@ -3,7 +3,7 @@
   <div class="flex relative justify-center md:mx-4 lg:mx-10 xl:mx-20">
     <div
       class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
-      :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
+      :class="{ 'opacity-30 pointer-events-none': isBackgroundDisabled }"
       data-test="blurDiv"
     >
       <!--- preview grid -->
@@ -312,7 +312,7 @@
     <!-- generic dialog box -->
     <dialog-box
       class="fixed top-1/3"
-      v-if="showDialogBox"
+      v-if="isDialogBoxShown"
       :title="dialogTitle"
       :description="dialogDescription"
       :confirmButtonConfig="dialogConfirmButtonConfig"
@@ -323,7 +323,7 @@
     ></dialog-box>
     <!-- image uploader dialog box -->
     <ImageUploaderDialog
-      v-if="showImageUploaderDialog"
+      v-if="isImageUploaderDialogShown"
       :uploadedImage="itemImage"
       @close-dialog="toggleImageUploaderBox"
       @image-selected="uploadImage"
@@ -487,7 +487,7 @@ export default {
       changeInProgress: false, // whether a change is in progress but has not been saved yet
       saveInterval: 5000, // time interval
       isBeingPublished: false, // whether the current plio is in the process of being published
-      showDialogBox: false, // whether to show dialog box
+      isDialogBoxShown: false, // whether to show dialog box
       dialogTitle: "", // title for the dialog box
       dialogDescription: "", // description for the dialog box
       dialogConfirmButtonConfig: {}, // config for the confirm button of the dialog box
@@ -565,7 +565,7 @@ export default {
         iconName: "publish",
         iconClass: "text-white fill-current h-4 w-4",
       },
-      showImageUploaderDialog: false, // whether to show the image uploader or not
+      isImageUploaderDialogShown: false, // whether to show the image uploader or not
       loadedPlioDetails: {}, // details of the plio fetched when the page was loaded
     };
   },
@@ -765,12 +765,12 @@ export default {
 
       return this.hasUnpublishedChanges;
     },
-    blurMainScreen() {
-      // whether to blur the main screen with opacity
+    isBackgroundDisabled() {
+      // whether to disable the main screen
       return (
         this.isBeingPublished ||
-        this.showDialogBox ||
-        this.showImageUploaderDialog ||
+        this.isDialogBoxShown ||
+        this.isImageUploaderDialogShown ||
         this.isPublishedPlioDialogShown ||
         this.isEmbedPlioDialogShown ||
         this.pending
@@ -1020,7 +1020,7 @@ export default {
      * toggles the visibility of the image uploader dialog box
      */
     toggleImageUploaderBox() {
-      this.showImageUploaderDialog = !this.showImageUploaderDialog;
+      this.isImageUploaderDialogShown = !this.isImageUploaderDialogShown;
     },
     /**
      * invoked when the question type is changed
@@ -1307,7 +1307,7 @@ export default {
       this.status = "published";
       this.savePlio().then(() => {
         this.isBeingPublished = false;
-        this.showDialogBox = false;
+        this.isDialogBoxShown = false;
         this.isPublishedPlioDialogShown = true;
         this.hasUnpublishedChanges = false;
       });
@@ -1332,7 +1332,7 @@ export default {
       // closing the dialog executes this action
       this.dialogAction = "publish";
       // show the dialogue
-      this.showDialogBox = true;
+      this.isDialogBoxShown = true;
     },
     /**
      * invoked when the confirm button of the dialog box is clicked
@@ -1340,7 +1340,7 @@ export default {
      */
     dialogConfirmed() {
       // reset the dialog box
-      this.showDialogBox = false;
+      this.isDialogBoxShown = false;
       this.dialogDescription = "";
 
       // call separate methods depening on the dialog action that
@@ -1348,7 +1348,7 @@ export default {
       if (this.dialogAction == "publish") this.confirmPublish();
       else if (this.dialogAction == "deleteItem") this.deleteSelectedItem();
       else if (this.dialogAction == "deleteOption") this.confirmDeleteOption();
-      else if (this.dialogAction == "closeDialog") this.showDialogBox = false;
+      else if (this.dialogAction == "closeDialog") this.isDialogBoxShown = false;
 
       // reset the dialog action value
       this.dialogAction = "";
@@ -1359,7 +1359,7 @@ export default {
      */
     dialogCancelled() {
       // reset the dialog box
-      this.showDialogBox = false;
+      this.isDialogBoxShown = false;
       if (this.dialogAction == "deleteOption") this.cancelDeleteOption();
     },
     /**
@@ -1390,7 +1390,7 @@ export default {
       // carry out the closeDialog action when dialog is closed
       this.dialogAction = "closeDialog";
       // show the dialogue
-      this.showDialogBox = true;
+      this.isDialogBoxShown = true;
     },
     /**
      * shows a dialog box when the user tries to delete an option
@@ -1414,13 +1414,13 @@ export default {
       // carry out the closeDialog action when dialog is closed
       this.dialogAction = "closeDialog";
       // show the dialogue
-      this.showDialogBox = true;
+      this.isDialogBoxShown = true;
     },
     /**
      * hides the dialog box and invokes the method for publishing the plio
      */
     confirmPublish() {
-      this.showDialogBox = true;
+      this.isDialogBoxShown = true;
       this.dialogTitle = this.publishInProgressDialogTitle;
       this.dialogConfirmButtonConfig = {
         enabled: false,
@@ -1561,7 +1561,7 @@ export default {
       // set the action to be carried out
       this.dialogAction = "deleteItem";
       // show the dialogue
-      this.showDialogBox = true;
+      this.isDialogBoxShown = true;
     },
     /**
      * remove the current item from the item list
@@ -1571,7 +1571,7 @@ export default {
       var itemToDelete = this.items.splice(this.currentItemIndex, 1);
       ItemAPIService.deleteItem(itemToDelete[0].id);
       this.currentItemIndex = null;
-      this.showDialogBox = false;
+      this.isDialogBoxShown = false;
     },
     /**
      * deletes the option of the current item at the given index
@@ -1596,7 +1596,7 @@ export default {
       // set the index to delete, set the dialog action, show the dialog
       this.optionIndexToDelete = optionIndex;
       this.dialogAction = "deleteOption";
-      this.showDialogBox = true;
+      this.isDialogBoxShown = true;
     },
     /**
      * sets that some unresolved errors are present
