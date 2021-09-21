@@ -92,9 +92,9 @@ describe("Player.vue", () => {
       },
     });
 
-    expect(wrapper.vm.numOfCorrect).toBe(0);
-    expect(wrapper.vm.numOfWrong).toBe(0);
-    expect(wrapper.vm.numOfSkipped).toBe(0);
+    expect(wrapper.vm.numCorrect).toBe(0);
+    expect(wrapper.vm.numWrong).toBe(0);
+    expect(wrapper.vm.numSkipped).toBe(0);
 
     await wrapper.setData({
       itemResponses: dummyItemResponses,
@@ -107,8 +107,8 @@ describe("Player.vue", () => {
     );
 
     expect(calculateScorecardMetrics).toHaveBeenCalled();
-    expect(wrapper.vm.numOfCorrect).toBe(2);
-    expect(wrapper.vm.numOfWrong).toBe(0);
-    expect(wrapper.vm.numOfSkipped).toBe(0);
+    expect(wrapper.vm.numCorrect).toBe(2);
+    expect(wrapper.vm.numWrong).toBe(0);
+    expect(wrapper.vm.numSkipped).toBe(0);
   });
 });
