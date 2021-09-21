@@ -386,6 +386,35 @@ describe("PlioListItem.vue", () => {
     expect(embedPlio).toHaveBeenCalled();
   });
 
+  it("clicking dropdown shows action buttons", async () => {
+    const wrapper = mount(PlioListItem, {
+      props: {
+        plioId: "123",
+      },
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "published",
+          },
+        };
+      },
+    });
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // there should be 6 buttons - edit, play, share, embed, duplicate, delete
+    expect(
+      wrapper
+        .get('[data-test="optionDropdown"]')
+        .findAll('[data-test="option"]').length
+    ).toBe(6);
+  });
+
   it("analyze button should show up for touch device ", async () => {
     // set `matches` as `True` for testing on touch screen devices
     setMatchMedia(true);
