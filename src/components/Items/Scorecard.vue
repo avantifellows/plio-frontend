@@ -32,10 +32,12 @@
         <div class="flex bp-500:flex-row flex-col justify-center gap-4 px-10">
           <div
             v-for="metric in metrics"
-            class="rounded-md bp-500:rounded-2xl bg-yellow-400 grid grid-cols-2 bp-500:grid-rows-2 bp-500:grid-cols-none border-2 px-4 lg:px-6 w-full h-14 bp-500:h-20"
+            class="rounded-md bp-500:rounded-2xl bg-yellow-400 grid grid-cols-2 bp-500:grid-rows-2 bp-500:grid-cols-none lg:grid-cols-2 lg:grid-rows-none border-2 px-4 lg:px-6 w-full h-14 bp-500:h-20"
             :key="metric"
           >
-            <div class="w-full h-full flex flex-row justify-center gap-2 bp-500:mt-2">
+            <div
+              class="w-full h-full flex flex-row justify-center gap-2 bp-500:mt-2 lg:mt-0"
+            >
               <!-- metric icon -->
               <inline-svg
                 :src="getIconSource(metric.icon.source)"

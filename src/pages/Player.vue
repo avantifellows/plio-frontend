@@ -356,7 +356,7 @@ export default {
         {
           name: this.$t("player.scorecard.metric.description.skipped"),
           icon: {
-            source: "hrline.svg",
+            source: "skip.svg",
             class: "text-yellow-700",
           },
           value: this.numSkipped,
@@ -805,13 +805,10 @@ export default {
     checkForScorecardPopup(timestamp) {
       if (timestamp >= this.player.duration - 1) {
         this.isScorecardShown = true;
-
-        if (this.isFullscreen) {
-          // if the video is in fullscreen mode, show the modal on top of it
-          var scorecardModal = document.getElementById("scorecardmodal");
-          if (scorecardModal != undefined) {
-            this.mountOnFullscreenPlyr(scorecardModal);
-          }
+        // if the video is in fullscreen mode, show the modal on top of it
+        var scorecardModal = document.getElementById("scorecardmodal");
+        if (scorecardModal != undefined) {
+          this.mountOnFullscreenPlyr(scorecardModal);
         }
       } else this.isScorecardShown = false;
     },
