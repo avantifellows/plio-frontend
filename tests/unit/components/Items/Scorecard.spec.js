@@ -26,7 +26,7 @@ describe("Scorecard.vue", () => {
     await flushPromises();
     await jest.advanceTimersByTime(1000);
 
-    expect(wrapper.vm.localProgressPercentage).toBe(progressPercentage);
+    expect(wrapper.vm.localProgressBarPercentage).toBe(progressPercentage);
     expect(throwConfetti).toHaveBeenCalled();
 
     await wrapper.setProps({
@@ -35,59 +35,52 @@ describe("Scorecard.vue", () => {
     await flushPromises();
     await jest.advanceTimersByTime(1000);
 
-    expect(wrapper.vm.localProgressPercentage).toBe(0);
+    expect(wrapper.vm.localProgressBarPercentage).toBe(0);
   });
 
   it("should adjust the radius/stroke of the progress bar according to screen size and orientation", async () => {
-    const wrapper = mount(Scorecard, {
-      props: {
-        isPortrait: true,
-      },
-    });
+    const wrapper = mount(Scorecard);
 
-    expect(wrapper.vm.circularProgressRadius).toBe(100);
-    expect(wrapper.vm.circularProgressStroke).toBe(15);
+    expect(wrapper.vm.circularProgressRadius).toBe(180);
+    expect(wrapper.vm.circularProgressStroke).toBe(18);
 
-    await wrapper.setProps({
-      isPortrait: false,
-    });
     await wrapper.setData({
       innerWidth: 1100,
     });
-    expect(wrapper.vm.circularProgressRadius).toBe(120);
+    expect(wrapper.vm.circularProgressRadius).toBe(180);
     expect(wrapper.vm.circularProgressStroke).toBe(18);
 
     await wrapper.setData({
       innerWidth: 800,
     });
-    expect(wrapper.vm.circularProgressRadius).toBe(100);
-    expect(wrapper.vm.circularProgressStroke).toBe(15);
+    expect(wrapper.vm.circularProgressRadius).toBe(160);
+    expect(wrapper.vm.circularProgressStroke).toBe(16);
 
     await wrapper.setData({
       innerWidth: 700,
     });
-    expect(wrapper.vm.circularProgressRadius).toBe(80);
-    expect(wrapper.vm.circularProgressStroke).toBe(12);
+    expect(wrapper.vm.circularProgressRadius).toBe(140);
+    expect(wrapper.vm.circularProgressStroke).toBe(14);
 
     await wrapper.setData({
       innerWidth: 1200,
     });
-    expect(wrapper.vm.circularProgressRadius).toBe(150);
+    expect(wrapper.vm.circularProgressRadius).toBe(200);
     expect(wrapper.vm.circularProgressStroke).toBe(20);
 
     await wrapper.setData({
       innerWidth: 500,
     });
-    expect(wrapper.vm.circularProgressRadius).toBe(50);
-    expect(wrapper.vm.circularProgressStroke).toBe(8);
+    expect(wrapper.vm.circularProgressRadius).toBe(120);
+    expect(wrapper.vm.circularProgressStroke).toBe(12);
   });
 
   it("should emit a signal when watch again is clicked", async () => {
-    const watchAgain = jest.spyOn(Scorecard.methods, "watchAgain");
+    const restartVideo = jest.spyOn(Scorecard.methods, "restartVideo");
     const wrapper = mount(Scorecard);
 
     await wrapper.find('[data-test="watchAgainButton"]').trigger("click");
-    expect(watchAgain).toHaveBeenCalled();
-    expect(wrapper.emitted()).toHaveProperty("watch-again");
+    expect(restartVideo).toHaveBeenCalled();
+    expect(wrapper.emitted()).toHaveProperty("restart-video");
   });
 });

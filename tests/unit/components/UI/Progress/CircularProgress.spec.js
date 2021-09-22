@@ -31,7 +31,7 @@ describe("CircularProgress.vue", () => {
     expect(wrapper.vm.normalizedRadius).toBe(expectedNormalizedRadius);
     expect(wrapper.vm.circumference).toBe(expectedCircumference);
     expect(wrapper.vm.strokeDashoffset).toBe(expectedStrokeDashoffset);
-    expect(wrapper.vm.toShowNumberIndicator).toBeTruthy();
+    expect(wrapper.vm.isResultShown).toBeTruthy();
 
     expect(wrapper.find('[data-test="result"]').exists()).toBeTruthy();
   });
