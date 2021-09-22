@@ -83,6 +83,10 @@ describe("Player.vue", () => {
       .mockImplementation(() => {
         return new Promise((resolve) => resolve());
       });
+
+    jest.spyOn(Player.methods, "closeItemModal").mockImplementation(() => {
+      return;
+    });
     const wrapper = mount(Player, {
       data() {
         return {
@@ -96,19 +100,33 @@ describe("Player.vue", () => {
     expect(wrapper.vm.numWrong).toBe(0);
     expect(wrapper.vm.numSkipped).toBe(0);
 
+    // set the first item to open, and emulate a user skipping by setting the
+    // item responses
     await wrapper.setData({
-      itemResponses: dummyItemResponses,
+      currentItemIndex: 0,
+      itemResponses: [
+        {
+          id: 1,
+          deleted: null,
+          session: 36,
+          item: 211,
+          answer: NaN,
+          created_at: "2021-09-14T13:25:44.357052Z",
+          updated_at: "2021-09-14T13:25:44.357290Z",
+        },
+      ],
     });
-    // this is done to call the watcher. refer to this
-    // https://github.com/vuejs/vue-test-utils/issues/331#issuecomment-382037200
-    wrapper.vm.$options.watch.itemResponses.handler.call(
-      wrapper.vm,
-      wrapper.vm.itemResponses
-    );
+
+    // click the skip button for recalculation of scorecard metrics
+    await wrapper
+      .find('[data-test="item-modal"]')
+      .find('[data-test="header"]')
+      .find('[data-test="skip"]')
+      .trigger("click");
 
     expect(calculateScorecardMetrics).toHaveBeenCalled();
-    expect(wrapper.vm.numCorrect).toBe(2);
+    expect(wrapper.vm.numCorrect).toBe(0);
     expect(wrapper.vm.numWrong).toBe(0);
-    expect(wrapper.vm.numSkipped).toBe(0);
+    expect(wrapper.vm.numSkipped).toBe(1);
   });
 });

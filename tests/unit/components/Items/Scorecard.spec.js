@@ -1,5 +1,5 @@
 import { mount, flushPromises } from "@vue/test-utils";
-import Scorecard from "@/components/Items/Scorecard/Scorecard";
+import Scorecard from "@/components/Items/Scorecard";
 
 beforeEach(() => {
   jest.useFakeTimers();

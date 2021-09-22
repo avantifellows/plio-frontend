@@ -66,6 +66,7 @@
           @submit-question="submitQuestion"
           @option-selected="optionSelected"
           @toggle-minimize="minimizeModal"
+          data-test="item-modal"
         ></item-modal>
       </transition>
       <Scorecard
