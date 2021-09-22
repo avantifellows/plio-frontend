@@ -331,7 +331,7 @@ export default {
     scorecardProgress() {
       // progress value (0-100) to be passed to the Scorecard component
       const totalAttempted = this.numCorrect + this.numWrong;
-      if (totalAttempted == 0) return 0;
+      if (totalAttempted == 0) return null;
       return (this.numCorrect / totalAttempted) * 100;
     },
     scorecardMetrics() {
@@ -703,7 +703,7 @@ export default {
     playerReady() {
       // invoked when the player is ready
       this.showItemMarkersOnSlider(this.player);
-      this.showScorecardMarkerOnSlider();
+      if (this.items != undefined && this.hasAnyItems) this.showScorecardMarkerOnSlider();
       this.setScreenProperties();
       this.player.currentTime = this.currentTimestamp;
       this.$mixpanel.track("Visit Player", {
@@ -803,7 +803,7 @@ export default {
     },
     // checks if the scorecard needs to pop up or not
     checkForScorecardPopup(timestamp) {
-      if (timestamp >= this.player.duration - 1) {
+      if (timestamp >= this.player.duration - 1 && this.hasAnyItems) {
         this.isScorecardShown = true;
         // if the video is in fullscreen mode, show the modal on top of it
         var scorecardModal = document.getElementById("scorecardmodal");

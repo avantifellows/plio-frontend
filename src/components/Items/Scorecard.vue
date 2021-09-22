@@ -1,7 +1,10 @@
 <template>
   <div class="flex flex-col bg-peach w-full h-full overflow-hidden">
     <div class="flex justify-center w-2/3 mx-auto my-auto h-full py-8">
-      <div class="flex flex-col justify-center w-full" id="">
+      <div
+        class="flex flex-col justify-center w-full"
+        :class="{ 'gap-4': !isCircularProgressShown }"
+      >
         <!-- scorecard greeting -->
         <div
           class="text-center text-lg md:text-xl lg:text-2xl font-extrabold font-sans mb-4"
@@ -19,6 +22,7 @@
 
         <!-- circular progress bar -->
         <CircularProgress
+          v-if="isCircularProgressShown"
           class="relative mx-auto"
           :radius="circularProgressRadius"
           :progressBarPercent="localProgressBarPercentage"
@@ -53,7 +57,7 @@
             </div>
             <!-- name of the metric -->
             <div
-              class="text-center text-sm bp-320:text-base md:text-base lg:text-xl font-medium my-auto whitespace-nowrap"
+              class="text-center text-sm bp-320:text-base md:text-base lg:text-xl font-medium my-auto bp-500:whitespace-nowrap lg:whitespace-normal"
             >
               {{ metric.name }}
             </div>
@@ -115,8 +119,8 @@ export default {
     },
     progressPercentage: {
       // progress to show on the progress bar in %
-      default: 0,
-      type: Number,
+      default: null,
+      type: Object,
     },
     greeting: {
       // greeting of the scorecard
@@ -172,6 +176,15 @@ export default {
     window.removeEventListener("resize", this.handleScreenSizeChange);
   },
   computed: {
+    /**
+     * Wether the circular progress bar will be visible or not.
+     * If the progressPercetage prop is null, the circular progress
+     * will not be visible
+     */
+    isCircularProgressShown() {
+      if (this.progressPercentage == null) return false;
+      return true;
+    },
     /** What result to show in the center of the progress bar */
     progressBarResult() {
       return {
