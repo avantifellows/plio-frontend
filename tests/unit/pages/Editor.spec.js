@@ -31,6 +31,11 @@ describe("Editor.vue", () => {
 
   it("blurs the main screen when plio is being published", async () => {
     const wrapper = mount(Editor);
+
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
+
     // blur classes should not be present initially
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
@@ -46,9 +51,9 @@ describe("Editor.vue", () => {
   it("dialog box buttons work correctly", async () => {
     const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
-    const publishButtonClicked = jest.spyOn(
+    const showPublishConfirmationDialogBox = jest.spyOn(
       Editor.methods,
-      "publishButtonClicked"
+      "showPublishConfirmationDialogBox"
     );
     const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
     const wrapper = mount(Editor, {
@@ -61,7 +66,7 @@ describe("Editor.vue", () => {
     });
 
     await wrapper.find('[data-test="publishButton"]').trigger("click");
-    expect(publishButtonClicked).toHaveBeenCalled();
+    expect(showPublishConfirmationDialogBox).toHaveBeenCalled();
 
     await wrapper
       .find('[data-test="dialogBox"]')
@@ -71,7 +76,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogDescription).toBe("");
     expect(confirmPublish).toHaveBeenCalled();
     expect(wrapper.vm.dialogAction).toBe("");
-    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
     expect(wrapper.vm.dialogTitle).toBe("Publishing the plio...");
     expect(wrapper.vm.publishInProgressDialogTitle).toBe(
       "Publishing the changes.."
@@ -85,8 +90,12 @@ describe("Editor.vue", () => {
     expect(publishPlio).toHaveBeenCalled();
   });
 
-  it("shows only the video preview + video input field when video ID is not set", () => {
+  it("shows only the video preview + video input field when video ID is not set", async () => {
     const wrapper = mount(Editor, { shallow: true });
+
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
 
     // things that should not be visible
     expect(wrapper.find('[data-test="itemDiv"]').exists()).toBeFalsy();
@@ -102,7 +111,7 @@ describe("Editor.vue", () => {
     ).toBeTruthy();
   });
 
-  it("share + play buttons appear on publishing", async () => {
+  it("share + play + embed buttons appear on publishing", async () => {
     const wrapper = mount(Editor);
 
     await wrapper.setData({
@@ -112,6 +121,7 @@ describe("Editor.vue", () => {
     // share and play plio buttons should not be visible when video ID is set
     expect(wrapper.find('[data-test="sharePlioButton"]').exists()).toBeFalsy();
     expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="embedPlioButton"]').exists()).toBeFalsy();
 
     // click on the publish button
     await wrapper.find('[data-test="publishButton"]').trigger("click");
@@ -123,17 +133,23 @@ describe("Editor.vue", () => {
 
     await flushPromises();
 
-    // share and play plio buttons should not be visible when video ID is set
+    // share, play and embed plio buttons should be visible when video ID is set
     expect(wrapper.find('[data-test="sharePlioButton"]').exists()).toBeTruthy();
     expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="embedPlioButton"]').exists()).toBeTruthy();
   });
 
   it("blurs the main screen when dialog box is shown", async () => {
     const wrapper = mount(Editor, { shallow: true });
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
+
+    // blur classes should not be present initially
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
     );
-    await wrapper.setData({ showDialogBox: true });
+    await wrapper.setData({ isDialogBoxShown: true });
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.arrayContaining(["opacity-30", "pointer-events-none"])
     );
@@ -141,24 +157,39 @@ describe("Editor.vue", () => {
 
   it("blurs the main screen when image uploader dialog is shown", async () => {
     const wrapper = mount(Editor);
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
+
+    // blur classes should not be present initially
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
     );
-    await wrapper.setData({ showImageUploaderDialog: true });
+    await wrapper.setData({ isImageUploaderDialogShown: true });
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.arrayContaining(["opacity-30", "pointer-events-none"])
     );
   });
 
-  it("blurs the main screen when published plio dialog is shown", async () => {
+  it("blurs the main screen and show dialog when published plio dialog is shown", async () => {
     const wrapper = mount(Editor);
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
+
+    // blur classes should not be present initially
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
     );
-    await wrapper.setData({ showPublishedPlioDialog: true });
+    // published dialog should not be shown initially
+    expect(wrapper.find('[data-test="publishedDialog"]').exists()).toBeFalsy();
+
+    await wrapper.setData({ isPublishedPlioDialogShown: true });
+
     expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.arrayContaining(["opacity-30", "pointer-events-none"])
     );
+    expect(wrapper.find('[data-test="publishedDialog"]').exists()).toBeTruthy();
   });
 
   it("loads a plio and populates local variables properly", async () => {
@@ -339,9 +370,6 @@ describe("Editor.vue", () => {
     });
 
     await wrapper.setData({ status: "published" });
-    expect(
-      wrapper.find('[data-test="playPlioButton"]').element.disabled
-    ).toBeFalsy();
 
     await wrapper.find('[data-test="playPlioButton"]').trigger("click");
     expect(redirectToPlayer).toHaveBeenCalled();
@@ -350,6 +378,35 @@ describe("Editor.vue", () => {
       params: {
         org: "",
         plioId: plioId,
+      },
+    });
+  });
+
+  it("home button works correctly", async () => {
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+    const returnToHome = jest.spyOn(Editor.methods, "returnToHome");
+    const wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
+
+    await wrapper.find('[data-test="homeButton"]').trigger("click");
+    expect(returnToHome).toHaveBeenCalled();
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: "Home",
+      params: {
+        org: "",
       },
     });
   });
@@ -494,7 +551,7 @@ describe("Editor.vue", () => {
       enabled: true,
       text: "Yes",
       class:
-        "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
     });
     expect(wrapper.vm.dialogCancelButtonConfig).toStrictEqual({
       enabled: true,
@@ -502,7 +559,7 @@ describe("Editor.vue", () => {
       class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
     });
     expect(wrapper.vm.dialogAction).toBe("publish");
-    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
 
     await wrapper.setData({ status: "published" });
     await wrapper.find('[data-test="publishButton"]').trigger("click");
@@ -531,12 +588,191 @@ describe("Editor.vue", () => {
 
     await flushPromises();
     expect(wrapper.vm.isBeingPublished).toBeFalsy();
-    expect(wrapper.vm.showDialogBox).toBeFalsy();
-    expect(wrapper.vm.showPublishedPlioDialog).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeFalsy();
+    expect(wrapper.vm.isPublishedPlioDialogShown).toBeTruthy();
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
   });
 
-  it("share plio button inside the share dialog works correctly", async () => {
+  it("play plio button inside the published dialog works correctly", async () => {
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+    const plioId = "123";
+    const redirectToPlayer = jest.spyOn(Editor.methods, "redirectToPlayer");
+
+    jest.spyOn(Editor.methods, "savePlio").mockImplementation(() => {
+      return new Promise((resolve) => resolve());
+    });
+
+    // mock player as player.pause() will be invoked
+    const mockPlayer = {
+      pause: jest.fn(),
+      destroy: jest.fn(),
+    };
+
+    const wrapper = mount(Editor, {
+      shallow: true,
+      props: {
+        plioId: plioId,
+      },
+      global: {
+        mocks: {
+          player: mockPlayer,
+          $router: mockRouter,
+        },
+      },
+    });
+    await wrapper.setData({
+      isPublishedPlioDialogShown: true,
+      videoId: "jdYJf_ybyVo",
+      status: "published",
+    });
+
+    await wrapper
+      .find('[data-test="publishedDialogPlayButton"]')
+      .trigger("click");
+
+    expect(redirectToPlayer).toHaveBeenCalled();
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: "Player",
+      params: {
+        org: "",
+        plioId: plioId,
+      },
+    });
+  });
+
+  it("embed plio button inside the published dialog works correctly", async () => {
+    const plioId = "123";
+
+    const hidePublishedDialogShowEmbedDialog = jest.spyOn(
+      Editor.methods,
+      "hidePublishedDialogShowEmbedDialog"
+    );
+    const showEmbedPlioDialog = jest.spyOn(
+      Editor.methods,
+      "showEmbedPlioDialog"
+    );
+
+    jest.spyOn(Editor.methods, "savePlio").mockImplementation(() => {
+      return new Promise((resolve) => resolve());
+    });
+
+    // mock player as player.pause() will be invoked
+    const mockPlayer = {
+      pause: jest.fn(),
+      destroy: jest.fn(),
+    };
+
+    const wrapper = mount(Editor, {
+      shallow: true,
+      props: {
+        plioId: plioId,
+      },
+      global: {
+        mocks: {
+          player: mockPlayer,
+        },
+      },
+    });
+    await wrapper.setData({
+      isPublishedPlioDialogShown: true,
+      videoId: "jdYJf_ybyVo",
+      status: "published",
+    });
+
+    await wrapper
+      .find('[data-test="publishedDialogEmbedButton"]')
+      .trigger("click");
+
+    expect(hidePublishedDialogShowEmbedDialog).toHaveBeenCalled();
+    expect(wrapper.vm.isPublishedPlioDialogShown).toBeFalsy();
+    expect(showEmbedPlioDialog).toHaveBeenCalled();
+
+    // reset the status of the embed plio variable
+    await store.dispatch("generic/unsetEmbedPlioDialog");
+  });
+
+  it("clicking on embed shows dialog with embed code and blurs screen", async () => {
+    const plioId = "123";
+    const showEmbedPlioDialog = jest.spyOn(
+      Editor.methods,
+      "showEmbedPlioDialog"
+    );
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+    await store.dispatch("sync/stopLoading");
+
+    // embed dialog variable should be false initially and the background
+    // should not be disabled
+    expect(wrapper.vm.isEmbedPlioDialogShown).toBeFalsy();
+    expect(wrapper.vm.isBackgroundDisabled).toBeFalsy();
+
+    await wrapper.setData({ status: "published" });
+
+    await wrapper.find('[data-test="embedPlioButton"]').trigger("click");
+    expect(showEmbedPlioDialog).toHaveBeenCalled();
+
+    // embed dialog variable should be now true and the background
+    // should be disabled
+    expect(wrapper.vm.isEmbedPlioDialogShown).toBeTruthy();
+    expect(wrapper.vm.isBackgroundDisabled).toBeTruthy();
+  });
+
+  it("home button inside the published dialog works correctly", async () => {
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+    const returnToHome = jest.spyOn(Editor.methods, "returnToHome");
+
+    jest.spyOn(Editor.methods, "savePlio").mockImplementation(() => {
+      return new Promise((resolve) => resolve());
+    });
+
+    // mock player as player.pause() will be invoked
+    const mockPlayer = {
+      pause: jest.fn(),
+      destroy: jest.fn(),
+    };
+
+    const wrapper = mount(Editor, {
+      shallow: true,
+      global: {
+        mocks: {
+          player: mockPlayer,
+          $router: mockRouter,
+        },
+      },
+    });
+    await wrapper.setData({
+      isPublishedPlioDialogShown: true,
+      videoId: "jdYJf_ybyVo",
+    });
+
+    await wrapper
+      .find('[data-test="publishedDialogHomeButton"]')
+      .trigger("click");
+
+    expect(returnToHome).toHaveBeenCalled();
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: "Home",
+      params: {
+        org: "",
+      },
+    });
+  });
+
+  it("share plio button inside the published dialog works correctly", async () => {
     const hidePublishedDialogShowShareDialog = jest.spyOn(
       Editor.methods,
       "hidePublishedDialogShowShareDialog"
@@ -553,7 +789,7 @@ describe("Editor.vue", () => {
       return new Promise((resolve) => resolve());
     });
 
-    // mock player
+    // mock player as player.pause() will be invoked
     const mockPlayer = {
       pause: jest.fn(),
       destroy: jest.fn(),
@@ -568,13 +804,15 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      showPublishedPlioDialog: true,
+      isPublishedPlioDialogShown: true,
       videoId: "jdYJf_ybyVo",
     });
 
-    await wrapper.find('[data-test="dialogShareButton"]').trigger("click");
+    await wrapper
+      .find('[data-test="publishedDialogShareButton"]')
+      .trigger("click");
     expect(hidePublishedDialogShowShareDialog).toHaveBeenCalled();
-    expect(wrapper.vm.showPublishedPlioDialog).toBeFalsy();
+    expect(wrapper.vm.isPublishedPlioDialogShown).toBeFalsy();
     expect(showSharePlioLinkDialog).toHaveBeenCalled();
     expect(showSharePlioDialog).toHaveBeenCalled();
   });
@@ -586,7 +824,7 @@ describe("Editor.vue", () => {
     );
     const wrapper = mount(Editor);
     await wrapper.setData({
-      showPublishedPlioDialog: true,
+      isPublishedPlioDialogShown: true,
       videoId: "jdYJf_ybyVo",
     });
 
@@ -594,7 +832,7 @@ describe("Editor.vue", () => {
       .find('[data-test="closePublishedPlioDialogButton"]')
       .trigger("click");
     expect(closePublishedPlioDialog).toHaveBeenCalled();
-    expect(wrapper.vm.showPublishedPlioDialog).toBeFalsy();
+    expect(wrapper.vm.isPublishedPlioDialogShown).toBeFalsy();
   });
 
   it("redirects to dashboard when analyse button is clicked", async () => {
@@ -643,7 +881,7 @@ describe("Editor.vue", () => {
     };
 
     await wrapper.setData({
-      showImageUploaderDialog: true,
+      isImageUploaderDialogShown: true,
       items: dummyItemsWithImage,
       itemImage: dummyItemsWithImage[0].details.image.url,
       currentItemIndex: 0,
@@ -663,7 +901,7 @@ describe("Editor.vue", () => {
     const wrapper = mount(Editor);
     await wrapper.setData({
       items: dummyDraftPlio.data.items,
-      showImageUploaderDialog: true,
+      isImageUploaderDialogShown: true,
       currentItemIndex: 0,
     });
 
@@ -685,15 +923,18 @@ describe("Editor.vue", () => {
       mockAxios.lastReqGet().data
     );
 
+    const mockImageResponse = {
+      key: "value",
+    };
     mockAxios.mockResponse(
       {
-        data: "mock response",
+        data: mockImageResponse,
       },
       mockAxios.lastReqGet()
     );
 
     await flushPromises();
-    expect(wrapper.vm.items[0].details.image).toBe("mock response");
+    expect(wrapper.vm.items[0].details.image).toStrictEqual(mockImageResponse);
   });
 
   it("delete option functionality works correctly", async () => {
@@ -746,7 +987,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Yes");
     expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
-      "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0"
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
     );
     expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("No");
@@ -755,7 +996,7 @@ describe("Editor.vue", () => {
     );
     expect(wrapper.vm.optionIndexToDelete).toBe(0);
     expect(wrapper.vm.dialogAction).toBe("deleteOption");
-    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
     expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
 
     await wrapper
@@ -773,12 +1014,12 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Got it");
     expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
-      "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0"
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
     );
     expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeFalsy();
     expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("");
     expect(wrapper.vm.dialogCancelButtonConfig.class).toBe("");
-    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
     await wrapper
       .find('[data-test="dialogBox"]')
       .find('[data-test="confirmButton"]')
@@ -810,7 +1051,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Yes");
     expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
-      "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0"
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
     );
     expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("No");
@@ -819,7 +1060,7 @@ describe("Editor.vue", () => {
     );
     expect(wrapper.vm.optionIndexToDelete).toBe(0);
     expect(wrapper.vm.dialogAction).toBe("deleteOption");
-    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
     expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
 
     await wrapper
@@ -950,9 +1191,9 @@ describe("Editor.vue", () => {
       ItemEditor.methods,
       "deleteSelectedItem"
     );
-    const deleteItemButtonClicked = jest.spyOn(
+    const showDeleteItemDialogBox = jest.spyOn(
       Editor.methods,
-      "deleteItemButtonClicked"
+      "showDeleteItemDialogBox"
     );
     const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
     const editorDeleteSelectedItem = jest.spyOn(
@@ -981,7 +1222,7 @@ describe("Editor.vue", () => {
 
     expect(deleteSelectedItem).toHaveBeenCalled();
     expect(itemEditorWrapper.emitted()).toHaveProperty("delete-selected-item");
-    expect(deleteItemButtonClicked).toHaveBeenCalled();
+    expect(showDeleteItemDialogBox).toHaveBeenCalled();
     expect(wrapper.vm.dialogTitle).toBe(
       "Are you sure you want to delete this?"
     );
@@ -991,7 +1232,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Yes");
     expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
-      "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0"
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
     );
     expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeTruthy();
     expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("No");
@@ -999,7 +1240,7 @@ describe("Editor.vue", () => {
       "bg-white hover:bg-gray-100 focus:outline-none text-primary"
     );
     expect(wrapper.vm.dialogAction).toBe("deleteItem");
-    expect(wrapper.vm.showDialogBox).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
     expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
 
     await wrapper

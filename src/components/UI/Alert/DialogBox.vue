@@ -87,7 +87,7 @@ export default {
           enabled: true,
           text: "Yes",
           class:
-            "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+            "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
         };
       },
       type: Object,

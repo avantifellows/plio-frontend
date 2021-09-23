@@ -31,7 +31,7 @@
         <OptionDropdown
           :options="plioActionOptions"
           :scrollY="scrollY"
-          :isTouchDevice="isTouchDevice"
+          :overflowMarginTop="optionsOverflowMarginTop"
           class="flex-grow flex justify-end sm:justify-start"
           @select="runAction"
           data-test="optionDropdown"
@@ -75,6 +75,8 @@ import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton
 import { mapState, mapActions } from "vuex";
 import { useToast } from "vue-toastification";
 
+const MOBILE_SCREEN_WIDTH_THRESHOLD = 640;
+
 export default {
   name: "PlioThumbnail",
   props: {
@@ -106,6 +108,7 @@ export default {
       dialogCancelButtonConfig: {}, // config of the cancel button of the dialog box
       toast: useToast(), // toast component
       windowWidth: window.innerWidth, // width for the window
+      optionsOverflowMarginTop: -14, // margin to be set from the top when the options would overflow from the screen
     };
   },
   async created() {
@@ -139,6 +142,14 @@ export default {
     ...mapState("sync", ["pending"]),
     ...mapState("plioItems", ["allPlioDetails"]),
 
+    /**
+     * whether the current screen size can be
+     * classified as a mobile screen
+     */
+    isMobileScreen() {
+      return this.windowWidth < MOBILE_SCREEN_WIDTH_THRESHOLD;
+    },
+
     dialogStyle() {
       /**
        * dynamic style for the dialog box
@@ -169,6 +180,12 @@ export default {
           value: "share",
           label: this.$t("home.table.plio_list_item.buttons.share"),
           icon: "share.svg",
+          disabled: !this.isPublished,
+        },
+        {
+          value: "embed",
+          label: this.$t("home.table.plio_list_item.buttons.embed"),
+          icon: "code-braces.svg",
           disabled: !this.isPublished,
         },
       ];
@@ -256,6 +273,7 @@ export default {
     ...mapActions("plioItems", ["fetchPlio"]),
     ...mapActions("generic", [
       "showSharePlioDialog",
+      "showEmbedPlioDialog",
       "disableBackground",
       "enableBackground",
     ]),
@@ -263,6 +281,17 @@ export default {
     handleResize() {
       // invoked when the screen is resized
       this.windowWidth = window.innerWidth;
+
+      /**
+       * there are 3 conditions which require different values for the margin top:
+       * 1. not a touch screen device
+       * 2. touch screen device with screen width < 640
+       * 3. touch screen device with screen width >= 640
+       */
+      if (this.isTouchDevice) {
+        if (this.isMobileScreen) this.optionsOverflowMarginTop = -18;
+        else this.optionsOverflowMarginTop = -16;
+      } else this.optionsOverflowMarginTop = -14;
     },
     runAction(_, action) {
       // invoked when one of the action buttons is clicked
@@ -275,6 +304,9 @@ export default {
           break;
         case "share":
           this.sharePlio();
+          break;
+        case "embed":
+          this.embedPlio();
           break;
         case "duplicate":
           this.duplicateThenRoute();
@@ -297,8 +329,7 @@ export default {
           this.dialogCancelButtonConfig = {
             enabled: true,
             text: this.$t("generic.no"),
-            class:
-              "bg-primary-button hover:bg-primary-button-hover focus:outline-none text-white",
+            class: "bg-primary hover:bg-primary-hover focus:outline-none text-white",
           };
           // show the dialog box
           this.showDialogBox = true;
@@ -316,8 +347,12 @@ export default {
       this.plioDetails = this.allPlioDetails[this.plioId];
     },
     sharePlio() {
-      // invoked when share button is clicked
+      // show the dialog containing the plio link to be shared
       this.showSharePlioDialog(this.plioLink);
+    },
+    embedPlio() {
+      // show the dialog containing the code to embed plio
+      this.showEmbedPlioDialog(this.plioId);
     },
     playPlio() {
       // invoked when play button is clicked
