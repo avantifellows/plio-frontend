@@ -157,7 +157,7 @@ export default {
       // set style classe for the page number buttons
       return [
         {
-          "bg-primary-button cursor-not-allowed hover:bg-primary-button":
+          "bg-primary cursor-not-allowed hover:bg-primary":
             this.paginatorDetails.currentPage === page && !this.pending,
           "animate-pulse bg-gray-300 text-opacity-0 hover:bg-gray-300": this.pending,
         },
@@ -260,7 +260,7 @@ export default {
         },
         `relative inline-flex items-center px-4 sm:px-2 py-2 border border-gray-300
           bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none
-          active:bg-primary-button`,
+          active:bg-primary`,
       ];
     },
 
@@ -275,7 +275,7 @@ export default {
         },
         `relative inline-flex items-center px-4 sm:px-2 py-2 border border-gray-300
           bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none
-          active:bg-primary-button`,
+          active:bg-primary`,
       ];
     },
   },

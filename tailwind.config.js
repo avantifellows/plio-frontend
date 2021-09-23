@@ -11,6 +11,8 @@ module.exports = {
         peach: "#F4EAE1",
         "peach-light": "#FFF6EF",
         "peach-hover": "#FFE0B2",
+        brown: "#78350F",
+        "dark-brown": "#4E342E",
       },
       backgroundImage: () => ({
         "selectbox-arrow": "url('assets/images/chevron-down-solid-white.svg')",
@@ -22,25 +24,21 @@ module.exports = {
         "10%": "10%",
       },
       fontSize: {
-        xxs: ".6rem",
+        xsm: "0.6rem",
+      },
+      inset: {
+        "1/6": "16.666667%",
+        "1/12": "8.333333%",
+        "1/20": "5%",
+        "1/100": "1%",
       },
     },
-    backgroundColor: (theme) => ({
-      ...theme("colors"),
-      "primary-button": "#F78000",
-      "primary-button-hover": "#db7506",
-      "delete-button": "#E80000",
-    }),
     screens: {
       "bp-320": "320px",
       "bp-360": "360px",
       "bp-420": "420px",
       "bp-500": "500px",
       ...defaultTheme.screens,
-    },
-    fontSize: {
-      xsm: "0.6rem",
-      ...defaultTheme.fontSize,
     },
   },
   variantOrder: [

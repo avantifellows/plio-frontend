@@ -170,7 +170,7 @@
     >
       <!-- icon -->
       <inline-svg
-        :src="getIconSource('exclamation-circle-solid.svg')"
+        :src="getImageSource('exclamation-circle-solid.svg')"
         class="h-8 sm:h-12"
       ></inline-svg>
       <!-- heading -->
@@ -276,7 +276,7 @@ export default {
       // classes for search bar button
       return [
         { "pointer-events-none": !this.isSearchStringPresent },
-        "bg-grey-lightest border-grey border-l shadow hover:bg-primary-button p-4 text-primary hover:text-white",
+        "bg-grey-lightest border-grey border-l shadow hover:bg-primary p-4 text-primary hover:text-white",
       ];
     },
     analyseButtonTitleConfig() {

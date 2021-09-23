@@ -5,7 +5,10 @@
       :class="{ 'opacity-20 pointer-events-none': isBackgroundDisabledLocal }"
       @keydown="keyboardPressed"
     >
-      <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
+      <div
+        class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white"
+        :class="navBarClass"
+      >
         <!-- top left logo -->
         <router-link
           :to="{ name: 'Home', params: { org: activeWorkspace } }"
@@ -25,14 +28,6 @@
             class="flex justify-center"
             :isDisabled="pending"
           ></WorkspaceSwitcher>
-        </div>
-
-        <!-- page heading -->
-        <div
-          v-if="isAuthenticated"
-          class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center"
-        >
-          <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
         </div>
 
         <!-- create plio button -->
@@ -109,6 +104,13 @@
         :plioLink="plioLinkToShare"
       ></SharePlioDialog>
     </div>
+    <!-- dialog for embedding plio -->
+    <div class="fixed w-full flex justify-center">
+      <EmbedPlioDialog
+        v-if="isEmbedPlioDialogShown"
+        :plioId="plioIdToEmbed"
+      ></EmbedPlioDialog>
+    </div>
   </div>
   <vue-progress-bar></vue-progress-bar>
 </template>
@@ -119,6 +121,7 @@ import LocaleSwitcher from "@/components/App/LocaleSwitcher.vue";
 import UserConfigService from "@/services/Config/User.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
+import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
@@ -129,6 +132,7 @@ export default {
     LocaleSwitcher,
     IconButton,
     SharePlioDialog,
+    EmbedPlioDialog,
   },
   data() {
     return {
@@ -163,8 +167,8 @@ export default {
   },
   watch: {
     currentRoute() {
-      // unset `isSharePlioDialogShown` if the share plio dialog is visible when the app is being loaded
-      if (this.isSharePlioDialogShown) this.unsetSharePlioDialog();
+      // when the page is being changed, reset the state variables
+      this.resetState();
     },
     isAuthenticated(value) {
       // if user was logged in before but has been logged out now
@@ -251,7 +255,11 @@ export default {
       "fetchAndUpdateUser",
       "unsetActiveWorkspace",
     ]),
-    ...mapActions("generic", ["unsetSharePlioDialog", "enableBackground"]),
+    ...mapActions("generic", [
+      "unsetSharePlioDialog",
+      "unsetEmbedPlioDialog",
+      "enableBackground",
+    ]),
     ...mapActions("sync", ["stopLoading"]),
     mountChatwoot() {
       // mounting chatwoot SDK to the DOM
@@ -364,8 +372,15 @@ export default {
         event.returnValue = "";
       }
 
-      // unset the share plio variable if it was set as true when the app is being loaded
+      // when the page is being closed, reset the state variables
+      this.resetState();
+    },
+    /**
+     * resets various state variables in the store
+     */
+    resetState() {
       if (this.isSharePlioDialogShown) this.unsetSharePlioDialog();
+      if (this.isEmbedPlioDialogShown) this.unsetEmbedPlioDialog();
     },
     setLocale(locale) {
       // sets the given locale as the locale for the user
@@ -396,10 +411,22 @@ export default {
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("generic", [
       "isSharePlioDialogShown",
+      "isEmbedPlioDialogShown",
       "plioLinkToShare",
+      "plioIdToEmbed",
       "isBackgroundDisabled",
     ]),
     ...mapState("sync", ["pending"]),
+    navBarClass() {
+      // dynamic classes for the nav bar
+      return {
+        hidden: this.isNavBarHidden,
+      };
+    },
+    isNavBarHidden() {
+      // whether the nav bar is hidden
+      return this.onPlioPage || this.onPlayerPage;
+    },
     currentRoute() {
       return this.$route.path;
     },
@@ -431,6 +458,10 @@ export default {
       // whether the current page is the home page
       return this.$route.name == "Home";
     },
+    onPlioPage() {
+      // whether the current page is the plio embed page
+      return this.$route.name == "Plio";
+    },
     onEditorPage() {
       // whether the current page is the editor page
       return this.$route.name == "Editor";
@@ -447,19 +478,12 @@ export default {
       // whether to show the Create button
       return this.isAuthenticated && this.$route.name == "Home" && this.isUserApproved;
     },
-    currentPageName() {
-      // name of the current page as saved in assets/locales
-      var pageName;
-      if (this.$route.name) {
-        pageName = this.$t("nav." + this.$route.name.toLowerCase());
-      }
-      return pageName;
-    },
     isBackgroundDisabledLocal() {
       // whether the background should be disabled
       return (
         this.showLanguagePickerDialog ||
         this.isSharePlioDialogShown ||
+        this.isEmbedPlioDialogShown ||
         this.isBackgroundDisabled
       );
     },

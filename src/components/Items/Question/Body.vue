@@ -8,7 +8,7 @@
     </div>
     <div :class="orientationClass">
       <!-- loading spinner when question image is loading -->
-      <div class="place-self-center px-10" v-if="pending">
+      <div class="place-self-center px-10" v-if="isImageLoading">
         <inline-svg
           :src="require('@/assets/images/spinner-solid.svg')"
           class="animate-spin h-4 object-scale-down"
@@ -21,7 +21,8 @@
           class="object-contain h-full w-full"
           :alt="imageData.alt_text"
           @load="imageLoaded"
-          :class="{ invisible: pending }"
+          ref="questionImage"
+          :class="{ invisible: isImageLoading }"
         />
       </div>
       <!-- option container -->
@@ -96,13 +97,13 @@
 
 <script>
 import Textarea from "@/components/UI/Text/Textarea.vue";
-import { mapState, mapActions } from "vuex";
 
 export default {
   data() {
     return {
       subjectiveAnswer: "", // holds the answer to the subjective question
       subjectiveBoxHeightLimit: 250, // maximum allowed height of the subjective answer text box in px
+      isImageLoading: false, // whether the image is loading
     };
   },
   watch: {
@@ -120,14 +121,14 @@ export default {
     imageData: {
       // invoked when another item pops up which has an image
       handler(value) {
-        if (value != null) this.startLoading();
+        if (value != null) this.startImageLoading();
       },
       deep: true,
     },
   },
   async created() {
     this.subjectiveAnswer = this.defaultAnswer;
-    if (this.isQuestionImagePresent) this.startLoading();
+    if (this.isQuestionImagePresent) this.startImageLoading();
   },
   props: {
     questionText: {
@@ -198,10 +199,13 @@ export default {
   },
   components: { Textarea },
   methods: {
-    ...mapActions("sync", ["startLoading", "stopLoading"]),
+    startImageLoading() {
+      // sets the image state as loading
+      this.isImageLoading = true;
+    },
     imageLoaded() {
       // stop the loading spinner when the image has been loaded
-      this.stopLoading();
+      this.isImageLoading = false;
     },
     checkCharLimit(event) {
       // checks if character limit is reached in case it is set
@@ -228,7 +232,6 @@ export default {
     },
   },
   computed: {
-    ...mapState("sync", ["pending"]),
     subjectiveAnswerBoxStyling() {
       // classes for the subjective answer box
       return [
@@ -250,7 +253,7 @@ export default {
             (this.isPortrait && !this.isFullscreen),
           "h-20 bp-360:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
             .previewMode,
-          invisible: this.pending,
+          hidden: this.isImageLoading,
         },
         "border rounded-md",
       ];

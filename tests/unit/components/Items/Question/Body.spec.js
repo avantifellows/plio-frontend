@@ -249,4 +249,19 @@ describe("Body.vue", () => {
       });
     expect(checkCharLimitMock).toHaveBeenCalled();
   });
+
+  it("starts loading image if imageData is passed", () => {
+    const startImageLoading = jest.spyOn(Body.methods, "startImageLoading");
+    mount(Body, {
+      props: {
+        questionType: "mcq",
+        imageData: {
+          url: "mock",
+          alt_text: "mock",
+        },
+      },
+    });
+
+    expect(startImageLoading).toHaveBeenCalled();
+  });
 });

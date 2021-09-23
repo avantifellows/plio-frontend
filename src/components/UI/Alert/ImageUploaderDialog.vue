@@ -6,7 +6,7 @@
     <div class="h-10 w-full bg-white rounded-t-md">
       <!-- dialog close button -->
       <inline-svg
-        :src="getIconSource('times-circle-solid.svg')"
+        :src="getImageSource('times-circle-solid.svg')"
         class="h-1/2 hover:stroke-2 m-2 text-gray-400 cursor-pointer hover:text-primary float-right"
         @click="closeDialog"
       ></inline-svg>
@@ -25,15 +25,15 @@
       >
         <!-- loading spinner -->
         <inline-svg
-          v-if="pending"
-          :src="getIconSource('spinner-solid.svg')"
+          v-if="isImageLoading"
+          :src="getImageSource('spinner-solid.svg')"
           class="animate-spin w-1/6 h-1/6 m-auto text-primary"
         ></inline-svg>
 
         <!-- image icon svg -->
         <inline-svg
           v-else
-          :src="getIconSource('add_image.svg')"
+          :src="getImageSource('add_image.svg')"
           class="transform -rotate-12 w-2/3 h-2/3 m-auto text-primary"
         ></inline-svg>
         <div
@@ -51,9 +51,11 @@
       <VueImageUploader
         outputFormat="verboseWithFile"
         accept="image/*"
+        @uploading="startImageLoading"
         @input="loadAndPreviewImage"
         :class="uploaderInputClass"
         :key="reRenderKey"
+        ref="imageUploader"
       ></VueImageUploader>
     </div>
 
@@ -85,7 +87,6 @@
 import VueImageUploader from "@/components/Vue2PortedPackages/VueImageUploader.vue";
 import Utilities from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
-import { mapState, mapActions } from "vuex";
 
 // Images more than 10 MB are not allowed to be uploaded
 const MAX_IMAGE_UPLOAD_SIZE = 10485760;
@@ -112,6 +113,7 @@ export default {
         "object-contain h-full w-full border border-dashed border-gray-700",
       isFileSizeLimitExceeded: false,
       reRenderKey: 0, // to re-render the upload image input everytime an image has been deleted
+      isImageLoading: false, // whether the image is loading
     };
   },
 
@@ -123,7 +125,6 @@ export default {
   },
 
   computed: {
-    ...mapState("sync", ["pending"]),
     clickHereToUploadMessage() {
       return this.isTouchDevice
         ? this.$t("editor.dialog.image_uploader.title_touch")
@@ -185,7 +186,14 @@ export default {
 
   methods: {
     ...Utilities,
-    ...mapActions("sync", ["startLoading", "stopLoading"]),
+    startImageLoading() {
+      // sets the image state as loading
+      this.isImageLoading = true;
+    },
+    stopImageLoading() {
+      // sets the image state as loaded
+      this.isImageLoading = false;
+    },
     loadAndPreviewImage(imageInfo) {
       // save the image info locally
       // extract the base64 URL from the info and
@@ -198,7 +206,7 @@ export default {
           this.localImageData = imageInfo;
           this.imageToPreview = this.localImageData.dataUrl;
         }
-        this.stopLoading();
+        this.stopImageLoading();
       }
     },
     closeDialog() {
@@ -222,7 +230,6 @@ export default {
       // when a locally uploaded image needs to be submitted to the DB,
       // emit an event with the image file as a payload
       if (this.localImageData != null) {
-        this.startLoading();
         this.$emit("image-selected", this.localImageData.file);
       }
       this.closeDialog();

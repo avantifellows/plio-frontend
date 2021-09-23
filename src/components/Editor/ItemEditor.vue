@@ -59,7 +59,7 @@
 
       <!-- delete item button -->
       <icon-button
-        class="rounded-xl bg-delete-button w-8 h-8 shadow-lg px-2"
+        class="rounded-xl bg-red-600 hover:bg-red-700 w-8 h-8 shadow-lg px-2"
         :iconConfig="deleteItemIconConfig"
         @click="deleteSelectedItem"
         :buttonClass="deleteItemButtonClass"
@@ -202,7 +202,7 @@ export default {
       },
       // styling classes for previous item button
       previousItemButtonClass:
-        "bg-primary-button hover:bg-primary-button-hover focus:ring-primary shadow-lg",
+        "bg-primary hover:bg-primary-hover focus:ring-primary shadow-lg",
       nextItemIconConfig: {
         // icon config for next item button
         enabled: true,
@@ -211,7 +211,7 @@ export default {
       },
       // styling classes for next item button
       nextItemButtonClass:
-        "bg-primary-button hover:bg-primary-button-hover focus:ring-primary shadow-lg",
+        "bg-primary hover:bg-primary-hover focus:ring-primary shadow-lg",
       addItemIconConfig: {
         // icon config for add item button
         enabled: true,
@@ -220,13 +220,13 @@ export default {
       },
       // styling classes for add item button
       addItemButtonClass: [
-        "bg-primary-button hover:bg-primary-button-hover disabled:opacity-40 focus:ring-primary shadow-lg",
+        "bg-primary hover:bg-primary-hover disabled:opacity-40 focus:ring-primary shadow-lg",
         { "cursor-not-allowed": this.isInteractionDisabled },
       ],
       // styling classes for add option button
       addOptionButtonClass: [
-        `rounded-md font-bold p-5 h-2 w-auto bg-primary-button shadow-lg
-        hover:bg-primary-button-hover disabled:opacity-50 focus:ring-primary`,
+        `rounded-md font-bold p-5 h-2 w-auto bg-primary shadow-lg
+        hover:bg-primary-hover disabled:opacity-50 focus:ring-primary`,
         { "cursor-not-allowed": this.isInteractionDisabled },
       ],
       deleteItemIconConfig: {
@@ -259,7 +259,7 @@ export default {
       questionTextboxHeightLimit: 200, // maximum allowed height of the question text box in px
       // styling classes for add image button
       addImageButtonClass:
-        "bg-white hover:bg-primary-button disabled:bg-white focus:ring-primary",
+        "bg-white hover:bg-primary disabled:bg-white focus:ring-primary",
       addImageButtonIconConfig: {
         // icon config for add image button
         enabled: true,

@@ -44,7 +44,7 @@
             >
               <!-- metric icon -->
               <inline-svg
-                :src="getIconSource(metric.icon.source)"
+                :src="getImageSource(metric.icon.source)"
                 class="h-6 bp-360:h-10 bp-500:h-6 lg:h-10 w-6 bp-360:w-10 bp-500:w-4 md:w-6 lg:w-10 place-self-center"
                 :class="metric.icon.class"
               ></inline-svg>
@@ -120,7 +120,7 @@ export default {
     progressPercentage: {
       // progress to show on the progress bar in %
       default: null,
-      type: Object,
+      type: [Object, Number],
     },
     greeting: {
       // greeting of the scorecard

@@ -42,6 +42,7 @@ export default {
       show_question: "Show Question",
       share_plio: "Share",
       play_plio: "Play",
+      embed_plio: "Embed",
       analyze_plio: "Analyze",
     },
     updated: "Updated at",
@@ -118,6 +119,7 @@ export default {
       published: {
         buttons: {
           play_plio: "Play",
+          embed_plio: "Embed",
           share_plio: "Share",
           home: "Home",
         },
@@ -129,6 +131,33 @@ export default {
           copy_link: {
             not_copied: "Copy Link",
             copied: "Copied!",
+          },
+        },
+      },
+      embed_plio: {
+        title: "Embed this Plio",
+        headings: {
+          without_sso: "Without Single Sign-On (SSO)",
+          with_sso: "With Single Sign-On (SSO)",
+        },
+        buttons: {
+          copy_link: {
+            not_copied: "Copy",
+            copied: "Copied!",
+          },
+        },
+        info: {
+          embed_data: {
+            personal_workspace: {
+              1: "In your current plan, you will not receive any data from the embedded plio if your viewers haven't already logged in to Plio. Fill ",
+              2: "this",
+              3: " form if you want to apply for a team workspace to receive data using Single Sign-On (SSO).",
+            },
+            org_workspace: {
+              1: "By default, you will not receive any data from the embedded plio if your viewers haven't already logged in to Plio. However, you can receive data using Single Sign-On (SSO). Click ",
+              2: "here",
+              3: " to understand how to use it!",
+            },
           },
         },
       },
@@ -171,6 +200,7 @@ export default {
           analyse: "Analyse",
           share: "Share",
           delete: "Delete",
+          embed: "Embed",
         },
         dialog: {
           delete: {
