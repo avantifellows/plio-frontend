@@ -1,17 +1,16 @@
 <template>
   <div
     class="fixed bg-white mx-2 sm:mx-0 bp-420:w-11/12 md:w-2/3 lg:w-1/2 rounded-lg flex flex-col border border-gray-700 shadow-lg"
-    :class="embedDialogClass"
-    v-click-away="closeEmbedPlioDialog"
-    data-test="embedDialog"
+    :class="dialogClass"
+    v-click-away="closeDialog"
   >
     <div class="w-full flex justify-end p-2">
       <!-- close button -->
       <icon-button
         :iconConfig="closeDialogIconConfig"
         :buttonClass="closeDialogButtonClass"
-        @click="closeEmbedPlioDialog"
-        data-test="closeEmbedPlioDialog"
+        @click="closeDialog"
+        data-test="closeDialog"
       ></icon-button>
     </div>
 
@@ -24,22 +23,22 @@
         {{ $t("editor.dialog.embed_plio.title") }}
       </p>
       <!-- embed code without sso -->
-      <div class="my-4" :class="embedCodeContainerClass" data-test="embedCodeNoSSO">
+      <div class="my-4" :class="codeContainerClass" data-test="codeWithoutSSO">
         <!-- without sso title -->
-        <p v-if="!isPersonalWorkspace" :class="embedCodeTitleClass" data-test="heading">
+        <p v-if="!isPersonalWorkspace" :class="codeTitleClass" data-test="heading">
           {{ $t("editor.dialog.embed_plio.headings.without_sso") }}
         </p>
-        <div :class="embedCodeBoxClass">
+        <div :class="codeBoxClass">
           <!-- link -->
-          <p :class="embedCodeValueClass">
+          <p :class="codeValueClass">
             {{ embedCode }}
           </p>
           <!-- copy link button -->
           <icon-button
-            :titleConfig="copyEmbedCodeWithoutSSOTitleClass"
-            :buttonClass="copyEmbedCodeWithoutSSOButtonClass"
-            @click="copyEmbedCode(false, embedCode)"
-            data-test="copyEmbedCodeWithoutSSOButton"
+            :titleConfig="copyCodeWithoutSSOTitleClass"
+            :buttonClass="copyCodeWithoutSSOButtonClass"
+            @click="copyCode(false, embedCode)"
+            data-test="copyCodeWithoutSSOButton"
           ></icon-button>
         </div>
       </div>
@@ -47,25 +46,25 @@
       <!-- embed code with sso -->
       <div
         class="my-4"
-        :class="embedCodeContainerClass"
+        :class="codeContainerClass"
         v-if="!isPersonalWorkspace"
-        data-test="embedCodeWithSSO"
+        data-test="codeWithSSO"
       >
         <!-- with sso title -->
-        <p :class="embedCodeTitleClass">
+        <p :class="codeTitleClass">
           {{ $t("editor.dialog.embed_plio.headings.with_sso") }}
         </p>
-        <div :class="embedCodeBoxClass">
+        <div :class="codeBoxClass">
           <!-- link -->
-          <p :class="embedCodeValueClass">
+          <p :class="codeValueClass">
             {{ embedCodeSSO }}
           </p>
           <!-- copy link button -->
           <icon-button
-            :titleConfig="copyEmbedCodeWithSSOTitleClass"
-            :buttonClass="copyEmbedCodeWithSSOButtonClass"
-            @click="copyEmbedCode(true, embedCodeSSO)"
-            data-test="copyEmbedCodeWithSSOButton"
+            :titleConfig="copyCodeWithSSOTitleClass"
+            :buttonClass="copyCodeWithSSOButtonClass"
+            @click="copyCode(true, embedCodeSSO)"
+            data-test="copyCodeWithSSOButton"
           ></icon-button>
         </div>
       </div>
@@ -126,12 +125,12 @@ export default {
       },
       toast: useToast(), // use the toast component
       // class for the heading of the embed code
-      embedCodeTitleClass: "text-sm",
+      codeTitleClass: "text-sm",
       // class for the value of the embed code
-      embedCodeValueClass:
+      codeValueClass:
         "w-full break-all place-self-center text-sm bp-500:text-base text-gray-600",
       // class for the box containing the embed code
-      embedCodeBoxClass:
+      codeBoxClass:
         "flex flex-col items-center bp-500:flex-row space-y-2 bp-500:space-y-0 bp-500:space-x-4 p-2 px-4 bg-peach-light border border-gray-600 rounded-md",
     };
   },
@@ -141,7 +140,7 @@ export default {
     /**
      * closes the embed plio dialog
      */
-    closeEmbedPlioDialog() {
+    closeDialog() {
       this.unsetEmbedPlioDialog();
       this.resetEmbedCodeCopyConfig();
     },
@@ -180,7 +179,7 @@ export default {
      * @param {Boolean} sso whether the code to be copied has SSO params
      * @param {String} codeToCopy the actual code that needs to be copied
      */
-    copyEmbedCode(sso, codeToCopy) {
+    copyCode(sso, codeToCopy) {
       // return if the link has already been copied
       if (
         (!sso && this.isPlioEmbedCodeWithoutSSOCopied) ||
@@ -205,7 +204,7 @@ export default {
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapGetters("auth", ["activeWorkspaceApiKey", "isPersonalWorkspace"]),
-    embedDialogClass() {
+    dialogClass() {
       // class for the dialog box showing the embed codes
       return {
         "top-1/6": this.isPersonalWorkspace,
@@ -234,7 +233,7 @@ export default {
         this.activeWorkspaceApiKey
       );
     },
-    embedCodeContainerClass() {
+    codeContainerClass() {
       // class for the container within the dialog box containing the embed code
       return {
         "flex flex-col space-y-2": !this.isPersonalWorkspace,
@@ -264,19 +263,19 @@ export default {
         end: this.$t("editor.dialog.embed_plio.info.embed_data.org_workspace.3"),
       };
     },
-    copyEmbedCodeWithoutSSOButtonClass() {
+    copyCodeWithoutSSOButtonClass() {
       // class for the copy embed code without sso button
       return this.getCopyButtonClass(this.isPlioEmbedCodeWithoutSSOCopied);
     },
-    copyEmbedCodeWithoutSSOTitleClass() {
+    copyCodeWithoutSSOTitleClass() {
       // class for the title of the copy embed code without sso button
       return this.getCopyButtonTitleClass(this.isPlioEmbedCodeWithoutSSOCopied);
     },
-    copyEmbedCodeWithSSOButtonClass() {
+    copyCodeWithSSOButtonClass() {
       // class for the copy embed code with sso button
       return this.getCopyButtonClass(this.isPlioEmbedCodeWithSSOCopied);
     },
-    copyEmbedCodeWithSSOTitleClass() {
+    copyCodeWithSSOTitleClass() {
       // class for the title of the copy embed code with sso button
       return this.getCopyButtonTitleClass(this.isPlioEmbedCodeWithSSOCopied);
     },

@@ -16,10 +16,7 @@ describe("EmbedPlioDialog.vue", () => {
 
   it("clicking on close button closes the embed dialog", async () => {
     const plioId = "123";
-    const closeEmbedPlioDialog = jest.spyOn(
-      EmbedPlioDialog.methods,
-      "closeEmbedPlioDialog"
-    );
+    const closeDialog = jest.spyOn(EmbedPlioDialog.methods, "closeDialog");
     const wrapper = mount(EmbedPlioDialog, {
       props: {
         plioId: plioId,
@@ -27,9 +24,9 @@ describe("EmbedPlioDialog.vue", () => {
     });
 
     // click on the close button of the embed dialog
-    await wrapper.find('[data-test="closeEmbedPlioDialog"]').trigger("click");
+    await wrapper.find('[data-test="closeDialog"]').trigger("click");
 
-    expect(closeEmbedPlioDialog).toHaveBeenCalled();
+    expect(closeDialog).toHaveBeenCalled();
     expect(store.state.generic.isEmbedPlioDialogShown).toBe(false);
     expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBe(false);
     expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(false);
@@ -47,7 +44,7 @@ describe("EmbedPlioDialog.vue", () => {
 
     // click the copy button
     await wrapper
-      .find('[data-test="copyEmbedCodeWithoutSSOButton"]')
+      .find('[data-test="copyCodeWithoutSSOButton"]')
       .trigger("click");
 
     expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBeTruthy();
@@ -72,11 +69,11 @@ describe("EmbedPlioDialog.vue", () => {
     });
 
     // there should only be the embed code without SSO
-    expect(wrapper.find("[data-test=embedCodeWithSSO]").exists()).toBeFalsy();
+    expect(wrapper.find("[data-test=codeWithSSO]").exists()).toBeFalsy();
     // the heading for the embed code should not be shown
     expect(
       wrapper
-        .find("[data-test=embedCodeNoSSO]")
+        .find("[data-test=codeWithoutSSO]")
         .find("[data-test=heading]")
         .exists()
     ).toBeFalsy();
@@ -92,12 +89,12 @@ describe("EmbedPlioDialog.vue", () => {
     );
 
     // both the embed codes with and without SSO should be visible
-    expect(wrapper.find("[data-test=embedCodeWithSSO]").exists()).toBeTruthy();
-    expect(wrapper.find("[data-test=embedCodeNoSSO]").exists()).toBeTruthy();
+    expect(wrapper.find("[data-test=codeWithSSO]").exists()).toBeTruthy();
+    expect(wrapper.find("[data-test=codeWithoutSSO]").exists()).toBeTruthy();
     // the heading for the embed code without SSO should now be shown
     expect(
       wrapper
-        .find("[data-test=embedCodeNoSSO]")
+        .find("[data-test=codeWithoutSSO]")
         .find("[data-test=heading]")
         .exists()
     ).toBeTruthy();
@@ -126,7 +123,7 @@ describe("EmbedPlioDialog.vue", () => {
 
     // copy embed code without SSO
     await wrapper
-      .find('[data-test="copyEmbedCodeWithoutSSOButton"]')
+      .find('[data-test="copyCodeWithoutSSOButton"]')
       .trigger("click");
 
     // embed code without sso should be marked as copied and embed code with
@@ -135,9 +132,7 @@ describe("EmbedPlioDialog.vue", () => {
     expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(false);
 
     // copy embed code with SSO
-    await wrapper
-      .find('[data-test="copyEmbedCodeWithSSOButton"]')
-      .trigger("click");
+    await wrapper.find('[data-test="copyCodeWithSSOButton"]').trigger("click");
     // embed code with sso should be marked as copied and embed code without
     // sso as not copied
     expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(true);
