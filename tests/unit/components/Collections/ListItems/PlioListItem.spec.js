@@ -137,7 +137,7 @@ describe("PlioListItem.vue", () => {
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
-        .findAll('[data-test="option"]')[1]
+        .find('[data-test="option-play"]')
         .classes()
     ).toContain("cursor-not-allowed");
   });
@@ -180,7 +180,7 @@ describe("PlioListItem.vue", () => {
     // click the play button
     wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[1]
+      .find('[data-test="option-play"]')
       .trigger("click");
 
     expect(mockRouter.push).toHaveBeenCalledWith({
@@ -226,7 +226,7 @@ describe("PlioListItem.vue", () => {
     // click the duplicate button
     wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[4]
+      .find('[data-test="option-duplicate"]')
       .trigger("click");
 
     expect(duplicatePlio).toHaveBeenCalled();
@@ -271,7 +271,7 @@ describe("PlioListItem.vue", () => {
     // click the edit button
     wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[0]
+      .find('[data-test="option-edit"]')
       .trigger("click");
 
     expect(mockRouter.push).toHaveBeenCalledWith({
@@ -307,7 +307,7 @@ describe("PlioListItem.vue", () => {
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
-        .findAll('[data-test="option"]')[2]
+        .find('[data-test="option-share"]')
         .classes()
     ).toContain("cursor-not-allowed");
   });
@@ -343,7 +343,7 @@ describe("PlioListItem.vue", () => {
     // click the share button
     wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[2]
+      .find('[data-test="option-share"]')
       .trigger("click");
 
     expect(sharePlio).toHaveBeenCalled();
@@ -380,7 +380,7 @@ describe("PlioListItem.vue", () => {
     // click the embed button
     wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[3]
+      .find('[data-test="option-embed"]')
       .trigger("click");
 
     expect(embedPlio).toHaveBeenCalled();
@@ -411,7 +411,8 @@ describe("PlioListItem.vue", () => {
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
-        .findAll('[data-test="option"]').length
+        .find('[data-test="options"]')
+        .findAll("li").length
     ).toBe(6);
   });
 
@@ -431,7 +432,8 @@ describe("PlioListItem.vue", () => {
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
-        .findAll('[data-test="option"]').length
+        .find('[data-test="options"]')
+        .findAll("li").length
     ).toBe(7);
   });
 
@@ -460,7 +462,7 @@ describe("PlioListItem.vue", () => {
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
-        .findAll('[data-test="option"]')[3]
+        .find('[data-test="option-analyse"]')
         .classes()
     ).toContain("cursor-not-allowed");
   });
@@ -505,7 +507,7 @@ describe("PlioListItem.vue", () => {
     // click the analyse button
     wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[4]
+      .find('[data-test="option-analyse"]')
       .trigger("click");
 
     expect(mockRouter.push).toHaveBeenCalledWith({
@@ -557,7 +559,7 @@ describe("PlioListItem.vue", () => {
     // click the delete button
     await wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[5]
+      .find('[data-test="option-delete"]')
       .trigger("click");
 
     // there should be a dialog box now
@@ -601,7 +603,7 @@ describe("PlioListItem.vue", () => {
     // click the delete button
     await wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[5]
+      .find('[data-test="option-delete"]')
       .trigger("click");
 
     // click the cancel button of the dialog box
@@ -663,7 +665,7 @@ describe("PlioListItem.vue", () => {
     // click the delete button
     await wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[5]
+      .find('[data-test="option-delete"]')
       .trigger("click");
 
     // click the confirm button of the dialog box
@@ -741,7 +743,7 @@ describe("PlioListItem.vue", () => {
     // click the delete button
     await wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[5]
+      .find('[data-test="option-delete"]')
       .trigger("click");
 
     // click the confirm button of the dialog box
@@ -783,7 +785,7 @@ describe("PlioListItem.vue", () => {
     // click the delete button
     await wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[5]
+      .find('[data-test="option-delete"]')
       .trigger("click");
 
     // there should be no style attribute by default

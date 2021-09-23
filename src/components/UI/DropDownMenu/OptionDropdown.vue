@@ -28,6 +28,7 @@
         tabindex="-1"
         role="listbox"
         class="text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
+        data-test="options"
       >
         <li
           v-for="(option, optionIndex) in options"
@@ -37,7 +38,7 @@
           :class="optionClass(optionIndex)"
           @click="setOption(optionIndex)"
           :disabled="isOptionDisabled(optionIndex)"
-          data-test="option"
+          :data-test="`option-${option.value}`"
         >
           <div class="flex space-x-4 items-center">
             <!-- option icon -->
