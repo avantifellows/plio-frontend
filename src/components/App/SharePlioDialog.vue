@@ -52,6 +52,7 @@
 import Utilities from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { mapActions } from "vuex";
+import { useToast } from "vue-toastification";
 
 export default {
   name: "SharePlioDialog",
@@ -99,6 +100,7 @@ export default {
       // class for the close button
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
       plioLinkCopied: false, // whether the plio link has been copied or not
+      toast: useToast(), // use the toast component
     };
   },
   computed: {

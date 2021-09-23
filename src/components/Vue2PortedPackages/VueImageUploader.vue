@@ -3,7 +3,6 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
 /**
  * vue-ImageUploader: a to-the-point vue-component for client-side image upload with resizing of images (JPG, PNG, GIF)
  *
@@ -182,13 +181,12 @@ export default {
     };
   },
   methods: {
-    ...mapActions("sync", ["startLoading", "stopLoading"]),
     /**
      * Get file from input
      * @param  {object} event
      */
     uploadFile(e) {
-      this.startLoading();
+      this.$emit("uploading");
       const file = e.target.files && e.target.files.length ? e.target.files[0] : null;
       if (file) {
         this.emitLoad();
@@ -357,7 +355,6 @@ export default {
       // this.emitEvent(this.currentFile) // DEBUG
       this.emitEvent(this.formatOutput(imageData));
       this.emitComplete();
-      this.stopLoading();
     },
     /**
      * Scale Canvas. Scales the
@@ -547,6 +544,6 @@ export default {
   created() {
     this.log("Initialised ImageUploader");
   },
-  emits: ["image-preview", "onUpload", "onComplete", "input", "change"],
+  emits: ["image-preview", "onUpload", "onComplete", "input", "change", "uploading"],
 };
 </script>
