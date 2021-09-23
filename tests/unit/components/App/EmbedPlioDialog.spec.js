@@ -28,8 +28,8 @@ describe("EmbedPlioDialog.vue", () => {
 
     expect(closeDialog).toHaveBeenCalled();
     expect(store.state.generic.isEmbedPlioDialogShown).toBe(false);
-    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBe(false);
-    expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(false);
+    expect(wrapper.vm.isCodeWithoutSSOCopied).toBe(false);
+    expect(wrapper.vm.isCodeWithSSOCopied).toBe(false);
   });
 
   it("clicking on the copy button in the embed dialog copies the embed code", async () => {
@@ -40,14 +40,14 @@ describe("EmbedPlioDialog.vue", () => {
       },
     });
     // embed code should not have the copied status
-    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBeFalsy();
+    expect(wrapper.vm.isCodeWithoutSSOCopied).toBeFalsy();
 
     // click the copy button
     await wrapper
       .find('[data-test="copyCodeWithoutSSOButton"]')
       .trigger("click");
 
-    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBeTruthy();
+    expect(wrapper.vm.isCodeWithoutSSOCopied).toBeTruthy();
     expect(document.execCommand).toHaveBeenCalled();
   });
 
@@ -128,14 +128,14 @@ describe("EmbedPlioDialog.vue", () => {
 
     // embed code without sso should be marked as copied and embed code with
     // sso as not copied
-    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBe(true);
-    expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(false);
+    expect(wrapper.vm.isCodeWithoutSSOCopied).toBe(true);
+    expect(wrapper.vm.isCodeWithSSOCopied).toBe(false);
 
     // copy embed code with SSO
     await wrapper.find('[data-test="copyCodeWithSSOButton"]').trigger("click");
     // embed code with sso should be marked as copied and embed code without
     // sso as not copied
-    expect(wrapper.vm.isPlioEmbedCodeWithSSOCopied).toBe(true);
-    expect(wrapper.vm.isPlioEmbedCodeWithoutSSOCopied).toBe(false);
+    expect(wrapper.vm.isCodeWithSSOCopied).toBe(true);
+    expect(wrapper.vm.isCodeWithoutSSOCopied).toBe(false);
   });
 });
