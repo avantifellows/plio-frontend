@@ -97,6 +97,11 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import Utilities from "@/services/Functional/Utilities.js";
 import { useToast } from "vue-toastification";
 
+const TEAM_WORKSPACE_APPLICATION_FORM =
+  "https://docs.google.com/forms/d/e/1FAIpQLSdSq3KZOTEAnNsE5BfRPNPpmROQQ3gPFYJS8xJ9RB2j5LsAQQ/viewform";
+const EMBED_PLIO_SSO_DOCS =
+  "https://docs.plio.in/plio-for-teams/#receiving-data-from-embedded-plio";
+
 export default {
   name: "EmbedPlioDialog",
   components: {
@@ -104,6 +109,7 @@ export default {
   },
   props: {
     plioId: {
+      // uuid for the plio to be embedded
       default: "",
       type: String,
     },
@@ -243,10 +249,10 @@ export default {
       // the link to be used in the informational text shown for embedding plios
       if (this.isPersonalWorkspace) {
         // redirect to the form to apply for an organizational workspace
-        return "https://docs.google.com/forms/d/e/1FAIpQLSdSq3KZOTEAnNsE5BfRPNPpmROQQ3gPFYJS8xJ9RB2j5LsAQQ/viewform";
+        return TEAM_WORKSPACE_APPLICATION_FORM;
       }
       // redirect to the section in the docs explaining how to receive data from embedded plio
-      return "https://docs.plio.in/plio-for-teams/#receiving-data-from-embedded-plio";
+      return EMBED_PLIO_SSO_DOCS;
     },
     embedPlioReceiveDataInfo() {
       // the informational text to be shown in the dialog box for embedding plio

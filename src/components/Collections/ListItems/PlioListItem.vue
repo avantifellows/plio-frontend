@@ -75,6 +75,8 @@ import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton
 import { mapState, mapActions } from "vuex";
 import { useToast } from "vue-toastification";
 
+const MOBILE_SCREEN_WIDTH_THRESHOLD = 640;
+
 export default {
   name: "PlioThumbnail",
   props: {
@@ -145,7 +147,7 @@ export default {
      * classified as a mobile screen
      */
     isMobileScreen() {
-      return this.windowWidth < 640;
+      return this.windowWidth < MOBILE_SCREEN_WIDTH_THRESHOLD;
     },
 
     dialogStyle() {

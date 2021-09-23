@@ -53,7 +53,7 @@ const filterBeforeCreate = (toast, toasts) => {
   // and prevent toasts from showing up for an embedded plio
   if (
     toasts.filter((t) => t.content === toast.content).length !== 0 ||
-    router.currentRoute._value.path == "/plio"
+    router.currentRoute._value.name == "Plio"
   ) {
     // Returning false discards the toast
     return false;

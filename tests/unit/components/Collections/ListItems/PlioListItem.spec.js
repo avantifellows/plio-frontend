@@ -87,7 +87,7 @@ describe("PlioListItem.vue", () => {
     expect(wrapper.vm.isPublished).toBe(true);
   });
 
-  it("sets whether the current screen is mobile screen based on window width ", async () => {
+  it("sets whether the current screen is mobile screen based on window width", async () => {
     const plioDetails = {
       updatedAt: new Date(2018, 12, 31),
       status: "published",
@@ -312,7 +312,7 @@ describe("PlioListItem.vue", () => {
     ).toContain("cursor-not-allowed");
   });
 
-  it("clicking share shows the share dialog ", async () => {
+  it("clicking share shows the share dialog", async () => {
     const sharePlio = jest.spyOn(PlioListItem.methods, "sharePlio");
 
     const plioDetails = {
