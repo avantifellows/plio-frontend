@@ -13,7 +13,7 @@
         data-test="previewDiv"
       >
         <div
-          class="my-8 flex justify-center space-x-1 xsm:space-x-2 sm:space-x-4"
+          class="my-8 flex justify-center space-x-1 bp-360:space-x-2 sm:space-x-4"
           v-if="isVideoIdValid && isPublished"
           data-test="upperButtons"
         >
@@ -140,7 +140,7 @@
 
         <!--- buttons -->
         <div
-          class="flex justify-center space-x-1 xsm:space-x-2 my-12"
+          class="flex justify-center space-x-1 bp-360:space-x-2 my-12"
           v-if="isVideoIdValid"
           data-test="lowerButtons"
         >
@@ -413,7 +413,10 @@ import QuestionAPIService from "@/services/API/Question.js";
 import ImageAPIService from "@/services/API/Image.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
-import Utilities from "@/services/Functional/Utilities.js";
+import Utilities, {
+  throwConfetti,
+  resetConfetti,
+} from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
@@ -532,7 +535,7 @@ export default {
         // config for the icon of the share plio button
         enabled: true,
         iconName: "share",
-        iconClass: "text-yellow-800 fill-current h-3 xsm:h-4 w-3 xsm:w-4",
+        iconClass: "text-yellow-800 fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
       },
       // styling class for the play plio button
       playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
@@ -546,13 +549,13 @@ export default {
         // config for the icon of the play plio button
         enabled: true,
         iconName: "play",
-        iconClass: "text-white fill-current h-3 xsm:h-4 w-3 xsm:w-4",
+        iconClass: "text-white fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
       },
       embedPlioIconConfig: {
         // config for the icon of the embed plio button
         enabled: true,
         iconName: "code-braces",
-        iconClass: "text-white fill-current h-3 xsm:h-4 w-3 xsm:w-4",
+        iconClass: "text-white fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
       },
       analyzePlioIconConfig: {
         // config for the icon of the analyze plio button
@@ -675,7 +678,7 @@ export default {
       // styling class for the title of share plio button
       return {
         value: this.$t("editor.buttons.share_plio"),
-        class: "text-sm xsm:test-base text-yellow-800",
+        class: "text-sm bp-360:test-base text-yellow-800",
       };
     },
     dialogSharePlioTitleClass() {
@@ -690,7 +693,7 @@ export default {
       // styling class for the title of play plio button
       return {
         value: this.$t("editor.buttons.play_plio"),
-        class: "text-sm xsm:test-base text-white",
+        class: "text-sm bp-360:test-base text-white",
       };
     },
     dialogPlayPlioTitleClass() {
@@ -705,7 +708,7 @@ export default {
       // styling class for the title of embed plio button
       return {
         value: this.$t("editor.buttons.embed_plio"),
-        class: "text-sm xsm:test-base text-white",
+        class: "text-sm bp-360:test-base text-white",
       };
     },
     dialogEmbedPlioTitleClass() {
@@ -949,32 +952,6 @@ export default {
     ]),
     ...mapActions("generic", ["showSharePlioDialog", "showEmbedPlioDialog"]),
     ...Utilities,
-    throwConfetti() {
-      var end = Date.now() + 10 * 1000;
-      var colors = ["#ff718d", "#fdff6a"];
-
-      const frame = () => {
-        this.confettiHandler({
-          particleCount: 2,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 },
-          colors: colors,
-        });
-        this.confettiHandler({
-          particleCount: 2,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 },
-          colors: colors,
-        });
-
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
-      };
-      frame();
-    },
     /**
      * hides the published plio dialog and shows the share plio dialog
      */
@@ -994,6 +971,7 @@ export default {
      */
     closePublishedPlioDialog() {
       this.isPublishedPlioDialogShown = false;
+      resetConfetti();
     },
 
     /**
@@ -1344,7 +1322,7 @@ export default {
         this.isBeingPublished = false;
         this.isDialogBoxShown = false;
         this.isPublishedPlioDialogShown = true;
-        this.throwConfetti();
+        throwConfetti(this.confettiHandler);
         this.hasUnpublishedChanges = false;
       });
     },

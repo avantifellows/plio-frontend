@@ -85,6 +85,7 @@ import ItemModal from "@/components/Player/ItemModal.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 import { mapActions, mapGetters } from "vuex";
+import { resetConfetti } from "@/services/Functional/Utilities.js";
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
@@ -399,49 +400,32 @@ export default {
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
     /**
-     * Update the number of correct answers
+     * Checks whether the item at the provided itemIndex is a subjective question
+     * and if the user has answered the question or not
+     * @param {Number} itemIndex - The index of the item in question
+     * @param {String, Number, Object} userAnswer - User's answer to that item
+     */
+    isSubjectiveQuestionAnswered(itemIndex, userAnswer) {
+      return (
+        this.isItemSubjective(itemIndex) && userAnswer != null && userAnswer.trim() != ""
+      );
+    },
+    /**
+     * Update the number of correct answers, wrong answers and skipped items
      * @param  {Number} itemIndex -  The index of the item to be considered for the calculation
      * @param  {String, Number, Object} userAnswer - User's answer to that item
      */
-    updateNumCorrect(itemIndex, userAnswer) {
+    updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
       if (this.isItemMCQ(itemIndex)) {
         const correctAnswer = this.items[itemIndex].details.correct_answer;
-        if (!isNaN(userAnswer) && userAnswer == correctAnswer) {
-          this.numCorrect += 1;
+        if (!isNaN(userAnswer)) {
+          userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
+          // reduce numSkipped by 1 if numCorrect or numWrong increases
+          this.numSkipped -= 1;
         }
-      } else if (
-        this.isItemSubjective(itemIndex) &&
-        userAnswer != null &&
-        userAnswer.trim() != ""
-      ) {
+      } else if (this.isSubjectiveQuestionAnswered(itemIndex, userAnswer)) {
         this.numCorrect += 1;
-      }
-      return;
-    },
-    /**
-     * Update the number of wrong answers
-     * @param  {Number} itemIndex -  The index of the item to be considered for the calculation
-     * @param  {String, Number, Object} userAnswer - User's answer to that item
-     */
-    updateNumWrong(itemIndex, userAnswer) {
-      if (this.isItemMCQ(itemIndex)) {
-        const correctAnswer = this.items[itemIndex].details.correct_answer;
-        if (!isNaN(userAnswer) && userAnswer != correctAnswer) {
-          this.numWrong += 1;
-        }
-      }
-      return;
-    },
-    /**
-     * Update the number of skipped answers
-     * @param  {Number} itemIndex -  The index of the item to be considered for the calculation
-     * @param  {String, Number, Object} userAnswer - User's answer to that item
-     */
-    updateNumSkipped(itemIndex, userAnswer) {
-      if (this.isItemMCQ(itemIndex) && isNaN(userAnswer)) {
-        this.numSkipped += 1;
-      } else if (this.isItemSubjective(itemIndex)) {
-        if (userAnswer == null || userAnswer.trim() == "") this.numSkipped += 1;
+        this.numSkipped -= 1;
       }
       return;
     },
@@ -451,20 +435,13 @@ export default {
      */
     calculateScorecardMetrics(itemIndex = null) {
       if (itemIndex == null) {
-        this.numCorrect = 0;
-        this.numWrong = 0;
-        this.numSkipped = 0;
         this.itemResponses.forEach((itemResponse, itemIndex) => {
           const userAnswer = itemResponse.answer;
-          this.updateNumCorrect(itemIndex, userAnswer);
-          this.updateNumWrong(itemIndex, userAnswer);
-          this.updateNumSkipped(itemIndex, userAnswer);
+          this.updateNumCorrectWrongSkipped(itemIndex, userAnswer);
         });
       } else {
         const userAnswer = this.itemResponses[itemIndex].answer;
-        this.updateNumCorrect(itemIndex, userAnswer);
-        this.updateNumWrong(itemIndex, userAnswer);
-        this.updateNumSkipped(itemIndex, userAnswer);
+        this.updateNumCorrectWrongSkipped(itemIndex, userAnswer);
       }
     },
     /**
@@ -473,7 +450,7 @@ export default {
     restartVideo() {
       this.isScorecardShown = false;
       this.player.restart();
-      this.$refs.scorecard.resetConfetti();
+      resetConfetti();
     },
     mountOnFullscreenPlyr(elementToMount) {
       var plyrInstance = document.getElementsByClassName("plyr")[0];
@@ -564,6 +541,9 @@ export default {
           // redirect to 404 if the plio is not published
           if (plioDetails.status != "published") this.$router.replace({ name: "404" });
           this.items = plioDetails.items || [];
+          // setting numSkipped to number of items. This value will keep reducing
+          // as numCorrect and numWrong are calculated
+          this.numSkipped = this.items.length;
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
           this.plioTitle = plioDetails.plioTitle;
@@ -711,6 +691,7 @@ export default {
     playerReady() {
       // invoked when the player is ready
       this.showItemMarkersOnSlider(this.player);
+      // Only show the scorecard when items are present in the plio
       if (this.items != undefined && this.hasAnyItems) this.showScorecardMarkerOnSlider();
       this.setScreenProperties();
       this.player.currentTime = this.currentTimestamp;
@@ -779,15 +760,18 @@ export default {
       }
       return false;
     },
+    /**
+     * Whether the item at the given index is an MCQ question
+     * @param {Number} itemIndex - index of an item in the items array
+     */
     isItemMCQ(itemIndex) {
-      // whether the given item index is an MCQ question
       return (
         this.items[itemIndex].type == "question" &&
         this.items[itemIndex].details.type == "mcq"
       );
     },
     /**
-     * Whether the given item index is a subjective question
+     * Whether the item at the given index is a subjective question
      * @param {Number} itemIndex - index of an item in the items array
      */
     isItemSubjective(itemIndex) {
@@ -811,16 +795,21 @@ export default {
         this.lastTimestampRetention = currentTime;
       }
     },
-    // checks if the scorecard needs to pop up or not
+    /** checks if the scorecard needs to pop up or not */
     checkForScorecardPopup(timestamp) {
-      if (timestamp >= this.player.duration - 1 && this.hasAnyItems) {
+      if (
+        timestamp >= this.player.duration - SCORECARD_POPUP_TIME_FROM_END &&
+        this.hasAnyItems
+      ) {
         this.isScorecardShown = true;
         // if the video is in fullscreen mode, show the modal on top of it
         var scorecardModal = document.getElementById("scorecardmodal");
         if (scorecardModal != undefined) {
           this.mountOnFullscreenPlyr(scorecardModal);
         }
-      } else this.isScorecardShown = false;
+      } else {
+        if (this.isScorecardShown) this.isScorecardShown = false;
+      }
     },
     checkItemToSelect(timestamp) {
       // checks if an item is to be selected and marks/unmarks accordingly

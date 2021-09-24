@@ -355,7 +355,7 @@ export default {
       empty_title_placeholder: "कोई नाम नहीं",
     },
     mcq: "बहुविकल्पी",
-    subjective: "विस्तृत",
+    subjective: "सब्जेक्टिव",
     submitted: "निवेदन हो गया",
     dialogs: {
       share: {
@@ -391,7 +391,7 @@ export default {
       add_item: {
         published: "आप एक प्रकाशित प्लायो में नए प्रश्न नहीं जोड़ सकते",
         mcq: "बहुविकल्पीय प्रश्न जोड़ने के लिए यहां क्लिक करें",
-        subjective: "विस्तृत प्रश्न जोड़ने के लिए यहां क्लिक करें",
+        subjective: "सब्जेक्टिव प्रश्न जोड़ने के लिए यहां क्लिक करें",
       },
       item_editor: {
         buttons: {

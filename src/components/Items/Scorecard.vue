@@ -3,11 +3,12 @@
     <div class="flex justify-center w-2/3 mx-auto my-auto h-full py-8">
       <div
         class="flex flex-col justify-center w-full"
-        :class="{ 'gap-4': !isCircularProgressShown }"
+        :class="{ 'gap-8': !isCircularProgressShown }"
       >
         <!-- scorecard greeting -->
         <div
-          class="text-center text-lg md:text-xl lg:text-2xl font-extrabold font-sans mb-4"
+          class="text-center text-lg md:text-xl lg:text-2xl font-extrabold font-sans"
+          :class="{ 'mb-4': isCircularProgressShown }"
         >
           {{ greeting }}
         </div>
@@ -33,10 +34,12 @@
         </CircularProgress>
 
         <!-- metric boxes -->
-        <div class="flex bp-500:flex-row flex-col justify-center gap-4 px-10">
+        <div
+          class="flex bp-500:flex-row flex-col justify-center gap-1 px-10 max-w-4xl place-self-center"
+        >
           <div
             v-for="metric in metrics"
-            class="rounded-md bp-500:rounded-2xl bg-yellow-400 grid grid-cols-2 bp-500:grid-rows-2 bp-500:grid-cols-none lg:grid-cols-2 lg:grid-rows-none border-2 px-4 lg:px-6 w-full h-14 bp-500:h-20"
+            class="rounded-md bp-500:rounded-2xl bg-yellow-400 grid grid-cols-2 bp-500:grid-rows-2 bp-500:grid-cols-none lg:grid-cols-2 lg:grid-rows-none border-2 px-4 lg:px-6 w-full h-14 bp-500:h-20 min-w-max"
             :key="metric"
           >
             <div
@@ -57,7 +60,7 @@
             </div>
             <!-- name of the metric -->
             <div
-              class="text-center text-sm bp-320:text-base md:text-base lg:text-xl font-medium my-auto bp-500:whitespace-nowrap lg:whitespace-normal"
+              class="text-center text-sm bp-320:text-base md:text-base lg:text-xl font-medium my-auto bp-500:whitespace-nowrap lg:whitespace-normal px-2"
             >
               {{ metric.name }}
             </div>
@@ -65,7 +68,7 @@
         </div>
 
         <!-- action buttons -->
-        <div class="place-self-center mt-3">
+        <div class="place-self-center" :class="{ 'mt-5': isCircularProgressShown }">
           <!-- watch again button -->
           <icon-button
             :titleConfig="watchAgainButtonTitleConfig"
@@ -81,7 +84,7 @@
 
 <script>
 import CircularProgress from "@/components/UI/Progress/CircularProgress.vue";
-import Utilties from "@/services/Functional/Utilities.js";
+import Utilities, { throwConfetti } from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 
 const confetti = require("canvas-confetti");
@@ -90,9 +93,7 @@ const confettiHandler = confetti.create(confettiCanvas, {
   resize: true,
   useWorker: true,
 });
-const confettiDuration = 10; // duration (in seconds) for which the confetti animation should run
-var confettiColors = ["#ff718d", "#fdff6a"]; // colors for confetti particles
-const waitTime = 500; // a time delay to be used in the code
+const progressBarAnimationWaitTime = 500; // a time delay to be used for animating the progress bar
 
 export default {
   name: "Scorecard",
@@ -141,9 +142,6 @@ export default {
   data() {
     return {
       localProgressBarPercentage: 0, // local value of progress
-      // variable to store the animation frame request
-      // used when confetti popping has to be stopped
-      animationFrameRequest: null,
       innerWidth: window.innerWidth, // variable to hold the width of window
       reRenderKey: 0, // a key to re-render a component
       // classes for watch again button
@@ -155,13 +153,13 @@ export default {
     isShown(value) {
       if (value) {
         // if scorecard pops up then wait some time to update the
-        // `localProgressBarPercentage`. This makes the progress bar animate
+        // progress bar percentage to make the progress bar animate
         setTimeout(() => {
           this.localProgressBarPercentage = this.progressPercentage;
-        }, waitTime);
+        }, progressBarAnimationWaitTime);
 
         // Also, throw some confetti in there
-        this.throwConfetti();
+        throwConfetti(confettiHandler);
       } else {
         // if scorecard is not visible anymore, reset things
         this.localProgressBarPercentage = 0;
@@ -185,14 +183,15 @@ export default {
       if (this.progressPercentage == null) return false;
       return true;
     },
-    /** What result to show in the center of the progress bar */
+    /** The result to show in the centre of the progress bar */
     progressBarResult() {
       return {
         enabled: true,
         title: this.$t("player.scorecard.metric.description.accuracy"),
       };
     },
-    /** reactively control the radius of the circular progress bar
+    /**
+     * reactively control the radius of the circular progress bar
      * according to the screen width
      */
     circularProgressRadius() {
@@ -200,8 +199,9 @@ export default {
       else if (this.innerWidth < 1200 && this.innerWidth >= 1024) return 180;
       else if (this.innerWidth < 1024 && this.innerWidth >= 768) return 160;
       else if (this.innerWidth < 768 && this.innerWidth >= 640) return 140;
-      else if (this.innerWidth < 640 && this.innerWidth >= 300) return 120;
-      return 100;
+      else if (this.innerWidth < 640 && this.innerWidth >= 380) return 120;
+      else if (this.innerWidth < 380 && this.innerWidth >= 300) return 100;
+      return 80;
     },
     /**
      * reactively control the stroke of the circular progress bar
@@ -212,8 +212,9 @@ export default {
       else if (this.innerWidth < 1200 && this.innerWidth >= 1024) return 18;
       else if (this.innerWidth < 1024 && this.innerWidth >= 768) return 16;
       else if (this.innerWidth < 768 && this.innerWidth >= 640) return 14;
-      else if (this.innerWidth < 640 && this.innerWidth >= 300) return 12;
-      return 10;
+      else if (this.innerWidth < 640 && this.innerWidth >= 380) return 12;
+      else if (this.innerWidth < 380 && this.innerWidth >= 300) return 10;
+      return 8;
     },
     // config for the text of the watch again button
     watchAgainButtonTitleConfig() {
@@ -224,7 +225,7 @@ export default {
     },
   },
   methods: {
-    ...Utilties,
+    ...Utilities,
     handleScreenSizeChange() {
       // invoked when the screen size is changing
       this.innerWidth = window.innerWidth;
@@ -234,45 +235,10 @@ export default {
       this.reRenderKey = !this.reRenderKey;
     },
     /**
-     * Uses the confettiHandler() to instantiate 2 instances of confetti, which keeps
-     * repeating using a requestAnimationFrame(). This goes on for a set amount of time
-     * defined
+     * Emits an event to restart the video
      */
-    throwConfetti() {
-      // keep throwing some confetti until our specified time runs out
-      var animationEndTime = Date.now() + confettiDuration * 1000; // 10 seconds
-
-      const frame = () => {
-        confettiHandler({
-          particleCount: 2,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 },
-          colors: confettiColors,
-        });
-        confettiHandler({
-          particleCount: 2,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 },
-          colors: confettiColors,
-        });
-
-        if (Date.now() < animationEndTime) {
-          // store the animation frame request in a variable
-          // so we can cancel it later on
-          this.animationFrameRequest = requestAnimationFrame(frame);
-        }
-      };
-      frame();
-    },
     restartVideo() {
-      // when watch again is clicked
       this.$emit("restart-video");
-    },
-    resetConfetti() {
-      // remove all the confetti
-      cancelAnimationFrame(this.animationFrameRequest);
     },
   },
   emits: ["restart-video"],
