@@ -725,45 +725,49 @@ export default {
     showItemMarkersOnSlider(player) {
       // show the markers for items on top of the video slider
       var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
-      this.items.forEach((item, index) => {
-        let existingMarker = document.getElementById(`marker-${index}`);
-        if (existingMarker != undefined) plyrProgressBar.removeChild(existingMarker);
+      if (plyrProgressBar != undefined) {
+        this.items.forEach((item, index) => {
+          let existingMarker = document.getElementById(`marker-${index}`);
+          if (existingMarker != undefined) plyrProgressBar.removeChild(existingMarker);
 
-        // Add marker to player seek bar
-        var newMarker = document.createElement("SPAN");
-        newMarker.setAttribute("id", `marker-${index}`);
+          // Add marker to player seek bar
+          var newMarker = document.createElement("SPAN");
+          newMarker.setAttribute("id", `marker-${index}`);
 
-        // set marker style
-        if (this.isItemResponseDone(index)) {
-          this.markerClass[0] = "bg-green-600";
-        } else this.markerClass[0] = "bg-red-600";
+          // set marker style
+          if (this.isItemResponseDone(index)) {
+            this.markerClass[0] = "bg-green-600";
+          } else this.markerClass[0] = "bg-red-600";
 
-        newMarker.classList.add(...this.markerClass);
+          newMarker.classList.add(...this.markerClass);
 
-        // set marker position
-        var positionPercent = (100 * item.time) / player.duration;
-        newMarker.style.setProperty("left", `${positionPercent}%`);
-        plyrProgressBar.appendChild(newMarker);
-      });
+          // set marker position
+          var positionPercent = (100 * item.time) / player.duration;
+          newMarker.style.setProperty("left", `${positionPercent}%`);
+          plyrProgressBar.appendChild(newMarker);
+        });
+      }
     },
     showScorecardMarkerOnSlider() {
       // show the marker for scorecard on top of the video slider
       var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
+      if (plyrProgressBar != undefined) {
+        // Add marker to player seek bar
+        var newMarker = document.createElement("p");
+        newMarker.setAttribute("id", `marker-scorecard`);
 
-      // Add marker to player seek bar
-      var newMarker = document.createElement("p");
-      newMarker.setAttribute("id", `marker-scorecard`);
+        // what the marker should look like - trophy cup emoji
+        newMarker.innerText = "🏆";
+        newMarker.classList.add(...this.scorecardMarkerClass);
 
-      // what the marker should look like - trophy cup emoji
-      newMarker.innerText = "🏆";
-      newMarker.classList.add(...this.scorecardMarkerClass);
-
-      // set marker position
-      var positionPercent =
-        ((this.player.duration - SCORECARD_POPUP_TIME_FROM_END) / this.player.duration) *
-        100;
-      newMarker.style.setProperty("left", `${positionPercent}%`);
-      plyrProgressBar.appendChild(newMarker);
+        // set marker position
+        var positionPercent =
+          ((this.player.duration - SCORECARD_POPUP_TIME_FROM_END) /
+            this.player.duration) *
+          100;
+        newMarker.style.setProperty("left", `${positionPercent}%`);
+        plyrProgressBar.appendChild(newMarker);
+      }
     },
     isItemResponseDone(itemIndex) {
       // whether the response to an item is complete
