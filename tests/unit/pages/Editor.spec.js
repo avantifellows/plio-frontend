@@ -526,7 +526,6 @@ describe("Editor.vue", () => {
     const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
     const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
-    const throwConfetti = jest.spyOn(Editor.methods, "throwConfetti");
     const wrapper = mount(Editor, {
       data() {
         const confetti = require("canvas-confetti");
@@ -600,7 +599,6 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.isDialogBoxShown).toBeFalsy();
     expect(wrapper.vm.isPublishedPlioDialogShown).toBeTruthy();
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
-    expect(throwConfetti).toHaveBeenCalled();
   });
 
   it("play plio button inside the published dialog works correctly", async () => {

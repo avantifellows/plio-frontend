@@ -1,6 +1,12 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import Scorecard from "@/components/Items/Scorecard";
 
+jest.mock("@/services/Functional/Utilities.js", () => ({
+  __esModule: true,
+  throwConfetti: jest.fn(),
+  resetConfetti: jest.fn(),
+}));
+
 beforeEach(() => {
   jest.useFakeTimers();
 });
@@ -13,7 +19,6 @@ describe("Scorecard.vue", () => {
 
   it("should show/hide the scorecard popup using isShown prop", async () => {
     const progressPercentage = 50;
-    const throwConfetti = jest.spyOn(Scorecard.methods, "throwConfetti");
     const wrapper = mount(Scorecard, {
       props: {
         progressPercentage: progressPercentage,
@@ -27,7 +32,6 @@ describe("Scorecard.vue", () => {
     await jest.advanceTimersByTime(1000);
 
     expect(wrapper.vm.localProgressBarPercentage).toBe(progressPercentage);
-    expect(throwConfetti).toHaveBeenCalled();
 
     await wrapper.setProps({
       isShown: false,
