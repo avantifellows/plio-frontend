@@ -45,10 +45,6 @@ describe("Player.vue", () => {
     // mocking goBack() method
     const goBack = jest.spyOn(Player.methods, "goBack");
 
-    // mocking the function history.goBack()
-    let history = {
-      back: jest.fn(),
-    };
     const wrapper = mount(Player, {
       global: {
         mocks: {

@@ -151,6 +151,6 @@ export function throwConfetti(
  * Resets the animation frame request for the confetti being rendered
  */
 export function resetConfetti() {
-  if (animationFrameRequest != undefined && animationFrameRequest != null)
+  if (animationFrameRequest != undefined)
     cancelAnimationFrame(animationFrameRequest);
 }

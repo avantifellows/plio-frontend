@@ -1,7 +1,7 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import Plio from "@/pages/Embeds/Plio.vue";
 import mockAxios from "jest-mock-axios";
-import { dummyAccessToken, dummyItems } from "@/services/Testing/DummyData.js";
+import { dummyAccessToken } from "@/services/Testing/DummyData.js";
 
 beforeEach(() => {
   jest.useFakeTimers();
