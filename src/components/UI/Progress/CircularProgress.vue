@@ -34,7 +34,7 @@
         {{ Math.trunc(progressBarPercent) }}%
       </div>
       <div
-        class="text-md bp-360:text-lg sm:text-sm md:text-base lg:text-xl font-bold text-center"
+        class="text-sm bp-360:text-base sm:text-sm md:text-base lg:text-xl font-bold text-center"
       >
         {{ result.title }}
       </div>

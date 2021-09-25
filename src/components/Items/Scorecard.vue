@@ -195,22 +195,22 @@ export default {
      * according to the screen width
      */
     circularProgressRadius() {
-      if (this.innerWidth >= 1200) return 200;
-      else if (this.innerWidth < 1200 && this.innerWidth >= 1024) return 180;
-      else if (this.innerWidth < 1024 && this.innerWidth >= 768) return 160;
-      else if (this.innerWidth < 768 && this.innerWidth >= 640) return 140;
-      else if (this.innerWidth < 640 && this.innerWidth >= 380) return 120;
-      else if (this.innerWidth < 380 && this.innerWidth >= 300) return 100;
-      return 80;
+      if (this.innerWidth >= 1200) return 150;
+      else if (this.innerWidth < 1200 && this.innerWidth >= 1024) return 130;
+      else if (this.innerWidth < 1024 && this.innerWidth >= 768) return 110;
+      else if (this.innerWidth < 768 && this.innerWidth >= 640) return 90;
+      else if (this.innerWidth < 640 && this.innerWidth >= 380) return 80;
+      else if (this.innerWidth < 380 && this.innerWidth >= 300) return 70;
+      return 60;
     },
     /**
      * reactively control the stroke of the circular progress bar
      * according to the screen width
      */
     circularProgressStroke() {
-      if (this.innerWidth >= 1200) return 20;
-      else if (this.innerWidth < 1200 && this.innerWidth >= 1024) return 18;
-      else if (this.innerWidth < 1024 && this.innerWidth >= 768) return 16;
+      if (this.innerWidth >= 1200) return 22;
+      else if (this.innerWidth < 1200 && this.innerWidth >= 1024) return 20;
+      else if (this.innerWidth < 1024 && this.innerWidth >= 768) return 18;
       else if (this.innerWidth < 768 && this.innerWidth >= 640) return 14;
       else if (this.innerWidth < 640 && this.innerWidth >= 380) return 12;
       else if (this.innerWidth < 380 && this.innerWidth >= 300) return 10;
