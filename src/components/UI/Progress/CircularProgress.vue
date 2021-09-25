@@ -30,7 +30,7 @@
       class="absolute inset-1/3 flex flex-col justify-center"
       data-test="result"
     >
-      <div class="text-lg bp-360:text-xl sm:text-2xl lg:text-4xl font-bold text-center">
+      <div class="text-lg bp-360:text-xl sm:text-3xl lg:text-5xl font-bold text-center">
         {{ Math.trunc(progressBarPercent) }}%
       </div>
       <div
