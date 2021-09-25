@@ -45,37 +45,31 @@ describe("Scorecard.vue", () => {
   it("should adjust the radius/stroke of the progress bar according to screen size and orientation", async () => {
     const wrapper = mount(Scorecard);
 
-    expect(wrapper.vm.circularProgressRadius).toBe(180);
-    expect(wrapper.vm.circularProgressStroke).toBe(18);
+    expect(wrapper.vm.circularProgressRadius).toBe(130);
+    expect(wrapper.vm.circularProgressStroke).toBe(20);
 
     await wrapper.setData({
-      innerWidth: 1100,
+      innerWidth: 1300,
     });
-    expect(wrapper.vm.circularProgressRadius).toBe(180);
-    expect(wrapper.vm.circularProgressStroke).toBe(18);
+    expect(wrapper.vm.circularProgressRadius).toBe(150);
+    expect(wrapper.vm.circularProgressStroke).toBe(22);
 
     await wrapper.setData({
       innerWidth: 800,
     });
-    expect(wrapper.vm.circularProgressRadius).toBe(160);
-    expect(wrapper.vm.circularProgressStroke).toBe(16);
+    expect(wrapper.vm.circularProgressRadius).toBe(110);
+    expect(wrapper.vm.circularProgressStroke).toBe(18);
 
     await wrapper.setData({
       innerWidth: 700,
     });
-    expect(wrapper.vm.circularProgressRadius).toBe(140);
+    expect(wrapper.vm.circularProgressRadius).toBe(90);
     expect(wrapper.vm.circularProgressStroke).toBe(14);
-
-    await wrapper.setData({
-      innerWidth: 1200,
-    });
-    expect(wrapper.vm.circularProgressRadius).toBe(200);
-    expect(wrapper.vm.circularProgressStroke).toBe(20);
 
     await wrapper.setData({
       innerWidth: 500,
     });
-    expect(wrapper.vm.circularProgressRadius).toBe(120);
+    expect(wrapper.vm.circularProgressRadius).toBe(80);
     expect(wrapper.vm.circularProgressStroke).toBe(12);
   });
 
