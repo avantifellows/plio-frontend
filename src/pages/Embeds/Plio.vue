@@ -707,7 +707,6 @@ export default {
     },
     /**
      * Places the given marker at a defined position on the plyr progress bar and sets its custom style classes
-     * @param {Object} progressBar - The HTML element representing the progress bar
      * @param {Object} marker - The HTML element that needs to be placed on the progress bar
      * @param {Array} classList - An array of tailwind classes
      * @param {Number} positionPercent - By what % from the left should the marker be placed
@@ -734,7 +733,7 @@ export default {
      * Place the markers for items on the plyr progress bar
      * @param {Object} player - The instance of plyr
      */
-    showItemMarkersOnSlider(player) {
+    showItemMarkersOnSlider() {
       this.items.forEach((item, index) => {
         let existingMarker = document.getElementById(`marker-${index}`);
         if (existingMarker != undefined) this.removeMarkerOnSlider(existingMarker);
@@ -748,7 +747,7 @@ export default {
           this.markerClass[0] = "bg-green-600";
         } else this.markerClass[0] = "bg-red-600";
 
-        var positionPercent = (100 * item.time) / player.duration;
+        var positionPercent = (100 * item.time) / this.player.duration;
 
         this.placeMarkerOnSlider(newMarker, this.markerClass, positionPercent);
       });
