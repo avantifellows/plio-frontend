@@ -305,7 +305,7 @@ export default {
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
     /**
-     * Whether the scorecard will be shown or not
+     * whether the scorecard is enabled or not
      */
     isScorecardEnabled() {
       return this.items != undefined && this.hasAnyItems;
@@ -706,8 +706,7 @@ export default {
       // this.playPlayer();
     },
     /**
-     * Places the given marker at a defined position on the plyr progress bar
-     * Also sets it's custom style classes
+     * Places the given marker at a defined position on the plyr progress bar and sets its custom style classes
      * @param {Object} progressBar - The HTML element representing the progress bar
      * @param {Object} marker - The HTML element that needs to be placed on the progress bar
      * @param {Array} classList - An array of tailwind classes
