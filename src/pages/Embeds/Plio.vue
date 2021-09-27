@@ -304,6 +304,12 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
+    /**
+     * Whether the scorecard will be shown or not
+     */
+    isScorecardEnabled() {
+      return this.items != undefined && this.hasAnyItems;
+    },
     scorecardProgress() {
       // progress value (0-100) to be passed to the Scorecard component
       const totalAttempted = this.numCorrect + this.numWrong;
@@ -402,7 +408,7 @@ export default {
     /**
      * Checks whether the item at the provided itemIndex is a subjective question
      * and if the user has answered the question or not
-     * @param {Number} itemIndex - The index of the item in question
+     * @param {Number} itemIndex - The index of the item to be checked
      * @param {String, Number, Object} userAnswer - User's answer to that item
      */
     isSubjectiveQuestionAnswered(itemIndex, userAnswer) {
@@ -427,7 +433,6 @@ export default {
         this.numCorrect += 1;
         this.numSkipped -= 1;
       }
-      return;
     },
     /**
      * Calculate the scorecard metrics
@@ -525,9 +530,6 @@ export default {
       // invoked when the user skips the question
       this.closeItemModal();
       this.createEvent("question_skipped", { itemIndex: this.currentItemIndex });
-
-      // recalculate the scorecard metrics
-      this.calculateScorecardMetrics(this.currentItemIndex);
     },
     proceedQuestion() {
       // invoked when the user has answered the question and wishes to proceed
@@ -692,7 +694,7 @@ export default {
       // invoked when the player is ready
       this.showItemMarkersOnSlider(this.player);
       // Only show the scorecard when items are present in the plio
-      if (this.items != undefined && this.hasAnyItems) this.showScorecardMarkerOnSlider();
+      if (this.isScorecardEnabled) this.showScorecardMarkerOnSlider();
       this.setScreenProperties();
       this.player.currentTime = this.currentTimestamp;
       this.$mixpanel.track("Visit Player", {
@@ -702,6 +704,19 @@ export default {
       });
       // Disabling autoplay because of bug - issue #157
       // this.playPlayer();
+    },
+    /**
+     * Places the given marker at a defined position on the plyr progress bar
+     * Also sets it's custom style classes
+     * @param {Object} progressBar - The HTML element representing the progress bar
+     * @param {Object} marker - The HTML element that needs to be placed on the progress bar
+     * @param {Array} classList - An array of tailwind classes
+     * @param {Number} positionPercent - By what % from the left should the marker be placed
+     */
+    placeMarkerOnSlider(progressBar, marker, classList, positionPercent) {
+      marker.classList.add(...classList);
+      marker.style.setProperty("left", `${positionPercent}%`);
+      progressBar.appendChild(marker);
     },
     showItemMarkersOnSlider(player) {
       // show the markers for items on top of the video slider
@@ -715,17 +730,19 @@ export default {
           var newMarker = document.createElement("SPAN");
           newMarker.setAttribute("id", `marker-${index}`);
 
-          // set marker style
+          // set marker style and position
           if (this.isItemResponseDone(index)) {
             this.markerClass[0] = "bg-green-600";
           } else this.markerClass[0] = "bg-red-600";
 
-          newMarker.classList.add(...this.markerClass);
-
-          // set marker position
           var positionPercent = (100 * item.time) / player.duration;
-          newMarker.style.setProperty("left", `${positionPercent}%`);
-          plyrProgressBar.appendChild(newMarker);
+
+          this.placeMarkerOnSlider(
+            plyrProgressBar,
+            newMarker,
+            this.markerClass,
+            positionPercent
+          );
         });
       }
     },
@@ -739,15 +756,19 @@ export default {
 
         // what the marker should look like - trophy cup emoji
         newMarker.innerText = "🏆";
-        newMarker.classList.add(...this.scorecardMarkerClass);
 
         // set marker position
         var positionPercent =
           ((this.player.duration - SCORECARD_POPUP_TIME_FROM_END) /
             this.player.duration) *
           100;
-        newMarker.style.setProperty("left", `${positionPercent}%`);
-        plyrProgressBar.appendChild(newMarker);
+
+        this.placeMarkerOnSlider(
+          plyrProgressBar,
+          newMarker,
+          this.scorecardMarkerClass,
+          positionPercent
+        );
       }
     },
     isItemResponseDone(itemIndex) {
@@ -784,7 +805,7 @@ export default {
       // invoked when the current time in the video is updated
       this.checkItemToSelect(timestamp);
       // check if scorecard needs to be shown
-      this.checkForScorecardPopup(timestamp);
+      if (this.isScorecardEnabled) this.checkForScorecardPopup(timestamp);
       // update watch time
       this.watchTime += PLYR_INTERVAL_TIME;
       this.watchTimeIncrement += PLYR_INTERVAL_TIME;
@@ -797,10 +818,7 @@ export default {
     },
     /** checks if the scorecard needs to pop up or not */
     checkForScorecardPopup(timestamp) {
-      if (
-        timestamp >= this.player.duration - SCORECARD_POPUP_TIME_FROM_END &&
-        this.hasAnyItems
-      ) {
+      if (timestamp >= this.player.duration - SCORECARD_POPUP_TIME_FROM_END) {
         this.isScorecardShown = true;
         // if the video is in fullscreen mode, show the modal on top of it
         var scorecardModal = document.getElementById("scorecardmodal");

@@ -3,7 +3,7 @@
     <div class="flex justify-center w-2/3 mx-auto my-auto h-full py-8">
       <div
         class="flex flex-col justify-center w-full"
-        :class="{ 'gap-8': !isCircularProgressShown }"
+        :class="{ 'space-y-8': !isCircularProgressShown }"
       >
         <!-- scorecard greeting -->
         <div
@@ -35,7 +35,7 @@
 
         <!-- metric boxes -->
         <div
-          class="flex bp-500:flex-row flex-col justify-center gap-1 px-10 max-w-4xl place-self-center"
+          class="flex bp-500:flex-row flex-col justify-center space-y-1 bp-500:space-x-1 bp-500:space-y-0 px-10 max-w-4xl place-self-center"
         >
           <div
             v-for="metric in metrics"
@@ -43,7 +43,7 @@
             :key="metric"
           >
             <div
-              class="w-full h-full flex flex-row justify-center gap-2 bp-500:mt-2 lg:mt-0"
+              class="w-full h-full flex flex-row justify-center space-x-2 bp-500:mt-2 lg:mt-0"
             >
               <!-- metric icon -->
               <inline-svg

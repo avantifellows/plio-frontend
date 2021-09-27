@@ -322,7 +322,7 @@ export default {
         description: {
           correct: "सही",
           wrong: "गलत",
-          skipped: "छोड़े गए प्रश्न",
+          skipped: "छोड़े",
           accuracy: "यथार्थता",
         },
       },

@@ -133,7 +133,7 @@
             class="w-10 h-10 text-yellow-600 fill-current"
           ></inline-svg>
           <!-- text -->
-          <p class="text-yellow-600">
+          <p class="text-yellow-600 my-auto">
             {{ $t("editor.headings.subjective_question_warning") }}
           </p>
         </div>
@@ -335,7 +335,6 @@
       id="sharePlioConfettiCanvas"
       class="fixed z-50"
       v-if="isPublishedPlioDialogShown"
-      data-test="sharePlioConfettiCanvas"
     ></canvas>
 
     <!-- dialog to show after publishing -->
