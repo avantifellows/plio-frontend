@@ -220,7 +220,7 @@ export default {
         // whenever itemResponses is updated, re-render the markers
         // and re-calculate the scorecard metrics
         if (value != undefined && this.player != undefined) {
-          this.showItemMarkersOnSlider(this.player);
+          this.showItemMarkersOnSlider();
         }
       },
       deep: true,
@@ -521,7 +521,7 @@ export default {
         });
       }
       // update the marker colors on the player
-      this.showItemMarkersOnSlider(this.player);
+      this.showItemMarkersOnSlider();
 
       // recalculate the scorecard metrics
       this.calculateScorecardMetrics(this.currentItemIndex);
@@ -692,7 +692,7 @@ export default {
     },
     playerReady() {
       // invoked when the player is ready
-      this.showItemMarkersOnSlider(this.player);
+      this.showItemMarkersOnSlider();
       // Only show the scorecard when items are present in the plio
       if (this.isScorecardEnabled) this.showScorecardMarkerOnSlider();
       this.setScreenProperties();
