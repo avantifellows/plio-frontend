@@ -162,6 +162,12 @@
             @click="showPublishConfirmationDialogBox"
             data-test="publishButton"
           ></icon-button>
+          <icon-button
+            :iconConfig="publishButtonIconConfig"
+            :class="publishButtonClass"
+            class="shadow-lg"
+            @click="togglePlioPreviewMode"
+          ></icon-button>
           <!-- analyze plio -->
           <icon-button
             v-if="isPublished"
@@ -336,6 +342,27 @@
       class="z-0"
     ></ConfettiCelebration>
 
+    <!-- <Plio
+      class="fixed w-10/12 top-1/6"
+      :plioId="plioId"
+      :org="org"
+      containerClass="h-24"
+      :previewMode="true"
+      :class="{ hidden: !isPreviewPlioShown }"
+    ></Plio> -->
+    <!-- <div class="w-full h-screen fixed top-1/10 flex justify-center" >
+      <iframe class="w-10/12 h-3/4" :src="plioEmbedLink"></iframe>
+    </div> -->
+    <Plio
+      class="fixed w-10/12"
+      :plioId="plioId"
+      :org="org"
+      :previewMode="true"
+      v-if="isPreviewPlioShown"
+      v-click-away="closePlioPreviewMode"
+      :key="reRenderKey"
+    ></Plio>
+
     <!-- dialog to show after publishing -->
     <div
       class="fixed top-1/4 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10 mx-2 sm:mx-0"
@@ -402,6 +429,7 @@
 
 <script>
 import InputText from "@/components/UI/Text/InputText.vue";
+import Plio from "@/pages/Embeds/Plio.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
@@ -445,6 +473,7 @@ export default {
     ItemModal,
     ImageUploaderDialog,
     ConfettiCelebration,
+    Plio,
   },
   props: {
     plioId: {
@@ -567,6 +596,8 @@ export default {
       },
       isImageUploaderDialogShown: false, // whether to show the image uploader or not
       loadedPlioDetails: {}, // details of the plio fetched when the page was loaded
+      isPreviewPlioShown: false, // whether to show a full preview of the plio before publishing
+      reRenderKey: 0,
     };
   },
   async created() {
@@ -773,7 +804,8 @@ export default {
         this.isImageUploaderDialogShown ||
         this.isPublishedPlioDialogShown ||
         this.isEmbedPlioDialogShown ||
-        this.pending
+        this.pending ||
+        this.isPreviewPlioShown
       );
     },
     statusBadgeClass() {
@@ -1311,6 +1343,19 @@ export default {
         this.isPublishedPlioDialogShown = true;
         this.hasUnpublishedChanges = false;
       });
+    },
+    /**
+     * closes the preview plio
+     */
+    closePlioPreviewMode() {
+      this.isPreviewPlioShown = false;
+    },
+    /**
+     * toggles plio preview mode
+     */
+    togglePlioPreviewMode() {
+      this.isPreviewPlioShown = !this.isPreviewPlioShown;
+      this.reRenderKey = !this.reRenderKey;
     },
     /**
      * shows the dialog box for confirming whether to publish the plio

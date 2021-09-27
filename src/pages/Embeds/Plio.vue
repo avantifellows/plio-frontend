@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- skeleton loading -->
-    <video-skeleton v-if="!isPlioLoaded"></video-skeleton>
+    <video-skeleton v-if="!isPlioLoaded && !this.previewMode"></video-skeleton>
     <div v-else class="flex relative shadow-lg h-screen">
       <!-- video player component -->
       <video-player
@@ -15,8 +15,8 @@
         @pause="playerPaused"
         @seeked="videoSeeked"
         @update="videoTimestampUpdated"
-        @enterfullscreen="playerEntersFullscreen"
-        @exitfullscreen="playerExitsFullscreen"
+        @enterfullscreen="enterPlayerFullscreen"
+        @exitfullscreen="exitPlayerFullscreen"
         class="w-full z-0"
       ></video-player>
       <!-- minimize button -->
@@ -43,7 +43,7 @@
           :itemList="items"
           v-model:isFullscreen="isFullscreen"
           v-model:responseList="itemResponses"
-          :previewMode="false"
+          :previewMode="previewMode"
           :isModalMinimized="isModalMinimized"
           :isFullscreen="isFullscreen"
           @skip-question="skipQuestion"
@@ -253,9 +253,28 @@ export default {
       default: null,
       type: String,
     },
+    previewMode: {
+      /**
+       * whether it is being opened in preview mode
+       * in which case no sessions would be created
+       */
+      default: true,
+      type: Boolean,
+    },
+    // containerClass: {
+    //   /**
+    //    * custom classes for the plio container
+    //    */
+    //   type: String,
+    // },
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
+    // plioContainerClass() {
+    //   // dynamic class for the plio container
+    //   if (this.containerClass == undefined) return "h-screen";
+    //   return this.containerClass;
+    // },
     isThirdPartyAuth() {
       // if the app needs to authenticate using a third party auth or not
       return this.thirdPartyUniqueId != null && this.thirdPartyApiKey != null;
@@ -337,7 +356,7 @@ export default {
 
       this.isModalMinimized = true;
 
-      // insert the button inside the plyr instance so it shows up in fullscreen mode
+      // insert the button inside the plyr instance so that it shows up in fullscreen mode
       this.$nextTick(() => {
         var maximizeButton = document.getElementById("maximizeButton");
         if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
@@ -366,12 +385,15 @@ export default {
       this.createEvent("question_revised", { itemIndex: this.currentItemIndex });
       this.closeItemModal();
     },
+    /**
+     * invoked when a question response is submitted
+     */
     submitQuestion() {
       /**
-       * invoked when a question response is submitted
+       * update the session answer on server if the user is authenticated
+       * or if the plio is opened in preview mode
        */
-      // update the session answer on server if the user is authenticated
-      if (this.isAuthenticated) {
+      if (this.isAuthenticated && !this.previewMode) {
         SessionAPIService.updateSessionAnswer(this.itemResponses[this.currentItemIndex]);
         // create an event for the submit action
         this.createEvent("question_answered", {
@@ -392,12 +414,18 @@ export default {
       this.closeItemModal();
       this.createEvent("question_proceed", { itemIndex: this.currentItemIndex });
     },
+    /**
+     * fetches plio details and creates a new session
+     */
     async fetchPlioCreateSession() {
-      // fetches plio details and creates a new session
       await PlioAPIService.getPlio(this.plioId, true)
         .then((plioDetails) => {
-          // redirect to 404 if the plio is not published
-          if (plioDetails.status != "published") this.$router.replace({ name: "404" });
+          /**
+           * redirect to 404 if the plio is not published
+           * and the plio is not opened in preview mode
+           */
+          if (plioDetails.status != "published" && !this.previewMode)
+            this.$router.replace({ name: "404" });
           this.items = plioDetails.items || [];
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
@@ -405,12 +433,15 @@ export default {
         .then(() => this.createSession())
         .then(() => this.logData());
     },
+    /**
+     * periodically logs data to the server
+     */
     logData() {
       /**
-       * periodically logs data to the server
+       * do not log data if the user is not authenticated
+       * or if the plio is opened in preview mode
        */
-      // do not log data if the user is not authenticated
-      if (!this.isAuthenticated) return;
+      if (!this.isAuthenticated || this.previewMode) return;
 
       if (this.hasSessionStarted) {
         // update session data
@@ -438,12 +469,15 @@ export default {
       // pauses the video player
       this.player.pause();
     },
+    /**
+     * creates new user-plio session
+     */
     createSession() {
       /**
-       * creates new user-plio session
+       * do not create a session if a user is not authenticated
+       * or if the plio is opened in preview mode
        */
-      // do not create a session if a user is not authenticated
-      if (!this.isAuthenticated) {
+      if (!this.isAuthenticated || this.previewMode) {
         // initiate itemResponses as an empty set of answers
         this.items.forEach((item) => {
           if (item.type == "question" && item.details["type"] == "mcq") {
@@ -498,11 +532,14 @@ export default {
         });
       });
     },
+    /**
+     * update the session data on the server
+     */
     updateSession() {
       /**
-       * update the session data on the server
+       * do not try updating the session if the user is not authenticated
+       * or if the plio is opened in preview mode
        */
-      // do not try updating the session if the user is not authenticated
       if (!this.isAuthenticated) return;
 
       var sessionDetails = {
@@ -634,22 +671,26 @@ export default {
       var maximizeButton = document.getElementById("maximizeButton");
       if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
     },
-    playerEntersFullscreen() {
-      // invoked when the player enters fullscreen
+    enterPlayerFullscreen() {
+      // sets the player to fullscreen
       this.isFullscreen = true;
       this.createEvent("enter_fullscreen");
     },
-    playerExitsFullscreen() {
-      // invoked when the player exits fullscreen
+    exitPlayerFullscreen() {
+      // unsets the player from fullscreen
       this.isFullscreen = false;
       this.createEvent("exit_fullscreen");
     },
+    /**
+     * creates a new event
+     */
     createEvent(eventType, eventDetails = {}) {
       /**
-       * create a new event
+       * do not create an event if the session has not started
+       * or the user is not authenticated or if the plio is opened
+       * in preview mode
        */
-      if (!this.hasSessionStarted || !this.isAuthenticated) return;
-      // create event only when the session has been initiated
+      if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode) return;
       var eventData = {
         type: eventType,
         details: eventDetails,
