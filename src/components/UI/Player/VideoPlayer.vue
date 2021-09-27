@@ -44,16 +44,15 @@ export default {
     this.$nextTick(() => {
       if (this.isVideoIdValid) {
         this.initiatePlayer();
-        // sets the aspect ratio while the player is getting ready
-        this.setAspectRatio();
+        this.$emit("initiated");
       }
     });
-    // add listener for resize
-    window.addEventListener("resize", this.setAspectRatio);
+    // // add listener for resize
+    // window.addEventListener("resize", this.setAspectRatio);
   },
   unmounted() {
     // remove listeners
-    window.removeEventListener("resize", this.setAspectRatio);
+    // window.removeEventListener("resize", this.setAspectRatio);
   },
   watch: {
     currentTime(newTime) {
@@ -77,21 +76,6 @@ export default {
     },
   },
   methods: {
-    setAspectRatio() {
-      /**
-       * sets the aspect ratio based on the current window height and width
-       * to cover the full screen
-       */
-      // if the player should not cover the fullscreen, then do not proceed
-      if (!this.coverFullscreen) return;
-      // refer to this comment from the creator of plyr on how he
-      // handles responsiveness: https://github.com/sampotts/plyr/issues/339#issuecomment-287603966
-      // the solution below is just generalizing what he had done
-      let paddingBottom = (100 * window.innerHeight) / window.innerWidth;
-      document.getElementsByClassName(
-        "plyr__video-embed"
-      )[0].style.paddingBottom = `${paddingBottom}%`;
-    },
     initiatePlayer() {
       // creates a new instance of plyr and sets its properties
       this.player = new Plyr("#player", this.plyrConfig);
@@ -123,9 +107,6 @@ export default {
     playerReady() {
       // invoked when the player instance is ready
       this.$emit("ready");
-      // sets the aspect ratio when the player is ready
-      // this is required for safari
-      this.setAspectRatio();
     },
     playerPlayed() {
       // invoked when the player has been played
@@ -156,6 +137,7 @@ export default {
   },
   emits: [
     "update",
+    "initiated",
     "ready",
     "play",
     "pause",

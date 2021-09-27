@@ -71,12 +71,10 @@
               <video-player
                 :videoId="videoId"
                 :plyrConfig="plyrConfig"
-                :coverFullscreen="false"
                 @update="videoTimestampUpdated"
                 @ready="playerReady"
                 @play="playerPlayed"
                 ref="videoPlayer"
-                id="videoPlayer"
                 class="z-0"
                 data-test="videoPlayer"
               ></video-player>
@@ -353,15 +351,16 @@
     <!-- <div class="w-full h-screen fixed top-1/10 flex justify-center" >
       <iframe class="w-10/12 h-3/4" :src="plioEmbedLink"></iframe>
     </div> -->
-    <Plio
-      class="fixed w-10/12"
-      :plioId="plioId"
-      :org="org"
-      :previewMode="true"
-      v-if="isPreviewPlioShown"
-      v-click-away="closePlioPreviewMode"
-      :key="reRenderKey"
-    ></Plio>
+    <div class="fixed w-10/12">
+      <Plio
+        :plioId="plioId"
+        :org="org"
+        :previewMode="true"
+        v-if="isPreviewPlioShown"
+        v-click-away="closePlioPreviewMode"
+        :key="reRenderKey"
+      ></Plio>
+    </div>
 
     <!-- dialog to show after publishing -->
     <div
@@ -1248,6 +1247,7 @@ export default {
     playerReady() {
       this.videoDuration = this.player.duration;
       if (!this.plioTitle) this.plioTitle = this.player.config.title;
+      this.reRenderKey = !this.reRenderKey;
     },
     /**
      * checks if the video link is valid
@@ -1355,7 +1355,6 @@ export default {
      */
     togglePlioPreviewMode() {
       this.isPreviewPlioShown = !this.isPreviewPlioShown;
-      this.reRenderKey = !this.reRenderKey;
     },
     /**
      * shows the dialog box for confirming whether to publish the plio

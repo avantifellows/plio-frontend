@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div id="plio">
     <!-- skeleton loading -->
-    <video-skeleton v-if="!isPlioLoaded && !this.previewMode"></video-skeleton>
-    <div v-else class="flex relative shadow-lg h-screen">
+    <video-skeleton v-if="!isPlioLoaded && !previewMode"></video-skeleton>
+    <div v-if="isPlioLoaded" class="flex relative shadow-lg" :class="plioContainerClass">
       <!-- video player component -->
       <video-player
         :videoId="videoId"
@@ -11,6 +11,7 @@
         id="videoPlayer"
         :currentTime="currentTimestamp"
         @ready="playerReady"
+        @initiated="playerInitiated"
         @play="playerPlayed"
         @pause="playerPaused"
         @seeked="videoSeeked"
@@ -261,20 +262,20 @@ export default {
       default: true,
       type: Boolean,
     },
-    // containerClass: {
-    //   /**
-    //    * custom classes for the plio container
-    //    */
-    //   type: String,
-    // },
+    containerClass: {
+      /**
+       * custom classes for the plio container
+       */
+      type: String,
+    },
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
-    // plioContainerClass() {
-    //   // dynamic class for the plio container
-    //   if (this.containerClass == undefined) return "h-screen";
-    //   return this.containerClass;
-    // },
+    plioContainerClass() {
+      // dynamic class for the plio container
+      if (this.containerClass == undefined) return "h-screen";
+      return this.containerClass;
+    },
     isThirdPartyAuth() {
       // if the app needs to authenticate using a third party auth or not
       return this.thirdPartyUniqueId != null && this.thirdPartyApiKey != null;
@@ -335,6 +336,35 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
+    setPlayerAspectRatio() {
+      /**
+       * sets the aspect ratio based on the current window height and width
+       * to cover the full screen
+       */
+      // refer to this comment from the creator of plyr on how he
+      // handles responsiveness: https://github.com/sampotts/plyr/issues/339#issuecomment-287603966
+      // the solution below is just generalizing what he had done
+      let paddingBottom = (100 * window.innerHeight) / window.innerWidth;
+      document
+        .getElementById("plio") // to ensure only the plio embed is changed because of this and not other plyr elements
+        .getElementsByClassName(
+          "plyr__video-embed"
+        )[0].style.paddingBottom = `${paddingBottom}%`;
+
+      console.log(
+        document
+          .getElementById("plio") // to ensure only the plio embed is changed because of this and not other plyr elements
+          .getElementsByClassName("plyr__video-embed")[0].offsetHeight
+      );
+
+      const height = document
+        .getElementById("plio") // to ensure only the plio embed is changed because of this and not other plyr elements
+        .getElementsByClassName("plyr__video-embed")[0].offsetHeight;
+
+      document.getElementById("videoPlayer").style.height = `${height}px`;
+      // document.getElementById("modal").style.height = `${height}px`;
+      console.log(document.getElementById("videoPlayer").offsetHeight);
+    },
     mountOnFullscreenPlyr(elementToMount) {
       var plyrInstance = document.getElementsByClassName("plyr")[0];
       plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
@@ -563,6 +593,7 @@ export default {
     setScreenProperties() {
       // sets various properties based on the device screen
       this.playerHeight = document.getElementById("videoPlayer").clientHeight;
+      this.setPlayerAspectRatio();
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL
@@ -577,6 +608,10 @@ export default {
       // invoked when the pause button of the player is clicked
       this.createEvent("paused");
     },
+    playerInitiated() {
+      // sets the aspect ratio while the player is getting ready
+      this.setPlayerAspectRatio();
+    },
     playerReady() {
       // invoked when the player is ready
       this.showItemMarkersOnSlider(this.player);
@@ -587,6 +622,10 @@ export default {
         "Plio Video Length": this.player.duration || 0,
         "Plio Num Items": this.items.length || 0,
       });
+      // sets the aspect ratio when the player is ready
+      // this is required for safari
+      this.setPlayerAspectRatio();
+
       // Disabling autoplay because of bug - issue #157
       // this.playPlayer();
     },
