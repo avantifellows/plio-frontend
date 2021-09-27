@@ -713,63 +713,64 @@ export default {
      * @param {Array} classList - An array of tailwind classes
      * @param {Number} positionPercent - By what % from the left should the marker be placed
      */
-    placeMarkerOnSlider(progressBar, marker, classList, positionPercent) {
-      marker.classList.add(...classList);
-      marker.style.setProperty("left", `${positionPercent}%`);
-      progressBar.appendChild(marker);
+    placeMarkerOnSlider(marker, classList, positionPercent) {
+      var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
+      if (plyrProgressBar != undefined) {
+        marker.classList.add(...classList);
+        marker.style.setProperty("left", `${positionPercent}%`);
+        plyrProgressBar.appendChild(marker);
+      }
     },
+    /**
+     * Removes the given marker from the plyr progress bar
+     * @param {Object} marker - The HTML element that needs to be removed from the progress bar
+     */
+    removeMarkerOnSlider(marker) {
+      var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
+      if (plyrProgressBar != undefined) {
+        plyrProgressBar.removeChild(marker);
+      }
+    },
+    /**
+     * Place the markers for items on the plyr progress bar
+     * @param {Object} player - The instance of plyr
+     */
     showItemMarkersOnSlider(player) {
-      // show the markers for items on top of the video slider
-      var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
-      if (plyrProgressBar != undefined) {
-        this.items.forEach((item, index) => {
-          let existingMarker = document.getElementById(`marker-${index}`);
-          if (existingMarker != undefined) plyrProgressBar.removeChild(existingMarker);
+      this.items.forEach((item, index) => {
+        let existingMarker = document.getElementById(`marker-${index}`);
+        if (existingMarker != undefined) this.removeMarkerOnSlider(existingMarker);
 
-          // Add marker to player seek bar
-          var newMarker = document.createElement("SPAN");
-          newMarker.setAttribute("id", `marker-${index}`);
-
-          // set marker style and position
-          if (this.isItemResponseDone(index)) {
-            this.markerClass[0] = "bg-green-600";
-          } else this.markerClass[0] = "bg-red-600";
-
-          var positionPercent = (100 * item.time) / player.duration;
-
-          this.placeMarkerOnSlider(
-            plyrProgressBar,
-            newMarker,
-            this.markerClass,
-            positionPercent
-          );
-        });
-      }
-    },
-    showScorecardMarkerOnSlider() {
-      // show the marker for scorecard on top of the video slider
-      var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
-      if (plyrProgressBar != undefined) {
         // Add marker to player seek bar
-        var newMarker = document.createElement("p");
-        newMarker.setAttribute("id", `marker-scorecard`);
+        var newMarker = document.createElement("SPAN");
+        newMarker.setAttribute("id", `marker-${index}`);
 
-        // what the marker should look like - trophy cup emoji
-        newMarker.innerText = "🏆";
+        // set marker style and position
+        if (this.isItemResponseDone(index)) {
+          this.markerClass[0] = "bg-green-600";
+        } else this.markerClass[0] = "bg-red-600";
 
-        // set marker position
-        var positionPercent =
-          ((this.player.duration - SCORECARD_POPUP_TIME_FROM_END) /
-            this.player.duration) *
-          100;
+        var positionPercent = (100 * item.time) / player.duration;
 
-        this.placeMarkerOnSlider(
-          plyrProgressBar,
-          newMarker,
-          this.scorecardMarkerClass,
-          positionPercent
-        );
-      }
+        this.placeMarkerOnSlider(newMarker, this.markerClass, positionPercent);
+      });
+    },
+    /**
+     * Place the marker emoji for scorecard on the plyr progress bar
+     */
+    showScorecardMarkerOnSlider() {
+      // Add marker to player seek bar
+      var newMarker = document.createElement("p");
+      newMarker.setAttribute("id", `marker-scorecard`);
+
+      // what the marker should look like - trophy cup emoji
+      newMarker.innerText = "🏆";
+
+      // set marker position
+      var positionPercent =
+        ((this.player.duration - SCORECARD_POPUP_TIME_FROM_END) / this.player.duration) *
+        100;
+
+      this.placeMarkerOnSlider(newMarker, this.scorecardMarkerClass, positionPercent);
     },
     isItemResponseDone(itemIndex) {
       // whether the response to an item is complete

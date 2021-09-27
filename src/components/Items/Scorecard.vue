@@ -14,7 +14,7 @@
         </div>
 
         <!-- name of the plio -->
-        <div class="text-center text-sm md:text-lg lg:text-xl font-extrabold truncate">
+        <div class="text-center text-sm md:text-lg lg:text-xl font-medium truncate">
           {{ plioTitle }}
         </div>
 
