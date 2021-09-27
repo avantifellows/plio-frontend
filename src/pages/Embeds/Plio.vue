@@ -103,7 +103,7 @@ var UPLOAD_INTERVAL_TIMEOUT = null;
  * How many seconds before the end of the video
  * should the scorecard pop up
  */
-const SCORECARD_POPUP_TIME_FROM_END = 0.5;
+const SCORECARD_POPUP_TIME_FROM_END = 1;
 
 export default {
   components: {
