@@ -688,7 +688,7 @@ export default {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
     isSpinnerShown() {
-      return this.isPreviewPlioShown && !this.isPlioPreviewLoaded;
+      return (this.isPreviewPlioShown && !this.isPlioPreviewLoaded) || this.pending;
     },
     actionButtonContainerClass() {
       return {

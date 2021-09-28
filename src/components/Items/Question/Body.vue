@@ -29,7 +29,7 @@
       <div
         v-if="isQuestionTypeMCQ"
         class="flex"
-        :class="optionContainerClass"
+        :class="answerContainerClass"
         data-test="optionContainer"
       >
         <ul class="w-full">
@@ -67,7 +67,8 @@
       <!-- subjective question answer -->
       <div
         v-if="isQuestionTypeSubjective"
-        class="flex flex-col w-full"
+        class="flex flex-col"
+        :class="answerContainerClass"
         data-test="subjectiveAnswerContainer"
       >
         <!-- input area for the answer -->
@@ -237,7 +238,7 @@ export default {
     },
   },
   computed: {
-    optionContainerClass() {
+    answerContainerClass() {
       return {
         "w-1/2": !this.isPortrait && this.isQuestionImagePresent,
         "w-full": this.isPortrait || (this.previewMode && !this.isQuestionImagePresent),
