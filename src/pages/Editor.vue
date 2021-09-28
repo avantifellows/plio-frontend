@@ -39,10 +39,11 @@
 
           <!-- preview plio -->
           <icon-button
-            v-if="!isPublished && !uploading"
+            v-if="!isPublished"
             :titleConfig="previewPlioTitleClass"
             :iconConfig="playPlioIconConfig"
             :buttonClass="playPlioButtonClass"
+            :isDisabled="uploading"
             @click="togglePlioPreviewMode"
             data-test="previewPlioButton"
           ></icon-button>
