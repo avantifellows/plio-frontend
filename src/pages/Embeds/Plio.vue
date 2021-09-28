@@ -271,6 +271,8 @@ export default {
 
     // add listener for screen size being changed
     window.addEventListener("resize", this.setScreenProperties);
+
+    this.setScreenProperties();
   },
   beforeUnmount() {
     // remove timeout
