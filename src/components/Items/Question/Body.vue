@@ -241,7 +241,10 @@ export default {
     answerContainerClass() {
       return {
         "w-1/2": !this.isPortrait && this.isQuestionImagePresent,
-        "w-full": this.isPortrait || (this.previewMode && !this.isQuestionImagePresent),
+        "w-full":
+          this.isPortrait ||
+          (this.previewMode && !this.isQuestionImagePresent) ||
+          (!this.isPortrait && !this.isQuestionImagePresent),
       };
     },
     subjectiveAnswerBoxStyling() {

@@ -262,13 +262,7 @@
             :class="itemPickerClass"
             v-if="currentItemIndex == null"
           >
-            <div class="place-self-center px-10 h-32 flex items-center" v-if="pending">
-              <inline-svg
-                :src="require('@/assets/images/spinner-solid.svg')"
-                class="animate-spin h-5 bp-500:h-6 md:h-8 lg:h-10 object-scale-down"
-              ></inline-svg>
-            </div>
-            <div class="flex flex-col items-center" v-else>
+            <div class="flex flex-col items-center">
               <p class="text-yellow-900 text-xl font-bold">
                 {{ $t("editor.headings.add_question") }}
               </p>
