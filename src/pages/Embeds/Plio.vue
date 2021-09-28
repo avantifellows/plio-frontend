@@ -800,11 +800,13 @@ export default {
         this.items[itemIndex].details.type == "subjective"
       );
     },
+    /**
+     * invoked when the current time in the video is updated
+     */
     videoTimestampUpdated(timestamp) {
-      // invoked when the current time in the video is updated
-      this.checkItemToSelect(timestamp);
-      // check if scorecard needs to be shown
-      if (this.isScorecardEnabled) this.checkForScorecardPopup(timestamp);
+      // check if popups should be shown at the given timestamp or not
+      this.checkForPopups(timestamp);
+
       // update watch time
       this.watchTime += PLYR_INTERVAL_TIME;
       this.watchTimeIncrement += PLYR_INTERVAL_TIME;
@@ -814,6 +816,18 @@ export default {
         this.retention[currentTime] += 1;
         this.lastTimestampRetention = currentTime;
       }
+    },
+    /**
+     * Check if any item or scorecard needs to popup at the given timestamp
+     * @param {Number} timestamp - The player's current timestamp in seconds
+     */
+    checkForPopups(timestamp) {
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+        return;
+      this.lastCheckTimestamp = timestamp;
+
+      this.checkForItemPopup(timestamp);
+      this.checkForScorecardPopup(timestamp);
     },
     /** checks if the scorecard needs to pop up or not */
     checkForScorecardPopup(timestamp) {
@@ -828,11 +842,11 @@ export default {
         if (this.isScorecardShown) this.isScorecardShown = false;
       }
     },
-    checkItemToSelect(timestamp) {
-      // checks if an item is to be selected and marks/unmarks accordingly
-      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
-        return;
-      this.lastCheckTimestamp = timestamp;
+    /**
+     * checks if an item is to be selected and marks/unmarks accordingly
+     * @param {Number} timestamp - The player's current timestamp in seconds
+     */
+    checkForItemPopup(timestamp) {
       this.isModalMinimized = false;
       this.currentItemIndex = ItemFunctionalService.checkItemPopup(
         timestamp,
