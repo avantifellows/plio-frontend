@@ -322,6 +322,7 @@
     </div>
     <!-- generic dialog box -->
     <dialog-box
+      :class="dialogBoxClass"
       class="fixed top-1/3"
       v-if="isDialogBoxShown"
       :title="dialogTitle"
@@ -347,25 +348,17 @@
       class="z-0"
     ></ConfettiCelebration>
 
-    <!-- <Plio
-      class="fixed w-10/12 top-1/6"
-      :plioId="plioId"
-      :org="org"
-      containerClass="h-24"
-      :previewMode="true"
-      :class="{ hidden: !isPreviewPlioShown }"
-    ></Plio> -->
-    <!-- <div class="w-full h-screen fixed top-1/10 flex justify-center" >
-      <iframe class="w-10/12 h-3/4" :src="plioEmbedLink"></iframe>
-    </div> -->
-    <div class="fixed w-10/12">
+    <div
+      class="fixed top-1/20 w-10/12 p-4 bg-white border-4 border-gray-400 rounded-lg"
+      v-if="isPreviewPlioShown"
+      v-click-away="closePlioPreviewMode"
+    >
       <Plio
         :plioId="plioId"
         :org="org"
         :previewMode="true"
-        v-if="isPreviewPlioShown"
-        v-click-away="closePlioPreviewMode"
         :key="reRenderKey"
+        containerClass="h-full"
       ></Plio>
     </div>
 
@@ -527,6 +520,7 @@ export default {
       dialogDescription: "", // description for the dialog box
       dialogConfirmButtonConfig: {}, // config for the confirm button of the dialog box
       dialogCancelButtonConfig: {}, // config for the cancel button of the dialog box
+      dialogBoxClass: "", // classes for the dialog box
       dialogAction: "",
       hasUnpublishedChanges: false,
       // whether there are changes which have not been published
@@ -1362,6 +1356,7 @@ export default {
      * closes the plio preview
      */
     closePlioPreviewMode() {
+      console.log("b");
       this.isPreviewPlioShown = false;
     },
     /**
@@ -1379,14 +1374,15 @@ export default {
       this.dialogDescription = this.publishDialogDescription;
       this.dialogConfirmButtonConfig = {
         enabled: true,
-        text: this.$t("generic.yes"),
+        text: this.$t(`editor.dialog.publish.${this.status}.confirm`),
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
-        text: this.$t("generic.no"),
+        text: this.$t(`editor.dialog.publish.${this.status}.cancel`),
         class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
       };
+      this.dialogBoxClass = "w-72";
       // closing the dialog executes this action
       this.dialogAction = "publish";
       // show the dialogue
@@ -1398,8 +1394,7 @@ export default {
      */
     dialogConfirmed() {
       // reset the dialog box
-      this.isDialogBoxShown = false;
-      this.dialogDescription = "";
+      this.resetDialogBox();
 
       // call separate methods depening on the dialog action that
       // was set
@@ -1417,8 +1412,23 @@ export default {
      */
     dialogCancelled() {
       // reset the dialog box
-      this.isDialogBoxShown = false;
+      this.resetDialogBox();
       if (this.dialogAction == "deleteOption") this.cancelDeleteOption();
+      if (this.dialogAction == "publish") {
+        if (!this.isPublished) {
+          console.log("a");
+          // show the plio preview
+          this.togglePlioPreviewMode();
+        }
+      }
+    },
+    /**
+     * resets the config of the dialog box
+     */
+    resetDialogBox() {
+      this.isDialogBoxShown = false;
+      this.dialogDescription = "";
+      this.dialogBoxClass = "";
     },
     /**
      * cancels the deletion of the marked option

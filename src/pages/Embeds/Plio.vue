@@ -336,34 +336,22 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
+    /**
+     * sets the aspect ratio based on the current window height and width
+     * to cover the full screen
+     */
     setPlayerAspectRatio() {
       /**
-       * sets the aspect ratio based on the current window height and width
-       * to cover the full screen
+       * refer to this comment from the creator of plyr on how he
+       * handles responsiveness: https://github.com/sampotts/plyr/issues/339#issuecomment-287603966
+       * the solution below is just generalizing what he had done
        */
-      // refer to this comment from the creator of plyr on how he
-      // handles responsiveness: https://github.com/sampotts/plyr/issues/339#issuecomment-287603966
-      // the solution below is just generalizing what he had done
       let paddingBottom = (100 * window.innerHeight) / window.innerWidth;
       document
         .getElementById("plio") // to ensure only the plio embed is changed because of this and not other plyr elements
         .getElementsByClassName(
           "plyr__video-embed"
         )[0].style.paddingBottom = `${paddingBottom}%`;
-
-      console.log(
-        document
-          .getElementById("plio") // to ensure only the plio embed is changed because of this and not other plyr elements
-          .getElementsByClassName("plyr__video-embed")[0].offsetHeight
-      );
-
-      const height = document
-        .getElementById("plio") // to ensure only the plio embed is changed because of this and not other plyr elements
-        .getElementsByClassName("plyr__video-embed")[0].offsetHeight;
-
-      document.getElementById("videoPlayer").style.height = `${height}px`;
-      // document.getElementById("modal").style.height = `${height}px`;
-      console.log(document.getElementById("videoPlayer").offsetHeight);
     },
     mountOnFullscreenPlyr(elementToMount) {
       var plyrInstance = document.getElementsByClassName("plyr")[0];
