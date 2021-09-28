@@ -108,7 +108,7 @@ export default {
         draft: {
           title: "Are you sure you want to publish the plio?",
           description:
-            "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question",
+            "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question. You can preview the plio before publishing it too.",
           confirm: "Publish",
           cancel: "Preview",
         },

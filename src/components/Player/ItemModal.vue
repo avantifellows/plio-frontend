@@ -9,6 +9,7 @@
         :isFullscreen="isFullscreen"
         :previewMode="previewMode"
         :isPortrait="isPortrait"
+        :videoPlayerId="videoPlayerId"
         @toggle-minimize="toggleMinimize"
         @skip-question="skipQuestion"
         data-test="header"
@@ -112,6 +113,11 @@ export default {
       // whether the item modal is minimized or not
       default: false,
       type: Boolean,
+    },
+    videoPlayerId: {
+      // id of the DOM element corresponding to video player
+      default: null,
+      type: String,
     },
   },
   components: {
@@ -266,7 +272,7 @@ export default {
         this.isPortrait = false;
         return;
       }
-      if (screen.availHeight > 1.5 * screen.availWidth) this.isPortrait = true;
+      if (screen.availHeight > 0.8 * screen.availWidth) this.isPortrait = true;
       else this.isPortrait = false;
     },
     subjectiveAnswerUpdated(answer) {

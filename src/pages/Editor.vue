@@ -39,7 +39,7 @@
 
           <!-- preview plio -->
           <icon-button
-            v-if="!isPublished"
+            v-if="!isPublished && !uploading"
             :titleConfig="previewPlioTitleClass"
             :iconConfig="playPlioIconConfig"
             :buttonClass="playPlioButtonClass"
@@ -84,6 +84,7 @@
               <video-player
                 :videoId="videoId"
                 :plyrConfig="plyrConfig"
+                :id="editorVideoPlayerId"
                 @update="videoTimestampUpdated"
                 @ready="playerReady"
                 @play="playerPlayed"
@@ -108,12 +109,13 @@
                 <!-- item modal component -->
                 <item-modal
                   v-if="!isModalMinimized"
-                  id="modal"
+                  id="editorModal"
                   class="absolute z-10 inset-0 border-2"
                   :class="{ hidden: !showItemModal }"
                   :selectedItemIndex="currentItemIndex"
                   :itemList="items"
                   :previewMode="true"
+                  :videoPlayerId="editorVideoPlayerId"
                   @toggle-minimize="minimizeModal"
                   data-test="itemModal"
                 ></item-modal>
@@ -151,7 +153,8 @@
 
         <!--- buttons -->
         <div
-          class="flex justify-center space-x-1 xsm:space-x-2 my-12"
+          class="flex justify-center space-x-1 xsm:space-x-2"
+          :class="actionButtonContainerClass"
           v-if="isVideoIdValid"
           data-test="lowerButtons"
         >
@@ -349,16 +352,28 @@
     ></ConfettiCelebration>
 
     <div
-      class="fixed top-1/20 w-10/12 p-4 bg-white border-4 border-gray-400 rounded-lg"
+      class="fixed top-1/100 bp-420:top-1/20 w-11/12 bp-420:w-10/12"
+      :class="plioPreviewContainerClass"
       v-if="isPreviewPlioShown"
-      v-click-away="closePlioPreviewMode"
     >
+      <div class="w-full flex justify-end">
+        <!-- close button -->
+        <icon-button
+          v-if="isPlioPreviewLoaded"
+          :iconConfig="closeDialogIconConfig"
+          :buttonClass="closeDialogButtonClass"
+          @click="closePlioPreviewMode"
+          data-test="closePlioPreviewModeButton"
+        ></icon-button>
+      </div>
+
       <Plio
         :plioId="plioId"
         :org="org"
         :previewMode="true"
         :key="reRenderKey"
         containerClass="h-full"
+        @initiated="setPlioPreviewLoaded"
       ></Plio>
     </div>
 
@@ -598,6 +613,8 @@ export default {
       loadedPlioDetails: {}, // details of the plio fetched when the page was loaded
       isPreviewPlioShown: false, // whether to show a full preview of the plio before publishing
       reRenderKey: 0,
+      editorVideoPlayerId: "editorVideoPlayer",
+      isPlioPreviewLoaded: false,
     };
   },
   async created() {
@@ -663,6 +680,17 @@ export default {
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
+    actionButtonContainerClass() {
+      return {
+        "my-10": !this.isQuestionTypeSubjective,
+        "my-8": this.isQuestionTypeSubjective,
+      };
+    },
+    plioPreviewContainerClass() {
+      return {
+        "bg-white border-4 border-gray-400 rounded-lg": this.isPlioPreviewLoaded,
+      };
+    },
     itemImage() {
       // URL of the image present for the current item
       if (this.currentItemIndex == null) return null;
@@ -697,7 +725,7 @@ export default {
       // styling class for the title of share plio button
       return {
         value: this.$t("editor.buttons.share_plio"),
-        class: "text-sm xsm:test-base text-yellow-800",
+        class: "text-sm bp-420:text-base text-yellow-800",
       };
     },
     dialogSharePlioTitleClass() {
@@ -712,14 +740,14 @@ export default {
       // styling class for the title of play plio button
       return {
         value: this.$t("editor.buttons.play_plio"),
-        class: "text-sm xsm:test-base text-white",
+        class: "text-sm bp-420:text-base text-white",
       };
     },
     previewPlioTitleClass() {
       // styling class for the title of preview plio button
       return {
         value: this.$t("editor.buttons.preview_plio"),
-        class: "text-sm xsm:test-base text-white",
+        class: "text-sm bp-420:text-base text-white",
       };
     },
     dialogPlayPlioTitleClass() {
@@ -734,7 +762,7 @@ export default {
       // styling class for the title of embed plio button
       return {
         value: this.$t("editor.buttons.embed_plio"),
-        class: "text-sm xsm:test-base text-white",
+        class: "text-sm bp-420:text-base text-white",
       };
     },
     dialogEmbedPlioTitleClass() {
@@ -979,6 +1007,9 @@ export default {
     ]),
     ...mapActions("generic", ["showSharePlioDialog", "showEmbedPlioDialog"]),
     ...Utilities,
+    setPlioPreviewLoaded() {
+      this.isPlioPreviewLoaded = true;
+    },
     /**
      * hides the published plio dialog and shows the share plio dialog
      */
@@ -1356,8 +1387,8 @@ export default {
      * closes the plio preview
      */
     closePlioPreviewMode() {
-      console.log("b");
       this.isPreviewPlioShown = false;
+      this.isPlioPreviewLoaded = false;
     },
     /**
      * toggles plio preview mode
@@ -1416,7 +1447,6 @@ export default {
       if (this.dialogAction == "deleteOption") this.cancelDeleteOption();
       if (this.dialogAction == "publish") {
         if (!this.isPublished) {
-          console.log("a");
           // show the plio preview
           this.togglePlioPreviewMode();
         }

@@ -26,7 +26,12 @@
         />
       </div>
       <!-- option container -->
-      <div v-if="isQuestionTypeMCQ" class="flex w-full" data-test="optionContainer">
+      <div
+        v-if="isQuestionTypeMCQ"
+        class="flex"
+        :class="optionContainerClass"
+        data-test="optionContainer"
+      >
         <ul class="w-full">
           <li class="list-none space-y-1 flex flex-col">
             <div
@@ -232,6 +237,12 @@ export default {
     },
   },
   computed: {
+    optionContainerClass() {
+      return {
+        "w-1/2": !this.isPortrait && this.isQuestionImagePresent,
+        "w-full": this.isPortrait || (this.previewMode && !this.isQuestionImagePresent),
+      };
+    },
     subjectiveAnswerBoxStyling() {
       // classes for the subjective answer box
       return [
@@ -247,10 +258,9 @@ export default {
       // styling class for the image container
       return [
         {
-          "h-56 mb-4": this.isPortrait && !this.previewMode && this.isFullscreen,
-          "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2 bp-500:w-1/3":
-            (!this.isPortrait && !this.previewMode) ||
-            (this.isPortrait && !this.isFullscreen),
+          "h-56 mb-4": !this.previewMode && (this.isPortrait || this.isFullscreen),
+          "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2":
+            !this.isPortrait && !this.previewMode,
           "h-20 xsm:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
             .previewMode,
           hidden: this.isImageLoading,
@@ -264,7 +274,8 @@ export default {
         {
           "content-center":
             this.isQuestionImagePresent && !this.isPortrait && !this.isFullscreen,
-          "flex-col": this.isQuestionImagePresent && this.isPortrait && this.isFullscreen,
+          "flex-col":
+            this.isQuestionImagePresent && (this.isPortrait || this.isFullscreen),
           "space-x-2 md:space-x-4":
             !this.previewMode && !this.isPortrait && this.isQuestionImagePresent,
           "mx-6 md:mx-10 py-4": !this.previewMode,

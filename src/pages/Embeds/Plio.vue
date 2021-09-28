@@ -7,8 +7,8 @@
       <video-player
         :videoId="videoId"
         :plyrConfig="plyrConfig"
+        :id="plioVideoPlayerId"
         ref="videoPlayer"
-        id="videoPlayer"
         :currentTime="currentTimestamp"
         @ready="playerReady"
         @initiated="playerInitiated"
@@ -37,16 +37,17 @@
         <!-- item modal component -->
         <item-modal
           v-if="!isModalMinimized"
-          id="modal"
+          :id="plioModalId"
           class="absolute z-10"
           :class="{ hidden: !showItemModal }"
           :selectedItemIndex="currentItemIndex"
           :itemList="items"
-          v-model:isFullscreen="isFullscreen"
-          v-model:responseList="itemResponses"
-          :previewMode="previewMode"
+          :previewMode="false"
           :isModalMinimized="isModalMinimized"
           :isFullscreen="isFullscreen"
+          :videoPlayerId="plioVideoPlayerId"
+          v-model:isFullscreen="isFullscreen"
+          v-model:responseList="itemResponses"
           @skip-question="skipQuestion"
           @proceed-question="proceedQuestion"
           @revise-question="reviseQuestion"
@@ -259,7 +260,7 @@ export default {
        * whether it is being opened in preview mode
        * in which case no sessions would be created
        */
-      default: true,
+      default: false,
       type: Boolean,
     },
     containerClass: {
@@ -271,6 +272,14 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
+    plioVideoPlayerId() {
+      // id of the DOM element for the video player
+      return `plioVideoPlayer${this.plioId}`;
+    },
+    plioModalId() {
+      // id of the DOM element for the modal
+      return `plioModal${this.plioId}`;
+    },
     plioContainerClass() {
       // dynamic class for the plio container
       if (this.containerClass == undefined) return "h-screen";
@@ -354,7 +363,9 @@ export default {
         )[0].style.paddingBottom = `${paddingBottom}%`;
     },
     mountOnFullscreenPlyr(elementToMount) {
-      var plyrInstance = document.getElementsByClassName("plyr")[0];
+      var plyrInstance = document
+        .getElementById("plio")
+        .getElementsByClassName("plyr")[0];
       plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
     },
     maximizeModal() {
@@ -558,7 +569,7 @@ export default {
        * do not try updating the session if the user is not authenticated
        * or if the plio is opened in preview mode
        */
-      if (!this.isAuthenticated) return;
+      if (!this.isAuthenticated || this.previewMode) return;
 
       var sessionDetails = {
         plio: this.plioDBId,
@@ -580,7 +591,7 @@ export default {
     },
     setScreenProperties() {
       // sets various properties based on the device screen
-      this.playerHeight = document.getElementById("videoPlayer").clientHeight;
+      this.playerHeight = document.getElementById(this.plioVideoPlayerId).clientHeight;
       this.setPlayerAspectRatio();
     },
     getVideoIDfromURL(videoURL) {
@@ -599,6 +610,7 @@ export default {
     playerInitiated() {
       // sets the aspect ratio while the player is getting ready
       this.setPlayerAspectRatio();
+      this.$emit("initiated");
     },
     playerReady() {
       // invoked when the player is ready
@@ -692,7 +704,7 @@ export default {
       this.pausePlayer();
 
       // if the video is in fullscreen mode, show the modal on top of it
-      var modal = document.getElementById("modal");
+      var modal = document.getElementById(this.plioModalId);
       if (modal != undefined) this.mountOnFullscreenPlyr(modal);
 
       var maximizeButton = document.getElementById("maximizeButton");
@@ -730,6 +742,6 @@ export default {
       this.isFullscreen = true;
     },
   },
-  emits: ["loaded", "item-toggle"],
+  emits: ["initiated", "loaded", "item-toggle"],
 };
 </script>
