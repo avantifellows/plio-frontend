@@ -33,11 +33,6 @@ export default {
       default: 0,
       type: Number,
     },
-    coverFullscreen: {
-      // whether the player should cover the full screen
-      default: true,
-      type: Boolean,
-    },
   },
   created() {
     // start the player
@@ -47,12 +42,6 @@ export default {
         this.$emit("initiated");
       }
     });
-    // // add listener for resize
-    // window.addEventListener("resize", this.setAspectRatio);
-  },
-  unmounted() {
-    // remove listeners
-    // window.removeEventListener("resize", this.setAspectRatio);
   },
   watch: {
     currentTime(newTime) {

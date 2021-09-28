@@ -42,6 +42,7 @@ export default {
       show_question: "Show Question",
       share_plio: "Share",
       play_plio: "Play",
+      preview_plio: "Preview",
       embed_plio: "Embed",
       analyze_plio: "Analyze",
     },

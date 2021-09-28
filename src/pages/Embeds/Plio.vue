@@ -416,7 +416,7 @@ export default {
       this.closeItemModal();
     },
     /**
-     * invoked when a question response is submitted
+     * saves the answer to the question at the current index
      */
     submitQuestion() {
       /**
@@ -563,7 +563,7 @@ export default {
       });
     },
     /**
-     * update the session data on the server
+     * updates the session data on the server
      */
     updateSession() {
       /**

@@ -43,6 +43,7 @@ export default {
       show_question: "सवाल देखें",
       share_plio: "बाटें",
       play_plio: "चलाएं",
+      preview_plio: "प्राभ्यास",
       embed_plio: "एम्बेड",
       analyze_plio: "विश्लेषण",
     },

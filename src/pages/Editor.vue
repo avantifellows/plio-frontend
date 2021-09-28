@@ -9,16 +9,17 @@
       <!--- preview grid -->
       <div
         class="flex flex-col mx-6 z-0"
-        :class="{ 'mt-6': !isVideoIdValid || !isPublished }"
+        :class="{ 'mt-6': !isVideoIdValid }"
         data-test="previewDiv"
       >
         <div
           class="my-8 flex justify-center space-x-1 xsm:space-x-2 sm:space-x-4"
-          v-if="isVideoIdValid && isPublished"
+          v-if="isVideoIdValid"
           data-test="upperButtons"
         >
           <!-- share plio -->
           <icon-button
+            v-if="isPublished"
             :titleConfig="sharePlioTitleClass"
             :iconConfig="sharePlioIconConfig"
             :buttonClass="sharePlioButtonClass"
@@ -28,6 +29,7 @@
 
           <!-- play plio -->
           <icon-button
+            v-if="isPublished"
             :titleConfig="playPlioTitleClass"
             :iconConfig="playPlioIconConfig"
             :buttonClass="playPlioButtonClass"
@@ -35,8 +37,19 @@
             data-test="playPlioButton"
           ></icon-button>
 
+          <!-- preview plio -->
+          <icon-button
+            v-if="!isPublished"
+            :titleConfig="previewPlioTitleClass"
+            :iconConfig="playPlioIconConfig"
+            :buttonClass="playPlioButtonClass"
+            @click="togglePlioPreviewMode"
+            data-test="previewPlioButton"
+          ></icon-button>
+
           <!-- embed plio -->
           <icon-button
+            v-if="isPublished"
             :titleConfig="embedPlioTitleClass"
             :iconConfig="embedPlioIconConfig"
             :buttonClass="embedPlioButtonClass"
@@ -159,12 +172,6 @@
             v-tooltip.right="publishButtonTooltip"
             @click="showPublishConfirmationDialogBox"
             data-test="publishButton"
-          ></icon-button>
-          <icon-button
-            :iconConfig="publishButtonIconConfig"
-            :class="publishButtonClass"
-            class="shadow-lg"
-            @click="togglePlioPreviewMode"
           ></icon-button>
           <!-- analyze plio -->
           <icon-button
@@ -711,6 +718,13 @@ export default {
       // styling class for the title of play plio button
       return {
         value: this.$t("editor.buttons.play_plio"),
+        class: "text-sm xsm:test-base text-white",
+      };
+    },
+    previewPlioTitleClass() {
+      // styling class for the title of preview plio button
+      return {
+        value: this.$t("editor.buttons.preview_plio"),
         class: "text-sm xsm:test-base text-white",
       };
     },
@@ -1345,7 +1359,7 @@ export default {
       });
     },
     /**
-     * closes the preview plio
+     * closes the plio preview
      */
     closePlioPreviewMode() {
       this.isPreviewPlioShown = false;
