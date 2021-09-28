@@ -378,6 +378,12 @@
       ></Plio>
     </div>
 
+    <inline-svg
+      v-if="isSpinnerShown"
+      :src="getImageSource('spinner.svg')"
+      class="fixed animate-spin h-10 place-self-center ml-2 md"
+    ></inline-svg>
+
     <!-- dialog to show after publishing -->
     <div
       class="fixed top-1/4 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10 mx-2 sm:mx-0"
@@ -681,6 +687,9 @@ export default {
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
+    isSpinnerShown() {
+      return this.isPreviewPlioShown && !this.isPlioPreviewLoaded;
+    },
     actionButtonContainerClass() {
       return {
         "my-10": !this.isQuestionTypeSubjective,
