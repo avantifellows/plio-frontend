@@ -17,6 +17,8 @@
         @update="videoTimestampUpdated"
         @enterfullscreen="playerEntersFullscreen"
         @exitfullscreen="playerExitsFullscreen"
+        @playback-ended="popupScorecard"
+        @media-buffered="setScreenProperties"
         class="w-full z-0"
       ></video-player>
       <!-- minimize button -->
@@ -98,12 +100,6 @@ const PLYR_INTERVAL_TIME = 0.05;
 // upload data periodically - period in milliseconds
 const UPLOAD_INTERVAL = 10000;
 var UPLOAD_INTERVAL_TIMEOUT = null;
-
-/**
- * How many seconds before the end of the video
- * should the scorecard pop up
- */
-const SCORECARD_POPUP_TIME_FROM_END = 1;
 
 export default {
   components: {
@@ -405,6 +401,16 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
+    /**
+     * Show the scorecard on top of the player
+     */
+    popupScorecard() {
+      if (!this.isScorecardShown) {
+        this.isScorecardShown = true;
+        var scorecardModal = document.getElementById("scorecardmodal");
+        if (scorecardModal != undefined) this.mountOnFullscreenPlyr(scorecardModal);
+      }
+    },
     /**
      * Checks whether the item at the provided itemIndex is a subjective question
      * and if the user has answered the question or not
@@ -764,11 +770,8 @@ export default {
       newMarker.innerText = "🏆";
 
       // set marker position
-      var positionPercent =
-        ((this.player.duration - SCORECARD_POPUP_TIME_FROM_END) / this.player.duration) *
-        100;
 
-      this.placeMarkerOnSlider(newMarker, this.scorecardMarkerClass, positionPercent);
+      this.placeMarkerOnSlider(newMarker, this.scorecardMarkerClass, 100);
     },
     isItemResponseDone(itemIndex) {
       // whether the response to an item is complete
@@ -827,20 +830,6 @@ export default {
       this.lastCheckTimestamp = timestamp;
 
       this.checkForItemPopup(timestamp);
-      this.checkForScorecardPopup(timestamp);
-    },
-    /** checks if the scorecard needs to pop up or not */
-    checkForScorecardPopup(timestamp) {
-      if (timestamp >= this.player.duration - SCORECARD_POPUP_TIME_FROM_END) {
-        this.isScorecardShown = true;
-        // if the video is in fullscreen mode, show the modal on top of it
-        var scorecardModal = document.getElementById("scorecardmodal");
-        if (scorecardModal != undefined) {
-          this.mountOnFullscreenPlyr(scorecardModal);
-        }
-      } else {
-        if (this.isScorecardShown) this.isScorecardShown = false;
-      }
     },
     /**
      * checks if an item is to be selected and marks/unmarks accordingly
