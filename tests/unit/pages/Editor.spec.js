@@ -734,6 +734,55 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
   });
 
+  it("clicking on preview button of publish confirmation dialog shows plio preview", async () => {
+    const dialogCancelled = jest.spyOn(Editor.methods, "dialogCancelled");
+    const togglePlioPreviewMode = jest.spyOn(
+      Editor.methods,
+      "togglePlioPreviewMode"
+    );
+    const wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="cancelButton"]')
+      .trigger("click");
+
+    expect(dialogCancelled).toHaveBeenCalled();
+    expect(togglePlioPreviewMode).toHaveBeenCalled();
+  });
+
+  it("clicking on cancel button of publish confirmation dialog for published plio closes dialog", async () => {
+    const dialogCancelled = jest.spyOn(Editor.methods, "dialogCancelled");
+    const togglePlioPreviewMode = jest.spyOn(
+      Editor.methods,
+      "togglePlioPreviewMode"
+    );
+    const wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+          status: "published",
+        };
+      },
+    });
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="cancelButton"]')
+      .trigger("click");
+
+    expect(dialogCancelled).toHaveBeenCalled();
+    expect(togglePlioPreviewMode).not.toHaveBeenCalled();
+  });
+
   it("play plio button inside the published dialog works correctly", async () => {
     // mock router
     const mockRouter = {
