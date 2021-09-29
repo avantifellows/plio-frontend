@@ -150,7 +150,7 @@ export default {
       isModalMinimized: false, // whether the item modal is minimized or not
       // styling class for the minimize button
       maximizeButtonClass:
-        "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-6 sm:pr-6 lg:p-4 lg:pl-6 lg:pr-6 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+        "px-3 sm:p-2 sm:px-6 lg:p-4 lg:px-8 bg-primary hover:bg-primary-hover p-1 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
     };
   },
   watch: {

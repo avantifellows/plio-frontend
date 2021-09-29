@@ -40,7 +40,6 @@ export default {
       // main styling class for this component
       return [
         {
-          "mt-auto": this.isPortrait && !this.previewMode,
           "px-6 md:px-8 xl:px-12": !this.previewMode,
           "pr-4": this.previewMode,
         },
@@ -87,11 +86,6 @@ export default {
     },
     previewMode: {
       // whether the item modal will be shown in editor preview mode
-      default: false,
-      type: Boolean,
-    },
-    isPortrait: {
-      // whether the screen is in portraid mode
       default: false,
       type: Boolean,
     },

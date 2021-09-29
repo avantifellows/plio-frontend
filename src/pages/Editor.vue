@@ -375,7 +375,7 @@
     <inline-svg
       v-if="isSpinnerShown"
       :src="getImageSource('spinner.svg')"
-      class="fixed animate-spin h-10 place-self-center ml-2 md"
+      class="fixed animate-spin h-10 top-1/4"
     ></inline-svg>
 
     <!-- dialog to show after publishing -->
