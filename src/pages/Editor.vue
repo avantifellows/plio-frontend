@@ -349,7 +349,7 @@
 
     <!-- plio preview -->
     <div
-      class="fixed top-1/100 bp-420:top-1/20 w-11/12 bp-420:w-10/12"
+      class="fixed top-1/100 bp-420:top-1/20 w-11/12 bp-420:w-10/12 shadow-xl"
       :class="plioPreviewContainerClass"
       v-if="isPreviewPlioShown"
     >
