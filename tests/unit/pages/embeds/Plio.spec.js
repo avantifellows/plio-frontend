@@ -19,14 +19,14 @@ afterEach(() => {
 });
 
 describe("Plio.vue", () => {
-  // it("plio is not loaded by default", () => {
-  //   const wrapper = mount(Plio);
-  //   expect(wrapper.vm.isPlioLoaded).toBeFalsy();
-  // });
+  it("plio is not loaded by default", () => {
+    const wrapper = mount(Plio);
+    expect(wrapper.vm.isPlioLoaded).toBeFalsy();
+  });
 
   it("requests for plio when plio id is passed", async () => {
     const plioId = "123";
-    const wrapper = mount(Plio, {
+    mount(Plio, {
       props: {
         plioId: plioId,
       },
@@ -70,7 +70,7 @@ describe("Plio.vue", () => {
       .spyOn(Plio.methods, "setPlayerAspectRatio")
       .mockImplementation(() => jest.fn());
     const createSession = jest.spyOn(Plio.methods, "createSession");
-    const wrapper = mount(Plio, {
+    mount(Plio, {
       props: {
         plioId: plioId,
       },
@@ -108,7 +108,7 @@ describe("Plio.vue", () => {
     // set user
     await store.dispatch("auth/setAccessToken", dummyAccessToken);
 
-    const wrapper = mount(Plio, {
+    mount(Plio, {
       props: {
         plioId: plioId,
       },
@@ -147,7 +147,7 @@ describe("Plio.vue", () => {
     // set user
     await store.dispatch("auth/setAccessToken", dummyAccessToken);
 
-    const wrapper = mount(Plio, {
+    mount(Plio, {
       props: {
         plioId: plioId,
         previewMode: true,
@@ -166,55 +166,55 @@ describe("Plio.vue", () => {
     expect(mockAxios.post).toHaveBeenCalledTimes(0);
   });
 
-  // it("detects SAML SSO", async () => {
-  //   const wrapper = mount(Plio);
+  it("detects SAML SSO", async () => {
+    const wrapper = mount(Plio);
 
-  //   // no SSO in the beginning
-  //   expect(wrapper.vm.isThirdPartyAuth).toBeFalsy();
-  //   // setting props for SS)
-  //   await wrapper.setProps({
-  //     thirdPartyApiKey: "apiKey",
-  //     thirdPartyUniqueId: "0000000000",
-  //   });
-  //   // SSO should be detected by now
-  //   expect(wrapper.vm.isThirdPartyAuth).toBeTruthy();
-  // });
+    // no SSO in the beginning
+    expect(wrapper.vm.isThirdPartyAuth).toBeFalsy();
+    // setting props for SS)
+    await wrapper.setProps({
+      thirdPartyApiKey: "apiKey",
+      thirdPartyUniqueId: "0000000000",
+    });
+    // SSO should be detected by now
+    expect(wrapper.vm.isThirdPartyAuth).toBeTruthy();
+  });
 
-  // it("handles SAML SSO", async () => {
-  //   const apiKey = "apiKey";
-  //   const uniqueId = "0000000000";
-  //   const setAccessToken = jest
-  //     .spyOn(Plio.methods, "setAccessToken")
-  //     .mockImplementation(() => {
-  //       return new Promise((resolve) => resolve());
-  //     });
-  //   const setActiveWorkspace = jest
-  //     .spyOn(Plio.methods, "setActiveWorkspace")
-  //     .mockImplementation(() => {
-  //       return new Promise((resolve) => resolve());
-  //     });
-  //   const wrapper = mount(Plio, {
-  //     props: {
-  //       thirdPartyApiKey: apiKey,
-  //       thirdPartyUniqueId: uniqueId,
-  //     },
-  //   });
+  it("handles SAML SSO", async () => {
+    const apiKey = "apiKey";
+    const uniqueId = "0000000000";
+    const setAccessToken = jest
+      .spyOn(Plio.methods, "setAccessToken")
+      .mockImplementation(() => {
+        return new Promise((resolve) => resolve());
+      });
+    const setActiveWorkspace = jest
+      .spyOn(Plio.methods, "setActiveWorkspace")
+      .mockImplementation(() => {
+        return new Promise((resolve) => resolve());
+      });
+    const wrapper = mount(Plio, {
+      props: {
+        thirdPartyApiKey: apiKey,
+        thirdPartyUniqueId: uniqueId,
+      },
+    });
 
-  //   expect(wrapper).toBeTruthy();
+    expect(wrapper).toBeTruthy();
 
-  //   // post request made to retrieve the SSO token
-  //   expect(mockAxios.post).toHaveBeenCalledTimes(1);
-  //   expect(mockAxios.post).toHaveBeenCalledWith(
-  //     "/generate-external-auth-access-token/",
-  //     { api_key: apiKey, unique_id: uniqueId },
-  //     { baseURL: process.env.VUE_APP_BACKEND_AUTH_URL }
-  //   );
+    // post request made to retrieve the SSO token
+    expect(mockAxios.post).toHaveBeenCalledTimes(1);
+    expect(mockAxios.post).toHaveBeenCalledWith(
+      "/generate-external-auth-access-token/",
+      { api_key: apiKey, unique_id: uniqueId },
+      { baseURL: process.env.VUE_APP_BACKEND_AUTH_URL }
+    );
 
-  //   mockAxios.mockResponse({ data: dummyAccessToken }, mockAxios.queue()[0]);
-  //   await flushPromises();
-  //   expect(setAccessToken).toHaveBeenCalled();
-  //   await flushPromises();
-  //   expect(setActiveWorkspace).toHaveBeenCalled();
-  //   await flushPromises();
-  // });
+    mockAxios.mockResponse({ data: dummyAccessToken }, mockAxios.queue()[0]);
+    await flushPromises();
+    expect(setAccessToken).toHaveBeenCalled();
+    await flushPromises();
+    expect(setActiveWorkspace).toHaveBeenCalled();
+    await flushPromises();
+  });
 });
