@@ -694,7 +694,6 @@ export default {
         "Plio Video Length": this.player.duration || 0,
         "Plio Num Items": this.items.length || 0,
       });
-      this.$refs.videoPlayer.setAspectRatio();
       // Disabling autoplay because of bug - issue #157
       // this.playPlayer();
     },
