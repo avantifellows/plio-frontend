@@ -31,6 +31,7 @@ Fixes #{issue id}
 - [ ] Local Language Support
 - [ ] Wrote tests
 - [ ] Tested locally
+- [ ] Self-review
 - [ ] Tested on staging
 - [ ] Tested on an actual physical phone
 - [ ] Tested on production
