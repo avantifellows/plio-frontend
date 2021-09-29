@@ -535,27 +535,21 @@ describe("Editor.vue", () => {
     });
 
     await wrapper.find('[data-test="publishButton"]').trigger("click");
-    expect(wrapper.vm.publishDialogTitle).toBe(
-      "Are you sure you want to publish the plio?"
-    );
     expect(wrapper.vm.dialogTitle).toBe(
       "Are you sure you want to publish the plio?"
     );
-    expect(wrapper.vm.publishDialogDescription).toBe(
-      "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question"
-    );
     expect(wrapper.vm.dialogDescription).toBe(
-      "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question"
+      "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question. You can preview the plio before publishing it too."
     );
     expect(wrapper.vm.dialogConfirmButtonConfig).toStrictEqual({
       enabled: true,
-      text: "Yes",
+      text: "Publish",
       class:
         "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
     });
     expect(wrapper.vm.dialogCancelButtonConfig).toStrictEqual({
       enabled: true,
-      text: "No",
+      text: "Preview",
       class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
     });
     expect(wrapper.vm.dialogAction).toBe("publish");
@@ -575,6 +569,17 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogDescription).toBe(
       "The plio will be permananently changed once you publish the changes"
     );
+    expect(wrapper.vm.dialogConfirmButtonConfig).toStrictEqual({
+      enabled: true,
+      text: "Yes",
+      class:
+        "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
+    });
+    expect(wrapper.vm.dialogCancelButtonConfig).toStrictEqual({
+      enabled: true,
+      text: "No",
+      class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
+    });
 
     await wrapper
       .find('[data-test="dialogBox"]')

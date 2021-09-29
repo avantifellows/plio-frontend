@@ -91,6 +91,7 @@ describe("ItemModal.vue", () => {
     const wrapper = mount(ItemModal, {
       props: {
         itemList: itemList,
+        videoPlayerId: "videoPlayer",
       },
     });
     wrapper
