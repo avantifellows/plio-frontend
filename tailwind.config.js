@@ -35,7 +35,7 @@ module.exports = {
     },
     screens: {
       "bp-320": "320px",
-      xsm: "360px",
+      "bp-360": "360px",
       "bp-420": "420px",
       "bp-500": "500px",
       ...defaultTheme.screens,

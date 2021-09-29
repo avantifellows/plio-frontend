@@ -269,7 +269,7 @@ export default {
           "h-56 mb-4": !this.previewMode && (this.isPortrait || this.isFullscreen),
           "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2":
             !this.isPortrait && !this.previewMode,
-          "h-20 xsm:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
+          "h-20 bp-360:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
             .previewMode,
           hidden: this.isImageLoading,
         },

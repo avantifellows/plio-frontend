@@ -8,6 +8,10 @@ import Login from "@/pages/Login";
 import store from "@/store";
 import i18n from "@/services/Localisation/i18n.js";
 import { useToast } from "vue-toastification";
+import {
+  animationFrameRequest,
+  resetConfetti,
+} from "@/services/Functional/Utilities.js";
 
 const toast = useToast();
 // these keys should be present as query params when a third party
@@ -131,6 +135,9 @@ The code below works on `isAuthenticated` state and before every route:
 router.beforeEach((to, from) => {
   // clear all toasts whenever the route changes
   toast.clear();
+
+  // clear all confetti whenever the route changes
+  if (animationFrameRequest != null) resetConfetti();
 
   // show auto logout toast
   if (

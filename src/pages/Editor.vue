@@ -13,7 +13,7 @@
         data-test="previewDiv"
       >
         <div
-          class="my-8 flex justify-center space-x-1 xsm:space-x-2 sm:space-x-4"
+          class="my-8 flex justify-center space-x-1 bp-360:space-x-2 sm:space-x-4"
           v-if="isVideoIdValid"
           data-test="upperButtons"
         >
@@ -147,14 +147,14 @@
             class="w-10 h-10 text-yellow-600 fill-current"
           ></inline-svg>
           <!-- text -->
-          <p class="text-yellow-600">
+          <p class="text-yellow-600 my-auto">
             {{ $t("editor.headings.subjective_question_warning") }}
           </p>
         </div>
 
         <!--- buttons -->
         <div
-          class="flex justify-center space-x-1 xsm:space-x-2"
+          class="flex justify-center space-x-1 bp-360:space-x-2"
           :class="lowerButtonsContainerClass"
           v-if="isVideoIdValid"
           data-test="lowerButtons"
@@ -258,7 +258,7 @@
         >
           <!-- boxes for adding different types of items -->
           <div
-            class="bg-peach rounded-lg p-4 xsm:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
+            class="bg-peach rounded-lg p-4 bp-360:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
             :class="itemPickerClass"
             v-if="currentItemIndex == null"
           >
@@ -341,10 +341,11 @@
       data-test="imageUploaderDialog"
     ></ImageUploaderDialog>
 
-    <ConfettiCelebration
+    <canvas
+      id="sharePlioConfettiCanvas"
+      class="fixed z-50"
       v-if="isPublishedPlioDialogShown"
-      class="z-0"
-    ></ConfettiCelebration>
+    ></canvas>
 
     <!-- plio preview -->
     <div
@@ -397,7 +398,7 @@
         ></icon-button>
       </div>
 
-      <div class="px-4 xsm:px-8 bp-500:px-12 pt-4 pb-8">
+      <div class="px-4 bp-360:px-8 bp-500:px-12 pt-4 pb-8">
         <!-- title -->
         <p class="text-md bp-420:text-xl sm:text-2xl text-gray-500 font-bold mx-4">
           {{ $t("editor.dialog.published.title") }}
@@ -456,14 +457,19 @@ import QuestionAPIService from "@/services/API/Question.js";
 import ImageAPIService from "@/services/API/Image.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
-import Utilities from "@/services/Functional/Utilities.js";
+import Utilities, {
+  throwConfetti,
+  resetConfetti,
+} from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import ItemModal from "@/components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
-import ConfettiCelebration from "@/components/UI/Animations/ConfettiCelebration.vue";
+
+// importing the confetti.js module
+const confetti = require("canvas-confetti");
 
 // used for deep cloning objects
 var cloneDeep = require("lodash.clonedeep");
@@ -489,7 +495,6 @@ export default {
     DialogBox,
     ItemModal,
     ImageUploaderDialog,
-    ConfettiCelebration,
     Plio,
   },
   props: {
@@ -503,6 +508,10 @@ export default {
     },
   },
   data() {
+    // setting up the confetti handler, giving it access to a canvas element
+    const confettiCanvas = document.getElementById("sharePlioConfettiCanvas");
+    const confettiHandler = confetti.create(confettiCanvas, { resize: true });
+
     return {
       items: [], // list of all items created for this plio
       videoDuration: 0,
@@ -572,7 +581,7 @@ export default {
         // config for the icon of the share plio button
         enabled: true,
         iconName: "share",
-        iconClass: "text-yellow-800 fill-current h-3 xsm:h-4 w-3 xsm:w-4",
+        iconClass: "text-yellow-800 fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
       },
       // styling class for the play plio button
       playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
@@ -586,13 +595,13 @@ export default {
         // config for the icon of the play plio button
         enabled: true,
         iconName: "play",
-        iconClass: "text-white fill-current h-3 xsm:h-4 w-3 xsm:w-4",
+        iconClass: "text-white fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
       },
       embedPlioIconConfig: {
         // config for the icon of the embed plio button
         enabled: true,
         iconName: "code-braces",
-        iconClass: "text-white fill-current h-3 xsm:h-4 w-3 xsm:w-4",
+        iconClass: "text-white fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
       },
       analyzePlioIconConfig: {
         // config for the icon of the analyze plio button
@@ -618,6 +627,8 @@ export default {
       reRenderKey: 0, // key required to re-render the plio preview player
       editorVideoPlayerId: "editorVideoPlayer", // id of the video player in the editor
       isPlioPreviewLoaded: false, // whether the plio preview has been loaded
+      // class for the button to close the dialog that comes after publishing
+      confettiHandler: confettiHandler,
     };
   },
   async created() {
@@ -1041,6 +1052,7 @@ export default {
      */
     closePublishedPlioDialog() {
       this.isPublishedPlioDialogShown = false;
+      resetConfetti();
     },
 
     /**
@@ -1393,6 +1405,7 @@ export default {
         this.isBeingPublished = false;
         this.isDialogBoxShown = false;
         this.isPublishedPlioDialogShown = true;
+        throwConfetti(this.confettiHandler);
         this.hasUnpublishedChanges = false;
       });
     },

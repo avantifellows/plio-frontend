@@ -48,7 +48,7 @@
 
       <!-- add item button -->
       <icon-button
-        class="rounded-xl w-8 h-8 px-2 hidden xsm:block"
+        class="rounded-xl w-8 h-8 px-2 hidden bp-360:block"
         :iconConfig="addItemIconConfig"
         :buttonClass="addItemButtonClass"
         @click="removeSelectedItemIndex"
