@@ -148,6 +148,7 @@ export default {
     exitedFullscreen() {
       // invoked when the player is exiting fullscreen
       this.$emit("exitfullscreen");
+      this.setAspectRatio();
     },
     playbackEnded() {
       // invoked when the video has ended (and autoPlay is not true)
@@ -155,7 +156,7 @@ export default {
     },
     progressUpdated() {
       // invokes whenever the amount of buffered media changes
-      if (this.player.buffered > 0) this.$emit("media-buffered");
+      if (this.player.buffered > 0) this.setAspectRatio();
     },
   },
   computed: {
@@ -174,7 +175,6 @@ export default {
     "exitfullscreen",
     "seeked",
     "playback-ended",
-    "media-buffered",
   ],
 };
 </script>

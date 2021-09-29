@@ -18,7 +18,6 @@
         @enterfullscreen="playerEntersFullscreen"
         @exitfullscreen="playerExitsFullscreen"
         @playback-ended="popupScorecard"
-        @media-buffered="setScreenProperties"
         class="w-full z-0"
       ></video-player>
       <!-- minimize button -->
@@ -165,7 +164,6 @@ export default {
         "pointer-events-none",
         "text-2xl",
       ],
-      playerHeight: 0, // height of the player - updated once the player is ready
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       isFullscreen: false, // is the player in fullscreen
       currentTimestamp: 0, // tracks the current timestamp in the video
@@ -268,19 +266,10 @@ export default {
 
     // load plio details
     await this.fetchPlioCreateSession();
-
-    // add listener for screen size being changed
-    window.addEventListener("resize", this.setScreenProperties);
-
-    this.setScreenProperties();
   },
   beforeUnmount() {
     // remove timeout
     clearTimeout(UPLOAD_INTERVAL_TIMEOUT);
-  },
-  unmounted() {
-    // remove listeners
-    window.removeEventListener("resize", this.setScreenProperties);
   },
   props: {
     plioId: {
@@ -681,10 +670,6 @@ export default {
       // convert retention array to retention string
       return retentionArray.join(",");
     },
-    setScreenProperties() {
-      // sets various properties based on the device screen
-      this.playerHeight = document.getElementById("videoPlayer").clientHeight;
-    },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL
       var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(videoURL);
@@ -703,13 +688,13 @@ export default {
       this.showItemMarkersOnSlider();
       // Only show the scorecard when items are present in the plio
       if (this.isScorecardEnabled) this.showScorecardMarkerOnSlider();
-      this.setScreenProperties();
       this.player.currentTime = this.currentTimestamp;
       this.$mixpanel.track("Visit Player", {
         "Plio UUID": this.plioId,
         "Plio Video Length": this.player.duration || 0,
         "Plio Num Items": this.items.length || 0,
       });
+      this.$refs.videoPlayer.setAspectRatio();
       // Disabling autoplay because of bug - issue #157
       // this.playPlayer();
     },
