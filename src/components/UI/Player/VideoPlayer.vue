@@ -106,6 +106,8 @@ export default {
       player.on("enterfullscreen", this.enteredFullscreen);
       player.on("exitfullscreen", this.exitedFullscreen);
       player.on("seeked", this.playerSeekEnded);
+      player.on("ended", this.playbackEnded);
+      player.on("progress", this.progressUpdated);
 
       this.removePlyrPoster();
     },
@@ -146,6 +148,15 @@ export default {
     exitedFullscreen() {
       // invoked when the player is exiting fullscreen
       this.$emit("exitfullscreen");
+      this.setAspectRatio();
+    },
+    playbackEnded() {
+      // invoked when the video has ended (and autoPlay is not true)
+      this.$emit("playback-ended");
+    },
+    progressUpdated() {
+      // invokes whenever the amount of buffered media changes
+      if (this.player.buffered > 0) this.setAspectRatio();
     },
   },
   computed: {
@@ -163,6 +174,7 @@ export default {
     "enterfullscreen",
     "exitfullscreen",
     "seeked",
+    "playback-ended",
   ],
 };
 </script>

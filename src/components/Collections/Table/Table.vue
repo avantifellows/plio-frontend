@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col mx-2 xsm:mx-4 sm:mx-6 md:mx-8 lg:mx-10 xl:mx-14">
+  <div class="flex flex-col mx-2 bp-360:mx-4 sm:mx-6 md:mx-8 lg:mx-10 xl:mx-14">
     <!-- nav bar for table : table title and search bar -->
-    <div class="flex flex-col xsm:flex-row justify-between pt-4">
+    <div class="flex flex-col bp-360:flex-row justify-between pt-4">
       <!-- table title -->
       <div :class="tableTitleClass">
         <p class="whitespace-nowrap">{{ tableTitle }}</p>
@@ -231,7 +231,7 @@ export default {
         "flex flex-row space-x-2 text-base sm:text-lg md:text-xl xl:text-2xl font-bold p-2 items-center",
       // classes for the search bar container
       searchContainerClass:
-        "bg-white rounded-md flex shadow-md border focus:outline-none border-grey-light w-full xsm:w-2/3 sm:w-2/3 md:w-1/3 float-right mb-2 mt-2",
+        "bg-white rounded-md flex shadow-md border focus:outline-none border-grey-light w-full bp-360:w-2/3 sm:w-2/3 md:w-1/3 float-right mb-2 mt-2",
       // classes for search bar input box
       searchInputBoxClass:
         "w-full rounded-md text-gray-700 leading-tight p-2 pl-4 focus:outline-none focus:ring-0 border-none",

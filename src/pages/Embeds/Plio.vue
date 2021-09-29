@@ -17,6 +17,7 @@
         @update="videoTimestampUpdated"
         @enterfullscreen="playerEntersFullscreen"
         @exitfullscreen="playerExitsFullscreen"
+        @playback-ended="popupScorecard"
         class="w-full z-0"
       ></video-player>
       <!-- minimize button -->
@@ -52,8 +53,21 @@
           @submit-question="submitQuestion"
           @option-selected="optionSelected"
           @toggle-minimize="minimizeModal"
+          data-test="item-modal"
         ></item-modal>
       </transition>
+      <Scorecard
+        id="scorecardmodal"
+        class="absolute z-10"
+        :class="{ hidden: !isScorecardShown }"
+        :metrics="scorecardMetrics"
+        :progressPercentage="scorecardProgress"
+        :isShown="isScorecardShown"
+        :plioTitle="plioTitle"
+        :greeting="$t('player.scorecard.greeting')"
+        @restart-video="restartVideo"
+        ref="scorecard"
+      ></Scorecard>
     </div>
   </div>
 </template>
@@ -61,6 +75,7 @@
 <script>
 import VideoPlayer from "@/components/UI/Player/VideoPlayer";
 import VideoSkeleton from "@/components/UI/Skeletons/VideoSkeleton.vue";
+import Scorecard from "@/components/Items/Scorecard.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import UserAPIService from "@/services/API/User.js";
 import SessionAPIService from "@/services/API/Session.js";
@@ -71,6 +86,7 @@ import ItemModal from "@/components/Player/ItemModal.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 import { mapActions, mapGetters } from "vuex";
+import { resetConfetti } from "@/services/Functional/Utilities.js";
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
@@ -90,6 +106,7 @@ export default {
     VideoSkeleton,
     ItemModal,
     IconButton,
+    Scorecard,
   },
   data() {
     return {
@@ -136,7 +153,17 @@ export default {
         "pointer-events-none",
         "rounded-md",
       ],
-      playerHeight: 0, // height of the player - updated once the player is ready
+      scorecardMarkerClass: [
+        "absolute",
+        "z-10",
+        "transform",
+        "translate",
+        "-translate-x-2/4",
+        "translate-y-6",
+        "bottom-full",
+        "pointer-events-none",
+        "text-2xl",
+      ],
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       isFullscreen: false, // is the player in fullscreen
       currentTimestamp: 0, // tracks the current timestamp in the video
@@ -149,6 +176,11 @@ export default {
       // styling class for the minimize button
       maximizeButtonClass:
         "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-6 sm:pr-6 lg:p-4 lg:pl-6 lg:pr-6 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+      numCorrect: 0, // number of correctly answered questions
+      numWrong: 0, // number of wrongly answered questions
+      numSkipped: 0, // number of skipped questions
+      isScorecardShown: false, // to show the scorecard or not
+      plioTitle: "", // title of the plio
     };
   },
   watch: {
@@ -176,6 +208,16 @@ export default {
     showItemModal(value) {
       // emit if an item's visibility has been toggled
       this.$emit("item-toggle", value);
+    },
+    itemResponses: {
+      handler(value) {
+        // whenever itemResponses is updated, re-render the markers
+        // and re-calculate the scorecard metrics
+        if (value != undefined && this.player != undefined) {
+          this.showItemMarkersOnSlider();
+        }
+      },
+      deep: true,
     },
   },
   async created() {
@@ -224,17 +266,10 @@ export default {
 
     // load plio details
     await this.fetchPlioCreateSession();
-
-    // add listener for screen size being changed
-    window.addEventListener("resize", this.setScreenProperties);
   },
   beforeUnmount() {
     // remove timeout
     clearTimeout(UPLOAD_INTERVAL_TIMEOUT);
-  },
-  unmounted() {
-    // remove listeners
-    window.removeEventListener("resize", this.setScreenProperties);
   },
   props: {
     plioId: {
@@ -256,6 +291,47 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
+    /**
+     * whether the scorecard is enabled or not
+     */
+    isScorecardEnabled() {
+      return this.items != undefined && this.hasAnyItems;
+    },
+    scorecardProgress() {
+      // progress value (0-100) to be passed to the Scorecard component
+      const totalAttempted = this.numCorrect + this.numWrong;
+      if (totalAttempted == 0) return null;
+      return (this.numCorrect / totalAttempted) * 100;
+    },
+    scorecardMetrics() {
+      // define all the metrics to show in the scorecard here
+      return [
+        {
+          name: this.$t("player.scorecard.metric.description.correct"),
+          icon: {
+            source: "check.svg",
+            class: "text-green-500",
+          },
+          value: this.numCorrect,
+        },
+        {
+          name: this.$t("player.scorecard.metric.description.wrong"),
+          icon: {
+            source: "times-solid.svg",
+            class: "text-red-500",
+          },
+          value: this.numWrong,
+        },
+        {
+          name: this.$t("player.scorecard.metric.description.skipped"),
+          icon: {
+            source: "skip.svg",
+            class: "text-yellow-700",
+          },
+          value: this.numSkipped,
+        },
+      ];
+    },
     isThirdPartyAuth() {
       // if the app needs to authenticate using a third party auth or not
       return this.thirdPartyUniqueId != null && this.thirdPartyApiKey != null;
@@ -316,6 +392,68 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
+    /**
+     * Show the scorecard on top of the player
+     */
+    popupScorecard() {
+      if (!this.isScorecardShown) {
+        this.isScorecardShown = true;
+        var scorecardModal = document.getElementById("scorecardmodal");
+        if (scorecardModal != undefined) this.mountOnFullscreenPlyr(scorecardModal);
+      }
+    },
+    /**
+     * Checks whether the item at the provided itemIndex is a subjective question
+     * and if the user has answered the question or not
+     * @param {Number} itemIndex - The index of the item to be checked
+     * @param {String, Number, Object} userAnswer - User's answer to that item
+     */
+    isSubjectiveQuestionAnswered(itemIndex, userAnswer) {
+      return (
+        this.isItemSubjective(itemIndex) && userAnswer != null && userAnswer.trim() != ""
+      );
+    },
+    /**
+     * Update the number of correct answers, wrong answers and skipped items
+     * @param  {Number} itemIndex -  The index of the item to be considered for the calculation
+     * @param  {String, Number, Object} userAnswer - User's answer to that item
+     */
+    updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
+      if (this.isItemMCQ(itemIndex)) {
+        const correctAnswer = this.items[itemIndex].details.correct_answer;
+        if (!isNaN(userAnswer)) {
+          userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
+          // reduce numSkipped by 1 if numCorrect or numWrong increases
+          this.numSkipped -= 1;
+        }
+      } else if (this.isSubjectiveQuestionAnswered(itemIndex, userAnswer)) {
+        this.numCorrect += 1;
+        this.numSkipped -= 1;
+      }
+    },
+    /**
+     * Calculate the scorecard metrics
+     * @param {Number} [itemIndex = null] - If null, iterate through all items else just consider the provided item
+     */
+    calculateScorecardMetrics(itemIndex = null) {
+      if (itemIndex == null) {
+        this.itemResponses.forEach((itemResponse, itemIndex) => {
+          const userAnswer = itemResponse.answer;
+          this.updateNumCorrectWrongSkipped(itemIndex, userAnswer);
+        });
+      } else {
+        const userAnswer = this.itemResponses[itemIndex].answer;
+        this.updateNumCorrectWrongSkipped(itemIndex, userAnswer);
+      }
+    },
+    /**
+     * remove the scorecard, restart the video and remove the confetti
+     */
+    restartVideo() {
+      this.isScorecardShown = false;
+      this.player.restart();
+      resetConfetti();
+    },
     mountOnFullscreenPlyr(elementToMount) {
       var plyrInstance = document.getElementsByClassName("plyr")[0];
       plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
@@ -380,7 +518,10 @@ export default {
         });
       }
       // update the marker colors on the player
-      this.showItemMarkersOnSlider(this.player);
+      this.showItemMarkersOnSlider();
+
+      // recalculate the scorecard metrics
+      this.calculateScorecardMetrics(this.currentItemIndex);
     },
     skipQuestion() {
       // invoked when the user skips the question
@@ -399,8 +540,12 @@ export default {
           // redirect to 404 if the plio is not published
           if (plioDetails.status != "published") this.$router.replace({ name: "404" });
           this.items = plioDetails.items || [];
+          // setting numSkipped to number of items. This value will keep reducing
+          // as numCorrect and numWrong are calculated
+          this.numSkipped = this.items.length;
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
+          this.plioTitle = plioDetails.plioTitle;
         })
         .then(() => this.createSession())
         .then(() => this.logData());
@@ -496,6 +641,8 @@ export default {
           }
           this.itemResponses.push(itemResponse);
         });
+        // once itemResponses is full, calculate all the scorecard metrics
+        this.calculateScorecardMetrics();
       });
     },
     updateSession() {
@@ -523,10 +670,6 @@ export default {
       // convert retention array to retention string
       return retentionArray.join(",");
     },
-    setScreenProperties() {
-      // sets various properties based on the device screen
-      this.playerHeight = document.getElementById("videoPlayer").clientHeight;
-    },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL
       var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(videoURL);
@@ -542,8 +685,9 @@ export default {
     },
     playerReady() {
       // invoked when the player is ready
-      this.showItemMarkersOnSlider(this.player);
-      this.setScreenProperties();
+      this.showItemMarkersOnSlider();
+      // Only show the scorecard when items are present in the plio
+      if (this.isScorecardEnabled) this.showScorecardMarkerOnSlider();
       this.player.currentTime = this.currentTimestamp;
       this.$mixpanel.track("Visit Player", {
         "Plio UUID": this.plioId,
@@ -553,29 +697,67 @@ export default {
       // Disabling autoplay because of bug - issue #157
       // this.playPlayer();
     },
-    showItemMarkersOnSlider(player) {
-      // show the markers for items on top of the video slider
+    /**
+     * Places the given marker at a defined position on the plyr progress bar and sets its custom style classes
+     * @param {Object} marker - The HTML element that needs to be placed on the progress bar
+     * @param {Array} classList - An array of tailwind classes
+     * @param {Number} positionPercent - By what % from the left should the marker be placed
+     */
+    placeMarkerOnSlider(marker, classList, positionPercent) {
       var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
+      if (plyrProgressBar != undefined) {
+        marker.classList.add(...classList);
+        marker.style.setProperty("left", `${positionPercent}%`);
+        plyrProgressBar.appendChild(marker);
+      }
+    },
+    /**
+     * Removes the given marker from the plyr progress bar
+     * @param {Object} marker - The HTML element that needs to be removed from the progress bar
+     */
+    removeMarkerOnSlider(marker) {
+      var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
+      if (plyrProgressBar != undefined) {
+        plyrProgressBar.removeChild(marker);
+      }
+    },
+    /**
+     * Place the markers for items on the plyr progress bar
+     * @param {Object} player - The instance of plyr
+     */
+    showItemMarkersOnSlider() {
       this.items.forEach((item, index) => {
         let existingMarker = document.getElementById(`marker-${index}`);
-        if (existingMarker != undefined) plyrProgressBar.removeChild(existingMarker);
+        if (existingMarker != undefined) this.removeMarkerOnSlider(existingMarker);
 
         // Add marker to player seek bar
         var newMarker = document.createElement("SPAN");
         newMarker.setAttribute("id", `marker-${index}`);
 
-        // set marker style
+        // set marker style and position
         if (this.isItemResponseDone(index)) {
           this.markerClass[0] = "bg-green-600";
         } else this.markerClass[0] = "bg-red-600";
 
-        newMarker.classList.add(...this.markerClass);
+        var positionPercent = (100 * item.time) / this.player.duration;
 
-        // set marker position
-        var positionPercent = (100 * item.time) / player.duration;
-        newMarker.style.setProperty("left", `${positionPercent}%`);
-        plyrProgressBar.appendChild(newMarker);
+        this.placeMarkerOnSlider(newMarker, this.markerClass, positionPercent);
       });
+    },
+    /**
+     * Place the marker emoji for scorecard on the plyr progress bar
+     */
+    showScorecardMarkerOnSlider() {
+      // Add marker to player seek bar
+      var newMarker = document.createElement("p");
+      newMarker.setAttribute("id", `marker-scorecard`);
+
+      // what the marker should look like - trophy cup emoji
+      newMarker.innerText = "🏆";
+
+      // set marker position
+
+      this.placeMarkerOnSlider(newMarker, this.scorecardMarkerClass, 100);
     },
     isItemResponseDone(itemIndex) {
       // whether the response to an item is complete
@@ -587,16 +769,33 @@ export default {
       }
       return false;
     },
+    /**
+     * Whether the item at the given index is an MCQ question
+     * @param {Number} itemIndex - index of an item in the items array
+     */
     isItemMCQ(itemIndex) {
-      // whether the given item index is an MCQ question
       return (
         this.items[itemIndex].type == "question" &&
         this.items[itemIndex].details.type == "mcq"
       );
     },
+    /**
+     * Whether the item at the given index is a subjective question
+     * @param {Number} itemIndex - index of an item in the items array
+     */
+    isItemSubjective(itemIndex) {
+      return (
+        this.items[itemIndex].type == "question" &&
+        this.items[itemIndex].details.type == "subjective"
+      );
+    },
+    /**
+     * invoked when the current time in the video is updated
+     */
     videoTimestampUpdated(timestamp) {
-      // invoked when the current time in the video is updated
-      this.checkItemToSelect(timestamp);
+      // check if popups should be shown at the given timestamp or not
+      this.checkForPopups(timestamp);
+
       // update watch time
       this.watchTime += PLYR_INTERVAL_TIME;
       this.watchTimeIncrement += PLYR_INTERVAL_TIME;
@@ -607,11 +806,22 @@ export default {
         this.lastTimestampRetention = currentTime;
       }
     },
-    checkItemToSelect(timestamp) {
-      // checks if an item is to be selected and marks/unmarks accordingly
+    /**
+     * Check if any item or scorecard needs to popup at the given timestamp
+     * @param {Number} timestamp - The player's current timestamp in seconds
+     */
+    checkForPopups(timestamp) {
       if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
         return;
       this.lastCheckTimestamp = timestamp;
+
+      this.checkForItemPopup(timestamp);
+    },
+    /**
+     * checks if an item is to be selected and marks/unmarks accordingly
+     * @param {Number} timestamp - The player's current timestamp in seconds
+     */
+    checkForItemPopup(timestamp) {
       this.isModalMinimized = false;
       this.currentItemIndex = ItemFunctionalService.checkItemPopup(
         timestamp,

@@ -16,7 +16,7 @@ export const dummyItems = {
         id: 212,
         item: 211,
         text: "question 1",
-        type: "subjective",
+        type: "mcq",
         options: ["option 1", "option 2"],
         correct_answer: 0,
         image: null,
@@ -326,4 +326,47 @@ export const dummyUniqueUserCountList = [1, 2, 3, 4, 5];
 
 export const dummyAccessToken = {
   access_token: "1234",
+  expires_in: 86400,
+  refresh_token: "4321",
+  scope: "read write",
+  token_type: "Bearer",
 };
+
+export let dummyItemResponses = [
+  {
+    id: 1,
+    deleted: null,
+    session: 36,
+    item: 211,
+    answer: 0,
+    created_at: "2021-09-14T13:25:44.357052Z",
+    updated_at: "2021-09-14T13:25:44.357290Z",
+  },
+  {
+    id: 3,
+    deleted: null,
+    session: 36,
+    item: 207,
+    answer: 1,
+    created_at: "2021-09-14T13:25:44.604531Z",
+    updated_at: "2021-09-14T13:25:44.604629Z",
+  },
+  {
+    id: 2,
+    deleted: null,
+    session: 36,
+    item: 200,
+    answer: "xyz",
+    created_at: "2021-09-14T13:25:44.572076Z",
+    updated_at: "2021-09-14T13:25:44.572180Z",
+  },
+  {
+    id: 4,
+    deleted: null,
+    session: 36,
+    item: 201,
+    answer: "abc",
+    created_at: "2021-09-14T13:25:44.663224Z",
+    updated_at: "2021-09-14T13:25:44.663307Z",
+  },
+];

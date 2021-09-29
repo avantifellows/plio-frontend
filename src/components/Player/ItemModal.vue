@@ -169,9 +169,10 @@ export default {
     },
     isAnswerValid() {
       // whether an option has been selected
-      if (this.draftResponses[this.selectedItemIndex] == null) return false;
-      if (this.isQuestionTypeSubjective)
-        return this.draftResponses[this.selectedItemIndex] != "";
+      const currentResponse = this.draftResponses[this.selectedItemIndex];
+      if (currentResponse == null) return false;
+      if (this.isQuestionTypeSubjective) return currentResponse != "";
+      if (this.isQuestionTypeMCQ) return !isNaN(currentResponse);
       return true;
     },
     localResponseList: {
