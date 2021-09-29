@@ -214,7 +214,7 @@ export default {
       // class for the dialog box showing the embed codes
       return {
         "top-1/6": this.isPersonalWorkspace,
-        "top-1/100 xsm:top-1/20 bp-500:top-1/6": !this.isPersonalWorkspace,
+        "top-1/100 bp-360:top-1/20 bp-500:top-1/6": !this.isPersonalWorkspace,
       };
     },
     isCodeWithoutSSOCopied() {

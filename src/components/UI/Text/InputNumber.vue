@@ -158,7 +158,7 @@ export default {
     },
     isTitlePresent() {
       // whether the title has been provided
-      return this.title != ""
+      return this.title != "";
     },
     isStartIconInteractionDisabled() {
       // is interaction with the start icon disabled or not
@@ -195,7 +195,7 @@ export default {
       // fetches and returns the icon object, depending on "isValid"
       var icon = require("@/assets/images/times-solid.svg");
       if (this.isValid) {
-        icon = require("@/assets/images/check-solid.svg");
+        icon = require("@/assets/images/check.svg");
       }
       return icon;
     },

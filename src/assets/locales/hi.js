@@ -30,7 +30,7 @@ export default {
     headings: {
       add_question: "एक नया प्रश्न जोड़ें",
       subjective_question_warning:
-        "डैशबोर्ड में सटीकता की गणना करते समय विस्तृत प्रश्न शामिल नहीं होते हैं",
+        "सब्जेक्टिव प्रश्नों के सभी उत्तर सही माने जा रहे हैं",
     },
     buttons: {
       home: "होम",
@@ -316,6 +316,20 @@ export default {
       enter: "पूर्ण स्क्रीन में प्रवेश करें",
       exit: "पूर्ण स्क्रीन से निकास लें ",
     },
+    scorecard: {
+      greeting: "प्लायो पूरा करने के लिए आपको बधाई!",
+      metric: {
+        description: {
+          correct: "सही",
+          wrong: "गलत",
+          skipped: "छोड़े",
+          accuracy: "यथार्थता",
+        },
+      },
+      buttons: {
+        watchAgain: "फिरसे देखें",
+      },
+    },
   },
   error: {
     404: "वेब पेज मौजुद नहीं हैं ",
@@ -341,7 +355,7 @@ export default {
       empty_title_placeholder: "कोई नाम नहीं",
     },
     mcq: "बहुविकल्पी",
-    subjective: "विस्तृत",
+    subjective: "सब्जेक्टिव",
     submitted: "निवेदन हो गया",
     dialogs: {
       share: {
@@ -377,7 +391,7 @@ export default {
       add_item: {
         published: "आप एक प्रकाशित प्लायो में नए प्रश्न नहीं जोड़ सकते",
         mcq: "बहुविकल्पीय प्रश्न जोड़ने के लिए यहां क्लिक करें",
-        subjective: "विस्तृत प्रश्न जोड़ने के लिए यहां क्लिक करें",
+        subjective: "सब्जेक्टिव प्रश्न जोड़ने के लिए यहां क्लिक करें",
       },
       item_editor: {
         buttons: {

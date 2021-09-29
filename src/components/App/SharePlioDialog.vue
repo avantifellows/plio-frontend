@@ -10,7 +10,7 @@
       ></icon-button>
     </div>
 
-    <div class="px-4 xsm:px-8 bp-500:px-12 pb-8">
+    <div class="px-4 bp-360:px-8 bp-500:px-12 pb-8">
       <!-- title -->
       <p class="text-2xl text-gray-500 font-bold w-56 sm:w-80" data-test="title">
         {{ $t("editor.dialog.share_plio.title") }}

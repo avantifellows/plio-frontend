@@ -30,7 +30,7 @@ export default {
     headings: {
       add_question: "Add a new question",
       subjective_question_warning:
-        "Subjective Questions are not included while calculating the accuracy in the dashboard",
+        "All answers to subjective questions are considered correct",
     },
     buttons: {
       home: "Home",
@@ -314,6 +314,20 @@ export default {
     fullscreen: {
       enter: "Go Fullscreen",
       exit: "Exit Fullscreen",
+    },
+    scorecard: {
+      greeting: "Hooray! Congratulations on completing the plio!",
+      metric: {
+        description: {
+          correct: "Correct",
+          wrong: "Wrong",
+          skipped: "Skipped",
+          accuracy: "Accuracy",
+        },
+      },
+      buttons: {
+        watchAgain: "Watch Again",
+      },
     },
   },
   error: {

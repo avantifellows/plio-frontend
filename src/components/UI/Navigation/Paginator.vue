@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="showPaginator"
-    class="bg-white px-4 py-3 flex items-center justify-between sm:px- mx-2 xsm:mx-4 sm:mx-6 md:mx-8 lg:mx-10 xl:mx-14"
+    class="bg-white px-4 py-3 flex items-center justify-between sm:px- mx-2 bp-360:mx-4 sm:mx-6 md:mx-8 lg:mx-10 xl:mx-14"
   >
     <!-- paginator for smaller screens -->
     <div class="flex-1 flex justify-between sm:hidden">
