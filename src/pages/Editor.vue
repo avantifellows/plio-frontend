@@ -155,7 +155,7 @@
         <!--- buttons -->
         <div
           class="flex justify-center space-x-1 xsm:space-x-2"
-          :class="actionButtonContainerClass"
+          :class="lowerButtonsContainerClass"
           v-if="isVideoIdValid"
           data-test="lowerButtons"
         >
@@ -346,6 +346,7 @@
       class="z-0"
     ></ConfettiCelebration>
 
+    <!-- plio preview -->
     <div
       class="fixed top-1/100 bp-420:top-1/20 w-11/12 bp-420:w-10/12"
       :class="plioPreviewContainerClass"
@@ -372,6 +373,7 @@
       ></Plio>
     </div>
 
+    <!-- spinner -->
     <inline-svg
       v-if="isSpinnerShown"
       :src="getImageSource('spinner.svg')"
@@ -613,9 +615,9 @@ export default {
       isImageUploaderDialogShown: false, // whether to show the image uploader or not
       loadedPlioDetails: {}, // details of the plio fetched when the page was loaded
       isPreviewPlioShown: false, // whether to show a full preview of the plio before publishing
-      reRenderKey: 0,
-      editorVideoPlayerId: "editorVideoPlayer",
-      isPlioPreviewLoaded: false,
+      reRenderKey: 0, // key required to re-render the plio preview player
+      editorVideoPlayerId: "editorVideoPlayer", // id of the video player in the editor
+      isPlioPreviewLoaded: false, // whether the plio preview has been loaded
     };
   },
   async created() {
@@ -682,15 +684,18 @@ export default {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
     isSpinnerShown() {
+      // whether the spinner needs to be shown
       return (this.isPreviewPlioShown && !this.isPlioPreviewLoaded) || this.pending;
     },
-    actionButtonContainerClass() {
+    lowerButtonsContainerClass() {
+      // classes for the container holding the buttons below the slider
       return {
         "my-10": !this.isQuestionTypeSubjective,
         "my-8": this.isQuestionTypeSubjective,
       };
     },
     plioPreviewContainerClass() {
+      // classes for the container holding the plio preview
       return {
         "bg-white border-4 border-gray-400 rounded-lg": this.isPlioPreviewLoaded,
       };
@@ -1011,6 +1016,9 @@ export default {
     ]),
     ...mapActions("generic", ["showSharePlioDialog", "showEmbedPlioDialog"]),
     ...Utilities,
+    /**
+     * sets the plio preview to have loaded
+     */
     setPlioPreviewLoaded() {
       this.isPlioPreviewLoaded = true;
     },
@@ -1290,6 +1298,7 @@ export default {
     playerReady() {
       this.videoDuration = this.player.duration;
       if (!this.plioTitle) this.plioTitle = this.player.config.title;
+      // required to render the plio preview correctly
       this.reRenderKey = !this.reRenderKey;
     },
     /**

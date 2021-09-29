@@ -1,5 +1,5 @@
 <template>
-  <div id="plio">
+  <div :id="plioContainerId">
     <!-- skeleton loading -->
     <video-skeleton v-if="!isPlioLoaded && !previewMode"></video-skeleton>
     <div v-if="isPlioLoaded" class="flex relative shadow-lg" :class="plioContainerClass">
@@ -272,6 +272,10 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
+    plioContainerId() {
+      // id of the DOM element for the main container of the plio
+      return `plio${this.plioId}`;
+    },
     plioVideoPlayerId() {
       // id of the DOM element for the video player
       return `plioVideoPlayer${this.plioId}`;
@@ -357,14 +361,14 @@ export default {
        */
       let paddingBottom = (100 * window.innerHeight) / window.innerWidth;
       document
-        .getElementById("plio") // to ensure only the plio embed is changed because of this and not other plyr elements
+        .getElementById(this.plioContainerId) // to ensure only the plio embed is changed because of this and not other plyr elements
         .getElementsByClassName(
           "plyr__video-embed"
         )[0].style.paddingBottom = `${paddingBottom}%`;
     },
     mountOnFullscreenPlyr(elementToMount) {
       var plyrInstance = document
-        .getElementById("plio")
+        .getElementById(this.plioContainerId)
         .getElementsByClassName("plyr")[0];
       plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
     },
@@ -420,7 +424,7 @@ export default {
     submitQuestion() {
       /**
        * update the session answer on server if the user is authenticated
-       * or if the plio is opened in preview mode
+       * and the plio is not opened in preview mode
        */
       if (this.isAuthenticated && !this.previewMode) {
         SessionAPIService.updateSessionAnswer(this.itemResponses[this.currentItemIndex]);

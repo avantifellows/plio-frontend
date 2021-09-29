@@ -239,6 +239,10 @@ export default {
   },
   computed: {
     answerContainerClass() {
+      /**
+       * classes for the various containers corresponding to the possible types of answers
+       * to the various types of questions (options for MCQ, textarea for subjective)
+       */
       return {
         "w-1/2": !this.isPortrait && this.isQuestionImagePresent,
         "w-full":

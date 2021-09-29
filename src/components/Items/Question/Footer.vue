@@ -98,6 +98,13 @@ export default {
       type: String,
     },
   },
+  data() {
+    return {
+      // main styling class for this component
+      containerClass:
+        "flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end mb-4",
+    };
+  },
   computed: {
     hasAnyAnswerFeedback() {
       // whether any text has been provided to be used as feedback once an answer has been submitted
@@ -111,10 +118,6 @@ export default {
       set(localIsFullscreen) {
         this.$emit("update:isFullscreen", localIsFullscreen);
       },
-    },
-    containerClass() {
-      // main styling class for this component
-      return ["flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end mb-4"];
     },
     submitButtonTitleConfig() {
       // config for the text of the submit button

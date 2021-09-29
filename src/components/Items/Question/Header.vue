@@ -34,6 +34,7 @@ export default {
   components: { IconButton },
   computed: {
     isVideoPlayerIdValid() {
+      // whether the id of the video player element is valid
       return this.videoPlayerId != null;
     },
     containerClass() {
