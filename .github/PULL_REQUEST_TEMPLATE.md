@@ -27,7 +27,7 @@ Fixes #{issue id}
 - [ ] Cross-Browser Testing
    - [ ] Chrome
    - [ ] Firefox
-   - [ ] Safari
+   - [ ] Safari (use BrowserStack)
 - [ ] Local Language Support
 - [ ] Wrote tests
 - [ ] Tested locally
