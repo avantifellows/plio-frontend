@@ -349,29 +349,31 @@
 
     <!-- plio preview -->
     <div
-      class="fixed top-1/100 bp-420:top-1/20 w-11/12 bp-420:w-10/12 shadow-xl"
+      class="fixed top-1/20 w-11/12 bp-420:w-10/12 shadow-xl"
       :class="plioPreviewContainerClass"
       v-if="isPreviewPlioShown"
     >
-      <div class="w-full flex justify-end">
-        <!-- close button -->
-        <icon-button
-          v-if="isPlioPreviewLoaded"
-          :iconConfig="closeDialogIconConfig"
-          :buttonClass="closeDialogButtonClass"
-          @click="closePlioPreviewMode"
-          data-test="closePlioPreviewModeButton"
-        ></icon-button>
+      <div class="flex relative w-full">
+        <Plio
+          class="w-full"
+          :plioId="plioId"
+          :org="org"
+          :previewMode="true"
+          :key="reRenderKey"
+          containerClass="h-full"
+          @initiated="setPlioPreviewLoaded"
+        ></Plio>
+        <div class="w-full absolute flex justify-end">
+          <!-- close button -->
+          <icon-button
+            v-if="isPlioPreviewLoaded"
+            :iconConfig="closePreviewPlioIconConfig"
+            :buttonClass="closePreviewPlioButtonClass"
+            @click="closePlioPreviewMode"
+            data-test="closePlioPreviewModeButton"
+          ></icon-button>
+        </div>
       </div>
-
-      <Plio
-        :plioId="plioId"
-        :org="org"
-        :previewMode="true"
-        :key="reRenderKey"
-        containerClass="h-full"
-        @initiated="setPlioPreviewLoaded"
-      ></Plio>
     </div>
 
     <!-- spinner -->
@@ -534,6 +536,14 @@ export default {
       },
       // class for the button to close the dialog that comes after publishing
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
+      closePreviewPlioIconConfig: {
+        // config for the icon of the button to close the plio preview
+        enabled: true,
+        iconName: "times-circle-white",
+        iconClass: "text-primary fill-current h-8 w-8",
+      },
+      // class for the button to close the plio preview
+      closePreviewPlioButtonClass: "w-10 h-10 -mr-4 -mt-4",
       sliderStep: 0.1, // timestep for the slider
       itemTimestamps: [], // stores the list of the timestamps of all items
       videoURL: "", // full video url
@@ -708,7 +718,7 @@ export default {
     plioPreviewContainerClass() {
       // classes for the container holding the plio preview
       return {
-        "bg-white border-4 border-gray-400 rounded-lg": this.isPlioPreviewLoaded,
+        "bg-white border-2 border-gray-400 rounded-lg": this.isPlioPreviewLoaded,
       };
     },
     itemImage() {
@@ -1415,6 +1425,7 @@ export default {
     closePlioPreviewMode() {
       this.isPreviewPlioShown = false;
       this.isPlioPreviewLoaded = false;
+      resetConfetti();
     },
     /**
      * toggles plio preview mode
