@@ -32,9 +32,9 @@ Fixes #{issue id}
 - [ ] Wrote tests
 - [ ] Tested locally
 - [ ] Self-review
-- [ ] Tested on staging
-- [ ] Tested on an actual physical phone
-- [ ] Tested on production
 - [ ] Comments have been added appropriately
 - [ ] Check for bundle size [here](https://bundlephobia.com/) if adding a package
 - [ ] Added relevant details like Labels/Projects/Milestones etc.
+- [ ] Tested on staging
+- [ ] Tested on an actual physical phone
+- [ ] Tested on production
