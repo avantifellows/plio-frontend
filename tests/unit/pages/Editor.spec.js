@@ -2,6 +2,7 @@ import { mount, flushPromises } from "@vue/test-utils";
 import mockAxios from "jest-mock-axios";
 
 import Editor from "@/pages/Editor.vue";
+import Plio from "@/pages/Embeds/Plio.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
@@ -109,6 +110,34 @@ describe("Editor.vue", () => {
     expect(
       wrapper.find('[data-test="videoPreviewSkeleton"]').exists()
     ).toBeTruthy();
+  });
+
+  it("shows published + home + preview buttons when video ID is added", async () => {
+    const wrapper = mount(Editor, {
+      shallow: true,
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
+
+    // things that should not be visible
+    expect(wrapper.find('[data-test="sharePlioButton]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="embedPlioButton]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="analyseButton]').exists()).toBeFalsy();
+
+    // things that should be visible
+    expect(
+      wrapper.find('[data-test="previewPlioButton"]').exists()
+    ).toBeTruthy();
+    expect(wrapper.find('[data-test="homeButton"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="publishButton"]').exists()).toBeTruthy();
   });
 
   it("share + play + embed buttons appear on publishing", async () => {
@@ -380,6 +409,105 @@ describe("Editor.vue", () => {
         plioId: plioId,
       },
     });
+  });
+
+  it("clicking preview button shows plio preview", async () => {
+    const plioId = "123";
+    jest
+      .spyOn(Plio.methods, "setPlayerAspectRatio")
+      .mockImplementation(() => jest.fn());
+    const togglePlioPreviewMode = jest.spyOn(
+      Editor.methods,
+      "togglePlioPreviewMode"
+    );
+    const setPlioPreviewLoaded = jest.spyOn(
+      Editor.methods,
+      "setPlioPreviewLoaded"
+    );
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    // reset the getPlio request made by Editor
+    mockAxios.reset();
+
+    /**
+     * the component would be in the uploading state
+     * this would reset it
+     */
+    await store.dispatch("sync/stopUploading");
+
+    // preview should not be shown by default
+    expect(wrapper.vm.isPreviewPlioShown).toBeFalsy();
+    expect(wrapper.vm.isPlioPreviewLoaded).toBeFalsy();
+
+    await wrapper.find('[data-test="previewPlioButton"]').trigger("click");
+    expect(togglePlioPreviewMode).toHaveBeenCalled();
+    expect(wrapper.vm.isPreviewPlioShown).toBeTruthy();
+
+    // resolve the `GET` request waiting in the queue (for receiving plio details)
+    // using the fake response data
+    mockAxios.mockResponse(dummyDraftPlio, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    expect(setPlioPreviewLoaded).toHaveBeenCalled();
+    expect(wrapper.vm.isPlioPreviewLoaded).toBeTruthy();
+  });
+
+  it("clicking on the close button of preview closes the preview", async () => {
+    const plioId = "123";
+    jest
+      .spyOn(Plio.methods, "setPlayerAspectRatio")
+      .mockImplementation(() => jest.fn());
+    const closePlioPreviewMode = jest.spyOn(
+      Editor.methods,
+      "closePlioPreviewMode"
+    );
+
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    // reset the getPlio request made by Editor
+    mockAxios.reset();
+
+    /**
+     * the component would be in the uploading state
+     * this would reset it
+     */
+    await store.dispatch("sync/stopUploading");
+    await wrapper.find('[data-test="previewPlioButton"]').trigger("click");
+
+    // resolve the `GET` request waiting in the queue (for receiving plio details)
+    // using the fake response data
+    mockAxios.mockResponse(dummyDraftPlio, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    await wrapper
+      .find('[data-test="closePlioPreviewModeButton"]')
+      .trigger("click");
+
+    expect(closePlioPreviewMode).toHaveBeenCalled();
+    expect(wrapper.vm.isPreviewPlioShown).toBeFalsy();
+    expect(wrapper.vm.isPlioPreviewLoaded).toBeFalsy();
   });
 
   it("home button works correctly", async () => {
