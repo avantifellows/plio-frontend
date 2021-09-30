@@ -18,6 +18,7 @@
         @update="videoTimestampUpdated"
         @enterfullscreen="enterPlayerFullscreen"
         @exitfullscreen="exitPlayerFullscreen"
+        @buffered="setPlayerAspectRatio"
         @playback-ended="popupScorecard"
         class="w-full z-0"
       ></video-player>
@@ -941,6 +942,7 @@ export default {
       // unsets the player from fullscreen
       this.isFullscreen = false;
       this.createEvent("exit_fullscreen");
+      this.setPlayerAspectRatio();
     },
     /**
      * creates a new event
