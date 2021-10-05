@@ -85,8 +85,8 @@ export default {
     });
 
     // handle video url/duration being updated
-    var isVideoLinked = plioValue.videoDBId != null;
-    var videoDetails = {
+    const isVideoLinked = plioValue.videoDBId != null;
+    let videoDetails = {
       url: plioValue.url,
       duration: plioValue.duration,
     };
