@@ -2,7 +2,7 @@
   <div :id="plioContainerId">
     <!-- skeleton loading -->
     <video-skeleton v-if="!isPlioLoaded && !previewMode"></video-skeleton>
-    <div v-if="isPlioLoaded" class="flex relative shadow-lg" :class="plioContainerClass">
+    <div v-if="isPlioLoaded" class="flex relative shadow-lg" :class="containerClass">
       <!-- video player component -->
       <video-player
         :videoId="videoId"
@@ -310,6 +310,7 @@ export default {
      * custom classes for the plio container
      */
     containerClass: {
+      default: "h-screen",
       type: String,
     },
   },
@@ -332,13 +333,6 @@ export default {
      */
     plioModalElementId() {
       return `plioModal${this.plioId}`;
-    },
-    /**
-     * dynamic class for the plio container
-     */
-    plioContainerClass() {
-      if (this.containerClass == undefined) return "h-screen";
-      return this.containerClass;
     },
     /**
      * whether the scorecard is enabled or not
