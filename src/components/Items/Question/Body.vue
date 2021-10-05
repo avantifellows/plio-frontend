@@ -237,12 +237,6 @@ export default {
      * classes for the various containers corresponding to the possible types of answers
      * to the various types of questions (options for MCQ, textarea for subjective)
      */
-    windowInnerHeight() {
-      return screen.availHeight;
-    },
-    windowInnerWidth() {
-      return screen.availWidth;
-    },
     answerContainerClass() {
       return {
         "w-1/2": !this.isPortrait && this.isQuestionImagePresent,
