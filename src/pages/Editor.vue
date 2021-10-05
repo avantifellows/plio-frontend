@@ -40,12 +40,12 @@
           <!-- preview plio -->
           <icon-button
             v-if="!isPublished"
-            :titleConfig="previewPlioTitleClass"
+            :titleConfig="plioPreviewTitleClass"
             :iconConfig="playPlioIconConfig"
             :buttonClass="playPlioButtonClass"
             :isDisabled="uploading"
             @click="togglePlioPreviewMode"
-            data-test="previewPlioButton"
+            data-test="plioPreviewButton"
           ></icon-button>
 
           <!-- embed plio -->
@@ -85,7 +85,7 @@
               <video-player
                 :videoId="videoId"
                 :plyrConfig="plyrConfig"
-                :id="editorVideoPlayerId"
+                :id="editorVideoPlayerElementId"
                 @update="videoTimestampUpdated"
                 @ready="playerReady"
                 @play="playerPlayed"
@@ -116,7 +116,7 @@
                   :selectedItemIndex="currentItemIndex"
                   :itemList="items"
                   :previewMode="true"
-                  :videoPlayerId="editorVideoPlayerId"
+                  :videoPlayerElementId="editorVideoPlayerElementId"
                   @toggle-minimize="minimizeModal"
                   data-test="itemModal"
                 ></item-modal>
@@ -152,7 +152,7 @@
           </p>
         </div>
 
-        <!--- buttons -->
+        <!--- buttons below the preview -->
         <div
           class="flex justify-center space-x-1 bp-360:space-x-2"
           :class="lowerButtonsContainerClass"
@@ -351,7 +351,7 @@
     <div
       class="fixed top-1/20 w-11/12 bp-420:w-10/12 shadow-xl"
       :class="plioPreviewContainerClass"
-      v-if="isPreviewPlioShown"
+      v-if="isPlioPreviewShown"
     >
       <div class="flex relative w-full">
         <Plio
@@ -363,14 +363,14 @@
           containerClass="h-full"
           @initiated="setPlioPreviewLoaded"
         ></Plio>
+        <!-- close button -->
         <div class="w-full absolute flex justify-end">
-          <!-- close button -->
           <icon-button
             v-if="isPlioPreviewLoaded"
-            :iconConfig="closePreviewPlioIconConfig"
-            :buttonClass="closePreviewPlioButtonClass"
-            @click="closePlioPreviewMode"
-            data-test="closePlioPreviewModeButton"
+            :iconConfig="closePlioPreviewIconConfig"
+            :buttonClass="closePlioPreviewButtonClass"
+            @click="closePlioPreview"
+            data-test="closePlioPreviewButton"
           ></icon-button>
         </div>
       </div>
@@ -536,14 +536,14 @@ export default {
       },
       // class for the button to close the dialog that comes after publishing
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
-      closePreviewPlioIconConfig: {
+      closePlioPreviewIconConfig: {
         // config for the icon of the button to close the plio preview
         enabled: true,
         iconName: "times-circle-white",
         iconClass: "text-primary fill-current h-8 w-8",
       },
       // class for the button to close the plio preview
-      closePreviewPlioButtonClass: "w-10 h-10 -mr-4 -mt-4",
+      closePlioPreviewButtonClass: "w-10 h-10 -mr-4 -mt-4",
       sliderStep: 0.1, // timestep for the slider
       itemTimestamps: [], // stores the list of the timestamps of all items
       videoURL: "", // full video url
@@ -633,9 +633,9 @@ export default {
       },
       isImageUploaderDialogShown: false, // whether to show the image uploader or not
       loadedPlioDetails: {}, // details of the plio fetched when the page was loaded
-      isPreviewPlioShown: false, // whether to show a full preview of the plio before publishing
+      isPlioPreviewShown: false, // whether to show a full preview of the plio (draft mode only)
       reRenderKey: 0, // key required to re-render the plio preview player
-      editorVideoPlayerId: "editorVideoPlayer", // id of the video player in the editor
+      editorVideoPlayerElementId: "editorVideoPlayer", // id of the video player in the editor
       isPlioPreviewLoaded: false, // whether the plio preview has been loaded
       // class for the button to close the dialog that comes after publishing
       confettiHandler: confettiHandler,
@@ -704,46 +704,62 @@ export default {
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
+    /**
+     * whether the spinner needs to be shown
+     */
     isSpinnerShown() {
-      // whether the spinner needs to be shown
-      return (this.isPreviewPlioShown && !this.isPlioPreviewLoaded) || this.pending;
+      return (this.isPlioPreviewShown && !this.isPlioPreviewLoaded) || this.pending;
     },
+    /**
+     * classes for the container holding the buttons below the slider
+     */
     lowerButtonsContainerClass() {
-      // classes for the container holding the buttons below the slider
       return {
         "my-10": !this.isQuestionTypeSubjective,
         "my-8": this.isQuestionTypeSubjective,
       };
     },
+    /**
+     * classes for the container holding the plio preview
+     */
     plioPreviewContainerClass() {
-      // classes for the container holding the plio preview
       return {
         "bg-white border-2 border-gray-400 rounded-lg": this.isPlioPreviewLoaded,
       };
     },
+    /**
+     * URL of the image present for the current item
+     */
     itemImage() {
-      // URL of the image present for the current item
       if (this.currentItemIndex == null) return null;
       if (this.items[this.currentItemIndex].details.image == null) return null;
       return this.items[this.currentItemIndex].details.image.url;
     },
+    /**
+     * whether the type of the question being created is subjective
+     */
     isQuestionTypeSubjective() {
-      // whether the type of the question being created is subjective
       if (this.currentItemIndex == null) return false;
       return this.items[this.currentItemIndex].details.type == "subjective";
     },
+    /**
+     * class for the item picker
+     */
     itemPickerClass() {
-      // class for the item picker
       return { "opacity-30 cursor-not-allowed": this.addItemDisabled };
     },
+    /**
+     * class for the question type selectors
+     */
     questionTypeSelectorClass() {
-      // class for the question type selectors
       return {
         "hover:bg-primary hover:text-white hover:border-primary": !this.addItemDisabled,
       };
     },
+    /**
+     * styling class for the title of minimize/maximize button
+     */
     maximizeButtonTitleClass() {
-      // styling class for the title of minimize button
       return {
         value: this.isModalMinimized
           ? this.$t(`editor.buttons.show_${this.itemType}`)
@@ -751,79 +767,101 @@ export default {
         class: "text-white text-xs lg:text-sm tracking-tighter",
       };
     },
+    /**
+     * styling class for the title of share plio button
+     */
     sharePlioTitleClass() {
-      // styling class for the title of share plio button
       return {
         value: this.$t("editor.buttons.share_plio"),
         class: "text-sm bp-420:text-base text-yellow-800",
       };
     },
+    /**
+     * styling class for the title of share plio button on dialog box
+     * that comes after publishing
+     */
     dialogSharePlioTitleClass() {
-      // styling class for the title of share plio button on dialog box
-      // that comes after publishing
       return {
         value: this.$t("editor.dialog.published.buttons.share_plio"),
         class: "text-yellow-800",
       };
     },
+    /**
+     * styling class for the title of play plio button
+     */
     playPlioTitleClass() {
-      // styling class for the title of play plio button
       return {
         value: this.$t("editor.buttons.play_plio"),
         class: "text-sm bp-420:text-base text-white",
       };
     },
-    previewPlioTitleClass() {
-      // styling class for the title of preview plio button
+    /**
+     * styling class for the title of preview plio button
+     */
+    plioPreviewTitleClass() {
       return {
         value: this.$t("editor.buttons.preview_plio"),
         class: "text-sm bp-420:text-base text-white",
       };
     },
+    /**
+     * styling class for the title of play plio button on dialog box
+     * that comes after publishing
+     */
     dialogPlayPlioTitleClass() {
-      // styling class for the title of play plio button on dialog box
-      // that comes after publishing
       return {
         value: this.$t("editor.dialog.published.buttons.play_plio"),
         class: "text-white",
       };
     },
+    /**
+     * styling class for the title of embed plio button
+     */
     embedPlioTitleClass() {
-      // styling class for the title of embed plio button
       return {
         value: this.$t("editor.buttons.embed_plio"),
         class: "text-sm bp-420:text-base text-white",
       };
     },
+    /**
+     * styling class for the title of embed plio button on dialog box
+     * that comes after publishing
+     */
     dialogEmbedPlioTitleClass() {
-      // styling class for the title of embed plio button on dialog box
-      // that comes after publishing
       return {
         value: this.$t("editor.dialog.published.buttons.embed_plio"),
         class: "text-white",
       };
     },
+    /**
+     * styling class for the title of go back home button on dialog box
+     * that comes after publishing
+     */
     dialogHomeTitleClass() {
-      // styling class for the title of go back home button on dialog box
-      // that comes after publishing
       return {
         value: this.$t("editor.dialog.published.buttons.home"),
         class: "text-yellow-800",
       };
     },
+    /**
+     * styling class for the title of analyze plio button
+     */
     analyzePlioTitleConfig() {
-      // styling class for the title of analyze plio button
       return {
         value: this.$t("editor.buttons.analyze_plio"),
         class: "text-white text-sm bp-420:text-base",
       };
     },
+    /**
+     * whether the item modal needs to be shown
+     */
     showItemModal() {
-      // whether the item modal needs to be shown
       return this.hasAnyItems && this.isAnyItemActive;
     },
+    /**
+     * whether any item is currently active
+     */
     isAnyItemActive() {
-      // whether any item is currently active
       return this.currentItemIndex != null;
     },
     itemType() {
@@ -831,12 +869,16 @@ export default {
       if (!this.isItemSelected) return null;
       return this.items[this.currentItemIndex].type;
     },
+    /**
+     * text for the status badge
+     */
     statusBadge() {
-      // text for the status badge
       return this.$t(`generic.status.${this.status}`);
     },
+    /**
+     * video link validation display config
+     */
     videoInputValidation() {
-      // video link validation display config
       return {
         enabled: this.videoURL,
         isValid: this.isVideoIdValid,
@@ -844,25 +886,32 @@ export default {
         invalidMessage: this.$t("editor.video_input.validation.invalid"),
       };
     },
+    /**
+     * returns the player instance
+     */
     player() {
-      // returns the player instance
       return this.$refs.videoPlayer.player;
     },
+    /**
+     * get the index of the correct answer from options list
+     */
     correctOptionIndex() {
-      // get the index of the correct answer from options list
       return this.items[this.currentItemIndex].details.correct_answer;
     },
+    /**
+     * whether the publish button is enabled
+     */
     isPublishButtonEnabled() {
-      // whether the publish button is enabled
-
       // enable publish button if video id is valid
       // and no errors are present
       if (!this.isPublished) return this.isVideoIdValid && !this.anyErrorsPresent;
 
       return this.hasUnpublishedChanges;
     },
+    /**
+     * whether to disable the main screen
+     */
     isBackgroundDisabled() {
-      // whether to disable the main screen
       return (
         this.isBeingPublished ||
         this.isDialogBoxShown ||
@@ -870,11 +919,13 @@ export default {
         this.isPublishedPlioDialogShown ||
         this.isEmbedPlioDialogShown ||
         this.pending ||
-        this.isPreviewPlioShown
+        this.isPlioPreviewShown
       );
     },
+    /**
+     * class for the status badge
+     */
     statusBadgeClass() {
-      // class for the status badge
       var badgeClass = {
         "text-green-500 border-green-500": this.isPublished,
         "border-black text-black": !this.isPublished,
@@ -884,47 +935,63 @@ export default {
       };
       return badgeClass;
     },
+    /**
+     * tooltip for the status badge
+     */
     statusBadgeTooltip() {
-      // tooltip for the status badge
       if (!this.isPublished) return this.$t("tooltip.editor.status.draft");
       return this.$t("tooltip.editor.status.published");
     },
+    /**
+     * text to show the sync status
+     */
     syncStatusText() {
-      // text to show the sync status
       if (this.uploading) return "Updating...";
       else return this.$t("editor.updated") + ": " + this.lastUpdatedStr;
     },
+    /**
+     * class for the sync status text
+     */
     syncStatusClass() {
-      // class for the sync status text
       return {
         "text-red-500": this.isPublished && this.hasUnpublishedChanges,
       };
     },
+    /**
+     * classes for the back button
+     */
     backButtonClass() {
-      // classes for the back button
       return "p-2 bp-420:px-4 bg-peach hover:bg-peach-hover rounded-md shadow-lg ring-primary";
     },
+    /**
+     * config for text of back button
+     */
     backButtonTitleConfig() {
-      // config for text of back button
       return {
         value: this.$t("editor.buttons.home"),
         class: "text-yellow-800 font-bold text-sm bp-420:text-base",
       };
     },
+    /**
+     * config for text of back button
+     */
     publishButtonTitleConfig() {
-      // config for text of back button
       return {
         value: this.publishButtonText,
         class: "text-white font-bold text-sm bp-420:text-base",
       };
     },
+    /**
+     * text for the publish button
+     */
     publishButtonText() {
-      // text for the publish button
       if (!this.isPublished) return this.$t("editor.buttons.publish.draft");
       return this.$t("editor.buttons.publish.published");
     },
+    /**
+     * class for the publish button
+     */
     publishButtonClass() {
-      // class for the publish button
       return [
         {
           "opacity-50 cursor-not-allowed pointer-events-none": !this
@@ -933,8 +1000,10 @@ export default {
         `rounded-md ring-green-500 bg-green-500 hover:bg-green-600 p-2 bp-420:px-4`,
       ];
     },
+    /**
+     * tooltip text for publish button
+     */
     publishButtonTooltip() {
-      // tooltip text for publish button
       if (!this.isPublished) {
         if (!this.isPublishButtonEnabled)
           return this.$t("tooltip.editor.publish.draft.disabled");
@@ -944,85 +1013,119 @@ export default {
         return this.$t("tooltip.editor.publish.published.disabled");
       return this.$t("tooltip.editor.publish.published.enabled");
     },
+    /**
+     * lastUpdated as a human readable string
+     */
     lastUpdatedStr() {
-      // lastUpdated as a human readable string
       return this.lastUpdated.toLocaleString();
     },
+    /**
+     * whether there are any items
+     */
     hasAnyItems() {
-      // whether there are any itesm
       return this.items.length != 0;
     },
+    /**
+     * whether the plio has been pubished
+     */
     isPublished() {
-      // whether the plio has been pubished
       return this.status == "published";
     },
+    /**
+     * placeholder text for the video link input box
+     */
     videoInputPlaceholder() {
-      // placeholder text for the video link input box
       return this.$t("editor.video_input.placeholder");
     },
+    /**
+     * title text for the video link input box
+     */
     videoInputTitle() {
-      // title text for the video link input box
       if (!this.isVideoIdValid) return "";
       return this.$t("editor.video_input.title");
     },
+    /**
+     * placeholder text for the Plio title input box
+     */
     titleInputPlaceholder() {
-      // placeholder text for the Plio title input box
       return this.$t("editor.plio_title.placeholder");
     },
+    /**
+     * title text for the Plio title input box
+     */
     titleInputTitle() {
-      // title text for the Plio title input box
       return this.$t("editor.plio_title.title");
     },
+    /**
+     * prepare the link for the plio from the plio ID
+     */
     plioLink() {
-      // prepare the link for the plio from the plio ID
       return this.getPlioLink(this.plioId, this.org);
     },
+    /**
+     * whether the video Id is valid
+     */
     isVideoIdValid() {
-      // whether the video Id is valid
       return this.videoId != "";
     },
+    /**
+     * title for the dialog box that appears when publishing a
+     *  draft plio or publishing changes to a published plio
+     */
     publishDialogTitle() {
-      // title for the dialog box that appears when publishing a
-      // draft plio or publishing changes to a published plio
       if (this.isPublished) {
         return this.$t("editor.dialog.publish.published.title");
       }
       return this.$t("editor.dialog.publish.draft.title");
     },
+    /**
+     * description for the dialog box that appears when publishing a
+     * draft plio or publishing changes to a published plio
+     */
     publishDialogDescription() {
-      // description for the dialog box that appears when publishing a
-      // draft plio or publishing changes to a published plio
       if (this.isPublished) {
         return this.$t("editor.dialog.publish.published.description");
       }
       return this.$t("editor.dialog.publish.draft.description");
     },
+    /**
+     * title for the dialog box that appears when the
+     * publishing for a plio is in progress
+     */
     publishInProgressDialogTitle() {
-      // title for the dialog box that appears when the
-      // publishing for a plio is in progress
       if (this.isPublished) {
         return this.$t("editor.dialog.publishing.published.title");
       }
       return this.$t("editor.dialog.publishing.draft.title");
     },
+    /**
+     * whether adding item is disabled
+     */
     addItemDisabled() {
-      // whether adding item is disabled
       return this.isPublished || !this.isVideoIdValid;
     },
+    /**
+     * tooltip for adding the mcq question
+     */
     addMCQTooltip() {
-      // tooltip for adding the mcq question
       return this.$t("tooltip.editor.add_item.mcq");
     },
+    /**
+     * tooltip for the subjective question
+     */
     addSubjectiveQuestionTooltip() {
-      // tooltip for the subjective question
       return this.$t("tooltip.editor.add_item.subjective");
     },
+    /**
+     * styling classes for the video link input box
+     */
     videoLinkInputStyling() {
-      // styling classes for the video link input box
       return ["pl-4 disabled:opacity-50", { "cursor-not-allowed": this.isPublished }];
     },
+    /**
+     * tooltip for the video link input box
+     */
     videoLinkTooltip() {
-      // tooltip for the video link input box
       return this.isPublished
         ? this.$t("tooltip.editor.video_input.published")
         : this.$t("tooltip.editor.video_input.draft");
@@ -1320,7 +1423,7 @@ export default {
     playerReady() {
       this.videoDuration = this.player.duration;
       if (!this.plioTitle) this.plioTitle = this.player.config.title;
-      // required to render the plio preview correctly
+      // re-render the plio preview component
       this.reRenderKey = !this.reRenderKey;
     },
     /**
@@ -1422,8 +1525,8 @@ export default {
     /**
      * closes the plio preview
      */
-    closePlioPreviewMode() {
-      this.isPreviewPlioShown = false;
+    closePlioPreview() {
+      this.isPlioPreviewShown = false;
       this.isPlioPreviewLoaded = false;
       resetConfetti();
     },
@@ -1431,7 +1534,7 @@ export default {
      * toggles plio preview mode
      */
     togglePlioPreviewMode() {
-      this.isPreviewPlioShown = !this.isPreviewPlioShown;
+      this.isPlioPreviewShown = !this.isPlioPreviewShown;
     },
     /**
      * shows the dialog box for confirming whether to publish the plio
@@ -1482,11 +1585,9 @@ export default {
       // reset the dialog box
       this.resetDialogBox();
       if (this.dialogAction == "deleteOption") this.cancelDeleteOption();
-      if (this.dialogAction == "publish") {
-        if (!this.isPublished) {
-          // show the plio preview
-          this.togglePlioPreviewMode();
-        }
+      if (this.dialogAction == "publish" && !this.isPublished) {
+        // show the plio preview
+        this.togglePlioPreviewMode();
       }
     },
     /**

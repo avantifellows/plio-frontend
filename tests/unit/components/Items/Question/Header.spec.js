@@ -38,7 +38,7 @@ describe("Header.vue", () => {
     );
     const wrapper = mount(Header, {
       props: {
-        videoPlayerId: "videoPlayer",
+        videoPlayerElementId: "videoPlayer",
       },
     });
     await wrapper.find('[data-test="minimize"]').trigger("click");
@@ -59,7 +59,7 @@ describe("Header.vue", () => {
     const wrapper = mount(Header, {
       props: {
         isFullscreen: true,
-        videoPlayerId: "videoPlayer",
+        videoPlayerElementId: "videoPlayer",
       },
     });
 

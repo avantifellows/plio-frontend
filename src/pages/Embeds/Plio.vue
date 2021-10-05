@@ -7,7 +7,7 @@
       <video-player
         :videoId="videoId"
         :plyrConfig="plyrConfig"
-        :id="plioVideoPlayerId"
+        :id="plioVideoPlayerElementId"
         ref="videoPlayer"
         :currentTime="currentTimestamp"
         @ready="playerReady"
@@ -25,7 +25,7 @@
       <!-- minimize button -->
       <transition name="maximize-btn-transition">
         <icon-button
-          v-if="isModalMinimized && showItemModal"
+          v-if="isModalMinimized && isItemModalShown"
           class="absolute z-20"
           id="maximizeButton"
           :titleConfig="maximizeButtonTitleConfig"
@@ -39,15 +39,15 @@
         <!-- item modal component -->
         <item-modal
           v-if="!isModalMinimized"
-          :id="plioModalId"
+          :id="plioModalElementId"
           class="absolute z-10"
-          :class="{ hidden: !showItemModal }"
+          :class="{ hidden: !isItemModalShown }"
           :selectedItemIndex="currentItemIndex"
           :itemList="items"
           :previewMode="false"
           :isModalMinimized="isModalMinimized"
           :isFullscreen="isFullscreen"
-          :videoPlayerId="plioVideoPlayerId"
+          :videoPlayerElementId="plioVideoPlayerElementId"
           v-model:isFullscreen="isFullscreen"
           v-model:responseList="itemResponses"
           @skip-question="skipQuestion"
@@ -271,7 +271,7 @@ export default {
     await this.fetchPlioCreateSession();
 
     // add listener for screen size being changed
-    window.addEventListener("resize", this.setScreenProperties);
+    window.addEventListener("resize", this.setPlayerAspectRatio);
   },
   beforeUnmount() {
     // remove timeout
@@ -279,7 +279,7 @@ export default {
   },
   unmounted() {
     // remove listeners
-    window.removeEventListener("resize", this.setScreenProperties);
+    window.removeEventListener("resize", this.setPlayerAspectRatio);
   },
   props: {
     plioId: {
@@ -298,52 +298,66 @@ export default {
       default: null,
       type: String,
     },
+    /**
+     * whether it is being opened in preview mode
+     * in which case no sessions would be created
+     */
     previewMode: {
-      /**
-       * whether it is being opened in preview mode
-       * in which case no sessions would be created
-       */
       default: false,
       type: Boolean,
     },
+    /**
+     * custom classes for the plio container
+     */
     containerClass: {
-      /**
-       * custom classes for the plio container
-       */
       type: String,
     },
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
+    /**
+     * id of the DOM element for the main container of the plio
+     */
     plioContainerId() {
-      // id of the DOM element for the main container of the plio
       return `plio${this.plioId}`;
     },
-    plioVideoPlayerId() {
-      // id of the DOM element for the video player
+    /**
+     * id of the DOM element for the video player
+     */
+    plioVideoPlayerElementId() {
       return `plioVideoPlayer${this.plioId}`;
     },
-    plioModalId() {
-      // id of the DOM element for the modal
+    /**
+     * id of the DOM element for the modal
+     */
+    plioModalElementId() {
       return `plioModal${this.plioId}`;
     },
+    /**
+     * dynamic class for the plio container
+     */
     plioContainerClass() {
-      // dynamic class for the plio container
       if (this.containerClass == undefined) return "h-screen";
       return this.containerClass;
     },
+    /**
+     * whether the scorecard is enabled or not
+     */
     isScorecardEnabled() {
-      // whether the scorecard is enabled or not
       return this.items != undefined && this.hasAnyItems;
     },
+    /**
+     * progress value (0-100) to be passed to the Scorecard component
+     */
     scorecardProgress() {
-      // progress value (0-100) to be passed to the Scorecard component
       const totalAttempted = this.numCorrect + this.numWrong;
       if (totalAttempted == 0) return null;
       return (this.numCorrect / totalAttempted) * 100;
     },
+    /**
+     * defines all the metrics to show in the scorecard here
+     */
     scorecardMetrics() {
-      // define all the metrics to show in the scorecard here
       return [
         {
           name: this.$t("player.scorecard.metric.description.correct"),
@@ -371,17 +385,23 @@ export default {
         },
       ];
     },
+    /**
+     * if the app needs to authenticate using a third party auth or not
+     */
     isThirdPartyAuth() {
-      // if the app needs to authenticate using a third party auth or not
       return this.thirdPartyUniqueId != null && this.thirdPartyApiKey != null;
     },
+    /**
+     * type of the current selected item
+     * eg - question, note etc
+     */
     currentItemType() {
-      // type of the current selected item -
-      // eg - question, note etc
       return this.items[this.currentItemIndex].type;
     },
+    /**
+     * styling class for the title of minimize button
+     */
     maximizeButtonTitleConfig() {
-      // styling class for the title of minimize button
       return {
         value: this.isModalMinimized
           ? this.$t(`editor.buttons.show_${this.currentItemType}`)
@@ -389,43 +409,61 @@ export default {
         class: "text-white text-md sm:text-base lg:text-xl font-bold",
       };
     },
+    /**
+     * whether the plio has been loaded
+     */
     isPlioLoaded() {
-      // whether the plio has been loaded
       return this.videoId != "";
     },
+    /**
+     * whether there are any items
+     */
     hasAnyItems() {
-      // whether there are any itesm
       return this.items.length != 0;
     },
+    /**
+     * whether any item is currently active
+     */
     isAnyItemActive() {
-      // whether any item is currently active
       return this.currentItemIndex != null;
     },
-    showItemModal() {
-      // whether the item modal needs to be shown
+    /**
+     * whether the item modal needs to be shown
+     */
+    isItemModalShown() {
       return this.hasAnyItems && this.isAnyItemActive;
     },
+    /**
+     * list of the timestamps for each of the items
+     */
     itemTimestamps() {
-      // list of the timestamps for each of the items
       return ItemFunctionalService.getItemTimestamps(this.items);
     },
+    /**
+     * whether the session has been defined and begun
+     */
     hasSessionStarted() {
-      // whether the session has been defined and begun
       return this.sessionDBId != null;
     },
+    /**
+     * returns the player instance
+     */
     player() {
-      // returns the player instance
       return this.$refs.videoPlayer.player;
     },
+    /**
+     * config for the text of the fullscreen toggle button
+     */
     fullscreenButtonTitleConfig() {
-      // config for the text of the fullscreen toggle button
       return {
         value: this.$t("player.fullscreen.enter"),
         class: "text-white text-lg font-bold",
       };
     },
+    /**
+     * class for the fullscreen button
+     */
     fullscreenButtonClass() {
-      // class for the fullscreen button
       return `ring-2 ring-red-100 bg-primary hover:bg-primary-hover p-4 rounded-md shadow-xl place-self-center animate-bounce m-auto`;
     },
   },
@@ -746,10 +784,6 @@ export default {
       // convert retention array to retention string
       return retentionArray.join(",");
     },
-    setScreenProperties() {
-      // sets various properties based on the device screen
-      this.setPlayerAspectRatio();
-    },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL
       var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(videoURL);
@@ -757,6 +791,14 @@ export default {
     },
     playerPlayed() {
       // invoked when the play button of the player is clicked
+      if (this.isScorecardShown) {
+        /**
+         * prevents the video from playing while the
+         * scorecard is being shown
+         */
+        this.pausePlayer();
+        return;
+      }
       this.createEvent("played");
     },
     playerPaused() {
@@ -927,7 +969,7 @@ export default {
       this.pausePlayer();
 
       // if the video is in fullscreen mode, show the modal on top of it
-      var modal = document.getElementById(this.plioModalId);
+      var modal = document.getElementById(this.plioModalElementId);
       if (modal != undefined) this.mountOnFullscreenPlyr(modal);
 
       var maximizeButton = document.getElementById("maximizeButton");

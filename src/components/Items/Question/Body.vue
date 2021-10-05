@@ -197,11 +197,6 @@ export default {
       default: false,
       type: Boolean,
     },
-    isFullscreen: {
-      // whether the modal is in fullscreen
-      default: false,
-      type: Boolean,
-    },
   },
   components: { Textarea },
   methods: {
@@ -238,11 +233,17 @@ export default {
     },
   },
   computed: {
+    /**
+     * classes for the various containers corresponding to the possible types of answers
+     * to the various types of questions (options for MCQ, textarea for subjective)
+     */
+    windowInnerHeight() {
+      return screen.availHeight;
+    },
+    windowInnerWidth() {
+      return screen.availWidth;
+    },
     answerContainerClass() {
-      /**
-       * classes for the various containers corresponding to the possible types of answers
-       * to the various types of questions (options for MCQ, textarea for subjective)
-       */
       return {
         "w-1/2": !this.isPortrait && this.isQuestionImagePresent,
         "w-full":
@@ -266,7 +267,7 @@ export default {
       // styling class for the image container
       return [
         {
-          "h-56 mb-4": !this.previewMode && (this.isPortrait || this.isFullscreen),
+          "h-56 mb-4": !this.previewMode && this.isPortrait,
           "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2":
             !this.isPortrait && !this.previewMode,
           "h-20 bp-360:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
@@ -280,10 +281,8 @@ export default {
       // styling class to decide orientation of image + options depending on portrait/landscape orientation
       return [
         {
-          "content-center":
-            this.isQuestionImagePresent && !this.isPortrait && !this.isFullscreen,
-          "flex-col":
-            this.isQuestionImagePresent && (this.isPortrait || this.isFullscreen),
+          "content-center": this.isQuestionImagePresent && !this.isPortrait,
+          "flex-col": this.isQuestionImagePresent && this.isPortrait,
           "space-x-2 md:space-x-4":
             !this.previewMode && !this.isPortrait && this.isQuestionImagePresent,
           "mx-6 md:mx-10 py-4": !this.previewMode,

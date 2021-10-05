@@ -10,7 +10,7 @@
     ></icon-button>
     <!-- minimize button -->
     <icon-button
-      v-if="isVideoPlayerIdValid"
+      v-if="isVideoPlayerElementPresent"
       :titleConfig="minimizeButtonTitleConfig"
       :buttonClass="minimizeButtonClass"
       @click="minimizeModal"
@@ -33,9 +33,9 @@ export default {
   },
   components: { IconButton },
   computed: {
-    isVideoPlayerIdValid() {
+    isVideoPlayerElementPresent() {
       // whether the id of the video player element is valid
-      return this.videoPlayerId != null;
+      return this.videoPlayerElementId != null;
     },
     containerClass() {
       // main styling class for this component
@@ -90,7 +90,7 @@ export default {
       default: false,
       type: Boolean,
     },
-    videoPlayerId: {
+    videoPlayerElementId: {
       // id of the DOM element corresponding to video player
       default: null,
       type: String,
@@ -113,7 +113,7 @@ export default {
         .getElementById("minimize")
         .getBoundingClientRect();
       var plyrInstancePositions = document
-        .getElementById(this.videoPlayerId)
+        .getElementById(this.videoPlayerElementId)
         .getBoundingClientRect();
 
       return this.getLeftCenterCoordinates(

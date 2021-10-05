@@ -134,7 +134,7 @@ describe("Editor.vue", () => {
 
     // things that should be visible
     expect(
-      wrapper.find('[data-test="previewPlioButton"]').exists()
+      wrapper.find('[data-test="plioPreviewButton"]').exists()
     ).toBeTruthy();
     expect(wrapper.find('[data-test="homeButton"]').exists()).toBeTruthy();
     expect(wrapper.find('[data-test="publishButton"]').exists()).toBeTruthy();
@@ -445,12 +445,12 @@ describe("Editor.vue", () => {
     await store.dispatch("sync/stopUploading");
 
     // preview should not be shown by default
-    expect(wrapper.vm.isPreviewPlioShown).toBeFalsy();
+    expect(wrapper.vm.isPlioPreviewShown).toBeFalsy();
     expect(wrapper.vm.isPlioPreviewLoaded).toBeFalsy();
 
-    await wrapper.find('[data-test="previewPlioButton"]').trigger("click");
+    await wrapper.find('[data-test="plioPreviewButton"]').trigger("click");
     expect(togglePlioPreviewMode).toHaveBeenCalled();
-    expect(wrapper.vm.isPreviewPlioShown).toBeTruthy();
+    expect(wrapper.vm.isPlioPreviewShown).toBeTruthy();
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
@@ -468,10 +468,7 @@ describe("Editor.vue", () => {
     jest
       .spyOn(Plio.methods, "setPlayerAspectRatio")
       .mockImplementation(() => jest.fn());
-    const closePlioPreviewMode = jest.spyOn(
-      Editor.methods,
-      "closePlioPreviewMode"
-    );
+    const closePlioPreview = jest.spyOn(Editor.methods, "closePlioPreview");
 
     const wrapper = mount(Editor, {
       props: {
@@ -492,7 +489,7 @@ describe("Editor.vue", () => {
      * this would reset it
      */
     await store.dispatch("sync/stopUploading");
-    await wrapper.find('[data-test="previewPlioButton"]').trigger("click");
+    await wrapper.find('[data-test="plioPreviewButton"]').trigger("click");
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
@@ -501,12 +498,10 @@ describe("Editor.vue", () => {
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
-    await wrapper
-      .find('[data-test="closePlioPreviewModeButton"]')
-      .trigger("click");
+    await wrapper.find('[data-test="closePlioPreviewButton"]').trigger("click");
 
-    expect(closePlioPreviewMode).toHaveBeenCalled();
-    expect(wrapper.vm.isPreviewPlioShown).toBeFalsy();
+    expect(closePlioPreview).toHaveBeenCalled();
+    expect(wrapper.vm.isPlioPreviewShown).toBeFalsy();
     expect(wrapper.vm.isPlioPreviewLoaded).toBeFalsy();
   });
 
