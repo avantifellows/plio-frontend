@@ -33,7 +33,6 @@ export default function createUsersWebSocket() {
 
       UsersWebsocket.onclose = () => {
         // websocket has been closed
-        console.log("Websocket has been closed. Reconnecting again!");
 
         setTimeout(() => {
           // reconnect after RECONNECT_TIME if the user is still authenticated

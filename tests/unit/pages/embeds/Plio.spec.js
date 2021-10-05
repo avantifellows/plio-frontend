@@ -1,7 +1,13 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import Plio from "@/pages/Embeds/Plio.vue";
 import mockAxios from "jest-mock-axios";
-import { dummyAccessToken } from "@/services/Testing/DummyData.js";
+import store from "@/store";
+import UserAPIService from "@/services/API/User.js";
+import {
+  dummyPublishedPlio,
+  dummyAccessToken,
+  dummyUser,
+} from "@/services/Testing/DummyData.js";
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -13,9 +19,151 @@ afterEach(() => {
 });
 
 describe("Plio.vue", () => {
-  it("renders properly with default values", () => {
+  it("plio is not loaded by default", () => {
     const wrapper = mount(Plio);
-    expect(wrapper).toBeTruthy();
+    expect(wrapper.vm.isPlioLoaded).toBeFalsy();
+  });
+
+  it("requests for plio when plio id is passed", async () => {
+    const plioId = "123";
+    mount(Plio, {
+      props: {
+        plioId: plioId,
+      },
+    });
+    await flushPromises();
+    // `getPlio` inside services/API/Plio.js should've been called
+    // 1 `GET` request is made
+    expect(mockAxios.get).toHaveBeenCalledTimes(1);
+    expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}/play`);
+  });
+
+  it("renders plio when plio details are passed", async () => {
+    const plioId = "123";
+    const setPlayerAspectRatio = jest
+      .spyOn(Plio.methods, "setPlayerAspectRatio")
+      .mockImplementation(() => jest.fn());
+    const playerInitiated = jest.spyOn(Plio.methods, "playerInitiated");
+    const wrapper = mount(Plio, {
+      props: {
+        plioId: plioId,
+      },
+    });
+    await flushPromises();
+
+    // resolve the `GET` request waiting in the queue (for receiving plio details)
+    // using the fake response data
+    mockAxios.mockResponse(dummyPublishedPlio, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    expect(wrapper.vm.isPlioLoaded).toBeTruthy();
+    expect(wrapper.items).toStrictEqual(dummyPublishedPlio.items);
+    expect(setPlayerAspectRatio).toHaveBeenCalled();
+    expect(playerInitiated).toHaveBeenCalled();
+  });
+
+  it("session should not be created if unauthenticated when plio request is resolved", async () => {
+    const plioId = "123";
+    jest
+      .spyOn(Plio.methods, "setPlayerAspectRatio")
+      .mockImplementation(() => jest.fn());
+    const createSession = jest.spyOn(Plio.methods, "createSession");
+    mount(Plio, {
+      props: {
+        plioId: plioId,
+      },
+    });
+    await flushPromises();
+
+    // resolve the `GET` request waiting in the queue (for receiving plio details)
+    // using the fake response data
+    mockAxios.mockResponse(dummyPublishedPlio, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    expect(createSession).toHaveBeenCalled();
+
+    // 1 `POST` request should have been made
+    expect(mockAxios.post).toHaveBeenCalledTimes(0);
+  });
+
+  it("creates session if authenticated when plio request is resolved", async () => {
+    const plioId = "123";
+    jest
+      .spyOn(Plio.methods, "setPlayerAspectRatio")
+      .mockImplementation(() => jest.fn());
+
+    // mock user service
+    jest
+      .spyOn(UserAPIService, "getUserByAccessToken")
+      .mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve({ data: dummyUser });
+        });
+      });
+
+    // set user
+    await store.dispatch("auth/setAccessToken", dummyAccessToken);
+
+    mount(Plio, {
+      props: {
+        plioId: plioId,
+      },
+    });
+    await flushPromises();
+
+    // resolve the `GET` request waiting in the queue (for receiving plio details)
+    // using the fake response data
+    mockAxios.mockResponse(dummyPublishedPlio, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // 1 `POST` request should have been made
+    expect(mockAxios.post).toHaveBeenCalledTimes(1);
+    expect(mockAxios.post).toHaveBeenCalledWith("/sessions/", {
+      plio: dummyPublishedPlio.data.id,
+    });
+  });
+
+  it("does not create session with authenticated user if opened in preview mode", async () => {
+    const plioId = "123";
+    jest
+      .spyOn(Plio.methods, "setPlayerAspectRatio")
+      .mockImplementation(() => jest.fn());
+
+    // mock user service
+    jest
+      .spyOn(UserAPIService, "getUserByAccessToken")
+      .mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve({ data: dummyUser });
+        });
+      });
+
+    // set user
+    await store.dispatch("auth/setAccessToken", dummyAccessToken);
+
+    mount(Plio, {
+      props: {
+        plioId: plioId,
+        previewMode: true,
+      },
+    });
+    await flushPromises();
+
+    // resolve the `GET` request waiting in the queue (for receiving plio details)
+    // using the fake response data
+    mockAxios.mockResponse(dummyPublishedPlio, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // 1 `POST` request should have been made
+    expect(mockAxios.post).toHaveBeenCalledTimes(0);
   });
 
   it("detects SAML SSO", async () => {

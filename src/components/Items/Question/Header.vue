@@ -10,6 +10,7 @@
     ></icon-button>
     <!-- minimize button -->
     <icon-button
+      v-if="isVideoPlayerElementPresent"
       :titleConfig="minimizeButtonTitleConfig"
       :buttonClass="minimizeButtonClass"
       @click="minimizeModal"
@@ -32,11 +33,14 @@ export default {
   },
   components: { IconButton },
   computed: {
+    isVideoPlayerElementPresent() {
+      // whether the id of the video player element is valid
+      return this.videoPlayerElementId != null;
+    },
     containerClass() {
       // main styling class for this component
       return [
         {
-          "mt-auto": this.isPortrait && !this.previewMode,
           "px-6 md:px-8 xl:px-12": !this.previewMode,
           "pr-4": this.previewMode,
         },
@@ -86,10 +90,10 @@ export default {
       default: false,
       type: Boolean,
     },
-    isPortrait: {
-      // whether the screen is in portraid mode
-      default: false,
-      type: Boolean,
+    videoPlayerElementId: {
+      // id of the DOM element corresponding to video player
+      default: null,
+      type: String,
     },
   },
   methods: {
@@ -109,7 +113,7 @@ export default {
         .getElementById("minimize")
         .getBoundingClientRect();
       var plyrInstancePositions = document
-        .getElementById("videoPlayer")
+        .getElementById(this.videoPlayerElementId)
         .getBoundingClientRect();
 
       return this.getLeftCenterCoordinates(

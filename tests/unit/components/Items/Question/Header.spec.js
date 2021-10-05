@@ -36,7 +36,11 @@ describe("Header.vue", () => {
       Header.methods,
       "getLeftCenterCoordinates"
     );
-    const wrapper = mount(Header);
+    const wrapper = mount(Header, {
+      props: {
+        videoPlayerElementId: "videoPlayer",
+      },
+    });
     await wrapper.find('[data-test="minimize"]').trigger("click");
     expect(wrapper.emitted()).toHaveProperty("toggle-minimize");
     expect(calculateButtonPositionMock).toHaveBeenCalled();
@@ -55,8 +59,10 @@ describe("Header.vue", () => {
     const wrapper = mount(Header, {
       props: {
         isFullscreen: true,
+        videoPlayerElementId: "videoPlayer",
       },
     });
+
     await wrapper.find('[data-test="minimize"]').trigger("click");
     expect(wrapper.emitted()).toHaveProperty("toggle-minimize");
     expect(calculateButtonPositionMock).toHaveBeenCalled();
