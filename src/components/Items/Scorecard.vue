@@ -68,7 +68,17 @@
         </div>
 
         <!-- action buttons -->
-        <div class="place-self-center" :class="{ 'mt-5': isCircularProgressShown }">
+        <div
+          class="place-self-center flex flex-col mt-8 space-y-8"
+          :class="{ 'mt-5': isCircularProgressShown }"
+        >
+          <!-- whatsapp -->
+          <icon-button
+            :iconConfig="whatsAppDialogIconConfig"
+            @click="shareScorecardOnWhatsApp"
+            data-test="whatsapp"
+          ></icon-button>
+
           <!-- watch again button -->
           <icon-button
             :titleConfig="watchAgainButtonTitleConfig"
@@ -147,6 +157,12 @@ export default {
       // classes for watch again button
       watchAgainButtonClass:
         "bg-primary hover:bg-primary-hover px-6 py-3 bp-500:p-4 bp-500:pl-10 bp-500:pr-10 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+      whatsAppDialogIconConfig: {
+        // config for the icon of the whatsapp share button
+        enabled: true,
+        iconName: "whatsapp",
+        iconClass: "text-primary fill-current h-12 w-12",
+      },
     };
   },
   watch: {
@@ -226,6 +242,17 @@ export default {
   },
   methods: {
     ...Utilities,
+    shareScorecardOnWhatsApp() {
+      // share the scorecard on whatsapp
+      window
+        .open(
+          "https://wa.me/send?text=" +
+            encodeURIComponent(
+              "https://plio-assets.s3.ap-south-1.amazonaws.com/images/logo.svg"
+            )
+        )
+        .focus();
+    },
     handleScreenSizeChange() {
       // invoked when the screen size is changing
       this.innerWidth = window.innerWidth;

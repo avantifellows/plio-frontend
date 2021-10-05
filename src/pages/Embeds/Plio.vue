@@ -757,6 +757,10 @@ export default {
     },
     playerPlayed() {
       // invoked when the play button of the player is clicked
+      if (this.isScorecardShown) {
+        this.pausePlayer();
+        return;
+      }
       this.createEvent("played");
     },
     playerPaused() {
