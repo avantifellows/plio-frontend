@@ -8,7 +8,11 @@
     </div>
     <div :class="orientationClass">
       <!-- loading spinner when question image is loading -->
-      <div class="place-self-center px-10" v-if="isImageLoading">
+      <div
+        :class="questionImageAreaClass"
+        class="flex justify-center"
+        v-if="isImageLoading"
+      >
         <inline-svg
           :src="require('@/assets/images/spinner-solid.svg')"
           class="animate-spin h-4 object-scale-down"
@@ -257,15 +261,21 @@ export default {
         "px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-transparent",
       ];
     },
+    questionImageAreaClass() {
+      // styling class for the question image and loading spinner containers
+      return {
+        "h-56 mb-4": !this.previewMode && this.isPortrait,
+        "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2":
+          !this.isPortrait && !this.previewMode,
+        "h-20 bp-360:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
+          .previewMode,
+      };
+    },
     questionImageContainerClass() {
       // styling class for the image container
       return [
+        this.questionImageAreaClass,
         {
-          "h-56 mb-4": !this.previewMode && this.isPortrait,
-          "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2":
-            !this.isPortrait && !this.previewMode,
-          "h-20 bp-360:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
-            .previewMode,
           hidden: this.isImageLoading,
         },
         "border rounded-md",
