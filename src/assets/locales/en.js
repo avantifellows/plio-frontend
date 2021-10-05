@@ -42,6 +42,7 @@ export default {
       show_question: "Show Question",
       share_plio: "Share",
       play_plio: "Play",
+      preview_plio: "Preview",
       embed_plio: "Embed",
       analyze_plio: "Analyze",
     },
@@ -101,11 +102,15 @@ export default {
           title: "Are you sure you want to publish your changes?",
           description:
             "The plio will be permananently changed once you publish the changes",
+          confirm: "Yes",
+          cancel: "No",
         },
         draft: {
           title: "Are you sure you want to publish the plio?",
           description:
-            "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question",
+            "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question. You can also preview the plio before publishing it.",
+          confirm: "Publish",
+          cancel: "Preview",
         },
       },
       publishing: {

@@ -2,6 +2,7 @@ import { mount, flushPromises } from "@vue/test-utils";
 import mockAxios from "jest-mock-axios";
 
 import Editor from "@/pages/Editor.vue";
+import Plio from "@/pages/Embeds/Plio.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
@@ -109,6 +110,34 @@ describe("Editor.vue", () => {
     expect(
       wrapper.find('[data-test="videoPreviewSkeleton"]').exists()
     ).toBeTruthy();
+  });
+
+  it("shows published + home + preview buttons when video ID is added", async () => {
+    const wrapper = mount(Editor, {
+      shallow: true,
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
+
+    // things that should not be visible
+    expect(wrapper.find('[data-test="sharePlioButton]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="embedPlioButton]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="analyseButton]').exists()).toBeFalsy();
+
+    // things that should be visible
+    expect(
+      wrapper.find('[data-test="plioPreviewButton"]').exists()
+    ).toBeTruthy();
+    expect(wrapper.find('[data-test="homeButton"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="publishButton"]').exists()).toBeTruthy();
   });
 
   it("share + play + embed buttons appear on publishing", async () => {
@@ -382,6 +411,100 @@ describe("Editor.vue", () => {
     });
   });
 
+  it("clicking preview button shows plio preview", async () => {
+    const plioId = "123";
+    jest
+      .spyOn(Plio.methods, "setPlayerAspectRatio")
+      .mockImplementation(() => jest.fn());
+    const togglePlioPreviewMode = jest.spyOn(
+      Editor.methods,
+      "togglePlioPreviewMode"
+    );
+    const setPlioPreviewLoaded = jest.spyOn(
+      Editor.methods,
+      "setPlioPreviewLoaded"
+    );
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    // reset the getPlio request made by Editor
+    mockAxios.reset();
+
+    /**
+     * the component would be in the uploading state
+     * this would reset it
+     */
+    await store.dispatch("sync/stopUploading");
+
+    // preview should not be shown by default
+    expect(wrapper.vm.isPlioPreviewShown).toBeFalsy();
+    expect(wrapper.vm.isPlioPreviewLoaded).toBeFalsy();
+
+    await wrapper.find('[data-test="plioPreviewButton"]').trigger("click");
+    expect(togglePlioPreviewMode).toHaveBeenCalled();
+    expect(wrapper.vm.isPlioPreviewShown).toBeTruthy();
+
+    // resolve the `GET` request waiting in the queue (for receiving plio details)
+    // using the fake response data
+    mockAxios.mockResponse(dummyDraftPlio, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    expect(setPlioPreviewLoaded).toHaveBeenCalled();
+    expect(wrapper.vm.isPlioPreviewLoaded).toBeTruthy();
+  });
+
+  it("clicking on the close button of preview closes the preview", async () => {
+    const plioId = "123";
+    jest
+      .spyOn(Plio.methods, "setPlayerAspectRatio")
+      .mockImplementation(() => jest.fn());
+    const closePlioPreview = jest.spyOn(Editor.methods, "closePlioPreview");
+
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    // reset the getPlio request made by Editor
+    mockAxios.reset();
+
+    /**
+     * the component would be in the uploading state
+     * this would reset it
+     */
+    await store.dispatch("sync/stopUploading");
+    await wrapper.find('[data-test="plioPreviewButton"]').trigger("click");
+
+    // resolve the `GET` request waiting in the queue (for receiving plio details)
+    // using the fake response data
+    mockAxios.mockResponse(dummyDraftPlio, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    await wrapper.find('[data-test="closePlioPreviewButton"]').trigger("click");
+
+    expect(closePlioPreview).toHaveBeenCalled();
+    expect(wrapper.vm.isPlioPreviewShown).toBeFalsy();
+    expect(wrapper.vm.isPlioPreviewLoaded).toBeFalsy();
+  });
+
   it("home button works correctly", async () => {
     // mock router
     const mockRouter = {
@@ -543,27 +666,21 @@ describe("Editor.vue", () => {
     });
 
     await wrapper.find('[data-test="publishButton"]').trigger("click");
-    expect(wrapper.vm.publishDialogTitle).toBe(
-      "Are you sure you want to publish the plio?"
-    );
     expect(wrapper.vm.dialogTitle).toBe(
       "Are you sure you want to publish the plio?"
     );
-    expect(wrapper.vm.publishDialogDescription).toBe(
-      "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question"
-    );
     expect(wrapper.vm.dialogDescription).toBe(
-      "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question"
+      "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question. You can also preview the plio before publishing it."
     );
     expect(wrapper.vm.dialogConfirmButtonConfig).toStrictEqual({
       enabled: true,
-      text: "Yes",
+      text: "Publish",
       class:
         "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
     });
     expect(wrapper.vm.dialogCancelButtonConfig).toStrictEqual({
       enabled: true,
-      text: "No",
+      text: "Preview",
       class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
     });
     expect(wrapper.vm.dialogAction).toBe("publish");
@@ -583,6 +700,17 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogDescription).toBe(
       "The plio will be permananently changed once you publish the changes"
     );
+    expect(wrapper.vm.dialogConfirmButtonConfig).toStrictEqual({
+      enabled: true,
+      text: "Yes",
+      class:
+        "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
+    });
+    expect(wrapper.vm.dialogCancelButtonConfig).toStrictEqual({
+      enabled: true,
+      text: "No",
+      class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
+    });
 
     await wrapper
       .find('[data-test="dialogBox"]')
@@ -599,6 +727,55 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.isDialogBoxShown).toBeFalsy();
     expect(wrapper.vm.isPublishedPlioDialogShown).toBeTruthy();
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
+  });
+
+  it("clicking on preview button of publish confirmation dialog shows plio preview", async () => {
+    const dialogCancelled = jest.spyOn(Editor.methods, "dialogCancelled");
+    const togglePlioPreviewMode = jest.spyOn(
+      Editor.methods,
+      "togglePlioPreviewMode"
+    );
+    const wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="cancelButton"]')
+      .trigger("click");
+
+    expect(dialogCancelled).toHaveBeenCalled();
+    expect(togglePlioPreviewMode).toHaveBeenCalled();
+  });
+
+  it("clicking on cancel button of publish confirmation dialog for published plio closes dialog", async () => {
+    const dialogCancelled = jest.spyOn(Editor.methods, "dialogCancelled");
+    const togglePlioPreviewMode = jest.spyOn(
+      Editor.methods,
+      "togglePlioPreviewMode"
+    );
+    const wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+          status: "published",
+        };
+      },
+    });
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="cancelButton"]')
+      .trigger("click");
+
+    expect(dialogCancelled).toHaveBeenCalled();
+    expect(togglePlioPreviewMode).not.toHaveBeenCalled();
   });
 
   it("play plio button inside the published dialog works correctly", async () => {

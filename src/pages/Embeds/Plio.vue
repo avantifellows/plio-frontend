@@ -1,29 +1,31 @@
 <template>
-  <div>
+  <div :id="plioContainerId">
     <!-- skeleton loading -->
-    <video-skeleton v-if="!isPlioLoaded"></video-skeleton>
-    <div v-else class="flex relative shadow-lg h-screen">
+    <video-skeleton v-if="!isPlioLoaded && !previewMode"></video-skeleton>
+    <div v-if="isPlioLoaded" class="flex relative shadow-lg" :class="containerClass">
       <!-- video player component -->
       <video-player
         :videoId="videoId"
         :plyrConfig="plyrConfig"
+        :id="plioVideoPlayerElementId"
         ref="videoPlayer"
-        id="videoPlayer"
         :currentTime="currentTimestamp"
         @ready="playerReady"
+        @initiated="playerInitiated"
         @play="playerPlayed"
         @pause="playerPaused"
         @seeked="videoSeeked"
         @update="videoTimestampUpdated"
-        @enterfullscreen="playerEntersFullscreen"
-        @exitfullscreen="playerExitsFullscreen"
+        @enterfullscreen="enterPlayerFullscreen"
+        @exitfullscreen="exitPlayerFullscreen"
+        @buffered="setPlayerAspectRatio"
         @playback-ended="popupScorecard"
         class="w-full z-0"
       ></video-player>
       <!-- minimize button -->
       <transition name="maximize-btn-transition">
         <icon-button
-          v-if="isModalMinimized && showItemModal"
+          v-if="isModalMinimized && isItemModalShown"
           class="absolute z-20"
           id="maximizeButton"
           :titleConfig="maximizeButtonTitleConfig"
@@ -37,16 +39,17 @@
         <!-- item modal component -->
         <item-modal
           v-if="!isModalMinimized"
-          id="modal"
+          :id="plioModalElementId"
           class="absolute z-10"
-          :class="{ hidden: !showItemModal }"
+          :class="{ hidden: !isItemModalShown }"
           :selectedItemIndex="currentItemIndex"
           :itemList="items"
-          v-model:isFullscreen="isFullscreen"
-          v-model:responseList="itemResponses"
           :previewMode="false"
           :isModalMinimized="isModalMinimized"
           :isFullscreen="isFullscreen"
+          :videoPlayerElementId="plioVideoPlayerElementId"
+          v-model:isFullscreen="isFullscreen"
+          v-model:responseList="itemResponses"
           @skip-question="skipQuestion"
           @proceed-question="proceedQuestion"
           @revise-question="reviseQuestion"
@@ -175,7 +178,7 @@ export default {
       isModalMinimized: false, // whether the item modal is minimized or not
       // styling class for the minimize button
       maximizeButtonClass:
-        "bg-primary hover:bg-primary-hover p-1 pl-4 pr-4 sm:p-2 sm:pl-6 sm:pr-6 lg:p-4 lg:pl-6 lg:pr-6 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+        "px-3 sm:p-2 sm:px-6 lg:p-4 lg:px-8 bg-primary hover:bg-primary-hover p-1 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
       numCorrect: 0, // number of correctly answered questions
       numWrong: 0, // number of wrongly answered questions
       numSkipped: 0, // number of skipped questions
@@ -266,10 +269,17 @@ export default {
 
     // load plio details
     await this.fetchPlioCreateSession();
+
+    // add listener for screen size being changed
+    window.addEventListener("resize", this.setPlayerAspectRatio);
   },
   beforeUnmount() {
     // remove timeout
     clearTimeout(UPLOAD_INTERVAL_TIMEOUT);
+  },
+  unmounted() {
+    // remove listeners
+    window.removeEventListener("resize", this.setPlayerAspectRatio);
   },
   props: {
     plioId: {
@@ -288,23 +298,60 @@ export default {
       default: null,
       type: String,
     },
+    /**
+     * whether it is being opened in preview mode
+     * in which case no sessions would be created
+     */
+    previewMode: {
+      default: false,
+      type: Boolean,
+    },
+    /**
+     * custom classes for the plio container
+     */
+    containerClass: {
+      default: "h-screen",
+      type: String,
+    },
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
+    /**
+     * id of the DOM element for the main container of the plio
+     */
+    plioContainerId() {
+      return `plio${this.plioId}`;
+    },
+    /**
+     * id of the DOM element for the video player
+     */
+    plioVideoPlayerElementId() {
+      return `plioVideoPlayer${this.plioId}`;
+    },
+    /**
+     * id of the DOM element for the modal
+     */
+    plioModalElementId() {
+      return `plioModal${this.plioId}`;
+    },
     /**
      * whether the scorecard is enabled or not
      */
     isScorecardEnabled() {
       return this.items != undefined && this.hasAnyItems;
     },
+    /**
+     * progress value (0-100) to be passed to the Scorecard component
+     */
     scorecardProgress() {
-      // progress value (0-100) to be passed to the Scorecard component
       const totalAttempted = this.numCorrect + this.numWrong;
       if (totalAttempted == 0) return null;
       return (this.numCorrect / totalAttempted) * 100;
     },
+    /**
+     * defines all the metrics to show in the scorecard here
+     */
     scorecardMetrics() {
-      // define all the metrics to show in the scorecard here
       return [
         {
           name: this.$t("player.scorecard.metric.description.correct"),
@@ -332,17 +379,23 @@ export default {
         },
       ];
     },
+    /**
+     * if the app needs to authenticate using a third party auth or not
+     */
     isThirdPartyAuth() {
-      // if the app needs to authenticate using a third party auth or not
       return this.thirdPartyUniqueId != null && this.thirdPartyApiKey != null;
     },
+    /**
+     * type of the current selected item
+     * eg - question, note etc
+     */
     currentItemType() {
-      // type of the current selected item -
-      // eg - question, note etc
       return this.items[this.currentItemIndex].type;
     },
+    /**
+     * styling class for the title of minimize button
+     */
     maximizeButtonTitleConfig() {
-      // styling class for the title of minimize button
       return {
         value: this.isModalMinimized
           ? this.$t(`editor.buttons.show_${this.currentItemType}`)
@@ -350,48 +403,83 @@ export default {
         class: "text-white text-md sm:text-base lg:text-xl font-bold",
       };
     },
+    /**
+     * whether the plio has been loaded
+     */
     isPlioLoaded() {
-      // whether the plio has been loaded
       return this.videoId != "";
     },
+    /**
+     * whether there are any items
+     */
     hasAnyItems() {
-      // whether there are any itesm
       return this.items.length != 0;
     },
+    /**
+     * whether any item is currently active
+     */
     isAnyItemActive() {
-      // whether any item is currently active
       return this.currentItemIndex != null;
     },
-    showItemModal() {
-      // whether the item modal needs to be shown
+    /**
+     * whether the item modal needs to be shown
+     */
+    isItemModalShown() {
       return this.hasAnyItems && this.isAnyItemActive;
     },
+    /**
+     * list of the timestamps for each of the items
+     */
     itemTimestamps() {
-      // list of the timestamps for each of the items
       return ItemFunctionalService.getItemTimestamps(this.items);
     },
+    /**
+     * whether the session has been defined and begun
+     */
     hasSessionStarted() {
-      // whether the session has been defined and begun
       return this.sessionDBId != null;
     },
+    /**
+     * returns the player instance
+     */
     player() {
-      // returns the player instance
       return this.$refs.videoPlayer.player;
     },
+    /**
+     * config for the text of the fullscreen toggle button
+     */
     fullscreenButtonTitleConfig() {
-      // config for the text of the fullscreen toggle button
       return {
         value: this.$t("player.fullscreen.enter"),
         class: "text-white text-lg font-bold",
       };
     },
+    /**
+     * class for the fullscreen button
+     */
     fullscreenButtonClass() {
-      // class for the fullscreen button
       return `ring-2 ring-red-100 bg-primary hover:bg-primary-hover p-4 rounded-md shadow-xl place-self-center animate-bounce m-auto`;
     },
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
+    /**
+     * sets the aspect ratio based on the current window height and width
+     * to cover the full screen
+     */
+    setPlayerAspectRatio() {
+      /**
+       * refer to this comment from the creator of plyr on how he
+       * handles responsiveness: https://github.com/sampotts/plyr/issues/339#issuecomment-287603966
+       * the solution below is just generalizing what he had done
+       */
+      let paddingBottom = (100 * window.innerHeight) / window.innerWidth;
+      document
+        .getElementById(this.plioContainerId) // to ensure only the plio embed is changed because of this and not other plyr elements
+        .getElementsByClassName(
+          "plyr__video-embed"
+        )[0].style.paddingBottom = `${paddingBottom}%`;
+    },
     /**
      * Show the scorecard on top of the player
      */
@@ -455,7 +543,9 @@ export default {
       resetConfetti();
     },
     mountOnFullscreenPlyr(elementToMount) {
-      var plyrInstance = document.getElementsByClassName("plyr")[0];
+      var plyrInstance = document
+        .getElementById(this.plioContainerId)
+        .getElementsByClassName("plyr")[0];
       plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
     },
     maximizeModal() {
@@ -475,7 +565,7 @@ export default {
 
       this.isModalMinimized = true;
 
-      // insert the button inside the plyr instance so it shows up in fullscreen mode
+      // insert the button inside the plyr instance so that it shows up in fullscreen mode
       this.$nextTick(() => {
         var maximizeButton = document.getElementById("maximizeButton");
         if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
@@ -504,12 +594,15 @@ export default {
       this.createEvent("question_revised", { itemIndex: this.currentItemIndex });
       this.closeItemModal();
     },
+    /**
+     * saves the answer to the question at the current index
+     */
     submitQuestion() {
       /**
-       * invoked when a question response is submitted
+       * update the session answer on server if the user is authenticated
+       * and the plio is not opened in preview mode
        */
-      // update the session answer on server if the user is authenticated
-      if (this.isAuthenticated) {
+      if (this.isAuthenticated && !this.previewMode) {
         SessionAPIService.updateSessionAnswer(this.itemResponses[this.currentItemIndex]);
         // create an event for the submit action
         this.createEvent("question_answered", {
@@ -533,12 +626,18 @@ export default {
       this.closeItemModal();
       this.createEvent("question_proceed", { itemIndex: this.currentItemIndex });
     },
+    /**
+     * fetches plio details and creates a new session
+     */
     async fetchPlioCreateSession() {
-      // fetches plio details and creates a new session
       await PlioAPIService.getPlio(this.plioId, true)
         .then((plioDetails) => {
-          // redirect to 404 if the plio is not published
-          if (plioDetails.status != "published") this.$router.replace({ name: "404" });
+          /**
+           * redirect to 404 if the plio is not published
+           * and the plio is not opened in preview mode
+           */
+          if (plioDetails.status != "published" && !this.previewMode)
+            this.$router.replace({ name: "404" });
           this.items = plioDetails.items || [];
           // setting numSkipped to number of items. This value will keep reducing
           // as numCorrect and numWrong are calculated
@@ -550,12 +649,15 @@ export default {
         .then(() => this.createSession())
         .then(() => this.logData());
     },
+    /**
+     * periodically logs data to the server
+     */
     logData() {
       /**
-       * periodically logs data to the server
+       * do not log data if the user is not authenticated
+       * or if the plio is opened in preview mode
        */
-      // do not log data if the user is not authenticated
-      if (!this.isAuthenticated) return;
+      if (!this.isAuthenticated || this.previewMode) return;
 
       if (this.hasSessionStarted) {
         // update session data
@@ -583,12 +685,15 @@ export default {
       // pauses the video player
       this.player.pause();
     },
+    /**
+     * creates new user-plio session
+     */
     createSession() {
       /**
-       * creates new user-plio session
+       * do not create a session if a user is not authenticated
+       * or if the plio is opened in preview mode
        */
-      // do not create a session if a user is not authenticated
-      if (!this.isAuthenticated) {
+      if (!this.isAuthenticated || this.previewMode) {
         // initiate itemResponses as an empty set of answers
         this.items.forEach((item) => {
           if (item.type == "question" && item.details["type"] == "mcq") {
@@ -645,12 +750,15 @@ export default {
         this.calculateScorecardMetrics();
       });
     },
+    /**
+     * updates the session data on the server
+     */
     updateSession() {
       /**
-       * update the session data on the server
+       * do not try updating the session if the user is not authenticated
+       * or if the plio is opened in preview mode
        */
-      // do not try updating the session if the user is not authenticated
-      if (!this.isAuthenticated) return;
+      if (!this.isAuthenticated || this.previewMode) return;
 
       var sessionDetails = {
         plio: this.plioDBId,
@@ -677,11 +785,24 @@ export default {
     },
     playerPlayed() {
       // invoked when the play button of the player is clicked
+      if (this.isScorecardShown) {
+        /**
+         * prevents the video from playing while the
+         * scorecard is being shown
+         */
+        this.pausePlayer();
+        return;
+      }
       this.createEvent("played");
     },
     playerPaused() {
       // invoked when the pause button of the player is clicked
       this.createEvent("paused");
+    },
+    playerInitiated() {
+      // sets the aspect ratio while the player is getting ready
+      this.setPlayerAspectRatio();
+      this.$emit("initiated");
     },
     playerReady() {
       // invoked when the player is ready
@@ -694,6 +815,10 @@ export default {
         "Plio Video Length": this.player.duration || 0,
         "Plio Num Items": this.items.length || 0,
       });
+      // sets the aspect ratio when the player is ready
+      // this is required for safari
+      this.setPlayerAspectRatio();
+
       // Disabling autoplay because of bug - issue #157
       // this.playPlayer();
     },
@@ -838,28 +963,33 @@ export default {
       this.pausePlayer();
 
       // if the video is in fullscreen mode, show the modal on top of it
-      var modal = document.getElementById("modal");
+      var modal = document.getElementById(this.plioModalElementId);
       if (modal != undefined) this.mountOnFullscreenPlyr(modal);
 
       var maximizeButton = document.getElementById("maximizeButton");
       if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
     },
-    playerEntersFullscreen() {
-      // invoked when the player enters fullscreen
+    enterPlayerFullscreen() {
+      // sets the player to fullscreen
       this.isFullscreen = true;
       this.createEvent("enter_fullscreen");
     },
-    playerExitsFullscreen() {
-      // invoked when the player exits fullscreen
+    exitPlayerFullscreen() {
+      // unsets the player from fullscreen
       this.isFullscreen = false;
       this.createEvent("exit_fullscreen");
+      this.setPlayerAspectRatio();
     },
+    /**
+     * creates a new event
+     */
     createEvent(eventType, eventDetails = {}) {
       /**
-       * create a new event
+       * do not create an event if the session has not started
+       * or the user is not authenticated or if the plio is opened
+       * in preview mode
        */
-      if (!this.hasSessionStarted || !this.isAuthenticated) return;
-      // create event only when the session has been initiated
+      if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode) return;
       var eventData = {
         type: eventType,
         details: eventDetails,
@@ -872,6 +1002,6 @@ export default {
       this.isFullscreen = true;
     },
   },
-  emits: ["loaded", "item-toggle"],
+  emits: ["initiated", "loaded", "item-toggle"],
 };
 </script>

@@ -87,11 +87,6 @@ export default {
       default: false,
       type: Boolean,
     },
-    isPortrait: {
-      // whether the screen is in portraid mode
-      default: false,
-      type: Boolean,
-    },
     answerFeedbackText: {
       // text to be used as feedback once answer is submitted
       default: "",
@@ -102,6 +97,13 @@ export default {
       default: "",
       type: String,
     },
+  },
+  data() {
+    return {
+      // main styling class for this component
+      containerClass:
+        "flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end mb-4",
+    };
   },
   computed: {
     hasAnyAnswerFeedback() {
@@ -116,13 +118,6 @@ export default {
       set(localIsFullscreen) {
         this.$emit("update:isFullscreen", localIsFullscreen);
       },
-    },
-    containerClass() {
-      // main styling class for this component
-      return [
-        { "mb-auto": this.isPortrait },
-        "flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end mb-4",
-      ];
     },
     submitButtonTitleConfig() {
       // config for the text of the submit button
