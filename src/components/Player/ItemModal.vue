@@ -8,7 +8,7 @@
         :isModalMinimized="isModalMinimized"
         :isFullscreen="isFullscreen"
         :previewMode="previewMode"
-        :isPortrait="isPortrait"
+        :videoPlayerElementId="videoPlayerElementId"
         @toggle-minimize="toggleMinimize"
         @skip-question="skipQuestion"
         data-test="header"
@@ -24,12 +24,11 @@
         :questionType="questionType"
         :hasCharLimit="hasCharLimit"
         :maxCharLimit="maxCharLimit"
-        @option-selected="optionSelected"
-        @answer-updated="subjectiveAnswerUpdated"
         :previewMode="previewMode"
         :imageData="imageData"
         :isPortrait="isPortrait"
-        :isFullscreen="isFullscreen"
+        @option-selected="optionSelected"
+        @answer-updated="subjectiveAnswerUpdated"
         data-test="body"
       ></item-question-body>
       <!-- footer -->
@@ -40,7 +39,6 @@
         :isAnswerSubmitted="isAnswerSubmitted"
         :isAnswerCorrect="isAnswerCorrect"
         :isSubmitEnabled="isAnswerValid"
-        :isPortrait="isPortrait"
         :answerFeedbackText="answerFeedbackText"
         :answerFeedbackTextClass="answerFeedbackTextClass"
         @proceed-question="proceedQuestion"
@@ -113,6 +111,11 @@ export default {
       default: false,
       type: Boolean,
     },
+    videoPlayerElementId: {
+      // id of the DOM element corresponding to video player
+      default: null,
+      type: String,
+    },
   },
   components: {
     ItemQuestionHeader,
@@ -169,9 +172,10 @@ export default {
     },
     isAnswerValid() {
       // whether an option has been selected
-      if (this.draftResponses[this.selectedItemIndex] == null) return false;
-      if (this.isQuestionTypeSubjective)
-        return this.draftResponses[this.selectedItemIndex] != "";
+      const currentResponse = this.draftResponses[this.selectedItemIndex];
+      if (currentResponse == null) return false;
+      if (this.isQuestionTypeSubjective) return currentResponse != "";
+      if (this.isQuestionTypeMCQ) return !isNaN(currentResponse);
       return true;
     },
     localResponseList: {
@@ -266,7 +270,11 @@ export default {
         this.isPortrait = false;
         return;
       }
-      if (screen.availHeight > 1.5 * screen.availWidth) this.isPortrait = true;
+      /**
+       * we have defined our custom logic for deciding when the screen is considered
+       * to be in portrait mode
+       */
+      if (screen.availHeight > 0.8 * screen.availWidth) this.isPortrait = true;
       else this.isPortrait = false;
     },
     subjectiveAnswerUpdated(answer) {

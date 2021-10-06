@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="showPaginator"
-    class="bg-white px-4 py-3 flex items-center justify-between sm:px- mx-2 xsm:mx-4 sm:mx-6 md:mx-8 lg:mx-10 xl:mx-14"
+    class="bg-white px-4 py-3 flex items-center justify-between sm:px- mx-2 bp-360:mx-4 sm:mx-6 md:mx-8 lg:mx-10 xl:mx-14"
   >
     <!-- paginator for smaller screens -->
     <div class="flex-1 flex justify-between sm:hidden">
@@ -157,7 +157,7 @@ export default {
       // set style classe for the page number buttons
       return [
         {
-          "bg-primary-button cursor-not-allowed hover:bg-primary-button":
+          "bg-primary cursor-not-allowed hover:bg-primary":
             this.paginatorDetails.currentPage === page && !this.pending,
           "animate-pulse bg-gray-300 text-opacity-0 hover:bg-gray-300": this.pending,
         },
@@ -260,7 +260,7 @@ export default {
         },
         `relative inline-flex items-center px-4 sm:px-2 py-2 border border-gray-300
           bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none
-          active:bg-primary-button`,
+          active:bg-primary`,
       ];
     },
 
@@ -275,7 +275,7 @@ export default {
         },
         `relative inline-flex items-center px-4 sm:px-2 py-2 border border-gray-300
           bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none
-          active:bg-primary-button`,
+          active:bg-primary`,
       ];
     },
   },

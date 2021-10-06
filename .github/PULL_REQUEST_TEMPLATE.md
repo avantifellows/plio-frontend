@@ -27,13 +27,14 @@ Fixes #{issue id}
 - [ ] Cross-Browser Testing
    - [ ] Chrome
    - [ ] Firefox
-   - [ ] Safari
+   - [ ] Safari (use BrowserStack)
 - [ ] Local Language Support
 - [ ] Wrote tests
 - [ ] Tested locally
-- [ ] Tested on staging
-- [ ] Tested on an actual physical phone
-- [ ] Tested on production
+- [ ] Self-review
 - [ ] Comments have been added appropriately
 - [ ] Check for bundle size [here](https://bundlephobia.com/) if adding a package
 - [ ] Added relevant details like Labels/Projects/Milestones etc.
+- [ ] Tested on staging
+- [ ] Tested on an actual physical phone
+- [ ] Tested on production

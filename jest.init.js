@@ -87,5 +87,13 @@ Object.defineProperty(window, "matchMedia", {
 
 // mock getBoundingClientRect
 global.document.getElementById = jest.fn(() => ({
-  getBoundingClientRect: jest.fn(),
+  getBoundingClientRect: jest.fn(() => {
+    return {
+      width: 100,
+      height: 100,
+    };
+  }),
+  setAttribute: jest.fn(() => {
+    return;
+  }),
 }));

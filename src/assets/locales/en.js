@@ -30,7 +30,7 @@ export default {
     headings: {
       add_question: "Add a new question",
       subjective_question_warning:
-        "Subjective Questions are not included while calculating the accuracy in the dashboard",
+        "All answers to subjective questions are considered correct",
     },
     buttons: {
       home: "Home",
@@ -42,6 +42,8 @@ export default {
       show_question: "Show Question",
       share_plio: "Share",
       play_plio: "Play",
+      preview_plio: "Preview",
+      embed_plio: "Embed",
       analyze_plio: "Analyze",
     },
     updated: "Updated at",
@@ -100,11 +102,15 @@ export default {
           title: "Are you sure you want to publish your changes?",
           description:
             "The plio will be permananently changed once you publish the changes",
+          confirm: "Yes",
+          cancel: "No",
         },
         draft: {
           title: "Are you sure you want to publish the plio?",
           description:
-            "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question",
+            "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question. You can also preview the plio before publishing it.",
+          confirm: "Publish",
+          cancel: "Preview",
         },
       },
       publishing: {
@@ -118,6 +124,7 @@ export default {
       published: {
         buttons: {
           play_plio: "Play",
+          embed_plio: "Embed",
           share_plio: "Share",
           home: "Home",
         },
@@ -129,6 +136,33 @@ export default {
           copy_link: {
             not_copied: "Copy Link",
             copied: "Copied!",
+          },
+        },
+      },
+      embed_plio: {
+        title: "Embed this Plio",
+        headings: {
+          without_sso: "Without Single Sign-On (SSO)",
+          with_sso: "With Single Sign-On (SSO)",
+        },
+        buttons: {
+          copy_link: {
+            not_copied: "Copy",
+            copied: "Copied!",
+          },
+        },
+        info: {
+          embed_data: {
+            personal_workspace: {
+              1: "In your current plan, you will not receive any data from the embedded plio if your viewers haven't already logged in to Plio. Fill ",
+              2: "this",
+              3: " form if you want to apply for a team workspace to receive data using Single Sign-On (SSO).",
+            },
+            org_workspace: {
+              1: "By default, you will not receive any data from the embedded plio if your viewers haven't already logged in to Plio. However, you can receive data using Single Sign-On (SSO). Click ",
+              2: "here",
+              3: " to understand how to use it!",
+            },
           },
         },
       },
@@ -171,6 +205,7 @@ export default {
           analyse: "Analyse",
           share: "Share",
           delete: "Delete",
+          embed: "Embed",
         },
         dialog: {
           delete: {
@@ -284,6 +319,20 @@ export default {
     fullscreen: {
       enter: "Go Fullscreen",
       exit: "Exit Fullscreen",
+    },
+    scorecard: {
+      greeting: "Hooray! Congratulations on completing the plio!",
+      metric: {
+        description: {
+          correct: "Correct",
+          wrong: "Wrong",
+          skipped: "Skipped",
+          accuracy: "Accuracy",
+        },
+      },
+      buttons: {
+        watchAgain: "Watch Again",
+      },
     },
   },
   error: {

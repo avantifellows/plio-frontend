@@ -8,7 +8,11 @@
     </div>
     <div :class="orientationClass">
       <!-- loading spinner when question image is loading -->
-      <div class="place-self-center px-10" v-if="pending">
+      <div
+        :class="questionImageAreaClass"
+        class="flex justify-center"
+        v-if="isImageLoading"
+      >
         <inline-svg
           :src="require('@/assets/images/spinner-solid.svg')"
           class="animate-spin h-4 object-scale-down"
@@ -21,11 +25,17 @@
           class="object-contain h-full w-full"
           :alt="imageData.alt_text"
           @load="imageLoaded"
-          :class="{ invisible: pending }"
+          ref="questionImage"
+          :class="{ invisible: isImageLoading }"
         />
       </div>
       <!-- option container -->
-      <div v-if="isQuestionTypeMCQ" class="flex w-full" data-test="optionContainer">
+      <div
+        v-if="isQuestionTypeMCQ"
+        class="flex"
+        :class="answerContainerClass"
+        data-test="optionContainer"
+      >
         <ul class="w-full">
           <li class="list-none space-y-1 flex flex-col">
             <div
@@ -61,7 +71,8 @@
       <!-- subjective question answer -->
       <div
         v-if="isQuestionTypeSubjective"
-        class="flex flex-col w-full"
+        class="flex flex-col"
+        :class="answerContainerClass"
         data-test="subjectiveAnswerContainer"
       >
         <!-- input area for the answer -->
@@ -96,13 +107,13 @@
 
 <script>
 import Textarea from "@/components/UI/Text/Textarea.vue";
-import { mapState, mapActions } from "vuex";
 
 export default {
   data() {
     return {
       subjectiveAnswer: "", // holds the answer to the subjective question
       subjectiveBoxHeightLimit: 250, // maximum allowed height of the subjective answer text box in px
+      isImageLoading: false, // whether the image is loading
     };
   },
   watch: {
@@ -120,14 +131,14 @@ export default {
     imageData: {
       // invoked when another item pops up which has an image
       handler(value) {
-        if (value != null) this.startLoading();
+        if (value != null) this.startImageLoading();
       },
       deep: true,
     },
   },
   async created() {
     this.subjectiveAnswer = this.defaultAnswer;
-    if (this.isQuestionImagePresent) this.startLoading();
+    if (this.isQuestionImagePresent) this.startImageLoading();
   },
   props: {
     questionText: {
@@ -190,18 +201,16 @@ export default {
       default: false,
       type: Boolean,
     },
-    isFullscreen: {
-      // whether the modal is in fullscreen
-      default: false,
-      type: Boolean,
-    },
   },
   components: { Textarea },
   methods: {
-    ...mapActions("sync", ["startLoading", "stopLoading"]),
+    startImageLoading() {
+      // sets the image state as loading
+      this.isImageLoading = true;
+    },
     imageLoaded() {
       // stop the loading spinner when the image has been loaded
-      this.stopLoading();
+      this.isImageLoading = false;
     },
     checkCharLimit(event) {
       // checks if character limit is reached in case it is set
@@ -228,7 +237,19 @@ export default {
     },
   },
   computed: {
-    ...mapState("sync", ["pending"]),
+    /**
+     * classes for the various containers corresponding to the possible types of answers
+     * to the various types of questions (options for MCQ, textarea for subjective)
+     */
+    answerContainerClass() {
+      return {
+        "w-1/2": !this.isPortrait && this.isQuestionImagePresent,
+        "w-full":
+          this.isPortrait ||
+          (this.previewMode && !this.isQuestionImagePresent) ||
+          (!this.isPortrait && !this.isQuestionImagePresent),
+      };
+    },
     subjectiveAnswerBoxStyling() {
       // classes for the subjective answer box
       return [
@@ -240,17 +261,22 @@ export default {
         "px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-transparent",
       ];
     },
+    questionImageAreaClass() {
+      // styling class for the question image and loading spinner containers
+      return {
+        "h-56 mb-4": !this.previewMode && this.isPortrait,
+        "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2":
+          !this.isPortrait && !this.previewMode,
+        "h-20 bp-360:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
+          .previewMode,
+      };
+    },
     questionImageContainerClass() {
       // styling class for the image container
       return [
+        this.questionImageAreaClass,
         {
-          "h-56 mb-4": this.isPortrait && !this.previewMode && this.isFullscreen,
-          "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2 bp-500:w-1/3":
-            (!this.isPortrait && !this.previewMode) ||
-            (this.isPortrait && !this.isFullscreen),
-          "h-20 xsm:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
-            .previewMode,
-          invisible: this.pending,
+          hidden: this.isImageLoading,
         },
         "border rounded-md",
       ];
@@ -259,9 +285,8 @@ export default {
       // styling class to decide orientation of image + options depending on portrait/landscape orientation
       return [
         {
-          "content-center":
-            this.isQuestionImagePresent && !this.isPortrait && !this.isFullscreen,
-          "flex-col": this.isQuestionImagePresent && this.isPortrait && this.isFullscreen,
+          "content-center": this.isQuestionImagePresent && !this.isPortrait,
+          "flex-col": this.isQuestionImagePresent && this.isPortrait,
           "space-x-2 md:space-x-4":
             !this.previewMode && !this.isPortrait && this.isQuestionImagePresent,
           "mx-6 md:mx-10 py-4": !this.previewMode,

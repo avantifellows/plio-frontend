@@ -24,15 +24,31 @@ const getters = {
   },
   isUserApproved: (state) =>
     state.user != null && state.user.status == "approved",
-  activeWorkspaceSchema: (state) => {
-    let activeOrganizationSchema = "public";
+
+  isPersonalWorkspace: (state) => {
+    // whether the current workspace is the personal workspace
+    return state.activeWorkspace == "";
+  },
+  activeOrganization: (state) => {
+    // gets the current active organization
     if (state.activeWorkspace != "") {
-      let activeOrganization = state.user.organizations.find((organization) => {
+      return state.user.organizations.find((organization) => {
         return organization.shortcode == state.activeWorkspace;
       });
-      activeOrganizationSchema = activeOrganization.schema_name;
     }
-    return activeOrganizationSchema;
+    // returns some default values for personal workspace
+    return {
+      schema_name: "public",
+      api_key: "",
+    };
+  },
+  activeWorkspaceSchema: (_, getters) => {
+    // schema of the current workspace
+    return getters.activeOrganization.schema_name;
+  },
+  activeWorkspaceApiKey: (_, getters) => {
+    // api key of the current workspace
+    return getters.activeOrganization.api_key;
   },
   isAnalyticsAccessTokenValid: (state) => {
     if (state.analyticsAccessToken === null) return false;

@@ -2,11 +2,16 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "@/pages/Home.vue";
 import Editor from "@/pages/Editor.vue";
 import Player from "@/pages/Player.vue";
+import Plio from "@/pages/Embeds/Plio.vue";
 import Dashboard from "@/pages/Dashboard.vue";
 import Login from "@/pages/Login";
-import store from "../store";
+import store from "@/store";
 import i18n from "@/services/Localisation/i18n.js";
 import { useToast } from "vue-toastification";
+import {
+  animationFrameRequest,
+  resetConfetti,
+} from "@/services/Functional/Utilities.js";
 
 const toast = useToast();
 // these keys should be present as query params when a third party
@@ -63,7 +68,6 @@ const routes = [
     // passing props to route components
     // https://router.vuejs.org/guide/essentials/passing-props.html#passing-props-to-route-components
     props: (route) => ({
-      experiment: route.query.experiment,
       plioId: route.params.plioId,
       org: route.params.org,
       thirdPartyUniqueId: route.query.unique_id,
@@ -72,6 +76,20 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: "Player - Plio",
+    },
+  },
+  {
+    path: "/:org?/plio/:plioId",
+    name: "Plio",
+    component: Plio,
+    props: (route) => ({
+      plioId: route.params.plioId,
+      org: route.params.org,
+      thirdPartyUniqueId: route.query.unique_id,
+      thirdPartyApiKey: route.query.api_key,
+    }),
+    meta: {
+      title: "Plio",
     },
   },
   {
@@ -117,6 +135,9 @@ The code below works on `isAuthenticated` state and before every route:
 router.beforeEach((to, from) => {
   // clear all toasts whenever the route changes
   toast.clear();
+
+  // clear all confetti whenever the route changes
+  if (animationFrameRequest != null) resetConfetti();
 
   // show auto logout toast
   if (

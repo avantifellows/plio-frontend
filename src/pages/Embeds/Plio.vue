@@ -1,0 +1,1007 @@
+<template>
+  <div :id="plioContainerId">
+    <!-- skeleton loading -->
+    <video-skeleton v-if="!isPlioLoaded && !previewMode"></video-skeleton>
+    <div v-if="isPlioLoaded" class="flex relative shadow-lg" :class="containerClass">
+      <!-- video player component -->
+      <video-player
+        :videoId="videoId"
+        :plyrConfig="plyrConfig"
+        :id="plioVideoPlayerElementId"
+        ref="videoPlayer"
+        :currentTime="currentTimestamp"
+        @ready="playerReady"
+        @initiated="playerInitiated"
+        @play="playerPlayed"
+        @pause="playerPaused"
+        @seeked="videoSeeked"
+        @update="videoTimestampUpdated"
+        @enterfullscreen="enterPlayerFullscreen"
+        @exitfullscreen="exitPlayerFullscreen"
+        @buffered="setPlayerAspectRatio"
+        @playback-ended="popupScorecard"
+        class="w-full z-0"
+      ></video-player>
+      <!-- minimize button -->
+      <transition name="maximize-btn-transition">
+        <icon-button
+          v-if="isModalMinimized && isItemModalShown"
+          class="absolute z-20"
+          id="maximizeButton"
+          :titleConfig="maximizeButtonTitleConfig"
+          :buttonClass="maximizeButtonClass"
+          @click="maximizeModal"
+        >
+        </icon-button>
+      </transition>
+      <!-- transition for minimizing/maximizing item modal -->
+      <transition enter-active-class="grow" leave-active-class="shrink">
+        <!-- item modal component -->
+        <item-modal
+          v-if="!isModalMinimized"
+          :id="plioModalElementId"
+          class="absolute z-10"
+          :class="{ hidden: !isItemModalShown }"
+          :selectedItemIndex="currentItemIndex"
+          :itemList="items"
+          :previewMode="false"
+          :isModalMinimized="isModalMinimized"
+          :isFullscreen="isFullscreen"
+          :videoPlayerElementId="plioVideoPlayerElementId"
+          v-model:isFullscreen="isFullscreen"
+          v-model:responseList="itemResponses"
+          @skip-question="skipQuestion"
+          @proceed-question="proceedQuestion"
+          @revise-question="reviseQuestion"
+          @submit-question="submitQuestion"
+          @option-selected="optionSelected"
+          @toggle-minimize="minimizeModal"
+          data-test="item-modal"
+        ></item-modal>
+      </transition>
+      <Scorecard
+        id="scorecardmodal"
+        class="absolute z-10"
+        :class="{ hidden: !isScorecardShown }"
+        :metrics="scorecardMetrics"
+        :progressPercentage="scorecardProgress"
+        :isShown="isScorecardShown"
+        :plioTitle="plioTitle"
+        :greeting="$t('player.scorecard.greeting')"
+        @restart-video="restartVideo"
+        ref="scorecard"
+      ></Scorecard>
+    </div>
+  </div>
+</template>
+
+<script>
+import VideoPlayer from "@/components/UI/Player/VideoPlayer";
+import VideoSkeleton from "@/components/UI/Skeletons/VideoSkeleton.vue";
+import Scorecard from "@/components/Items/Scorecard.vue";
+import PlioAPIService from "@/services/API/Plio.js";
+import UserAPIService from "@/services/API/User.js";
+import SessionAPIService from "@/services/API/Session.js";
+import EventAPIService from "@/services/API/Event.js";
+import VideoFunctionalService from "@/services/Functional/Video.js";
+import ItemFunctionalService from "@/services/Functional/Item.js";
+import ItemModal from "@/components/Player/ItemModal.vue";
+import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import { useToast } from "vue-toastification";
+import { mapActions, mapGetters } from "vuex";
+import { resetConfetti } from "@/services/Functional/Utilities.js";
+
+// difference in seconds between consecutive checks for item pop-up
+var POP_UP_CHECKING_FREQUENCY = 0.5;
+var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
+
+// The time period in which Plyr timeupdate event repeats
+// in seconds
+const PLYR_INTERVAL_TIME = 0.05;
+
+// upload data periodically - period in milliseconds
+const UPLOAD_INTERVAL = 10000;
+var UPLOAD_INTERVAL_TIMEOUT = null;
+
+export default {
+  components: {
+    VideoPlayer,
+    VideoSkeleton,
+    ItemModal,
+    IconButton,
+    Scorecard,
+  },
+  data() {
+    return {
+      plyrConfig: {
+        controls: [
+          "play",
+          "play-large",
+          "progress",
+          "current-time",
+          "mute",
+          "volume",
+          "fullscreen",
+          "settings",
+        ],
+
+        keyboard: {
+          focused: false,
+          global: false,
+        },
+
+        clickToPlay: false,
+
+        invertTime: false,
+      },
+      videoId: "", // video Id for the Plio
+      componentProperties: {}, // properties of the plio player
+      items: [], // holds the list of all items for this plio
+      itemResponses: [], // holds the responses to each item
+      watchTime: 0, // keeps a count of the watch time in seconds for the plio by the user
+      watchTimeIncrement: 0, // maintains the increase in watch time since the last time it was logged
+      currentItemIndex: null, // current item being displayed
+      markerClass: [
+        // class for the item marker displayed on top of the video slider
+        "bg-red-600",
+        "absolute",
+        "z-10",
+        "transform",
+        "translate",
+        "-translate-x-2/4",
+        "translate-y-4",
+        "py-1.5",
+        "px-1",
+        "bottom-full",
+        "pointer-events-none",
+        "rounded-md",
+      ],
+      scorecardMarkerClass: [
+        "absolute",
+        "z-10",
+        "transform",
+        "translate",
+        "-translate-x-2/4",
+        "translate-y-6",
+        "bottom-full",
+        "pointer-events-none",
+        "text-2xl",
+      ],
+      lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
+      isFullscreen: false, // is the player in fullscreen
+      currentTimestamp: 0, // tracks the current timestamp in the video
+      plioDBId: null, // id for this plio in the plio DB table
+      sessionDBId: null, // id for this session in the plio DB table
+      retention: [], // array to store video retention value
+      lastTimestampRetention: null, // last recorded timestamp in the retention array
+      toast: useToast(), // use the toast component
+      isModalMinimized: false, // whether the item modal is minimized or not
+      // styling class for the minimize button
+      maximizeButtonClass:
+        "px-3 sm:p-2 sm:px-6 lg:p-4 lg:px-8 bg-primary hover:bg-primary-hover p-1 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+      numCorrect: 0, // number of correctly answered questions
+      numWrong: 0, // number of wrongly answered questions
+      numSkipped: 0, // number of skipped questions
+      isScorecardShown: false, // to show the scorecard or not
+      plioTitle: "", // title of the plio
+    };
+  },
+  watch: {
+    isFullscreen(newIsFullscreen) {
+      // track the fullscreen status
+
+      if (newIsFullscreen) {
+        // trigger player fullscreen enter only if it is not already entered full screen
+        // by other modes like player controls or double click on the video.
+        if (!this.player.fullscreen.active) {
+          this.player.fullscreen.enter();
+        }
+      } else {
+        // trigger player full screen exit only if it is not already exited full screen
+        // by other modes like player controls or double click on the video.
+        if (this.player.fullscreen.active) {
+          this.player.fullscreen.exit();
+        }
+      }
+    },
+    isPlioLoaded(value) {
+      // emit if a plio has completed loading
+      if (value) this.$emit("loaded");
+    },
+    showItemModal(value) {
+      // emit if an item's visibility has been toggled
+      this.$emit("item-toggle", value);
+    },
+    itemResponses: {
+      handler(value) {
+        // whenever itemResponses is updated, re-render the markers
+        // and re-calculate the scorecard metrics
+        if (value != undefined && this.player != undefined) {
+          this.showItemMarkersOnSlider();
+        }
+      },
+      deep: true,
+    },
+  },
+  async created() {
+    // Creating a promise for the third party auth functionality.
+    // If the app needs to authenticate via third party, resolve this promise only when all tasks are done
+    // and the authenticated user is set.
+    // If the app does not need third party auth, resolve the promise instantly.
+    // All the remaining code will run only when this promise is resolved.
+    let thirdPartyAuthPromiseResolve;
+    let thirdPartyAuthPromise = new Promise((resolve) => {
+      thirdPartyAuthPromiseResolve = resolve;
+    });
+
+    if (this.isThirdPartyAuth) {
+      // convert the third party token into Plio's internal token
+      // and set the user accordingly
+      UserAPIService.generateExternalAuthToken({
+        unique_id: this.thirdPartyUniqueId,
+        api_key: this.thirdPartyApiKey,
+      })
+        .then(async (response) => {
+          await this.setAccessToken(response.data);
+          await this.setActiveWorkspace(this.org);
+          thirdPartyAuthPromiseResolve();
+        })
+        .catch((error) => {
+          // if there's some error in the query params,
+          // reload the page and remove the auth query params
+          // if the user is authenticated -- they will be able to see the plio
+          // if the user is not -- they will be asked to log in and then see the plio
+          if (error.response.status === 400) {
+            this.$router.replace({
+              name: "Player",
+              params: {
+                org: this.org,
+                plioId: this.plioId,
+              },
+            });
+            thirdPartyAuthPromiseResolve();
+          }
+        });
+    } else thirdPartyAuthPromiseResolve();
+
+    // wait for the third party auth process to complete and then proceed
+    await thirdPartyAuthPromise;
+
+    // load plio details
+    await this.fetchPlioCreateSession();
+
+    // add listener for screen size being changed
+    window.addEventListener("resize", this.setPlayerAspectRatio);
+  },
+  beforeUnmount() {
+    // remove timeout
+    clearTimeout(UPLOAD_INTERVAL_TIMEOUT);
+  },
+  unmounted() {
+    // remove listeners
+    window.removeEventListener("resize", this.setPlayerAspectRatio);
+  },
+  props: {
+    plioId: {
+      default: "",
+      type: String,
+    },
+    org: {
+      default: "",
+      type: String,
+    },
+    thirdPartyUniqueId: {
+      default: null,
+      type: String,
+    },
+    thirdPartyApiKey: {
+      default: null,
+      type: String,
+    },
+    /**
+     * whether it is being opened in preview mode
+     * in which case no sessions would be created
+     */
+    previewMode: {
+      default: false,
+      type: Boolean,
+    },
+    /**
+     * custom classes for the plio container
+     */
+    containerClass: {
+      default: "h-screen",
+      type: String,
+    },
+  },
+  computed: {
+    ...mapGetters("auth", ["isAuthenticated"]),
+    /**
+     * id of the DOM element for the main container of the plio
+     */
+    plioContainerId() {
+      return `plio${this.plioId}`;
+    },
+    /**
+     * id of the DOM element for the video player
+     */
+    plioVideoPlayerElementId() {
+      return `plioVideoPlayer${this.plioId}`;
+    },
+    /**
+     * id of the DOM element for the modal
+     */
+    plioModalElementId() {
+      return `plioModal${this.plioId}`;
+    },
+    /**
+     * whether the scorecard is enabled or not
+     */
+    isScorecardEnabled() {
+      return this.items != undefined && this.hasAnyItems;
+    },
+    /**
+     * progress value (0-100) to be passed to the Scorecard component
+     */
+    scorecardProgress() {
+      const totalAttempted = this.numCorrect + this.numWrong;
+      if (totalAttempted == 0) return null;
+      return (this.numCorrect / totalAttempted) * 100;
+    },
+    /**
+     * defines all the metrics to show in the scorecard here
+     */
+    scorecardMetrics() {
+      return [
+        {
+          name: this.$t("player.scorecard.metric.description.correct"),
+          icon: {
+            source: "check.svg",
+            class: "text-green-500",
+          },
+          value: this.numCorrect,
+        },
+        {
+          name: this.$t("player.scorecard.metric.description.wrong"),
+          icon: {
+            source: "times-solid.svg",
+            class: "text-red-500",
+          },
+          value: this.numWrong,
+        },
+        {
+          name: this.$t("player.scorecard.metric.description.skipped"),
+          icon: {
+            source: "skip.svg",
+            class: "text-yellow-700",
+          },
+          value: this.numSkipped,
+        },
+      ];
+    },
+    /**
+     * if the app needs to authenticate using a third party auth or not
+     */
+    isThirdPartyAuth() {
+      return this.thirdPartyUniqueId != null && this.thirdPartyApiKey != null;
+    },
+    /**
+     * type of the current selected item
+     * eg - question, note etc
+     */
+    currentItemType() {
+      return this.items[this.currentItemIndex].type;
+    },
+    /**
+     * styling class for the title of minimize button
+     */
+    maximizeButtonTitleConfig() {
+      return {
+        value: this.isModalMinimized
+          ? this.$t(`editor.buttons.show_${this.currentItemType}`)
+          : this.$t("editor.buttons.show_video"),
+        class: "text-white text-md sm:text-base lg:text-xl font-bold",
+      };
+    },
+    /**
+     * whether the plio has been loaded
+     */
+    isPlioLoaded() {
+      return this.videoId != "";
+    },
+    /**
+     * whether there are any items
+     */
+    hasAnyItems() {
+      return this.items.length != 0;
+    },
+    /**
+     * whether any item is currently active
+     */
+    isAnyItemActive() {
+      return this.currentItemIndex != null;
+    },
+    /**
+     * whether the item modal needs to be shown
+     */
+    isItemModalShown() {
+      return this.hasAnyItems && this.isAnyItemActive;
+    },
+    /**
+     * list of the timestamps for each of the items
+     */
+    itemTimestamps() {
+      return ItemFunctionalService.getItemTimestamps(this.items);
+    },
+    /**
+     * whether the session has been defined and begun
+     */
+    hasSessionStarted() {
+      return this.sessionDBId != null;
+    },
+    /**
+     * returns the player instance
+     */
+    player() {
+      return this.$refs.videoPlayer.player;
+    },
+    /**
+     * config for the text of the fullscreen toggle button
+     */
+    fullscreenButtonTitleConfig() {
+      return {
+        value: this.$t("player.fullscreen.enter"),
+        class: "text-white text-lg font-bold",
+      };
+    },
+    /**
+     * class for the fullscreen button
+     */
+    fullscreenButtonClass() {
+      return `ring-2 ring-red-100 bg-primary hover:bg-primary-hover p-4 rounded-md shadow-xl place-self-center animate-bounce m-auto`;
+    },
+  },
+  methods: {
+    ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
+    /**
+     * sets the aspect ratio based on the current window height and width
+     * to cover the full screen
+     */
+    setPlayerAspectRatio() {
+      /**
+       * refer to this comment from the creator of plyr on how he
+       * handles responsiveness: https://github.com/sampotts/plyr/issues/339#issuecomment-287603966
+       * the solution below is just generalizing what he had done
+       */
+      let paddingBottom = (100 * window.innerHeight) / window.innerWidth;
+      document
+        .getElementById(this.plioContainerId) // to ensure only the plio embed is changed because of this and not other plyr elements
+        .getElementsByClassName(
+          "plyr__video-embed"
+        )[0].style.paddingBottom = `${paddingBottom}%`;
+    },
+    /**
+     * Show the scorecard on top of the player
+     */
+    popupScorecard() {
+      if (!this.isScorecardShown) {
+        this.isScorecardShown = true;
+        var scorecardModal = document.getElementById("scorecardmodal");
+        if (scorecardModal != undefined) this.mountOnFullscreenPlyr(scorecardModal);
+      }
+    },
+    /**
+     * Checks whether the item at the provided itemIndex is a subjective question
+     * and if the user has answered the question or not
+     * @param {Number} itemIndex - The index of the item to be checked
+     * @param {String, Number, Object} userAnswer - User's answer to that item
+     */
+    isSubjectiveQuestionAnswered(itemIndex, userAnswer) {
+      return (
+        this.isItemSubjective(itemIndex) && userAnswer != null && userAnswer.trim() != ""
+      );
+    },
+    /**
+     * Update the number of correct answers, wrong answers and skipped items
+     * @param  {Number} itemIndex -  The index of the item to be considered for the calculation
+     * @param  {String, Number, Object} userAnswer - User's answer to that item
+     */
+    updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
+      if (this.isItemMCQ(itemIndex)) {
+        const correctAnswer = this.items[itemIndex].details.correct_answer;
+        if (!isNaN(userAnswer)) {
+          userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
+          // reduce numSkipped by 1 if numCorrect or numWrong increases
+          this.numSkipped -= 1;
+        }
+      } else if (this.isSubjectiveQuestionAnswered(itemIndex, userAnswer)) {
+        this.numCorrect += 1;
+        this.numSkipped -= 1;
+      }
+    },
+    /**
+     * Calculate the scorecard metrics
+     * @param {Number} [itemIndex = null] - If null, iterate through all items else just consider the provided item
+     */
+    calculateScorecardMetrics(itemIndex = null) {
+      if (itemIndex == null) {
+        this.itemResponses.forEach((itemResponse, itemIndex) => {
+          const userAnswer = itemResponse.answer;
+          this.updateNumCorrectWrongSkipped(itemIndex, userAnswer);
+        });
+      } else {
+        const userAnswer = this.itemResponses[itemIndex].answer;
+        this.updateNumCorrectWrongSkipped(itemIndex, userAnswer);
+      }
+    },
+    /**
+     * remove the scorecard, restart the video and remove the confetti
+     */
+    restartVideo() {
+      this.isScorecardShown = false;
+      this.player.restart();
+      resetConfetti();
+    },
+    mountOnFullscreenPlyr(elementToMount) {
+      var plyrInstance = document
+        .getElementById(this.plioContainerId)
+        .getElementsByClassName("plyr")[0];
+      plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild);
+    },
+    maximizeModal() {
+      // toggle the minimized state of the modal
+      this.isModalMinimized = false;
+    },
+    minimizeModal(positions) {
+      // invoked when minimize button is clicked
+
+      // set some CSS variables which tells the animation where the modal should shrink to
+      // and where the maximize button should pop up. These variables are defined in `Editor.vue`
+      let root = document.documentElement;
+      root.style.setProperty("--t-origin-x", positions.centerX + "px");
+      root.style.setProperty("--t-origin-y", positions.centerY + "px");
+      root.style.setProperty("--maximize-btn-left", positions.leftX + "px");
+      root.style.setProperty("--maximize-btn-top", positions.leftY + "px");
+
+      this.isModalMinimized = true;
+
+      // insert the button inside the plyr instance so that it shows up in fullscreen mode
+      this.$nextTick(() => {
+        var maximizeButton = document.getElementById("maximizeButton");
+        if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
+      });
+    },
+    videoSeeked() {
+      // invoked when a seek operation ends
+      this.createEvent("video_seeked", { currentTime: this.player.currentTime });
+    },
+    optionSelected(optionIndex) {
+      // invoked when an option of a question is selected
+      this.createEvent("option_selected", {
+        itemIndex: this.currentItemIndex,
+        optionIndex: optionIndex,
+      });
+    },
+    reviseQuestion() {
+      // after revise is clicked, take the user either to the beginning
+      // of the video if the question is the first item else to the end of
+      // the previous item
+      this.player.currentTime =
+        this.currentItemIndex == 0
+          ? 0
+          : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
+      // create an event for the revise action
+      this.createEvent("question_revised", { itemIndex: this.currentItemIndex });
+      this.closeItemModal();
+    },
+    /**
+     * saves the answer to the question at the current index
+     */
+    submitQuestion() {
+      /**
+       * update the session answer on server if the user is authenticated
+       * and the plio is not opened in preview mode
+       */
+      if (this.isAuthenticated && !this.previewMode) {
+        SessionAPIService.updateSessionAnswer(this.itemResponses[this.currentItemIndex]);
+        // create an event for the submit action
+        this.createEvent("question_answered", {
+          itemIndex: this.currentItemIndex,
+          answer: this.itemResponses[this.currentItemIndex].answer,
+        });
+      }
+      // update the marker colors on the player
+      this.showItemMarkersOnSlider();
+
+      // recalculate the scorecard metrics
+      this.calculateScorecardMetrics(this.currentItemIndex);
+    },
+    skipQuestion() {
+      // invoked when the user skips the question
+      this.closeItemModal();
+      this.createEvent("question_skipped", { itemIndex: this.currentItemIndex });
+    },
+    proceedQuestion() {
+      // invoked when the user has answered the question and wishes to proceed
+      this.closeItemModal();
+      this.createEvent("question_proceed", { itemIndex: this.currentItemIndex });
+    },
+    /**
+     * fetches plio details and creates a new session
+     */
+    async fetchPlioCreateSession() {
+      await PlioAPIService.getPlio(this.plioId, true)
+        .then((plioDetails) => {
+          /**
+           * redirect to 404 if the plio is not published
+           * and the plio is not opened in preview mode
+           */
+          if (plioDetails.status != "published" && !this.previewMode)
+            this.$router.replace({ name: "404" });
+          this.items = plioDetails.items || [];
+          // setting numSkipped to number of items. This value will keep reducing
+          // as numCorrect and numWrong are calculated
+          this.numSkipped = this.items.length;
+          this.plioDBId = plioDetails.plioDBId;
+          this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
+          this.plioTitle = plioDetails.plioTitle;
+        })
+        .then(() => this.createSession())
+        .then(() => this.logData());
+    },
+    /**
+     * periodically logs data to the server
+     */
+    logData() {
+      /**
+       * do not log data if the user is not authenticated
+       * or if the plio is opened in preview mode
+       */
+      if (!this.isAuthenticated || this.previewMode) return;
+
+      if (this.hasSessionStarted) {
+        // update session data
+        this.updateSession();
+        // create an event for the user watching the plio
+        this.createEvent("watching");
+        this.$mixpanel.people.increment(
+          "Total Watch Time",
+          this.watchTimeIncrement.toFixed(2)
+        );
+        this.watchTimeIncrement = 0;
+      }
+      UPLOAD_INTERVAL_TIMEOUT = setTimeout(this.logData, UPLOAD_INTERVAL);
+    },
+    closeItemModal() {
+      // invoked when the modal is to be closed
+      this.currentItemIndex = null;
+      this.playPlayer();
+    },
+    playPlayer() {
+      // plays the video player
+      this.player.play();
+    },
+    pausePlayer() {
+      // pauses the video player
+      this.player.pause();
+    },
+    /**
+     * creates new user-plio session
+     */
+    createSession() {
+      /**
+       * do not create a session if a user is not authenticated
+       * or if the plio is opened in preview mode
+       */
+      if (!this.isAuthenticated || this.previewMode) {
+        // initiate itemResponses as an empty set of answers
+        this.items.forEach((item) => {
+          if (item.type == "question" && item.details["type"] == "mcq") {
+            this.itemResponses.push({
+              answer: NaN,
+            });
+          } else {
+            this.itemResponses.push({
+              answer: null,
+            });
+          }
+        });
+        return;
+      }
+
+      SessionAPIService.createSession(this.plioDBId).then((sessionDetails) => {
+        this.sessionDBId = sessionDetails.id;
+        // reset the user to where they left off if they are returning
+        if (sessionDetails.last_event != null) {
+          this.currentTimestamp = sessionDetails.last_event.player_time;
+        }
+
+        // if this is the first session for this plio-user combination
+        // increment the number of plios watched by this user
+        if (sessionDetails.is_first) {
+          this.$mixpanel.people.increment("Total Plios Viewed");
+        }
+
+        // handle retention array
+        this.retention = this.retentionStrToArray(sessionDetails.retention);
+
+        // set watch time
+        this.watchTime = sessionDetails.watch_time;
+
+        // set item responses
+        sessionDetails.session_answers.forEach((sessionAnswer, itemIndex) => {
+          // removing the _id in keys like session_id, question_id
+          // so that we can directly update the answers without having to
+          // create another dictionary every time we want to upload
+          var itemResponse = {};
+          for (var key of Object.keys(sessionAnswer)) {
+            itemResponse[key.replace("_id", "")] = sessionAnswer[key];
+          }
+          // for mcq items, convert answers to integer
+          if (
+            this.items[itemIndex].type == "question" &&
+            this.items[itemIndex].details["type"] == "mcq"
+          ) {
+            itemResponse.answer = parseInt(itemResponse.answer);
+          }
+          this.itemResponses.push(itemResponse);
+        });
+        // once itemResponses is full, calculate all the scorecard metrics
+        this.calculateScorecardMetrics();
+      });
+    },
+    /**
+     * updates the session data on the server
+     */
+    updateSession() {
+      /**
+       * do not try updating the session if the user is not authenticated
+       * or if the plio is opened in preview mode
+       */
+      if (!this.isAuthenticated || this.previewMode) return;
+
+      var sessionDetails = {
+        plio: this.plioDBId,
+        watch_time: this.watchTime,
+        retention: this.retentionArrayToStr(this.retention),
+      };
+      return SessionAPIService.updateSession(
+        this.sessionDBId,
+        sessionDetails
+      ).catch((err) => console.log(err));
+    },
+    retentionStrToArray(retentionStr) {
+      // convert retention string to retention array
+      return retentionStr.split(",").map((value) => parseInt(value));
+    },
+    retentionArrayToStr(retentionArray) {
+      // convert retention array to retention string
+      return retentionArray.join(",");
+    },
+    getVideoIDfromURL(videoURL) {
+      // gets the video Id from the YouTube URL
+      var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(videoURL);
+      return linkValidation["ID"];
+    },
+    playerPlayed() {
+      // invoked when the play button of the player is clicked
+      if (this.isScorecardShown) {
+        /**
+         * prevents the video from playing while the
+         * scorecard is being shown
+         */
+        this.pausePlayer();
+        return;
+      }
+      this.createEvent("played");
+    },
+    playerPaused() {
+      // invoked when the pause button of the player is clicked
+      this.createEvent("paused");
+    },
+    playerInitiated() {
+      // sets the aspect ratio while the player is getting ready
+      this.setPlayerAspectRatio();
+      this.$emit("initiated");
+    },
+    playerReady() {
+      // invoked when the player is ready
+      this.showItemMarkersOnSlider();
+      // Only show the scorecard when items are present in the plio
+      if (this.isScorecardEnabled) this.showScorecardMarkerOnSlider();
+      this.player.currentTime = this.currentTimestamp;
+      this.$mixpanel.track("Visit Player", {
+        "Plio UUID": this.plioId,
+        "Plio Video Length": this.player.duration || 0,
+        "Plio Num Items": this.items.length || 0,
+      });
+      // sets the aspect ratio when the player is ready
+      // this is required for safari
+      this.setPlayerAspectRatio();
+
+      // Disabling autoplay because of bug - issue #157
+      // this.playPlayer();
+    },
+    /**
+     * Places the given marker at a defined position on the plyr progress bar and sets its custom style classes
+     * @param {Object} marker - The HTML element that needs to be placed on the progress bar
+     * @param {Array} classList - An array of tailwind classes
+     * @param {Number} positionPercent - By what % from the left should the marker be placed
+     */
+    placeMarkerOnSlider(marker, classList, positionPercent) {
+      var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
+      if (plyrProgressBar != undefined) {
+        marker.classList.add(...classList);
+        marker.style.setProperty("left", `${positionPercent}%`);
+        plyrProgressBar.appendChild(marker);
+      }
+    },
+    /**
+     * Removes the given marker from the plyr progress bar
+     * @param {Object} marker - The HTML element that needs to be removed from the progress bar
+     */
+    removeMarkerOnSlider(marker) {
+      var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
+      if (plyrProgressBar != undefined) {
+        plyrProgressBar.removeChild(marker);
+      }
+    },
+    /**
+     * Place the markers for items on the plyr progress bar
+     * @param {Object} player - The instance of plyr
+     */
+    showItemMarkersOnSlider() {
+      this.items.forEach((item, index) => {
+        let existingMarker = document.getElementById(`marker-${index}`);
+        if (existingMarker != undefined) this.removeMarkerOnSlider(existingMarker);
+
+        // Add marker to player seek bar
+        var newMarker = document.createElement("SPAN");
+        newMarker.setAttribute("id", `marker-${index}`);
+
+        // set marker style and position
+        if (this.isItemResponseDone(index)) {
+          this.markerClass[0] = "bg-green-600";
+        } else this.markerClass[0] = "bg-red-600";
+
+        var positionPercent = (100 * item.time) / this.player.duration;
+
+        this.placeMarkerOnSlider(newMarker, this.markerClass, positionPercent);
+      });
+    },
+    /**
+     * Place the marker emoji for scorecard on the plyr progress bar
+     */
+    showScorecardMarkerOnSlider() {
+      // Add marker to player seek bar
+      var newMarker = document.createElement("p");
+      newMarker.setAttribute("id", `marker-scorecard`);
+
+      // what the marker should look like - trophy cup emoji
+      newMarker.innerText = "🏆";
+
+      // set marker position
+
+      this.placeMarkerOnSlider(newMarker, this.scorecardMarkerClass, 100);
+    },
+    isItemResponseDone(itemIndex) {
+      // whether the response to an item is complete
+      if (this.itemResponses && this.itemResponses[itemIndex]) {
+        if (this.itemResponses[itemIndex].answer == null) return false;
+        if (this.isItemMCQ(itemIndex))
+          return !isNaN(this.itemResponses[itemIndex].answer);
+        return true;
+      }
+      return false;
+    },
+    /**
+     * Whether the item at the given index is an MCQ question
+     * @param {Number} itemIndex - index of an item in the items array
+     */
+    isItemMCQ(itemIndex) {
+      return (
+        this.items[itemIndex].type == "question" &&
+        this.items[itemIndex].details.type == "mcq"
+      );
+    },
+    /**
+     * Whether the item at the given index is a subjective question
+     * @param {Number} itemIndex - index of an item in the items array
+     */
+    isItemSubjective(itemIndex) {
+      return (
+        this.items[itemIndex].type == "question" &&
+        this.items[itemIndex].details.type == "subjective"
+      );
+    },
+    /**
+     * invoked when the current time in the video is updated
+     */
+    videoTimestampUpdated(timestamp) {
+      // check if popups should be shown at the given timestamp or not
+      this.checkForPopups(timestamp);
+
+      // update watch time
+      this.watchTime += PLYR_INTERVAL_TIME;
+      this.watchTimeIncrement += PLYR_INTERVAL_TIME;
+      // update retention if the array is defined
+      var currentTime = Math.trunc(this.player.currentTime);
+      if (currentTime != this.lastTimestampRetention && this.retention.length) {
+        this.retention[currentTime] += 1;
+        this.lastTimestampRetention = currentTime;
+      }
+    },
+    /**
+     * Check if any item or scorecard needs to popup at the given timestamp
+     * @param {Number} timestamp - The player's current timestamp in seconds
+     */
+    checkForPopups(timestamp) {
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+        return;
+      this.lastCheckTimestamp = timestamp;
+
+      this.checkForItemPopup(timestamp);
+    },
+    /**
+     * checks if an item is to be selected and marks/unmarks accordingly
+     * @param {Number} timestamp - The player's current timestamp in seconds
+     */
+    checkForItemPopup(timestamp) {
+      this.isModalMinimized = false;
+      this.currentItemIndex = ItemFunctionalService.checkItemPopup(
+        timestamp,
+        this.itemTimestamps,
+        POP_UP_PRECISION_TIME
+      );
+      if (this.currentItemIndex != null) {
+        this.markItemSelected();
+        this.createEvent("item_opened", { itemIndex: this.currentItemIndex });
+      }
+    },
+    markItemSelected() {
+      // mark the item at the currentItemIndex as selected
+      this.pausePlayer();
+
+      // if the video is in fullscreen mode, show the modal on top of it
+      var modal = document.getElementById(this.plioModalElementId);
+      if (modal != undefined) this.mountOnFullscreenPlyr(modal);
+
+      var maximizeButton = document.getElementById("maximizeButton");
+      if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
+    },
+    enterPlayerFullscreen() {
+      // sets the player to fullscreen
+      this.isFullscreen = true;
+      this.createEvent("enter_fullscreen");
+    },
+    exitPlayerFullscreen() {
+      // unsets the player from fullscreen
+      this.isFullscreen = false;
+      this.createEvent("exit_fullscreen");
+      this.setPlayerAspectRatio();
+    },
+    /**
+     * creates a new event
+     */
+    createEvent(eventType, eventDetails = {}) {
+      /**
+       * do not create an event if the session has not started
+       * or the user is not authenticated or if the plio is opened
+       * in preview mode
+       */
+      if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode) return;
+      var eventData = {
+        type: eventType,
+        details: eventDetails,
+        player_time: this.player.currentTime,
+        session: this.sessionDBId,
+      };
+      EventAPIService.createEvent(eventData);
+    },
+    goFullscreen() {
+      this.isFullscreen = true;
+    },
+  },
+  emits: ["initiated", "loaded", "item-toggle"],
+};
+</script>
