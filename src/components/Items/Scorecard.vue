@@ -71,6 +71,7 @@
         <div
           class="place-self-center flex flex-col mt-8 space-y-8"
           :class="{ 'mt-5': isCircularProgressShown }"
+          id="container"
         >
           <!-- whatsapp -->
           <icon-button
@@ -244,14 +245,87 @@ export default {
     ...Utilities,
     shareScorecardOnWhatsApp() {
       // share the scorecard on whatsapp
-      window
-        .open(
-          "https://wa.me/send?text=" +
-            encodeURIComponent(
-              "https://plio-assets.s3.ap-south-1.amazonaws.com/images/logo.svg"
-            )
-        )
-        .focus();
+      // window
+      //   .open(
+      //     "https://wa.me/send?text=" +
+      //       encodeURIComponent(
+      //         "https://plio-assets.s3.ap-south-1.amazonaws.com/images/logo.svg"
+      //       )
+      //   )
+      //   .focus();
+      // const img = document.createElement("img");
+      // img.style.width = "100px";
+      // img.style.height = "100px";
+      const img = new Image(100, 100);
+      img.src = this.getImageSource("copy.svg");
+      // img.src = "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg";
+      // img.crossorigin = "anonymous";
+
+      img.onload = function () {
+        document.getElementById("container").appendChild(img);
+        let canvas = document.createElement("canvas");
+        canvas.width = img.offsetWidth;
+        canvas.height = img.offsetHeight;
+
+        let context = canvas.getContext("2d");
+
+        // copy image to it (this method allows to cut image)
+        context.drawImage(img, 0, 0);
+
+        canvas.toBlob(function (blob) {
+          // blob ready, download it
+          // let link = document.createElement("a");
+          // link.download = "example.png";
+
+          console.log(blob);
+          const filesArray = [blob];
+
+          if (navigator.canShare && navigator.canShare({ files: filesArray })) {
+            navigator
+              .share({
+                files: filesArray,
+                title: "Pictures",
+                text: "Our Pictures.",
+              })
+              .then(() => console.log("Share was successful."))
+              .catch((error) => console.log("Sharing failed", error));
+          } else {
+            console.log(`Your system doesn't support sharing files.`);
+          }
+
+          // link.href = window.URL.createObjectURL(blob);
+          // link.click();
+
+          // // delete the internal blob reference, to let the browser clear memory from it
+          // window.URL.revokeObjectURL(link.href);
+        }, "image/png");
+      };
+      //   console.log(img);
+      //   let canvas = document.createElement("canvas");
+      //   canvas.width = "100px";
+      //   canvas.height = "100px";
+
+      //   let context = canvas.getContext("2d");
+
+      //   console.log(img.clientWidth);
+      //   console.log(img.clientHeight);
+      //   // copy image to it (this method allows to cut image)
+      //   context.drawImage(img, 0, 0);
+
+      //   canvas.toBlob(function (blob) {
+      //     // blob ready, download it
+      //     let link = document.createElement("a");
+      //     link.download = "example.png";
+
+      //     console.log(blob);
+
+      //     link.href = window.URL.createObjectURL(blob);
+      //     link.click();
+
+      //     // delete the internal blob reference, to let the browser clear memory from it
+      //     window.URL.revokeObjectURL(link.href);
+      //   }, "image/png");
+      // };
     },
     handleScreenSizeChange() {
       // invoked when the screen size is changing
