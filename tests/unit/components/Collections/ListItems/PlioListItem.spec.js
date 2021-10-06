@@ -150,7 +150,11 @@ describe("PlioListItem.vue", () => {
     const plioId = "123";
     // mock router
     const mockRouter = {
-      push: jest.fn(),
+      resolve: jest.fn(() => {
+        return {
+          href: "test",
+        };
+      }),
     };
 
     const wrapper = mount(PlioListItem, {
@@ -183,7 +187,7 @@ describe("PlioListItem.vue", () => {
       .find('[data-test="option-play"]')
       .trigger("click");
 
-    expect(mockRouter.push).toHaveBeenCalledWith({
+    expect(mockRouter.resolve).toHaveBeenCalledWith({
       name: "Player",
       params: {
         org: "",
