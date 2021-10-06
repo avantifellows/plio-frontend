@@ -8,7 +8,7 @@
         :isModalMinimized="isModalMinimized"
         :isFullscreen="isFullscreen"
         :previewMode="previewMode"
-        :videoPlayerId="videoPlayerId"
+        :videoPlayerElementId="videoPlayerElementId"
         @toggle-minimize="toggleMinimize"
         @skip-question="skipQuestion"
         data-test="header"
@@ -24,12 +24,11 @@
         :questionType="questionType"
         :hasCharLimit="hasCharLimit"
         :maxCharLimit="maxCharLimit"
-        @option-selected="optionSelected"
-        @answer-updated="subjectiveAnswerUpdated"
         :previewMode="previewMode"
         :imageData="imageData"
         :isPortrait="isPortrait"
-        :isFullscreen="isFullscreen"
+        @option-selected="optionSelected"
+        @answer-updated="subjectiveAnswerUpdated"
         data-test="body"
       ></item-question-body>
       <!-- footer -->
@@ -112,7 +111,7 @@ export default {
       default: false,
       type: Boolean,
     },
-    videoPlayerId: {
+    videoPlayerElementId: {
       // id of the DOM element corresponding to video player
       default: null,
       type: String,
@@ -271,6 +270,10 @@ export default {
         this.isPortrait = false;
         return;
       }
+      /**
+       * we have defined our custom logic for deciding when the screen is considered
+       * to be in portrait mode
+       */
       if (screen.availHeight > 0.8 * screen.availWidth) this.isPortrait = true;
       else this.isPortrait = false;
     },

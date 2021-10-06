@@ -8,7 +8,11 @@
     </div>
     <div :class="orientationClass">
       <!-- loading spinner when question image is loading -->
-      <div class="place-self-center px-10" v-if="isImageLoading">
+      <div
+        :class="questionImageAreaClass"
+        class="flex justify-center"
+        v-if="isImageLoading"
+      >
         <inline-svg
           :src="require('@/assets/images/spinner-solid.svg')"
           class="animate-spin h-4 object-scale-down"
@@ -197,11 +201,6 @@ export default {
       default: false,
       type: Boolean,
     },
-    isFullscreen: {
-      // whether the modal is in fullscreen
-      default: false,
-      type: Boolean,
-    },
   },
   components: { Textarea },
   methods: {
@@ -238,11 +237,11 @@ export default {
     },
   },
   computed: {
+    /**
+     * classes for the various containers corresponding to the possible types of answers
+     * to the various types of questions (options for MCQ, textarea for subjective)
+     */
     answerContainerClass() {
-      /**
-       * classes for the various containers corresponding to the possible types of answers
-       * to the various types of questions (options for MCQ, textarea for subjective)
-       */
       return {
         "w-1/2": !this.isPortrait && this.isQuestionImagePresent,
         "w-full":
@@ -262,15 +261,21 @@ export default {
         "px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-transparent",
       ];
     },
+    questionImageAreaClass() {
+      // styling class for the question image and loading spinner containers
+      return {
+        "h-56 mb-4": !this.previewMode && this.isPortrait,
+        "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2":
+          !this.isPortrait && !this.previewMode,
+        "h-20 bp-360:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
+          .previewMode,
+      };
+    },
     questionImageContainerClass() {
       // styling class for the image container
       return [
+        this.questionImageAreaClass,
         {
-          "h-56 mb-4": !this.previewMode && (this.isPortrait || this.isFullscreen),
-          "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2":
-            !this.isPortrait && !this.previewMode,
-          "h-20 bp-360:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
-            .previewMode,
           hidden: this.isImageLoading,
         },
         "border rounded-md",
@@ -280,10 +285,8 @@ export default {
       // styling class to decide orientation of image + options depending on portrait/landscape orientation
       return [
         {
-          "content-center":
-            this.isQuestionImagePresent && !this.isPortrait && !this.isFullscreen,
-          "flex-col":
-            this.isQuestionImagePresent && (this.isPortrait || this.isFullscreen),
+          "content-center": this.isQuestionImagePresent && !this.isPortrait,
+          "flex-col": this.isQuestionImagePresent && this.isPortrait,
           "space-x-2 md:space-x-4":
             !this.previewMode && !this.isPortrait && this.isQuestionImagePresent,
           "mx-6 md:mx-10 py-4": !this.previewMode,
