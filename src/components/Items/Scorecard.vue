@@ -4,6 +4,7 @@
       <div
         class="flex flex-col justify-center w-full"
         :class="{ 'space-y-8': !isCircularProgressShown }"
+        id="container"
       >
         <!-- scorecard greeting -->
         <div
@@ -71,7 +72,7 @@
         <div
           class="place-self-center flex flex-col mt-8 space-y-8"
           :class="{ 'mt-5': isCircularProgressShown }"
-          id="container"
+          v-if="!isSharePending"
         >
           <!-- whatsapp -->
           <icon-button
@@ -98,6 +99,7 @@ import CircularProgress from "@/components/UI/Progress/CircularProgress.vue";
 import Utilities, { throwConfetti } from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
+import html2canvas from "html2canvas";
 
 const confetti = require("canvas-confetti");
 const confettiCanvas = document.getElementById("confetticanvas");
@@ -166,6 +168,7 @@ export default {
         iconClass: "text-primary fill-current h-12 w-12",
       },
       toast: useToast(), // use the toast component
+      isSharePending: false, // whether the sharing of the scorecard has been initiated
     };
   },
   watch: {
@@ -258,53 +261,69 @@ export default {
       // const img = document.createElement("img");
       // img.style.width = "100px";
       // img.style.height = "100px";
-      const img = new Image(100, 100);
-      img.src = this.getImageSource("copy.svg");
+      // const img = new Image(100, 100);
+      // img.src = this.getImageSource("copy.svg");
+      // const img = document.getElementById("whatsapp").getElementsByTagName("svg")[0];
+      // console.log(img);
+      // console.log(html2canvas);
       // img.src = "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg";
       // img.crossorigin = "anonymous";
 
       // img.onload = () => {
-      document.getElementById("container").appendChild(img);
-      let canvas = document.createElement("canvas");
-      canvas.width = img.offsetWidth;
-      canvas.height = img.offsetHeight;
+      // document.getElementById("container").appendChild(img);
+      // let canvas = document.createElement("canvas");
+      // canvas.width = img.clientWidth;
+      // canvas.height = img.clientHeight;
+      // console.log(img.clientWidth);
+      // console.log(img.clientHeight);
+      // console.log(typeof img);
 
-      let context = canvas.getContext("2d");
+      // let context = canvas.getContext("2d");
 
       // copy image to it (this method allows to cut image)
-      context.drawImage(img, 0, 0);
+      // context.drawImage(img, 0, 0);
+      this.isSharePending = true;
+      this.$nextTick(() => {
+        const element = document.getElementById("container");
+        console.log(element);
+        html2canvas(element).then((canvas) => {
+          canvas.toBlob((blob) => {
+            // blob ready, download it
+            // let link = document.createElement("a");
+            // link.download = "example.png";
 
-      canvas.toBlob((blob) => {
-        // blob ready, download it
-        // let link = document.createElement("a");
-        // link.download = "example.png";
+            var file = new File([blob], "scorecard.png", { type: blob.type });
+            const filesArray = [file];
+            console.log(filesArray);
+            console.log(blob.type);
+            console.log(file);
 
-        var file = new File([blob], "scorecard.png", { type: blob.type });
-        const filesArray = [file];
-        console.log(filesArray);
-        console.log(blob.type);
-        console.log(file);
+            if (navigator.canShare && navigator.canShare({ files: filesArray })) {
+              this.toast.success("inside");
+              navigator
+                .share({
+                  files: filesArray,
+                  title: "Pictures",
+                  text: "Our Pictures.",
+                })
+                .then(() => {
+                  console.log("Share was successful.");
+                })
+                .catch((error) => console.log("Sharing failed", error));
+            } else {
+              this.toast.error(`Your system doesn't support sharing files.`);
+            }
+          });
+          this.isSharePending = false;
+        });
+      });
 
-        if (navigator.canShare && navigator.canShare({ files: filesArray })) {
-          this.toast.success("inside");
-          navigator
-            .share({
-              files: filesArray,
-              title: "Pictures",
-              text: "Our Pictures.",
-            })
-            .then(() => console.log("Share was successful."))
-            .catch((error) => console.log("Sharing failed", error));
-        } else {
-          this.toast.error(`Your system doesn't support sharing files.`);
-        }
+      //   // link.href = window.URL.createObjectURL(blob);
+      //   // link.click();
 
-        // link.href = window.URL.createObjectURL(blob);
-        // link.click();
-
-        // // delete the internal blob reference, to let the browser clear memory from it
-        // window.URL.revokeObjectURL(link.href);
-      }, "image/png");
+      //   // // delete the internal blob reference, to let the browser clear memory from it
+      //   // window.URL.revokeObjectURL(link.href);
+      // }, "image/png");
       // };
       //   console.log(img);
       //   let canvas = document.createElement("canvas");
