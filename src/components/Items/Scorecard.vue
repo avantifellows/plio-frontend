@@ -279,9 +279,11 @@ export default {
         // let link = document.createElement("a");
         // link.download = "example.png";
 
-        var file = new File([blob], "scorecard");
+        var file = new File([blob], "scorecard.png", { type: blob.type });
         const filesArray = [file];
         console.log(filesArray);
+        console.log(blob.type);
+        console.log(file);
 
         if (navigator.canShare && navigator.canShare({ files: filesArray })) {
           this.toast.success("inside");
