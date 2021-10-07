@@ -82,6 +82,20 @@ export default {
       player.on("ended", this.playbackEnded);
       player.on("progress", this.progressUpdated);
 
+      /**
+       * prevents entering into fullscreen by double clicking
+       * on a modal added on top of the video
+       */
+      player.eventListeners.forEach((eventListener) => {
+        if (eventListener.type === "dblclick") {
+          eventListener.element.removeEventListener(
+            eventListener.type,
+            eventListener.callback,
+            eventListener.options
+          );
+        }
+      });
+
       this.removePlyrPoster();
     },
     removePlyrPoster() {

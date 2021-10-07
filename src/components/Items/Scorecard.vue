@@ -5,6 +5,7 @@
         class="flex flex-col justify-center w-full"
         :class="{ 'space-y-8': !isCircularProgressShown }"
         id="container"
+        @click="preventClick"
       >
         <!-- scorecard greeting -->
         <div
@@ -25,7 +26,7 @@
         <!-- circular progress bar -->
         <CircularProgress
           v-if="isCircularProgressShown"
-          class="relative mx-auto"
+          class="relative mx-auto w-full flex justify-center"
           :radius="circularProgressRadius"
           :progressBarPercent="localProgressBarPercentage"
           :stroke="circularProgressStroke"
@@ -61,9 +62,11 @@
             </div>
             <!-- name of the metric -->
             <div
-              class="text-center text-sm bp-320:text-base md:text-base lg:text-xl font-medium my-auto bp-500:whitespace-nowrap lg:whitespace-normal px-2"
+              class="text-center text-sm bp-320:text-base md:text-base lg:text-xl font-medium my-auto bp-500:whitespace-nowrap lg:whitespace-normal px-2 h-full flex items-center"
             >
-              {{ metric.name }}
+              <p>
+                {{ metric.name }}
+              </p>
             </div>
           </div>
         </div>
@@ -72,7 +75,7 @@
         <div
           class="place-self-center flex flex-col mt-8 space-y-8"
           :class="{ 'mt-5': isCircularProgressShown }"
-          data-html2canvas-ignore
+          ignore-share-scorecard
         >
           <!-- whatsapp -->
           <icon-button
@@ -247,6 +250,9 @@ export default {
   },
   methods: {
     ...Utilities,
+    preventClick() {
+      event.preventDefault();
+    },
     shareScorecardOnWhatsApp() {
       // share the scorecard on whatsapp
       // window
@@ -282,30 +288,53 @@ export default {
       // copy image to it (this method allows to cut image)
       // context.drawImage(img, 0, 0);
       const element = document.getElementById("container");
-      // console.log(element);
-      domtoimage.toBlob(element).then((blob) => {
-        var file = new File([blob], "scorecard.png", { type: blob.type });
-        const filesArray = [file];
-        console.log(filesArray);
-        console.log(blob.type);
-        console.log(file);
+      domtoimage
+        .toBlob(element, {
+          bgcolor: "white",
+          // width: 200,
+          // height: 200,
+          style: {
+            // transform: "scale(2)",
+            // "transform-origin": "top left",
+          },
+          filter: (node) => {
+            if (
+              node.attributes != undefined &&
+              node.attributes["ignore-share-scorecard"] != undefined
+            )
+              return false;
+            else return true;
+          },
+        })
+        .then((blob) => {
+          // var file = new File([blob], "scorecard.png", { type: blob.type });
+          // const filesArray = [file];
 
-        if (navigator.canShare && navigator.canShare({ files: filesArray })) {
-          this.toast.success("inside");
-          navigator
-            .share({
-              files: filesArray,
-              title: "Pictures",
-              text: "Our Pictures.",
-            })
-            .then(() => {
-              console.log("Share was successful.");
-            })
-            .catch((error) => console.log("Sharing failed", error));
-        } else {
-          this.toast.error(`Your system doesn't support sharing files.`);
-        }
-      });
+          let link = document.createElement("a");
+          link.download = "example.png";
+
+          link.href = window.URL.createObjectURL(blob);
+          link.click();
+
+          // delete the internal blob reference, to let the browser clear memory from it
+          window.URL.revokeObjectURL(link.href);
+
+          // if (navigator.canShare && navigator.canShare({ files: filesArray })) {
+          //   this.toast.success("inside");
+          //   navigator
+          //     .share({
+          //       files: filesArray,
+          //       title: "Pictures",
+          //       text: "Our Pictures.",
+          //     })
+          //     .then(() => {
+          //       console.log("Share was successful.");
+          //     })
+          //     .catch((error) => console.log("Sharing failed", error));
+          // } else {
+          //   this.toast.error(`Your system doesn't support sharing files.`);
+          // }
+        });
       // html2canvas(element).then((canvas) => {
       //   canvas.toBlob((blob) => {
       //     // blob ready, download it
