@@ -1,10 +1,9 @@
 <template>
   <div class="flex flex-col bg-peach w-full h-full overflow-hidden">
-    <div class="flex justify-center w-2/3 mx-auto my-auto h-full py-8">
+    <div class="flex justify-center w-full mx-auto my-auto h-full py-8" id="container">
       <div
-        class="flex flex-col justify-center w-full"
+        class="flex flex-col justify-center w-2/3"
         :class="{ 'space-y-8': !isCircularProgressShown }"
-        id="container"
         @click="preventClick"
       >
         <!-- scorecard greeting -->
@@ -291,7 +290,7 @@ export default {
       domtoimage
         .toBlob(element, {
           bgcolor: "white",
-          // width: 200,
+          width: element.clientWidth,
           // height: 200,
           style: {
             // transform: "scale(2)",
@@ -307,33 +306,29 @@ export default {
           },
         })
         .then((blob) => {
-          // var file = new File([blob], "scorecard.png", { type: blob.type });
-          // const filesArray = [file];
-
-          let link = document.createElement("a");
-          link.download = "example.png";
-
-          link.href = window.URL.createObjectURL(blob);
-          link.click();
-
+          var file = new File([blob], "scorecard.png", { type: blob.type });
+          const filesArray = [file];
+          // let link = document.createElement("a");
+          // link.download = "example.png";
+          // link.href = window.URL.createObjectURL(blob);
+          // link.click();
           // delete the internal blob reference, to let the browser clear memory from it
-          window.URL.revokeObjectURL(link.href);
-
-          // if (navigator.canShare && navigator.canShare({ files: filesArray })) {
-          //   this.toast.success("inside");
-          //   navigator
-          //     .share({
-          //       files: filesArray,
-          //       title: "Pictures",
-          //       text: "Our Pictures.",
-          //     })
-          //     .then(() => {
-          //       console.log("Share was successful.");
-          //     })
-          //     .catch((error) => console.log("Sharing failed", error));
-          // } else {
-          //   this.toast.error(`Your system doesn't support sharing files.`);
-          // }
+          // window.URL.revokeObjectURL(link.href);
+          if (navigator.canShare && navigator.canShare({ files: filesArray })) {
+            this.toast.success("inside");
+            navigator
+              .share({
+                files: filesArray,
+                title: "Pictures",
+                text: "Our Pictures.",
+              })
+              .then(() => {
+                console.log("Share was successful.");
+              })
+              .catch((error) => console.log("Sharing failed", error));
+          } else {
+            this.toast.error(`Your system doesn't support sharing files.`);
+          }
         });
       // html2canvas(element).then((canvas) => {
       //   canvas.toBlob((blob) => {
