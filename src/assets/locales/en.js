@@ -332,6 +332,7 @@ export default {
       },
       buttons: {
         watchAgain: "Watch Again",
+        share: "Share",
       },
     },
   },

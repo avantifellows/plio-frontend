@@ -72,23 +72,26 @@
 
         <!-- action buttons -->
         <div
-          class="place-self-center flex flex-col mt-8 space-y-8"
+          class="place-self-center flex flex-col sm:flex-row mt-8 space-y-4 sm:space-y-0 sm:space-x-4"
           :class="{ 'mt-5': isCircularProgressShown }"
           ignore-share-scorecard
         >
-          <!-- whatsapp -->
-          <icon-button
-            :iconConfig="whatsAppDialogIconConfig"
-            @click="shareScorecardOnWhatsApp"
-            data-test="whatsapp"
-          ></icon-button>
-
           <!-- watch again button -->
           <icon-button
             :titleConfig="watchAgainButtonTitleConfig"
+            :iconConfig="watchAgainIconConfig"
             :buttonClass="watchAgainButtonClass"
             @click="restartVideo"
             data-test="watchAgainButton"
+          ></icon-button>
+
+          <!-- share button -->
+          <icon-button
+            :titleConfig="shareButtonTitleConfig"
+            :iconConfig="shareIconConfig"
+            :buttonClass="shareButtonClass"
+            @click="shareScorecard"
+            data-test="share"
           ></icon-button>
         </div>
       </div>
@@ -162,12 +165,20 @@ export default {
       reRenderKey: 0, // a key to re-render a component
       // classes for watch again button
       watchAgainButtonClass:
-        "bg-primary hover:bg-primary-hover px-6 py-3 bp-500:p-4 bp-500:pl-10 bp-500:pr-10 lg:p-4 lg:pl-10 lg:pr-10 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
-      whatsAppDialogIconConfig: {
-        // config for the icon of the whatsapp share button
+        "bg-primary hover:bg-primary-hover px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+      shareButtonClass:
+        "bg-red-500 hover:bg-red-600 px-6 py-3 bp-500:p-4 bp-500:px-10 sm:p-6 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
+      watchAgainIconConfig: {
+        // config for the icon of the watch again button
         enabled: true,
-        iconName: "whatsapp",
-        iconClass: "text-primary fill-current h-12 w-12",
+        iconName: "publish",
+        iconClass: "text-white fill-current h-4 w-4 bp-500:h-6 bp-500:w-6",
+      },
+      shareIconConfig: {
+        // config for the icon of the share button
+        enabled: true,
+        iconName: "whatsapp-greyscale",
+        iconClass: "text-white fill-current h-4 w-4 bp-500:h-6 bp-500:w-6",
       },
       toast: useToast(), // use the toast component
     };
@@ -239,11 +250,18 @@ export default {
       else if (this.innerWidth < 380 && this.innerWidth >= 300) return 10;
       return 8;
     },
-    // config for the text of the watch again button
+    /** config for the text of the watch again button */
     watchAgainButtonTitleConfig() {
       return {
         value: this.$t("player.scorecard.buttons.watchAgain"),
-        class: "text-white text-md lg:text-lg font-bold",
+        class: "text-white text-md sm:text-lg lg:text-xl font-bold",
+      };
+    },
+    /** config for the text of the share button */
+    shareButtonTitleConfig() {
+      return {
+        value: this.$t("player.scorecard.buttons.share"),
+        class: "text-white text-md sm:text-lg lg:text-xl font-bold",
       };
     },
   },
@@ -252,50 +270,11 @@ export default {
     preventClick() {
       event.preventDefault();
     },
-    shareScorecardOnWhatsApp() {
-      // share the scorecard on whatsapp
-      // window
-      //   .open(
-      //     "https://wa.me/send?text=" +
-      //       encodeURIComponent(
-      //         "https://plio-assets.s3.ap-south-1.amazonaws.com/images/logo.svg"
-      //       )
-      //   )
-      //   .focus();
-      // const img = document.createElement("img");
-      // img.style.width = "100px";
-      // img.style.height = "100px";
-      // const img = new Image(100, 100);
-      // img.src = this.getImageSource("copy.svg");
-      // const img = document.getElementById("whatsapp").getElementsByTagName("svg")[0];
-      // console.log(img);
-      // console.log(html2canvas);
-      // img.src = "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg";
-      // img.crossorigin = "anonymous";
-
-      // img.onload = () => {
-      // document.getElementById("container").appendChild(img);
-      // let canvas = document.createElement("canvas");
-      // canvas.width = img.clientWidth;
-      // canvas.height = img.clientHeight;
-      // console.log(img.clientWidth);
-      // console.log(img.clientHeight);
-      // console.log(typeof img);
-
-      // let context = canvas.getContext("2d");
-
-      // copy image to it (this method allows to cut image)
-      // context.drawImage(img, 0, 0);
+    shareScorecard() {
       const element = document.getElementById("container");
       domtoimage
         .toBlob(element, {
           bgcolor: "white",
-          // width: element.clientWidth,
-          // // height: 200,
-          // style: {
-          //   // transform: "scale(2)",
-          //   // "transform-origin": "top left",
-          // },
           width: element.clientWidth * 2,
           height: element.clientHeight * 2,
           style: {
@@ -312,72 +291,27 @@ export default {
           },
         })
         .then((blob) => {
-          // var file = new File([blob], "scorecard.png", { type: blob.type });
-          // const filesArray = [file];
-          let link = document.createElement("a");
-          link.download = "example.png";
-          link.href = window.URL.createObjectURL(blob);
-          link.click();
-          // delete the internal blob reference, to let the browser clear memory from it
-          // window.URL.revokeObjectURL(link.href);
-          // if (navigator.canShare && navigator.canShare({ files: filesArray })) {
-          //   this.toast.success("inside");
-          //   navigator
-          //     .share({
-          //       files: filesArray,
-          //       title: "Pictures",
-          //       text: "Our Pictures.",
-          //     })
-          //     .then(() => {
-          //       console.log("Share was successful.");
-          //     })
-          //     .catch((error) => console.log("Sharing failed", error));
-          // } else {
-          //   this.toast.error(`Your system doesn't support sharing files.`);
-          // }
+          var file = new File([blob], "scorecard.png", { type: blob.type });
+          const filesArray = [file];
+          if (navigator.canShare && navigator.canShare({ files: filesArray })) {
+            navigator
+              .share({
+                files: filesArray,
+                title: "Plio Scorecard",
+                text: "I have completed a Plio!",
+              })
+              .then(() => {
+                console.log("Share was successful.");
+              })
+              .catch((error) => console.log("Sharing failed", error));
+          } else {
+            // share the scorecard on whatsapp
+            var message = `Hooray! I completed a Plio<br>10B07.1 |Introduction<br>I answered 7 questions with 75% accuracy on Plio today`;
+            // var message = "🎉";
+            message = message.replace(/<br\s*?>/gi, "%0a");
+            window.open("https://wa.me/send?text=" + message).focus();
+          }
         });
-      // html2canvas(element).then((canvas) => {
-      //   canvas.toBlob((blob) => {
-      //     // blob ready, download it
-      //     // let link = document.createElement("a");
-      //     // link.download = "example.png";
-
-      //   });
-      // });
-
-      //   // link.href = window.URL.createObjectURL(blob);
-      //   // link.click();
-
-      //   // // delete the internal blob reference, to let the browser clear memory from it
-      //   // window.URL.revokeObjectURL(link.href);
-      // }, "image/png");
-      // };
-      //   console.log(img);
-      //   let canvas = document.createElement("canvas");
-      //   canvas.width = "100px";
-      //   canvas.height = "100px";
-
-      //   let context = canvas.getContext("2d");
-
-      //   console.log(img.clientWidth);
-      //   console.log(img.clientHeight);
-      //   // copy image to it (this method allows to cut image)
-      //   context.drawImage(img, 0, 0);
-
-      //   canvas.toBlob(function (blob) {
-      //     // blob ready, download it
-      //     let link = document.createElement("a");
-      //     link.download = "example.png";
-
-      //     console.log(blob);
-
-      //     link.href = window.URL.createObjectURL(blob);
-      //     link.click();
-
-      //     // delete the internal blob reference, to let the browser clear memory from it
-      //     window.URL.revokeObjectURL(link.href);
-      //   }, "image/png");
-      // };
     },
     handleScreenSizeChange() {
       // invoked when the screen size is changing

@@ -333,6 +333,7 @@ export default {
       },
       buttons: {
         watchAgain: "फिरसे देखें",
+        share: "बाटें",
       },
     },
   },
