@@ -72,7 +72,7 @@
         <div
           class="place-self-center flex flex-col mt-8 space-y-8"
           :class="{ 'mt-5': isCircularProgressShown }"
-          v-if="!isSharePending"
+          data-html2canvas-ignore
         >
           <!-- whatsapp -->
           <icon-button
@@ -168,7 +168,6 @@ export default {
         iconClass: "text-primary fill-current h-12 w-12",
       },
       toast: useToast(), // use the toast component
-      isSharePending: false, // whether the sharing of the scorecard has been initiated
     };
   },
   watch: {
@@ -282,7 +281,6 @@ export default {
 
       // copy image to it (this method allows to cut image)
       // context.drawImage(img, 0, 0);
-      this.isSharePending = true;
       this.$nextTick(() => {
         const element = document.getElementById("container");
         console.log(element);
@@ -314,7 +312,6 @@ export default {
               this.toast.error(`Your system doesn't support sharing files.`);
             }
           });
-          this.isSharePending = false;
         });
       });
 
