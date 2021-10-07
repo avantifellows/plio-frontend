@@ -99,7 +99,7 @@ import CircularProgress from "@/components/UI/Progress/CircularProgress.vue";
 import Utilities, { throwConfetti } from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
-import html2canvas from "html2canvas";
+import domtoimage from "dom-to-image";
 
 const confetti = require("canvas-confetti");
 const confettiCanvas = document.getElementById("confetticanvas");
@@ -281,39 +281,39 @@ export default {
 
       // copy image to it (this method allows to cut image)
       // context.drawImage(img, 0, 0);
-      this.$nextTick(() => {
-        const element = document.getElementById("container");
-        console.log(element);
-        html2canvas(element).then((canvas) => {
-          canvas.toBlob((blob) => {
-            // blob ready, download it
-            // let link = document.createElement("a");
-            // link.download = "example.png";
+      const element = document.getElementById("container");
+      // console.log(element);
+      domtoimage.toBlob(element).then((blob) => {
+        var file = new File([blob], "scorecard.png", { type: blob.type });
+        const filesArray = [file];
+        console.log(filesArray);
+        console.log(blob.type);
+        console.log(file);
 
-            var file = new File([blob], "scorecard.png", { type: blob.type });
-            const filesArray = [file];
-            console.log(filesArray);
-            console.log(blob.type);
-            console.log(file);
-
-            if (navigator.canShare && navigator.canShare({ files: filesArray })) {
-              this.toast.success("inside");
-              navigator
-                .share({
-                  files: filesArray,
-                  title: "Pictures",
-                  text: "Our Pictures.",
-                })
-                .then(() => {
-                  console.log("Share was successful.");
-                })
-                .catch((error) => console.log("Sharing failed", error));
-            } else {
-              this.toast.error(`Your system doesn't support sharing files.`);
-            }
-          });
-        });
+        if (navigator.canShare && navigator.canShare({ files: filesArray })) {
+          this.toast.success("inside");
+          navigator
+            .share({
+              files: filesArray,
+              title: "Pictures",
+              text: "Our Pictures.",
+            })
+            .then(() => {
+              console.log("Share was successful.");
+            })
+            .catch((error) => console.log("Sharing failed", error));
+        } else {
+          this.toast.error(`Your system doesn't support sharing files.`);
+        }
       });
+      // html2canvas(element).then((canvas) => {
+      //   canvas.toBlob((blob) => {
+      //     // blob ready, download it
+      //     // let link = document.createElement("a");
+      //     // link.download = "example.png";
+
+      //   });
+      // });
 
       //   // link.href = window.URL.createObjectURL(blob);
       //   // link.click();
