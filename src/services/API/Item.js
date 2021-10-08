@@ -11,9 +11,9 @@ export default {
       });
   },
 
-  updateItem(itemDetails) {
+  updateItem(itemId, itemDetails) {
     // API to update an item in the DB
-    return apiClient().put(itemsEndpoint + itemDetails.id, itemDetails);
+    return apiClient().put(itemsEndpoint + itemId, itemDetails);
   },
 
   deleteItem(itemId) {

@@ -11,7 +11,12 @@ export default {
       });
   },
 
-  updateQuestion(questionDetails) {
+  /**
+   * Patch a given question with the given data
+   * @param {Number} questionId - The database id of a question
+   * @param {Object} questionDetails - The payload containing the data that needs to be patched
+   */
+  updateQuestion(questionId, questionDetails) {
     // API to update a question in the DB
     var cloneDeep = require("lodash.clonedeep");
     var questionDetailsClone = cloneDeep(questionDetails);
@@ -20,7 +25,7 @@ export default {
       questionDetailsClone["image"] = imageId;
     }
     return apiClient().put(
-      questionsEndpoint + questionDetails.id,
+      questionsEndpoint + questionId,
       questionDetailsClone
     );
   },

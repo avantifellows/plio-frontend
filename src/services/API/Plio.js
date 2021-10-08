@@ -33,11 +33,16 @@ export default {
         // preparing plio details to be consumed by
         // the components
         var plioDetails = {};
-        plioDetails.items = plio.data.items;
-        plioDetails.items.forEach((item) => {
+        plioDetails.itemDetails = [];
+        for (let item of plio.data.items) {
           // convert str to int
           item.details.correct_answer = parseInt(item.details.correct_answer);
-        });
+          // add every item's details to an itemDetails array
+          // and then remove those details from the item object
+          plioDetails.itemDetails.push(item.details);
+          delete item.details;
+        }
+        plioDetails.items = plio.data.items;
         plioDetails.videoURL = plio.data.video.url;
         plioDetails.plioTitle = plio.data.name;
         plioDetails.status = plio.data.status;
@@ -77,35 +82,13 @@ export default {
     return apiClient().post(pliosEndpoint);
   },
 
-  async updatePlio(plioValue, plioId) {
-    // handle video, items and questions being updated
-    plioValue.items.forEach((item) => {
-      ItemAPIService.updateItem(item);
-      QuestionAPIService.updateQuestion(item.details);
-    });
-
-    // handle video url/duration being updated
-    const isVideoLinked = plioValue.videoDBId != null;
-    let videoDetails = {
-      url: plioValue.url,
-      duration: plioValue.duration,
-    };
-
-    return new Promise((resolve) => {
-      if (!isVideoLinked) {
-        // create video and save the video db id
-        VideoAPIService.createVideo(videoDetails).then((createdVideo) => {
-          plioValue.video = createdVideo.data.id;
-          resolve();
-        });
-      } else {
-        // update the video object with the new details
-        VideoAPIService.updateVideo(plioValue.videoDBId, videoDetails);
-        resolve();
-      }
-    }).then(() => {
-      apiClient().put(pliosEndpoint + plioId, plioValue);
-    });
+  /**
+   * Patch a given plio with the given data
+   * @param {Number} plioId - The uuid of a plio
+   * @param {Object} payload - The payload containing the data that needs to be patched
+   */
+  patchPlio(plioId, payload) {
+    return apiClient().patch(pliosEndpoint + plioId, payload);
   },
 
   duplicatePlio(plioId) {

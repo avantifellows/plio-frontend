@@ -411,14 +411,19 @@ export default {
       });
       var newPlio = await PlioAPIService.duplicatePlio(this.plioId);
       var newPlioDBId = newPlio.data.id;
-
+      console.log(newPlio);
+      console.log(this.plioDetails);
       await Promise.all(
-        this.plioDetails.items.map(async (item) => {
+        this.plioDetails.items.map(async (item, index) => {
+          console.log(item);
           // duplicate item and update it to link the item to the plio
           var newItem = await ItemAPIService.duplicateItem(item.id, newPlioDBId);
-
+          console.log(newItem);
           // duplicate question and update it to link the item to the question
-          await QuestionAPIService.duplicateQuestion(item.details.id, newItem.data.id);
+          await QuestionAPIService.duplicateQuestion(
+            this.plioDetails.itemDetails[index].id,
+            newItem.data.id
+          );
         })
       );
       return newPlio.data.uuid;

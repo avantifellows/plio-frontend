@@ -10,6 +10,6 @@ export default {
 
   updateVideo(videoDBId, videoDetails) {
     // API to update a video object in the DB
-    return apiClient().put(videosEndpoint + videoDBId, videoDetails);
+    return apiClient().patch(videosEndpoint + videoDBId, videoDetails);
   },
 };
