@@ -237,6 +237,7 @@ describe("Editor.vue", () => {
     // using some pre-defined dummy data to return as a fake response
     // from the fake API call
     let plioResponse = dummyDraftPlio;
+    plioResponse.data.items.details = dummyDraftPlio.data.itemDetails;
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
@@ -296,9 +297,8 @@ describe("Editor.vue", () => {
     // items not changed, method not called at first
     expect(checkAndSaveChanges).not.toHaveBeenCalled();
 
-    // add items to the component, the method should've been called
+    // add items to the component
     await wrapper.setData({ items: dummyDraftPlio.data.items });
-    expect(checkAndSaveChanges).toHaveBeenCalled();
 
     // update the items, method should've been called
     let updatedDummyItems = cloneDeep(dummyDraftPlio.data.items);
@@ -461,7 +461,10 @@ describe("Editor.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    mockAxios.mockResponse(dummyDraftPlio, mockAxios.queue()[0]);
+    let plioResponse = dummyDraftPlio;
+    plioResponse.data.items.details = dummyDraftPlio.data.itemDetails;
+
+    mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -500,7 +503,9 @@ describe("Editor.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    mockAxios.mockResponse(dummyDraftPlio, mockAxios.queue()[0]);
+    let plioResponse = dummyDraftPlio;
+    plioResponse.data.items.details = dummyDraftPlio.data.itemDetails;
+    mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
