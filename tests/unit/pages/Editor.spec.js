@@ -274,16 +274,16 @@ describe("Editor.vue", () => {
     const timeInterval = wrapper.vm.saveInterval;
 
     // setInterval would've been called again after 5 seconds
-    // but as `changeInProgress` is false, `savePlio` will not be called
+    // but as `changeInProgress` is false, `saveChanges` will not be called
     jest.advanceTimersByTime(timeInterval);
-    expect(savePlio).not.toHaveBeenCalled();
+    expect(saveChanges).not.toHaveBeenCalled();
 
     // change `changeInProgress` to true,
     // and check before & after 5 seconds
     await wrapper.setData({ changeInProgress: true });
-    expect(savePlio).not.toHaveBeenCalled();
+    expect(saveChanges).not.toHaveBeenCalled();
     jest.advanceTimersByTime(timeInterval);
-    expect(savePlio).toHaveBeenCalled();
+    expect(saveChanges).toHaveBeenCalled();
   });
 
   it("saves plio when items are changed", async () => {
@@ -1324,7 +1324,7 @@ describe("Editor.vue", () => {
 
     await wrapper.setData({
       items: dummyItems.data,
-      items: dummyItemDetails.data,
+      itemDetails: cloneDeep(dummyItemDetails.data),
       currentItemIndex: null,
       videoId: "jdYJf_ybyVo",
       currentTimestamp: 12,
