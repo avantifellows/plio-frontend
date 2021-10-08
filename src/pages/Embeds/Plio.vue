@@ -104,6 +104,9 @@ const PLYR_INTERVAL_TIME = 0.05;
 const UPLOAD_INTERVAL = 10000;
 var UPLOAD_INTERVAL_TIMEOUT = null;
 
+// threshold below which the volume won't be shown in the player
+const PLAYER_VOLUME_DISPLAY_WIDTH_THRESHOLD = 640;
+
 export default {
   components: {
     VideoPlayer,
@@ -272,7 +275,7 @@ export default {
     await this.fetchPlioCreateSession();
 
     // add listener for screen size being changed
-    window.addEventListener("resize", this.setPlayerAspectRatio);
+    window.addEventListener("resize", this.setScreenProperties);
   },
   beforeUnmount() {
     // remove timeout
@@ -280,7 +283,7 @@ export default {
   },
   unmounted() {
     // remove listeners
-    window.removeEventListener("resize", this.setPlayerAspectRatio);
+    window.removeEventListener("resize", this.setScreenProperties);
   },
   props: {
     plioId: {
@@ -470,6 +473,16 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
+    setScreenProperties() {
+      this.setPlayerAspectRatio();
+      // hides the volume button when the screen size is less than the threshold
+      var plyrInstance = document.getElementById(this.plioContainerId);
+      if (plyrInstance.clientWidth < PLAYER_VOLUME_DISPLAY_WIDTH_THRESHOLD) {
+        plyrInstance.getElementsByClassName("plyr__volume")[0].style.display = "none";
+      } else {
+        plyrInstance.getElementsByClassName("plyr__volume")[0].style.display = "flex";
+      }
+    },
     /**
      * sets the aspect ratio based on the current window height and width
      * to cover the full screen

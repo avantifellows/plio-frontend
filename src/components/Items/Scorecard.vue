@@ -1,10 +1,11 @@
 <template>
   <div class="flex flex-col bg-peach w-full h-full overflow-hidden">
-    <div class="flex justify-center w-full mx-auto my-auto h-full py-8" id="container">
+    <div class="flex justify-center w-full mx-auto my-auto h-full py-4" id="container">
       <div
-        class="flex flex-col justify-center w-2/3"
+        class="flex flex-col justify-center w-5/6"
         :class="{
-          'space-y-8': !isCircularProgressShown,
+          'space-y-8': !isCircularProgressShown & !this.isMobileLandscape,
+          'space-y-4': !isCircularProgressShown & this.isMobileLandscape,
           'pointer-events-none': isBackgroundDisabled,
         }"
         @click="preventClick"
@@ -14,7 +15,7 @@
           class="text-center text-lg md:text-xl lg:text-2xl font-extrabold font-sans"
           :class="{ 'mb-4': isCircularProgressShown }"
         >
-          {{ greeting }}
+          {{ greeting }} 🎉
         </div>
 
         <!-- name of the plio -->
@@ -74,8 +75,12 @@
 
         <!-- action buttons -->
         <div
-          class="place-self-center flex flex-col sm:flex-row mt-8 space-y-4 sm:space-y-0 sm:space-x-4"
-          :class="{ 'mt-5': isCircularProgressShown }"
+          class="place-self-center mt-8 flex"
+          :class="{
+            'mt-5': isCircularProgressShown,
+            'flex-row space-x-4': !isPortrait,
+            'flex-col space-y-4': isPortrait,
+          }"
           ignore-share-scorecard
         >
           <!-- watch again button -->
@@ -110,7 +115,10 @@
 
 <script>
 import CircularProgress from "@/components/UI/Progress/CircularProgress.vue";
-import Utilities, { throwConfetti } from "@/services/Functional/Utilities.js";
+import Utilities, {
+  throwConfetti,
+  isScreenPortrait,
+} from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 import domtoimage from "dom-to-image";
@@ -196,6 +204,8 @@ export default {
       },
       toast: useToast(), // use the toast component
       isSpinnerShown: false,
+      isPortrait: isScreenPortrait(),
+      isMobileLandscape: this.checkMobileLandscapeMode(),
     };
   },
   watch: {
@@ -224,8 +234,7 @@ export default {
   },
   computed: {
     resultTextToShare() {
-      if (this.numQuestionsAnswered == 0) return "";
-      return `<br>I answered ${this.numQuestionsAnsweredText} with ${
+      return `I answered ${this.numQuestionsAnsweredText} with ${
         this.progressBarResult.value
       }% ${this.progressBarResult.title.toLowerCase()} on Plio today`;
     },
@@ -245,7 +254,7 @@ export default {
      * will not be visible
      */
     isCircularProgressShown() {
-      if (this.progressPercentage == null) return false;
+      if (this.progressPercentage == null || this.isMobileLandscape) return false;
       return true;
     },
     /** The result to show in the centre of the progress bar */
@@ -299,6 +308,9 @@ export default {
   },
   methods: {
     ...Utilities,
+    checkMobileLandscapeMode() {
+      return !this.isPortrait && window.innerHeight < 500;
+    },
     preventClick() {
       event.preventDefault();
     },
@@ -306,10 +318,13 @@ export default {
      * share the scorecard message on whatsapp
      */
     shareOnWhatsApp() {
-      var message = `Hooray! I completed a Plio!<br>${this.plioTitle} ${this.resultTextToShare}`;
-      // var message = "🎉";
-      message = message.replace(/<br\s*?>/gi, "%0a");
-      window.open("https://wa.me/send?text=" + message).focus();
+      var message = "🎉🎊🎉🎊🎉🎊🎉🎊🎉🎊\n\n🏆 *Hooray! I completed a Plio!* 🏆\n\n";
+      if (this.plioTitle != "") message += `🌟 *${this.plioTitle}* 🌟\n\n`;
+      if (this.numQuestionsAnswered != 0) message += `${this.resultTextToShare} 😇\n\n`;
+      message += "🎉🎊🎉🎊🎉🎊🎉🎊🎉🎊";
+
+      message = encodeURI(message);
+      window.open("https://api.whatsapp.com/send/?phone&text=" + message).focus();
     },
     shareScorecard() {
       if (!navigator.canShare) {
@@ -340,8 +355,10 @@ export default {
           var file = new File([blob], "scorecard.png", { type: blob.type });
           const filesArray = [file];
           if (navigator.canShare({ files: filesArray })) {
-            var message = `Hooray! ${this.resultTextToShare}`;
-            message = message.replace(/<br\s*?>/gi, "\n");
+            var message = "Hooray!";
+            if (this.numQuestionsAnswered != 0) message += ` ${this.resultTextToShare}`;
+            message += " 🏆";
+
             navigator
               .share({
                 files: filesArray,
@@ -363,6 +380,9 @@ export default {
       // re-render all components that are using the reRenderKey
       // here - Scorecard gets rerender -- to properly place the progress bar
       this.reRenderKey = !this.reRenderKey;
+
+      this.isPortrait = isScreenPortrait();
+      this.isMobileLandscape = this.checkMobileLandscapeMode();
     },
     /**
      * Emits an event to restart the video

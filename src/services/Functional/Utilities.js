@@ -118,7 +118,7 @@ export var animationFrameRequest = null;
  */
 export function throwConfetti(
   confettiHandler,
-  duration = 5,
+  duration = 3,
   colors = ["#ff718d", "#fdff6a"]
 ) {
   const animationEndTime = Date.now() + duration * 1000;
@@ -153,4 +153,13 @@ export function throwConfetti(
 export function resetConfetti() {
   if (animationFrameRequest != undefined)
     cancelAnimationFrame(animationFrameRequest);
+}
+
+/**
+ * we have defined our custom logic for deciding when the screen is considered
+ * to be in portrait mode
+ */
+export function isScreenPortrait() {
+  if (screen.availHeight > 0.8 * screen.availWidth) return true;
+  return false;
 }
