@@ -1,7 +1,4 @@
 import { apiClient, analyticsAPIClient } from "@/services/API/RootClient.js";
-import VideoAPIService from "@/services/API/Video.js";
-import ItemAPIService from "@/services/API/Item.js";
-import QuestionAPIService from "@/services/API/Question.js";
 import {
   pliosEndpoint,
   listPliosEndpoint,
