@@ -5,7 +5,7 @@
         class="flex flex-col justify-center w-2/3"
         :class="{
           'space-y-8': !isCircularProgressShown,
-          'opacity-30 pointer-events-none': isBackgroundDisabled,
+          'pointer-events-none': isBackgroundDisabled,
         }"
         @click="preventClick"
       >
