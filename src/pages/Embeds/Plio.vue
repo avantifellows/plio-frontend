@@ -67,6 +67,7 @@
         :progressPercentage="scorecardProgress"
         :isShown="isScorecardShown"
         :plioTitle="plioTitle"
+        :numQuestionsAnswered="numQuestionsAnswered"
         :greeting="$t('player.scorecard.greeting')"
         @restart-video="restartVideo"
         ref="scorecard"
@@ -378,6 +379,12 @@ export default {
           value: this.numSkipped,
         },
       ];
+    },
+    /**
+     * number of questions that have been answered
+     */
+    numQuestionsAnswered() {
+      return this.numCorrect + this.numWrong;
     },
     /**
      * if the app needs to authenticate using a third party auth or not

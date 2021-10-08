@@ -57,7 +57,6 @@ export default {
   },
   props: {
     radius: Number, // radius of ring
-    progressBarPercent: Number, // progress of the ring
     stroke: Number, // thickness of the ring
     /**
      * the result to be shown in the centre of the progress bar
@@ -74,6 +73,9 @@ export default {
     },
   },
   computed: {
+    progressBarPercent() {
+      return this.result.value;
+    },
     /**
      * Calculating a reduced radius as we don't want the ring to overflow
      * the svg viewbox if the stroke is high

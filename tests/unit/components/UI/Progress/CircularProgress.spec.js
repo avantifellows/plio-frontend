@@ -14,11 +14,11 @@ describe("CircularProgress.vue", () => {
     const wrapper = mount(CircularProgress, {
       props: {
         radius: radius,
-        progressBarPercent: progress,
         stroke: stroke,
         result: {
           enabled: true,
           title: "temp text",
+          value: progress,
         },
       },
     });

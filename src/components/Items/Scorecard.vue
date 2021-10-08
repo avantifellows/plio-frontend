@@ -30,7 +30,6 @@
           v-if="isCircularProgressShown"
           class="relative mx-auto w-full flex justify-center"
           :radius="circularProgressRadius"
-          :progressBarPercent="localProgressBarPercentage"
           :stroke="circularProgressStroke"
           :result="progressBarResult"
           :key="reRenderKey"
@@ -147,23 +146,28 @@ export default {
       default: () => [],
       type: Array,
     },
+    /** number of questions that the user has answered */
+    numQuestionsAnswered: {
+      type: Number,
+      default: 0,
+    },
+    /** progress to show on the progress bar in % */
     progressPercentage: {
-      // progress to show on the progress bar in %
       default: null,
       type: [Object, Number],
     },
+    /** greeting of the scorecard */
     greeting: {
-      // greeting of the scorecard
       default: "",
       type: String,
     },
+    /** whether the scorecard has to be shown */
     isShown: {
-      // indicator of whether the scorecard has popped up or not
       default: false,
       type: Boolean,
     },
+    /** plio's title */
     plioTitle: {
-      // plio's title
       default: "",
       type: String,
     },
@@ -219,6 +223,16 @@ export default {
     window.removeEventListener("resize", this.handleScreenSizeChange);
   },
   computed: {
+    resultTextToShare() {
+      if (this.numQuestionsAnswered == 0) return "";
+      return `<br>I answered ${this.numQuestionsAnsweredText} with ${
+        this.progressBarResult.value
+      }% ${this.progressBarResult.title.toLowerCase()} on Plio today`;
+    },
+    numQuestionsAnsweredText() {
+      if (this.numQuestionsAnswered <= 1) return `${this.numQuestionsAnswered} question`;
+      return `${this.numQuestionsAnswered} questions`;
+    },
     /**
      * whether to disable the background
      */
@@ -239,6 +253,7 @@ export default {
       return {
         enabled: true,
         title: this.$t("player.scorecard.metric.description.accuracy"),
+        value: this.localProgressBarPercentage,
       };
     },
     /**
@@ -287,9 +302,11 @@ export default {
     preventClick() {
       event.preventDefault();
     },
+    /**
+     * share the scorecard message on whatsapp
+     */
     shareOnWhatsApp() {
-      // share the scorecard on whatsapp
-      var message = `Hooray! I completed a Plio<br>10B07.1 |Introduction<br>I answered 7 questions with 75% accuracy on Plio today`;
+      var message = `Hooray! I completed a Plio!<br>${this.plioTitle} ${this.resultTextToShare}`;
       // var message = "🎉";
       message = message.replace(/<br\s*?>/gi, "%0a");
       window.open("https://wa.me/send?text=" + message).focus();
@@ -323,11 +340,13 @@ export default {
           var file = new File([blob], "scorecard.png", { type: blob.type });
           const filesArray = [file];
           if (navigator.canShare({ files: filesArray })) {
+            var message = `Hooray! ${this.resultTextToShare}`;
+            message = message.replace(/<br\s*?>/gi, "\n");
             navigator
               .share({
                 files: filesArray,
                 title: "Plio Scorecard",
-                text: "Hooray! I answered 7 questions with 75% accuracy on Plio today",
+                text: message,
               })
               .then(() => {
                 console.log("Share was successful.");
