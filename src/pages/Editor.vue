@@ -661,7 +661,7 @@ export default {
     this.savingInterval = setInterval(() => {
       // if anything was changed but not updated, update it
       if (this.changeInProgress) {
-        this.saveChanges();
+        this.saveChanges("all");
       }
     }, this.saveInterval);
 
