@@ -3,7 +3,10 @@
     <div class="flex justify-center w-full mx-auto my-auto h-full py-8" id="container">
       <div
         class="flex flex-col justify-center w-2/3"
-        :class="{ 'space-y-8': !isCircularProgressShown }"
+        :class="{
+          'space-y-8': !isCircularProgressShown,
+          'opacity-30 pointer-events-none': isBackgroundDisabled,
+        }"
         @click="preventClick"
       >
         <!-- scorecard greeting -->
@@ -96,6 +99,13 @@
         </div>
       </div>
     </div>
+
+    <!-- spinner -->
+    <inline-svg
+      v-if="isSpinnerShown"
+      :src="getImageSource('spinner.svg')"
+      class="fixed animate-spin h-10 top-1/2 w-full"
+    ></inline-svg>
   </div>
 </template>
 
@@ -181,6 +191,7 @@ export default {
         iconClass: "text-white fill-current h-4 w-4 bp-500:h-6 bp-500:w-6",
       },
       toast: useToast(), // use the toast component
+      isSpinnerShown: false,
     };
   },
   watch: {
@@ -208,6 +219,12 @@ export default {
     window.removeEventListener("resize", this.handleScreenSizeChange);
   },
   computed: {
+    /**
+     * whether to disable the background
+     */
+    isBackgroundDisabled() {
+      return this.isSpinnerShown;
+    },
     /**
      * Wether the circular progress bar will be visible or not.
      * If the progressPercetage prop is null, the circular progress
@@ -270,7 +287,19 @@ export default {
     preventClick() {
       event.preventDefault();
     },
+    shareOnWhatsApp() {
+      // share the scorecard on whatsapp
+      var message = `Hooray! I completed a Plio<br>10B07.1 |Introduction<br>I answered 7 questions with 75% accuracy on Plio today`;
+      // var message = "🎉";
+      message = message.replace(/<br\s*?>/gi, "%0a");
+      window.open("https://wa.me/send?text=" + message).focus();
+    },
     shareScorecard() {
+      if (!navigator.canShare) {
+        this.shareOnWhatsApp();
+        return;
+      }
+      this.isSpinnerShown = true;
       const element = document.getElementById("container");
       domtoimage
         .toBlob(element, {
@@ -293,24 +322,19 @@ export default {
         .then((blob) => {
           var file = new File([blob], "scorecard.png", { type: blob.type });
           const filesArray = [file];
-          if (navigator.canShare && navigator.canShare({ files: filesArray })) {
+          if (navigator.canShare({ files: filesArray })) {
             navigator
               .share({
                 files: filesArray,
                 title: "Plio Scorecard",
-                text: "I have completed a Plio!",
+                text: "Hooray! I answered 7 questions with 75% accuracy on Plio today",
               })
               .then(() => {
                 console.log("Share was successful.");
               })
               .catch((error) => console.log("Sharing failed", error));
-          } else {
-            // share the scorecard on whatsapp
-            var message = `Hooray! I completed a Plio<br>10B07.1 |Introduction<br>I answered 7 questions with 75% accuracy on Plio today`;
-            // var message = "🎉";
-            message = message.replace(/<br\s*?>/gi, "%0a");
-            window.open("https://wa.me/send?text=" + message).focus();
-          }
+          } else this.shareOnWhatsApp();
+          this.isSpinnerShown = false;
         });
     },
     handleScreenSizeChange() {
