@@ -569,7 +569,6 @@ describe("Editor.vue", () => {
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
     let plioResponse = dummyDraftPlio;
-    plioResponse.data.items.details = dummyDraftPlio.data.itemDetails;
     mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
