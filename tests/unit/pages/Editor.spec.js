@@ -1346,7 +1346,7 @@ describe("Editor.vue", () => {
       .trigger("click");
     expect(dialogConfirmed).toHaveBeenCalled();
     expect(confirmDeleteOption).toHaveBeenCalled();
-    expect(wrapper.vm.optionIndexToDelete).toBe(0);
+    expect(wrapper.vm.optionIndexToDelete).toBe(-1);
     expect(wrapper.vm.itemDetails[0].options.length).toBe(2);
   });
 
