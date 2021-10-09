@@ -39,7 +39,7 @@
 
         <!-- metric boxes -->
         <div
-          class="flex bp-500:flex-row flex-col justify-center space-y-1 bp-500:space-x-1 bp-500:space-y-0 px-10 max-w-4xl place-self-center"
+          class="flex bp-500:flex-row flex-col justify-center space-y-1 bp-500:space-x-1 bp-500:space-y-0 px-4 bp-500:px-10 max-w-4xl place-self-center"
         >
           <div
             v-for="metric in metrics"

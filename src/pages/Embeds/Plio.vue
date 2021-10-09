@@ -475,7 +475,12 @@ export default {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
     setScreenProperties() {
       this.setPlayerAspectRatio();
-      // hides the volume button when the screen size is less than the threshold
+      this.setPlayerVolumeVisibility();
+    },
+    /**
+     * hides the volume button when the screen size is less than the threshold
+     */
+    setPlayerVolumeVisibility() {
       var plyrInstance = document.getElementById(this.plioContainerId);
       if (plyrInstance.clientWidth < PLAYER_VOLUME_DISPLAY_WIDTH_THRESHOLD) {
         plyrInstance.getElementsByClassName("plyr__volume")[0].style.display = "none";
@@ -826,6 +831,7 @@ export default {
     },
     playerReady() {
       // invoked when the player is ready
+      this.setPlayerVolumeVisibility();
       this.showItemMarkersOnSlider();
       // Only show the scorecard when items are present in the plio
       if (this.isScorecardEnabled) this.showScorecardMarkerOnSlider();
@@ -959,6 +965,7 @@ export default {
       if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
         return;
       this.lastCheckTimestamp = timestamp;
+      this.setPlayerAspectRatio();
 
       this.checkForItemPopup(timestamp);
     },
