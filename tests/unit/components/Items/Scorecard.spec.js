@@ -7,8 +7,21 @@ jest.mock("@/services/Functional/Utilities.js", () => ({
   resetConfetti: jest.fn(),
 }));
 
+let mockWindowOpen;
+
 beforeEach(() => {
   jest.useFakeTimers();
+  mockWindowOpen = jest.fn().mockImplementation(() => ({
+    focus: jest.fn(),
+  }));
+  Object.defineProperty(window, "open", {
+    writable: true,
+    value: mockWindowOpen,
+  });
+});
+
+afterEach(() => {
+  mockWindowOpen.mockRestore();
 });
 
 describe("Scorecard.vue", () => {
@@ -80,5 +93,72 @@ describe("Scorecard.vue", () => {
     await wrapper.find('[data-test="watchAgainButton"]').trigger("click");
     expect(restartVideo).toHaveBeenCalled();
     expect(wrapper.emitted()).toHaveProperty("restart-video");
+  });
+
+  it("calls the right method on clicking share button", async () => {
+    const shareScorecard = jest.spyOn(Scorecard.methods, "shareScorecard");
+
+    const wrapper = mount(Scorecard);
+    await wrapper.find('[data-test="share"]').trigger("click");
+
+    expect(shareScorecard).toHaveBeenCalled();
+  });
+
+  it("triggers sharing text on whatsapp upon clicking share button", async () => {
+    const wrapper = mount(Scorecard);
+    await wrapper.find('[data-test="share"]').trigger("click");
+
+    expect(mockWindowOpen).toHaveBeenCalled();
+  });
+
+  it("share text on whatsapp when no questions answered", async () => {
+    const wrapper = mount(Scorecard);
+    await wrapper.find('[data-test="share"]').trigger("click");
+
+    expect(mockWindowOpen).toHaveBeenCalledWith(
+      "https://api.whatsapp.com/send/?phone&text=%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%0A%0A%F0%9F%8F%86%20*Hooray!%20I%20completed%20a%20Plio!*%20%F0%9F%8F%86%0A%0A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A"
+    );
+  });
+
+  it("share text on whatsapp when one question answered", async () => {
+    const progressPercentage = 50;
+    const wrapper = mount(Scorecard, {
+      props: {
+        numQuestionsAnswered: 1,
+        progressPercentage: progressPercentage,
+      },
+    });
+    await wrapper.setProps({
+      isShown: true,
+    });
+    await flushPromises();
+    await jest.advanceTimersByTime(1000);
+
+    await wrapper.find('[data-test="share"]').trigger("click");
+
+    expect(mockWindowOpen).toHaveBeenCalledWith(
+      `https://api.whatsapp.com/send/?phone&text=%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%0A%0A%F0%9F%8F%86%20*Hooray!%20I%20completed%20a%20Plio!*%20%F0%9F%8F%86%0A%0AI%20answered%201%20question%20with%2050%25%20accuracy%20on%20Plio%20today%20%F0%9F%98%87%20%F0%9F%98%87%0A%0A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A`
+    );
+  });
+
+  it("share text on whatsapp when one question answered", async () => {
+    const progressPercentage = 50;
+    const wrapper = mount(Scorecard, {
+      props: {
+        numQuestionsAnswered: 4,
+        progressPercentage: progressPercentage,
+      },
+    });
+    await wrapper.setProps({
+      isShown: true,
+    });
+    await flushPromises();
+    await jest.advanceTimersByTime(1000);
+
+    await wrapper.find('[data-test="share"]').trigger("click");
+
+    expect(mockWindowOpen).toHaveBeenCalledWith(
+      `https://api.whatsapp.com/send/?phone&text=%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%0A%0A%F0%9F%8F%86%20*Hooray!%20I%20completed%20a%20Plio!*%20%F0%9F%8F%86%0A%0AI%20answered%204%20questions%20with%2050%25%20accuracy%20on%20Plio%20today%20%F0%9F%98%87%20%F0%9F%98%87%0A%0A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A`
+    );
   });
 });
