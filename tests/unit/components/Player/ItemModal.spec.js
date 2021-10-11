@@ -9,35 +9,6 @@ import {
 
 var cloneDeep = require("lodash.clonedeep");
 
-// const itemList = [
-//   {
-//     type: "question",
-//     details: {
-//       text: "test",
-//       type: "subjective",
-//       has_char_limit: true,
-//       max_char_limit: 50,
-//       image: null,
-//       options: null,
-//       correct_answer: null,
-//     },
-//     time: 13,
-//   },
-//   {
-//     type: "question",
-//     details: {
-//       text: "test2",
-//       type: "mcq",
-//       image: null,
-//       max_char_limit: null,
-//       has_char_limit: false,
-//       options: ["o1", "o2"],
-//       correct_answer: "0",
-//     },
-//     time: 50,
-//   },
-// ];
-
 describe("ItemModal.vue", () => {
   it("should render with default values", () => {
     const wrapper = mount(ItemModal);
