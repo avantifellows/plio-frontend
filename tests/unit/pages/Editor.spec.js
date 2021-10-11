@@ -18,6 +18,7 @@ var cloneDeep = require("lodash.clonedeep");
 
 beforeEach(() => {
   jest.useFakeTimers();
+  jest.clearAllMocks();
 });
 
 afterEach(() => {
@@ -526,8 +527,7 @@ describe("Editor.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    let plioResponse = dummyDraftPlio;
-    plioResponse.data.items.details = dummyDraftPlio.data.itemDetails;
+    let plioResponse = cloneDeep(dummyDraftPlio);
 
     mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
 
@@ -568,7 +568,7 @@ describe("Editor.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    let plioResponse = dummyDraftPlio;
+    let plioResponse = cloneDeep(dummyDraftPlio);
     mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
@@ -673,8 +673,8 @@ describe("Editor.vue", () => {
     };
 
     await wrapper.setData({
-      items: dummyItems,
-      itemDetails: dummyItemDetailsWithImage,
+      items: cloneDeep(dummyItems),
+      itemDetails: cloneDeep(dummyItemDetailsWithImage),
       currentItemIndex: 0,
     });
 
@@ -1155,8 +1155,8 @@ describe("Editor.vue", () => {
     await wrapper.setData({
       isImageUploaderDialogShown: true,
       items: cloneDeep(dummyItems),
-      itemDetails: dummyItemDetailsWithImage,
-      itemImage: dummyItemDetailsWithImage[0].image.url,
+      itemDetails: cloneDeep(dummyItemDetailsWithImage),
+      itemImage: cloneDeep(dummyItemDetailsWithImage[0].image.url),
       currentItemIndex: 0,
     });
 
