@@ -829,21 +829,22 @@ export default {
       this.setPlayerAspectRatio();
       this.$emit("initiated");
     },
+    setPlayerTime(timestamp) {
+      this.player.currentTime = timestamp;
+    },
     playerReady() {
       // invoked when the player is ready
-      this.setPlayerVolumeVisibility();
       this.showItemMarkersOnSlider();
       // Only show the scorecard when items are present in the plio
       if (this.isScorecardEnabled) this.showScorecardMarkerOnSlider();
-      this.player.currentTime = this.currentTimestamp;
+      this.setPlayerTime(this.currentTimestamp);
       this.$mixpanel.track("Visit Player", {
         "Plio UUID": this.plioId,
         "Plio Video Length": this.player.duration || 0,
         "Plio Num Items": this.items.length || 0,
       });
-      // sets the aspect ratio when the player is ready
-      // this is required for safari
-      this.setPlayerAspectRatio();
+      // sets various properties based on the screen size
+      this.setScreenProperties();
 
       // Disabling autoplay because of bug - issue #157
       // this.playPlayer();
