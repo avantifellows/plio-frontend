@@ -8,7 +8,6 @@
           'space-y-4': !isCircularProgressShown && this.isMobileLandscape,
           'pointer-events-none': isBackgroundDisabled,
         }"
-        @click="preventClick"
       >
         <!-- scorecard greeting -->
         <div
@@ -326,9 +325,6 @@ export default {
     ...Utilities,
     checkMobileLandscapeMode() {
       return !this.isPortrait && window.innerHeight < 500;
-    },
-    preventClick() {
-      event.preventDefault();
     },
     /**
      * share the scorecard message on whatsapp

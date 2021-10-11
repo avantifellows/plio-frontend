@@ -343,7 +343,7 @@ export default {
           2: "के साथ",
           3: "का उत्तर दिया",
           question: "प्रश्न",
-          questions: "प्रश्न",
+          questions: "प्रश्नों",
         },
       },
     },
