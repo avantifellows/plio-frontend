@@ -1,6 +1,7 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import Scorecard from "@/components/Items/Scorecard";
 import i18n from "@/services/Localisation/i18n.js";
+import domtoimage from "dom-to-image";
 
 jest.mock("@/services/Functional/Utilities.js", () => ({
   __esModule: true,
@@ -205,5 +206,40 @@ describe("Scorecard.vue", () => {
     expect(mockWindowOpen).toHaveBeenCalledWith(
       "https://api.whatsapp.com/send/?phone&text=%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%0A%0A%F0%9F%8F%86%20*%E0%A4%B9%E0%A5%81%E0%A4%B0%E0%A5%8D%E0%A4%B0%E0%A5%87!%20%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20%E0%A4%86%E0%A4%9C%20%E0%A4%95%E0%A4%BE%20%E0%A4%85%E0%A4%AA%E0%A4%A8%E0%A4%BE%20%E0%A4%AA%E0%A5%8D%E0%A4%B2%E0%A4%BE%E0%A4%AF%E0%A5%8B%E0%A4%82%20%E0%A4%AA%E0%A5%82%E0%A4%B0%E0%A4%BE%20%E0%A4%95%E0%A4%B0%20%E0%A4%B2%E0%A4%BF%E0%A4%AF%E0%A4%BE!*%20%F0%9F%8F%86%0A%0A%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20%E0%A4%86%E0%A4%9C%20%E0%A4%95%E0%A5%87%20%E0%A4%AA%E0%A5%8D%E0%A4%B2%E0%A4%BE%E0%A4%AF%E0%A5%8B%E0%A4%82%20%E0%A4%AA%E0%A4%B0%2050%25%20%E0%A4%B8%E0%A4%9F%E0%A5%80%E0%A4%95%E0%A4%A4%E0%A4%BE%20%E0%A4%95%E0%A5%87%20%E0%A4%B8%E0%A4%BE%E0%A4%A5%204%20%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%B6%E0%A5%8D%E0%A4%A8%E0%A5%8B%E0%A4%82%20%E0%A4%95%E0%A4%BE%20%E0%A4%89%E0%A4%A4%E0%A5%8D%E0%A4%A4%E0%A4%B0%20%E0%A4%A6%E0%A4%BF%E0%A4%AF%E0%A4%BE%20%F0%9F%98%87%20%F0%9F%98%87%0A%0A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A"
     );
+  });
+
+  it("triggers domtoimage when share button is clicked where supported", async () => {
+    const toBlob = jest.spyOn(domtoimage, "toBlob");
+    const wrapper = mount(Scorecard, {
+      props: {
+        numQuestionsAnswered: 4,
+      },
+    });
+
+    // mock navigator.canShare
+    global.navigator.canShare = jest.fn(() => true);
+
+    await wrapper.find('[data-test="share"]').trigger("click");
+    expect(toBlob).toHaveBeenCalled();
+  });
+
+  it("calls navigator.share when domtoimage is done preparing the blob", async () => {
+    jest.spyOn(domtoimage, "toBlob").mockImplementation(() => {
+      return new Promise((resolve) => {
+        resolve(new Blob(["test"], { type: "text/plain" }));
+      });
+    });
+    const wrapper = mount(Scorecard, {
+      props: {
+        numQuestionsAnswered: 4,
+      },
+    });
+
+    // mock navigator.canShare
+    global.navigator.canShare = jest.fn(() => true);
+    global.navigator.share = jest.fn();
+
+    await wrapper.find('[data-test="share"]').trigger("click");
+    expect(global.navigator.share).toHaveBeenCalled();
   });
 });

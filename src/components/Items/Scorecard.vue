@@ -379,9 +379,6 @@ export default {
                 title: "Plio Scorecard",
                 text: message,
               })
-              .then(() => {
-                console.log("Share was successful.");
-              })
               .catch((error) => console.log("Sharing failed", error));
           } else this.shareOnWhatsApp();
           this.isSpinnerShown = false;
