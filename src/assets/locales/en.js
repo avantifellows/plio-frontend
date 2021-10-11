@@ -334,6 +334,17 @@ export default {
         watchAgain: "Watch Again",
         share: "Share",
       },
+      share: {
+        hooray: "Hooray",
+        completed_plio: "I completed a Plio",
+        result: {
+          1: "I answered",
+          2: "with",
+          3: "on Plio today",
+          question: "question",
+          questions: "questions",
+        },
+      },
     },
   },
   error: {

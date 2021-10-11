@@ -122,6 +122,7 @@ import Utilities, {
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 import domtoimage from "dom-to-image";
+import i18n from "@/services/Localisation/i18n.js";
 
 const confetti = require("canvas-confetti");
 const confettiCanvas = document.getElementById("confetticanvas");
@@ -234,13 +235,28 @@ export default {
   },
   computed: {
     resultTextToShare() {
+      if (i18n.global.locale == "hi") {
+        return `${this.$t("player.scorecard.share.result.1")} ${
+          this.progressBarResult.value
+        }% ${this.progressBarResult.title.toLowerCase()} ${this.$t(
+          "player.scorecard.share.result.2"
+        )} ${this.numQuestionsAnsweredText} ${this.$t(
+          "player.scorecard.share.result.3"
+        )} 😇`;
+      }
+
       return `I answered ${this.numQuestionsAnsweredText} with ${
         this.progressBarResult.value
-      }% ${this.progressBarResult.title.toLowerCase()} on Plio today`;
+      }% ${this.progressBarResult.title.toLowerCase()} on Plio today 😇`;
     },
     numQuestionsAnsweredText() {
-      if (this.numQuestionsAnswered <= 1) return `${this.numQuestionsAnswered} question`;
-      return `${this.numQuestionsAnswered} questions`;
+      if (this.numQuestionsAnswered <= 1)
+        return `${this.numQuestionsAnswered} ${this.$t(
+          "player.scorecard.share.result.question"
+        )}`;
+      return `${this.numQuestionsAnswered} ${this.$t(
+        "player.scorecard.share.result.questions"
+      )}`;
     },
     /**
      * whether to disable the background
@@ -318,7 +334,9 @@ export default {
      * share the scorecard message on whatsapp
      */
     shareOnWhatsApp() {
-      var message = "🎉🎊🎉🎊🎉🎊🎉🎊🎉🎊\n\n🏆 *Hooray! I completed a Plio!* 🏆\n\n";
+      var message = `🎉🎊🎉🎊🎉🎊🎉🎊🎉🎊\n\n🏆 *${this.$t(
+        "player.scorecard.share.hooray"
+      )}! ${this.$t("player.scorecard.share.completed_plio")}!* 🏆\n\n`;
       if (this.plioTitle != "") message += `🌟 *${this.plioTitle}* 🌟\n\n`;
       if (this.numQuestionsAnswered != 0) message += `${this.resultTextToShare} 😇\n\n`;
       message += "🎉🎊🎉🎊🎉🎊🎉🎊🎉🎊";
@@ -355,7 +373,7 @@ export default {
           var file = new File([blob], "scorecard.png", { type: blob.type });
           const filesArray = [file];
           if (navigator.canShare({ files: filesArray })) {
-            var message = "Hooray!";
+            var message = `${this.$t("player.scorecard.share.hooray")}!`;
             if (this.numQuestionsAnswered != 0) message += ` ${this.resultTextToShare}`;
             message += " 🏆";
 
