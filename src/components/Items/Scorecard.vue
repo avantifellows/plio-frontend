@@ -4,8 +4,8 @@
       <div
         class="flex flex-col justify-center w-5/6"
         :class="{
-          'space-y-8': !isCircularProgressShown & !this.isMobileLandscape,
-          'space-y-4': !isCircularProgressShown & this.isMobileLandscape,
+          'space-y-8': !isCircularProgressShown && !this.isMobileLandscape,
+          'space-y-4': !isCircularProgressShown && this.isMobileLandscape,
           'pointer-events-none': isBackgroundDisabled,
         }"
         @click="preventClick"
