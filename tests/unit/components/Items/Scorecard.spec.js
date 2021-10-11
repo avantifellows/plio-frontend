@@ -1,5 +1,6 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import Scorecard from "@/components/Items/Scorecard";
+import i18n from "@/services/Localisation/i18n.js";
 
 jest.mock("@/services/Functional/Utilities.js", () => ({
   __esModule: true,
@@ -141,7 +142,7 @@ describe("Scorecard.vue", () => {
     );
   });
 
-  it("share text on whatsapp when one question answered", async () => {
+  it("share text on whatsapp when multiple questions answered", async () => {
     const progressPercentage = 50;
     const wrapper = mount(Scorecard, {
       props: {
@@ -159,6 +160,50 @@ describe("Scorecard.vue", () => {
 
     expect(mockWindowOpen).toHaveBeenCalledWith(
       `https://api.whatsapp.com/send/?phone&text=%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%0A%0A%F0%9F%8F%86%20*Hooray!%20I%20completed%20a%20Plio!*%20%F0%9F%8F%86%0A%0AI%20answered%204%20questions%20with%2050%25%20accuracy%20on%20Plio%20today%20%F0%9F%98%87%20%F0%9F%98%87%0A%0A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A`
+    );
+  });
+
+  it("share hindi text on whatsapp when one question answered", async () => {
+    i18n.global.locale = "hi";
+    const progressPercentage = 50;
+    const wrapper = mount(Scorecard, {
+      props: {
+        numQuestionsAnswered: 1,
+        progressPercentage: progressPercentage,
+      },
+    });
+    await wrapper.setProps({
+      isShown: true,
+    });
+    await flushPromises();
+    await jest.advanceTimersByTime(1000);
+
+    await wrapper.find('[data-test="share"]').trigger("click");
+
+    expect(mockWindowOpen).toHaveBeenCalledWith(
+      "https://api.whatsapp.com/send/?phone&text=%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%0A%0A%F0%9F%8F%86%20*%E0%A4%B9%E0%A5%81%E0%A4%B0%E0%A5%8D%E0%A4%B0%E0%A5%87!%20%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20%E0%A4%86%E0%A4%9C%20%E0%A4%95%E0%A4%BE%20%E0%A4%85%E0%A4%AA%E0%A4%A8%E0%A4%BE%20%E0%A4%AA%E0%A5%8D%E0%A4%B2%E0%A4%BE%E0%A4%AF%E0%A5%8B%E0%A4%82%20%E0%A4%AA%E0%A5%82%E0%A4%B0%E0%A4%BE%20%E0%A4%95%E0%A4%B0%20%E0%A4%B2%E0%A4%BF%E0%A4%AF%E0%A4%BE!*%20%F0%9F%8F%86%0A%0A%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20%E0%A4%86%E0%A4%9C%20%E0%A4%95%E0%A5%87%20%E0%A4%AA%E0%A5%8D%E0%A4%B2%E0%A4%BE%E0%A4%AF%E0%A5%8B%E0%A4%82%20%E0%A4%AA%E0%A4%B0%2050%25%20%E0%A4%B8%E0%A4%9F%E0%A5%80%E0%A4%95%E0%A4%A4%E0%A4%BE%20%E0%A4%95%E0%A5%87%20%E0%A4%B8%E0%A4%BE%E0%A4%A5%201%20%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%B6%E0%A5%8D%E0%A4%A8%20%E0%A4%95%E0%A4%BE%20%E0%A4%89%E0%A4%A4%E0%A5%8D%E0%A4%A4%E0%A4%B0%20%E0%A4%A6%E0%A4%BF%E0%A4%AF%E0%A4%BE%20%F0%9F%98%87%20%F0%9F%98%87%0A%0A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A"
+    );
+  });
+
+  it("share hindi text on whatsapp when multiple questions answered", async () => {
+    i18n.global.locale = "hi";
+    const progressPercentage = 50;
+    const wrapper = mount(Scorecard, {
+      props: {
+        numQuestionsAnswered: 4,
+        progressPercentage: progressPercentage,
+      },
+    });
+    await wrapper.setProps({
+      isShown: true,
+    });
+    await flushPromises();
+    await jest.advanceTimersByTime(1000);
+
+    await wrapper.find('[data-test="share"]').trigger("click");
+
+    expect(mockWindowOpen).toHaveBeenCalledWith(
+      "https://api.whatsapp.com/send/?phone&text=%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%0A%0A%F0%9F%8F%86%20*%E0%A4%B9%E0%A5%81%E0%A4%B0%E0%A5%8D%E0%A4%B0%E0%A5%87!%20%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20%E0%A4%86%E0%A4%9C%20%E0%A4%95%E0%A4%BE%20%E0%A4%85%E0%A4%AA%E0%A4%A8%E0%A4%BE%20%E0%A4%AA%E0%A5%8D%E0%A4%B2%E0%A4%BE%E0%A4%AF%E0%A5%8B%E0%A4%82%20%E0%A4%AA%E0%A5%82%E0%A4%B0%E0%A4%BE%20%E0%A4%95%E0%A4%B0%20%E0%A4%B2%E0%A4%BF%E0%A4%AF%E0%A4%BE!*%20%F0%9F%8F%86%0A%0A%E0%A4%AE%E0%A5%88%E0%A4%82%E0%A4%A8%E0%A5%87%20%E0%A4%86%E0%A4%9C%20%E0%A4%95%E0%A5%87%20%E0%A4%AA%E0%A5%8D%E0%A4%B2%E0%A4%BE%E0%A4%AF%E0%A5%8B%E0%A4%82%20%E0%A4%AA%E0%A4%B0%2050%25%20%E0%A4%B8%E0%A4%9F%E0%A5%80%E0%A4%95%E0%A4%A4%E0%A4%BE%20%E0%A4%95%E0%A5%87%20%E0%A4%B8%E0%A4%BE%E0%A4%A5%204%20%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%B6%E0%A5%8D%E0%A4%A8%E0%A5%8B%E0%A4%82%20%E0%A4%95%E0%A4%BE%20%E0%A4%89%E0%A4%A4%E0%A5%8D%E0%A4%A4%E0%A4%B0%20%E0%A4%A6%E0%A4%BF%E0%A4%AF%E0%A4%BE%20%F0%9F%98%87%20%F0%9F%98%87%0A%0A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A%F0%9F%8E%89%F0%9F%8E%8A"
     );
   });
 });
