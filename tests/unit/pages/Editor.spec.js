@@ -227,7 +227,6 @@ describe("Editor.vue", () => {
       props: {
         plioId: plioId,
       },
-      shallow: true,
     });
     // `getPlio` inside services/API/Plio.js should've been called
     // 1 `GET` request is made
@@ -533,21 +532,6 @@ describe("Editor.vue", () => {
         org: "",
       },
     });
-  });
-
-  it("maximize modal functions correctly", async () => {
-    const maximizeModal = jest.spyOn(Editor.methods, "maximizeModal");
-    const wrapper = mount(Editor);
-    await wrapper.setData({
-      items: dummyDraftPlio.data.items,
-      currentItemIndex: 1,
-      isModalMinimized: true,
-      videoId: "jdYJf_ybyVo",
-    });
-
-    await wrapper.find('[data-test="maximizeButton"]').trigger("click");
-    expect(maximizeModal).toHaveBeenCalled();
-    expect(wrapper.vm.isModalMinimized).toBe(false);
   });
 
   it("checks that no question time is smaller than minimum question timestamp", async () => {
@@ -1446,6 +1430,7 @@ describe("Editor.vue", () => {
 
     await wrapper.setData({
       isModalMinimized: false,
+      isItemSelected: true,
       items: dummyDraftPlio.data.items,
       currentItemIndex: 0,
       videoId: "jdYJf_ybyVo",
@@ -1457,5 +1442,21 @@ describe("Editor.vue", () => {
       .find('[data-test="minimize"]')
       .trigger("click");
     expect(minimizeModal).toHaveBeenCalled();
+  });
+
+  it("maximize modal functions correctly", async () => {
+    const maximizeModal = jest.spyOn(Editor.methods, "maximizeModal");
+    const wrapper = mount(Editor);
+    await wrapper.setData({
+      items: dummyDraftPlio.data.items,
+      currentItemIndex: 1,
+      isItemSelected: true,
+      isModalMinimized: true,
+      videoId: "jdYJf_ybyVo",
+    });
+
+    await wrapper.find('[data-test="maximizeButton"]').trigger("click");
+    expect(maximizeModal).toHaveBeenCalled();
+    expect(wrapper.vm.isModalMinimized).toBe(false);
   });
 });
