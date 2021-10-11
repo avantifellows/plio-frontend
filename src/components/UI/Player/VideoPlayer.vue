@@ -65,10 +65,13 @@ export default {
     },
   },
   methods: {
-    initiatePlayer() {
+    async initiatePlayer() {
       // creates a new instance of plyr and sets its properties
-      this.player = new Plyr("#player", this.plyrConfig);
+      this.player = await this.createPlayer();
       this.setPlayerProperties(this.player);
+    },
+    async createPlayer() {
+      return new Plyr("#player", this.plyrConfig);
     },
     setPlayerProperties(player) {
       // set properties of the player
