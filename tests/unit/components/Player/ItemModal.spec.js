@@ -2,9 +2,7 @@ import { mount } from "@vue/test-utils";
 import ItemModal from "@/components/Player/ItemModal";
 
 import {
-  dummyDraftPlio,
   dummyItems,
-  imageData,
   dummyItemDetails,
   dummyItemResponses,
 } from "@/services/Testing/DummyData.js";
