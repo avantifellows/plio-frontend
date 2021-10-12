@@ -531,7 +531,7 @@ export default {
      * sets the aspect ratio to the correct value
      */
     checkAndSetPlayerAspectRatio() {
-      if (!this.isAspectRatioChecked && !this.isAspectRatioCorrect) {
+      if (!this.isAspectRatioChecked && !this.isAspectRatioCorrect()) {
         this.setPlayerAspectRatio();
         this.isAspectRatioChecked = true;
       }

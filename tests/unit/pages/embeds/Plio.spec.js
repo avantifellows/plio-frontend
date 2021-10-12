@@ -290,7 +290,7 @@ describe("Plio.vue", () => {
     const plioId = "123";
     jest
       .spyOn(Plio.methods, "setPlayerAspectRatio")
-      .mockImplementation(() => jest.fn());
+      .mockImplementation(() => new Promise((resolve) => resolve()));
     const checkAndSetPlayerAspectRatio = jest.spyOn(
       Plio.methods,
       "checkAndSetPlayerAspectRatio"
@@ -309,8 +309,12 @@ describe("Plio.vue", () => {
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
+    // aspect ratio shouldn't have been checked at the start
+    expect(wrapper.vm.isAspectRatioChecked).toBeFalsy();
+
     wrapper.vm.$refs.videoPlayer.$emit("buffered");
 
     expect(checkAndSetPlayerAspectRatio).toHaveBeenCalled();
+    expect(wrapper.vm.isAspectRatioChecked).toBeTruthy();
   });
 });
