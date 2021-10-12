@@ -9,6 +9,10 @@ jest.mock("@/services/Functional/Utilities.js", () => ({
   resetConfetti: jest.fn(),
 }));
 
+/**
+ * we are only declaring the mock for window.open here instead of defining it too;
+ * this is because we will destroy it after each test and recreate it before each;
+ */
 let mockWindowOpen;
 
 beforeEach(() => {
@@ -23,6 +27,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  // required otherwise the calls to window.open get stacked
   mockWindowOpen.mockRestore();
 });
 

@@ -18,7 +18,7 @@
         @update="videoTimestampUpdated"
         @enterfullscreen="enterPlayerFullscreen"
         @exitfullscreen="exitPlayerFullscreen"
-        @buffered="setPlayerAspectRatio"
+        @buffered="checkAndSetPlayerAspectRatio"
         @playback-ended="popupScorecard"
         class="w-full z-0"
       ></video-player>
@@ -188,6 +188,7 @@ export default {
       numSkipped: 0, // number of skipped questions
       isScorecardShown: false, // to show the scorecard or not
       plioTitle: "", // title of the plio
+      isAspectRatioChecked: false, // whether the check for aspect ratio has been done
     };
   },
   watch: {
@@ -473,6 +474,9 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
+    /**
+     * sets various properties based on the screen size
+     */
     setScreenProperties() {
       this.setPlayerAspectRatio();
       this.setPlayerVolumeVisibility();
@@ -489,6 +493,23 @@ export default {
       }
     },
     /**
+     * returns the desired aspect ratio for the player
+     */
+    getDesiredPlayerAspectRatio() {
+      return (100 * window.innerHeight) / window.innerWidth;
+    },
+    /**
+     * whether player has the correct aspect ratio as desired
+     */
+    isAspectRatioCorrect() {
+      return (
+        document
+          .getElementById(this.plioContainerId)
+          .getElementsByClassName("plyr__video-embed")[0].style.paddingBottom ==
+        `${this.getDesiredPlayerAspectRatio()}%`
+      );
+    },
+    /**
      * sets the aspect ratio based on the current window height and width
      * to cover the full screen
      */
@@ -498,12 +519,22 @@ export default {
        * handles responsiveness: https://github.com/sampotts/plyr/issues/339#issuecomment-287603966
        * the solution below is just generalizing what he had done
        */
-      let paddingBottom = (100 * window.innerHeight) / window.innerWidth;
+      let paddingBottom = this.getDesiredPlayerAspectRatio();
       document
-        .getElementById(this.plioContainerId) // to ensure only the plio embed is changed because of this and not other plyr elements
+        .getElementById(this.plioContainerId) // to ensure that only this plio instance is affected and not other plyr instances
         .getElementsByClassName(
           "plyr__video-embed"
         )[0].style.paddingBottom = `${paddingBottom}%`;
+    },
+    /**
+     * checks whether the correct aspect ratio has been set; if not,
+     * sets the aspect ratio to the correct value
+     */
+    checkAndSetPlayerAspectRatio() {
+      if (!this.isAspectRatioChecked && !this.isAspectRatioCorrect) {
+        this.setPlayerAspectRatio();
+        this.isAspectRatioChecked = true;
+      }
     },
     /**
      * Show the scorecard on top of the player
@@ -829,6 +860,10 @@ export default {
       this.setPlayerAspectRatio();
       this.$emit("initiated");
     },
+    /**
+     * sets the current time of the player to the given time
+     * @param {Number} timestamp
+     */
     setPlayerTime(timestamp) {
       this.player.currentTime = timestamp;
     },
@@ -966,7 +1001,7 @@ export default {
       if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
         return;
       this.lastCheckTimestamp = timestamp;
-      this.setPlayerAspectRatio();
+      this.checkAndSetPlayerAspectRatio();
 
       this.checkForItemPopup(timestamp);
     },

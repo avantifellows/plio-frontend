@@ -65,16 +65,23 @@ export default {
     },
   },
   methods: {
+    /**
+     * creates a new instance of plyr and sets its properties
+     */
     initiatePlayer() {
-      // creates a new instance of plyr and sets its properties
       this.player = this.createPlayer();
       this.setPlayerProperties(this.player);
     },
+    /**
+     * creates a new instance of plyr
+     */
     createPlayer() {
       return new Plyr("#player", this.plyrConfig);
     },
+    /**
+     * sets the properties of the player
+     */
     setPlayerProperties(player) {
-      // set properties of the player
       player.on("timeupdate", this.playerTimeUpdated);
       player.on("ready", this.playerReady);
       player.on("play", this.playerPlayed);

@@ -73,6 +73,9 @@ export default {
     },
   },
   computed: {
+    /**
+     * percentage of progress to be shown in the progress bar
+     */
     progressBarPercent() {
       return this.result.value;
     },
