@@ -246,7 +246,7 @@ export default {
           "player.scorecard.share.result.2"
         )} ${this.numQuestionsAnsweredText} ${this.$t(
           "player.scorecard.share.result.3"
-        )} 😇`;
+        )}`;
       }
 
       return `${this.$t("player.scorecard.share.result.1")} ${
@@ -255,7 +255,7 @@ export default {
         this.progressBarResult.value
       }% ${this.progressBarResult.title.toLowerCase()} ${this.$t(
         "player.scorecard.share.result.3"
-      )} 😇`;
+      )}`;
     },
     /**
      * handles whether to use the singular or the plural version of "question"
