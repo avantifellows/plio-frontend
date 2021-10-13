@@ -399,25 +399,24 @@ export default {
       // triggered upon clicking on the cancel button of the dialog box
       this.showDialogBox = false;
     },
+    /**
+     * Duplicates the current plio in the following sequence:
+     * 1. Duplicate the plio details, save the id of the duplicated plio
+     * 2. Iterate through items and questions, duplicate each one of them
+     * 3. Link the duplicated items and questions to the newly created plio
+     */
     async duplicatePlio() {
-      // invoked when duplicate button is clicked
-
-      // 1. Duplicate the plio, save the id of the duplicated plio
-      // 2. Iterate through items and questions, duplicate each one of them
-      // 3. Link the duplicated items and questions to the newly created plio
-
       this.$Progress.start();
       this.$mixpanel.track("Click Duplicate", {
         "Plio UUID": this.plioId,
         "Plio Status": this.status,
       });
       var newPlio = await PlioAPIService.duplicatePlio(this.plioId);
-      var newPlioDBId = newPlio.data.id;
       await Promise.all(
         this.plioDetails.items.map(async (item, index) => {
-          // duplicate item and update it to link the item to the plio
-          var newItem = await ItemAPIService.duplicateItem(item.id, newPlioDBId);
-          // duplicate question and update it to link the item to the question
+          // duplicate item and link it to the newly created plio
+          var newItem = await ItemAPIService.duplicateItem(item.id, newPlio.data.id);
+          // duplicate question and link it to the newly created item
           await QuestionAPIService.duplicateQuestion(
             this.plioDetails.itemDetails[index].id,
             newItem.data.id

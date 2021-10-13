@@ -30,8 +30,13 @@ export default {
     );
   },
 
+  /**
+   * creates a clone of the question corresponding to questionId and links it to the provided itemId
+   * @param {Number} questionId id of the question to be duplicated
+   * @param {Number} itemId id of the item to which the duplicated question should be linked
+   * @returns
+   */
   duplicateQuestion(questionId, itemId) {
-    // create a clone of questionId and link it to the provided "itemId"
     return apiClient().post(questionsEndpoint + questionId + "/duplicate/", {
       itemId: itemId,
     });
