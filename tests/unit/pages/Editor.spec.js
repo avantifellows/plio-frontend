@@ -14,7 +14,7 @@ import {
 } from "@/services/Testing/DummyData.js";
 import store from "@/store";
 
-var cloneDeep = require("lodash.clonedeep");
+var clonedeep = require("lodash.clonedeep");
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -265,7 +265,7 @@ describe("Editor.vue", () => {
 
     // using some pre-defined dummy data to return as a fake response
     // from the fake API call
-    let plioResponse = cloneDeep(dummyDraftPlio);
+    let plioResponse = clonedeep(dummyDraftPlio);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
@@ -342,8 +342,8 @@ describe("Editor.vue", () => {
       },
       data() {
         return {
-          items: cloneDeep(dummyItems),
-          itemDetails: cloneDeep(dummyItemDetails),
+          items: clonedeep(dummyItems),
+          itemDetails: clonedeep(dummyItemDetails),
           videoId: "jdYJf_ybyVo",
         };
       },
@@ -356,7 +356,7 @@ describe("Editor.vue", () => {
     expect(checkAndSaveChanges).not.toHaveBeenCalled();
 
     // update time of one of the items
-    let itemTimestamps = cloneDeep(dummyItems).map((item) => {
+    let itemTimestamps = clonedeep(dummyItems).map((item) => {
       return item.time;
     });
     itemTimestamps[0] += 10;
@@ -531,7 +531,7 @@ describe("Editor.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    let plioResponse = cloneDeep(dummyDraftPlio);
+    let plioResponse = clonedeep(dummyDraftPlio);
 
     mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
 
@@ -572,7 +572,7 @@ describe("Editor.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    let plioResponse = cloneDeep(dummyDraftPlio);
+    let plioResponse = clonedeep(dummyDraftPlio);
     mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
@@ -618,8 +618,8 @@ describe("Editor.vue", () => {
     const maximizeModal = jest.spyOn(Editor.methods, "maximizeModal");
     const wrapper = mount(Editor);
     await wrapper.setData({
-      items: cloneDeep(dummyItems),
-      itemDetails: cloneDeep(dummyItemDetails),
+      items: clonedeep(dummyItems),
+      itemDetails: clonedeep(dummyItemDetails),
       currentItemIndex: 1,
       isModalMinimized: true,
       videoId: "jdYJf_ybyVo",
@@ -638,7 +638,7 @@ describe("Editor.vue", () => {
 
     // update items with an invalid time value -> will call itemTimestamps watcher
     // the invalid time value should be fixed back to `MINIMUM_QUESTION_TIMESTAMP`
-    let updatedDummyItems = cloneDeep(dummyItems);
+    let updatedDummyItems = clonedeep(dummyItems);
     updatedDummyItems[0].time = 0.1;
     await wrapper.setData({
       items: updatedDummyItems,
@@ -667,7 +667,7 @@ describe("Editor.vue", () => {
     const wrapper = mount(Editor);
 
     const imageURL = "test url";
-    const dummyItemDetailsWithImage = cloneDeep(dummyItemDetails);
+    const dummyItemDetailsWithImage = clonedeep(dummyItemDetails);
     dummyItemDetailsWithImage[0].image = {
       id: 56,
       url: imageURL,
@@ -677,8 +677,8 @@ describe("Editor.vue", () => {
     };
 
     await wrapper.setData({
-      items: cloneDeep(dummyItems),
-      itemDetails: cloneDeep(dummyItemDetailsWithImage),
+      items: clonedeep(dummyItems),
+      itemDetails: clonedeep(dummyItemDetailsWithImage),
       currentItemIndex: 0,
     });
 
@@ -689,8 +689,8 @@ describe("Editor.vue", () => {
     const wrapper = mount(Editor);
     await wrapper.setData({
       currentItemIndex: 0,
-      items: cloneDeep(dummyItems),
-      itemDetails: cloneDeep(dummyItemDetails),
+      items: clonedeep(dummyItems),
+      itemDetails: clonedeep(dummyItemDetails),
     });
     expect(wrapper.vm.itemType).toBe(null);
     await wrapper.setData({
@@ -702,8 +702,8 @@ describe("Editor.vue", () => {
   it("computes correctOptionInex correctly", async () => {
     const wrapper = mount(Editor);
     await wrapper.setData({
-      items: cloneDeep(dummyItems),
-      itemDetails: cloneDeep(dummyItemDetails),
+      items: clonedeep(dummyItems),
+      itemDetails: clonedeep(dummyItemDetails),
       currentItemIndex: 0,
     });
     expect(wrapper.vm.correctOptionIndex).toBe(
@@ -1151,7 +1151,7 @@ describe("Editor.vue", () => {
     const deleteLinkedImage = jest.spyOn(Editor.methods, "deleteLinkedImage");
     const wrapper = mount(Editor);
 
-    const dummyItemDetailsWithImage = cloneDeep(dummyItemDetails);
+    const dummyItemDetailsWithImage = clonedeep(dummyItemDetails);
     dummyItemDetailsWithImage[0].image = {
       id: 56,
       url: "https://plio-prod-assets.s3.amazonaws.com/images/hxojrjdasf.png",
@@ -1162,9 +1162,9 @@ describe("Editor.vue", () => {
 
     await wrapper.setData({
       isImageUploaderDialogShown: true,
-      items: cloneDeep(dummyItems),
-      itemDetails: cloneDeep(dummyItemDetailsWithImage),
-      itemImage: cloneDeep(dummyItemDetailsWithImage[0].image.url),
+      items: clonedeep(dummyItems),
+      itemDetails: clonedeep(dummyItemDetailsWithImage),
+      itemImage: clonedeep(dummyItemDetailsWithImage[0].image.url),
       currentItemIndex: 0,
     });
 
@@ -1181,8 +1181,8 @@ describe("Editor.vue", () => {
     const submitImage = jest.spyOn(ImageUploaderDialog.methods, "submitImage");
     const wrapper = mount(Editor);
     await wrapper.setData({
-      items: cloneDeep(dummyItems),
-      itemDetails: cloneDeep(dummyItemDetails),
+      items: clonedeep(dummyItems),
+      itemDetails: clonedeep(dummyItemDetails),
       isImageUploaderDialogShown: true,
       currentItemIndex: 0,
     });
@@ -1243,8 +1243,8 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      items: cloneDeep(dummyItems),
-      itemDetails: cloneDeep(dummyItemDetails),
+      items: clonedeep(dummyItems),
+      itemDetails: clonedeep(dummyItemDetails),
       currentItemIndex: 0,
       videoDuration: 200,
       status: "draft",
@@ -1308,10 +1308,10 @@ describe("Editor.vue", () => {
       .find('[data-test="confirmButton"]')
       .trigger("click");
 
-    let updatedDummyItemDetails = cloneDeep(dummyItemDetails);
+    let updatedDummyItemDetails = clonedeep(dummyItemDetails);
     updatedDummyItemDetails[0].options.push("option 3");
     await wrapper.setData({
-      items: cloneDeep(dummyItems),
+      items: clonedeep(dummyItems),
       itemDetails: updatedDummyItemDetails,
       currentItemIndex: 0,
       videoDuration: 200,
@@ -1380,8 +1380,8 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      items: cloneDeep(dummyItems),
-      itemDetails: cloneDeep(dummyItemDetails),
+      items: clonedeep(dummyItems),
+      itemDetails: clonedeep(dummyItemDetails),
       currentItemIndex: null,
       videoId: "jdYJf_ybyVo",
       currentTimestamp: 15.6,
@@ -1396,8 +1396,8 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.pending).toBeFalsy();
 
     await wrapper.setData({
-      items: cloneDeep(dummyItems),
-      itemDetails: cloneDeep(dummyItemDetails),
+      items: clonedeep(dummyItems),
+      itemDetails: clonedeep(dummyItemDetails),
       currentItemIndex: null,
       videoId: "jdYJf_ybyVo",
       currentTimestamp: 12,
@@ -1499,8 +1499,8 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      items: cloneDeep(dummyItems),
-      itemDetails: cloneDeep(dummyItemDetails),
+      items: clonedeep(dummyItems),
+      itemDetails: clonedeep(dummyItemDetails),
       currentItemIndex: 0,
       videoDuration: 200,
       status: "draft",
@@ -1550,8 +1550,8 @@ describe("Editor.vue", () => {
 
     await wrapper.setData({
       isModalMinimized: false,
-      items: cloneDeep(dummyItems),
-      itemDetails: cloneDeep(dummyItemDetails),
+      items: clonedeep(dummyItems),
+      itemDetails: clonedeep(dummyItemDetails),
       currentItemIndex: 0,
       videoId: "jdYJf_ybyVo",
     });

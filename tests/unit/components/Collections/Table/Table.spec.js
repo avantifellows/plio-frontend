@@ -4,7 +4,7 @@ import { setMatchMedia } from "@/services/Testing/Utilities";
 import store from "@/store";
 import mockAxios from "jest-mock-axios";
 import { dummyPublishedPlio } from "@/services/Testing/DummyData.js";
-var cloneDeep = require("lodash.clonedeep");
+var clonedeep = require("lodash.clonedeep");
 
 var dummyTableData = [
   {
@@ -327,8 +327,8 @@ describe("Table.vue", () => {
 
     // resolve the two `GET` requests (for each plio) waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(cloneDeep(dummyPublishedPlio), mockAxios.queue()[0]);
-    mockAxios.mockResponse(cloneDeep(dummyPublishedPlio), mockAxios.queue()[1]);
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[1]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();

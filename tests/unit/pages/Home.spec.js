@@ -12,7 +12,7 @@ import {
   dummyUniqueUserCountList,
 } from "@/services/Testing/DummyData.js";
 
-var cloneDeep = require("lodash.clonedeep");
+var clonedeep = require("lodash.clonedeep");
 
 afterEach(async () => {
   // cleaning up the mess left behind by the previous test
@@ -46,7 +46,7 @@ describe("Home.vue", () => {
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(cloneDeep(dummyEmptyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyEmptyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -68,14 +68,14 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(cloneDeep(dummyUniqueUserCountList));
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(cloneDeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -108,7 +108,7 @@ describe("Home.vue", () => {
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(cloneDeep(dummyEmptyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyEmptyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -152,14 +152,14 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(cloneDeep(dummyUniqueUserCountList));
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(cloneDeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -193,14 +193,14 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(cloneDeep(dummyUniqueUserCountList));
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(cloneDeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -239,14 +239,14 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(cloneDeep(dummyUniqueUserCountList));
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(cloneDeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -290,14 +290,14 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(cloneDeep(dummyUniqueUserCountList));
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(cloneDeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -318,14 +318,14 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(cloneDeep(dummyUniqueUserCountList));
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
     mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(cloneDeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -354,7 +354,7 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(cloneDeep(dummyUniqueUserCountList));
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
 
@@ -365,14 +365,14 @@ describe("Home.vue", () => {
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(cloneDeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
     // the page makes getPlio query for every plio in the plioList/dummyPlioList
     // mocking the published plio as the response for each plio details
-    mockAxios.mockResponse(cloneDeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
 
     await flushPromises();
 
@@ -398,7 +398,7 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(cloneDeep(dummyUniqueUserCountList));
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
 
@@ -409,7 +409,7 @@ describe("Home.vue", () => {
     });
 
     // mock how the response for page 2 with one plio would look like
-    let plioList = cloneDeep(dummyPlioList);
+    let plioList = clonedeep(dummyPlioList);
     plioList.data.count = 6;
     plioList.data.page_size = 5;
     plioList.data.results = [plioList.data.results[0]];
@@ -425,7 +425,7 @@ describe("Home.vue", () => {
 
     // the page makes getPlio query for every plio in the plioList/dummyPlioList
     // mocking the published plio as the response for each plio details
-    mockAxios.mockResponse(cloneDeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
 
     await flushPromises();
 

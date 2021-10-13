@@ -7,7 +7,7 @@ import {
   dummyItemResponses,
 } from "@/services/Testing/DummyData.js";
 
-var cloneDeep = require("lodash.clonedeep");
+var clonedeep = require("lodash.clonedeep");
 
 describe("ItemModal.vue", () => {
   it("should render with default values", () => {
@@ -18,8 +18,8 @@ describe("ItemModal.vue", () => {
   it("should prepare draft responses for each item", () => {
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: cloneDeep(dummyItems),
-        itemDetailList: cloneDeep(dummyItemDetails),
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
       },
     });
     expect(wrapper.vm.draftResponses.length).toBe(dummyItems.length);
@@ -28,8 +28,8 @@ describe("ItemModal.vue", () => {
   it("extract current item details correctly", async () => {
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: cloneDeep(dummyItems),
-        itemDetailList: cloneDeep(dummyItemDetails),
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
       },
     });
     // test subjective
@@ -73,8 +73,8 @@ describe("ItemModal.vue", () => {
     const toggleMinimizeMock = jest.spyOn(ItemModal.methods, "toggleMinimize");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: cloneDeep(dummyItems),
-        itemDetailList: cloneDeep(dummyItemDetails),
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
         videoPlayerElementId: "videoPlayer",
       },
     });
@@ -91,8 +91,8 @@ describe("ItemModal.vue", () => {
     const skipQuestionMock = jest.spyOn(ItemModal.methods, "skipQuestion");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: cloneDeep(dummyItems),
-        itemDetailList: cloneDeep(dummyItemDetails),
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
       },
     });
     wrapper
@@ -108,8 +108,8 @@ describe("ItemModal.vue", () => {
     const reviseQuestionMock = jest.spyOn(ItemModal.methods, "emitRevise");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: cloneDeep(dummyItems),
-        itemDetailList: cloneDeep(dummyItemDetails),
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
       },
     });
     wrapper
@@ -128,12 +128,12 @@ describe("ItemModal.vue", () => {
         answer: null,
       });
     });
-    var draftResponses = cloneDeep(dummyItemResponses);
+    var draftResponses = clonedeep(dummyItemResponses);
     const submitQuestionMock = jest.spyOn(ItemModal.methods, "submitQuestion");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: cloneDeep(dummyItems),
-        itemDetailList: cloneDeep(dummyItemDetails),
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
         responseList: responseList,
         selectedItemIndex: 2,
       },
@@ -168,8 +168,8 @@ describe("ItemModal.vue", () => {
     const submitQuestionMock = jest.spyOn(ItemModal.methods, "submitQuestion");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: cloneDeep(dummyItems),
-        itemDetailList: cloneDeep(dummyItemDetails),
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
         responseList: responseList,
         selectedItemIndex: 1,
       },
@@ -204,8 +204,8 @@ describe("ItemModal.vue", () => {
     );
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: cloneDeep(dummyItems),
-        itemDetailList: cloneDeep(dummyItemDetails),
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
         responseList: responseList,
       },
     });
@@ -231,8 +231,8 @@ describe("ItemModal.vue", () => {
     );
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: cloneDeep(dummyItems),
-        itemDetailList: cloneDeep(dummyItemDetails),
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
         responseList: responseList,
         selectedItemIndex: 1,
       },

@@ -15,7 +15,7 @@ import {
 export default {
   /**
    * returns the details for a plio
-   * @param {Number} plioId database id of the plio to be fetched
+   * @param {Number} plioId uuid of the plio to be fetched
    * @param {Boolean} playMode if true, all public plios are accessible to everyone; otherwise, a user can only access the plios that they have created
    * @returns {Object} data corresponding to the plio
    */
@@ -100,7 +100,7 @@ export default {
 
   /**
    * creates a clone of the plio corresponding to plioId
-   * @param {Number} plioId database id of the plio to be duplicated
+   * @param {Number} plioId uuid of the plio to be duplicated
    * @returns {Promise}
    */
   duplicatePlio(plioId) {
@@ -109,7 +109,7 @@ export default {
 
   /**
    * deletes the plio associated with the given plioId
-   * @param {Number} plioId database id of the plio to be deleted
+   * @param {Number} plioId uuid of the plio to be deleted
    * @returns {Promise}
    */
   deletePlio(plioId) {
@@ -118,7 +118,7 @@ export default {
 
   /**
    * fetches the report for a plio
-   * @param {Number} plioId plio for which the report is to be fetched
+   * @param {Number} plioId uuid of the plio for which the report is to be fetched
    * @returns {Promise}
    */
   getPlioReport(plioId) {
@@ -160,7 +160,7 @@ export default {
 
   /**
    * fetches the dashboard metrics for the given plio
-   * @param {Number} plioId database id of the plio for which the metrics need to be fetched
+   * @param {Number} plioId uuid of the plio for which the metrics need to be fetched
    * @returns {Object} key-value pairs of metrics
    */
   async getDashboardMetrics(plioId) {

@@ -465,13 +465,13 @@ import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
 import ImageAPIService from "@/services/API/Image.js";
+import VideoAPIService from "@/services/API/Video.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import Utilities, {
   throwConfetti,
   resetConfetti,
 } from "@/services/Functional/Utilities.js";
-import VideoAPIService from "@/services/API/Video.js";
 import { mapActions, mapState } from "vuex";
 import debounce from "debounce";
 
@@ -695,9 +695,9 @@ export default {
       }
     },
     /**
-     * When video url is updated, check it's validity, update the plyr with the valid URL
+     * When video url is updated, check its validity; if valid, update the player with the new URL
      * and push the updated video object to the backend
-     * @param {String} newVideoURL - The new video URL that the user has entered
+     * @param {String} newVideoURL The new video URL that the user has entered
      */
     videoURL(newVideoURL) {
       // invoked when the video link is updated
