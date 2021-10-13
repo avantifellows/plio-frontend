@@ -451,7 +451,11 @@ describe("Editor.vue", () => {
   it("play button works correctly", async () => {
     // mock router
     const mockRouter = {
-      push: jest.fn(),
+      resolve: jest.fn(() => {
+        return {
+          href: "test",
+        };
+      }),
     };
     const plioId = "123";
     const redirectToPlayer = jest.spyOn(Editor.methods, "redirectToPlayer");
@@ -475,7 +479,7 @@ describe("Editor.vue", () => {
 
     await wrapper.find('[data-test="playPlioButton"]').trigger("click");
     expect(redirectToPlayer).toHaveBeenCalled();
-    expect(mockRouter.push).toHaveBeenCalledWith({
+    expect(mockRouter.resolve).toHaveBeenCalledWith({
       name: "Player",
       params: {
         org: "",
@@ -868,7 +872,11 @@ describe("Editor.vue", () => {
   it("play plio button inside the published dialog works correctly", async () => {
     // mock router
     const mockRouter = {
-      push: jest.fn(),
+      resolve: jest.fn(() => {
+        return {
+          href: "test",
+        };
+      }),
     };
     const plioId = "123";
     const redirectToPlayer = jest.spyOn(Editor.methods, "redirectToPlayer");
@@ -906,7 +914,7 @@ describe("Editor.vue", () => {
       .trigger("click");
 
     expect(redirectToPlayer).toHaveBeenCalled();
-    expect(mockRouter.push).toHaveBeenCalledWith({
+    expect(mockRouter.resolve).toHaveBeenCalledWith({
       name: "Player",
       params: {
         org: "",

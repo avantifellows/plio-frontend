@@ -356,10 +356,12 @@ export default {
     },
     playPlio() {
       // invoked when play button is clicked
-      this.$router.push({
+      let routeData = this.$router.resolve({
         name: "Player",
-        params: { plioId: this.plioId, org: this.activeWorkspace },
+        params: { org: this.activeWorkspace, plioId: this.plioId },
       });
+      // required for opening in a new tab
+      window.open(routeData.href, "_blank");
     },
     editPlio() {
       // invoked when edit button is clicked

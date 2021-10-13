@@ -70,7 +70,7 @@ Object.defineProperty(document, "currentScript", {
   value: document.createElement("script"),
 });
 
-// as window.matchMedia is not defined in the DOM
+// mock window modules
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
@@ -83,6 +83,11 @@ Object.defineProperty(window, "matchMedia", {
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
   })),
+});
+
+Object.defineProperty(window, "open", {
+  writable: true,
+  value: jest.fn(),
 });
 
 // mock getBoundingClientRect

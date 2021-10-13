@@ -1308,10 +1308,12 @@ export default {
      */
     redirectToPlayer() {
       if (!this.isPublished) return;
-      this.$router.push({
+      let routeData = this.$router.resolve({
         name: "Player",
         params: { org: this.org, plioId: this.plioId },
       });
+      // required for opening in a new tab
+      window.open(routeData.href, "_blank");
     },
     /**
      * redirects the user to the dashboard for this plio if it is published
