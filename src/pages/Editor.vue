@@ -1716,8 +1716,15 @@ export default {
      * @param {Object} payload - The payload that needs to be pushed to the backend
      */
     async updateItemDetails(id, payload) {
-      if (this.itemType == "question")
-        await QuestionAPIService.updateQuestion(id, payload);
+      if (this.itemType == "question") {
+        // cloning as we are replacing the value of the "image" key
+        var payloadClone = clonedeep(payload);
+        if ("image" in payload && payload["image"] != undefined) {
+          payloadClone["image"] = payload["image"]["id"];
+        }
+        await QuestionAPIService.updateQuestion(id, payloadClone);
+      }
+
       return new Promise((resolve) => resolve());
     },
     /**

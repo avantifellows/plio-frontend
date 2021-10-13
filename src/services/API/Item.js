@@ -4,7 +4,7 @@ import { itemsEndpoint, duplicateEndpoint } from "@/services/API/Endpoints.js";
 export default {
   /**
    * Creates a new item with the given details
-   * @param {Object} payload data for the item to be created
+   * @param {Object} payload payload containing the data for creating the item
    * @returns {Promise}
    */
   createItem(payload) {
@@ -18,7 +18,7 @@ export default {
   /**
    * updates the item corresponding to itemId with payload
    * @param {Number} itemId id of the item to be updated
-   * @param {Object} payload data for updating the item
+   * @param {Object} payload payload containing the data that needs to be updated
    * @returns {Promise}
    */
   updateItem(itemId, payload) {
