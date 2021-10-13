@@ -13,12 +13,13 @@ import {
 } from "@/services/API/Queries/Plio.js";
 
 export default {
+  /**
+   * returns the details for a plio
+   * @param {Number} plioId database id of the plio to be fetched
+   * @param {Boolean} playMode if true, all public plios are accessible to everyone; otherwise, a user can only access the plios that they have created
+   * @returns {Object} data corresponding to the plio
+   */
   async getPlio(plioId, playMode = false) {
-    // returns the details for one plio
-    // playMode = true means that the plio is being fetched
-    // to be played - in which case all public plios are accessible
-    // to everyone. if playMode = false, a user can only get the
-    // plios that they have created
     let plioEndpoint = pliosEndpoint + plioId;
     if (playMode) {
       plioEndpoint += "/play";
@@ -27,15 +28,16 @@ export default {
     return apiClient()
       .get(plioEndpoint)
       .then((plio) => {
-        // preparing plio details to be consumed by
-        // the components
+        // prepares plio details to be consumed by the components
         var plioDetails = {};
         plioDetails.itemDetails = [];
         for (let item of plio.data.items) {
           // convert str to int
           item.details.correct_answer = parseInt(item.details.correct_answer);
-          // add every item's details to an itemDetails array
-          // and then remove those details from the item object
+          /**
+           * add every item's details to an itemDetails array
+           * and then, remove those details from the item object
+           */
           plioDetails.itemDetails.push(item.details);
           delete item.details;
         }
@@ -50,15 +52,20 @@ export default {
       });
   },
 
+  /**
+   * returns a list of plios that the user has created
+   * @param {Boolean} uuidOnly whether to return only UUIDs instead of the details for each plio
+   * @param {Number} pageNumber if provided, it returns only the plios present at the given page number
+   * @param {String} searchString if provided, returns only the plios matching the search string
+   * @param {String} sortBy if provided, sorts the list of plios based on the ordering given
+   * @returns
+   */
   getAllPlios(
     uuidOnly = false,
     pageNumber = undefined,
     searchString = "",
     sortBy = undefined
   ) {
-    // returns all the plios (or just the flat list of uuids) created by the user
-    // also fetches the plios at a given page number [if applicable]
-    // also filters and fetches the plios that match the given search string [if applicable]
     var url = uuidOnly ? pliosEndpoint + listPliosEndpoint : pliosEndpoint;
 
     var queryParams = {};
@@ -74,37 +81,57 @@ export default {
     return apiClient().get(url, { params: queryParams });
   },
 
+  /**
+   * creates a new draft plio
+   * @returns {Promise}
+   */
   createPlio() {
-    // creates a new draft plio
     return apiClient().post(pliosEndpoint);
   },
 
   /**
    * Patch a given plio with the given data
-   * @param {Number} plioId - The uuid of a plio
-   * @param {Object} payload - The payload containing the data that needs to be patched
+   * @param {Number} plioId uuid of a plio
+   * @param {Object} payload payload containing the data that needs to be patched
    */
-  patchPlio(plioId, payload) {
+  updatePlio(plioId, payload) {
     return apiClient().patch(pliosEndpoint + plioId, payload);
   },
 
+  /**
+   * creates a clone of the plio corresponding to plioId
+   * @param {Number} plioId database id of the plio to be duplicated
+   * @returns {Promise}
+   */
   duplicatePlio(plioId) {
-    // create a clone of plioId plio
     return apiClient().post(pliosEndpoint + plioId + duplicateEndpoint);
   },
 
+  /**
+   * deletes the plio associated with the given plioId
+   * @param {Number} plioId database id of the plio to be deleted
+   * @returns {Promise}
+   */
   deletePlio(plioId) {
-    // deletes the plio associated with the given plioId
     return apiClient().delete(pliosEndpoint + plioId);
   },
 
-  getPlioDataDump(plioId) {
-    // get the data dump for the plio
+  /**
+   * fetches the report for a plio
+   * @param {Number} plioId plio for which the report is to be fetched
+   * @returns {Promise}
+   */
+  getPlioReport(plioId) {
     return apiClient().get(pliosEndpoint + plioId + plioDataDumpEndpoint, {
       responseType: "blob",
     });
   },
 
+  /**
+   * fetches the number of unique users who have watched each plio given a list of plio ids
+   * @param {Array} plioIds list of plio ids for whom the count needs to be fetched
+   * @returns {Array}
+   */
   async getUniqueUsersCountList(plioIds) {
     if (plioIds.length == 0) return [];
 
@@ -131,8 +158,12 @@ export default {
     return results;
   },
 
+  /**
+   * fetches the dashboard metrics for the given plio
+   * @param {Number} plioId database id of the plio for which the metrics need to be fetched
+   * @returns {Object} key-value pairs of metrics
+   */
   async getDashboardMetrics(plioId) {
-    // get the metrics for each plio for the dashboard
     var metrics = {};
 
     // get session level metrics (except 1-minute retention)

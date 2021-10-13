@@ -1696,7 +1696,7 @@ export default {
      * @param {Object} payload - The payload that needs to be pushed to the backend
      */
     async updatePlio(payload) {
-      await PlioAPIService.patchPlio(this.plioId, payload);
+      await PlioAPIService.updatePlio(this.plioId, payload);
       return new Promise((resolve) => resolve());
     },
 
