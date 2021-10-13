@@ -710,7 +710,7 @@ export default {
       this.videoId = linkValidation["ID"];
 
       if (this.loadedPlioDetails.videoURL == newVideoURL) return;
-      this.checkAndSaveChanges("video", null, {
+      this.checkAndSaveChanges("video", this.videoDBId, {
         url: newVideoURL,
         duration: this.videoDuration,
       });
@@ -722,7 +722,7 @@ export default {
     plioTitle(newTitle) {
       // invoked when the plio title is update
       if (this.loadedPlioDetails.plioTitle == newTitle) return;
-      this.checkAndSaveChanges("plio", null, {
+      this.checkAndSaveChanges("plio", this.plioId, {
         name: newTitle,
       });
     },
@@ -732,7 +732,7 @@ export default {
      */
     videoDuration(newVideoDuration) {
       if (newVideoDuration != 0)
-        this.checkAndSaveChanges("video", null, { duration: newVideoDuration });
+        this.checkAndSaveChanges("video", this.videoDBId, { duration: newVideoDuration });
     },
   },
   computed: {
@@ -1178,7 +1178,7 @@ export default {
      * If an itemId is provided, the watcher linked to that item
      * and the corresponding itemDetail will be removed
      * If itemId is not provided, remove watchers for all items and itemDetails
-     * @param {Number} itemId - The id of an item
+     * @param {Number} itemId The id of an item
      */
     clearItemAndItemDetailWatchers(itemId = null) {
       if (itemId != null) {
@@ -1608,12 +1608,12 @@ export default {
         });
     },
     /**
-     * Preprocessing and filtering before pushing the data to the server
-     * @param {String} resourceName - Name of the resource that needs to be updated/created (plio, video, question etc...)
-     * @param {Number, Object} resourceId - Database Id of the resource
-     * @param {Object} resourceValue - The payload of the resource that needs to be pushed to the backend
+     * filtering before pushing the data to the server
+     * @param {String} resourceName name of the resource that needs to be updated/created (plio, video, question etc...)
+     * @param {Number, Object} resourceId id of the resource
+     * @param {Object} resourceValue payload of the resource that needs to be pushed to the backend
      */
-    async checkAndSaveChanges(resourceName, resourceId = null, resourceValue = null) {
+    async checkAndSaveChanges(resourceName, resourceId, resourceValue) {
       // don't update changes automatically once published
       if (this.isPublished) {
         this.hasUnpublishedChanges = true;
@@ -1627,43 +1627,54 @@ export default {
     },
     /**
      * updates the data on the server
-     * @param {String} resourceName - Name of the resource that needs to be updated/created (plio, video, question etc...)
-     * @param {Number, Object} resourceId - Database Id of the resource
-     * @param {Object} resourceValue - The payload of the resource that needs to be pushed to the backend
+     * @param {String} resourceName name of the resource that needs to be updated/created (plio, video, question etc...)
+     * @param {Number, Object} resourceId id of the resource
+     * @param {Object} resourceValue payload of the resource that needs to be pushed to the backend
      */
-    async saveChanges(resourceName, resourceId = null, resourceValue = null) {
+    async saveChanges(resourceName, resourceId, resourceValue) {
       this.changeInProgress = false;
       this.startUploading();
       this.lastUpdated = new Date();
 
-      if (resourceName == "video") await this.updateVideo(resourceValue);
-      else if (resourceName == "item") await this.updateItem(resourceId, resourceValue);
-      else if (resourceName == "question")
-        await this.updateItemDetails(resourceId, resourceValue);
-      else if (resourceName == "plio") await this.updatePlio(resourceValue);
-      else if (resourceName == "all") {
-        // update video
-        await this.updateVideo({
-          url: this.videoURL,
-          duration: this.videoDuration,
-        });
+      switch (resourceName) {
+        case "video":
+          await this.updateVideo(resourceId, resourceValue);
+          break;
+        case "item":
+          await this.updateItem(resourceId, resourceValue);
+          break;
+        case "question":
+          await this.updateItemDetails(resourceId, resourceValue);
+          break;
+        case "plio":
+          await this.updatePlio(resourceId, resourceValue);
+          break;
+        case "all":
+          // update video
+          await this.updateVideo(this.videoDBId, {
+            url: this.videoURL,
+            duration: this.videoDuration,
+          });
 
-        // update all the items
-        this.items.forEach(async (item) => {
-          await this.updateItem(item.id, item);
-        });
+          // update all the items
+          this.items.forEach(async (item) => {
+            await this.updateItem(item.id, item);
+          });
 
-        // update all the item details
-        this.itemDetails.forEach(async (itemDetail) => {
-          await this.updateItemDetails(itemDetail.id, itemDetail);
-        });
+          // update all the item details
+          this.itemDetails.forEach(async (itemDetail) => {
+            await this.updateItemDetails(itemDetail.id, itemDetail);
+          });
 
-        // update plio
-        await this.updatePlio({
-          name: this.plioTitle,
-          status: this.status,
-          video: this.videoDBId,
-        });
+          // update plio
+          await this.updatePlio(this.plioId, {
+            name: this.plioTitle,
+            status: this.status,
+            video: this.videoDBId,
+          });
+          break;
+        default:
+          break;
       }
 
       this.stopUploading();
@@ -1672,38 +1683,37 @@ export default {
 
     /**
      * Create or update the video resource
-     * @param {Object} payload - The payload that needs to be pushed to the backend
+     * @param {Number} id The database id of the video that needs to be updated
+     * @param {Object} payload The payload that needs to be pushed to the backend
      */
-    async updateVideo(payload) {
+    async updateVideo(id, payload) {
       // 'url' key in the payload is a required field
-      if (
-        this.videoDBId == null &&
-        Object.prototype.hasOwnProperty.call(payload, "url")
-      ) {
+      if (id == null && Object.prototype.hasOwnProperty.call(payload, "url")) {
         // Create the video and link it to the plio
         let createdVideo = await VideoAPIService.createVideo(payload);
         this.videoDBId = createdVideo.data.id;
         await this.updatePlio({ video: this.videoDBId });
-      } else if (this.videoDBId != null) {
+      } else if (id != null) {
         // update the existing video
-        await VideoAPIService.updateVideo(this.videoDBId, payload);
+        await VideoAPIService.updateVideo(id, payload);
       }
       return new Promise((resolve) => resolve());
     },
 
     /**
      * Update the plio resource
-     * @param {Object} payload - The payload that needs to be pushed to the backend
+     * @param {Number} id The uuid of the plio that needs to be updated
+     * @param {Object} payload The payload that needs to be pushed to the backend
      */
-    async updatePlio(payload) {
-      await PlioAPIService.updatePlio(this.plioId, payload);
+    async updatePlio(id, payload) {
+      await PlioAPIService.updatePlio(id, payload);
       return new Promise((resolve) => resolve());
     },
 
     /**
      * Update the item resource
-     * @param {Number} id - The databased id of the item that needs to be updated
-     * @param {Object} payload - The payload that needs to be pushed to the backend
+     * @param {Number} id The database id of the item that needs to be updated
+     * @param {Object} payload The payload that needs to be pushed to the backend
      */
     async updateItem(id, payload) {
       await ItemAPIService.updateItem(id, payload);
@@ -1712,8 +1722,8 @@ export default {
 
     /**
      * Update the itemDetail resource
-     * @param {Number} id - The databased id of the itemDetail that needs to be updated
-     * @param {Object} payload - The payload that needs to be pushed to the backend
+     * @param {Number} id The database id of the itemDetail that needs to be updated
+     * @param {Object} payload The payload that needs to be pushed to the backend
      */
     async updateItemDetails(id, payload) {
       if (this.itemType == "question") {
@@ -1936,14 +1946,13 @@ export default {
      * @param {String} questionType type of the question
      */
     getDetailsForNewQuestion(questionType) {
-      // default structure for a new question
-      var details = {};
-      details["correct_answer"] = 0;
-      details["text"] = "";
-      details["type"] = questionType;
-      details["options"] = ["", ""];
-      details["max_char_limit"] = 100;
-      return details;
+      return {
+        correct_answer: 0,
+        text: "",
+        type: questionType,
+        options: ["", ""],
+        max_char_limit: 100,
+      };
     },
     /**
      * creates a new item of the given question type and adds it to the item list
