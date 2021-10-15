@@ -14,6 +14,7 @@ import {
   dummyItemDetails,
 } from "@/services/Testing/DummyData.js";
 import store from "@/store";
+import { dummyPublishedPlio } from "../../../src/services/Testing/DummyData";
 
 var clonedeep = require("lodash.clonedeep");
 
@@ -826,12 +827,15 @@ describe("Editor.vue", () => {
     ).toBe("Click to publish your changes");
   });
 
-  it("shows dialog correctly when publish button is clicked", async () => {
-    const saveChanges = jest
-      .spyOn(Editor.methods, "saveChanges")
-      .mockImplementation(() => {
-        return new Promise((resolve) => resolve());
-      });
+  it("shows published dialog when publish is confirmed", async () => {
+    const saveChanges = jest.spyOn(Editor.methods, "saveChanges");
+    const updateVideo = jest.spyOn(Editor.methods, "updateVideo");
+    const updatePlio = jest.spyOn(Editor.methods, "updatePlio");
+    const updateItem = jest.spyOn(Editor.methods, "updateItem");
+    const updateQuestionDetails = jest.spyOn(
+      Editor.methods,
+      "updateQuestionDetails"
+    );
     const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
     const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
@@ -846,10 +850,19 @@ describe("Editor.vue", () => {
         });
         return {
           videoId: "abcdefgh",
+          videoDBId: dummyVideo.id,
           confettiHandler: confettiHandler,
+          items: clonedeep(dummyItems),
+          itemDetails: clonedeep(dummyItemDetails),
         };
       },
+      props: {
+        plioId: String(dummyPublishedPlio.data.id),
+      },
     });
+
+    // reset the getPlio request made by Editor
+    mockAxios.reset();
 
     await wrapper.find('[data-test="publishButton"]').trigger("click");
     expect(wrapper.vm.dialogTitle).toBe(
@@ -906,13 +919,84 @@ describe("Editor.vue", () => {
     expect(confirmPublish).toHaveBeenCalled();
     expect(publishPlio).toHaveBeenCalled();
     expect(wrapper.vm.status).toBe("published");
-    expect(saveChanges).toHaveBeenCalled();
+    expect(saveChanges).toHaveBeenCalledWith("all");
+
+    // video update check
+    expect(updateVideo).toHaveBeenCalled();
+
+    // mock video response
+    mockAxios.mockResponse(
+      {
+        data: dummyVideo,
+      },
+      mockAxios.queue()[0]
+    );
 
     await flushPromises();
-    expect(wrapper.vm.isBeingPublished).toBeFalsy();
-    expect(wrapper.vm.isDialogBoxShown).toBeFalsy();
-    expect(wrapper.vm.isPublishedPlioDialogShown).toBeTruthy();
-    expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
+
+    // 1 call to /items and /questions for each item and 1 call to /plio
+    expect(mockAxios.queue().length).toBe(dummyItems.length * 2 + 1);
+    expect(updateItem).toHaveBeenCalledTimes(4);
+
+    // mock responses to requests for /items
+    mockAxios.mockResponse(
+      {
+        data: dummyItems[0],
+      },
+      mockAxios.queue()[0]
+    );
+    mockAxios.mockResponse(
+      {
+        data: dummyItems[1],
+      },
+      mockAxios.queue()[0]
+    );
+    mockAxios.mockResponse(
+      {
+        data: dummyItems[2],
+      },
+      mockAxios.queue()[0]
+    );
+    mockAxios.mockResponse(
+      {
+        data: dummyItems[3],
+      },
+      mockAxios.queue()[0]
+    );
+
+    await flushPromises();
+
+    expect(updateQuestionDetails).toHaveBeenCalledTimes(4);
+
+    // mock responses to requests for /questions
+    mockAxios.mockResponse(
+      {
+        data: dummyItemDetails[0],
+      },
+      mockAxios.queue()[0]
+    );
+    mockAxios.mockResponse(
+      {
+        data: dummyItemDetails[1],
+      },
+      mockAxios.queue()[0]
+    );
+    mockAxios.mockResponse(
+      {
+        data: dummyItemDetails[2],
+      },
+      mockAxios.queue()[0]
+    );
+    mockAxios.mockResponse(
+      {
+        data: dummyItemDetails[3],
+      },
+      mockAxios.queue()[0]
+    );
+
+    await flushPromises();
+
+    expect(updatePlio).toHaveBeenCalled();
   });
 
   it("clicking on preview button of publish confirmation dialog shows plio preview", async () => {

@@ -1603,7 +1603,7 @@ export default {
           await this.updateItem(resourceId, resourceValue);
           break;
         case "question":
-          await this.updateItemDetails(resourceId, resourceValue);
+          await this.updateQuestionDetails(resourceId, resourceValue);
           break;
         case "plio":
           await this.updatePlio(resourceId, resourceValue);
@@ -1621,8 +1621,10 @@ export default {
           });
 
           // update all the item details
-          this.itemDetails.forEach(async (itemDetail) => {
-            await this.updateItemDetails(itemDetail.id, itemDetail);
+          this.itemDetails.forEach(async (itemDetail, index) => {
+            if (this.items[index].type == "question") {
+              await this.updateQuestionDetails(itemDetail.id, itemDetail);
+            }
           });
 
           // update plio
@@ -1681,15 +1683,13 @@ export default {
      * @param {Number} id The database id of the itemDetail that needs to be updated
      * @param {Object} payload The payload that needs to be pushed to the backend
      */
-    async updateItemDetails(id, payload) {
-      if (this.itemType == "question") {
-        // cloning as we are replacing the value of the "image" key
-        var payloadClone = clonedeep(payload);
-        if ("image" in payload && payload["image"] != undefined) {
-          payloadClone["image"] = payload["image"]["id"];
-        }
-        await QuestionAPIService.updateQuestion(id, payloadClone);
+    async updateQuestionDetails(id, payload) {
+      // cloning as we are replacing the value of the "image" key
+      var payloadClone = clonedeep(payload);
+      if ("image" in payload && payload["image"] != undefined) {
+        payloadClone["image"] = payload["image"]["id"];
       }
+      await QuestionAPIService.updateQuestion(id, payloadClone);
     },
     /**
      * publishes the plio
