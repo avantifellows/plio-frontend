@@ -321,7 +321,9 @@ describe("Editor.vue", () => {
     });
 
     // call the method to add watchers to items and itemDetails
-    await wrapper.vm.$options.methods.watchItemsAndItemDetails.call(wrapper.vm);
+    await wrapper.vm.$options.methods.addItemAndItemDetailWatchers.call(
+      wrapper.vm
+    );
 
     // items not changed, method not called at first
     expect(checkAndSaveChanges).not.toHaveBeenCalled();
