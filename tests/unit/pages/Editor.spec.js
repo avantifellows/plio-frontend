@@ -294,13 +294,7 @@ describe("Editor.vue", () => {
       destroy: jest.fn(),
     };
 
-    const checkAndSaveChanges = jest.spyOn(
-      Editor.methods,
-      "checkAndSaveChanges"
-    );
-    jest.spyOn(Editor.methods, "saveChanges").mockImplementation(() => {
-      return new Promise((resolve) => resolve());
-    });
+    const saveChanges = jest.spyOn(Editor.methods, "saveChanges");
 
     const wrapper = mount(Editor, {
       shallow: true,
@@ -327,13 +321,14 @@ describe("Editor.vue", () => {
     );
 
     // items not changed, method not called at first
-    expect(checkAndSaveChanges).not.toHaveBeenCalled();
+    expect(saveChanges).not.toHaveBeenCalled();
 
     // update time of one of the items
-    let itemTimestamps = clonedeep(dummyItems).map((item) => {
+    let updatedItems = clonedeep(dummyItems);
+    updatedItems[0].time += 10;
+    let itemTimestamps = updatedItems.map((item) => {
       return item.time;
     });
-    itemTimestamps[0] += 10;
 
     // let the component know the new timestamps list
     await wrapper.setData({ itemTimestamps: itemTimestamps });
@@ -344,7 +339,11 @@ describe("Editor.vue", () => {
       wrapper.vm,
       0
     );
-    expect(checkAndSaveChanges).toHaveBeenCalled();
+    expect(saveChanges).toHaveBeenCalledWith(
+      "item",
+      dummyItems[0].id,
+      updatedItems[0]
+    );
   });
 
   it("saves changes when item details are changed", async () => {
@@ -353,13 +352,7 @@ describe("Editor.vue", () => {
       destroy: jest.fn(),
     };
 
-    const checkAndSaveChanges = jest.spyOn(
-      Editor.methods,
-      "checkAndSaveChanges"
-    );
-    jest.spyOn(Editor.methods, "saveChanges").mockImplementation(() => {
-      return new Promise((resolve) => resolve());
-    });
+    const saveChanges = jest.spyOn(Editor.methods, "saveChanges");
 
     const wrapper = mount(Editor, {
       shallow: true,
@@ -386,12 +379,19 @@ describe("Editor.vue", () => {
     );
 
     // items not changed, method not called at first
-    expect(checkAndSaveChanges).not.toHaveBeenCalled();
+    expect(saveChanges).not.toHaveBeenCalled();
 
     // update the text of one of the itemDetails
-    wrapper.vm.itemDetails[0].text = "text";
+    const newQuestionText = "text";
+    let updatedItemDetails = clonedeep(dummyItemDetails);
+    updatedItemDetails[0].text = newQuestionText;
+    wrapper.vm.itemDetails[0].text = updatedItemDetails[0].text;
     await flushPromises();
-    expect(checkAndSaveChanges).toHaveBeenCalled();
+    expect(saveChanges).toHaveBeenCalledWith(
+      "question",
+      dummyItemDetails[0].id,
+      updatedItemDetails[0]
+    );
   });
 
   it("creates video and links to plio when a valid video link is entered", async () => {
@@ -1730,6 +1730,38 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemUnwatchers[dummyItems[0].id]).toBe(undefined);
     expect(wrapper.vm.itemDetailUnwatchers[dummyItems[0].id]).toBe(undefined);
     expect(wrapper.vm.items.length).toBeLessThan(dummyItems.length);
+  });
+
+  it("updating plio title calls saveChanges with resource as plio", async () => {
+    const saveChanges = jest.spyOn(Editor.methods, "saveChanges");
+    const plioId = String(dummyPublishedPlio.data.id);
+    const wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+          plioTitle: dummyPublishedPlio.data.title,
+        };
+      },
+      props: {
+        plioId: plioId,
+      },
+    });
+
+    // call the method to add watchers to items and itemDetails
+    await wrapper.vm.$options.methods.addItemAndItemDetailWatchers.call(
+      wrapper.vm
+    );
+
+    // update the title
+    const newTitle = "new title";
+    wrapper.vm.plioTitle = newTitle;
+
+    // wait for the DOM to update and the watcher to have been called
+    await flushPromises();
+
+    expect(saveChanges).toHaveBeenCalledWith("plio", plioId, {
+      name: newTitle,
+    });
   });
 
   it("minimizes modal correctly", async () => {
