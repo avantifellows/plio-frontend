@@ -1166,16 +1166,16 @@ export default {
     /**
      * Clears the watchers for all items and itemDetails
      */
-    clearItemWatchers() {
+    clearItemAndItemDetailWatchers() {
       for (let itemId in this.itemUnwatchers) {
-        this.clearItemWatcher(itemId);
+        this.clearItemAndItemDetailWatcher(itemId);
       }
     },
     /**
      * Clears the watcher corresponding to an item and its associated itemDetail
      * @param {Number} itemId  The id of the item whose watcher should be cleared
      */
-    clearItemWatcher(itemId) {
+    clearItemAndItemDetailWatcher(itemId) {
       // invoke the unwatch functions
       this.itemUnwatchers[itemId]();
       this.itemDetailUnwatchers[itemId]();
@@ -1999,7 +1999,7 @@ export default {
     deleteSelectedItem() {
       // unwatch the item and the corresponding itemDetail
       let currentItem = this.items[this.currentItemIndex];
-      this.clearItemWatcher(currentItem.id);
+      this.clearItemAndItemDetailWatcher(currentItem.id);
 
       // remove the item and itemDetails locally and remotely
       this.itemDetails.splice(this.currentItemIndex, 1);

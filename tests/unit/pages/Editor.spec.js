@@ -345,6 +345,53 @@ describe("Editor.vue", () => {
     expect(checkAndSaveChanges).toHaveBeenCalled();
   });
 
+  it("saves changes when item details are changed", async () => {
+    const mockPlayer = {
+      pause: jest.fn(),
+      destroy: jest.fn(),
+    };
+
+    const checkAndSaveChanges = jest.spyOn(
+      Editor.methods,
+      "checkAndSaveChanges"
+    );
+    jest.spyOn(Editor.methods, "saveChanges").mockImplementation(() => {
+      return new Promise((resolve) => resolve());
+    });
+
+    const wrapper = mount(Editor, {
+      shallow: true,
+      props: {
+        plioId: "123",
+      },
+      global: {
+        mocks: {
+          player: mockPlayer,
+        },
+      },
+      data() {
+        return {
+          items: clonedeep(dummyItems),
+          itemDetails: clonedeep(dummyItemDetails),
+          videoId: "jdYJf_ybyVo",
+        };
+      },
+    });
+
+    // call the method to add watchers to items and itemDetails
+    await wrapper.vm.$options.methods.addItemAndItemDetailWatchers.call(
+      wrapper.vm
+    );
+
+    // items not changed, method not called at first
+    expect(checkAndSaveChanges).not.toHaveBeenCalled();
+
+    // update the text of one of the itemDetails
+    wrapper.vm.itemDetails[0].text = "text";
+    await wrapper.vm.$nextTick();
+    expect(checkAndSaveChanges).toHaveBeenCalled();
+  });
+
   it("handles video link updation correctly", async () => {
     const checkAndSaveChanges = jest.spyOn(
       Editor.methods,
@@ -1458,9 +1505,11 @@ describe("Editor.vue", () => {
       Editor.methods,
       "deleteSelectedItem"
     );
-    jest.spyOn(Editor.methods, "clearItemWatcher").mockImplementation(() => {
-      return;
-    });
+    jest
+      .spyOn(Editor.methods, "clearItemAndItemDetailWatcher")
+      .mockImplementation(() => {
+        return;
+      });
     const wrapper = mount(Editor, {
       data() {
         return {
