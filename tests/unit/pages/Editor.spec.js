@@ -287,31 +287,6 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.plioDBId).toEqual(dummyDraftPlio.data.id);
   });
 
-  it("saves plio in regular intervals if there's a change", async () => {
-    const saveChanges = jest
-      .spyOn(Editor.methods, "saveChanges")
-      .mockImplementation(() => {
-        return;
-      });
-    jest.spyOn(Editor.methods, "loadPlio").mockImplementation(() => {
-      return new Promise((resolve) => resolve());
-    });
-    const wrapper = mount(Editor);
-    const timeInterval = wrapper.vm.saveInterval;
-
-    // setInterval would've been called again after 5 seconds
-    // but as `changeInProgress` is false, `saveChanges` will not be called
-    jest.advanceTimersByTime(timeInterval);
-    expect(saveChanges).not.toHaveBeenCalled();
-
-    // change `changeInProgress` to true,
-    // and check before & after 5 seconds
-    await wrapper.setData({ changeInProgress: true });
-    expect(saveChanges).not.toHaveBeenCalled();
-    jest.advanceTimersByTime(timeInterval);
-    expect(saveChanges).toHaveBeenCalled();
-  });
-
   it("saves plio when items are changed", async () => {
     const mockPlayer = {
       pause: jest.fn(),
@@ -1482,11 +1457,9 @@ describe("Editor.vue", () => {
       Editor.methods,
       "deleteSelectedItem"
     );
-    jest
-      .spyOn(Editor.methods, "clearItemAndItemDetailWatchers")
-      .mockImplementation(() => {
-        return;
-      });
+    jest.spyOn(Editor.methods, "clearItemWatcher").mockImplementation(() => {
+      return;
+    });
     const wrapper = mount(Editor, {
       data() {
         return {
