@@ -393,12 +393,17 @@ describe("Editor.vue", () => {
     expect(checkAndSaveChanges).toHaveBeenCalled();
   });
 
-  it("handles video link updation correctly", async () => {
+  it("creates video and links to plio when a valid video link is entered", async () => {
     const checkAndSaveChanges = jest.spyOn(
       Editor.methods,
       "checkAndSaveChanges"
     );
-    const wrapper = mount(Editor);
+    const plioId = "1234";
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+    });
 
     // reset the getPlio request made by Editor
     mockAxios.reset();
@@ -458,8 +463,53 @@ describe("Editor.vue", () => {
     await flushPromises();
 
     expect(mockAxios.patch).toHaveBeenCalledTimes(1);
-    expect(mockAxios.patch).toHaveBeenCalledWith(`/plios/`, {
+    expect(mockAxios.patch).toHaveBeenCalledWith(`/plios/${plioId}`, {
       video: dummyVideo.id,
+    });
+  });
+
+  it("updates video when a new valid URL is updated", async () => {
+    const checkAndSaveChanges = jest.spyOn(
+      Editor.methods,
+      "checkAndSaveChanges"
+    );
+    const initialVideoId = "jdYJf_ybyVo";
+    const wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: initialVideoId,
+          videoDBId: dummyVideo.id,
+        };
+      },
+    });
+
+    // reset the getPlio request made by Editor
+    mockAxios.reset();
+
+    await wrapper
+      .find('[data-test="videoLinkInput"]')
+      .find('[data-test="input"]')
+      .setValue("invalid video url");
+
+    // since an invalid url was given, the video Id should remain the same
+    expect(wrapper.vm.videoId).toBe(initialVideoId);
+
+    const newVideoURL = "https://www.youtube.com/watch?v=abcdefghijk";
+    await wrapper
+      .find('[data-test="videoLinkInput"]')
+      .find('[data-test="input"]')
+      .setValue(newVideoURL);
+
+    expect(wrapper.vm.videoId).toBe("abcdefghijk");
+    expect(checkAndSaveChanges).toHaveBeenCalledWith("video", dummyVideo.id, {
+      duration: 0,
+      url: newVideoURL,
+    });
+
+    expect(mockAxios.patch).toHaveBeenCalledTimes(1);
+    expect(mockAxios.patch).toHaveBeenCalledWith(`/videos/${dummyVideo.id}`, {
+      url: newVideoURL,
+      duration: 0,
     });
   });
 
