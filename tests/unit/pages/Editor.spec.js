@@ -1558,7 +1558,6 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
     expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
 
-    // console.log(wrapper.vm.itemUnwatchers)
     expect(wrapper.vm.itemUnwatchers[dummyItems[0].id]).toBeTruthy();
 
     await wrapper
