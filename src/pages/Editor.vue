@@ -560,8 +560,6 @@ export default {
       videoURL: "", // full video url
       lastUpdated: new Date(), // time when the last update to remote was made
       minUpdateInterval: 1000, // minimum time in milliseconds between updates
-      changeInProgress: false, // whether a change is in progress but has not been saved yet
-      saveInterval: 5000, // time interval
       isBeingPublished: false, // whether the current plio is in the process of being published
       isDialogBoxShown: false, // whether to show dialog box
       dialogTitle: "", // title for the dialog box
@@ -655,15 +653,6 @@ export default {
   async created() {
     // fetch plio details
     await this.loadPlio();
-
-    // periodically check if anything has not been updated yet
-    // and update it
-    this.savingInterval = setInterval(() => {
-      // if anything was changed but not updated, update it
-      if (this.changeInProgress) {
-        this.saveChanges("all");
-      }
-    }, this.saveInterval);
 
     // debounce checkAndSaveChanges method
     this.checkAndSaveChanges = debounce(this.checkAndSaveChanges, DEBOUNCE_DELAY_TIME);
@@ -1175,31 +1164,25 @@ export default {
     ...mapActions("generic", ["showSharePlioDialog", "showEmbedPlioDialog"]),
     ...Utilities,
     /**
-     * If an itemId is provided, the watcher linked to that item
-     * and the corresponding itemDetail will be removed
-     * If itemId is not provided, remove watchers for all items and itemDetails
-     * @param {Number} itemId The id of an item
+     * Clears the watchers for all items and itemDetails
      */
-    clearItemAndItemDetailWatchers(itemId = null) {
-      if (itemId != null) {
-        // invoke the unwatch functions
-        this.itemUnwatchers[itemId]();
-        this.itemDetailUnwatchers[itemId]();
-
-        // remove the stored unwatch functions
-        delete this.itemUnwatchers[itemId];
-        delete this.itemDetailUnwatchers[itemId];
-      } else {
-        for (let itemId in this.itemUnwatchers) {
-          // invoke the unwatch functions
-          this.itemUnwatchers[itemId]();
-          this.itemDetailUnwatchers[itemId]();
-
-          // remove the stored unwatch functions
-          delete this.itemUnwatchers[itemId];
-          delete this.itemDetailUnwatchers[itemId];
-        }
+    clearItemWatchers() {
+      for (let itemId in this.itemUnwatchers) {
+        this.clearItemWatcher(itemId);
       }
+    },
+    /**
+     * Clears the watcher corresponding to an item and its associated itemDetail
+     * @param {Number} itemId  The id of the item whose watcher should be cleared
+     */
+    clearItemWatcher(itemId) {
+      // invoke the unwatch functions
+      this.itemUnwatchers[itemId]();
+      this.itemDetailUnwatchers[itemId]();
+
+      // remove the stored unwatch functions
+      delete this.itemUnwatchers[itemId];
+      delete this.itemDetailUnwatchers[itemId];
     },
     /**
      * Clear any existing watchers (on items and itemDetails) if they exist
@@ -1212,7 +1195,7 @@ export default {
         !this.isObjectEmpty(this.itemUnwatchers) ||
         !this.isObjectEmpty(this.itemDetailUnwatchers)
       )
-        this.clearItemAndItemDetailWatchers();
+        this.clearItemWatchers();
 
       // add watchers to all items
       this.items.forEach((item) => {
@@ -1224,9 +1207,7 @@ export default {
             // push the changes for that item to the backend
             this.checkAndSaveChanges("item", item.id, {
               plio: this.plioDBId,
-              type: item.type,
-              time: item.time,
-              meta: item.meta,
+              ...item,
             });
           },
           { deep: true }
@@ -1244,16 +1225,7 @@ export default {
             if (isEqual(itemDetail, prevItemDetail)) return;
 
             // push the changes for that item's detail to the backend
-            this.checkAndSaveChanges("question", itemDetail.id, {
-              correct_answer: itemDetail.correct_answer,
-              has_char_limit: itemDetail.has_char_limit,
-              image: itemDetail.image,
-              item: itemDetail.item,
-              max_char_limit: itemDetail.max_char_limit,
-              options: itemDetail.options,
-              text: itemDetail.text,
-              type: itemDetail.type,
-            });
+            this.checkAndSaveChanges("question", itemDetail.id, itemDetail);
           },
           { deep: true }
         );
@@ -1610,7 +1582,7 @@ export default {
     /**
      * filtering before pushing the data to the server
      * @param {String} resourceName name of the resource that needs to be updated/created (plio, video, question etc...)
-     * @param {Number, Object} resourceId id of the resource
+     * @param {Number} resourceId id of the resource
      * @param {Object} resourceValue payload of the resource that needs to be pushed to the backend
      */
     async checkAndSaveChanges(resourceName, resourceId, resourceValue) {
@@ -1622,17 +1594,15 @@ export default {
       // don't save plio if video URL is empty or if any errors are present
       if (this.anyErrorsPresent || !this.isVideoIdValid) return;
 
-      this.changeInProgress = true;
       await this.saveChanges(resourceName, resourceId, resourceValue);
     },
     /**
      * updates the data on the server
      * @param {String} resourceName name of the resource that needs to be updated/created (plio, video, question etc...)
-     * @param {Number, Object} resourceId id of the resource
+     * @param {Number} resourceId id of the resource
      * @param {Object} resourceValue payload of the resource that needs to be pushed to the backend
      */
     async saveChanges(resourceName, resourceId, resourceValue) {
-      this.changeInProgress = false;
       this.startUploading();
       this.lastUpdated = new Date();
 
@@ -1692,12 +1662,11 @@ export default {
         // Create the video and link it to the plio
         let createdVideo = await VideoAPIService.createVideo(payload);
         this.videoDBId = createdVideo.data.id;
-        await this.updatePlio({ video: this.videoDBId });
+        await this.updatePlio(this.plioId, { video: this.videoDBId });
       } else if (id != null) {
         // update the existing video
         await VideoAPIService.updateVideo(id, payload);
       }
-      return new Promise((resolve) => resolve());
     },
 
     /**
@@ -1707,7 +1676,6 @@ export default {
      */
     async updatePlio(id, payload) {
       await PlioAPIService.updatePlio(id, payload);
-      return new Promise((resolve) => resolve());
     },
 
     /**
@@ -1717,7 +1685,6 @@ export default {
      */
     async updateItem(id, payload) {
       await ItemAPIService.updateItem(id, payload);
-      return new Promise((resolve) => resolve());
     },
 
     /**
@@ -1734,8 +1701,6 @@ export default {
         }
         await QuestionAPIService.updateQuestion(id, payloadClone);
       }
-
-      return new Promise((resolve) => resolve());
     },
     /**
      * publishes the plio
@@ -1963,9 +1928,7 @@ export default {
       this.player.pause();
       this.startLoading();
       const currentTimestamp = this.currentTimestamp;
-      // newItem object will store the information of the newly created
-      // item and the question
-      var newItem = {};
+
       // check if the time where user is trying to add an item is valid or not
       if (
         !ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)
@@ -1983,8 +1946,6 @@ export default {
         meta: this.getMetadataForNewItem(),
       });
 
-      // storing the newly created item into "newItem"
-      newItem = createdItem;
       if (createdItem.type == "question") {
         let questionDetails = this.getDetailsForNewQuestion(questionType);
         questionDetails.item = createdItem.id;
@@ -1995,7 +1956,7 @@ export default {
       }
 
       // add the newly created item into items array
-      this.items.push(newItem);
+      this.items.push(createdItem);
       // add watchers to items and itemDetails
       this.watchItemsAndItemDetails();
       // update itemTimestamps and currentItemIndex, and select the item
@@ -2035,7 +1996,7 @@ export default {
     deleteSelectedItem() {
       // unwatch the item and the corresponding itemDetail
       let currentItem = this.items[this.currentItemIndex];
-      this.clearItemAndItemDetailWatchers(currentItem.id);
+      this.clearItemWatcher(currentItem.id);
 
       // remove the item and itemDetails locally and remotely
       this.itemDetails.splice(this.currentItemIndex, 1);

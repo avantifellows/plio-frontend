@@ -38,9 +38,6 @@ describe("Dashboard.vue", () => {
     expect(mockAxios.get).toHaveBeenCalledTimes(1);
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
 
-    // using some pre-defined dummy data to return as a fake response
-    // from the fake API call
-
     // resolve the `GET` request waiting in the queue
     // using the fake response data
     mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
@@ -97,8 +94,6 @@ describe("Dashboard.vue", () => {
       },
     });
 
-    // using some pre-defined dummy data to return as a fake response
-    // from the fake API call and
     // resolve the `GET` request waiting in the queue
     // using the fake response data
     mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
@@ -136,8 +131,6 @@ describe("Dashboard.vue", () => {
       },
     });
 
-    // using some pre-defined dummy data to return as a fake response
-    // from the fake API call
     // resolve the `GET` request waiting in the queue
     // using the fake response data
     mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
@@ -173,8 +166,6 @@ describe("Dashboard.vue", () => {
       },
     });
 
-    // using some pre-defined dummy data to return as a fake response
-    // from the fake API call and
     // resolve the `GET` request waiting in the queue
     // using the fake response data
     mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
@@ -208,8 +199,6 @@ describe("Dashboard.vue", () => {
       },
     });
 
-    // using some pre-defined dummy data to return as a fake response
-    // from the fake API call and
     // resolve the `GET` request waiting in the queue
     // using the fake response data
     mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
