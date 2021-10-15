@@ -1164,14 +1164,6 @@ export default {
     ...mapActions("generic", ["showSharePlioDialog", "showEmbedPlioDialog"]),
     ...Utilities,
     /**
-     * Clears the watchers for all items and itemDetails
-     */
-    clearItemAndItemDetailWatchers() {
-      for (let itemId in this.itemUnwatchers) {
-        this.clearItemAndItemDetailWatcher(itemId);
-      }
-    },
-    /**
      * Clears the watcher corresponding to an item and its associated itemDetail
      * @param {Number} itemId  The id of the item whose watcher should be cleared
      */

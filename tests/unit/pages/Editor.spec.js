@@ -1492,7 +1492,7 @@ describe("Editor.vue", () => {
   });
 
   it("delete item functionality works correctly", async () => {
-    const deleteSelectedItem = jest.spyOn(
+    const itemEditorDeleteSelectedItem = jest.spyOn(
       ItemEditor.methods,
       "deleteSelectedItem"
     );
@@ -1500,16 +1500,15 @@ describe("Editor.vue", () => {
       Editor.methods,
       "showDeleteItemDialogBox"
     );
+    const clearItemAndItemDetailWatcher = jest.spyOn(
+      Editor.methods,
+      "clearItemAndItemDetailWatcher"
+    );
     const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
     const editorDeleteSelectedItem = jest.spyOn(
       Editor.methods,
       "deleteSelectedItem"
     );
-    jest
-      .spyOn(Editor.methods, "clearItemAndItemDetailWatcher")
-      .mockImplementation(() => {
-        return;
-      });
     const wrapper = mount(Editor, {
       data() {
         return {
@@ -1527,11 +1526,16 @@ describe("Editor.vue", () => {
       itemType: "question",
     });
 
+    // call the method to add watchers to items and itemDetails
+    await wrapper.vm.$options.methods.addItemAndItemDetailWatchers.call(
+      wrapper.vm
+    );
+
     const itemEditorWrapper = wrapper.findComponent(ItemEditor);
 
     await itemEditorWrapper.find('[data-test="deleteItem"]').trigger("click");
 
-    expect(deleteSelectedItem).toHaveBeenCalled();
+    expect(itemEditorDeleteSelectedItem).toHaveBeenCalled();
     expect(itemEditorWrapper.emitted()).toHaveProperty("delete-selected-item");
     expect(showDeleteItemDialogBox).toHaveBeenCalled();
     expect(wrapper.vm.dialogTitle).toBe(
@@ -1554,12 +1558,18 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
     expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
 
+    // console.log(wrapper.vm.itemUnwatchers)
+    expect(wrapper.vm.itemUnwatchers[dummyItems[0].id]).toBeTruthy();
+
     await wrapper
       .find('[data-test="dialogBox"]')
       .find('[data-test="confirmButton"]')
       .trigger("click");
     expect(dialogConfirmed).toHaveBeenCalled();
     expect(editorDeleteSelectedItem).toHaveBeenCalled();
+    expect(clearItemAndItemDetailWatcher).toHaveBeenCalled();
+    expect(wrapper.vm.itemUnwatchers[dummyItems[0].id]).toBe(undefined);
+    expect(wrapper.vm.itemDetailUnwatchers[dummyItems[0].id]).toBe(undefined);
     expect(wrapper.vm.items.length).toBeLessThan(dummyItems.length);
   });
 
