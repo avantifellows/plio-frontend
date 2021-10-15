@@ -142,61 +142,60 @@ describe("Editor.vue", () => {
     expect(wrapper.find('[data-test="publishButton"]').exists()).toBeTruthy();
   });
 
-  // it("share + play + embed buttons appear on publishing", async () => {
-  //   const mockPlayer = {
-  //     pause: jest.fn(),
-  //     destroy: jest.fn(),
-  //   };
+  it("share + play + embed buttons appear on publishing", async () => {
+    const mockPlayer = {
+      pause: jest.fn(),
+      destroy: jest.fn(),
+    };
 
-  //   jest.spyOn(Editor.methods, "saveChanges").mockImplementation(() => {
-  //     return new Promise((resolve) => resolve());
-  //   });
+    jest.spyOn(Editor.methods, "saveChanges").mockImplementation(() => {
+      return new Promise((resolve) => resolve());
+    });
 
-  //   const wrapper = mount(Editor, {
-  //     shallow: true,
-  //     global: {
-  //       mocks: {
-  //         player: mockPlayer,
-  //       },
-  //     },
-  //     data() {
-  //       return {
-  //         videoId: "jdYJf_ybyVo",
-  //         items: dummyItems,
-  //         itemDetails: dummyItemDetails,
-  //         currentItemIndex: 0,
-  //       }
-  //     }
-  //   });
+    const wrapper = mount(Editor, {
+      global: {
+        mocks: {
+          player: mockPlayer,
+        },
+      },
+      data() {
+        const confetti = require("canvas-confetti");
+        // have to create it manually as jest creates a DIV instead of CANVAS on it's own
+        const confettiCanvas = document.createElement("canvas");
+        confettiCanvas.setAttribute("id", "sharePlioConfettiCanvas");
+        const confettiHandler = confetti.create(confettiCanvas, {
+          resize: true,
+        });
+        return {
+          videoId: "jdYJf_ybyVo",
+          items: clonedeep(dummyItems),
+          itemDetails: clonedeep(dummyItemDetails),
+          currentItemIndex: 0,
+          confettiHandler: confettiHandler,
+        };
+      },
+    });
 
-  //   // await wrapper.setData({
-  //   //   videoId: "jdYJf_ybyVo",
-  //   //   items: dummyItems.data,
-  //   //   itemDetails: dummyItemDetails.data,
-  //   //   currentItemIndex: 0,
-  //   // })
+    // share and play plio buttons should not be visible when video ID is set
+    expect(wrapper.find('[data-test="sharePlioButton"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="embedPlioButton"]').exists()).toBeFalsy();
 
-  //   // share and play plio buttons should not be visible when video ID is set
-  //   expect(wrapper.find('[data-test="sharePlioButton"]').exists()).toBeFalsy();
-  //   expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeFalsy();
-  //   expect(wrapper.find('[data-test="embedPlioButton"]').exists()).toBeFalsy();
+    // click on the publish button
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+    // confirm that you want to publish
+    await wrapper
+      .find('[data-test="dialogBox"]')
+      .find('[data-test="confirmButton"]')
+      .trigger("click");
 
-  //   // click on the publish button
-  //   await wrapper.find('[data-test="publishButton"]').trigger("click");
-  //   // confirm that you want to publish
-  //   console.log(wrapper.find('[data-test="dialogBox"]').find('[data-test="confirmButton"]') )
-  //   await wrapper
-  //     .find('[data-test="dialogBox"]')
-  //     .find('[data-test="confirmButton"]')
-  //     .trigger("click");
+    await flushPromises();
 
-  //   await flushPromises();
-
-  //   // share, play and embed plio buttons should be visible when video ID is set
-  //   expect(wrapper.find('[data-test="sharePlioButton"]').exists()).toBeTruthy();
-  //   expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeTruthy();
-  //   expect(wrapper.find('[data-test="embedPlioButton"]').exists()).toBeTruthy();
-  // });
+    // share, play and embed plio buttons should be visible when video ID is set
+    expect(wrapper.find('[data-test="sharePlioButton"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="embedPlioButton"]').exists()).toBeTruthy();
+  });
 
   it("blurs the main screen when dialog box is shown", async () => {
     const wrapper = mount(Editor, { shallow: true });
@@ -287,7 +286,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.plioDBId).toEqual(dummyDraftPlio.data.id);
   });
 
-  it("saves plio when items are changed", async () => {
+  it("saves changes when items are changed", async () => {
     const mockPlayer = {
       pause: jest.fn(),
       destroy: jest.fn(),
