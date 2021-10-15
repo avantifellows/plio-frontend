@@ -390,6 +390,15 @@ export const dummyPublishedPlio = {
   },
 };
 
+export const dummyVideo = {
+  id: 300,
+  url: "https://www.youtube.com/watch?v=jdYJf_ybyVo",
+  title: null,
+  duration: 725,
+  created_at: "2021-06-17T16:14:21.084680Z",
+  updated_at: "2021-07-03T15:25:04.527931Z",
+};
+
 export const dummyPlioAnalytics = {
   "Session.uniqueUsers": 2,
   "GroupedSession.averageWatchTime": 202,

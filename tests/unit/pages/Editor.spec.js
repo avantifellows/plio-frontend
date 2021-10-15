@@ -9,6 +9,7 @@ import InputText from "@/components/UI/Text/InputText.vue";
 import {
   dummyDraftPlio,
   dummyItems,
+  dummyVideo,
   imageData,
   dummyItemDetails,
 } from "@/services/Testing/DummyData.js";
@@ -388,7 +389,7 @@ describe("Editor.vue", () => {
 
     // update the text of one of the itemDetails
     wrapper.vm.itemDetails[0].text = "text";
-    await wrapper.vm.$nextTick();
+    await flushPromises();
     expect(checkAndSaveChanges).toHaveBeenCalled();
   });
 
@@ -398,6 +399,10 @@ describe("Editor.vue", () => {
       "checkAndSaveChanges"
     );
     const wrapper = mount(Editor);
+
+    // reset the getPlio request made by Editor
+    mockAxios.reset();
+
     await wrapper
       .find('[data-test="videoLinkInput"]')
       .find('[data-test="input"]')
@@ -421,10 +426,11 @@ describe("Editor.vue", () => {
         .classes()
     ).toContain("text-red-600");
 
+    const videoURL = "https://www.youtube.com/watch?v=jdYJf_ybyVo";
     await wrapper
       .find('[data-test="videoLinkInput"]')
       .find('[data-test="input"]')
-      .setValue("https://www.youtube.com/watch?v=jdYJf_ybyVo");
+      .setValue(videoURL);
 
     expect(wrapper.vm.videoId).toBe("jdYJf_ybyVo");
     expect(checkAndSaveChanges).toHaveBeenCalled();
@@ -435,6 +441,26 @@ describe("Editor.vue", () => {
         .find('[data-test="validationMessage"]')
         .exists()
     ).toBeFalsy();
+
+    expect(mockAxios.post).toHaveBeenCalledTimes(1);
+    expect(mockAxios.post).toHaveBeenCalledWith(`/videos/`, {
+      url: videoURL,
+      duration: 0,
+    });
+
+    mockAxios.mockResponse(
+      {
+        data: dummyVideo,
+      },
+      mockAxios.queue()[0]
+    );
+
+    await flushPromises();
+
+    expect(mockAxios.patch).toHaveBeenCalledTimes(1);
+    expect(mockAxios.patch).toHaveBeenCalledWith(`/plios/`, {
+      video: dummyVideo.id,
+    });
   });
 
   it("share plio button works correctly", async () => {
