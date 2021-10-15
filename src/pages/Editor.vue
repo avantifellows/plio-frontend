@@ -1185,53 +1185,50 @@ export default {
       delete this.itemDetailUnwatchers[itemId];
     },
     /**
-     * Clear any existing watchers (on items and itemDetails) if they exist
-     * Add watchers to all items and itemDetails, storing their unwatch functions
-     * in an object
+     * Adds watchers to all items and itemDetails and store their unwatch functions
      */
-    watchItemsAndItemDetails() {
-      // clear existing watchers if they exist
-      if (
-        !this.isObjectEmpty(this.itemUnwatchers) ||
-        !this.isObjectEmpty(this.itemDetailUnwatchers)
-      )
-        this.clearItemWatchers();
-
-      // add watchers to all items
-      this.items.forEach((item) => {
-        let unwatch = this.$watch(
-          () => clonedeep(item),
-          (item, prevItem) => {
-            // return if there's no change
-            if (isEqual(item, prevItem)) return;
-            // push the changes for that item to the backend
-            this.checkAndSaveChanges("item", item.id, {
-              plio: this.plioDBId,
-              ...item,
-            });
-          },
-          { deep: true }
-        );
-        // store the unwatch function for later use
-        this.itemUnwatchers[item.id] = unwatch;
+    addItemAndItemDetailWatchers() {
+      this.items.forEach((item, index) => {
+        this.addItemAndItemDetailWatcher(item, this.itemDetails[index]);
       });
+    },
+    /**
+     * Adds a watcher on the item and itemDetail given
+     * @param {Object} item the item to be watched
+     * @param {Object} itemDetail the itemDetail to be watched
+     */
+    addItemAndItemDetailWatcher(item, itemDetail) {
+      // watch the item
+      let unwatch = this.$watch(
+        () => clonedeep(item),
+        (item, prevItem) => {
+          // return if there's no change
+          if (isEqual(item, prevItem)) return;
+          // push the changes for that item to the backend
+          this.checkAndSaveChanges("item", item.id, {
+            plio: this.plioDBId,
+            ...item,
+          });
+        },
+        { deep: true }
+      );
+      // store the unwatch function for later use
+      this.itemUnwatchers[item.id] = unwatch;
 
-      // add watchers to all itemDetails
-      this.itemDetails.forEach((itemDetail) => {
-        let unwatch = this.$watch(
-          () => clonedeep(itemDetail),
-          (itemDetail, prevItemDetail) => {
-            // return if there's no change
-            if (isEqual(itemDetail, prevItemDetail)) return;
+      // watch the itemDetail
+      unwatch = this.$watch(
+        () => clonedeep(itemDetail),
+        (itemDetail, prevItemDetail) => {
+          // return if there's no change
+          if (isEqual(itemDetail, prevItemDetail)) return;
 
-            // push the changes for that item's detail to the backend
-            this.checkAndSaveChanges("question", itemDetail.id, itemDetail);
-          },
-          { deep: true }
-        );
-        // store the unwatch function for later use
-        this.itemDetailUnwatchers[itemDetail.item] = unwatch;
-      });
+          // push the changes for that item's detail to the backend
+          this.checkAndSaveChanges("question", itemDetail.id, itemDetail);
+        },
+        { deep: true }
+      );
+      // store the unwatch function for later use
+      this.itemDetailUnwatchers[itemDetail.item] = unwatch;
     },
     /**
      * sets the plio preview to have loaded
@@ -1561,7 +1558,7 @@ export default {
           this.loadedPlioDetails = clonedeep(plioDetails);
           this.items = plioDetails.items || [];
           this.itemDetails = plioDetails.itemDetails || [];
-          this.watchItemsAndItemDetails();
+          this.addItemAndItemDetailWatchers();
           this.videoURL = plioDetails.videoURL || "";
           this.plioTitle = plioDetails.plioTitle || "";
           this.status = plioDetails.status;
@@ -1946,19 +1943,25 @@ export default {
         meta: this.getMetadataForNewItem(),
       });
 
+      let itemDetail;
+
       if (createdItem.type == "question") {
         let questionDetails = this.getDetailsForNewQuestion(questionType);
         questionDetails.item = createdItem.id;
 
         // create question and push it into itemDetails array
-        let createdQuestion = await QuestionAPIService.createQuestion(questionDetails);
-        this.itemDetails.push(createdQuestion);
+        itemDetail = await QuestionAPIService.createQuestion(questionDetails);
       }
+
+      this.itemDetails.push(itemDetail);
 
       // add the newly created item into items array
       this.items.push(createdItem);
       // add watchers to items and itemDetails
-      this.watchItemsAndItemDetails();
+      this.addItemAndItemDetailWatcher(
+        this.items[this.items.length - 1],
+        this.itemDetails[this.items.length - 1]
+      );
       // update itemTimestamps and currentItemIndex, and select the item
       this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
       this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
