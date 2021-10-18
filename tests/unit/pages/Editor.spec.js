@@ -732,16 +732,25 @@ describe("Editor.vue", () => {
     // hence harcoding here
     const MINIMUM_QUESTION_TIMESTAMP = 0.6;
 
-    // update items with an invalid time value -> will call itemTimestamps watcher
-    // the invalid time value should be fixed back to `MINIMUM_QUESTION_TIMESTAMP`
-    let updatedDummyItems = clonedeep(dummyItems);
-    updatedDummyItems[0].time = 0.1;
+    // set items, currentItemIndex and itemDetails
     await wrapper.setData({
-      items: updatedDummyItems,
+      items: clonedeep(dummyItems),
       currentItemIndex: 0,
       itemDetails: dummyItemDetails,
     });
+    // attach watchers to all the items and itemDetails
+    await wrapper.vm.$options.methods.addItemAndItemDetailWatchers.call(
+      wrapper.vm
+    );
+    // without any change, the time value of the first item should be the same as
+    // originally provided
+    expect(wrapper.vm.items[0].time).toBe(dummyItems[0].time);
 
+    // giving the first item an invalid time value
+    wrapper.vm.items[0].time = 0.1;
+    await flushPromises();
+    // will call itemTimestamps watcher
+    // the invalid time value should be fixed back to `MINIMUM_QUESTION_TIMESTAMP`
     expect(wrapper.vm.items[0].time).toBe(MINIMUM_QUESTION_TIMESTAMP);
   });
 
@@ -1565,7 +1574,14 @@ describe("Editor.vue", () => {
       videoId: "jdYJf_ybyVo",
       currentTimestamp: 15.6,
     });
+    // call updateItemTimestamps method; this will iterate the items array and
+    // populate the itemTimestamps array
+    await wrapper.vm.$options.methods.updateItemTimestamps.call(wrapper.vm);
     await store.dispatch("sync/stopLoading");
+    // attach watchers to all the items and itemDetails
+    await wrapper.vm.$options.methods.addItemAndItemDetailWatchers.call(
+      wrapper.vm
+    );
 
     // trying to add an item where another item already exists is not possible
     // this will show an error dialog
