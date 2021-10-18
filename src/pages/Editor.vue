@@ -1303,7 +1303,7 @@ export default {
      * upload the image file to the server and update
      * the question object with the linked image data
      *
-     * @param {File} imageFile the image content to be uploaded
+     * @param {File} imageFile - the image content to be uploaded
      */
     uploadImage(imageFile) {
       this.startLoading();
@@ -1322,7 +1322,7 @@ export default {
      * invoked when the question type is changed
      * updates the question type in the item list
      *
-     * @param {String} newQuestionType the new type of the question
+     * @param {String} newQuestionType - the new type of the question
      */
     questionTypeChanged(newQuestionType) {
       this.itemDetails[this.currentItemIndex].type = newQuestionType;
@@ -1330,7 +1330,7 @@ export default {
     /**
      * minimizes the modal
      *
-     * @param {Object} positions contains the coordinates required to hide the
+     * @param {Object} positions - contains the coordinates required to hide the
      *                           minimize button and show the maximize button
      */
     minimizeModal(positions) {
@@ -1359,7 +1359,7 @@ export default {
     /**
      * navigate the player to the item selected in the item editor
      *
-     * @param {String} itemIndex the index of the item to be selected
+     * @param {String} itemIndex - the index of the item to be selected
      */
     navigateToItem(itemIndex) {
       if (itemIndex == null) return;
@@ -1407,7 +1407,7 @@ export default {
     /**
      * invoked when dragging the marker for an item is completed
      *
-     * @param {Number} itemIndex the index of the item whose marker was being dragged
+     * @param {Number} itemIndex - the index of the item whose marker was being dragged
      */
     itemMarkerTimestampDragEnd(itemIndex) {
       // get the time to which the user wants to drag the marker
@@ -1444,7 +1444,7 @@ export default {
      * checks if an item should be selected based on the given timestamp
      * and selects/unselects accordingly
      *
-     * @param {Number} timestamp the timestamp to be used for checking if an item should be selected
+     * @param {Number} timestamp - the timestamp to be used for checking if an item should be selected
      */
     checkItemToSelect(timestamp) {
       if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
@@ -1463,7 +1463,7 @@ export default {
     /**
      * updates the player time to the given timestamp
      *
-     * @param {Number} timestamp the timestamp that the player should be set to
+     * @param {Number} timestamp - the timestamp that the player should be set to
      */
     updatePlayerTimestamp(timestamp) {
       this.player.currentTime = timestamp;
@@ -1471,7 +1471,7 @@ export default {
     /**
      * invoked when the time slider is updated
      *
-     * @param {Number} timestamp the current value of the time slider
+     * @param {Number} timestamp - the current value of the time slider
      */
     sliderUpdated(timestamp) {
       this.updatePlayerTimestamp(timestamp);
@@ -1480,7 +1480,7 @@ export default {
     /**
      * invoked when an item marker has been selected
      *
-     * @param {Number} itemIndex index of the item whose marker is selected
+     * @param {Number} itemIndex - index of the item whose marker is selected
      */
     itemSelected(itemIndex) {
       this.updatePlayerTimestamp(this.currentTimestamp);
@@ -1489,7 +1489,7 @@ export default {
     /**
      * marks the item at the given index as selected
      *
-     * @param {Number} itemIndex the index of the item to be marked as selected
+     * @param {Number} itemIndex - the index of the item to be marked as selected
      */
     markItemSelected(itemIndex) {
       if (itemIndex != null) {
@@ -1901,7 +1901,7 @@ export default {
      * returns an object containing the default values required
      * for creating a new question of the given question type
      *
-     * @param {String} questionType type of the question
+     * @param {String} questionType - type of the question
      */
     getDetailsForNewQuestion(questionType) {
       return {
@@ -1915,7 +1915,7 @@ export default {
     /**
      * creates a new item of the given question type and adds it to the item list
      *
-     * @param {String} questionType the type of the question to be added
+     * @param {String} questionType - the type of the question to be added
      */
     async addNewItem(questionType) {
       this.player.pause();
@@ -2009,7 +2009,7 @@ export default {
     /**
      * deletes the option of the current item at the given index
      *
-     * @param {Number} optionIndex the index of the option to be deleted
+     * @param {Number} optionIndex - the index of the option to be deleted
      */
     deleteOption(optionIndex) {
       // set dialog properties
