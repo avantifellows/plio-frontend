@@ -264,8 +264,7 @@ describe("Editor.vue", () => {
     expect(mockAxios.get).toHaveBeenCalledTimes(1);
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
 
-    // resolve the `GET` request waiting in the queue
-    // using the fake response data
+    // resolve the loadPlio method with a dummy plio
     mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
@@ -288,100 +287,99 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.plioDBId).toEqual(dummyDraftPlio.data.id);
   });
 
-  // it("saves changes when items are changed", async () => {
-  //   const mockPlayer = {
-  //     pause: jest.fn(),
-  //     destroy: jest.fn(),
-  //   };
+  it("saves changes when items are changed", async () => {
+    const mockPlayer = {
+      pause: jest.fn(),
+      destroy: jest.fn(),
+    };
 
-  //   const saveChanges = jest.spyOn(Editor.methods, "saveChanges");
+    const saveChanges = jest.spyOn(Editor.methods, "saveChanges");
 
-  //   const wrapper = mount(Editor, {
-  //     shallow: true,
-  //     props: {
-  //       plioId: "123",
-  //     },
-  //     global: {
-  //       mocks: {
-  //         player: mockPlayer,
-  //       },
-  //     },
-  //     data() {
-  //       return {
-  //         items: clonedeep(dummyItems),
-  //         itemDetails: clonedeep(dummyItemDetails),
-  //         videoId: "jdYJf_ybyVo",
-  //       };
-  //     },
-  //   });
+    const wrapper = mount(Editor, {
+      props: {
+        plioId: "123",
+      },
+      global: {
+        mocks: {
+          player: mockPlayer,
+        },
+      },
+      data() {
+        return {
+          items: clonedeep(dummyItems),
+          itemDetails: clonedeep(dummyItemDetails),
+          videoId: "jdYJf_ybyVo",
+        };
+      },
+    });
 
-  //   // resolve the loadPlio method with a dummy plio
-  //   mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
-  //   await flushPromises()
-  //   await store.dispatch("sync/stopLoading");
+    // resolve the loadPlio method with a dummy plio
+    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    await flushPromises();
 
-  //   // items not changed, method not called at first
-  //   expect(saveChanges).not.toHaveBeenCalled();
+    // items not changed, method not called at first
+    expect(saveChanges).not.toHaveBeenCalled();
 
-  //   // update time of one of the items
-  //   let updatedItems = clonedeep(dummyItems);
-  //   updatedItems[0].time += 10;
-  //   wrapper.vm.items = updatedItems
-  //   await flushPromises()
+    // update time of one of the items
+    let updatedItems = clonedeep(dummyItems);
+    updatedItems[0].time += 10;
+    wrapper.vm.items[0].time += 10;
+    await flushPromises();
 
-  //   expect(saveChanges).toHaveBeenCalledWith(
-  //     "item",
-  //     dummyItems[0].id,
-  //     updatedItems[0]
-  //   );
-  // });
+    expect(saveChanges).toHaveBeenCalledWith(
+      "item",
+      dummyItems[0].id,
+      updatedItems[0]
+    );
+  });
 
-  // it("saves changes when item details are changed", async () => {
-  //   const mockPlayer = {
-  //     pause: jest.fn(),
-  //     destroy: jest.fn(),
-  //   };
+  it("saves changes when item details are changed", async () => {
+    const mockPlayer = {
+      pause: jest.fn(),
+      destroy: jest.fn(),
+    };
 
-  //   const saveChanges = jest.spyOn(Editor.methods, "saveChanges");
+    const saveChanges = jest.spyOn(Editor.methods, "saveChanges");
 
-  //   const wrapper = mount(Editor, {
-  //     shallow: true,
-  //     props: {
-  //       plioId: "123",
-  //     },
-  //     global: {
-  //       mocks: {
-  //         player: mockPlayer,
-  //       },
-  //     },
-  //     data() {
-  //       return {
-  //         items: clonedeep(dummyItems),
-  //         itemDetails: clonedeep(dummyItemDetails),
-  //         videoId: "jdYJf_ybyVo",
-  //       };
-  //     },
-  //   });
+    const wrapper = mount(Editor, {
+      shallow: true,
+      props: {
+        plioId: "123",
+      },
+      global: {
+        mocks: {
+          player: mockPlayer,
+        },
+      },
+      data() {
+        return {
+          items: clonedeep(dummyItems),
+          itemDetails: clonedeep(dummyItemDetails),
+          videoId: "jdYJf_ybyVo",
+        };
+      },
+    });
 
-  //   mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
-  //   await flushPromises()
-  //   await store.dispatch("sync/stopLoading");
+    // resolve the loadPlio method with a dummy plio
+    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    await flushPromises();
+    await store.dispatch("sync/stopLoading");
 
-  //   // items not changed, method not called at first
-  //   expect(saveChanges).not.toHaveBeenCalled();
+    // items not changed, method not called at first
+    expect(saveChanges).not.toHaveBeenCalled();
 
-  //   // update the text of one of the itemDetails
-  //   const newQuestionText = "text";
-  //   let updatedItemDetails = clonedeep(dummyItemDetails);
-  //   updatedItemDetails[0].text = newQuestionText;
-  //   wrapper.vm.itemDetails[0].text = updatedItemDetails[0].text;
-  //   await flushPromises();
-  //   expect(saveChanges).toHaveBeenCalledWith(
-  //     "question",
-  //     dummyItemDetails[0].id,
-  //     updatedItemDetails[0]
-  //   );
-  // });
+    // update the text of one of the itemDetails
+    const newQuestionText = "text";
+    let updatedItemDetails = clonedeep(dummyItemDetails);
+    updatedItemDetails[0].text = newQuestionText;
+    wrapper.vm.itemDetails[0].text = updatedItemDetails[0].text;
+    await flushPromises();
+    expect(saveChanges).toHaveBeenCalledWith(
+      "question",
+      dummyItemDetails[0].id,
+      updatedItemDetails[0]
+    );
+  });
 
   it("creates video and links to plio when a valid video link is entered", async () => {
     const checkAndSaveChanges = jest.spyOn(
@@ -645,22 +643,16 @@ describe("Editor.vue", () => {
       },
     });
 
-    // reset the getPlio request made by Editor
-    mockAxios.reset();
-
-    /**
-     * the component would be in the uploading state
-     * this would reset it
-     */
-    await store.dispatch("sync/stopUploading");
-    await wrapper.find('[data-test="plioPreviewButton"]').trigger("click");
-
-    // resolve the `GET` request waiting in the queue (for receiving plio details)
-    // using the fake response data
-    let plioResponse = clonedeep(dummyDraftPlio);
-    mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
+    // resolve the loadPlio method with a dummy plio
+    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    await wrapper.find('[data-test="plioPreviewButton"]').trigger("click");
+
+    // resolve the getPlio method within Plio.vue with a dummy plio
+    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
     await flushPromises();
 
     await wrapper.find('[data-test="closePlioPreviewButton"]').trigger("click");
@@ -1568,7 +1560,6 @@ describe("Editor.vue", () => {
     // resolve the loadPlio method call with a dummy plio
     mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
     await flushPromises();
-    await store.dispatch("sync/stopLoading");
 
     // trying to add an item where another item already exists is not possible
     // this will show an error dialog
@@ -1692,7 +1683,6 @@ describe("Editor.vue", () => {
     // resolve the loadPlio method call with a dummy plio
     mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
     await flushPromises();
-    await store.dispatch("sync/stopLoading");
 
     const itemEditorWrapper = wrapper.findComponent(ItemEditor);
 
