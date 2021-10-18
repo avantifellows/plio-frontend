@@ -12,9 +12,9 @@ import {
   dummyVideo,
   imageData,
   dummyItemDetails,
+  dummyPublishedPlio,
 } from "@/services/Testing/DummyData.js";
 import store from "@/store";
-import { dummyPublishedPlio } from "../../../src/services/Testing/DummyData";
 
 var clonedeep = require("lodash.clonedeep");
 

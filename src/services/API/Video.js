@@ -4,7 +4,7 @@ import { videosEndpoint } from "@/services/API/Endpoints.js";
 export default {
   /**
    * Creates a new video with the given details
-   * @param {Object} payload payload containing the data for creating the question
+   * @param {Object} payload data required for creating the video
    * @returns {Promise}
    */
   async createVideo(payload) {
@@ -15,7 +15,7 @@ export default {
   /**
    * Patch a given video with the given data
    * @param {Number} videoDBId database id of the video
-   * @param {Object} payload payload containing the data that needs to be patched
+   * @param {Object} payload data with which the video needs to be updated
    */
   updateVideo(videoDBId, payload) {
     return apiClient().patch(videosEndpoint + videoDBId, payload);

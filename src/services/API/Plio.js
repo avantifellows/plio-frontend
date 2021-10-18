@@ -92,7 +92,7 @@ export default {
   /**
    * Patch a given plio with the given data
    * @param {Number} plioId uuid of a plio
-   * @param {Object} payload payload containing the data that needs to be patched
+   * @param {Object} payload data with which the plio needs to be updated
    */
   updatePlio(plioId, payload) {
     return apiClient().patch(pliosEndpoint + plioId, payload);
@@ -129,7 +129,7 @@ export default {
 
   /**
    * fetches the number of unique users who have watched each plio given a list of plio ids
-   * @param {Array} plioIds list of plio ids for whom the count needs to be fetched
+   * @param {Array} plioIds list of plio uuids for whom the count needs to be fetched
    * @returns {Array}
    */
   async getUniqueUsersCountList(plioIds) {

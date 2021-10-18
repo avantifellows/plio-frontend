@@ -4,7 +4,7 @@ import { itemsEndpoint, duplicateEndpoint } from "@/services/API/Endpoints.js";
 export default {
   /**
    * Creates a new item with the given details
-   * @param {Object} payload payload containing the data for creating the item
+   * @param {Object} payload data required for creating the item
    * @returns {Promise}
    */
   createItem(payload) {
@@ -18,7 +18,7 @@ export default {
   /**
    * updates the item corresponding to itemId with payload
    * @param {Number} itemId id of the item to be updated
-   * @param {Object} payload payload containing the data that needs to be updated
+   * @param {Object} payload data with which the item needs to be updated
    * @returns {Promise}
    */
   updateItem(itemId, payload) {
@@ -37,7 +37,7 @@ export default {
   /**
    * Duplicates the item corresponding to itemId and links the duplicated item to plioDBId
    * @param {Number} itemId id of the item to duplicate
-   * @param {Number} plioDBId id of the plio to which the newly created item should be linked
+   * @param {Number} plioDBId database id of the plio to which the newly created item should be linked
    * @returns {Promise}
    */
   duplicateItem(itemId, plioDBId) {
