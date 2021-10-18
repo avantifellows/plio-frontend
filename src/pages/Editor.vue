@@ -662,12 +662,6 @@ export default {
     clearInterval(this.savingInterval);
   },
   watch: {
-    items: {
-      handler() {
-        this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
-      },
-      deep: true,
-    },
     itemTimestamps() {
       this.itemTimestamps.forEach((itemTimestamp, index) => {
         this.items[index]["time"] = itemTimestamp;
@@ -686,7 +680,7 @@ export default {
     /**
      * When video url is updated, check its validity; if valid, update the player with the new URL
      * and push the updated video object to the backend
-     * @param {String} newVideoURL The new video URL that the user has entered
+     * @param {String} newVideoURL - The new video URL that the user has entered
      */
     videoURL(newVideoURL) {
       // invoked when the video link is updated
@@ -720,6 +714,7 @@ export default {
      * is not 0, push the updated duration to the backend
      */
     videoDuration(newVideoDuration) {
+      if (this.loadedPlioDetails.videoDuration == newVideoDuration) return;
       if (newVideoDuration != 0)
         this.checkAndSaveChanges("video", this.videoDBId, { duration: newVideoDuration });
     },
@@ -1164,8 +1159,14 @@ export default {
     ...mapActions("generic", ["showSharePlioDialog", "showEmbedPlioDialog"]),
     ...Utilities,
     /**
+     * Iterates through all items, extracts the times and populates itemTimestamps array
+     */
+    updateItemTimestamps() {
+      this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
+    },
+    /**
      * Clears the watcher corresponding to an item and its associated itemDetail
-     * @param {Number} itemId  The id of the item whose watcher should be cleared
+     * @param {Number} itemId - The id of the item whose watcher should be cleared
      */
     clearItemAndItemDetailWatcher(itemId) {
       // invoke the unwatch functions
@@ -1186,16 +1187,19 @@ export default {
     },
     /**
      * Adds a watcher on the item and itemDetail given
-     * @param {Object} item the item to be watched
-     * @param {Object} itemDetail the itemDetail to be watched
+     * @param {Object} item - the item to be watched
+     * @param {Object} itemDetail - the itemDetail to be watched
      */
     addItemAndItemDetailWatcher(item, itemDetail) {
       // watch the item
       let unwatch = this.$watch(
+        // reason for using clonedeep - https://v3.vuejs.org/guide/reactivity-computed-watchers.html#watching-reactive-objects
         () => clonedeep(item),
         (item, prevItem) => {
           // return if there's no change
           if (isEqual(item, prevItem)) return;
+          // update itemTimestamps array
+          this.updateItemTimestamps();
           // push the changes for that item to the backend
           this.checkAndSaveChanges("item", item.id, {
             plio: this.plioDBId,
@@ -1209,6 +1213,7 @@ export default {
 
       // watch the itemDetail
       unwatch = this.$watch(
+        // reason for using clonedeep - https://v3.vuejs.org/guide/reactivity-computed-watchers.html#watching-reactive-objects
         () => clonedeep(itemDetail),
         (itemDetail, prevItemDetail) => {
           // return if there's no change
@@ -1428,7 +1433,7 @@ export default {
       // sort the itemDetails array based on the above sorted items
       this.sortItemDetails();
       // update itemTimestamps based on new sorted items
-      this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
+      this.updateItemTimestamps();
       // update everything else
       this.currentItemIndex = this.itemTimestamps.indexOf(itemTimestamp);
       this.currentTimestamp = itemTimestamp;
@@ -1549,6 +1554,7 @@ export default {
         .then((plioDetails) => {
           this.loadedPlioDetails = clonedeep(plioDetails);
           this.items = plioDetails.items || [];
+          this.updateItemTimestamps();
           this.itemDetails = plioDetails.itemDetails || [];
           this.addItemAndItemDetailWatchers();
           this.videoURL = plioDetails.videoURL || "";
@@ -1569,10 +1575,10 @@ export default {
         });
     },
     /**
-     * filtering before pushing the data to the server
-     * @param {String} resourceName name of the resource that needs to be updated/created (plio, video, question etc...)
-     * @param {Number} resourceId id of the resource
-     * @param {Object} resourceValue payload of the resource that needs to be pushed to the backend
+     * Filtering before pushing the data to the server
+     * @param {String} resourceName - name of the resource that needs to be updated/created (plio, video, question etc...)
+     * @param {Number} resourceId - id of the resource
+     * @param {Object} resourceValue - payload of the resource that needs to be pushed to the backend
      */
     async checkAndSaveChanges(resourceName, resourceId, resourceValue) {
       // don't update changes automatically once published
@@ -1587,9 +1593,9 @@ export default {
     },
     /**
      * updates the data on the server
-     * @param {String} resourceName name of the resource that needs to be updated/created (plio, video, question etc...)
-     * @param {Number} resourceId id of the resource
-     * @param {Object} resourceValue payload of the resource that needs to be pushed to the backend
+     * @param {String} resourceName - name of the resource that needs to be updated/created (plio, video, question etc...)
+     * @param {Number} resourceId - id of the resource
+     * @param {Object} resourceValue - payload of the resource that needs to be pushed to the backend
      */
     async saveChanges(resourceName, resourceId, resourceValue) {
       this.startUploading();
@@ -1634,8 +1640,6 @@ export default {
             video: this.videoDBId,
           });
           break;
-        default:
-          break;
       }
 
       this.stopUploading();
@@ -1644,8 +1648,8 @@ export default {
 
     /**
      * Create or update the video resource
-     * @param {Number} id The database id of the video that needs to be updated
-     * @param {Object} payload The payload that needs to be pushed to the backend
+     * @param {Number} id - The database id of the video that needs to be updated
+     * @param {Object} payload - The payload that needs to be pushed to the backend
      */
     async updateVideo(id, payload) {
       // 'url' key in the payload is a required field
@@ -1662,8 +1666,8 @@ export default {
 
     /**
      * Update the plio resource
-     * @param {Number} id The uuid of the plio that needs to be updated
-     * @param {Object} payload The payload that needs to be pushed to the backend
+     * @param {Number} id - The uuid of the plio that needs to be updated
+     * @param {Object} payload - The payload that needs to be pushed to the backend
      */
     async updatePlio(id, payload) {
       await PlioAPIService.updatePlio(id, payload);
@@ -1671,8 +1675,8 @@ export default {
 
     /**
      * Update the item resource
-     * @param {Number} id The database id of the item that needs to be updated
-     * @param {Object} payload The payload that needs to be pushed to the backend
+     * @param {Number} id - The database id of the item that needs to be updated
+     * @param {Object} payload - The payload that needs to be pushed to the backend
      */
     async updateItem(id, payload) {
       await ItemAPIService.updateItem(id, payload);
@@ -1680,8 +1684,8 @@ export default {
 
     /**
      * Update the itemDetail resource
-     * @param {Number} id The database id of the itemDetail that needs to be updated
-     * @param {Object} payload The payload that needs to be pushed to the backend
+     * @param {Number} id - The database id of the itemDetail that needs to be updated
+     * @param {Object} payload - The payload that needs to be pushed to the backend
      */
     async updateQuestionDetails(id, payload) {
       // cloning as we are replacing the value of the "image" key
@@ -1955,7 +1959,7 @@ export default {
         this.itemDetails[this.items.length - 1]
       );
       // update itemTimestamps and currentItemIndex, and select the item
-      this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
+      this.updateItemTimestamps();
       this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
       this.markItemSelected(this.currentItemIndex);
       this.stopLoading();
@@ -1996,6 +2000,7 @@ export default {
       // remove the item and itemDetails locally and remotely
       this.itemDetails.splice(this.currentItemIndex, 1);
       var itemToDelete = this.items.splice(this.currentItemIndex, 1);
+      this.updateItemTimestamps();
       ItemAPIService.deleteItem(itemToDelete[0].id);
       // set currentItemIndex to null to hide the item editor
       this.currentItemIndex = null;

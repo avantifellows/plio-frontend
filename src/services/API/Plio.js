@@ -15,8 +15,8 @@ import {
 export default {
   /**
    * returns the details for a plio
-   * @param {Number} plioId uuid of the plio to be fetched
-   * @param {Boolean} playMode if true, all public plios are accessible to everyone; otherwise, a user can only access the plios that they have created
+   * @param {Number} plioId - uuid of the plio to be fetched
+   * @param {Boolean} playMode - if true, all public plios are accessible to everyone; otherwise, a user can only access the plios that they have created
    * @returns {Object} data corresponding to the plio
    */
   async getPlio(plioId, playMode = false) {
@@ -48,16 +48,17 @@ export default {
         plioDetails.updatedAt = plio.data.updated_at;
         plioDetails.plioDBId = plio.data.id;
         plioDetails.videoDBId = plio.data.video.id || null;
+        plioDetails.videoDuration = plio.data.video.duration || 0;
         return plioDetails;
       });
   },
 
   /**
    * returns a list of plios that the user has created
-   * @param {Boolean} uuidOnly whether to return only UUIDs instead of the details for each plio
-   * @param {Number} pageNumber if provided, it returns only the plios present at the given page number
-   * @param {String} searchString if provided, returns only the plios matching the search string
-   * @param {String} sortBy if provided, sorts the list of plios based on the ordering given
+   * @param {Boolean} uuidOnly - whether to return only UUIDs instead of the details for each plio
+   * @param {Number} pageNumber - if provided, it returns only the plios present at the given page number
+   * @param {String} searchString - if provided, returns only the plios matching the search string
+   * @param {String} sortBy - if provided, sorts the list of plios based on the ordering given
    * @returns
    */
   getAllPlios(
@@ -91,8 +92,8 @@ export default {
 
   /**
    * Patch a given plio with the given data
-   * @param {Number} plioId uuid of a plio
-   * @param {Object} payload data with which the plio needs to be updated
+   * @param {Number} plioId - uuid of a plio
+   * @param {Object} payload - data with which the plio needs to be updated
    */
   updatePlio(plioId, payload) {
     return apiClient().patch(pliosEndpoint + plioId, payload);
@@ -100,7 +101,7 @@ export default {
 
   /**
    * creates a clone of the plio corresponding to plioId
-   * @param {Number} plioId uuid of the plio to be duplicated
+   * @param {Number} plioId - uuid of the plio to be duplicated
    * @returns {Promise}
    */
   duplicatePlio(plioId) {
@@ -109,7 +110,7 @@ export default {
 
   /**
    * deletes the plio associated with the given plioId
-   * @param {Number} plioId uuid of the plio to be deleted
+   * @param {Number} plioId - uuid of the plio to be deleted
    * @returns {Promise}
    */
   deletePlio(plioId) {
@@ -118,7 +119,7 @@ export default {
 
   /**
    * fetches the report for a plio
-   * @param {Number} plioId uuid of the plio for which the report is to be fetched
+   * @param {Number} plioId - uuid of the plio for which the report is to be fetched
    * @returns {Promise}
    */
   getPlioReport(plioId) {
@@ -129,7 +130,7 @@ export default {
 
   /**
    * fetches the number of unique users who have watched each plio given a list of plio ids
-   * @param {Array} plioIds list of plio uuids for whom the count needs to be fetched
+   * @param {Array} plioIds - list of plio uuids for whom the count needs to be fetched
    * @returns {Array}
    */
   async getUniqueUsersCountList(plioIds) {
@@ -160,7 +161,7 @@ export default {
 
   /**
    * fetches the dashboard metrics for the given plio
-   * @param {Number} plioId uuid of the plio for which the metrics need to be fetched
+   * @param {Number} plioId - uuid of the plio for which the metrics need to be fetched
    * @returns {Object} key-value pairs of metrics
    */
   async getDashboardMetrics(plioId) {
