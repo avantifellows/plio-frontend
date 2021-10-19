@@ -527,7 +527,7 @@ export default {
     downloadReport() {
       // downloads a zip file containing the report for the plio
       this.downloadReportButtonIconConfig.enabled = true;
-      PlioAPIService.getPlioDataDump(this.plioId).then((response) => {
+      PlioAPIService.getPlioReport(this.plioId).then((response) => {
         var link = document.createElement("a");
         link.href = window.URL.createObjectURL(new Blob([response.data]));
         link.download = `plio-data-${this.plioId}.zip`;
