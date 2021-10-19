@@ -98,7 +98,7 @@ describe("Plio.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    mockAxios.mockResponse(dummyPublishedPlio, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -305,7 +305,7 @@ describe("Plio.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    mockAxios.mockResponse(dummyPublishedPlio, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
