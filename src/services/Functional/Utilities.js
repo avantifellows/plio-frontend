@@ -18,8 +18,8 @@ export default {
   /**
    * Returns the embed link for a plio
    *
-   * @param {String} plioId ID of the plio for which the embed code is needed
-   * @param {String} activeWorkspace the currently active workspace
+   * @param {String} plioId - ID of the plio for which the embed code is needed
+   * @param {String} activeWorkspace - the currently active workspace
    * @returns {String}
    */
   getPlioEmbedLink(plioId, activeWorkspace) {
@@ -33,8 +33,8 @@ export default {
    * adds SSO params to the given link
    * prefills the api key if it is given
    *
-   * @param {String} link the link to add the SSO params to
-   * @param {String} activeWorkspaceApiKey api key to be used in the modified link
+   * @param {String} link - the link to add the SSO params to
+   * @param {String} activeWorkspaceApiKey - api key to be used in the modified link
    * @returns {String}
    */
   addSSOParamsToLink(link, activeWorkspaceApiKey = null) {
@@ -46,10 +46,10 @@ export default {
   /**
    * Returns the code for embedding a plio
    *
-   * @param {String} plioId ID of the plio for which the embed code is needed
-   * @param {String} activeWorkspace the currently active workspace
-   * @param {Boolean} sso whether the embed code should contain SSO params
-   * @param {String} activeWorkspaceApiKey api key to be used in the embed code if using SSO
+   * @param {String} plioId - ID of the plio for which the embed code is needed
+   * @param {String} activeWorkspace - the currently active workspace
+   * @param {Boolean} sso - whether the embed code should contain SSO params
+   * @param {String} activeWorkspaceApiKey - api key to be used in the embed code if using SSO
    * @returns {String}
    */
   getEmbedCode(
@@ -70,7 +70,7 @@ export default {
   /**
    * Get the source path of an image
    *
-   * @param {String} imageName name of the image under src/assets/images
+   * @param {String} imageName - name of the image under src/assets/images
    * @returns {String}
    */
   getImageSource(imageName) {
@@ -80,7 +80,7 @@ export default {
   /**
    * Checks if an object is empty
    *
-   * @param {Object} obj the object to be inspected
+   * @param {Object} obj - the object to be inspected
    * @returns {Boolean}
    */
   isObjectEmpty(obj) {
@@ -90,7 +90,7 @@ export default {
   /**
    * Copies the given value to the clipboard
    *
-   * @param {String} value the value to be copied
+   * @param {String} value - the value to be copied
    * @returns {Boolean} whether the value was successfully copied
    */
   copyToClipboard(value) {

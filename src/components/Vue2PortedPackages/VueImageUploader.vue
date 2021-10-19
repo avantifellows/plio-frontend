@@ -210,8 +210,8 @@ export default {
     },
     /**
      * Handels the file manipulation on upload
-     * @param  {File}     file The current original uploaded file
-     * @return {}         nada (yet)
+     * @param  {File} file - The current original uploaded file
+     * @return {} nada (yet)
      */
     handleFile(file) {
       this.log("handleFile() is called with file:", 2, file);

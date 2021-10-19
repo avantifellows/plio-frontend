@@ -2,31 +2,35 @@ import { apiClient } from "@/services/API/RootClient.js";
 import { questionsEndpoint } from "@/services/API/Endpoints.js";
 
 export default {
-  createQuestion(questionDetails) {
-    // API to create a question in the DB
+  /**
+   * Creates a new question with the given details
+   * @param {Object} payload - data required for creating the question
+   * @returns {Promise}
+   */
+  createQuestion(payload) {
     return apiClient()
-      .post(questionsEndpoint, questionDetails)
+      .post(questionsEndpoint, payload)
       .then((response) => {
         return response.data;
       });
   },
 
-  updateQuestion(questionDetails) {
-    // API to update a question in the DB
-    var cloneDeep = require("lodash.clonedeep");
-    var questionDetailsClone = cloneDeep(questionDetails);
-    if ("image" in questionDetails && questionDetails["image"] != undefined) {
-      var imageId = questionDetails["image"]["id"];
-      questionDetailsClone["image"] = imageId;
-    }
-    return apiClient().put(
-      questionsEndpoint + questionDetails.id,
-      questionDetailsClone
-    );
+  /**
+   * Patch a given question with the given data
+   * @param {Number} questionId - id of the question to be updated
+   * @param {Object} payload - data with which the question needs to be updated
+   */
+  updateQuestion(questionId, payload) {
+    return apiClient().put(questionsEndpoint + questionId, payload);
   },
 
+  /**
+   * creates a clone of the question corresponding to questionId and links it to the provided itemId
+   * @param {Number} questionId - id of the question to be duplicated
+   * @param {Number} itemId - id of the item to which the duplicated question should be linked
+   * @returns
+   */
   duplicateQuestion(questionId, itemId) {
-    // create a clone of questionId and link it to the provided "itemId"
     return apiClient().post(questionsEndpoint + questionId + "/duplicate/", {
       itemId: itemId,
     });

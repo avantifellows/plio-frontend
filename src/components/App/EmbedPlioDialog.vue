@@ -153,7 +153,7 @@ export default {
     /**
      * class for the text inside the copy buttons of the dialog box
      *
-     * @param {Boolean} isCopied whether the text to be copied has been copied
+     * @param {Boolean} isCopied - whether the text to be copied has been copied
      *
      */
     getCopyButtonTitleClass(isCopied = false) {
@@ -167,7 +167,7 @@ export default {
     /**
      * class for the copy buttons of the dialog box
      *
-     * @param {Boolean} isCopied whether the text to be copied has been copied
+     * @param {Boolean} isCopied - whether the text to be copied has been copied
      *
      */
     getCopyButtonClass(isCopied = false) {
@@ -182,8 +182,8 @@ export default {
     /**
      * copies the embed code with/without sso
      *
-     * @param {Boolean} useSSO whether the code to be copied has SSO params
-     * @param {String} codeToCopy the actual code that needs to be copied
+     * @param {Boolean} useSSO - whether the code to be copied has SSO params
+     * @param {String} codeToCopy - the actual code that needs to be copied
      */
     copyCode(useSSO, codeToCopy) {
       // return if the link has already been copied

@@ -8,6 +8,7 @@ import {
   dummyPublishedPlio,
   dummyPlioAnalytics,
 } from "@/services/Testing/DummyData.js";
+var clonedeep = require("lodash.clonedeep");
 
 afterEach(() => {
   // cleaning up the mess left behind by the previous test
@@ -37,13 +38,9 @@ describe("Dashboard.vue", () => {
     expect(mockAxios.get).toHaveBeenCalledTimes(1);
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
 
-    // using some pre-defined dummy data to return as a fake response
-    // from the fake API call
-    let plioResponse = dummyPublishedPlio;
-
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -97,13 +94,9 @@ describe("Dashboard.vue", () => {
       },
     });
 
-    // using some pre-defined dummy data to return as a fake response
-    // from the fake API call
-    let plioResponse = dummyPublishedPlio;
-
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -138,13 +131,9 @@ describe("Dashboard.vue", () => {
       },
     });
 
-    // using some pre-defined dummy data to return as a fake response
-    // from the fake API call
-    let plioResponse = dummyDraftPlio;
-
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -177,13 +166,9 @@ describe("Dashboard.vue", () => {
       },
     });
 
-    // using some pre-defined dummy data to return as a fake response
-    // from the fake API call
-    let plioResponse = dummyPublishedPlio;
-
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -214,13 +199,9 @@ describe("Dashboard.vue", () => {
       },
     });
 
-    // using some pre-defined dummy data to return as a fake response
-    // from the fake API call
-    let plioResponse = dummyPublishedPlio;
-
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
