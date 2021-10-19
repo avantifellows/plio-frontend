@@ -1,118 +1,230 @@
-export const dummyItems = {
-  data: [
-    {
-      id: 211,
-      plio: 113,
-      type: "question",
-      time: 15.6,
-      meta: {
-        source: {
-          name: "default",
-        },
-      },
-      created_at: "2021-07-03T15:24:58.018952Z",
-      updated_at: "2021-07-03T15:25:02.915225Z",
-      details: {
-        id: 212,
-        item: 211,
-        text: "question 1",
-        type: "mcq",
-        options: ["option 1", "option 2"],
-        correct_answer: 0,
-        image: null,
-        has_char_limit: false,
-        max_char_limit: 100,
-        created_at: "2021-07-03T15:24:58.094413Z",
-        updated_at: "2021-07-03T15:25:03.189497Z",
+export var dummyItemsWithItemDetails = [
+  {
+    id: 211,
+    plio: 113,
+    type: "question",
+    time: 15.6,
+    meta: {
+      source: {
+        name: "default",
       },
     },
-    {
-      id: 207,
-      plio: 113,
-      type: "question",
-      time: 56.9,
-      meta: {
-        source: {
-          name: "default",
-        },
-      },
-      created_at: "2021-07-03T15:10:17.885435Z",
-      updated_at: "2021-07-03T15:25:02.758313Z",
-      details: {
-        id: 208,
-        item: 207,
-        text: "question 2",
-        type: "mcq",
-        options: ["option 1", "option 2"],
-        correct_answer: 1,
-        image: null,
-        has_char_limit: false,
-        max_char_limit: 100,
-        created_at: "2021-07-03T15:10:17.957417Z",
-        updated_at: "2021-07-03T15:25:02.841389Z",
+    details: {
+      id: 212,
+      item: 211,
+      text: "question 1",
+      type: "mcq",
+      options: ["option 1", "option 2"],
+      correct_answer: 0,
+      image: null,
+      has_char_limit: false,
+      max_char_limit: 100,
+      created_at: "2021-07-03T15:24:58.094413Z",
+      updated_at: "2021-07-03T15:25:03.189497Z",
+    },
+    created_at: "2021-07-03T15:24:58.018952Z",
+    updated_at: "2021-07-03T15:25:02.915225Z",
+  },
+  {
+    id: 207,
+    plio: 113,
+    type: "question",
+    time: 56.9,
+    meta: {
+      source: {
+        name: "default",
       },
     },
-    {
-      id: 200,
-      plio: 113,
-      type: "question",
-      time: 118.3,
-      meta: {
-        source: {
-          name: "default",
-        },
-      },
-      created_at: "2021-07-03T15:00:01.920733Z",
-      updated_at: "2021-07-03T15:25:02.998921Z",
-      details: {
-        id: 201,
-        item: 200,
-        text: "this is a subjective question without image",
-        type: "subjective",
-        options: ["", ""],
-        correct_answer: 0,
-        image: null,
-        has_char_limit: false,
-        max_char_limit: 100,
-        created_at: "2021-07-03T15:00:02.370171Z",
-        updated_at: "2021-07-03T15:25:03.094042Z",
+    details: {
+      id: 208,
+      item: 207,
+      text: "question 2",
+      type: "mcq",
+      options: ["option 1", "option 2"],
+      correct_answer: 1,
+      image: null,
+      has_char_limit: false,
+      max_char_limit: 100,
+      created_at: "2021-07-03T15:10:17.957417Z",
+      updated_at: "2021-07-03T15:25:02.841389Z",
+    },
+    created_at: "2021-07-03T15:10:17.885435Z",
+    updated_at: "2021-07-03T15:25:02.758313Z",
+  },
+  {
+    id: 200,
+    plio: 113,
+    type: "question",
+    time: 118.3,
+    meta: {
+      source: {
+        name: "default",
       },
     },
-    {
+    details: {
       id: 201,
-      plio: 113,
-      type: "question",
-      time: 194.5,
-      meta: {
-        source: {
-          name: "default",
-        },
-      },
-      created_at: "2021-07-03T15:00:01.993437Z",
-      updated_at: "2021-07-03T15:25:03.380337Z",
-      details: {
-        id: 202,
-        item: 201,
-        text: "this is a subjective question with image!",
-        type: "subjective",
-        options: ["", ""],
-        correct_answer: 0,
-        image: {
-          id: 58,
-          url:
-            "https://plio-prod-assets.s3.amazonaws.com/images/ukescforkt.png",
-          alt_text: "Image",
-          created_at: "2021-07-03T15:00:02.476801Z",
-          updated_at: "2021-07-03T15:00:02.484068Z",
-        },
-        has_char_limit: false,
-        max_char_limit: 100,
-        created_at: "2021-07-03T15:00:04.244582Z",
-        updated_at: "2021-07-03T15:25:03.521730Z",
+      item: 200,
+      text: "this is a subjective question without image",
+      type: "subjective",
+      options: ["", ""],
+      correct_answer: 0,
+      image: null,
+      has_char_limit: false,
+      max_char_limit: 100,
+      created_at: "2021-07-03T15:00:02.370171Z",
+      updated_at: "2021-07-03T15:25:03.094042Z",
+    },
+    created_at: "2021-07-03T15:00:01.920733Z",
+    updated_at: "2021-07-03T15:25:02.998921Z",
+  },
+  {
+    id: 201,
+    plio: 113,
+    type: "question",
+    time: 194.5,
+    meta: {
+      source: {
+        name: "default",
       },
     },
-  ],
-};
+    details: {
+      id: 202,
+      item: 201,
+      text: "this is a subjective question with image!",
+      type: "subjective",
+      options: ["", ""],
+      correct_answer: 0,
+      image: {
+        id: 58,
+        url: "https://plio-prod-assets.s3.amazonaws.com/images/ukescforkt.png",
+        alt_text: "Image",
+        created_at: "2021-07-03T15:00:02.476801Z",
+        updated_at: "2021-07-03T15:00:02.484068Z",
+      },
+      has_char_limit: false,
+      max_char_limit: 100,
+      created_at: "2021-07-03T15:00:04.244582Z",
+      updated_at: "2021-07-03T15:25:03.521730Z",
+    },
+    created_at: "2021-07-03T15:00:01.993437Z",
+    updated_at: "2021-07-03T15:25:03.380337Z",
+  },
+];
+
+export const dummyItemDetails = [
+  {
+    id: 212,
+    item: 211,
+    text: "question 1",
+    type: "mcq",
+    options: ["option 1", "option 2"],
+    correct_answer: 0,
+    image: null,
+    has_char_limit: false,
+    max_char_limit: 100,
+    created_at: "2021-07-03T15:24:58.094413Z",
+    updated_at: "2021-07-03T15:25:03.189497Z",
+  },
+  {
+    id: 208,
+    item: 207,
+    text: "question 2",
+    type: "mcq",
+    options: ["option 1", "option 2"],
+    correct_answer: 1,
+    image: null,
+    has_char_limit: false,
+    max_char_limit: 100,
+    created_at: "2021-07-03T15:10:17.957417Z",
+    updated_at: "2021-07-03T15:25:02.841389Z",
+  },
+  {
+    id: 201,
+    item: 200,
+    text: "this is a subjective question without image",
+    type: "subjective",
+    options: ["", ""],
+    correct_answer: 0,
+    image: null,
+    has_char_limit: false,
+    max_char_limit: 100,
+    created_at: "2021-07-03T15:00:02.370171Z",
+    updated_at: "2021-07-03T15:25:03.094042Z",
+  },
+  {
+    id: 202,
+    item: 201,
+    text: "this is a subjective question with image!",
+    type: "subjective",
+    options: ["", ""],
+    correct_answer: 0,
+    image: {
+      id: 58,
+      url: "https://plio-prod-assets.s3.amazonaws.com/images/ukescforkt.png",
+      alt_text: "Image",
+      created_at: "2021-07-03T15:00:02.476801Z",
+      updated_at: "2021-07-03T15:00:02.484068Z",
+    },
+    has_char_limit: false,
+    max_char_limit: 100,
+    created_at: "2021-07-03T15:00:04.244582Z",
+    updated_at: "2021-07-03T15:25:03.521730Z",
+  },
+];
+export const dummyItems = [
+  {
+    id: 211,
+    plio: 113,
+    type: "question",
+    time: 15.6,
+    meta: {
+      source: {
+        name: "default",
+      },
+    },
+    created_at: "2021-07-03T15:24:58.018952Z",
+    updated_at: "2021-07-03T15:25:02.915225Z",
+  },
+  {
+    id: 207,
+    plio: 113,
+    type: "question",
+    time: 56.9,
+    meta: {
+      source: {
+        name: "default",
+      },
+    },
+    created_at: "2021-07-03T15:10:17.885435Z",
+    updated_at: "2021-07-03T15:25:02.758313Z",
+  },
+  {
+    id: 200,
+    plio: 113,
+    type: "question",
+    time: 118.3,
+    meta: {
+      source: {
+        name: "default",
+      },
+    },
+    created_at: "2021-07-03T15:00:01.920733Z",
+    updated_at: "2021-07-03T15:25:02.998921Z",
+  },
+  {
+    id: 201,
+    plio: 113,
+    type: "question",
+    time: 194.5,
+    meta: {
+      source: {
+        name: "default",
+      },
+    },
+    created_at: "2021-07-03T15:00:01.993437Z",
+    updated_at: "2021-07-03T15:25:03.380337Z",
+  },
+];
 
 export const dummyDraftPlio = {
   data: {
@@ -172,7 +284,7 @@ export const dummyDraftPlio = {
     },
     created_at: "2021-07-03T15:00:01.669764Z",
     updated_at: "2021-07-03T15:25:04.589996Z",
-    items: dummyItems.data,
+    items: dummyItemsWithItemDetails,
   },
 };
 
@@ -274,8 +386,17 @@ export const dummyPublishedPlio = {
     },
     created_at: "2021-07-03T15:00:01.669764Z",
     updated_at: "2021-07-03T15:25:04.589996Z",
-    items: dummyItems.data,
+    items: dummyItemsWithItemDetails,
   },
+};
+
+export const dummyVideo = {
+  id: 300,
+  url: "https://www.youtube.com/watch?v=jdYJf_ybyVo",
+  title: null,
+  duration: 725,
+  created_at: "2021-06-17T16:14:21.084680Z",
+  updated_at: "2021-07-03T15:25:04.527931Z",
 };
 
 export const dummyPlioAnalytics = {

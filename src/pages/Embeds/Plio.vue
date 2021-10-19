@@ -44,6 +44,7 @@
           :class="{ hidden: !isItemModalShown }"
           :selectedItemIndex="currentItemIndex"
           :itemList="items"
+          :itemDetailList="itemDetails"
           :previewMode="false"
           :isModalMinimized="isModalMinimized"
           :isFullscreen="isFullscreen"
@@ -137,6 +138,7 @@ export default {
       videoId: "", // video Id for the Plio
       componentProperties: {}, // properties of the plio player
       items: [], // holds the list of all items for this plio
+      itemDetails: [], // list of all the items' details created for this plio
       itemResponses: [], // holds the responses to each item
       watchTime: 0, // keeps a count of the watch time in seconds for the plio by the user
       watchTimeIncrement: 0, // maintains the increase in watch time since the last time it was logged
@@ -508,7 +510,7 @@ export default {
      */
     updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
       if (this.isItemMCQ(itemIndex)) {
-        const correctAnswer = this.items[itemIndex].details.correct_answer;
+        const correctAnswer = this.itemDetails[itemIndex].correct_answer;
         if (!isNaN(userAnswer)) {
           userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
           // reduce numSkipped by 1 if numCorrect or numWrong increases
@@ -639,6 +641,7 @@ export default {
           if (plioDetails.status != "published" && !this.previewMode)
             this.$router.replace({ name: "404" });
           this.items = plioDetails.items || [];
+          this.itemDetails = plioDetails.itemDetails || [];
           // setting numSkipped to number of items. This value will keep reducing
           // as numCorrect and numWrong are calculated
           this.numSkipped = this.items.length;
@@ -695,8 +698,8 @@ export default {
        */
       if (!this.isAuthenticated || this.previewMode) {
         // initiate itemResponses as an empty set of answers
-        this.items.forEach((item) => {
-          if (item.type == "question" && item.details["type"] == "mcq") {
+        this.items.forEach((_, itemIndex) => {
+          if (this.isItemMCQ(itemIndex)) {
             this.itemResponses.push({
               answer: NaN,
             });
@@ -738,10 +741,7 @@ export default {
             itemResponse[key.replace("_id", "")] = sessionAnswer[key];
           }
           // for mcq items, convert answers to integer
-          if (
-            this.items[itemIndex].type == "question" &&
-            this.items[itemIndex].details["type"] == "mcq"
-          ) {
+          if (this.isItemMCQ(itemIndex)) {
             itemResponse.answer = parseInt(itemResponse.answer);
           }
           this.itemResponses.push(itemResponse);
@@ -901,7 +901,7 @@ export default {
     isItemMCQ(itemIndex) {
       return (
         this.items[itemIndex].type == "question" &&
-        this.items[itemIndex].details.type == "mcq"
+        this.itemDetails[itemIndex].type == "mcq"
       );
     },
     /**
@@ -911,7 +911,7 @@ export default {
     isItemSubjective(itemIndex) {
       return (
         this.items[itemIndex].type == "question" &&
-        this.items[itemIndex].details.type == "subjective"
+        this.itemDetails[itemIndex].type == "subjective"
       );
     },
     /**

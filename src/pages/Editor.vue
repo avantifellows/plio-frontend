@@ -115,6 +115,7 @@
                   :class="{ hidden: !showItemModal }"
                   :selectedItemIndex="currentItemIndex"
                   :itemList="items"
+                  :itemDetailList="itemDetails"
                   :previewMode="true"
                   :videoPlayerElementId="editorVideoPlayerElementId"
                   @toggle-minimize="minimizeModal"
@@ -302,6 +303,7 @@
           <item-editor
             v-if="hasAnyItems && currentItemIndex != null"
             v-model:itemList="items"
+            v-model:itemDetailList="itemDetails"
             v-model:selectedItemIndex="currentItemIndex"
             :videoDuration="videoDuration"
             :isInteractionDisabled="isPublished"
@@ -453,28 +455,31 @@ import Plio from "@/pages/Embeds/Plio.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
+import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
+import DialogBox from "@/components/UI/Alert/DialogBox";
+import ItemModal from "@/components/Player/ItemModal.vue";
+import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
+
 import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
 import ImageAPIService from "@/services/API/Image.js";
+import VideoAPIService from "@/services/API/Video.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import Utilities, {
   throwConfetti,
   resetConfetti,
 } from "@/services/Functional/Utilities.js";
-import IconButton from "@/components/UI/Buttons/IconButton.vue";
-import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
-import DialogBox from "@/components/UI/Alert/DialogBox";
-import ItemModal from "@/components/Player/ItemModal.vue";
 import { mapActions, mapState } from "vuex";
-import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
+import debounce from "debounce";
 
 // importing the confetti.js module
 const confetti = require("canvas-confetti");
 
 // used for deep cloning objects
-var cloneDeep = require("lodash.clonedeep");
+var clonedeep = require("lodash.clonedeep");
 var isEqual = require("deep-eql");
 
 // difference in seconds between consecutive checks for item pop-up
@@ -484,6 +489,9 @@ var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 var MINIMUM_QUESTION_TIME_OFFSET = 0.1;
 // minimum timestamp for each question
 var MINIMUM_QUESTION_TIMESTAMP = MINIMUM_QUESTION_TIME_OFFSET + POP_UP_CHECKING_FREQUENCY;
+
+// debounce time - milliseconds
+const DEBOUNCE_DELAY_TIME = 500;
 
 export default {
   name: "Editor",
@@ -516,7 +524,10 @@ export default {
 
     return {
       items: [], // list of all items created for this plio
-      videoDuration: 0,
+      itemUnwatchers: {}, // functions to unwatch all the items
+      itemDetails: [], // list of all the items' details created for this plio
+      itemDetailUnwatchers: {}, // functions to unwatch all the itemDetails
+      videoDuration: 0, // duration of the video in seconds
       videoId: "", // ID of the YouTube video
       status: "draft", // whether the plio is in draft/publish mode
       isItemSelected: false, // indicated if an item has been selected currently
@@ -549,8 +560,6 @@ export default {
       videoURL: "", // full video url
       lastUpdated: new Date(), // time when the last update to remote was made
       minUpdateInterval: 1000, // minimum time in milliseconds between updates
-      changeInProgress: false, // whether a change is in progress but has not been saved yet
-      saveInterval: 5000, // time interval
       isBeingPublished: false, // whether the current plio is in the process of being published
       isDialogBoxShown: false, // whether to show dialog box
       dialogTitle: "", // title for the dialog box
@@ -645,28 +654,14 @@ export default {
     // fetch plio details
     await this.loadPlio();
 
-    // periodically check if anything has not been updated yet
-    // and update it
-    this.savingInterval = setInterval(() => {
-      // if anything was changed but not updated, update it
-      if (this.changeInProgress) {
-        this.savePlio();
-      }
-    }, this.saveInterval);
+    // debounce checkAndSaveChanges method
+    this.checkAndSaveChanges = debounce(this.checkAndSaveChanges, DEBOUNCE_DELAY_TIME);
   },
   beforeUnmount() {
     // clear interval
     clearInterval(this.savingInterval);
   },
   watch: {
-    items: {
-      handler() {
-        this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
-        if (isEqual(this.loadedPlioDetails.items, this.items)) return;
-        this.checkAndSavePlio();
-      },
-      deep: true,
-    },
     itemTimestamps() {
       this.itemTimestamps.forEach((itemTimestamp, index) => {
         this.items[index]["time"] = itemTimestamp;
@@ -682,6 +677,11 @@ export default {
         this.currentTimestamp = this.items[this.currentItemIndex].time;
       }
     },
+    /**
+     * When video url is updated, check its validity; if valid, update the player with the new URL
+     * and push the updated video object to the backend
+     * @param {String} newVideoURL - The new video URL that the user has entered
+     */
     videoURL(newVideoURL) {
       // invoked when the video link is updated
       var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
@@ -693,12 +693,30 @@ export default {
       this.videoId = linkValidation["ID"];
 
       if (this.loadedPlioDetails.videoURL == newVideoURL) return;
-      this.checkAndSavePlio();
+      this.checkAndSaveChanges("video", this.videoDBId, {
+        url: newVideoURL,
+        duration: this.videoDuration,
+      });
     },
+    /**
+     * When plio's title is updated, check if it's different than the loaded plio's title
+     * and push the updated title to the backend
+     */
     plioTitle(newTitle) {
       // invoked when the plio title is update
       if (this.loadedPlioDetails.plioTitle == newTitle) return;
-      this.checkAndSavePlio();
+      this.checkAndSaveChanges("plio", this.plioId, {
+        name: newTitle,
+      });
+    },
+    /**
+     * Video duration is updated when plyr loads up the video. If the updated duration
+     * is not 0, push the updated duration to the backend
+     */
+    videoDuration(newVideoDuration) {
+      if (this.loadedPlioDetails.videoDuration == newVideoDuration) return;
+      if (newVideoDuration != 0)
+        this.checkAndSaveChanges("video", this.videoDBId, { duration: newVideoDuration });
     },
   },
   computed: {
@@ -732,15 +750,15 @@ export default {
      */
     itemImage() {
       if (this.currentItemIndex == null) return null;
-      if (this.items[this.currentItemIndex].details.image == null) return null;
-      return this.items[this.currentItemIndex].details.image.url;
+      if (this.itemDetails[this.currentItemIndex].image == null) return null;
+      return this.itemDetails[this.currentItemIndex].image.url;
     },
     /**
      * whether the type of the question being created is subjective
      */
     isQuestionTypeSubjective() {
       if (this.currentItemIndex == null) return false;
-      return this.items[this.currentItemIndex].details.type == "subjective";
+      return this.itemDetails[this.currentItemIndex].type == "subjective";
     },
     /**
      * class for the item picker
@@ -896,7 +914,7 @@ export default {
      * get the index of the correct answer from options list
      */
     correctOptionIndex() {
-      return this.items[this.currentItemIndex].details.correct_answer;
+      return this.itemDetails[this.currentItemIndex].correct_answer;
     },
     /**
      * whether the publish button is enabled
@@ -1141,6 +1159,75 @@ export default {
     ...mapActions("generic", ["showSharePlioDialog", "showEmbedPlioDialog"]),
     ...Utilities,
     /**
+     * Iterates through all items, extracts the times and populates itemTimestamps array
+     */
+    updateItemTimestamps() {
+      this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
+    },
+    /**
+     * Clears the watcher corresponding to an item and its associated itemDetail
+     * @param {Number} itemId - The id of the item whose watcher should be cleared
+     */
+    clearItemAndItemDetailWatcher(itemId) {
+      // invoke the unwatch functions
+      this.itemUnwatchers[itemId]();
+      this.itemDetailUnwatchers[itemId]();
+
+      // remove the stored unwatch functions
+      delete this.itemUnwatchers[itemId];
+      delete this.itemDetailUnwatchers[itemId];
+    },
+    /**
+     * Adds watchers to all items and itemDetails and store their unwatch functions
+     */
+    addItemAndItemDetailWatchers() {
+      this.items.forEach((item, index) => {
+        this.addItemAndItemDetailWatcher(item, this.itemDetails[index]);
+      });
+    },
+    /**
+     * Adds a watcher on the item and itemDetail given
+     * @param {Object} item - the item to be watched
+     * @param {Object} itemDetail - the itemDetail to be watched
+     */
+    addItemAndItemDetailWatcher(item, itemDetail) {
+      // watch the item
+      let unwatch = this.$watch(
+        // reason for using clonedeep - https://v3.vuejs.org/guide/reactivity-computed-watchers.html#watching-reactive-objects
+        () => clonedeep(item),
+        (item, prevItem) => {
+          // return if there's no change
+          if (isEqual(item, prevItem)) return;
+          // update itemTimestamps array
+          this.updateItemTimestamps();
+          // push the changes for that item to the backend
+          this.checkAndSaveChanges("item", item.id, {
+            plio: this.plioDBId,
+            ...item,
+          });
+        },
+        { deep: true }
+      );
+      // store the unwatch function for later use
+      this.itemUnwatchers[item.id] = unwatch;
+
+      // watch the itemDetail
+      unwatch = this.$watch(
+        // reason for using clonedeep - https://v3.vuejs.org/guide/reactivity-computed-watchers.html#watching-reactive-objects
+        () => clonedeep(itemDetail),
+        (itemDetail, prevItemDetail) => {
+          // return if there's no change
+          if (isEqual(itemDetail, prevItemDetail)) return;
+
+          // push the changes for that item's detail to the backend
+          this.checkAndSaveChanges("question", itemDetail.id, itemDetail);
+        },
+        { deep: true }
+      );
+      // store the unwatch function for later use
+      this.itemDetailUnwatchers[itemDetail.item] = unwatch;
+    },
+    /**
      * sets the plio preview to have loaded
      */
     setPlioPreviewLoaded() {
@@ -1208,20 +1295,20 @@ export default {
      * unlinks the image from the current question, and deletes it from S3
      */
     deleteLinkedImage() {
-      var imageIdToDelete = this.items[this.currentItemIndex].details.image.id;
+      var imageIdToDelete = this.itemDetails[this.currentItemIndex].image.id;
       ImageAPIService.deleteImage(imageIdToDelete);
-      this.items[this.currentItemIndex].details.image = null;
+      this.itemDetails[this.currentItemIndex].image = null;
     },
     /**
      * upload the image file to the server and update
      * the question object with the linked image data
      *
-     * @param {File} imageFile the image content to be uploaded
+     * @param {File} imageFile - the image content to be uploaded
      */
     uploadImage(imageFile) {
       this.startLoading();
       ImageAPIService.uploadImage(imageFile).then((response) => {
-        this.items[this.currentItemIndex].details.image = response.data;
+        this.itemDetails[this.currentItemIndex].image = response.data;
         this.stopLoading();
       });
     },
@@ -1235,15 +1322,15 @@ export default {
      * invoked when the question type is changed
      * updates the question type in the item list
      *
-     * @param {String} newQuestionType the new type of the question
+     * @param {String} newQuestionType - the new type of the question
      */
     questionTypeChanged(newQuestionType) {
-      this.items[this.currentItemIndex].details.type = newQuestionType;
+      this.itemDetails[this.currentItemIndex].type = newQuestionType;
     },
     /**
      * minimizes the modal
      *
-     * @param {Object} positions contains the coordinates required to hide the
+     * @param {Object} positions - contains the coordinates required to hide the
      *                           minimize button and show the maximize button
      */
     minimizeModal(positions) {
@@ -1272,7 +1359,7 @@ export default {
     /**
      * navigate the player to the item selected in the item editor
      *
-     * @param {String} itemIndex the index of the item to be selected
+     * @param {String} itemIndex - the index of the item to be selected
      */
     navigateToItem(itemIndex) {
       if (itemIndex == null) return;
@@ -1292,6 +1379,7 @@ export default {
       if (this.currentItemIndex != null) {
         var currentItem = this.items[this.currentItemIndex];
         this.sortItems();
+        this.sortItemDetails();
         this.currentItemIndex = this.items.indexOf(currentItem);
       }
     },
@@ -1304,15 +1392,27 @@ export default {
       });
     },
     /**
+     * sort itemDetails array based on the order of the corresponding items in items list
+     */
+    sortItemDetails() {
+      // construct a list of item ids in order from the items array
+      let itemIds = [];
+      this.items.forEach((item) => itemIds.push(item.id));
+
+      // sort itemDetails according to the itemIds list created above
+      this.itemDetails.sort(function (a, b) {
+        return itemIds.indexOf(a.item) - itemIds.indexOf(b.item);
+      });
+    },
+    /**
      * invoked when dragging the marker for an item is completed
      *
-     * @param {Number} itemIndex the index of the item whose marker was being dragged
+     * @param {Number} itemIndex - the index of the item whose marker was being dragged
      */
     itemMarkerTimestampDragEnd(itemIndex) {
       // get the time to which the user wants to drag the marker
       var timeBeforeDragEnded = this.items[itemIndex].time;
       var itemTimestamp = this.itemTimestamps[itemIndex];
-
       // check if the time after drag is valid and if not, set the item time
       // back to the one before the drag; else proceed with the new time
       if (
@@ -1330,8 +1430,10 @@ export default {
       }
       // sort the items based on timestamp
       this.sortItems();
+      // sort the itemDetails array based on the above sorted items
+      this.sortItemDetails();
       // update itemTimestamps based on new sorted items
-      this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
+      this.updateItemTimestamps();
       // update everything else
       this.currentItemIndex = this.itemTimestamps.indexOf(itemTimestamp);
       this.currentTimestamp = itemTimestamp;
@@ -1342,7 +1444,7 @@ export default {
      * checks if an item should be selected based on the given timestamp
      * and selects/unselects accordingly
      *
-     * @param {Number} timestamp the timestamp to be used for checking if an item should be selected
+     * @param {Number} timestamp - the timestamp to be used for checking if an item should be selected
      */
     checkItemToSelect(timestamp) {
       if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
@@ -1361,7 +1463,7 @@ export default {
     /**
      * updates the player time to the given timestamp
      *
-     * @param {Number} timestamp the timestamp that the player should be set to
+     * @param {Number} timestamp - the timestamp that the player should be set to
      */
     updatePlayerTimestamp(timestamp) {
       this.player.currentTime = timestamp;
@@ -1369,7 +1471,7 @@ export default {
     /**
      * invoked when the time slider is updated
      *
-     * @param {Number} timestamp the current value of the time slider
+     * @param {Number} timestamp - the current value of the time slider
      */
     sliderUpdated(timestamp) {
       this.updatePlayerTimestamp(timestamp);
@@ -1378,7 +1480,7 @@ export default {
     /**
      * invoked when an item marker has been selected
      *
-     * @param {Number} itemIndex index of the item whose marker is selected
+     * @param {Number} itemIndex - index of the item whose marker is selected
      */
     itemSelected(itemIndex) {
       this.updatePlayerTimestamp(this.currentTimestamp);
@@ -1387,7 +1489,7 @@ export default {
     /**
      * marks the item at the given index as selected
      *
-     * @param {Number} itemIndex the index of the item to be marked as selected
+     * @param {Number} itemIndex - the index of the item to be marked as selected
      */
     markItemSelected(itemIndex) {
       if (itemIndex != null) {
@@ -1395,7 +1497,7 @@ export default {
         this.player.pause();
         this.currentItemIndex = itemIndex;
         this.currentQuestionTypeIndex = this.questionTypeToIndex[
-          this.items[itemIndex].details.type
+          this.itemDetails[itemIndex].type
         ];
       }
     },
@@ -1450,8 +1552,11 @@ export default {
       this.startLoading();
       await PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
-          this.loadedPlioDetails = cloneDeep(plioDetails);
+          this.loadedPlioDetails = clonedeep(plioDetails);
           this.items = plioDetails.items || [];
+          this.updateItemTimestamps();
+          this.itemDetails = plioDetails.itemDetails || [];
+          this.addItemAndItemDetailWatchers();
           this.videoURL = plioDetails.videoURL || "";
           this.plioTitle = plioDetails.plioTitle || "";
           this.status = plioDetails.status;
@@ -1470,9 +1575,12 @@ export default {
         });
     },
     /**
-     * ensures that update requests are made after a minimum time interval
+     * Filtering before pushing the data to the server
+     * @param {String} resourceName - name of the resource that needs to be updated/created (plio, video, question etc...)
+     * @param {Number} resourceId - id of the resource
+     * @param {Object} resourceValue - payload of the resource that needs to be pushed to the backend
      */
-    checkAndSavePlio() {
+    async checkAndSaveChanges(resourceName, resourceId, resourceValue) {
       // don't update changes automatically once published
       if (this.isPublished) {
         this.hasUnpublishedChanges = true;
@@ -1481,48 +1589,126 @@ export default {
       // don't save plio if video URL is empty or if any errors are present
       if (this.anyErrorsPresent || !this.isVideoIdValid) return;
 
-      this.changeInProgress = true;
-      var time = new Date();
-      // only update after a certain interval between last and current update
-      if (time - this.lastUpdated >= this.minUpdateInterval) {
-        this.savePlio();
-      }
+      await this.saveChanges(resourceName, resourceId, resourceValue);
     },
     /**
-     * updates the plio data on the server
+     * updates the data on the server
+     * @param {String} resourceName - name of the resource that needs to be updated/created (plio, video, question etc...)
+     * @param {Number} resourceId - id of the resource
+     * @param {Object} resourceValue - payload of the resource that needs to be pushed to the backend
      */
-    savePlio() {
-      this.changeInProgress = false;
+    async saveChanges(resourceName, resourceId, resourceValue) {
       this.startUploading();
       this.lastUpdated = new Date();
-      var plioValue = {
-        name: this.plioTitle,
-        status: this.status,
-        items: this.items,
-        videoDBId: this.videoDBId,
-        url: this.videoURL,
-        duration: this.videoDuration,
-      };
-      return PlioAPIService.updatePlio(plioValue, this.plioId).then(() => {
-        this.stopUploading();
-        return;
-      });
+
+      switch (resourceName) {
+        case "video":
+          await this.updateVideo(resourceId, resourceValue);
+          break;
+        case "item":
+          await this.updateItem(resourceId, resourceValue);
+          break;
+        case "question":
+          await this.updateQuestionDetails(resourceId, resourceValue);
+          break;
+        case "plio":
+          await this.updatePlio(resourceId, resourceValue);
+          break;
+        case "all":
+          // update video
+          await this.updateVideo(this.videoDBId, {
+            url: this.videoURL,
+            duration: this.videoDuration,
+          });
+
+          // update all the items
+          this.items.forEach(async (item) => {
+            await this.updateItem(item.id, item);
+          });
+
+          // update all the item details
+          this.itemDetails.forEach(async (itemDetail, index) => {
+            if (this.items[index].type == "question") {
+              await this.updateQuestionDetails(itemDetail.id, itemDetail);
+            }
+          });
+
+          // update plio
+          await this.updatePlio(this.plioId, {
+            name: this.plioTitle,
+            status: this.status,
+            video: this.videoDBId,
+          });
+          break;
+      }
+
+      this.stopUploading();
+      return new Promise((resolve) => resolve());
+    },
+
+    /**
+     * Create or update the video resource
+     * @param {Number} id - The database id of the video that needs to be updated
+     * @param {Object} payload - The payload that needs to be pushed to the backend
+     */
+    async updateVideo(id, payload) {
+      // 'url' key in the payload is a required field
+      if (id == null && Object.prototype.hasOwnProperty.call(payload, "url")) {
+        // Create the video and link it to the plio
+        let createdVideo = await VideoAPIService.createVideo(payload);
+        this.videoDBId = createdVideo.data.id;
+        await this.updatePlio(this.plioId, { video: this.videoDBId });
+      } else if (id != null) {
+        // update the existing video
+        await VideoAPIService.updateVideo(id, payload);
+      }
+    },
+
+    /**
+     * Update the plio resource
+     * @param {Number} id - The uuid of the plio that needs to be updated
+     * @param {Object} payload - The payload that needs to be pushed to the backend
+     */
+    async updatePlio(id, payload) {
+      await PlioAPIService.updatePlio(id, payload);
+    },
+
+    /**
+     * Update the item resource
+     * @param {Number} id - The database id of the item that needs to be updated
+     * @param {Object} payload - The payload that needs to be pushed to the backend
+     */
+    async updateItem(id, payload) {
+      await ItemAPIService.updateItem(id, payload);
+    },
+
+    /**
+     * Update the itemDetail resource
+     * @param {Number} id - The database id of the itemDetail that needs to be updated
+     * @param {Object} payload - The payload that needs to be pushed to the backend
+     */
+    async updateQuestionDetails(id, payload) {
+      // cloning as we are replacing the value of the "image" key
+      var payloadClone = clonedeep(payload);
+      if ("image" in payload && payload["image"] != undefined) {
+        payloadClone["image"] = payload["image"]["id"];
+      }
+      await QuestionAPIService.updateQuestion(id, payloadClone);
     },
     /**
      * publishes the plio
      */
-    publishPlio() {
+    async publishPlio() {
       // mark the plio as published if in draft mode
       // and update the changes only if already published
       this.isBeingPublished = true;
       this.status = "published";
-      this.savePlio().then(() => {
-        this.isBeingPublished = false;
-        this.isDialogBoxShown = false;
-        this.isPublishedPlioDialogShown = true;
-        throwConfetti(this.confettiHandler);
-        this.hasUnpublishedChanges = false;
-      });
+      await this.saveChanges("all");
+      this.isBeingPublished = false;
+      this.isDialogBoxShown = false;
+      this.isPublishedPlioDialogShown = true;
+      throwConfetti(this.confettiHandler);
+      this.hasUnpublishedChanges = false;
     },
     /**
      * closes the plio preview
@@ -1680,19 +1866,16 @@ export default {
     confirmDeleteOption() {
       // there should always be at least 2 options, allow deletion only
       // if the number of options is >= 3
-      if (this.items[this.currentItemIndex].details.options.length < 3) {
+      if (this.itemDetails[this.currentItemIndex].options.length < 3) {
         this.showCannotDeleteOptionDialog();
         return;
       }
 
       // delete the option
-      this.items[this.currentItemIndex].details.options.splice(
-        this.optionIndexToDelete,
-        1
-      );
+      this.itemDetails[this.currentItemIndex].options.splice(this.optionIndexToDelete, 1);
       // if the deleted option was the correct answer, reset the correct answer
       if (this.optionIndexToDelete == this.correctOptionIndex) {
-        this.items[this.currentItemIndex].details.correct_answer = 0;
+        this.itemDetails[this.currentItemIndex].correct_answer = 0;
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
@@ -1718,30 +1901,27 @@ export default {
      * returns an object containing the default values required
      * for creating a new question of the given question type
      *
-     * @param {String} questionType type of the question
+     * @param {String} questionType - type of the question
      */
     getDetailsForNewQuestion(questionType) {
-      // default structure for a new question
-      var details = {};
-      details["correct_answer"] = 0;
-      details["text"] = "";
-      details["type"] = questionType;
-      details["options"] = ["", ""];
-      details["max_char_limit"] = 100;
-      return details;
+      return {
+        correct_answer: 0,
+        text: "",
+        type: questionType,
+        options: ["", ""],
+        max_char_limit: 100,
+      };
     },
     /**
      * creates a new item of the given question type and adds it to the item list
      *
-     * @param {String} questionType the type of the question to be added
+     * @param {String} questionType - the type of the question to be added
      */
-    addNewItem(questionType) {
+    async addNewItem(questionType) {
       this.player.pause();
       this.startLoading();
       const currentTimestamp = this.currentTimestamp;
-      // newItem object will store the information of the newly created
-      // item and the question
-      var newItem = {};
+
       // check if the time where user is trying to add an item is valid or not
       if (
         !ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)
@@ -1750,32 +1930,39 @@ export default {
         this.stopLoading();
         return;
       }
+
       // create item, then create the question, then update local states
-      ItemAPIService.createItem({
+      let createdItem = await ItemAPIService.createItem({
         plio: this.plioDBId,
         type: this.getItemTypeForNewItem(),
         time: currentTimestamp,
         meta: this.getMetadataForNewItem(),
-      })
-        .then((createdItem) => {
-          // storing the newly created item into "newItem"
-          newItem = createdItem;
-          if (createdItem.type == "question") {
-            var questionDetails = this.getDetailsForNewQuestion(questionType);
-            questionDetails.item = createdItem.id;
-            return QuestionAPIService.createQuestion(questionDetails);
-          }
-        })
-        .then((createdQuestion) => {
-          // storing the newly created question into "newItem"
-          newItem.details = createdQuestion;
-          // push it into items, update the itemTimestamps and currentItemIndex
-          this.items.push(newItem);
-          this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
-          this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
-          this.markItemSelected(this.currentItemIndex);
-        })
-        .finally(() => this.stopLoading());
+      });
+
+      let itemDetail;
+
+      if (createdItem.type == "question") {
+        let questionDetails = this.getDetailsForNewQuestion(questionType);
+        questionDetails.item = createdItem.id;
+
+        // create question and push it into itemDetails array
+        itemDetail = await QuestionAPIService.createQuestion(questionDetails);
+      }
+
+      this.itemDetails.push(itemDetail);
+
+      // add the newly created item into items array
+      this.items.push(createdItem);
+      // add watchers to items and itemDetails
+      this.addItemAndItemDetailWatcher(
+        this.items[this.items.length - 1],
+        this.itemDetails[this.items.length - 1]
+      );
+      // update itemTimestamps and currentItemIndex, and select the item
+      this.updateItemTimestamps();
+      this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
+      this.markItemSelected(this.currentItemIndex);
+      this.stopLoading();
     },
     /**
      * shows the dialog box for confirming whether the item should be deleted
@@ -1802,19 +1989,27 @@ export default {
       this.isDialogBoxShown = true;
     },
     /**
-     * remove the current item from the item list
+     * remove the current item from the item list, the corresponding
+     * itemDetail as well, and remove their watchers
      */
     deleteSelectedItem() {
-      // set currentItemIndex to null to hide the item editor
+      // unwatch the item and the corresponding itemDetail
+      let currentItem = this.items[this.currentItemIndex];
+      this.clearItemAndItemDetailWatcher(currentItem.id);
+
+      // remove the item and itemDetails locally and remotely
+      this.itemDetails.splice(this.currentItemIndex, 1);
       var itemToDelete = this.items.splice(this.currentItemIndex, 1);
+      this.updateItemTimestamps();
       ItemAPIService.deleteItem(itemToDelete[0].id);
+      // set currentItemIndex to null to hide the item editor
       this.currentItemIndex = null;
       this.isDialogBoxShown = false;
     },
     /**
      * deletes the option of the current item at the given index
      *
-     * @param {Number} optionIndex the index of the option to be deleted
+     * @param {Number} optionIndex - the index of the option to be deleted
      */
     deleteOption(optionIndex) {
       // set dialog properties

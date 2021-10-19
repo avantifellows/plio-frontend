@@ -79,11 +79,20 @@ export default {
     window.removeEventListener("resize", this.checkScreenOrientation);
   },
   props: {
+    /**
+     * list of items
+     */
     itemList: {
-      // list of items
       default: () => {
         return [];
       },
+      type: Array,
+    },
+    /**
+     * list of item details
+     */
+    itemDetailList: {
+      default: () => [],
       type: Array,
     },
     responseList: {
@@ -131,7 +140,7 @@ export default {
     },
     currentItemDetails() {
       // details for the current item
-      return this.currentItem.details;
+      return this.itemDetailList[this.selectedItemIndex];
     },
     currentItemImage() {
       // image data for the current item
@@ -149,11 +158,11 @@ export default {
     },
     hasCharLimit() {
       // whether the question has a character limit if the item is a question
-      return this.currentItem["details"]["has_char_limit"];
+      return this.currentItemDetails["has_char_limit"];
     },
     maxCharLimit() {
       // the character limit for a question's answer
-      return this.currentItem["details"]["max_char_limit"];
+      return this.currentItemDetails["max_char_limit"];
     },
     containerClass() {
       // main styling class for this component's container
@@ -231,18 +240,18 @@ export default {
     },
     questionOptions() {
       // options for the question
-      if (this.currentItem == undefined) return null;
-      return this.currentItem["details"]["options"];
+      if (this.currentItemDetails == undefined) return null;
+      return this.currentItemDetails["options"];
     },
     questionCorrectAnswer() {
       // correct answer for the question
-      if (this.currentItem == undefined) return null;
-      return parseInt(this.currentItem["details"]["correct_answer"]);
+      if (this.currentItemDetails == undefined) return null;
+      return parseInt(this.currentItemDetails["correct_answer"]);
     },
     questionText() {
       // text for the question
-      if (this.currentItem == undefined) return null;
-      return this.currentItem["details"]["text"];
+      if (this.currentItemDetails == undefined) return null;
+      return this.currentItemDetails["text"];
     },
     isItemQuestion() {
       // whether the item is a Question
@@ -251,7 +260,7 @@ export default {
     questionType() {
       // type of the question if the item is a question
       if (!this.isItemQuestion) return null;
-      return this.currentItem["details"]["type"];
+      return this.currentItemDetails["type"];
     },
     isQuestionTypeMCQ() {
       // whether the type of the question is MCQ if item is question
