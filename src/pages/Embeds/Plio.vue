@@ -105,7 +105,7 @@ const PLYR_INTERVAL_TIME = 0.05;
 const UPLOAD_INTERVAL = 10000;
 var UPLOAD_INTERVAL_TIMEOUT = null;
 
-// threshold below which the volume won't be shown in the player
+// screen width below which the volume bar won't be shown in the player controls
 const PLAYER_VOLUME_DISPLAY_WIDTH_THRESHOLD = 640;
 
 export default {
@@ -191,6 +191,8 @@ export default {
       isScorecardShown: false, // to show the scorecard or not
       plioTitle: "", // title of the plio
       isAspectRatioChecked: false, // whether the check for aspect ratio has been done
+      windowWidth: window.innerWidth, // width of the window
+      windowHeight: window.innerHeight, // height of the window
     };
   },
   watch: {
@@ -323,6 +325,23 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
+    /**
+     * whether player has the correct aspect ratio as desired
+     */
+    isAspectRatioCorrect() {
+      return (
+        document
+          .getElementById(this.plioContainerId)
+          .getElementsByClassName("plyr__video-embed")[0].style.paddingBottom ==
+        `${this.getDesiredPlayerAspectRatio}%`
+      );
+    },
+    /**
+     * the desired aspect ratio for the player
+     */
+    getDesiredPlayerAspectRatio() {
+      return (100 * this.windowHeight) / this.windowWidth;
+    },
     /**
      * id of the DOM element for the main container of the plio
      */
@@ -480,11 +499,13 @@ export default {
      * sets various properties based on the screen size
      */
     setScreenProperties() {
+      this.windowHeight = window.innerHeight;
+      this.windowWidth = window.innerWidth;
       this.setPlayerAspectRatio();
       this.setPlayerVolumeVisibility();
     },
     /**
-     * hides the volume button when the screen size is less than the threshold
+     * hides the volume control bar when the screen size is less than the threshold
      */
     setPlayerVolumeVisibility() {
       var plyrInstance = document.getElementById(this.plioContainerId);
@@ -493,23 +514,6 @@ export default {
       } else {
         plyrInstance.getElementsByClassName("plyr__volume")[0].style.display = "flex";
       }
-    },
-    /**
-     * returns the desired aspect ratio for the player
-     */
-    getDesiredPlayerAspectRatio() {
-      return (100 * window.innerHeight) / window.innerWidth;
-    },
-    /**
-     * whether player has the correct aspect ratio as desired
-     */
-    isAspectRatioCorrect() {
-      return (
-        document
-          .getElementById(this.plioContainerId)
-          .getElementsByClassName("plyr__video-embed")[0].style.paddingBottom ==
-        `${this.getDesiredPlayerAspectRatio()}%`
-      );
     },
     /**
      * sets the aspect ratio based on the current window height and width
@@ -521,19 +525,18 @@ export default {
        * handles responsiveness: https://github.com/sampotts/plyr/issues/339#issuecomment-287603966
        * the solution below is just generalizing what he had done
        */
-      let paddingBottom = this.getDesiredPlayerAspectRatio();
       document
         .getElementById(this.plioContainerId) // to ensure that only this plio instance is affected and not other plyr instances
         .getElementsByClassName(
           "plyr__video-embed"
-        )[0].style.paddingBottom = `${paddingBottom}%`;
+        )[0].style.paddingBottom = `${this.getDesiredPlayerAspectRatio}%`;
     },
     /**
      * checks whether the correct aspect ratio has been set; if not,
      * sets the aspect ratio to the correct value
      */
     checkAndSetPlayerAspectRatio() {
-      if (!this.isAspectRatioChecked && !this.isAspectRatioCorrect()) {
+      if (!this.isAspectRatioChecked && !this.isAspectRatioCorrect) {
         this.setPlayerAspectRatio();
         this.isAspectRatioChecked = true;
       }
@@ -1001,7 +1004,7 @@ export default {
       if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
         return;
       this.lastCheckTimestamp = timestamp;
-      this.checkAndSetPlayerAspectRatio();
+      if (!this.isAspectRatioChecked) this.checkAndSetPlayerAspectRatio();
 
       this.checkForItemPopup(timestamp);
     },

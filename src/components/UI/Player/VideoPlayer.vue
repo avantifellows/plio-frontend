@@ -94,7 +94,8 @@ export default {
 
       /**
        * prevents entering into fullscreen by double clicking
-       * on a modal added on top of the video
+       * on a modal added on top of the video; double clicking
+       * on the video still enters fullscreen
        */
       if (player.eventListeners != undefined) {
         player.eventListeners.forEach((eventListener) => {

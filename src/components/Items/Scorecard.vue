@@ -130,7 +130,7 @@ const confettiHandler = confetti.create(confettiCanvas, {
   useWorker: true,
 });
 const PROGRESS_BAR_ANIMATION_DELAY_TIME = 500; // a time delay to be used for animating the progress bar
-const MOBILE_SCREEN_SIZE_THRESHOLD = 500; // the maximum size of the screen in pixels that is classified as a mobile screen
+const MOBILE_SCREEN_HEIGHT_THRESHOLD = 500; // the maximum height of the screen in pixels that is classified as a mobile screen
 
 export default {
   name: "Scorecard",
@@ -157,10 +157,10 @@ export default {
     },
     /** number of questions that the user has answered */
     numQuestionsAnswered: {
-      type: Number,
       default: 0,
+      type: Number,
     },
-    /** progress to show on the progress bar in % */
+    /** progress to show on the progress bar (in %) */
     progressPercentage: {
       default: null,
       type: [Object, Number],
@@ -240,6 +240,7 @@ export default {
     resultTextToShare() {
       // the structure of the sentence changes for different languages
       if (i18n.global.locale == "hi") {
+        // e.g. मैंने आज के प्लायों पर 100% सटीकता के साथ 4 प्रश्नों का उत्तर दिया
         return `${this.$t("player.scorecard.share.result.1")} ${
           this.progressBarResult.value
         }% ${this.progressBarResult.title.toLowerCase()} ${this.$t(
@@ -249,6 +250,7 @@ export default {
         )}`;
       }
 
+      // e.g. I answered 4 questions with 100% accuracy on Plio today
       return `${this.$t("player.scorecard.share.result.1")} ${
         this.numQuestionsAnsweredText
       } ${this.$t("player.scorecard.share.result.2")} ${
@@ -258,9 +260,8 @@ export default {
       )}`;
     },
     /**
-     * handles whether to use the singular or the plural version of "question"
-     * based on the number of questions answered to be used when the scorecard
-     * is shared
+     * When the scorecard is shared, this method handles whether to use the singular
+     * or the plural version of "question" based on the number of questions answered
      */
     numQuestionsAnsweredText() {
       if (this.numQuestionsAnswered <= 1)
@@ -272,14 +273,14 @@ export default {
       )}`;
     },
     /**
-     * whether to disable the background
+     * whether the background is disabled
      */
     isBackgroundDisabled() {
       return this.isSpinnerShown;
     },
     /**
-     * Wether the circular progress bar will be visible or not.
-     * If the progressPercetage prop is null, the circular progress
+     * Whether the circular progress bar will be visible.
+     * If progressPercentage is null, the circular progress
      * will not be visible
      */
     isCircularProgressShown() {
@@ -338,11 +339,11 @@ export default {
   methods: {
     ...Utilities,
     /**
-     * returns whether the current screen corresponds to a mobile-sized
+     * checks whether the current screen corresponds to a mobile-sized
      * screen in landscape mode
      */
     checkMobileLandscapeMode() {
-      return !this.isPortrait && window.innerHeight < MOBILE_SCREEN_SIZE_THRESHOLD;
+      return !this.isPortrait && window.innerHeight < MOBILE_SCREEN_HEIGHT_THRESHOLD;
     },
     /**
      * share the scorecard message on whatsapp
