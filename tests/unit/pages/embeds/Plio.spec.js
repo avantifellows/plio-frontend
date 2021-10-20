@@ -65,6 +65,74 @@ describe("Plio.vue", () => {
     expect(playerInitiated).toHaveBeenCalled();
   });
 
+  it("sets properties based on screen size when player is ready", async () => {
+    const plioId = "123";
+    const mockPlyrVolumeElement = [
+      {
+        style: {
+          display: "",
+        },
+      },
+    ];
+
+    const playerReady = jest.spyOn(Plio.methods, "playerReady");
+    const setPlayerTime = jest
+      .spyOn(Plio.methods, "setPlayerTime")
+      .mockImplementation(() => jest.fn());
+    const setScreenProperties = jest.spyOn(Plio.methods, "setScreenProperties");
+    const setPlayerAspectRatio = jest
+      .spyOn(Plio.methods, "setPlayerAspectRatio")
+      .mockImplementation(() => jest.fn());
+    const setPlayerVolumeVisibility = jest.spyOn(
+      Plio.methods,
+      "setPlayerVolumeVisibility"
+    );
+
+    const wrapper = mount(Plio, {
+      props: {
+        plioId: plioId,
+      },
+    });
+
+    await flushPromises();
+
+    // resolve the `GET` request waiting in the queue (for receiving plio details)
+    // using the fake response data
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // mock plyr width > 640
+    global.document.getElementById = jest.fn(() => ({
+      clientWidth: 700,
+      getElementsByClassName: () => {
+        return mockPlyrVolumeElement;
+      },
+    }));
+
+    wrapper.vm.$refs.videoPlayer.$emit("ready");
+
+    expect(playerReady).toHaveBeenCalled();
+    expect(setScreenProperties).toHaveBeenCalled();
+    expect(setPlayerTime).toHaveBeenCalled();
+    expect(setPlayerAspectRatio).toHaveBeenCalled();
+    expect(setPlayerVolumeVisibility).toHaveBeenCalled();
+    expect(mockPlyrVolumeElement[0].style.display).toBe("flex");
+
+    // mock plyr width < 640
+    global.document.getElementById = jest.fn(() => ({
+      clientWidth: 500,
+      getElementsByClassName: () => {
+        return mockPlyrVolumeElement;
+      },
+    }));
+
+    wrapper.vm.$refs.videoPlayer.$emit("ready");
+
+    expect(mockPlyrVolumeElement[0].style.display).toBe("none");
+  });
+
   it("session should not be created if unauthenticated when plio request is resolved", async () => {
     const plioId = "123";
     jest
@@ -217,5 +285,37 @@ describe("Plio.vue", () => {
     await flushPromises();
     expect(setActiveWorkspace).toHaveBeenCalled();
     await flushPromises();
+  });
+
+  it("checks for aspect ratio when the player has buffered", async () => {
+    const plioId = "123";
+    jest
+      .spyOn(Plio.methods, "setPlayerAspectRatio")
+      .mockImplementation(() => new Promise((resolve) => resolve()));
+    const checkAndSetPlayerAspectRatio = jest.spyOn(
+      Plio.methods,
+      "checkAndSetPlayerAspectRatio"
+    );
+    const wrapper = mount(Plio, {
+      props: {
+        plioId: plioId,
+      },
+    });
+    await flushPromises();
+
+    // resolve the `GET` request waiting in the queue (for receiving plio details)
+    // using the fake response data
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // aspect ratio shouldn't have been checked at the start
+    expect(wrapper.vm.isAspectRatioChecked).toBeFalsy();
+
+    wrapper.vm.$refs.videoPlayer.$emit("buffered");
+
+    expect(checkAndSetPlayerAspectRatio).toHaveBeenCalled();
+    expect(wrapper.vm.isAspectRatioChecked).toBeTruthy();
   });
 });

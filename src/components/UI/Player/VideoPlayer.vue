@@ -65,13 +65,23 @@ export default {
     },
   },
   methods: {
+    /**
+     * creates a new instance of plyr and sets its properties
+     */
     initiatePlayer() {
-      // creates a new instance of plyr and sets its properties
-      this.player = new Plyr("#player", this.plyrConfig);
+      this.player = this.createPlayer();
       this.setPlayerProperties(this.player);
     },
+    /**
+     * creates a new instance of plyr
+     */
+    createPlayer() {
+      return new Plyr("#player", this.plyrConfig);
+    },
+    /**
+     * sets the properties of the player
+     */
     setPlayerProperties(player) {
-      // set properties of the player
       player.on("timeupdate", this.playerTimeUpdated);
       player.on("ready", this.playerReady);
       player.on("play", this.playerPlayed);
@@ -81,6 +91,23 @@ export default {
       player.on("seeked", this.playerSeekEnded);
       player.on("ended", this.playbackEnded);
       player.on("progress", this.progressUpdated);
+
+      /**
+       * prevents entering into fullscreen by double clicking
+       * on a modal added on top of the video; double clicking
+       * on the video still enters fullscreen
+       */
+      if (player.eventListeners != undefined) {
+        player.eventListeners.forEach((eventListener) => {
+          if (eventListener != undefined && eventListener.type === "dblclick") {
+            eventListener.element.removeEventListener(
+              eventListener.type,
+              eventListener.callback,
+              eventListener.options
+            );
+          }
+        });
+      }
 
       this.removePlyrPoster();
     },

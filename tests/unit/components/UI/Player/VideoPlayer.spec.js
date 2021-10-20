@@ -64,4 +64,39 @@ describe("VideoPlayer.vue", () => {
     expect(removePlyrPoster).toHaveBeenCalled();
     expect(setPlayerProperties).toHaveBeenCalled();
   });
+
+  it("prevents double click action", async () => {
+    const mockPlayer = {
+      eventListeners: [
+        {
+          type: "dblclick",
+          element: {
+            removeEventListener: jest.fn(),
+          },
+        },
+        {
+          type: "click",
+          element: {
+            removeEventListener: jest.fn(),
+          },
+        },
+      ],
+      on: jest.fn(),
+    };
+    jest.spyOn(VideoPlayer.methods, "createPlayer").mockImplementation(() => {
+      return mockPlayer;
+    });
+    const wrapper = mount(VideoPlayer);
+
+    await wrapper.setProps({
+      videoId: "4j4fYyWgl0w",
+    });
+
+    expect(
+      mockPlayer.eventListeners[0].element.removeEventListener
+    ).toHaveBeenCalled();
+    expect(
+      mockPlayer.eventListeners[1].element.removeEventListener
+    ).not.toHaveBeenCalled();
+  });
 });

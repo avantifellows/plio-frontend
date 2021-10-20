@@ -96,7 +96,7 @@ describe("Editor.vue", () => {
   });
 
   it("shows only the video preview + video input field when video ID is not set", async () => {
-    const wrapper = mount(Editor, { shallow: true });
+    const wrapper = mount(Editor);
 
     // editor goes into pending = true state upon loading
     // this resets pending to false
@@ -689,22 +689,6 @@ describe("Editor.vue", () => {
         org: "",
       },
     });
-  });
-
-  it("maximize modal functions correctly", async () => {
-    const maximizeModal = jest.spyOn(Editor.methods, "maximizeModal");
-    const wrapper = mount(Editor);
-    await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
-      currentItemIndex: 1,
-      isModalMinimized: true,
-      videoId: "jdYJf_ybyVo",
-    });
-
-    await wrapper.find('[data-test="maximizeButton"]').trigger("click");
-    expect(maximizeModal).toHaveBeenCalled();
-    expect(wrapper.vm.isModalMinimized).toBe(false);
   });
 
   it("checks that no question time is smaller than minimum question timestamp", async () => {
@@ -1758,6 +1742,7 @@ describe("Editor.vue", () => {
 
     await wrapper.setData({
       isModalMinimized: false,
+      isItemSelected: true,
       items: clonedeep(dummyItems),
       itemDetails: clonedeep(dummyItemDetails),
       currentItemIndex: 0,
@@ -1770,5 +1755,22 @@ describe("Editor.vue", () => {
       .find('[data-test="minimize"]')
       .trigger("click");
     expect(minimizeModal).toHaveBeenCalled();
+  });
+
+  it("maximize modal functions correctly", async () => {
+    const maximizeModal = jest.spyOn(Editor.methods, "maximizeModal");
+    const wrapper = mount(Editor);
+    await wrapper.setData({
+      items: clonedeep(dummyItems),
+      itemDetails: clonedeep(dummyItemDetails),
+      currentItemIndex: 1,
+      isItemSelected: true,
+      isModalMinimized: true,
+      videoId: "jdYJf_ybyVo",
+    });
+
+    await wrapper.find('[data-test="maximizeButton"]').trigger("click");
+    expect(maximizeModal).toHaveBeenCalled();
+    expect(wrapper.vm.isModalMinimized).toBe(false);
   });
 });
