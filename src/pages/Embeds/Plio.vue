@@ -18,7 +18,7 @@
         @update="videoTimestampUpdated"
         @enterfullscreen="enterPlayerFullscreen"
         @exitfullscreen="exitPlayerFullscreen"
-        @buffered="setPlayerAspectRatio"
+        @buffered="checkAndSetPlayerAspectRatio"
         @playback-ended="popupScorecard"
         class="w-full z-0"
       ></video-player>
@@ -68,6 +68,7 @@
         :progressPercentage="scorecardProgress"
         :isShown="isScorecardShown"
         :plioTitle="plioTitle"
+        :numQuestionsAnswered="numQuestionsAnswered"
         :greeting="$t('player.scorecard.greeting')"
         @restart-video="restartVideo"
         ref="scorecard"
@@ -103,6 +104,9 @@ const PLYR_INTERVAL_TIME = 0.05;
 // upload data periodically - period in milliseconds
 const UPLOAD_INTERVAL = 10000;
 var UPLOAD_INTERVAL_TIMEOUT = null;
+
+// screen width below which the volume bar won't be shown in the player controls
+const PLAYER_VOLUME_DISPLAY_WIDTH_THRESHOLD = 640;
 
 export default {
   components: {
@@ -186,6 +190,9 @@ export default {
       numSkipped: 0, // number of skipped questions
       isScorecardShown: false, // to show the scorecard or not
       plioTitle: "", // title of the plio
+      isAspectRatioChecked: false, // whether the check for aspect ratio has been done
+      windowWidth: window.innerWidth, // width of the window
+      windowHeight: window.innerHeight, // height of the window
     };
   },
   watch: {
@@ -273,7 +280,7 @@ export default {
     await this.fetchPlioCreateSession();
 
     // add listener for screen size being changed
-    window.addEventListener("resize", this.setPlayerAspectRatio);
+    window.addEventListener("resize", this.setScreenProperties);
   },
   beforeUnmount() {
     // remove timeout
@@ -281,7 +288,7 @@ export default {
   },
   unmounted() {
     // remove listeners
-    window.removeEventListener("resize", this.setPlayerAspectRatio);
+    window.removeEventListener("resize", this.setScreenProperties);
   },
   props: {
     plioId: {
@@ -318,6 +325,23 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
+    /**
+     * whether player has the correct aspect ratio as desired
+     */
+    isAspectRatioCorrect() {
+      return (
+        document
+          .getElementById(this.plioContainerId)
+          .getElementsByClassName("plyr__video-embed")[0].style.paddingBottom ==
+        `${this.getDesiredPlayerAspectRatio}%`
+      );
+    },
+    /**
+     * the desired aspect ratio for the player
+     */
+    getDesiredPlayerAspectRatio() {
+      return (100 * this.windowHeight) / this.windowWidth;
+    },
     /**
      * id of the DOM element for the main container of the plio
      */
@@ -380,6 +404,12 @@ export default {
           value: this.numSkipped,
         },
       ];
+    },
+    /**
+     * number of questions that have been answered
+     */
+    numQuestionsAnswered() {
+      return this.numCorrect + this.numWrong;
     },
     /**
      * if the app needs to authenticate using a third party auth or not
@@ -466,6 +496,26 @@ export default {
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
     /**
+     * sets various properties based on the screen size
+     */
+    setScreenProperties() {
+      this.windowHeight = window.innerHeight;
+      this.windowWidth = window.innerWidth;
+      this.setPlayerAspectRatio();
+      this.setPlayerVolumeVisibility();
+    },
+    /**
+     * hides the volume control bar when the screen size is less than the threshold
+     */
+    setPlayerVolumeVisibility() {
+      var plyrInstance = document.getElementById(this.plioContainerId);
+      if (plyrInstance.clientWidth < PLAYER_VOLUME_DISPLAY_WIDTH_THRESHOLD) {
+        plyrInstance.getElementsByClassName("plyr__volume")[0].style.display = "none";
+      } else {
+        plyrInstance.getElementsByClassName("plyr__volume")[0].style.display = "flex";
+      }
+    },
+    /**
      * sets the aspect ratio based on the current window height and width
      * to cover the full screen
      */
@@ -475,12 +525,21 @@ export default {
        * handles responsiveness: https://github.com/sampotts/plyr/issues/339#issuecomment-287603966
        * the solution below is just generalizing what he had done
        */
-      let paddingBottom = (100 * window.innerHeight) / window.innerWidth;
       document
-        .getElementById(this.plioContainerId) // to ensure only the plio embed is changed because of this and not other plyr elements
+        .getElementById(this.plioContainerId) // to ensure that only this plio instance is affected and not other plyr instances
         .getElementsByClassName(
           "plyr__video-embed"
-        )[0].style.paddingBottom = `${paddingBottom}%`;
+        )[0].style.paddingBottom = `${this.getDesiredPlayerAspectRatio}%`;
+    },
+    /**
+     * checks whether the correct aspect ratio has been set; if not,
+     * sets the aspect ratio to the correct value
+     */
+    checkAndSetPlayerAspectRatio() {
+      if (!this.isAspectRatioChecked && !this.isAspectRatioCorrect) {
+        this.setPlayerAspectRatio();
+        this.isAspectRatioChecked = true;
+      }
     },
     /**
      * Show the scorecard on top of the player
@@ -804,20 +863,26 @@ export default {
       this.setPlayerAspectRatio();
       this.$emit("initiated");
     },
+    /**
+     * sets the current time of the player to the given time
+     * @param {Number} timestamp
+     */
+    setPlayerTime(timestamp) {
+      this.player.currentTime = timestamp;
+    },
     playerReady() {
       // invoked when the player is ready
       this.showItemMarkersOnSlider();
       // Only show the scorecard when items are present in the plio
       if (this.isScorecardEnabled) this.showScorecardMarkerOnSlider();
-      this.player.currentTime = this.currentTimestamp;
+      this.setPlayerTime(this.currentTimestamp);
       this.$mixpanel.track("Visit Player", {
         "Plio UUID": this.plioId,
         "Plio Video Length": this.player.duration || 0,
         "Plio Num Items": this.items.length || 0,
       });
-      // sets the aspect ratio when the player is ready
-      // this is required for safari
-      this.setPlayerAspectRatio();
+      // sets various properties based on the screen size
+      this.setScreenProperties();
 
       // Disabling autoplay because of bug - issue #157
       // this.playPlayer();
@@ -939,6 +1004,7 @@ export default {
       if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
         return;
       this.lastCheckTimestamp = timestamp;
+      if (!this.isAspectRatioChecked) this.checkAndSetPlayerAspectRatio();
 
       this.checkForItemPopup(timestamp);
     },

@@ -54,6 +54,7 @@
 import ItemQuestionHeader from "@/components/Items/Question/Header";
 import ItemQuestionBody from "@/components/Items/Question/Body";
 import ItemQuestionFooter from "@/components/Items/Question/Footer";
+import { isScreenPortrait } from "@/services/Functional/Utilities.js";
 
 export default {
   data() {
@@ -279,12 +280,8 @@ export default {
         this.isPortrait = false;
         return;
       }
-      /**
-       * we have defined our custom logic for deciding when the screen is considered
-       * to be in portrait mode
-       */
-      if (screen.availHeight > 0.8 * screen.availWidth) this.isPortrait = true;
-      else this.isPortrait = false;
+      // set whether the screen is in portrait mode
+      this.isPortrait = isScreenPortrait();
     },
     subjectiveAnswerUpdated(answer) {
       // invoked when the answer to a subjective question is updated
