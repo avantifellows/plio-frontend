@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@aacassandra/vue3-progressbar": "^1.0.3",
-    "@cubejs-client/core": "^0.27.6",
+    "@cubejs-client/core": "^0.28.38",
     "@sentry/browser": "^6.7.2",
     "@sentry/tracing": "^6.7.2",
     "@tailwindcss/forms": "^0.3.3",
