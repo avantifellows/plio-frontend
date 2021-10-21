@@ -18,7 +18,10 @@
           <img
             class="h-full w-full object-scale-down"
             id="logo"
+            alt="Plio logo"
             src="@/assets/images/logo.png"
+            height="60"
+            width="40"
           />
         </router-link>
 

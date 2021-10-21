@@ -9,7 +9,11 @@
         <img
           class="h-full w-8 md:w-10 object-scale-down"
           src="@/assets/images/logo.png"
+          height="60"
+          width="40"
+          alt="Plio logo"
         />
+
         <p class="mt-2 text-center text-md sm:text-xl font-bold text-primary">
           {{ $t("login.heading") }}
         </p>
@@ -18,21 +22,24 @@
       <div class="grid grid-rows-2 my-4">
         <div class="grid grid-cols-2">
           <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
-            <img class="w-8" src="@/assets/images/youtube.png" />
-            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">
+            <inline-svg :src="getImageSource('youtube.svg')" class="w-8 h-8"></inline-svg>
+            <p :class="subHeadingTitleClass">
               {{ $t("login.sub_headings.interactive.title") }}
             </p>
-            <p class="mt-2 text-sm sm:text-base">
+            <p :class="subHeadingDescriptionClass">
               {{ $t("login.sub_headings.interactive.description") }}
             </p>
           </div>
 
           <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
-            <img class="w-8" src="@/assets/images/interaction.png" />
-            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">
+            <inline-svg
+              :src="getImageSource('interaction.svg')"
+              class="w-8 h-8"
+            ></inline-svg>
+            <p :class="subHeadingTitleClass">
               {{ $t("login.sub_headings.interactions.title") }}
             </p>
-            <p class="mt-2 text-sm sm:text-base">
+            <p :class="subHeadingDescriptionClass">
               {{ $t("login.sub_headings.interactions.description") }}
             </p>
           </div>
@@ -40,21 +47,27 @@
 
         <div class="grid grid-cols-2">
           <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
-            <img class="w-8" src="@/assets/images/download.png" />
-            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">
+            <inline-svg
+              :src="getImageSource('download.svg')"
+              class="w-8 h-8"
+            ></inline-svg>
+            <p :class="subHeadingTitleClass">
               {{ $t("login.sub_headings.download.title") }}
             </p>
-            <p class="mt-2 text-sm sm:text-base">
+            <p :class="subHeadingDescriptionClass">
               {{ $t("login.sub_headings.download.description") }}
             </p>
           </div>
 
           <div class="bg-gray-100 p-4 lg:p-6 rounded-lg m-1 bp-420:m-2">
-            <img class="w-8" src="@/assets/images/analytics.png" />
-            <p class="mt-2 text-sm sm:text-base text-gray-600 font-bold">
+            <inline-svg
+              :src="getImageSource('analytics.svg')"
+              class="w-8 h-8"
+            ></inline-svg>
+            <p :class="subHeadingTitleClass">
               {{ $t("login.sub_headings.analytics.title") }}
             </p>
-            <p class="mt-2 text-sm sm:text-base">
+            <p :class="subHeadingDescriptionClass">
               {{ $t("login.sub_headings.analytics.description") }}
             </p>
           </div>
@@ -171,6 +184,7 @@ import InputNumber from "@/components/UI/Text/InputNumber.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { mapActions, mapState } from "vuex";
 import { useToast } from "vue-toastification";
+import Utilities from "@/services/Functional/Utilities.js";
 
 // interval to keep checking if google authentication is ready
 const GAUTH_VALID_CHECK_INTERVAL = 200;
@@ -223,6 +237,9 @@ export default {
         text: "+91",
         class: "text-gray-500 border-r pr-2",
       },
+      // classes for the title of each sub-heading
+      subHeadingTitleClass: "mt-2 text-sm sm:text-base text-gray-600 font-bold",
+      subHeadingDescriptionClass: "mt-2 hidden md:inline text-sm sm:text-base",
     };
   },
   computed: {
@@ -232,11 +249,11 @@ export default {
       return [
         // formatted text for the terms and service opt in message
         this.$t("login.opt_in_t_and_c.1"),
-        `<a href='https://plio.in/terms' class="underline" target="_blank">` +
+        `<a href='https://plio.in/terms' class="underline" target="_blank" rel="noopener">` +
           this.$t("login.opt_in_t_and_c.2") +
           `</a>`,
         this.$t("login.opt_in_t_and_c.3"),
-        `<a href='https://plio.in/privacy' class="underline" target="_blank">` +
+        `<a href='https://plio.in/privacy' class="underline" target="_blank" rel="noopener">` +
           this.$t("login.opt_in_t_and_c.4") +
           `</a>`,
         this.$t("login.opt_in_t_and_c.5"),
@@ -366,6 +383,7 @@ export default {
   methods: {
     ...mapActions("auth", ["setAccessToken"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
+    ...Utilities,
     isPhoneValid() {
       // whether the phone number entered by the user is valid
       return this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g) != null;

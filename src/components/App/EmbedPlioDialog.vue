@@ -81,9 +81,13 @@
         <!-- text -->
         <p class="text-yellow-600 text-sm">
           {{ embedPlioReceiveDataInfo.start }}
-          <a :href="embedPlioDataInfoLink" target="_blank" class="font-bold underline">{{
-            embedPlioReceiveDataInfo.link
-          }}</a>
+          <a
+            :href="embedPlioDataInfoLink"
+            target="_blank"
+            class="font-bold underline"
+            rel="noopener"
+            >{{ embedPlioReceiveDataInfo.link }}</a
+          >
           {{ embedPlioReceiveDataInfo.end }}
         </p>
       </div>

@@ -249,10 +249,10 @@ export default {
     },
   },
   login: {
-    heading: "Make Videos Interactive",
+    heading: "Convert videos into interactive lessons",
     sub_headings: {
       interactive: {
-        title: "Interactive YouTube videos",
+        title: "Use Any YouTube video",
         description:
           "Convert any passive youtube video into an interactive lesson",
       },
@@ -267,7 +267,7 @@ export default {
           "Sharing interactive videos is as simple as sharing a link",
       },
       analytics: {
-        title: "Rich Analytics",
+        title: "Gather Rich Analytics",
         description:
           "Go beyond traditional YouTube metrics to understand your audience better",
       },

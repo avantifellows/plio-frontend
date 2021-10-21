@@ -1,78 +1,54 @@
 <template>
   <div>
-    <div v-if="!isUserApproved" class="flex flex-col w-full h-full mt-10">
-      <div class="flex justify-center">
-        <inline-svg
-          :src="confirmIcon"
-          class="h-12 w-12 sm:h-20 sm:w-20 place-self-center text-green-600"
-        ></inline-svg>
-      </div>
-      <div class="mt-10">
-        <p class="text-center text-lg sm:text-2xl">
-          {{ $t("home.waitlist.1") }} <br />
-          {{ $t("home.waitlist.2") }} <br />
-          {{ $t("home.waitlist.3") }}
-          <a
-            href="https://forms.gle/7dxyWSi66FLrckBY8"
-            target="_blank"
-            class="text-green-600"
-            >{{ $t("home.waitlist.4") }}</a
-          >
-          {{ $t("home.waitlist.5") }}
-        </p>
-      </div>
-    </div>
-    <div v-else>
-      <!-- table -->
-      <Table
-        v-if="showTable"
-        :data="tableData"
-        :columns="tableColumns"
-        :tableTitle="tableTitle"
-        :numTotal="totalNumberOfPlios"
-        :org="org"
-        @search-plios="fetchPlioIds($event)"
-        @reset-search-string="resetSearchString"
-        @sort-num-viewers="sortPlios"
-        @delete-plio="plioDeleted"
-        @loaded="stopLoading"
-        data-test="table"
-        ref="table"
-      >
-      </Table>
+    <!-- table -->
+    <Table
+      v-if="showTable"
+      :data="tableData"
+      :columns="tableColumns"
+      :tableTitle="tableTitle"
+      :numTotal="totalNumberOfPlios"
+      :org="org"
+      @search-plios="fetchPlioIds($event)"
+      @reset-search-string="resetSearchString"
+      @sort-num-viewers="sortPlios"
+      @delete-plio="plioDeleted"
+      @loaded="stopLoading"
+      data-test="table"
+      ref="table"
+    >
+    </Table>
 
-      <!-- pagination nav bar -->
-      <Paginator
-        v-if="showTable"
-        :totalItems="totalNumberOfPlios"
-        :pageSize="numberOfPliosPerPage"
-        :initialPage="currentPageNumber"
-        @page-selected="fetchPlioIds($event)"
-      >
-      </Paginator>
+    <!-- pagination nav bar -->
+    <Paginator
+      v-if="showTable"
+      :totalItems="totalNumberOfPlios"
+      :pageSize="numberOfPliosPerPage"
+      :initialPage="currentPageNumber"
+      @page-selected="fetchPlioIds($event)"
+    >
+    </Paginator>
 
-      <!-- no plios exist warning -->
-      <div
-        v-if="!showTable"
-        class="flex flex-col bg-white w-full m-auto mt-32 px-8"
-        data-test="noPlio"
-      >
-        <inline-svg
-          :src="noPliosIcon"
-          class="w-50 h-50 opacity-50 place-self-center m-10"
-        ></inline-svg>
-        <p class="text-center text-md sm:text-lg md:text-xl lg:text-2xl">
-          {{ $t("home.no_plios") }}
-        </p>
-        <!-- create plio button -->
-        <icon-button
-          :titleConfig="createButtonTextConfig"
-          :buttonClass="createButtonClass"
-          class="rounded-md shadow-lg mt-4 place-self-center"
-          @click="createNewPlio"
-          data-test="create"
-        ></icon-button>
-      </div>
+    <!-- no plios exist warning -->
+    <div
+      v-if="!showTable"
+      class="flex flex-col bg-white w-full m-auto mt-32 px-8"
+      data-test="noPlio"
+    >
+      <inline-svg
+        :src="noPliosIcon"
+        class="w-50 h-50 opacity-50 place-self-center m-10"
+      ></inline-svg>
+      <p class="text-center text-md sm:text-lg md:text-xl lg:text-2xl">
+        {{ $t("home.no_plios") }}
+      </p>
+      <!-- create plio button -->
+      <icon-button
+        :titleConfig="createButtonTextConfig"
+        :buttonClass="createButtonClass"
+        class="rounded-md shadow-lg mt-4 place-self-center"
+        @click="createNewPlio"
+        data-test="create"
+      ></icon-button>
     </div>
   </div>
 </template>
