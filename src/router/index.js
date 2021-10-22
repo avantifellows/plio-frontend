@@ -1,10 +1,4 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import Home from "@/pages/Home.vue";
-import Editor from "@/pages/Editor.vue";
-import Player from "@/pages/Player.vue";
-import Plio from "@/pages/Embeds/Plio.vue";
-import Dashboard from "@/pages/Dashboard.vue";
-import Login from "@/pages/Login";
 import store from "@/store";
 import i18n from "@/services/Localisation/i18n.js";
 import { useToast } from "vue-toastification";
@@ -28,7 +22,7 @@ const routes = [
   {
     path: "/:org?/home",
     name: "Home",
-    component: Home,
+    component: () => import(/* webpackChunkName: "home" */ "@/pages/Home.vue"),
     props: true,
     meta: {
       requiresAuth: true,
@@ -38,7 +32,8 @@ const routes = [
   {
     path: "/:org?/edit/:plioId",
     name: "Editor",
-    component: Editor,
+    component: () =>
+      import(/* webpackChunkName: "editor" */ "@/pages/Editor.vue"),
     props: true,
     beforeEnter: restrictUnapprovedUser,
     meta: {
@@ -51,7 +46,8 @@ const routes = [
     // id: the unique ID for the component invoking this path (optional)
     path: "/login/:id?/:type?",
     name: "Login",
-    component: Login,
+    component: () =>
+      import(/* webpackChunkName: "login" */ "@/pages/Login.vue"),
     props: true,
     meta: {
       guest: true,
@@ -61,7 +57,8 @@ const routes = [
   {
     path: "/:org?/play/:plioId",
     name: "Player",
-    component: Player,
+    component: () =>
+      import(/* webpackChunkName: "player" */ "@/pages/Player.vue"),
     query: {
       src: "",
     },
@@ -81,7 +78,8 @@ const routes = [
   {
     path: "/:org?/plio/:plioId",
     name: "Plio",
-    component: Plio,
+    component: () =>
+      import(/* webpackChunkName: "plio" */ "@/pages/Embeds/Plio.vue"),
     props: (route) => ({
       plioId: route.params.plioId,
       org: route.params.org,
@@ -95,7 +93,8 @@ const routes = [
   {
     path: "/:org?/analyse/:plioId",
     name: "Dashboard",
-    component: Dashboard,
+    component: () =>
+      import(/* webpackChunkName: "dashboard" */ "@/pages/Dashboard.vue"),
     props: true,
     beforeEnter: restrictUnapprovedUser,
     meta: {
@@ -106,7 +105,7 @@ const routes = [
   {
     path: "/404-not-found",
     name: "404",
-    component: () => import("@/pages/Error"),
+    component: () => import(/* webpackChunkName: "error" */ "@/pages/Error"),
     props: { type: "404" },
   },
   {
