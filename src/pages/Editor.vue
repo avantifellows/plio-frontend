@@ -946,7 +946,7 @@ export default {
      */
     statusBadgeClass() {
       var badgeClass = {
-        "text-green-500 border-green-500": this.isPublished,
+        "text-green-700 border-green-700": this.isPublished,
         "border-black text-black": !this.isPublished,
         "text-xs": true,
         "lg:text-base": true,
