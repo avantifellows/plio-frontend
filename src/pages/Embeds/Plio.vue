@@ -510,10 +510,8 @@ export default {
     setPlayerVolumeVisibility() {
       let plyrInstance = document.getElementById(this.plioContainerId);
       let plyrVolumeElement = plyrInstance.getElementsByClassName("plyr__volume")[0];
-      if (
-        plyrInstance.clientWidth < PLAYER_VOLUME_DISPLAY_WIDTH_THRESHOLD &&
-        plyrVolumeElement != undefined
-      ) {
+      if (plyrVolumeElement == undefined) return;
+      if (plyrInstance.clientWidth < PLAYER_VOLUME_DISPLAY_WIDTH_THRESHOLD) {
         plyrVolumeElement.style.display = "none";
       } else {
         plyrVolumeElement.style.display = "flex";
