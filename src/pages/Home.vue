@@ -113,10 +113,6 @@ export default {
     this.tableData = this.dummyTableData;
     if (this.isUserApproved) await this.fetchPlioIds();
     this.$mixpanel.track("Visit Home");
-
-    // show the chatwoot bubble
-    var chatwootBubble = document.querySelector(".woot-widget-bubble");
-    if (chatwootBubble != undefined) chatwootBubble.classList.remove("hidden");
   },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
