@@ -8,6 +8,7 @@
         :disabled="isDisabled"
         class="disabled:opacity-50 w-full flex space-x-2 bg-primary rounded-lg shadow-lg p-2 text-left cursor-default focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:text-sm items-center"
         data-test="toggleButton"
+        aria-label="toggle options visibility"
       >
         <span class="flex flex-1 space-x-2 items-center">
           <inline-svg

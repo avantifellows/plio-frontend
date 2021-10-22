@@ -54,6 +54,7 @@
         @click="removeSelectedItemIndex"
         v-tooltip.top="addItemButtonTooltip"
         :disabled="isInteractionDisabled"
+        ariaLabel="add item"
         data-test="addItem"
       ></icon-button>
 
@@ -65,6 +66,7 @@
         :buttonClass="deleteItemButtonClass"
         :disabled="isInteractionDisabled"
         data-test="deleteItem"
+        ariaLabel="delete item"
       ></icon-button>
     </div>
 

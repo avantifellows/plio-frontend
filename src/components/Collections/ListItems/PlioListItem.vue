@@ -233,7 +233,7 @@ export default {
     statusBadgeClass() {
       // class for the status badge
       var badgeClass = {
-        "text-green-500 border-green-500": this.isPublished,
+        "text-green-700 border-green-700": this.isPublished,
         "border-black text-black": !this.isPublished,
         "text-xs": true,
         "px-2 py-1": true,
