@@ -239,6 +239,7 @@ export default {
       },
       // classes for the title of each sub-heading
       subHeadingTitleClass: "mt-2 text-sm sm:text-base text-gray-600 font-bold",
+      // classes for the description of each sub-heading
       subHeadingDescriptionClass: "mt-2 hidden md:inline text-sm sm:text-base",
     };
   },
