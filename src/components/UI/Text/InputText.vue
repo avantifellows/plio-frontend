@@ -93,7 +93,7 @@ export default {
       type: Object,
     },
     /**
-     * whether the start icon is enabled and the icon name if enabled
+     * whether the start icon is enabled and the icon name, if enabled
      */
     startIcon: {
       default: () => {
@@ -108,7 +108,7 @@ export default {
       type: Object,
     },
     /**
-     * whether the end icon is enabled and the icon name if enabled
+     * whether the end icon is enabled and the icon name, if enabled
      */
     endIcon: {
       default: () => {

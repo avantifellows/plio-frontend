@@ -79,7 +79,7 @@ export default {
       type: Object,
     },
     /**
-     * whether the start icon is enabled and the icon name if enabled
+     * whether the start icon is enabled and the icon name, if enabled
      */
     startIcon: {
       default: () => {
@@ -108,7 +108,7 @@ export default {
       default: false,
       type: Boolean,
     },
-    /** maximum allowed height of the text box in px */
+    /** maximum allowed height of the text box (in px) */
     maxHeightLimit: {
       default: 0,
       type: Number,

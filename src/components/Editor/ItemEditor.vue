@@ -300,7 +300,7 @@ export default {
       type: Number,
     },
     /**
-     * whether interact with the item editor is allowed
+     * whether interaction with the item editor is allowed
      */
     isInteractionDisabled: {
       default: false,
