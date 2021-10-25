@@ -7,6 +7,10 @@ jest.mock("@/services/Functional/Utilities.js", () => ({
   __esModule: true,
   throwConfetti: jest.fn(),
   resetConfetti: jest.fn(),
+  isScreenPortrait: jest.fn(),
+  default: {
+    getImageSource: jest.fn(),
+  },
 }));
 
 /**

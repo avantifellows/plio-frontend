@@ -15,7 +15,12 @@
     <!-- body -->
     <div class="h-48 bp-360:h-56 bp-420:h-72 bp-500:h-96 w-full bg-white px-10 relative">
       <!-- image preview -->
-      <img v-if="showImagePreview" :src="imageToPreview" :class="imagePreviewClass" />
+      <img
+        v-if="showImagePreview"
+        :src="imageToPreview"
+        :class="imagePreviewClass"
+        alt="imagePreview"
+      />
 
       <!-- upload box - drag here to upload message -->
       <div

@@ -7,6 +7,7 @@
         @click="toggleDropdownDisplay"
         class="sm:w-full flex space-x-2 p-2 text-left cursor-default focus:outline-none sm:text-sm items-center bg-gray-200 rounded-md shadow-md"
         data-test="toggleButton"
+        aria-label="toggle options visibility"
       >
         <!-- dropdown icon -->
         <inline-svg

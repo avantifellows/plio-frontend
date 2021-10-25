@@ -76,8 +76,8 @@ export default {
       default: 1,
       type: Number,
     },
+    // whether to make the markers non-draggable
     isDragDisabled: {
-      // whether to make the markers non draggable or not
       default: false,
       type: Boolean,
     },

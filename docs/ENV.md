@@ -59,14 +59,3 @@ Mixpanel is used for tracking user behaviour throughout the webapp.
 
 #### `VUE_APP_MIXPANEL_PROJECT_TOKEN`
 This is the project token for your mixpanel project which you can view in the Mixpanel Dashboard.
-
-### Chatwoot
-Chatwoot is an open-source customer engagement suite. It is used to talk to customers and gather their feedback.
-
-#### `VUE_APP_CHATWOOT_URL`
-The URL of your chatwoot app
-
-#### `VUE_APP_CHATWOOT_TOKEN`
-The token of your chatwoot app.
-Find it by going to Settings > Inboxes > Inbox Settings > Configuration. It will be present in the code snippet provided
-in the `Messenger Script` section.

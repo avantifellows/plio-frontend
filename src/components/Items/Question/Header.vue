@@ -75,23 +75,23 @@ export default {
     },
   },
   props: {
+    /** whether the answer has been submitted */
     isAnswerSubmitted: {
-      // whether the answer has been submitted
       default: false,
       type: Boolean,
     },
+    /** whether the modal is in fullscreen */
     isFullscreen: {
-      // whether the modal is in fullscreen
       default: false,
       type: Boolean,
     },
+    /** whether the item modal will be shown in editor's mini-preview mode */
     previewMode: {
-      // whether the item modal will be shown in editor preview mode
       default: false,
       type: Boolean,
     },
+    /** id of the DOM element corresponding to video player */
     videoPlayerElementId: {
-      // id of the DOM element corresponding to video player
       default: null,
       type: String,
     },

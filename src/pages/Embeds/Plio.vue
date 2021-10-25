@@ -508,11 +508,13 @@ export default {
      * hides the volume control bar when the screen size is less than the threshold
      */
     setPlayerVolumeVisibility() {
-      var plyrInstance = document.getElementById(this.plioContainerId);
+      let plyrInstance = document.getElementById(this.plioContainerId);
+      let plyrVolumeElement = plyrInstance.getElementsByClassName("plyr__volume")[0];
+      if (plyrVolumeElement == undefined) return;
       if (plyrInstance.clientWidth < PLAYER_VOLUME_DISPLAY_WIDTH_THRESHOLD) {
-        plyrInstance.getElementsByClassName("plyr__volume")[0].style.display = "none";
+        plyrVolumeElement.style.display = "none";
       } else {
-        plyrInstance.getElementsByClassName("plyr__volume")[0].style.display = "flex";
+        plyrVolumeElement.style.display = "flex";
       }
     },
     /**
@@ -525,11 +527,11 @@ export default {
        * handles responsiveness: https://github.com/sampotts/plyr/issues/339#issuecomment-287603966
        * the solution below is just generalizing what he had done
        */
-      document
+      const plyrElement = document
         .getElementById(this.plioContainerId) // to ensure that only this plio instance is affected and not other plyr instances
-        .getElementsByClassName(
-          "plyr__video-embed"
-        )[0].style.paddingBottom = `${this.getDesiredPlayerAspectRatio}%`;
+        .getElementsByClassName("plyr__video-embed")[0];
+      if (plyrElement != undefined)
+        plyrElement.style.paddingBottom = `${this.getDesiredPlayerAspectRatio}%`;
     },
     /**
      * checks whether the correct aspect ratio has been set; if not,

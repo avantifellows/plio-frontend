@@ -119,7 +119,7 @@ export default {
 
   props: {
     totalItems: {
-      // total items that need to be paginated
+      // total number of items that need to be paginated
       type: Number,
       required: true,
     },

@@ -60,7 +60,6 @@
 export default {
   props: {
     iconConfig: {
-      // config for the icon in the alert box
       default: () => {
         return {
           enabled: false,
@@ -71,17 +70,14 @@ export default {
       type: Object,
     },
     title: {
-      // title of the alert
       default: "",
       type: String,
     },
     description: {
-      // description of the alert
       default: "",
       type: String,
     },
     confirmButtonConfig: {
-      // config for the confirmation button
       default: () => {
         return {
           enabled: true,
@@ -92,7 +88,6 @@ export default {
       type: Object,
     },
     cancelButtonConfig: {
-      // config for the cancel button
       default: () => {
         return {
           enabled: true,

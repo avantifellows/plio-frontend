@@ -54,6 +54,7 @@
         @click="removeSelectedItemIndex"
         v-tooltip.top="addItemButtonTooltip"
         :disabled="isInteractionDisabled"
+        ariaLabel="add item"
         data-test="addItem"
       ></icon-button>
 
@@ -65,6 +66,7 @@
         :buttonClass="deleteItemButtonClass"
         :disabled="isInteractionDisabled"
         data-test="deleteItem"
+        ariaLabel="delete item"
       ></icon-button>
     </div>
 
@@ -278,36 +280,27 @@ export default {
   },
 
   props: {
-    /**
-     * list of items
-     */
     itemList: {
       type: Array,
       required: true,
     },
-    /**
-     * list of item details
-     */
     itemDetailList: {
       type: Array,
       required: true,
     },
-    /**
-     * index of the selected item
-     */
     selectedItemIndex: {
       default: 0,
       type: Number,
     },
     /**
-     * total video duration in seconds
+     * total video duration (in seconds)
      */
     videoDuration: {
       default: 0,
       type: Number,
     },
     /**
-     * whether it is allowed to interact with the item editor
+     * whether interaction with the item editor is allowed
      */
     isInteractionDisabled: {
       default: false,

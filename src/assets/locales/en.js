@@ -183,13 +183,6 @@ export default {
   home: {
     create_button: "Create",
     create_button_empty: "Create a plio",
-    waitlist: {
-      1: "You have been added to the waitlist",
-      2: "You will hear from us soon",
-      3: "Please fill",
-      4: "this",
-      5: "form to get access quicker",
-    },
     all_plios: "All Plios",
     no_plios: "Go ahead and create a plio",
     table: {
@@ -249,10 +242,10 @@ export default {
     },
   },
   login: {
-    heading: "Make Videos Interactive",
+    heading: "Convert videos into interactive lessons",
     sub_headings: {
       interactive: {
-        title: "Interactive YouTube videos",
+        title: "Use Any YouTube video",
         description:
           "Convert any passive youtube video into an interactive lesson",
       },
@@ -267,7 +260,7 @@ export default {
           "Sharing interactive videos is as simple as sharing a link",
       },
       analytics: {
-        title: "Rich Analytics",
+        title: "Gather Rich Analytics",
         description:
           "Go beyond traditional YouTube metrics to understand your audience better",
       },
