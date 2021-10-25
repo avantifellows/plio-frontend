@@ -35,7 +35,6 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "editor" */ "@/pages/Editor.vue"),
     props: true,
-    beforeEnter: restrictUnapprovedUser,
     meta: {
       requiresAuth: true,
       title: "Editor - Plio",
@@ -96,7 +95,6 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "dashboard" */ "@/pages/Dashboard.vue"),
     props: true,
-    beforeEnter: restrictUnapprovedUser,
     meta: {
       requiresAuth: true,
       title: "Dashboard - Plio",
@@ -227,12 +225,6 @@ router.beforeEach((to) => {
   }
   return;
 });
-
-function restrictUnapprovedUser(to) {
-  if (!store.getters["auth/isUserApproved"])
-    return { name: "Home", params: { org: to.params.org }, replace: true };
-  else return;
-}
 
 export default router;
 export { routes };

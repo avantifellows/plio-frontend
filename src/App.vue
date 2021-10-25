@@ -337,12 +337,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("auth", [
-      "isAuthenticated",
-      "isUserApproved",
-      "activeWorkspaceSchema",
-      "locale",
-    ]),
+    ...mapGetters("auth", ["isAuthenticated", "activeWorkspaceSchema", "locale"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("generic", [
       "isSharePlioDialogShown",
@@ -382,12 +377,7 @@ export default {
     },
     showWorkspaceSwitcher() {
       // whether to show workspace switcher
-      return (
-        this.isAuthenticated &&
-        this.onHomePage &&
-        this.user.organizations.length &&
-        this.isUserApproved
-      );
+      return this.isAuthenticated && this.onHomePage && this.user.organizations.length;
     },
     onHomePage() {
       // whether the current page is the home page
@@ -411,7 +401,7 @@ export default {
     },
     showCreateButton() {
       // whether to show the Create button
-      return this.isAuthenticated && this.$route.name == "Home" && this.isUserApproved;
+      return this.isAuthenticated && this.$route.name == "Home";
     },
     isBackgroundDisabledLocal() {
       // whether the background should be disabled
