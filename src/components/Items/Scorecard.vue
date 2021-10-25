@@ -175,7 +175,6 @@ export default {
       default: false,
       type: Boolean,
     },
-    /** plio's title */
     plioTitle: {
       default: "",
       type: String,

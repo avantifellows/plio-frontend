@@ -42,6 +42,7 @@
           @click="search"
           :disabled="!this.isSearchStringPresent"
           data-test="searchButton"
+          aria-label="search"
         >
           <span class="w-auto flex justify-end items-center">
             <inline-svg
@@ -59,7 +60,7 @@
       <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
           <div
-            class="shadow overflow-hidden border-b border-gray-200 rounded-lg border-l border-r"
+            class="shadow overflow-hidden border-gray-200 rounded-lg border-b border-l border-r"
           >
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-300">
@@ -70,7 +71,7 @@
                     @click="sortBy(columnName)"
                     :key="columnName"
                     scope="col"
-                    class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider w-2/3"
+                    class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-black uppercase tracking-wider w-2/3"
                     :class="getColumnHeaderStyleClass(columnIndex)"
                     data-test="tableHeader"
                   >
@@ -202,12 +203,11 @@ export default {
       type: String,
     },
     tableTitle: {
-      // title to be given to the table
       default: "",
       type: String,
     },
+    /** total number of plios for the user */
     numTotal: {
-      // total number of plios for the user
       default: 0,
       type: Number,
     },

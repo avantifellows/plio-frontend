@@ -87,7 +87,6 @@ if (
 }
 
 app.component("inline-svg", InlineSvg);
-
 app.use(i18n);
 app.use(
   VueGtag,

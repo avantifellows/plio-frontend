@@ -18,7 +18,10 @@
           <img
             class="h-full w-full object-scale-down"
             id="logo"
+            alt="Plio logo"
             src="@/assets/images/logo.png"
+            height="60"
+            width="40"
           />
         </router-link>
 
@@ -150,7 +153,6 @@ export default {
     window.addEventListener("beforeunload", this.onClose);
     if (this.isAuthenticated) {
       await this.fetchAndUpdateUser();
-      this.setupChatwoot();
     }
     // ask user to pick the language if they are visiting for the first time
     if (this.locale == null && this.isAuthenticated) {
@@ -183,8 +185,6 @@ export default {
         // whenever the user logs in again,
         // reset the value of `userClickedLogout`
         this.userClickedLogout = false;
-        // setup chatwoot bubble
-        this.setupChatwoot();
         if (this.locale == null) this.showLanguagePickerDialog = true;
       }
     },
@@ -208,13 +208,6 @@ export default {
           // make sure to unset the active workspace as well
           this.unsetActiveWorkspace();
         }
-      }
-
-      // hide the chatwoot bubble if the user navigates away from the home page
-      var chatwootBubble = document.querySelector(".woot-widget-bubble");
-      if (chatwootBubble != undefined) {
-        if (value) chatwootBubble.classList.remove("hidden");
-        else chatwootBubble.classList.add("hidden");
       }
     },
     user: {
@@ -261,63 +254,6 @@ export default {
       "enableBackground",
     ]),
     ...mapActions("sync", ["stopLoading"]),
-    mountChatwoot() {
-      // mounting chatwoot SDK to the DOM
-      let chatwootScript = document.createElement("script");
-      chatwootScript.innerHTML = `(function(d,t) {
-          var BASE_URL="${process.env.VUE_APP_CHATWOOT_URL}";
-          var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-          g.src=BASE_URL+"/packs/js/sdk.js";
-          g.id="chatwoot_sdk_mount"
-          s.parentNode.insertBefore(g,s);
-          g.onload=function(){
-            window.chatwootSDK.run({
-              websiteToken: '${process.env.VUE_APP_CHATWOOT_TOKEN}',
-              baseUrl: BASE_URL
-            })
-          }
-        })(document,"script");`;
-      chatwootScript.id = "chatwoot_script";
-      document.head.appendChild(chatwootScript);
-    },
-    setupChatwoot() {
-      // set up chatwoot instance and add event listener
-      if (window.$chatwoot != undefined) window.$chatwoot.reset();
-      this.mountChatwoot();
-      window.addEventListener("chatwoot:ready", this.assignUserToChatwoot);
-    },
-    teardownChatwoot() {
-      // teardown chatwoot instance
-
-      // reset the instance
-      if (window.$chatwoot != undefined) window.$chatwoot.reset();
-
-      // hide the bubble
-      var chatwootBubble = document.querySelector(".woot-widget-bubble");
-      if (chatwootBubble != undefined) chatwootBubble.classList.add("hidden");
-    },
-    assignUserToChatwoot() {
-      if (this.isAuthenticated) {
-        // unhide chatwoot bubble if it was hidden before
-        var chatwootBubble = document.querySelector(".woot-widget-bubble");
-        if (chatwootBubble != undefined) {
-          chatwootBubble.classList.remove("hidden");
-          chatwootBubble.style.bottom = "60px";
-
-          // hide the chatwoot bubble for all the pages except "Home"
-          if (this.onHomePage) chatwootBubble.classList.remove("hidden");
-          else chatwootBubble.classList.add("hidden");
-        }
-
-        // set the user for the chatwoot instance
-        window.$chatwoot.setUser(this.user.id, {
-          email: this.user.email || "no_email",
-          name: this.user.first_name + this.user.last_name || "no_name",
-        });
-
-        window.removeEventListener("chatwoot:ready", this.assignUserToChatwoot);
-      }
-    },
     logoutButtonClicked() {
       // set whether the logout action as triggered by the user or not
       this.userClickedLogout = true;
@@ -337,7 +273,6 @@ export default {
         // added here so that if someone clicks on logout while
         // some activity is pending
         this.stopLoading();
-        this.teardownChatwoot();
       });
     },
     createNewPlio() {
@@ -402,12 +337,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("auth", [
-      "isAuthenticated",
-      "isUserApproved",
-      "activeWorkspaceSchema",
-      "locale",
-    ]),
+    ...mapGetters("auth", ["isAuthenticated", "activeWorkspaceSchema", "locale"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("generic", [
       "isSharePlioDialogShown",
@@ -447,12 +377,7 @@ export default {
     },
     showWorkspaceSwitcher() {
       // whether to show workspace switcher
-      return (
-        this.isAuthenticated &&
-        this.onHomePage &&
-        this.user.organizations.length &&
-        this.isUserApproved
-      );
+      return this.isAuthenticated && this.onHomePage && this.user.organizations.length;
     },
     onHomePage() {
       // whether the current page is the home page
@@ -476,7 +401,7 @@ export default {
     },
     showCreateButton() {
       // whether to show the Create button
-      return this.isAuthenticated && this.$route.name == "Home" && this.isUserApproved;
+      return this.isAuthenticated && this.$route.name == "Home";
     },
     isBackgroundDisabledLocal() {
       // whether the background should be disabled

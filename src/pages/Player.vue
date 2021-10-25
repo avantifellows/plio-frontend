@@ -11,30 +11,15 @@
       @item-toggle="itemVisibilityToggled"
       ref="plio"
     ></plio>
-
-    <!-- uncomment later when back button is revived -->
-    <!-- back button -->
-    <!-- <icon-button
-      v-if="isPlioLoaded"
-      class="absolute"
-      :iconConfig="backButtonIconConfig"
-      @click="goBack"
-      data-test="back-button"
-    >
-    </icon-button> -->
   </div>
 </template>
 
 <script>
 import Plio from "@/pages/Embeds/Plio";
-// uncomment later when back button is revived
-// import IconButton from "@/components/UI/Buttons/IconButton.vue";
 
 export default {
   components: {
     Plio,
-    // uncomment later when back button is revived
-    // IconButton,
   },
   data() {
     return {
@@ -76,44 +61,7 @@ export default {
       type: String,
     },
   },
-  computed: {
-    // uncomment later when back button is revived
-    // backButtonIconConfig() {
-    //   // config for the icon of the back button
-    //   return {
-    //     enabled: true,
-    //     iconName: "left",
-    //     iconClass: this.backButtonIconClass,
-    //   };
-    // },
-    // backButtonIconClass() {
-    //   return [
-    //     {
-    //       "text-black": this.isItemShown,
-    //       "text-gray-200": !this.isItemShown,
-    //     },
-    //     `fill-current h-8 w-8 m-4 rounded-md`,
-    //   ];
-    // },
-    /**
-     * The last page in the history
-     * Returns null if the previous page does not belong to Plio
-     */
-    // previousPage() {
-    //   return this.$router.options.history.state.back;
-    // },
-  },
   methods: {
-    // uncomment later when back button is revived
-    /**
-     * returns the user back to where they came from if the page they came from
-     * was one of the pages of Plio; else, redirects them to home
-     */
-    // goBack() {
-    //   // check if the previous page was one of plio
-    //   if (this.previousPage != null) history.back();
-    //   else this.$router.push({ name: "Home", params: { org: this.org } });
-    // },
     plioLoaded() {
       // invoked when plio has been loaded
       this.isPlioLoaded = true;

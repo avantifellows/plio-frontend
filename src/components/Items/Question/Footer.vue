@@ -67,33 +67,33 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 export default {
   components: { IconButton },
   props: {
+    /** whether the answer has been submitted */
     isAnswerSubmitted: {
-      // whether the answer has been submitted
       default: false,
       type: Boolean,
     },
+    /** if the answer has been submitted, is it correct */
     isAnswerCorrect: {
-      // if the answer has been submitted, is it correct
       default: false,
       type: Boolean,
     },
+    /** whether the submit button is enabled */
     isSubmitEnabled: {
-      // whether the submit button is enabled
       default: false,
       type: Boolean,
     },
+    /** whether the original modal is in fullscreen */
     isFullscreen: {
-      // whether the original modal is in fullscreen
       default: false,
       type: Boolean,
     },
+    /** text to be used as feedback once answer is submitted */
     answerFeedbackText: {
-      // text to be used as feedback once answer is submitted
       default: "",
       type: String,
     },
+    /** class for the text to be used as feedback once answer is submitted */
     answerFeedbackTextClass: {
-      // class for the text to be used as feedback once answer is submitted
       default: "",
       type: String,
     },

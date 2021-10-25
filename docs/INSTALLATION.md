@@ -5,6 +5,7 @@
     - [Docker](#docker)
     - [Pre-commit](#pre-commit)
   - [Installation steps](#installation-steps)
+  - [Additional steps](#additional-steps)
 
 ### Pre-requisites
 #### Docker
@@ -57,5 +58,4 @@ Follow the steps below to set up the repo for development
     **NOTE** - To install and set up the Plio Backend, follow the steps outlined [here](https://github.com/avantifellows/plio-backend#readme).
 
 ### Additional steps
-1. To enable the CRM tool [Chatwoot](https://github.com/chatwoot/chatwoot), visit the [Chatwoot Guide](crm/CHATWOOT.md).
-2. To enable Google sign-in support, visit the [Google OAuth2 guide](oauth/GOOGLE-OAUTH2.md).
+1. To enable Google sign-in support, visit the [Google OAuth2 guide](oauth/GOOGLE-OAUTH2.md).

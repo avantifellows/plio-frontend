@@ -71,10 +71,10 @@
                 class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-96 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
               ></div>
               <div class="absolute flex flex-col items-center">
-                <img
-                  class="w-12 bp-420:w-16 bp-500:w-24 md:w-16 lg:w-24"
-                  src="@/assets/images/youtube.png"
-                />
+                <inline-svg
+                  :src="getImageSource('youtube.svg')"
+                  class="h-16 w-16 bp-420:w-24 bp-420:h-24 bp-500:w-32 bp-500:h-32 md:w-24 md:h-24 lg:w-32 lg:h-32"
+                ></inline-svg>
                 <p class="text-sm bp-420:text-base">{{ $t("generic.preview") }}</p>
               </div>
             </div>
@@ -209,6 +209,7 @@
                 href="https://youtube.com/upload"
                 target="_blank"
                 class="underline font-bold"
+                rel="noopener"
                 >{{ $t("editor.video_input.info.2") }}</a
               >
               {{ $t("editor.video_input.info.3") }}
@@ -945,7 +946,7 @@ export default {
      */
     statusBadgeClass() {
       var badgeClass = {
-        "text-green-500 border-green-500": this.isPublished,
+        "text-green-700 border-green-700": this.isPublished,
         "border-black text-black": !this.isPublished,
         "text-xs": true,
         "lg:text-base": true,
