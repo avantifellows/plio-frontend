@@ -81,7 +81,6 @@ export default {
   name: "PlioThumbnail",
   props: {
     plioId: {
-      // the id of the plio to render
       default: "",
       type: String,
     },

@@ -66,9 +66,11 @@ export default {
       default: "",
       type: String,
     },
+    /**
+     * whether to show any validation for the input
+     * format: {enabled: boolean, isValid: boolean, validMessage: String, invalidMessage: String}
+     */
     validation: {
-      // whether to show any validation for the input
-      // format: {enabled: boolean, isValid: boolean, validMessage: String, invalidMessage: String}
       default: () => {
         return {
           enabled: false,
@@ -76,9 +78,10 @@ export default {
       },
       type: Object,
     },
+    /**
+     * whether the start icon is enabled and the icon name if enabled
+     */
     startIcon: {
-      // whether the start icon is enabled or not
-      // and the icon name if enabled
       default: () => {
         return {
           enabled: false,
@@ -88,26 +91,25 @@ export default {
       },
       type: Object,
     },
+    /** the value of the input to the input box */
     value: {
-      // the value of the input of the input box
       default: "",
       type: [String, Number],
     },
+    /** classes for the input boxes */
     boxStyling: {
-      // pass any classes that need to be added to the input
-      // boxes
       default: () => {
         return "focus:ring-primary";
       },
       type: [Object, String],
     },
+    /** whether the input text is disabled */
     isDisabled: {
-      // whether the input area is disabled
       default: false,
       type: Boolean,
     },
+    /** maximum allowed height of the text box in px */
     maxHeightLimit: {
-      // maximum allowed height of the text box in px
       default: 0,
       type: Number,
     },

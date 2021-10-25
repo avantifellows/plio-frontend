@@ -73,18 +73,18 @@ export default {
     };
   },
   props: {
+    /** the list of options in the dropdown */
     options: {
-      // the list of options in the dropdown
       type: Array,
       default: () => [],
     },
+    /** the default selected index */
     selectedIndex: {
-      // the default selected index
       type: Number,
       default: 0,
     },
+    /** whether the dropdown is disabled */
     isDisabled: {
-      // whether the dropdown is disabled
       default: false,
       type: Boolean,
     },

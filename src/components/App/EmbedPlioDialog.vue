@@ -113,7 +113,6 @@ export default {
   },
   props: {
     plioId: {
-      // uuid for the plio to be embedded
       default: "",
       type: String,
     },

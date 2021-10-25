@@ -280,36 +280,27 @@ export default {
   },
 
   props: {
-    /**
-     * list of items
-     */
     itemList: {
       type: Array,
       required: true,
     },
-    /**
-     * list of item details
-     */
     itemDetailList: {
       type: Array,
       required: true,
     },
-    /**
-     * index of the selected item
-     */
     selectedItemIndex: {
       default: 0,
       type: Number,
     },
     /**
-     * total video duration in seconds
+     * total video duration (in seconds)
      */
     videoDuration: {
       default: 0,
       type: Number,
     },
     /**
-     * whether it is allowed to interact with the item editor
+     * whether interact with the item editor is allowed
      */
     isInteractionDisabled: {
       default: false,

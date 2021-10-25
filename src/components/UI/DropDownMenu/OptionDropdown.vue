@@ -48,8 +48,6 @@
               :src="getImageSource(option.icon)"
               class="w-4 h-4 fill-current"
               data-test="icon"
-              width="32"
-              height="32"
             ></inline-svg>
             <!-- option icon -->
             <p class="block font-normal w-full" data-test="label">{{ option.label }}</p>

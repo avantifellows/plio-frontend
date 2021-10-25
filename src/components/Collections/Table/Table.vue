@@ -59,7 +59,9 @@
     <div class="flex flex-col">
       <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-          <div class="shadow overflow-hidden border-gray-200 rounded-lg">
+          <div
+            class="shadow overflow-hidden border-gray-200 rounded-lg border-b border-l border-r"
+          >
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-300">
                 <!-- table headers -->
@@ -201,12 +203,11 @@ export default {
       type: String,
     },
     tableTitle: {
-      // title to be given to the table
       default: "",
       type: String,
     },
+    /** total number of plios for the user */
     numTotal: {
-      // total number of plios for the user
       default: 0,
       type: Number,
     },

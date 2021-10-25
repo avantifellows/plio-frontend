@@ -58,7 +58,7 @@ import Table from "@/components/Collections/Table/Table.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import Paginator from "@/components/UI/Navigation/Paginator.vue";
-import { mapState, mapActions, mapGetters } from "vuex";
+import { mapState, mapActions } from "vuex";
 import { useToast } from "vue-toastification";
 
 export default {
@@ -80,11 +80,7 @@ export default {
       this.currentPageNumber = 1;
       // reset search string
       this.resetSearchString();
-      if (this.isUserApproved) await this.fetchPlioIds();
-    },
-    isUserApproved(value) {
-      // fetch plios again if user approval status changes
-      if (value) this.fetchPlioIds();
+      await this.fetchPlioIds();
     },
   },
   data() {
@@ -111,13 +107,12 @@ export default {
   async created() {
     // feed the dummy data to show skeletons before loading the actual data
     this.tableData = this.dummyTableData;
-    if (this.isUserApproved) await this.fetchPlioIds();
+    await this.fetchPlioIds();
     this.$mixpanel.track("Visit Home");
   },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
-    ...mapGetters("auth", ["isUserApproved"]),
     createButtonTextConfig() {
       // config for the text of the main create button
       return {
