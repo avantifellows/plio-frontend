@@ -99,11 +99,11 @@ const actions = {
     commit("updateUserStatus", status);
   },
   async fetchAndUpdateUser({ dispatch, state }) {
-    await UserAPIService.getUserByAccessToken(
-      state.accessToken.access_token
-    ).then(async (response) => {
-      await dispatch("setUser", response.data);
-    });
+    await UserAPIService.getUserByAccessToken(state.accessToken.access_token)
+      .then(async (response) => {
+        await dispatch("setUser", response.data);
+      })
+      .catch((error) => console.log(error));
   },
   async getAnalyticsAccessToken({ commit }) {
     await AnalyticsAPIService.getAnalyticsAccessToken().then((response) =>

@@ -81,17 +81,19 @@ client.interceptors.response.use(
       // with the new token attached to the header
       return UserFunctionalService.reAuthenticate(store)
         .then(() => {
-          var newAccessToken = store.state.auth.accessToken.access_token;
-          // Add the new access token to the header of the request
-          error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
+          if (store.state.auth.accessToken != null) {
+            var newAccessToken = store.state.auth.accessToken.access_token;
+            // Add the new access token to the header of the request
+            error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
 
-          // If the call is fetching a user from an access token, we need to update the
-          // request params with the new access token
-          if (error.config.url == userFromTokenEndpoint)
-            error.config.params["token"] = newAccessToken;
+            // If the call is fetching a user from an access token, we need to update the
+            // request params with the new access token
+            if (error.config.url == userFromTokenEndpoint)
+              error.config.params["token"] = newAccessToken;
 
-          // try the request again
-          return client.request(error.config);
+            // try the request again
+            return client.request(error.config);
+          }
         })
         .catch((error) => console.log(error));
     }

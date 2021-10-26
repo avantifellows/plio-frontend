@@ -13,7 +13,8 @@ export default {
       ) {
         store.dispatch("auth/unsetAccessToken");
         store.dispatch("auth/setReAuthenticationState", false);
-        return Promise.resolve(true);
+        store.dispatch("auth/unsetReAuthenticationPromise");
+        return Promise.reject("Auto Logout!");
       } else {
         return store.state.auth.reAuthenticationPromise;
       }
