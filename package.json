@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --modern",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
     "deploy": "vue-cli-service build && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend --delete --acl public-read",
