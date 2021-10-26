@@ -4,9 +4,16 @@ module.exports = {
     // lets debugger map the code within a compressed file back to its position in the original file
     devtool: "source-map",
   },
-  transpileDependencies: [/@vue\/*/, "vue-router", "plyr"],
+  transpileDependencies: [
+    /@vue\/*/,
+    "vue-router",
+    "plyr",
+    "primevue",
+    "vue-i18n",
+    "vue-toastification",
+  ],
   chainWebpack(config) {
-    // reference: https://medium.com/@aetherus.zhou/vue-cli-3-performance-optimization-55316dcd491c
+    // reference: https://github.com/vuejs/vue-cli/issues/979#issuecomment-372990631
     config.plugins.delete("prefetch");
   },
 };
