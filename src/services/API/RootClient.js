@@ -35,7 +35,7 @@ client.interceptors.request.use(
     if (store.state.auth != null) {
       if (store.state.auth.accessToken && config.url != refreshTokenEndpoint) {
         // set the auth header only when the access token is present
-        // and the call is being made is NOT the refresh token call
+        // and the call being made is NOT the refresh token call
         config.headers.Authorization = `
           Bearer ${store.state.auth.accessToken.access_token}`;
       }
