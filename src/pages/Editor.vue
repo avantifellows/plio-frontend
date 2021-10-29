@@ -663,13 +663,13 @@ export default {
     clearInterval(this.savingInterval);
   },
   watch: {
+    /**
+     * Whenever itemTimestamps is updated, check if the current item timestamp is
+     * greater than the minimum allowed timestamp or not. If it's not, then adjust it.
+     */
     itemTimestamps() {
-      // handle item sorting and marker positioning
-      // when time is changed from the time input boxes
-      // or when item is added using the add item button
-      this.checkAndFixItemOrder();
+      // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
       if (this.items != null && this.currentItemIndex != null) {
-        // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
         if (this.items[this.currentItemIndex].time < MINIMUM_QUESTION_TIMESTAMP)
           this.items[this.currentItemIndex].time = MINIMUM_QUESTION_TIMESTAMP;
         this.currentTimestamp = this.items[this.currentItemIndex].time;
