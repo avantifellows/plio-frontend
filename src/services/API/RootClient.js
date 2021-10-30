@@ -62,7 +62,11 @@ client.interceptors.response.use(
     const status = error.response ? error.response.status : null;
 
     // If refresh token is invalid (400 BAD REQUEST)
-    if (error.config.url == refreshTokenEndpoint && status === 400) {
+    if (
+      error.config != undefined &&
+      error.config.url == refreshTokenEndpoint &&
+      status === 400
+    ) {
       // unset the access token and log out the user
       store.dispatch("auth/unsetAccessToken");
 
