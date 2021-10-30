@@ -1,10 +1,9 @@
 # base stage
-FROM node:lts-alpine as base-stage
+FROM node@sha256:dc92f36e7cd917816fa2df041d4e9081453366381a00f40398d99e9392e78664 as base-stage
 WORKDIR /app
 COPY package*.json ./
 # install dependencies for npm run test:unit
-RUN apk --no-cache --virtual build-dependencies add python make g++
-RUN npm install
+RUN apk --no-cache --virtual tmp add python3 make g++ && npm install && apk del tmp
 
 # development stage
 FROM base-stage as development-stage
