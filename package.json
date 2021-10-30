@@ -18,7 +18,7 @@
     "@sentry/browser": "^6.7.2",
     "@sentry/tracing": "^6.7.2",
     "@tailwindcss/forms": "^0.3.3",
-    "axios": "^0.21.1",
+    "axios": "^0.22.0",
     "canvas-confetti": "^1.4.0",
     "core-js": "^3.6.5",
     "debounce": "^1.2.1",
