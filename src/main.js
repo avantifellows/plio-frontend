@@ -9,7 +9,6 @@ import PrimeVue from "primevue/config";
 import Tooltip from "primevue/tooltip";
 import Toast from "vue-toastification";
 import VueProgressBar from "@aacassandra/vue3-progressbar";
-import VueGtag from "vue-gtag";
 import VueClickAway from "vue3-click-away";
 import mixpanel from "mixpanel-browser";
 
@@ -87,17 +86,7 @@ if (
 }
 
 app.component("inline-svg", InlineSvg);
-
 app.use(i18n);
-app.use(
-  VueGtag,
-  {
-    appName: process.env.VUE_APP_GOOGLE_ANALYTICS_APP_NAME,
-    pageTrackerScreenviewEnabled: true,
-    config: { id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID },
-  },
-  router
-);
 app.use(PrimeVue, { ripple: true });
 app.use(GAuth, gAuthOptions);
 app.use(Toast, { filterBeforeCreate });

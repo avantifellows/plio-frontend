@@ -4,6 +4,7 @@
     :class="buttonClass"
     class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
     :disabled="isDisabled"
+    :aria-label="ariaLabel"
   >
     <div
       class="flex w-full justify-center"
@@ -63,6 +64,10 @@ export default {
       // whether to stack the icon and title vertically or horizontally
       type: String,
       default: "horizontal",
+    },
+    ariaLabel: {
+      type: String,
+      default: "",
     },
   },
   computed: {

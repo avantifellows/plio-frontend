@@ -22,8 +22,6 @@ const getters = {
     if (configValue != null) return configValue.locale;
     return null;
   },
-  isUserApproved: (state) =>
-    state.user != null && state.user.status == "approved",
 
   isPersonalWorkspace: (state) => {
     // whether the current workspace is the personal workspace

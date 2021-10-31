@@ -31,8 +31,8 @@ export default {
     },
   },
   props: {
+    /** whether the switcher is disabled */
     isDisabled: {
-      // whether the switcher should be disabled
       type: Boolean,
       default: false,
     },

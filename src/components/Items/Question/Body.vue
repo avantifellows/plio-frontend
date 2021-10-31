@@ -142,62 +142,57 @@ export default {
   },
   props: {
     questionText: {
-      // text for the question
       default: "",
       type: String,
     },
     options: {
-      // options for the question
       default: () => [],
       type: Array,
     },
     correctAnswer: {
-      // correct answer for the question
       default: null,
       type: Number,
     },
+    /** answer for the question which has been submitted */
     submittedAnswer: {
-      // answer for the question which has been submitted
       default: null,
       type: [String, Number],
     },
+    /** answer for the question which has been entered but not submitted */
     draftAnswer: {
-      // answer for the question which has been entered but not submitted
       default: null,
       type: [String, Number],
     },
     isAnswerSubmitted: {
-      // whether the answer has been submitted
       default: false,
       type: Boolean,
     },
     questionType: {
-      // type of the question
       default: "mcq",
       type: String,
     },
+    /** whether the answer has a character limit */
     hasCharLimit: {
-      // whether the answer has a character limit
       default: false,
       type: Boolean,
     },
+    /** the character limit to be used if present */
     maxCharLimit: {
-      // the character limit to be used if present
       default: 0,
       type: Number,
     },
+    /** whether the item body will be shown in editor's mini-preview mode */
     previewMode: {
-      // whether the item body will be shown in editor preview mode
       default: false,
       type: Boolean,
     },
+    /** data of the image to be shown on a question. Contains URL and alt_text */
     imageData: {
-      // data of the image to be shown on a question. Contains URL and alt_text
       default: null,
       type: Object,
     },
+    /** whether the screen is in portrait mode */
     isPortrait: {
-      // whether the screen is in portraid mode
       default: false,
       type: Boolean,
     },

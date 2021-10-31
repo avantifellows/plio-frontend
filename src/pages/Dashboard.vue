@@ -14,6 +14,7 @@
           :src="videoThumbnailURL"
           class="rounded-md h-48 bp-500:h-auto"
           data-test="thumbnail"
+          alt="Video thumbnail"
         />
       </div>
       <div
