@@ -84,6 +84,8 @@ export default {
         },
         { baseURL: process.env.VUE_APP_BACKEND_AUTH_URL }
       );
-    } else return Promise.reject("Refresh token not found in local storage");
+    }
+
+    return Promise.reject("Refresh token not found in local storage");
   },
 };

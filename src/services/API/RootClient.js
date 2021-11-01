@@ -69,6 +69,7 @@ client.interceptors.response.use(
     ) {
       // auto logout the user
       store.dispatch("auth/autoLogoutUser");
+      // We want to cancel all the pending axios requests. The workaround for this is to
       // return a never resolving/rejecting promise so no more API calls can occur
       // https://github.com/axios/axios/issues/583#issuecomment-504317347
       return new Promise(() => {});
@@ -99,7 +100,9 @@ client.interceptors.response.use(
           console.log(error);
           // auto logout the user
           store.dispatch("auth/autoLogoutUser");
+          // We want to cancel all the pending axios requests. The workaround for this is to
           // return a never resolving/rejecting promise so no more API calls can occur
+          // https://github.com/axios/axios/issues/583#issuecomment-504317347
           return new Promise(() => {});
         });
     }
