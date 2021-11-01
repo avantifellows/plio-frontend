@@ -260,7 +260,10 @@ export default {
           // reload the page and remove the auth query params
           // if the user is authenticated -- they will be able to see the plio
           // if the user is not -- they will be asked to log in and then see the plio
-          if (error.response.status === 400) {
+
+          // if for some reason the API call didn't go through and there's no response
+          // object, then redirect the user to a 404 page
+          if (error.response != undefined && error.response.status === 400) {
             this.$router.replace({
               name: "Player",
               params: {
@@ -269,7 +272,7 @@ export default {
               },
             });
             thirdPartyAuthPromiseResolve();
-          }
+          } else this.$router.replace({ name: "404", params: {} });
         });
     } else thirdPartyAuthPromiseResolve();
 
