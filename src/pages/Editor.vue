@@ -663,16 +663,13 @@ export default {
     clearInterval(this.savingInterval);
   },
   watch: {
+    /**
+     * Whenever itemTimestamps is updated, check if the current item timestamp is
+     * greater than the minimum allowed timestamp or not. If it's not, then adjust it.
+     */
     itemTimestamps() {
-      this.itemTimestamps.forEach((itemTimestamp, index) => {
-        this.items[index]["time"] = itemTimestamp;
-      });
-      // handle item sorting and marker positioning
-      // when time is changed from the time input boxes
-      // or when item is added using the add item button
-      this.checkAndFixItemOrder();
+      // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
       if (this.items != null && this.currentItemIndex != null) {
-        // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
         if (this.items[this.currentItemIndex].time < MINIMUM_QUESTION_TIMESTAMP)
           this.items[this.currentItemIndex].time = MINIMUM_QUESTION_TIMESTAMP;
         this.currentTimestamp = this.items[this.currentItemIndex].time;
@@ -1199,6 +1196,8 @@ export default {
         (item, prevItem) => {
           // return if there's no change
           if (isEqual(item, prevItem)) return;
+          // sort items/itemDetails
+          this.checkAndFixItemOrder();
           // update itemTimestamps array
           this.updateItemTimestamps();
           // push the changes for that item to the backend
@@ -1376,13 +1375,17 @@ export default {
      * and reset the currentItemIndex
      */
     checkAndFixItemOrder() {
-      // only proceed if an item is currently selected
-      if (this.currentItemIndex != null) {
-        var currentItem = this.items[this.currentItemIndex];
-        this.sortItems();
-        this.sortItemDetails();
+      // if an item has already been selected, persist the selection
+      // by storing the item in a temporary variable, and re-setting the
+      // currentItemIndex later on
+      let currentItem = undefined;
+      if (this.currentItemIndex != null) currentItem = this.items[this.currentItemIndex];
+
+      // sort the items and itemDetails arrays
+      this.sortItems();
+      this.sortItemDetails();
+      if (currentItem != undefined)
         this.currentItemIndex = this.items.indexOf(currentItem);
-      }
     },
     /**
      * sort items based on ascending time values
@@ -1429,10 +1432,9 @@ export default {
       } else {
         this.items[itemIndex]["time"] = itemTimestamp;
       }
-      // sort the items based on timestamp
-      this.sortItems();
+      // sort the items based on timestamp and
       // sort the itemDetails array based on the above sorted items
-      this.sortItemDetails();
+      this.checkAndFixItemOrder();
       // update itemTimestamps based on new sorted items
       this.updateItemTimestamps();
       // update everything else
@@ -1959,6 +1961,8 @@ export default {
         this.items[this.items.length - 1],
         this.itemDetails[this.items.length - 1]
       );
+      // sort items/itemDetails
+      this.checkAndFixItemOrder();
       // update itemTimestamps and currentItemIndex, and select the item
       this.updateItemTimestamps();
       this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
