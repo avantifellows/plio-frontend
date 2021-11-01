@@ -17,6 +17,9 @@ const state = {
 
 const getters = {
   isAuthenticated: (state) => !!state.accessToken,
+  isRefreshTokenPresent: (state) => {
+    return state.accessToken != null && state.accessToken.refresh_token != null;
+  },
   locale: (state) => {
     var configValue = JSON.parse(state.config);
     if (configValue != null) return configValue.locale;
@@ -99,19 +102,21 @@ const actions = {
     commit("updateUserStatus", status);
   },
   async fetchAndUpdateUser({ dispatch, state }) {
-    await UserAPIService.getUserByAccessToken(
+    let response = await UserAPIService.getUserByAccessToken(
       state.accessToken.access_token
-    ).then(async (response) => {
-      await dispatch("setUser", response.data);
-    });
+    );
+    if (response != undefined) dispatch("setUser", response.data);
   },
   async getAnalyticsAccessToken({ commit }) {
-    await AnalyticsAPIService.getAnalyticsAccessToken().then((response) =>
-      commit("setAnalyticsAccessToken", response.data)
-    );
+    let response = await AnalyticsAPIService.getAnalyticsAccessToken();
+    if (response != undefined) commit("setAnalyticsAccessToken", response.data);
   },
   unsetAnalyticsAccessToken({ commit }) {
     commit("unsetAnalyticsAccessToken");
+  },
+  async autoLogoutUser({ dispatch }) {
+    await dispatch("unsetAccessToken");
+    await dispatch("setReAuthenticationState", false);
   },
 };
 

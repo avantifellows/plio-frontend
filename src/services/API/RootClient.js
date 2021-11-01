@@ -67,12 +67,9 @@ client.interceptors.response.use(
       error.config.url == refreshTokenEndpoint &&
       status === 400
     ) {
-      // unset the access token and log out the user
-      store.dispatch("auth/unsetAccessToken");
-
-      // set the reauthentication status as false
-      store.dispatch("auth/setReAuthenticationState", false);
-
+      // auto logout the user
+      store.dispatch("auth/autoLogoutUser");
+      // We want to cancel all the pending axios requests. The workaround for this is to
       // return a never resolving/rejecting promise so no more API calls can occur
       // https://github.com/axios/axios/issues/583#issuecomment-504317347
       return new Promise(() => {});
@@ -85,19 +82,29 @@ client.interceptors.response.use(
       // with the new token attached to the header
       return UserFunctionalService.reAuthenticate(store)
         .then(() => {
-          var newAccessToken = store.state.auth.accessToken.access_token;
-          // Add the new access token to the header of the request
-          error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
+          if (store.state.auth.accessToken != null) {
+            var newAccessToken = store.state.auth.accessToken.access_token;
+            // Add the new access token to the header of the request
+            error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
 
-          // If the call is fetching a user from an access token, we need to update the
-          // request params with the new access token
-          if (error.config.url == userFromTokenEndpoint)
-            error.config.params["token"] = newAccessToken;
+            // If the call is fetching a user from an access token, we need to update the
+            // request params with the new access token
+            if (error.config.url == userFromTokenEndpoint)
+              error.config.params["token"] = newAccessToken;
 
-          // try the request again
-          return client.request(error.config);
+            // try the request again
+            return client.request(error.config);
+          }
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error);
+          // auto logout the user
+          store.dispatch("auth/autoLogoutUser");
+          // We want to cancel all the pending axios requests. The workaround for this is to
+          // return a never resolving/rejecting promise so no more API calls can occur
+          // https://github.com/axios/axios/issues/583#issuecomment-504317347
+          return new Promise(() => {});
+        });
     }
 
     ErrorHandling.handleAPIErrors(error);
