@@ -71,16 +71,21 @@ export default {
   },
 
   refreshAccessToken() {
-    // uses the stored refresh token to request for a new access token
-    return apiClient().post(
-      refreshTokenEndpoint,
-      {
-        grant_type: "refresh_token",
-        client_id: process.env.VUE_APP_BACKEND_API_CLIENT_ID,
-        client_secret: process.env.VUE_APP_BACKEND_API_CLIENT_SECRET,
-        refresh_token: store.state.auth.accessToken.refresh_token,
-      },
-      { baseURL: process.env.VUE_APP_BACKEND_AUTH_URL }
-    );
+    // if a refresh token exists locally,
+    // use the stored refresh token to request for a new access token
+    if (store.getters["auth/isRefreshTokenPresent"]) {
+      return apiClient().post(
+        refreshTokenEndpoint,
+        {
+          grant_type: "refresh_token",
+          client_id: process.env.VUE_APP_BACKEND_API_CLIENT_ID,
+          client_secret: process.env.VUE_APP_BACKEND_API_CLIENT_SECRET,
+          refresh_token: store.state.auth.accessToken.refresh_token,
+        },
+        { baseURL: process.env.VUE_APP_BACKEND_AUTH_URL }
+      );
+    }
+
+    return Promise.reject("Refresh token not found in local storage");
   },
 };
