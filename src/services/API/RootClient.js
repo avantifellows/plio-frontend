@@ -67,12 +67,8 @@ client.interceptors.response.use(
       error.config.url == refreshTokenEndpoint &&
       status === 400
     ) {
-      // unset the access token and log out the user
-      store.dispatch("auth/unsetAccessToken");
-
-      // set the reauthentication status as false
-      store.dispatch("auth/setReAuthenticationState", false);
-
+      // auto logout the user
+      store.dispatch("auth/autoLogoutUser");
       // return a never resolving/rejecting promise so no more API calls can occur
       // https://github.com/axios/axios/issues/583#issuecomment-504317347
       return new Promise(() => {});
@@ -99,7 +95,13 @@ client.interceptors.response.use(
             return client.request(error.config);
           }
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error);
+          // auto logout the user
+          store.dispatch("auth/autoLogoutUser");
+          // return a never resolving/rejecting promise so no more API calls can occur
+          return new Promise(() => {});
+        });
     }
 
     ErrorHandling.handleAPIErrors(error);
