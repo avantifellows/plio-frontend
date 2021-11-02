@@ -291,7 +291,7 @@ export default {
       return {
         enabled: true,
         title: this.$t("player.scorecard.metric.description.accuracy"),
-        value: this.localProgressBarPercentage,
+        value: Math.round(this.localProgressBarPercentage),
       };
     },
     /**
