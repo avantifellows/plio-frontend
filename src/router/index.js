@@ -107,6 +107,12 @@ const routes = [
     props: { type: "404" },
   },
   {
+    path: "/403-access-denied",
+    name: "403",
+    component: () => import(/* webpackChunkName: "error" */ "@/pages/Error"),
+    props: { type: "403" },
+  },
+  {
     // Refer to: https://stackoverflow.com/a/64186073/7870587
     path: "/:pathMatch(.*)*",
     redirect: {
