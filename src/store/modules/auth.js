@@ -8,8 +8,9 @@ const state = {
   user: null,
   activeWorkspace: "",
   userId: null,
-  isReAuthenticating: false,
+  reAuthenticationState: "not-started",
   reAuthenticationPromise: null,
+  reAuthenticationPromiseResolver: null,
   analyticsAccessToken: null,
   analyticsAccessTokenFetchTime: null,
   analyticsAccessTokenExpiryTime: null,
@@ -89,14 +90,14 @@ const actions = {
   async saveConfig({ commit }, config) {
     await commit("saveConfig", config);
   },
-  setReAuthenticationState({ commit }, isReAuthenticating) {
-    commit("setReAuthenticationState", isReAuthenticating);
+  async setReAuthenticationState({ commit }, state) {
+    await commit("setReAuthenticationState", state);
   },
-  setReAuthenticationPromise({ commit }, reAuthenticationPromise) {
-    commit("setReAuthenticationPromise", reAuthenticationPromise);
+  async setReAuthenticationPromise({ commit }, promise) {
+    await commit("setReAuthenticationPromise", promise);
   },
-  unsetReAuthenticationPromise({ commit }) {
-    commit("unsetReAuthenticationPromise");
+  async setReAuthenticationPromiseResolver({ commit }, resolver) {
+    await commit("setReAuthenticationPromiseResolver", resolver);
   },
   updateUserStatus({ commit }, status) {
     commit("updateUserStatus", status);
@@ -105,7 +106,7 @@ const actions = {
     let response = await UserAPIService.getUserByAccessToken(
       state.accessToken.access_token
     );
-    if (response != undefined) dispatch("setUser", response.data);
+    if (response != undefined) await dispatch("setUser", response.data);
   },
   async getAnalyticsAccessToken({ commit }) {
     let response = await AnalyticsAPIService.getAnalyticsAccessToken();
@@ -116,7 +117,6 @@ const actions = {
   },
   async autoLogoutUser({ dispatch }) {
     await dispatch("unsetAccessToken");
-    await dispatch("setReAuthenticationState", false);
   },
 };
 
@@ -144,14 +144,14 @@ const mutations = {
   saveConfig(state, config) {
     state.config = config;
   },
-  setReAuthenticationState(state, isReAuthenticating) {
-    state.isReAuthenticating = isReAuthenticating;
+  setReAuthenticationState(state, reAuthenticationState) {
+    state.reAuthenticationState = reAuthenticationState;
   },
-  setReAuthenticationPromise(state, reAuthenticationPromise) {
-    state.reAuthenticationPromise = reAuthenticationPromise;
+  setReAuthenticationPromise(state, promise) {
+    state.reAuthenticationPromise = promise;
   },
-  unsetReAuthenticationPromise(state) {
-    state.reAuthenticationPromise = null;
+  setReAuthenticationPromiseResolver(state, resolver) {
+    state.reAuthenticationPromiseResolver = resolver;
   },
   updateUserStatus(state, status) {
     state.user.status = status;

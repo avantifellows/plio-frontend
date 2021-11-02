@@ -52,9 +52,13 @@ client.interceptors.request.use(
 // handle errors in responses for API requests
 client.interceptors.response.use(
   (config) => {
+    // reset reAuthenticationState to it's original value whenever any request returns
+    // a non error response code. Make sure not to do this for refresh token call
+    if (config.config.url != refreshTokenEndpoint)
+      store.dispatch("auth/setReAuthenticationState", "not-started");
     return config;
   },
-  (error) => {
+  async (error) => {
     // logging the error
     console.log(error);
 
@@ -77,34 +81,59 @@ client.interceptors.response.use(
 
     // Handle expired/deleted access token here
     if (status === 401) {
-      // reauthenticate the user, and until that is happenining, pause all other
-      // requests. Once the user is authenticated, release all the paused requests
-      // with the new token attached to the header
-      return UserFunctionalService.reAuthenticate(store)
-        .then(() => {
-          if (store.state.auth.accessToken != null) {
-            var newAccessToken = store.state.auth.accessToken.access_token;
-            // Add the new access token to the header of the request
-            error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
-
+      // reAuthenticate the user if this is the first reAuthentication call. While reAuthentication is going on
+      // if some other request ends up here, then wait for the reAuthentication process to finish. Once that is done,
+      // set the newly retrieved access token as an auth header and retry the request. Any errors in the reauthentication
+      // process are caught and the user is logged out.
+      let run = async () => {
+        try {
+          let reAuthenticationState = store.state.auth.reAuthenticationState;
+          switch (reAuthenticationState) {
+            case "dropped":
+              // re authentication process was dropped, throw an error.
+              throw new Error(
+                "Re-authentication failed, no more calls allowed"
+              );
+            case "in-process":
+              // re authentication process in progress. Wait for the promise to resolve,
+              // then proceed
+              await store.state.auth.reAuthenticationPromise;
+              break;
+            case "not-started":
+              // fresh re authentication process to begin now. Wait for the process to complete,
+              // then proceed
+              await UserFunctionalService.reAuthenticate(store);
+              break;
+          }
+          // Add the new access token recieved from the re authentication process
+          // to the header of the request and retry the request
+          let newAccessToken = store.state.auth.accessToken.access_token;
+          error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
+          if (error.config.url == userFromTokenEndpoint) {
             // If the call is fetching a user from an access token, we need to update the
             // request params with the new access token
-            if (error.config.url == userFromTokenEndpoint)
-              error.config.params["token"] = newAccessToken;
-
-            // try the request again
-            return client.request(error.config);
+            error.config.params["token"] = newAccessToken;
           }
-        })
-        .catch((error) => {
-          console.log(error);
-          // auto logout the user
-          store.dispatch("auth/autoLogoutUser");
-          // We want to cancel all the pending axios requests. The workaround for this is to
-          // return a never resolving/rejecting promise so no more API calls can occur
-          // https://github.com/axios/axios/issues/583#issuecomment-504317347
-          return new Promise(() => {});
-        });
+          return client.request(error.config); // retrying the request
+        } catch (err) {
+          // an error occured in the re authentication process
+          // reset the reAuthenticationState value, so any future reAuthentication processes
+          // can function normally
+          store.dispatch("auth/setReAuthenticationState", "not-started");
+          // if the user is still logged in, log them out
+          // if the user is not logged in, then just throw an error
+          if (store.getters["auth/isAuthenticated"]) {
+            store.dispatch("auth/autoLogoutUser");
+            throw new Error("AutoLogout! " + err.message);
+          }
+
+          throw new Error(err.message);
+        }
+      };
+      // the reason why we're not using the above try/catch logic as it as and why
+      // we're wrapping it into an async function
+      // https://itnext.io/error-handling-with-async-await-in-js-26c3f20bc06a
+      return run();
     }
 
     ErrorHandling.handleAPIErrors(error);

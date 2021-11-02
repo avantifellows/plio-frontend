@@ -1,51 +1,41 @@
 import UserAPIService from "@/services/API/User.js";
-import UtilitiesService from "@/services/Functional/Utilities.js";
 
 export default {
-  reAuthenticate(store) {
-    // return the stored promise from the re-authentication call if re-authentication is in process
-    if (store.state.auth.isReAuthenticating) {
-      // to handle the case when isReAuthenticating has been set to true
-      // but no promise exists in the store. Log out the user in that case
-      if (
-        store.state.auth.reAuthenticationPromise == null ||
-        UtilitiesService.isObjectEmpty(store.state.auth.reAuthenticationPromise)
-      ) {
-        store.dispatch("auth/autoLogoutUser");
-        return Promise.reject("Auto Logout!");
-      } else {
-        return store.state.auth.reAuthenticationPromise;
-      }
-    }
+  async reAuthenticate(store) {
+    // set re Authentication state as in progress
+    store.dispatch("auth/setReAuthenticationState", "in-process");
 
-    // if the reAuthentication call is made while the user has been logged out
-    // then reject the promise
-    if (!store.getters["auth/isAuthenticated"])
-      return Promise.reject("User is not set!");
+    // create a promise and store it's resolver in a separate variable
+    let reAuthenticationPromiseResolver;
+    let reAuthenticationPromise = new Promise((resolve) => {
+      reAuthenticationPromiseResolver = resolve;
+    });
 
-    // set re-authentication as being in process
-    store.dispatch("auth/setReAuthenticationState", true);
-
-    // start the refreshAccessToken call and save that promise
-    // in a variable called "reAuthenticationPromise"
-    const reAuthenticationPromise = UserAPIService.refreshAccessToken()
-      .then((response) => {
-        // once the refreshAccessToken call resolves, set the new access token in store
-        // set isReAuthenticating to false
-        // and unset the reAuthenticationPromise that was saved in store
-        // and resolve the promise so other waiting calls can proceed
-        store.dispatch("auth/setAccessToken", response.data);
-        store.dispatch("auth/setReAuthenticationState", false);
-        store.dispatch("auth/unsetReAuthenticationPromise");
-        return Promise.resolve(true);
-      })
-      .catch((error) => {
-        return Promise.reject(error);
-      });
-
-    // Until the promise stored in "reAuthenticationPromise" is resolved,
-    // store this promise into vuex and return from the function.
+    // save the above created promise and it's resolver into the store
     store.dispatch("auth/setReAuthenticationPromise", reAuthenticationPromise);
-    return reAuthenticationPromise;
+    store.dispatch(
+      "auth/setReAuthenticationPromiseResolver",
+      reAuthenticationPromiseResolver
+    );
+
+    try {
+      // try refreshing the access token
+      let response = await UserAPIService.refreshAccessToken();
+      if (response != undefined && response.data != undefined) {
+        // set the recieved access token into the store
+        // and mark the re authentication process as completed.
+        // We will also resolve the pending reAuthenticationPromise so the code
+        // that is waiting for the promises to resolve can proceed
+        store.dispatch("auth/setAccessToken", response.data);
+        store.dispatch("auth/setReAuthenticationState", "completed");
+        store.state.auth.reAuthenticationPromiseResolver();
+        return response.data;
+      }
+    } catch (e) {
+      // an error occured in the process of refreshing the access token.
+      // We'll mark the re authentication process as dropped and throw an error
+      store.dispatch("auth/setReAuthenticationState", "dropped");
+      throw new Error(e);
+    }
   },
 };
