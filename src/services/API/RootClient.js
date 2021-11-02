@@ -13,6 +13,12 @@ let headers = {
   "Content-Type": "application/json",
 };
 
+// whenever the RootClient is set up (on a fresh page load)
+// reset the re authentication state. This is required because if in the
+// previous run, if the user exited while the re authentication was in process,
+// the re authentication state is set as `in-process` in the store
+store.dispatch("auth/setReAuthenticationState", "not-started");
+
 // backend API client
 const client = axios.create({
   baseURL: process.env.VUE_APP_BACKEND,
