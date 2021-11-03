@@ -205,7 +205,7 @@ describe("Editor.vue", () => {
     await store.dispatch("auth/setActiveWorkspace", activeWorkspace);
 
     await wrapper.find('[data-test="copyDraftButton"]').trigger("click");
-    let draftLink = `${process.env.VUE_APP_FRONTEND}/#/${activeWorkspace}/edit/${plioId}`;
+    let draftLink = `${process.env.VUE_APP_FRONTEND}/${activeWorkspace}/edit/${plioId}`;
     draftLink = draftLink.replace("http://", "");
     draftLink = draftLink.replace("https://", "");
     expect(copyToClipboard).toHaveBeenCalledWith(draftLink);

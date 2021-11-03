@@ -8,7 +8,7 @@ export default {
    */
   getPlioLink(plioId, activeWorkspace) {
     if (plioId == "") return "";
-    var baseURL = process.env.VUE_APP_FRONTEND + "/#";
+    var baseURL = process.env.VUE_APP_FRONTEND;
     baseURL = baseURL.replace("http://", "");
     baseURL = baseURL.replace("https://", "");
     if (activeWorkspace != "") baseURL += "/" + activeWorkspace;
@@ -35,7 +35,7 @@ export default {
    */
   getPlioEmbedLink(plioId, activeWorkspace) {
     if (plioId == "") return "";
-    var baseURL = process.env.VUE_APP_FRONTEND + "/#";
+    var baseURL = process.env.VUE_APP_FRONTEND;
     if (activeWorkspace != "") baseURL += "/" + activeWorkspace;
     return baseURL + "/plio/" + plioId;
   },
