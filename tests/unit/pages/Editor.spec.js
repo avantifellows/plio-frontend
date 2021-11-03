@@ -6,6 +6,7 @@ import Plio from "@/pages/Embeds/Plio.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
+import Utilities from "@/services/Functional/Utilities.js";
 import {
   dummyDraftPlio,
   dummyItems,
@@ -116,7 +117,7 @@ describe("Editor.vue", () => {
     ).toBeTruthy();
   });
 
-  it("shows published + home + preview buttons when video ID is added", async () => {
+  it("shows publish + home + preview buttons when video ID is added", async () => {
     const wrapper = mount(Editor, {
       shallow: true,
       data() {
@@ -142,6 +143,72 @@ describe("Editor.vue", () => {
     ).toBeTruthy();
     expect(wrapper.find('[data-test="homeButton"]').exists()).toBeTruthy();
     expect(wrapper.find('[data-test="publishButton"]').exists()).toBeTruthy();
+  });
+
+  it("also shows copy draft link button when video ID is added for org workspace", async () => {
+    const wrapper = mount(Editor, {
+      shallow: true,
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
+
+    // set active workspace to 'test'
+    await store.dispatch("auth/setActiveWorkspace", "test");
+
+    // things that should not be visible
+    expect(wrapper.find('[data-test="sharePlioButton]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="playPlioButton"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="embedPlioButton]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="analyseButton]').exists()).toBeFalsy();
+
+    // things that should be visible
+    expect(
+      wrapper.find('[data-test="plioPreviewButton"]').exists()
+    ).toBeTruthy();
+    expect(wrapper.find('[data-test="homeButton"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="publishButton"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="copyDraftButton"]').exists()).toBeTruthy();
+  });
+
+  it("clicking on copy draft link button copies draft link in org workspace", async () => {
+    const copyToClipboard = jest
+      .spyOn(Utilities, "copyToClipboard")
+      .mockImplementation(() => {});
+
+    const plioId = "123";
+    const activeWorkspace = "test";
+    const wrapper = mount(Editor, {
+      shallow: true,
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+      props: {
+        plioId: plioId,
+        org: activeWorkspace,
+      },
+    });
+
+    // editor goes into pending = true state upon loading
+    // this resets pending to false
+    await store.dispatch("sync/stopLoading");
+
+    // set active workspace
+    await store.dispatch("auth/setActiveWorkspace", activeWorkspace);
+
+    await wrapper.find('[data-test="copyDraftButton"]').trigger("click");
+    let draftLink = `${process.env.VUE_APP_FRONTEND}/#/${activeWorkspace}/edit/${plioId}`;
+    draftLink = draftLink.replace("http://", "");
+    draftLink = draftLink.replace("https://", "");
+    expect(copyToClipboard).toHaveBeenCalledWith(draftLink);
   });
 
   it("share + play + embed buttons appear on publishing", async () => {

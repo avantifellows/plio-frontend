@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import store from "@/store";
 import i18n from "@/services/Localisation/i18n.js";
 import { useToast } from "vue-toastification";
@@ -122,7 +122,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   base: process.env.VUE_APP_FRONTEND,
   routes,
 });
@@ -134,6 +134,10 @@ The code below works on `isAuthenticated` state and before every route:
 1. Redirects user to login if user is not authenticated and visits a page that requires authentication (route.meta.requiresAuth)
 2. Redirects user to home if user is already logged in and visiting a page that is intended for guest (route.meta.guest)
 */
+
+router.onError((to, from) => {
+  console.log(to, from);
+});
 
 router.beforeEach((to, from) => {
   // clear all toasts whenever the route changes
