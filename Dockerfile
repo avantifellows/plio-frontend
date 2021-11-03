@@ -2,7 +2,6 @@
 FROM node@sha256:dc92f36e7cd917816fa2df041d4e9081453366381a00f40398d99e9392e78664 as base-stage
 WORKDIR /app
 COPY package*.json ./
-COPY nginx.conf ./
 # install dependencies for npm run test:unit
 RUN apk --no-cache --virtual tmp add python3 make g++ && npm install && apk del tmp
 
@@ -53,5 +52,7 @@ RUN npm run build
 # multi-stage Dockerfile inspired from: https://vuejs.org/v2/cookbook/dockerize-vuejs-app.html
 FROM nginx:stable-alpine as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY nginx.conf .
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;", "-c", "/app/nginx.conf"]
+# need to configure nginx for using history mode: https://next.router.vuejs.org/guide/essentials/history-mode.html#html5-mode
+CMD ["nginx", "-g", "daemon off;", "-c", "./nginx.conf"]
