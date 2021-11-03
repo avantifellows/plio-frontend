@@ -135,10 +135,6 @@ The code below works on `isAuthenticated` state and before every route:
 2. Redirects user to home if user is already logged in and visiting a page that is intended for guest (route.meta.guest)
 */
 
-router.onError((to, from) => {
-  console.log(to, from);
-});
-
 router.beforeEach((to, from) => {
   // clear all toasts whenever the route changes
   toast.clear();
