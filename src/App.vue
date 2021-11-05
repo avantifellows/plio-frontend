@@ -43,6 +43,7 @@
             :buttonClass="createButtonClass"
             class="rounded-md shadow-lg"
             @click="createNewPlio"
+            :isDisabled="pending"
           ></icon-button>
         </div>
 
