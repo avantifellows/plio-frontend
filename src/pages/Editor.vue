@@ -1186,11 +1186,11 @@ export default {
     ]),
     ...mapActions("generic", ["showSharePlioDialog", "showEmbedPlioDialog"]),
     ...Utilities,
+    /**
+     * copies the plio draft link to the clipboard
+     */
     copyPlioDraftLink() {
-      // copies the link to the clipboard
-      var success = Utilities.copyToClipboard(
-        this.getPlioDraftLink(this.plioId, this.org)
-      );
+      let success = this.copyToClipboard(this.getPlioDraftLink(this.plioId, this.org));
 
       if (success) this.toast.success(this.$t("success.copying"));
       else this.toast.error(this.$t("error.copying"));
