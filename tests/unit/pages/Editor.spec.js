@@ -178,9 +178,8 @@ describe("Editor.vue", () => {
   });
 
   it("clicking on copy draft link button copies draft link in org workspace", async () => {
-    const copyToClipboard = jest
-      .spyOn(Utilities, "copyToClipboard")
-      .mockImplementation(() => {});
+    // mock document.execCommand
+    document.execCommand = jest.fn();
 
     const plioId = "123";
     const activeWorkspace = "test";
@@ -208,7 +207,10 @@ describe("Editor.vue", () => {
     let draftLink = `${process.env.VUE_APP_FRONTEND}/${activeWorkspace}/edit/${plioId}`;
     draftLink = draftLink.replace("http://", "");
     draftLink = draftLink.replace("https://", "");
-    expect(copyToClipboard).toHaveBeenCalledWith(draftLink);
+    expect(document.execCommand).toHaveBeenCalledWith("copy");
+    expect(wrapper.vm.getPlioDraftLink(wrapper.vm.plioId, wrapper.vm.org)).toBe(
+      draftLink
+    );
   });
 
   it("share + play + embed buttons appear on publishing", async () => {
