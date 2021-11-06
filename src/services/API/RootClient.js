@@ -81,7 +81,7 @@ client.interceptors.response.use(
 
     // Handle expired/deleted access token here
     if (status === 401) {
-      // reAuthenticate the user if this is the first reAuthentication call. While reAuthentication is going on
+      // re-authenticate the user if this is the first re-authentication call. While re-authentication is going on
       // if some other request ends up here, then wait for the reAuthentication process to finish. Once that is done,
       // set the newly retrieved access token as an auth header and retry the request. Any errors in the reauthentication
       // process are caught and the user is logged out.
