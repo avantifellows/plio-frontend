@@ -33,7 +33,7 @@ export default {
       }
     } catch (e) {
       // an error occured in the process of refreshing the access token.
-      // We'll mark the re authentication process as dropped and throw an error
+      // We'll mark the re-authentication process as dropped and throw an error
       store.dispatch("auth/setReAuthenticationState", "dropped");
       throw new Error(e);
     }
