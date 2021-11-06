@@ -23,7 +23,7 @@ export default {
       let response = await UserAPIService.refreshAccessToken();
       if (response != undefined && response.data != undefined) {
         // set the recieved access token into the store
-        // and mark the re authentication process as completed.
+        // and mark the re-authentication process as completed.
         // We will also resolve the pending reAuthenticationPromise so the code
         // that is waiting for the promises to resolve can proceed
         store.dispatch("auth/setAccessToken", response.data);
