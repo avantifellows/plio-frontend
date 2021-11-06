@@ -133,7 +133,7 @@ client.interceptors.response.use(
       // the reason why we're not using the above try/catch logic as it as and why
       // we're wrapping it into an async function
       // https://itnext.io/error-handling-with-async-await-in-js-26c3f20bc06a
-      return run();
+      return handleReAuthentication();
     }
 
     ErrorHandling.handleAPIErrors(error);
