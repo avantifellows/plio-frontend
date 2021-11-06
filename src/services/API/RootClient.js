@@ -85,7 +85,7 @@ client.interceptors.response.use(
       // if some other request ends up here, then wait for the re-authentication process to finish. Once that is done,
       // set the newly retrieved access token as an auth header and retry the request. Any errors in the re-authentication
       // process are caught and the user is logged out.
-      let run = async () => {
+      let handleReAuthentication = async () => {
         try {
           let reAuthenticationState = store.state.auth.reAuthenticationState;
           switch (reAuthenticationState) {
