@@ -146,9 +146,9 @@ export default {
   },
   async created() {
     // whenever the app is set up (on a fresh page load)
-    // reset the re authentication state. This is required because if in the
-    // previous run, if the user exited while the re authentication was in process,
-    // the re authentication state is set as `in-process` in the store and the next
+    // reset the reAuthenticationState. This is required because if in the
+    // previous run, if the user exited while the re-authentication was in process,
+    // the reAuthenticationState is set as `in-process` in the store and the next
     // time user reloads, the value will remain the same
     this.setReAuthenticationState("not-started");
 
