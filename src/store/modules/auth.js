@@ -67,37 +67,37 @@ const getters = {
 
 const actions = {
   async setAccessToken({ commit, dispatch }, accessToken) {
-    await commit("setAccessToken", accessToken);
+    commit("setAccessToken", accessToken);
     await dispatch("fetchAndUpdateUser");
   },
-  async unsetAccessToken({ commit, dispatch }) {
-    await commit("unsetAccessToken");
+  unsetAccessToken({ commit, dispatch }) {
+    commit("unsetAccessToken");
     dispatch("unsetUser");
     dispatch("unsetAnalyticsAccessToken");
   },
-  async setUser({ commit }, user) {
-    await commit("setUser", user);
+  setUser({ commit }, user) {
+    commit("setUser", user);
   },
-  async unsetUser({ commit }) {
-    await commit("unsetUser");
+  unsetUser({ commit }) {
+    commit("unsetUser");
   },
-  async setActiveWorkspace({ commit }, activeWorkspace) {
-    await commit("setActiveWorkspace", activeWorkspace);
+  setActiveWorkspace({ commit }, activeWorkspace) {
+    commit("setActiveWorkspace", activeWorkspace);
   },
-  async unsetActiveWorkspace({ commit }) {
-    await commit("unsetActiveWorkspace");
+  unsetActiveWorkspace({ commit }) {
+    commit("unsetActiveWorkspace");
   },
-  async saveConfig({ commit }, config) {
-    await commit("saveConfig", config);
+  saveConfig({ commit }, config) {
+    commit("saveConfig", config);
   },
-  async setReAuthenticationState({ commit }, state) {
-    await commit("setReAuthenticationState", state);
+  setReAuthenticationState({ commit }, state) {
+    commit("setReAuthenticationState", state);
   },
-  async setReAuthenticationPromise({ commit }, promise) {
-    await commit("setReAuthenticationPromise", promise);
+  setReAuthenticationPromise({ commit }, promise) {
+    commit("setReAuthenticationPromise", promise);
   },
-  async setReAuthenticationPromiseResolver({ commit }, resolver) {
-    await commit("setReAuthenticationPromiseResolver", resolver);
+  setReAuthenticationPromiseResolver({ commit }, resolver) {
+    commit("setReAuthenticationPromiseResolver", resolver);
   },
   updateUserStatus({ commit }, status) {
     commit("updateUserStatus", status);
@@ -106,7 +106,7 @@ const actions = {
     let response = await UserAPIService.getUserByAccessToken(
       state.accessToken.access_token
     );
-    if (response != undefined) await dispatch("setUser", response.data);
+    if (response != undefined) dispatch("setUser", response.data);
   },
   async getAnalyticsAccessToken({ commit }) {
     let response = await AnalyticsAPIService.getAnalyticsAccessToken();
@@ -115,8 +115,8 @@ const actions = {
   unsetAnalyticsAccessToken({ commit }) {
     commit("unsetAnalyticsAccessToken");
   },
-  async autoLogoutUser({ dispatch }) {
-    await dispatch("unsetAccessToken");
+  autoLogoutUser({ dispatch }) {
+    dispatch("unsetAccessToken");
   },
 };
 
