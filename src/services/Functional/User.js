@@ -11,7 +11,7 @@ export default {
       reAuthenticationPromiseResolver = resolve;
     });
 
-    // save the above created promise and it's resolver into the store
+    // save the above created promise and its resolver into the store
     store.dispatch("auth/setReAuthenticationPromise", reAuthenticationPromise);
     store.dispatch(
       "auth/setReAuthenticationPromiseResolver",
