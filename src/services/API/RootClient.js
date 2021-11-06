@@ -90,7 +90,7 @@ client.interceptors.response.use(
           let reAuthenticationState = store.state.auth.reAuthenticationState;
           switch (reAuthenticationState) {
             case "dropped":
-              // re authentication process was dropped, throw an error.
+              // re-authentication process was dropped, throw an error.
               throw new Error(
                 "Re-authentication failed, no more calls allowed"
               );
