@@ -272,7 +272,7 @@ export default {
               },
             });
             thirdPartyAuthPromiseResolve();
-          } else this.$router.replace({ name: "404", params: {} });
+          } else this.$router.replace({ name: "404" });
         });
     } else thirdPartyAuthPromiseResolve();
 
