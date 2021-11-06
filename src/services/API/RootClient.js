@@ -95,17 +95,15 @@ client.interceptors.response.use(
                 "Re-authentication failed, no more calls allowed"
               );
             case "in-process":
-              // re authentication process in progress. Wait for the promise to resolve,
-              // then proceed
+              // re-authentication process in progress. Wait for the promise to resolve,
               await store.state.auth.reAuthenticationPromise;
               break;
             case "not-started":
-              // fresh re authentication process to begin now. Wait for the process to complete,
-              // then proceed
+              // fresh re-authentication process to begin now. Wait for the process to complete,
               await UserFunctionalService.reAuthenticate(store);
               break;
           }
-          // Add the new access token recieved from the re authentication process
+          // Add the new access token recieved from the re-authentication process
           // to the header of the request and retry the request
           let newAccessToken = store.state.auth.accessToken.access_token;
           error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
@@ -116,8 +114,8 @@ client.interceptors.response.use(
           }
           return client.request(error.config); // retrying the request
         } catch (err) {
-          // an error occured in the re authentication process
-          // reset the reAuthenticationState value, so any future reAuthentication processes
+          // an error occured in the re-authentication process
+          // reset the reAuthenticationState value, so any future re-authentication processes
           // can function normally
           store.dispatch("auth/setReAuthenticationState", "not-started");
           // if the user is still logged in, log them out
