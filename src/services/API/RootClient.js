@@ -52,7 +52,7 @@ client.interceptors.request.use(
 // handle errors in responses for API requests
 client.interceptors.response.use(
   (config) => {
-    // reset reAuthenticationState to it's original value whenever any request returns
+    // reset reAuthenticationState to its original value whenever any request returns
     // a non error response code. Make sure not to do this for refresh token call
     if (config.config.url != refreshTokenEndpoint)
       store.dispatch("auth/setReAuthenticationState", "not-started");
