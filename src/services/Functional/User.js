@@ -5,7 +5,7 @@ export default {
     // set reAuthentication state as in progress
     store.dispatch("auth/setReAuthenticationState", "in-process");
 
-    // create a promise and store it's resolver in a separate variable
+    // create a promise and store its resolver in a separate variable
     let reAuthenticationPromiseResolver;
     let reAuthenticationPromise = new Promise((resolve) => {
       reAuthenticationPromiseResolver = resolve;
