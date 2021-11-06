@@ -2,7 +2,7 @@ import UserAPIService from "@/services/API/User.js";
 
 export default {
   async reAuthenticate(store) {
-    // set re Authentication state as in progress
+    // set reAuthentication state as in progress
     store.dispatch("auth/setReAuthenticationState", "in-process");
 
     // create a promise and store it's resolver in a separate variable
