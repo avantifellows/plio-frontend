@@ -2,17 +2,28 @@ export default {
   /**
    * Returns the link to the Player for a plio
    *
-   * @param {String} plioId ID of the plio for which the embed code is needed
-   * @param {String} activeWorkspace the currently active workspace
+   * @param {String} plioId - ID of the plio whose player link is needed
+   * @param {String} activeWorkspace - the currently active workspace
    * @returns {String}
    */
   getPlioLink(plioId, activeWorkspace) {
     if (plioId == "") return "";
-    var baseURL = process.env.VUE_APP_FRONTEND + "/#";
+    var baseURL = process.env.VUE_APP_FRONTEND;
     baseURL = baseURL.replace("http://", "");
     baseURL = baseURL.replace("https://", "");
     if (activeWorkspace != "") baseURL += "/" + activeWorkspace;
     return baseURL + "/play/" + plioId;
+  },
+
+  /**
+   * Returns the link to the Editor for a plio
+   *
+   * @param {String} plioId - ID of the plio whose editor link is needed
+   * @param {String} activeWorkspace - the currently active workspace
+   * @returns {String}
+   */
+  getPlioDraftLink(plioId, activeWorkspace) {
+    return this.getPlioLink(plioId, activeWorkspace).replace("play", "edit");
   },
 
   /**
@@ -24,7 +35,7 @@ export default {
    */
   getPlioEmbedLink(plioId, activeWorkspace) {
     if (plioId == "") return "";
-    var baseURL = process.env.VUE_APP_FRONTEND + "/#";
+    var baseURL = process.env.VUE_APP_FRONTEND;
     if (activeWorkspace != "") baseURL += "/" + activeWorkspace;
     return baseURL + "/plio/" + plioId;
   },

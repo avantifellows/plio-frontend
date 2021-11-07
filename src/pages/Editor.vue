@@ -48,6 +48,16 @@
             data-test="plioPreviewButton"
           ></icon-button>
 
+          <!-- copy draft link -->
+          <icon-button
+            v-if="!isPublished && !isPersonalWorkspace"
+            :titleConfig="copyDraftTitleClass"
+            :iconConfig="copyDraftIconConfig"
+            :buttonClass="copyDraftButtonClass"
+            @click="copyPlioDraftLink"
+            data-test="copyDraftButton"
+          ></icon-button>
+
           <!-- embed plio -->
           <icon-button
             v-if="isPublished"
@@ -162,9 +172,9 @@
         >
           <!--- button to go back to home -->
           <icon-button
-            :titleConfig="backButtonTitleConfig"
+            :titleConfig="homeButtonTitleConfig"
             :iconConfig="homeIconConfig"
-            :buttonClass="backButtonClass"
+            :buttonClass="homeButtonClass"
             @click="returnToHome"
             data-test="homeButton"
           ></icon-button>
@@ -473,8 +483,9 @@ import Utilities, {
   throwConfetti,
   resetConfetti,
 } from "@/services/Functional/Utilities.js";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 import debounce from "debounce";
+import { useToast } from "vue-toastification";
 
 // importing the confetti.js module
 const confetti = require("canvas-confetti");
@@ -605,6 +616,8 @@ export default {
       },
       // styling class for the play plio button
       playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
+      // styling class for the copy draft button
+      copyDraftButtonClass: "bg-yellow-300 hover:bg-yellow-400 p-2 px-4 rounded-md",
       // styling class for the embed plio button
       embedPlioButtonClass: "bg-brown hover:bg-dark-brown p-2 px-4 rounded-md",
       // styling class for the analyze plio button
@@ -616,6 +629,12 @@ export default {
         enabled: true,
         iconName: "play",
         iconClass: "text-white fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
+      },
+      copyDraftIconConfig: {
+        // config for the icon of the copy draft link button
+        enabled: true,
+        iconName: "link",
+        iconClass: "text-yellow-800 fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
       },
       embedPlioIconConfig: {
         // config for the icon of the embed plio button
@@ -649,6 +668,7 @@ export default {
       isPlioPreviewLoaded: false, // whether the plio preview has been loaded
       // class for the button to close the dialog that comes after publishing
       confettiHandler: confettiHandler,
+      toast: useToast(), // use the toast component
     };
   },
   async created() {
@@ -720,6 +740,7 @@ export default {
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
+    ...mapGetters("auth", ["isPersonalWorkspace"]),
     /**
      * whether the spinner needs to be shown
      */
@@ -818,6 +839,15 @@ export default {
       return {
         value: this.$t("editor.buttons.preview_plio"),
         class: "text-sm bp-420:text-base text-white",
+      };
+    },
+    /**
+     * styling class for the title of copy draft link button
+     */
+    copyDraftTitleClass() {
+      return {
+        value: this.$t("editor.buttons.share_draft"),
+        class: "text-sm bp-420:text-base text-yellow-800",
       };
     },
     /**
@@ -974,15 +1004,15 @@ export default {
       };
     },
     /**
-     * classes for the back button
+     * classes for the home button
      */
-    backButtonClass() {
+    homeButtonClass() {
       return "p-2 bp-420:px-4 bg-peach hover:bg-peach-hover rounded-md shadow-lg ring-primary";
     },
     /**
-     * config for text of back button
+     * config for text of the home button
      */
-    backButtonTitleConfig() {
+    homeButtonTitleConfig() {
       return {
         value: this.$t("editor.buttons.home"),
         class: "text-yellow-800 font-bold text-sm bp-420:text-base",
@@ -1156,6 +1186,15 @@ export default {
     ]),
     ...mapActions("generic", ["showSharePlioDialog", "showEmbedPlioDialog"]),
     ...Utilities,
+    /**
+     * copies the plio draft link to the clipboard
+     */
+    copyPlioDraftLink() {
+      let success = this.copyToClipboard(this.getPlioDraftLink(this.plioId, this.org));
+
+      if (success) this.toast.success(this.$t("success.copying"));
+      else this.toast.error(this.$t("error.copying"));
+    },
     /**
      * Iterates through all items, extracts the times and populates itemTimestamps array
      */

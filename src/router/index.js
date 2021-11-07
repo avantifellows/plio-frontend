@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import store from "@/store";
 import i18n from "@/services/Localisation/i18n.js";
 import { useToast } from "vue-toastification";
@@ -107,6 +107,12 @@ const routes = [
     props: { type: "404" },
   },
   {
+    path: "/403-access-denied",
+    name: "403",
+    component: () => import(/* webpackChunkName: "error" */ "@/pages/Error"),
+    props: { type: "403" },
+  },
+  {
     // Refer to: https://stackoverflow.com/a/64186073/7870587
     path: "/:pathMatch(.*)*",
     redirect: {
@@ -116,7 +122,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   base: process.env.VUE_APP_FRONTEND,
   routes,
 });
