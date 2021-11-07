@@ -45,6 +45,7 @@ export default {
       preview_plio: "Preview",
       embed_plio: "Embed",
       analyze_plio: "Analyze",
+      share_draft: "Copy Draft Link",
     },
     updated: "Updated at",
     item_editor: {
@@ -341,7 +342,19 @@ export default {
     },
   },
   error: {
-    404: "Page Not Found",
+    404: {
+      title: "Page Not Found",
+      description:
+        "We were unable to find what you are looking for. You can try going back to your home.",
+    },
+    403: {
+      title: "Access Denied",
+      description:
+        "You do not have the permission to access this page. If you are not a part of the organisational workspace, please contact the organisation's admin to get yourself added or you can go back to your home.",
+    },
+    buttons: {
+      home: "Go to Home",
+    },
     create_plio: "Could not create Plio. Please try again",
     generic: "Something went wrong. Please try again!",
     internet: "Please check your internet connection",

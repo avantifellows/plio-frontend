@@ -43,6 +43,7 @@
             :buttonClass="createButtonClass"
             class="rounded-md shadow-lg"
             @click="createNewPlio"
+            :isDisabled="pending"
           ></icon-button>
         </div>
 
@@ -164,6 +165,11 @@ export default {
     window.removeEventListener("beforeunload", this.onClose);
   },
   mounted() {
+    // remove hash from the url if it is present
+    if (location.hash) {
+      location.replace(location.hash.replace("#", ""));
+    }
+
     // set locale based on their config
     UserConfigService.setLocaleFromUserConfig();
   },
