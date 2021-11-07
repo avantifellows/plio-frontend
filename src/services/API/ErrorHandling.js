@@ -10,5 +10,6 @@ export default {
       // do not show toast for embedded plio
       toast.error(i18n.global.t("error.internet"));
     } else if (error.response.status === 404) router.replace({ name: "404" });
+    else if (error.response.status === 403) router.replace({ name: "403" });
   },
 };
