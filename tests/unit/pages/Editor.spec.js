@@ -6,7 +6,6 @@ import Plio from "@/pages/Embeds/Plio.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
-import Utilities from "@/services/Functional/Utilities.js";
 import {
   dummyDraftPlio,
   dummyItems,
