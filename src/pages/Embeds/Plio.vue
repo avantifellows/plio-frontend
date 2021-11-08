@@ -1064,7 +1064,7 @@ export default {
       var eventData = {
         type: eventType,
         details: eventDetails,
-        player_time: this.player.currentTime == null ? this.player.currentTime : 0,
+        player_time: this.player.currentTime != null ? this.player.currentTime : 0,
         session: this.sessionDBId,
       };
       EventAPIService.createEvent(eventData);
