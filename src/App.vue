@@ -146,6 +146,13 @@ export default {
     };
   },
   async created() {
+    // whenever the app is set up (on a fresh page load)
+    // reset the reAuthenticationState. This is required because if in the
+    // previous run, if the user exited while the re-authentication was in process,
+    // the reAuthenticationState is set as `in-process` in the store and the next
+    // time user reloads, the value will remain the same
+    this.setReAuthenticationState("not-started");
+
     // reset the value of pending while creating the component
     if (this.pending) this.stopLoading();
     // reset the value of whether background is disabled
@@ -253,6 +260,7 @@ export default {
       "unsetAccessToken",
       "fetchAndUpdateUser",
       "unsetActiveWorkspace",
+      "setReAuthenticationState",
     ]),
     ...mapActions("generic", [
       "unsetSharePlioDialog",
