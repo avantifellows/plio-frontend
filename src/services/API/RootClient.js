@@ -54,7 +54,7 @@ client.interceptors.response.use(
   (config) => {
     // reset reAuthenticationState to its original value whenever any request returns
     // a non-error response code. Make sure not to do this for refresh token call
-    if (config.config.url != refreshTokenEndpoint)
+    if (config.config.url != refreshTokenEndpoint && store.state.auth.reAuthenticationState != "not-started")
       store.dispatch("auth/setReAuthenticationState", "not-started");
     return config;
   },
