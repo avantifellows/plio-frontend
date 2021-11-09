@@ -344,6 +344,7 @@
       @confirm="dialogConfirmed"
       @cancel="dialogCancelled"
       @close="resetDialogBox"
+      v-click-away="resetDialogBox"
       data-test="dialogBox"
     ></dialog-box>
     <!-- image uploader dialog box -->
