@@ -29,6 +29,34 @@ describe("DialogBox.vue", () => {
     expect(wrapper.get('[data-test="description"]').text()).toBe(description);
   });
 
+  it("shows close button if mentioned in prop", async () => {
+    const wrapper = mount(DialogBox);
+
+    // close button shouldn't be shown
+    expect(wrapper.find('[data-test="closeButton"]').exists()).toBeFalsy();
+
+    await wrapper.setProps({
+      isCloseButtonShown: true,
+    });
+
+    // close button should be shown
+    expect(wrapper.find('[data-test="closeButton"]').exists()).toBeTruthy();
+  });
+
+  it("clicking close button emits message", async () => {
+    const wrapper = mount(DialogBox, {
+      props: {
+        isCloseButtonShown: true,
+      },
+    });
+
+    // click close button
+    await wrapper.find('[data-test="closeButton"]').trigger("click");
+
+    // close button should be shown
+    expect(wrapper.emitted()).toHaveProperty("close");
+  });
+
   it("renders image correctly", () => {
     const iconClass = "w-12 h-12";
     const wrapper = mount(DialogBox, {

@@ -340,8 +340,11 @@
       :description="dialogDescription"
       :confirmButtonConfig="dialogConfirmButtonConfig"
       :cancelButtonConfig="dialogCancelButtonConfig"
+      :isCloseButtonShown="isDialogCloseButtonShown"
       @confirm="dialogConfirmed"
       @cancel="dialogCancelled"
+      @close="resetDialogBox"
+      v-click-away="resetDialogBox"
       data-test="dialogBox"
     ></dialog-box>
     <!-- image uploader dialog box -->
@@ -574,6 +577,7 @@ export default {
       minUpdateInterval: 1000, // minimum time in milliseconds between updates
       isBeingPublished: false, // whether the current plio is in the process of being published
       isDialogBoxShown: false, // whether to show dialog box
+      isDialogCloseButtonShown: false, // whether to show the close button of the dialog box
       dialogTitle: "", // title for the dialog box
       dialogDescription: "", // description for the dialog box
       dialogConfirmButtonConfig: {}, // config for the confirm button of the dialog box
@@ -1773,6 +1777,7 @@ export default {
       // set dialog properties
       this.dialogTitle = this.publishDialogTitle;
       this.dialogDescription = this.publishDialogDescription;
+      this.isDialogCloseButtonShown = true;
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t(`editor.dialog.publish.${this.status}.confirm`),
@@ -1827,6 +1832,7 @@ export default {
       this.isDialogBoxShown = false;
       this.dialogDescription = "";
       this.dialogBoxClass = "";
+      this.isDialogCloseButtonShown = false;
     },
     /**
      * cancels the deletion of the marked option
