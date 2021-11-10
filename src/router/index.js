@@ -136,9 +136,19 @@ The code below works on `isAuthenticated` state and before every route:
 */
 
 router.beforeEach((to, from) => {
-  // don't clear the toasts if the network connection toasts are visible
-  // otherwise clear all toasts whenever the route changes
-  if (!store.getters["generic/isNetworkToastVisible"]) toast.clear();
+  // clear all toasts whenever the route changes
+  toast.clear();
+
+  // if internet is down, show the internet lost toast
+  if (window.Offline.state == "down")
+    toast.error(i18n.global.t("error.internet_lost"), {
+      id: "internetLostToast",
+      position: "bottom-center",
+      timeout: false,
+      closeOnClick: false,
+      draggable: false,
+      closeButton: false,
+    });
 
   // clear all confetti whenever the route changes
   if (animationFrameRequest != null) resetConfetti();

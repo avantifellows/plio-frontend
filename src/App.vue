@@ -168,16 +168,16 @@ export default {
     }
 
     // add event listeners to track if network connection went up or down
-    window.Offline.on("down", this.showOfflineToast);
-    window.Offline.on("up", this.showOnlineToast);
+    window.Offline.on("down", this.showInternetLostToast);
+    window.Offline.on("up", this.showInternetRestoredToast);
   },
   beforeUnmount() {
     // remove the listener for the event of closing of the browser
     window.removeEventListener("beforeunload", this.onClose);
 
     // remove the listeners set to track network connection
-    window.Offline.off("down", this.showOfflineToast);
-    window.Offline.off("up", this.showOnlineToast);
+    window.Offline.off("down", this.showInternetLostToast);
+    window.Offline.off("up", this.showInternetRestoredToast);
   },
   mounted() {
     // remove hash from the url if it is present
@@ -274,51 +274,35 @@ export default {
       "unsetSharePlioDialog",
       "unsetEmbedPlioDialog",
       "enableBackground",
-      "setNetworkDownToastID",
-      "setNetworkUpToastID",
-      "unsetNetworkDownToastID",
-      "unsetNetworkUpToastID",
     ]),
     ...mapActions("sync", ["stopLoading"]),
     /**
      * Show a toast telling the user that the internet connection went down
      */
-    showOfflineToast() {
-      // dismiss and unset the networkUp toast if it exists
-      if (this.networkUpToastID != null) {
-        this.toast.dismiss(this.networkUpToastID);
-        this.unsetNetworkUpToastID();
-      }
-      // show a networkDown toast and set it's ID in the store
-      let networkDownToastID = this.toast.error(this.$t("error.internet_lost"), {
+    showInternetLostToast() {
+      // dismiss the internet restored toast if it exists
+      this.toast.dismiss("internetRestoredToast");
+      // show a internet lost toast
+      this.toast.error(this.$t("error.internet_lost"), {
+        id: "internetLostToast",
         position: "bottom-center",
         timeout: false,
         closeOnClick: false,
         draggable: false,
         closeButton: false,
       });
-      this.setNetworkDownToastID(networkDownToastID);
     },
     /**
      * Show a toast telling the user that the internet connection is up now
      */
-    showOnlineToast() {
-      // dismiss and unset the networkDown toast if it exists
-      if (this.networkDownToastID != null) {
-        this.toast.dismiss(this.networkDownToastID);
-        this.unsetNetworkDownToastID();
-      }
-      // show a networkUp toast and set it's ID in the store
-      let toastTimeout = 5000;
-      let networkUpToastID = this.toast.success(this.$t("error.internet_found"), {
+    showInternetRestoredToast() {
+      // dismiss the internet lost toast if it exists
+      this.toast.dismiss("internetLostToast");
+      // show an internet restored toast
+      this.toast.success(this.$t("error.internet_restored"), {
+        id: "internetRestoredToast",
         position: "bottom-center",
-        timeout: toastTimeout,
       });
-      this.setNetworkUpToastID(networkUpToastID);
-      // Wait for the networkUp toast to die, then unset it from the store
-      setTimeout(() => {
-        this.unsetNetworkUpToastID();
-      }, toastTimeout);
     },
     logoutButtonClicked() {
       // set whether the logout action as triggered by the user or not
@@ -411,8 +395,6 @@ export default {
       "plioLinkToShare",
       "plioIdToEmbed",
       "isBackgroundDisabled",
-      "networkDownToastID",
-      "networkUpToastID",
     ]),
     ...mapState("sync", ["pending"]),
     navBarClass() {

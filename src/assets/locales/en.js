@@ -358,7 +358,7 @@ export default {
     create_plio: "Could not create Plio. Please try again",
     generic: "Something went wrong. Please try again!",
     internet_lost: "Your device lost it's internet connection",
-    internet_found: "Your device is connected to the internet!",
+    internet_restored: "Your device is connected to the internet!",
     copying: "Error while copying",
     auto_logout: "You have been logged out!",
   },
