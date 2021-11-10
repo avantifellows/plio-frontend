@@ -9,7 +9,7 @@ const state = {
 };
 const getters = {
   /**
-   * Returns true if any of the network connecion toasts is visible on screen
+   * Whether any of the network connection toasts is visible on screen
    */
   isNetworkToastVisible: (state) => {
     return state.networkDownToastID != null || state.networkUpToastID != null;
