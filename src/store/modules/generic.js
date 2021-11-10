@@ -4,8 +4,17 @@ const state = {
   isBackgroundDisabled: false,
   plioLinkToShare: null,
   plioIdToEmbed: null, // uuid of the plio to be embedded
+  networkDownToastID: null,
+  networkUpToastID: null,
 };
-const getters = {};
+const getters = {
+  /**
+   * Returns true if any of the network connecion toasts is visible on screen
+   */
+  isNetworkToastVisible: (state) => {
+    return state.networkDownToastID != null || state.networkUpToastID != null;
+  },
+};
 const actions = {
   async showSharePlioDialog({ commit, dispatch }, plioLink) {
     await commit("setPlioLinkToShare", plioLink);
@@ -33,6 +42,18 @@ const actions = {
   enableBackground({ commit }) {
     commit("enableBackground");
   },
+  setNetworkDownToastID({ commit }, toastID) {
+    commit("setNetworkDownToastID", toastID);
+  },
+  setNetworkUpToastID({ commit }, toastID) {
+    commit("setNetworkUpToastID", toastID);
+  },
+  unsetNetworkDownToastID({ commit }) {
+    commit("unsetNetworkDownToastID");
+  },
+  unsetNetworkUpToastID({ commit }) {
+    commit("unsetNetworkUpToastID");
+  },
 };
 
 const mutations = {
@@ -59,6 +80,18 @@ const mutations = {
   },
   enableBackground(state) {
     state.isBackgroundDisabled = false;
+  },
+  setNetworkDownToastID(state, toastID) {
+    state.networkDownToastID = toastID;
+  },
+  setNetworkUpToastID(state, toastID) {
+    state.networkUpToastID = toastID;
+  },
+  unsetNetworkDownToastID(state) {
+    state.networkDownToastID = null;
+  },
+  unsetNetworkUpToastID(state) {
+    state.networkUpToastID = null;
   },
 };
 

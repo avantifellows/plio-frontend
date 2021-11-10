@@ -136,8 +136,9 @@ The code below works on `isAuthenticated` state and before every route:
 */
 
 router.beforeEach((to, from) => {
-  // clear all toasts whenever the route changes
-  toast.clear();
+  // don't clear the toasts if the network connection toasts are visible
+  // otherwise clear all toasts whenever the route changes
+  if (!store.getters["generic/isNetworkToastVisible"]) toast.clear();
 
   // clear all confetti whenever the route changes
   if (animationFrameRequest != null) resetConfetti();

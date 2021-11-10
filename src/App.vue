@@ -166,10 +166,18 @@ export default {
     if (this.locale == null && this.isAuthenticated) {
       this.showLanguagePickerDialog = true;
     }
+
+    // add event listeners to track if network connection went up or down
+    window.Offline.on("down", this.showOfflineToast);
+    window.Offline.on("up", this.showOnlineToast);
   },
   beforeUnmount() {
     // remove the listener for the event of closing of the browser
     window.removeEventListener("beforeunload", this.onClose);
+
+    // remove the listeners set to track network connection
+    window.Offline.off("down", this.showOfflineToast);
+    window.Offline.off("up", this.showOnlineToast);
   },
   mounted() {
     // remove hash from the url if it is present
@@ -266,8 +274,58 @@ export default {
       "unsetSharePlioDialog",
       "unsetEmbedPlioDialog",
       "enableBackground",
+      "setNetworkDownToastID",
+      "setNetworkUpToastID",
+      "unsetNetworkDownToastID",
+      "unsetNetworkUpToastID",
     ]),
     ...mapActions("sync", ["stopLoading"]),
+    /**
+     * Show a toast telling the user that the internet connection went down
+     */
+    showOfflineToast() {
+      // dismiss and unset the networkUp toast if it exists
+      if (this.networkUpToastID != null) {
+        this.toast.dismiss(this.networkUpToastID);
+        this.unsetNetworkUpToastID();
+      }
+      // show a networkDown toast and set it's ID in the store
+      let networkDownToastID = this.toast.error(
+        "Your device lost it's internet connection",
+        {
+          position: "bottom-center",
+          timeout: false,
+          closeOnClick: false,
+          draggable: false,
+          closeButton: false,
+        }
+      );
+      this.setNetworkDownToastID(networkDownToastID);
+    },
+    /**
+     * Show a toast telling the user that the internet connection is up now
+     */
+    showOnlineToast() {
+      // dismiss and unset the networkDown toast if it exists
+      if (this.networkDownToastID != null) {
+        this.toast.dismiss(this.networkDownToastID);
+        this.unsetNetworkDownToastID();
+      }
+      // show a networkUp toast and set it's ID in the store
+      let toastTimeout = 5000;
+      let networkUpToastID = this.toast.success(
+        "Your device is connected to the internet!",
+        {
+          position: "bottom-center",
+          timeout: toastTimeout,
+        }
+      );
+      this.setNetworkUpToastID(networkUpToastID);
+      // Wait for the networkUp toast to die, then unset it from the store
+      setTimeout(() => {
+        this.unsetNetworkUpToastID();
+      }, toastTimeout);
+    },
     logoutButtonClicked() {
       // set whether the logout action as triggered by the user or not
       this.userClickedLogout = true;
@@ -359,6 +417,8 @@ export default {
       "plioLinkToShare",
       "plioIdToEmbed",
       "isBackgroundDisabled",
+      "networkDownToastID",
+      "networkUpToastID",
     ]),
     ...mapState("sync", ["pending"]),
     navBarClass() {
