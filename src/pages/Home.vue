@@ -102,6 +102,9 @@ export default {
       searchString: "", // the search string to filter the plios on
       sortByField: undefined, // string which holds the field to sort the plios on
       currentPageNumber: 1, // holds the current page number
+      // class for the create button
+      createButtonClass:
+        "bg-primary hover:bg-primary-hover rounded-lg h-14 w-40 sm:h-20 sm:w-60 ring-primary px-2",
     };
   },
   async created() {
@@ -113,16 +116,12 @@ export default {
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
-    createButtonTextConfig() {
-      // config for the text of the main create button
+    createButtonEmptyTextConfig() {
+      // config for the text of the create button shown when no plios have been created
       return {
         value: this.$t("home.create_button_empty"),
         class: "text-lg md:text-xl lg:text-2xl text-white",
       };
-    },
-    createButtonClass() {
-      // class for the create button
-      return "bg-primary hover:bg-primary-hover rounded-lg h-14 w-40 sm:h-20 sm:w-60 ring-primary px-2";
     },
     tableTitle() {
       // title for the table of all plios
