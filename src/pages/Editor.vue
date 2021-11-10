@@ -6,9 +6,12 @@
       :class="{ 'opacity-30 pointer-events-none': isBackgroundDisabled }"
       data-test="blurDiv"
     >
-      <div class="w-full flex justify-between" :class="{ invisible: !isVideoIdValid }">
+      <div
+        class="w-full flex justify-between mx-6"
+        :class="{ invisible: !isVideoIdValid }"
+      >
         <!--- text to show updated time status -->
-        <p class="m-2 sm:m-4 text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
+        <p class="my-2 sm:my-4 text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
           {{ syncStatusText }}
         </p>
       </div>
@@ -154,7 +157,7 @@
           <!-- info for subjective question -->
           <div
             v-if="isQuestionTypeSubjective"
-            class="mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
+            class="mt-6 sm:mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
           >
             <!-- icon -->
             <inline-svg
@@ -352,7 +355,7 @@
 
     <!--- publish/draft badge -->
     <simple-badge
-      class="fixed top-6"
+      class="absolute -top-12"
       :text="statusBadge"
       :badgeClass="statusBadgeClass"
       v-tooltip.top="statusBadgeTooltip"
@@ -757,8 +760,8 @@ export default {
      */
     lowerButtonsContainerClass() {
       return {
-        "my-4 sm:my-10": !this.isQuestionTypeSubjective,
-        "my-2 sm:my-8": this.isQuestionTypeSubjective,
+        "my-6 sm:my-10": !this.isQuestionTypeSubjective,
+        "my-4 sm:my-8": this.isQuestionTypeSubjective,
       };
     },
     /**
