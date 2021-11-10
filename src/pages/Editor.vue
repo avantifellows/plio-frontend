@@ -2,332 +2,328 @@
   <!--- base grid -->
   <div class="flex relative justify-center md:mx-4 lg:mx-10 xl:mx-20">
     <div
-      class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
+      class="flex flex-col w-full"
       :class="{ 'opacity-30 pointer-events-none': isBackgroundDisabled }"
       data-test="blurDiv"
     >
-      <!--- preview grid -->
       <div
-        class="flex flex-col mx-6 z-0"
-        :class="{ 'mt-6': !isVideoIdValid }"
-        data-test="previewDiv"
+        class="w-full flex justify-between mx-6"
+        :class="{ invisible: !isVideoIdValid }"
       >
-        <div
-          class="my-8 flex justify-center space-x-1 bp-360:space-x-2 sm:space-x-4"
-          v-if="isVideoIdValid"
-          data-test="upperButtons"
-        >
-          <!-- share plio -->
-          <icon-button
-            v-if="isPublished"
-            :titleConfig="sharePlioTitleClass"
-            :iconConfig="sharePlioIconConfig"
-            :buttonClass="sharePlioButtonClass"
-            @click="showSharePlioLinkDialog"
-            data-test="sharePlioButton"
-          ></icon-button>
-
-          <!-- play plio -->
-          <icon-button
-            v-if="isPublished"
-            :titleConfig="playPlioTitleClass"
-            :iconConfig="playPlioIconConfig"
-            :buttonClass="playPlioButtonClass"
-            @click="redirectToPlayer"
-            data-test="playPlioButton"
-          ></icon-button>
-
-          <!-- preview plio -->
-          <icon-button
-            v-if="!isPublished"
-            :titleConfig="plioPreviewTitleClass"
-            :iconConfig="playPlioIconConfig"
-            :buttonClass="playPlioButtonClass"
-            :isDisabled="uploading"
-            @click="togglePlioPreviewMode"
-            data-test="plioPreviewButton"
-          ></icon-button>
-
-          <!-- copy draft link -->
-          <icon-button
-            v-if="!isPublished && !isPersonalWorkspace"
-            :titleConfig="copyDraftTitleClass"
-            :iconConfig="copyDraftIconConfig"
-            :buttonClass="copyDraftButtonClass"
-            @click="copyPlioDraftLink"
-            data-test="copyDraftButton"
-          ></icon-button>
-
-          <!-- embed plio -->
-          <icon-button
-            v-if="isPublished"
-            :titleConfig="embedPlioTitleClass"
-            :iconConfig="embedPlioIconConfig"
-            :buttonClass="embedPlioButtonClass"
-            @click="showEmbedPlio"
-            data-test="embedPlioButton"
-          ></icon-button>
-        </div>
-
-        <div class="justify-center" data-test="video">
-          <!--- video preview -->
-          <div
-            v-if="!isVideoIdValid"
-            class="flex justify-center"
-            data-test="videoPreviewSkeleton"
-          >
-            <div class="flex relative justify-center items-center w-full">
-              <div
-                class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-96 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
-              ></div>
-              <div class="absolute flex flex-col items-center">
-                <inline-svg
-                  :src="getImageSource('youtube.svg')"
-                  class="h-16 w-16 bp-420:w-24 bp-420:h-24 bp-500:w-32 bp-500:h-32 md:w-24 md:h-24 lg:w-32 lg:h-32"
-                ></inline-svg>
-                <p class="text-sm bp-420:text-base">{{ $t("generic.preview") }}</p>
-              </div>
-            </div>
-          </div>
-          <div v-else data-test="videoPreview">
-            <div class="relative">
-              <!-- video player -->
-              <video-player
-                :videoId="videoId"
-                :plyrConfig="plyrConfig"
-                :id="editorVideoPlayerElementId"
-                @update="videoTimestampUpdated"
-                @ready="playerReady"
-                @play="playerPlayed"
-                ref="videoPlayer"
-                class="z-0"
-                data-test="videoPlayer"
-              ></video-player>
-              <!-- maximize button -->
-              <transition name="maximize-btn-transition" data-test="transitionMaximize">
-                <icon-button
-                  v-if="showItemModal && isModalMinimized"
-                  :titleConfig="maximizeButtonTitleClass"
-                  :buttonClass="maximizeButtonClass"
-                  @click="maximizeModal"
-                  class="absolute z-20"
-                  id="maximizeButton"
-                  data-test="maximizeButton"
-                ></icon-button>
-              </transition>
-              <!-- transition for minimizing/maximizing item modal -->
-              <transition enter-active-class="grow" leave-active-class="shrink">
-                <!-- item modal component -->
-                <item-modal
-                  v-if="!isModalMinimized"
-                  id="editorModal"
-                  class="absolute z-10 inset-0 border-2"
-                  :class="{ hidden: !showItemModal }"
-                  :selectedItemIndex="currentItemIndex"
-                  :itemList="items"
-                  :itemDetailList="itemDetails"
-                  :previewMode="true"
-                  :videoPlayerElementId="editorVideoPlayerElementId"
-                  @toggle-minimize="minimizeModal"
-                  data-test="itemModal"
-                ></item-modal>
-              </transition>
-            </div>
-            <!--- slider with question markers -->
-            <slider-with-markers
-              :end="videoDuration"
-              :step="sliderStep"
-              v-model:value="currentTimestamp"
-              v-model:markerPositions="itemTimestamps"
-              @marker-selected="itemSelected"
-              @marker-drag-end="itemMarkerTimestampDragEnd"
-              @update="sliderUpdated"
-              ref="slider"
-              :isDragDisabled="isPublished"
-            ></slider-with-markers>
-          </div>
-        </div>
-        <!-- info for subjective question -->
-        <div
-          v-if="isQuestionTypeSubjective"
-          class="mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
-        >
-          <!-- icon -->
-          <inline-svg
-            :src="getImageSource('exclamation-circle-solid.svg')"
-            class="w-10 h-10 text-yellow-600 fill-current"
-          ></inline-svg>
-          <!-- text -->
-          <p class="text-yellow-600 my-auto">
-            {{ $t("editor.headings.subjective_question_warning") }}
-          </p>
-        </div>
-
-        <!--- buttons below the preview -->
-        <div
-          class="flex justify-center space-x-1 bp-360:space-x-2"
-          :class="lowerButtonsContainerClass"
-          v-if="isVideoIdValid"
-          data-test="lowerButtons"
-        >
-          <!--- button to go back to home -->
-          <icon-button
-            :titleConfig="homeButtonTitleConfig"
-            :iconConfig="homeIconConfig"
-            :buttonClass="homeButtonClass"
-            @click="returnToHome"
-            data-test="homeButton"
-          ></icon-button>
-          <!--- publish button -->
-          <icon-button
-            :titleConfig="publishButtonTitleConfig"
-            :iconConfig="publishButtonIconConfig"
-            :class="publishButtonClass"
-            class="shadow-lg"
-            v-tooltip.right="publishButtonTooltip"
-            @click="showPublishConfirmationDialogBox"
-            data-test="publishButton"
-          ></icon-button>
-          <!-- analyze plio -->
-          <icon-button
-            v-if="isPublished"
-            :titleConfig="analyzePlioTitleConfig"
-            :iconConfig="analyzePlioIconConfig"
-            :buttonClass="analyzePlioButtonClass"
-            @click="redirectToDashboard"
-            data-test="analyseButton"
-          ></icon-button>
-        </div>
+        <!--- text to show updated time status -->
+        <p class="my-2 sm:my-4 text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
+          {{ syncStatusText }}
+        </p>
       </div>
 
-      <!--- input grid -->
-      <div class="flex flex-col m-5 justify-start" data-test="inputDiv">
-        <div class="grid gap-y-4" data-test="meta">
-          <!-- info about pasting youtube link -->
+      <div class="grid grid-cols-1 md:grid-cols-2 items-stretch">
+        <!--- preview grid -->
+        <div class="flex flex-col mx-6 z-0" data-test="previewDiv">
           <div
-            class="flex items-center space-x-2 bg-primary rounded-lg p-4"
-            v-if="!isVideoIdValid && !pending"
-            data-test="videoLinkInfo"
-          >
-            <inline-svg
-              :src="getImageSource('publish.svg')"
-              class="w-12 h-12 text-white fill-current"
-            ></inline-svg>
-            <p class="text-white text-xs bp-500:text-base md:text-sm lg:text-base">
-              {{ $t("editor.video_input.info.1") }}
-              <a
-                href="https://youtube.com/upload"
-                target="_blank"
-                class="underline font-bold"
-                rel="noopener"
-                >{{ $t("editor.video_input.info.2") }}</a
-              >
-              {{ $t("editor.video_input.info.3") }}
-            </p>
-          </div>
-          <div class="flex w-full justify-between" v-else>
-            <!--- publish/draft badge -->
-            <simple-badge
-              :text="statusBadge"
-              :badgeClass="statusBadgeClass"
-              v-tooltip.top="statusBadgeTooltip"
-            ></simple-badge>
-            <!--- text to show updated time status -->
-            <p class="text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
-              {{ syncStatusText }}
-            </p>
-          </div>
-
-          <!--- video link -->
-          <input-text
-            :placeholder="videoInputPlaceholder"
-            :title="videoInputTitle"
-            :validation="videoInputValidation"
-            v-model:value="videoURL"
-            ref="videoLink"
-            :boxStyling="videoLinkInputStyling"
-            :isDisabled="isPublished"
-            v-tooltip.top="videoLinkTooltip"
-            data-test="videoLinkInput"
-          ></input-text>
-
-          <!--- plio title -->
-          <input-text
-            :placeholder="titleInputPlaceholder"
-            :title="titleInputTitle"
-            v-model:value="plioTitle"
-            ref="title"
-            :boxStyling="'pl-4'"
+            class="mt-4 mb-6 sm:mb-8 flex justify-center space-x-1 bp-360:space-x-2 sm:space-x-4"
             v-if="isVideoIdValid"
-            data-test="plioName"
-          ></input-text>
-        </div>
-
-        <div
-          class="flex justify-center py-2 mt-8 sm:mt-10 mb-16"
-          v-if="isVideoIdValid"
-          data-test="itemDiv"
-        >
-          <!-- boxes for adding different types of items -->
-          <div
-            class="bg-peach rounded-lg p-4 bp-360:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
-            :class="itemPickerClass"
-            v-if="currentItemIndex == null"
+            data-test="upperButtons"
           >
-            <div class="flex flex-col items-center">
-              <p class="text-yellow-900 text-xl font-bold">
-                {{ $t("editor.headings.add_question") }}
-              </p>
-              <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
-                <button
-                  :disabled="addItemDisabled"
-                  @click="addNewItem('mcq')"
-                  class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
-                  :class="questionTypeSelectorClass"
-                  v-tooltip.bottom="addMCQTooltip"
-                  data-test="addMCQItem"
-                >
+            <!-- share plio -->
+            <icon-button
+              v-if="isPublished"
+              :titleConfig="sharePlioTitleClass"
+              :iconConfig="sharePlioIconConfig"
+              :buttonClass="sharePlioButtonClass"
+              @click="showSharePlioLinkDialog"
+              data-test="sharePlioButton"
+            ></icon-button>
+
+            <!-- play plio -->
+            <icon-button
+              v-if="isPublished"
+              :titleConfig="playPlioTitleClass"
+              :iconConfig="playPlioIconConfig"
+              :buttonClass="playPlioButtonClass"
+              @click="redirectToPlayer"
+              data-test="playPlioButton"
+            ></icon-button>
+
+            <!-- preview plio -->
+            <icon-button
+              v-if="!isPublished"
+              :titleConfig="plioPreviewTitleClass"
+              :iconConfig="playPlioIconConfig"
+              :buttonClass="playPlioButtonClass"
+              :isDisabled="uploading"
+              @click="togglePlioPreviewMode"
+              data-test="plioPreviewButton"
+            ></icon-button>
+
+            <!-- copy draft link -->
+            <icon-button
+              v-if="!isPublished && !isPersonalWorkspace"
+              :titleConfig="copyDraftTitleClass"
+              :iconConfig="copyDraftIconConfig"
+              :buttonClass="copyDraftButtonClass"
+              @click="copyPlioDraftLink"
+              data-test="copyDraftButton"
+            ></icon-button>
+
+            <!-- embed plio -->
+            <icon-button
+              v-if="isPublished"
+              :titleConfig="embedPlioTitleClass"
+              :iconConfig="embedPlioIconConfig"
+              :buttonClass="embedPlioButtonClass"
+              @click="showEmbedPlio"
+              data-test="embedPlioButton"
+            ></icon-button>
+          </div>
+
+          <div class="justify-center" data-test="video">
+            <!--- video preview -->
+            <div
+              v-if="!isVideoIdValid"
+              class="flex justify-center"
+              data-test="videoPreviewSkeleton"
+            >
+              <div class="flex relative justify-center items-center w-full">
+                <div
+                  class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-96 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
+                ></div>
+                <div class="absolute flex flex-col items-center">
                   <inline-svg
-                    :src="getImageSource('radio-button.svg')"
-                    class="h-4 w-4 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                    :src="getImageSource('youtube.svg')"
+                    class="h-16 w-16 bp-420:w-24 bp-420:h-24 bp-500:w-32 bp-500:h-32 md:w-24 md:h-24 lg:w-32 lg:h-32"
                   ></inline-svg>
-                  <p class="font-bold text-center">{{ $t("generic.mcq") }}</p>
-                </button>
-                <button
-                  :disabled="addItemDisabled"
-                  @click="addNewItem('subjective')"
-                  class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
-                  :class="questionTypeSelectorClass"
-                  v-tooltip.bottom="addSubjectiveQuestionTooltip"
-                  data-test="addSubjectiveItem"
-                >
-                  <inline-svg
-                    :src="getImageSource('subjective-question.svg')"
-                    class="w-20 fill-current text-primary group-hover:text-white group-disabled:text-primary"
-                  ></inline-svg>
-                  <p class="font-bold text-center">{{ $t("generic.subjective") }}</p>
-                </button>
+                  <p class="text-sm bp-420:text-base">{{ $t("generic.preview") }}</p>
+                </div>
               </div>
             </div>
+            <div v-else data-test="videoPreview">
+              <div class="relative">
+                <!-- video player -->
+                <video-player
+                  :videoId="videoId"
+                  :plyrConfig="plyrConfig"
+                  :id="editorVideoPlayerElementId"
+                  @update="videoTimestampUpdated"
+                  @ready="playerReady"
+                  @play="playerPlayed"
+                  ref="videoPlayer"
+                  class="z-0"
+                  data-test="videoPlayer"
+                ></video-player>
+                <!-- maximize button -->
+                <transition name="maximize-btn-transition" data-test="transitionMaximize">
+                  <icon-button
+                    v-if="showItemModal && isModalMinimized"
+                    :titleConfig="maximizeButtonTitleClass"
+                    :buttonClass="maximizeButtonClass"
+                    @click="maximizeModal"
+                    class="absolute z-20"
+                    id="maximizeButton"
+                    data-test="maximizeButton"
+                  ></icon-button>
+                </transition>
+                <!-- transition for minimizing/maximizing item modal -->
+                <transition enter-active-class="grow" leave-active-class="shrink">
+                  <!-- item modal component -->
+                  <item-modal
+                    v-if="!isModalMinimized"
+                    id="editorModal"
+                    class="absolute z-10 inset-0 border-2"
+                    :class="{ hidden: !showItemModal }"
+                    :selectedItemIndex="currentItemIndex"
+                    :itemList="items"
+                    :itemDetailList="itemDetails"
+                    :previewMode="true"
+                    :videoPlayerElementId="editorVideoPlayerElementId"
+                    @toggle-minimize="minimizeModal"
+                    data-test="itemModal"
+                  ></item-modal>
+                </transition>
+              </div>
+              <!--- slider with question markers -->
+              <slider-with-markers
+                :end="videoDuration"
+                :step="sliderStep"
+                v-model:value="currentTimestamp"
+                v-model:markerPositions="itemTimestamps"
+                @marker-selected="itemSelected"
+                @marker-drag-end="itemMarkerTimestampDragEnd"
+                @update="sliderUpdated"
+                ref="slider"
+                :isDragDisabled="isPublished"
+              ></slider-with-markers>
+            </div>
           </div>
-          <!--- item editor  -->
-          <item-editor
-            v-if="hasAnyItems && currentItemIndex != null"
-            v-model:itemList="items"
-            v-model:itemDetailList="itemDetails"
-            v-model:selectedItemIndex="currentItemIndex"
-            :videoDuration="videoDuration"
-            :isInteractionDisabled="isPublished"
-            v-model:questionTypeIndex="currentQuestionTypeIndex"
-            @update:selectedItemIndex="navigateToItem"
-            @delete-selected-item="showDeleteItemDialogBox"
-            @delete-option="deleteOption"
-            @error-occurred="setErrorOccurred"
-            @error-resolved="setErrorResolved"
-            @question-type-changed="questionTypeChanged"
-            @show-image-uploader="toggleImageUploaderBox"
-            data-test="itemEditor"
-          ></item-editor>
+          <!-- info for subjective question -->
+          <div
+            v-if="isQuestionTypeSubjective"
+            class="mt-6 sm:mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
+          >
+            <!-- icon -->
+            <inline-svg
+              :src="getImageSource('exclamation-circle-solid.svg')"
+              class="w-10 h-10 text-yellow-600 fill-current"
+            ></inline-svg>
+            <!-- text -->
+            <p class="text-yellow-600 my-auto">
+              {{ $t("editor.headings.subjective_question_warning") }}
+            </p>
+          </div>
+
+          <!--- buttons below the preview -->
+          <div
+            class="flex justify-center space-x-1 bp-360:space-x-2"
+            :class="lowerButtonsContainerClass"
+            v-if="isVideoIdValid"
+            data-test="lowerButtons"
+          >
+            <!--- button to go back to home -->
+            <icon-button
+              :titleConfig="homeButtonTitleConfig"
+              :iconConfig="homeIconConfig"
+              :buttonClass="homeButtonClass"
+              @click="returnToHome"
+              data-test="homeButton"
+            ></icon-button>
+            <!--- publish button -->
+            <icon-button
+              :titleConfig="publishButtonTitleConfig"
+              :iconConfig="publishButtonIconConfig"
+              :class="publishButtonClass"
+              class="shadow-lg"
+              v-tooltip.right="publishButtonTooltip"
+              @click="showPublishConfirmationDialogBox"
+              data-test="publishButton"
+            ></icon-button>
+            <!-- analyze plio -->
+            <icon-button
+              v-if="isPublished"
+              :titleConfig="analyzePlioTitleConfig"
+              :iconConfig="analyzePlioIconConfig"
+              :buttonClass="analyzePlioButtonClass"
+              @click="redirectToDashboard"
+              data-test="analyseButton"
+            ></icon-button>
+          </div>
+        </div>
+
+        <!--- input grid -->
+        <div class="flex flex-col mx-4 justify-start" data-test="inputDiv">
+          <div class="grid gap-y-4" data-test="meta">
+            <!-- info about pasting youtube link -->
+            <div
+              class="flex items-center space-x-2 bg-primary rounded-lg p-4"
+              v-if="!isVideoIdValid && !pending"
+              data-test="videoLinkInfo"
+            >
+              <inline-svg
+                :src="getImageSource('publish.svg')"
+                class="w-12 h-12 text-white fill-current"
+              ></inline-svg>
+              <p class="text-white text-xs bp-500:text-base md:text-sm lg:text-base">
+                {{ $t("editor.video_input.info.1") }}
+                <a
+                  href="https://youtube.com/upload"
+                  target="_blank"
+                  class="underline font-bold"
+                  rel="noopener"
+                  >{{ $t("editor.video_input.info.2") }}</a
+                >
+                {{ $t("editor.video_input.info.3") }}
+              </p>
+            </div>
+
+            <!--- video link -->
+            <input-text
+              :placeholder="videoInputPlaceholder"
+              :title="videoInputTitle"
+              :validation="videoInputValidation"
+              v-model:value="videoURL"
+              ref="videoLink"
+              :boxStyling="videoLinkInputStyling"
+              :isDisabled="isPublished"
+              v-tooltip.top="videoLinkTooltip"
+              data-test="videoLinkInput"
+            ></input-text>
+
+            <!--- plio title -->
+            <input-text
+              :placeholder="titleInputPlaceholder"
+              :title="titleInputTitle"
+              v-model:value="plioTitle"
+              ref="title"
+              :boxStyling="'pl-4'"
+              v-if="isVideoIdValid"
+              data-test="plioName"
+            ></input-text>
+          </div>
+
+          <div
+            class="flex justify-center py-2 mt-8 sm:mt-10 mb-16"
+            v-if="isVideoIdValid"
+            data-test="itemDiv"
+          >
+            <!-- boxes for adding different types of items -->
+            <div
+              class="bg-peach rounded-lg p-4 bp-360:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
+              :class="itemPickerClass"
+              v-if="currentItemIndex == null"
+            >
+              <div class="flex flex-col items-center">
+                <p class="text-yellow-900 text-xl font-bold">
+                  {{ $t("editor.headings.add_question") }}
+                </p>
+                <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
+                  <button
+                    :disabled="addItemDisabled"
+                    @click="addNewItem('mcq')"
+                    class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
+                    :class="questionTypeSelectorClass"
+                    v-tooltip.bottom="addMCQTooltip"
+                    data-test="addMCQItem"
+                  >
+                    <inline-svg
+                      :src="getImageSource('radio-button.svg')"
+                      class="h-4 w-4 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                    ></inline-svg>
+                    <p class="font-bold text-center">{{ $t("generic.mcq") }}</p>
+                  </button>
+                  <button
+                    :disabled="addItemDisabled"
+                    @click="addNewItem('subjective')"
+                    class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
+                    :class="questionTypeSelectorClass"
+                    v-tooltip.bottom="addSubjectiveQuestionTooltip"
+                    data-test="addSubjectiveItem"
+                  >
+                    <inline-svg
+                      :src="getImageSource('subjective-question.svg')"
+                      class="w-20 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                    ></inline-svg>
+                    <p class="font-bold text-center">{{ $t("generic.subjective") }}</p>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!--- item editor  -->
+            <item-editor
+              v-if="hasAnyItems && currentItemIndex != null"
+              v-model:itemList="items"
+              v-model:itemDetailList="itemDetails"
+              v-model:selectedItemIndex="currentItemIndex"
+              :videoDuration="videoDuration"
+              :isInteractionDisabled="isPublished"
+              v-model:questionTypeIndex="currentQuestionTypeIndex"
+              @update:selectedItemIndex="navigateToItem"
+              @delete-selected-item="showDeleteItemDialogBox"
+              @delete-option="deleteOption"
+              @error-occurred="setErrorOccurred"
+              @error-resolved="setErrorResolved"
+              @question-type-changed="questionTypeChanged"
+              @show-image-uploader="toggleImageUploaderBox"
+              data-test="itemEditor"
+            ></item-editor>
+          </div>
         </div>
       </div>
     </div>
@@ -356,6 +352,14 @@
       @delete-image="deleteLinkedImage"
       data-test="imageUploaderDialog"
     ></ImageUploaderDialog>
+
+    <!--- publish/draft badge -->
+    <simple-badge
+      class="absolute -top-12"
+      :text="statusBadge"
+      :badgeClass="statusBadgeClass"
+      v-tooltip.top="statusBadgeTooltip"
+    ></simple-badge>
 
     <canvas
       id="sharePlioConfettiCanvas"
@@ -756,8 +760,8 @@ export default {
      */
     lowerButtonsContainerClass() {
       return {
-        "my-10": !this.isQuestionTypeSubjective,
-        "my-8": this.isQuestionTypeSubjective,
+        "my-6 sm:my-10": !this.isQuestionTypeSubjective,
+        "my-4 sm:my-8": this.isQuestionTypeSubjective,
       };
     },
     /**
@@ -976,14 +980,13 @@ export default {
      * class for the status badge
      */
     statusBadgeClass() {
-      var badgeClass = {
-        "text-green-700 border-green-700": this.isPublished,
-        "border-black text-black": !this.isPublished,
-        "text-xs": true,
-        "lg:text-base": true,
-        "px-4 py-2": true,
-      };
-      return badgeClass;
+      return [
+        {
+          "text-green-700 border-green-700": this.isPublished,
+          "border-black text-black": !this.isPublished,
+        },
+        `text-base px-4 py-2`,
+      ];
     },
     /**
      * tooltip for the status badge
