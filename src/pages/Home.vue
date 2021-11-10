@@ -85,13 +85,13 @@ export default {
   },
   data() {
     return {
-      tableColumns: ["name", "number_of_viewers"], // columns for the table
+      tableColumns: ["name", "views"], // columns for the table
       tableData: [],
       countUniqueUsersList: [], // holds the number of unique users for all the plios fetched
       // dummy table data - to show skeletons when data is being loaded
       dummyTableData: Array(5).fill({
         name: { type: "component", value: "" },
-        number_of_viewers: "-",
+        views: "-",
       }),
       showTable: true, // whether to show the table or not
       confirmIcon: require("@/assets/images/check-circle-regular.svg"),
@@ -257,7 +257,7 @@ export default {
               };
               break;
 
-            case "number_of_viewers":
+            case "views":
               tableRow[column] = this.countUniqueUsersList[plioIndex];
               break;
           }

@@ -192,7 +192,7 @@ export default {
     table: {
       columns: {
         name: "name",
-        number_of_viewers: "Number of Viewers",
+        views: "Views",
       },
       plio_list_item: {
         buttons: {

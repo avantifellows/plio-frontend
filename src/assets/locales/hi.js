@@ -194,7 +194,7 @@ export default {
     table: {
       columns: {
         name: "नाम",
-        number_of_viewers: "दर्शको की संख्या",
+        views: "व्यूज",
       },
       plio_list_item: {
         buttons: {

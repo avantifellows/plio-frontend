@@ -9,7 +9,7 @@
         class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white"
         :class="navBarClass"
       >
-        <!-- hamburger -->
+        <!-- menu icon -->
         <icon-button
           v-if="isAuthenticated"
           :iconConfig="menuButtonIconConfig"
@@ -26,12 +26,8 @@
           </div>
         </div>
       </div>
-      <div :class="{ 'grid grid-cols-5': isMenuShown }">
-        <div
-          class="p-4 border-r-2 flex flex-col h-screen"
-          v-if="isMenuShown"
-          v-click-away="toggleMenuButton"
-        >
+      <div :class="{ 'grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5': isMenuShown }">
+        <div class="p-4 border-r-2 flex flex-col h-screen" v-if="isMenuShown">
           <!-- workspace switcher -->
           <div class="place-self-center w-full" v-if="showWorkspaceSwitcher">
             <WorkspaceSwitcher
@@ -46,6 +42,16 @@
             :buttonClass="createButtonClass"
             class="rounded-md shadow-lg my-4"
             @click="createNewPlio"
+            :isDisabled="pending"
+          ></icon-button>
+
+          <!-- home button -->
+          <icon-button
+            class="place-self-start"
+            :iconConfig="homeButtonIconConfig"
+            :titleConfig="homeButtonTextConfig"
+            :buttonClass="menuButtonsClass"
+            @click="redirectToHome"
             :isDisabled="pending"
           ></icon-button>
 
@@ -89,7 +95,7 @@
             :isDisabled="pending"
           ></icon-button>
         </div>
-        <router-view :class="{ 'col-span-4': isMenuShown }" />
+        <router-view :class="{ 'col-span-2 lg:col-span-3 xl:col-span-4': isMenuShown }" />
       </div>
     </div>
     <!-- first-time language picker -->
@@ -164,11 +170,10 @@ export default {
       // class for the create button
       createButtonClass:
         "bg-primary hover:bg-primary-hover rounded-lg w-full ring-primary p-2 py-4",
-      menuButtonClass: "rounded-lg ring-primary w-16 p-2",
       isMenuButtonPressed: true,
       menuButtonsClass: "rounded-lg ring-primary p-2 py-4",
       menuButtonsIconClass: "text-gray-500 fill-current h-6 w-6",
-      menuButtonsTextClass: "text-md md:text-lg lg:text-xl ml-4 text-gray-500",
+      menuButtonsTextClass: "text-md md:text-base lg:text-lg ml-4 text-gray-500",
     };
   },
   async created() {
@@ -294,6 +299,9 @@ export default {
       "enableBackground",
     ]),
     ...mapActions("sync", ["stopLoading"]),
+    redirectToHome() {
+      this.$router.push({ name: "Home", params: { org: this.activeWorkspace } });
+    },
     redirectToWhatsNew() {
       window.open("https://plio.substack.com/", "_blank", "noopener");
     },
@@ -424,12 +432,28 @@ export default {
         iconClass: this.menuButtonsIconClass,
       };
     },
+    homeButtonIconConfig() {
+      return {
+        enabled: true,
+        iconName: "home",
+        iconClass: this.menuButtonsIconClass,
+      };
+    },
     whatsNewButtonIconConfig() {
       return {
         enabled: true,
         iconName: "gift",
         iconClass: this.menuButtonsIconClass,
       };
+    },
+    menuButtonClass() {
+      return [
+        {
+          "bg-gray-300": !this.isMenuButtonPressed,
+          "bg-primary": this.isMenuButtonPressed,
+        },
+        `rounded-lg shadow-lg ring-primary w-16 p-2`,
+      ];
     },
     menuButtonIconConfig() {
       // config for the icon of menu button
@@ -442,7 +466,7 @@ export default {
     menuIconClass() {
       return [
         {
-          "text-primary": this.isMenuButtonPressed,
+          "text-white": this.isMenuButtonPressed,
           "text-black": !this.isMenuButtonPressed,
         },
         `fill-current h-8 w-8`,
@@ -476,6 +500,13 @@ export default {
       // config for the product guides button
       return {
         value: this.$t("nav.product_guides"),
+        class: this.menuButtonsTextClass,
+      };
+    },
+    homeButtonTextConfig() {
+      // config for the home button
+      return {
+        value: this.$t("nav.home"),
         class: this.menuButtonsTextClass,
       };
     },
