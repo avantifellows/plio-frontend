@@ -136,7 +136,7 @@ The code below works on `isAuthenticated` state and before every route:
 */
 
 router.beforeEach((to, from) => {
-  // don't clear the toasts if the network connection toasts are visible
+  // don't clear the toasts if the network connection toast is visible
   // otherwise clear all toasts whenever the route changes
   if (!store.getters["generic/isNetworkToastVisible"]) toast.clear();
 
