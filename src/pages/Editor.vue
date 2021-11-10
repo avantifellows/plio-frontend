@@ -355,7 +355,7 @@
 
     <!--- publish/draft badge -->
     <simple-badge
-      class="fixed top-6"
+      class="absolute -top-12"
       :text="statusBadge"
       :badgeClass="statusBadgeClass"
       v-tooltip.top="statusBadgeTooltip"
