@@ -5,6 +5,7 @@ const state = {
   plioLinkToShare: null,
   plioIdToEmbed: null, // uuid of the plio to be embedded
 };
+const getters = {};
 const actions = {
   async showSharePlioDialog({ commit, dispatch }, plioLink) {
     await commit("setPlioLinkToShare", plioLink);
