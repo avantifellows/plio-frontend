@@ -290,16 +290,13 @@ export default {
         this.unsetNetworkUpToastID();
       }
       // show a networkDown toast and set it's ID in the store
-      let networkDownToastID = this.toast.error(
-        "Your device lost it's internet connection",
-        {
-          position: "bottom-center",
-          timeout: false,
-          closeOnClick: false,
-          draggable: false,
-          closeButton: false,
-        }
-      );
+      let networkDownToastID = this.toast.error(this.$t("error.internet_lost"), {
+        position: "bottom-center",
+        timeout: false,
+        closeOnClick: false,
+        draggable: false,
+        closeButton: false,
+      });
       this.setNetworkDownToastID(networkDownToastID);
     },
     /**
@@ -313,13 +310,10 @@ export default {
       }
       // show a networkUp toast and set it's ID in the store
       let toastTimeout = 5000;
-      let networkUpToastID = this.toast.success(
-        "Your device is connected to the internet!",
-        {
-          position: "bottom-center",
-          timeout: toastTimeout,
-        }
-      );
+      let networkUpToastID = this.toast.success(this.$t("error.internet_found"), {
+        position: "bottom-center",
+        timeout: toastTimeout,
+      });
       this.setNetworkUpToastID(networkUpToastID);
       // Wait for the networkUp toast to die, then unset it from the store
       setTimeout(() => {
