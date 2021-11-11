@@ -108,7 +108,7 @@
             :isDisabled="pending"
           ></icon-button>
         </div>
-        <router-view :class="routerViewClass" />
+        <router-view :class="routerViewClass" :key="$route.fullPath" />
       </div>
     </div>
     <!-- first-time language picker -->
@@ -268,7 +268,7 @@ export default {
 
         if (window.innerWidth > 500) this.isMenuButtonPressed = true;
       } else {
-        this.isMenuButtonPressed = false;
+        this.resetMenuPressedState();
       }
     },
     user: {
@@ -316,8 +316,11 @@ export default {
       "enableBackground",
     ]),
     ...mapActions("sync", ["stopLoading"]),
+    resetMenuPressedState() {
+      this.isMenuButtonPressed = false;
+    },
     redirectToHome() {
-      if (window.innerWidth <= 500) this.isMenuButtonPressed = false;
+      if (window.innerWidth <= 500) this.resetMenuPressedState();
       this.$router.push({ name: "Home", params: { org: this.activeWorkspace } });
     },
     redirectToWhatsNew() {
@@ -359,6 +362,7 @@ export default {
           }
         })
         .catch(() => this.toast.error(this.$t("error.create_plio")));
+      this.resetMenuPressedState();
     },
     logoutButtonClicked() {
       // set whether the logout action as triggered by the user or not

@@ -6,19 +6,20 @@
       :class="{ 'opacity-30 pointer-events-none': isBackgroundDisabled }"
       data-test="blurDiv"
     >
-      <div
-        class="w-full flex justify-between px-6"
-        :class="{ invisible: !isVideoIdValid }"
-      >
+      <div class="w-full flex justify-between px-6" :class="{ hidden: !isVideoIdValid }">
         <!--- text to show updated time status -->
         <p class="my-2 sm:my-4 text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
           {{ syncStatusText }}
         </p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 items-stretch">
+      <div class="grid grid-cols-1 bp-500:grid-cols-2 items-stretch">
         <!--- preview grid -->
-        <div class="flex flex-col mx-6 z-0" data-test="previewDiv">
+        <div
+          class="flex flex-col mx-2 sm:mx-4 md:mx-6 z-0"
+          :class="{ 'mt-6': !isVideoIdValid }"
+          data-test="previewDiv"
+        >
           <div
             class="mt-4 mb-6 sm:mb-8 flex justify-center space-x-1 bp-360:space-x-2 sm:space-x-4"
             v-if="isVideoIdValid"
@@ -85,7 +86,7 @@
             >
               <div class="flex relative justify-center items-center w-full">
                 <div
-                  class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-96 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
+                  class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-80 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
                 ></div>
                 <div class="absolute flex flex-col items-center">
                   <inline-svg
@@ -208,7 +209,11 @@
         </div>
 
         <!--- input grid -->
-        <div class="flex flex-col mx-4 justify-start" data-test="inputDiv">
+        <div
+          class="flex flex-col mx-2 sm:mx-4 md:mx-6 justify-start"
+          :class="{ 'mt-6': !isVideoIdValid }"
+          data-test="inputDiv"
+        >
           <div class="grid gap-y-4" data-test="meta">
             <!-- info about pasting youtube link -->
             <div
@@ -265,12 +270,12 @@
           >
             <!-- boxes for adding different types of items -->
             <div
-              class="bg-peach rounded-lg p-4 bp-360:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
+              class="bg-peach rounded-lg p-4 bp-360:p-8 bp-500:p-4 sm:p-8 w-full bp-500:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
               :class="itemPickerClass"
               v-if="currentItemIndex == null"
             >
               <div class="flex flex-col items-center">
-                <p class="text-yellow-900 text-xl font-bold">
+                <p class="text-yellow-900 text-lg sm:text-xl font-bold">
                   {{ $t("editor.headings.add_question") }}
                 </p>
                 <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
@@ -1050,7 +1055,7 @@ export default {
           "opacity-50 cursor-not-allowed pointer-events-none": !this
             .isPublishButtonEnabled,
         },
-        `rounded-md ring-green-500 bg-green-500 hover:bg-green-600 p-2 bp-420:px-4`,
+        `rounded-md ring-green-500 bg-green-500 hover:bg-green-600 p-2 bp-420:px-4 bp-500:px-2 sm:px-4`,
       ];
     },
     /**
@@ -1173,7 +1178,10 @@ export default {
      * styling classes for the video link input box
      */
     videoLinkInputStyling() {
-      return ["pl-4 disabled:opacity-50", { "cursor-not-allowed": this.isPublished }];
+      return [
+        "pl-4 disabled:opacity-50 text-sm bp-500:text-base",
+        { "cursor-not-allowed": this.isPublished },
+      ];
     },
     /**
      * tooltip for the video link input box
