@@ -7,7 +7,7 @@
       data-test="blurDiv"
     >
       <div
-        class="w-full flex justify-between mx-6"
+        class="w-full flex justify-between px-6"
         :class="{ invisible: !isVideoIdValid }"
       >
         <!--- text to show updated time status -->

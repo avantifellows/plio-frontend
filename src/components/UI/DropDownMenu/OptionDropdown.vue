@@ -98,7 +98,7 @@ export default {
       // class for the dropdown icon
       return [
         { "transform rotate-180": this.showDropdown },
-        "transition ease duration-800 text-gray-600",
+        "transition duration-800 text-gray-600",
       ];
     },
   },

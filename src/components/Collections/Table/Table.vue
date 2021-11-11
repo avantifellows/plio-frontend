@@ -78,7 +78,7 @@
                       <div class="p-1 my-auto cursor-pointer">
                         <inline-svg
                           :src="require('@/assets/images/chevron-down-solid.svg')"
-                          class="h-3 w-3 my-1 transition ease duration-800"
+                          class="h-3 w-3 my-1 transition duration-800"
                           :class="getSortIconStyleClass(columnName)"
                         ></inline-svg>
                       </div>

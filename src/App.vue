@@ -6,7 +6,7 @@
       @keydown="keyboardPressed"
     >
       <div
-        class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white"
+        class="grid grid-cols-3 border-b-2 py-2 px-2 border-solid bg-white"
         :class="navBarClass"
       >
         <!-- menu icon -->
@@ -14,21 +14,32 @@
           v-if="isAuthenticated"
           :iconConfig="menuButtonIconConfig"
           :buttonClass="menuButtonClass"
-          class="rounded-md"
+          class="rounded-md border shadow-lg"
           @click="toggleMenuButton"
           :isDisabled="pending"
         ></icon-button>
 
-        <div class="grid col-start-6 col-end-8 justify-items-end sm:col-start-7">
+        <!-- create plio button -->
+        <icon-button
+          v-if="onHomePage"
+          :titleConfig="createButtonMenuTextConfig"
+          :buttonClass="createButtonClass"
+          class="rounded-md shadow-lg bp-500:hidden"
+          @click="createNewPlio"
+          :isDisabled="pending"
+        ></icon-button>
+
+        <div
+          class="grid justify-items-end bp-500:col-span-2"
+          :class="{ 'col-span-2': !onHomePage }"
+        >
           <!-- locale switcher -->
-          <div class="self-center">
-            <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
-          </div>
+          <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
         </div>
       </div>
       <!-- main container -->
       <div :class="gridContainerClass">
-        <div :class="menuContainerClass" v-if="isMenuShown">
+        <div :class="menuContainerClass" v-if="isMenuShown" class="menu">
           <!-- workspace switcher -->
           <div class="place-self-center w-full" v-if="showWorkspaceSwitcher">
             <WorkspaceSwitcher
@@ -42,6 +53,7 @@
             :titleConfig="createButtonMenuTextConfig"
             :buttonClass="createButtonClass"
             class="rounded-md shadow-lg my-4"
+            :class="{ 'hidden bp-500:inline': onHomePage }"
             @click="createNewPlio"
             :isDisabled="pending"
           ></icon-button>
@@ -305,6 +317,7 @@ export default {
     ]),
     ...mapActions("sync", ["stopLoading"]),
     redirectToHome() {
+      if (window.innerWidth <= 500) this.isMenuButtonPressed = false;
       this.$router.push({ name: "Home", params: { org: this.activeWorkspace } });
     },
     redirectToWhatsNew() {
@@ -417,15 +430,17 @@ export default {
     ]),
     ...mapState("sync", ["pending"]),
     routerViewClass() {
-      return {
-        "col-span-2 lg:col-span-3 xl:col-span-4": this.isMenuShownSideways,
-        "opacity-50 pointer-events-none w-full": this.isMenuShownOverlay,
-      };
+      return [
+        {
+          "col-span-2 lg:col-span-3 xl:col-span-4": this.isMenuShownSideways,
+          "opacity-50 pointer-events-none w-full": this.isMenuShownOverlay,
+        },
+      ];
     },
     menuContainerClass() {
       return [
         {
-          "absolute z-10 bg-white": this.isMenuShownOverlay,
+          "absolute z-10 bg-white w-full bp-500:w-auto": this.isMenuShownOverlay,
         },
         `p-2 sm:p-4 border-r-2 flex flex-col h-screen col-span-3 bp-500:col-span-1 h-screen`,
       ];
