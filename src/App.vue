@@ -26,11 +26,9 @@
           </div>
         </div>
       </div>
-      <div :class="{ 'grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5': isMenuShown }">
-        <div
-          class="p-2 sm:p-4 border-r-2 flex flex-col h-screen col-span-3 bp-500:col-span-1 h-screen"
-          v-if="isMenuShown"
-        >
+      <!-- main container -->
+      <div :class="gridContainerClass">
+        <div :class="menuContainerClass" v-if="isMenuShown">
           <!-- workspace switcher -->
           <div class="place-self-center w-full" v-if="showWorkspaceSwitcher">
             <WorkspaceSwitcher
@@ -98,7 +96,7 @@
             :isDisabled="pending"
           ></icon-button>
         </div>
-        <router-view :class="{ 'col-span-2 lg:col-span-3 xl:col-span-4': isMenuShown }" />
+        <router-view :class="routerViewClass" />
       </div>
     </div>
     <!-- first-time language picker -->
@@ -418,6 +416,26 @@ export default {
       "isBackgroundDisabled",
     ]),
     ...mapState("sync", ["pending"]),
+    routerViewClass() {
+      return {
+        "col-span-2 lg:col-span-3 xl:col-span-4": this.isMenuShownSideways,
+        "opacity-50 pointer-events-none w-full": this.isMenuShownOverlay,
+      };
+    },
+    menuContainerClass() {
+      return [
+        {
+          "absolute z-10 bg-white": this.isMenuShownOverlay,
+        },
+        `p-2 sm:p-4 border-r-2 flex flex-col h-screen col-span-3 bp-500:col-span-1 h-screen`,
+      ];
+    },
+    gridContainerClass() {
+      return {
+        "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5": this.isMenuShownSideways,
+        flex: this.isMenuShownOverlay,
+      };
+    },
     logoutButtonIconConfig() {
       return {
         enabled: true,
@@ -480,7 +498,13 @@ export default {
       ];
     },
     isMenuShown() {
-      return this.isAuthenticated && this.isMenuButtonPressed;
+      return this.isMenuShownSideways || this.isMenuShownOverlay;
+    },
+    isMenuShownSideways() {
+      return this.isAuthenticated && this.isMenuButtonPressed && this.onHomePage;
+    },
+    isMenuShownOverlay() {
+      return this.isAuthenticated && this.isMenuButtonPressed && !this.onHomePage;
     },
     createButtonMenuTextConfig() {
       // config for the text of the main create button
