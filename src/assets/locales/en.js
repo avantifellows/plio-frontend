@@ -5,7 +5,7 @@ export default {
     logout: "Logout",
     whats_new: "What's New",
     product_guides: "Product Guides",
-    docs: "Plio Documentation",
+    docs: "Documentation",
     editor: "Editor",
     dashboard: "Dashboard",
     abtesting: "",

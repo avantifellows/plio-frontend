@@ -5,7 +5,7 @@ export default {
     logout: "लॉगआउट",
     whats_new: "नया क्या है",
     product_guides: "उत्पाद गाइड",
-    docs: "प्लायो दस्तावेज़ीकरण",
+    docs: "दस्तावेज़ीकरण",
     editor: "एडिटर",
     dashboard: "डैशबोर्ड",
     abtesting: "",

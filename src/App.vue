@@ -27,7 +27,10 @@
         </div>
       </div>
       <div :class="{ 'grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5': isMenuShown }">
-        <div class="p-4 border-r-2 flex flex-col h-screen" v-if="isMenuShown">
+        <div
+          class="p-2 sm:p-4 border-r-2 flex flex-col h-screen col-span-3 bp-500:col-span-1 h-screen"
+          v-if="isMenuShown"
+        >
           <!-- workspace switcher -->
           <div class="place-self-center w-full" v-if="showWorkspaceSwitcher">
             <WorkspaceSwitcher
@@ -169,11 +172,11 @@ export default {
       userClickedLogout: false, // if the user has clicked the logout button
       // class for the create button
       createButtonClass:
-        "bg-primary hover:bg-primary-hover rounded-lg w-full ring-primary p-2 py-4",
-      isMenuButtonPressed: true,
+        "bg-primary hover:bg-primary-hover rounded-lg w-full ring-primary p-2 sm:py-4",
+      isMenuButtonPressed: false,
       menuButtonsClass: "rounded-lg ring-primary p-2 py-4",
-      menuButtonsIconClass: "text-gray-500 fill-current h-6 w-6",
-      menuButtonsTextClass: "text-md md:text-base lg:text-lg ml-4 text-gray-500",
+      menuButtonsIconClass: "text-gray-500 fill-current h-4 md:h-6 w-4 md:w-6",
+      menuButtonsTextClass: "text-sm md:text-base lg:text-lg ml-4 text-gray-500",
     };
   },
   async created() {
@@ -236,7 +239,7 @@ export default {
       // check if the current user actually belongs to the activeWorkspace
       // set in the store. If not, then redirect to the personal workspace
       if (value) {
-        var isUserInWorkspace = this.user.organizations.some((org) => {
+        let isUserInWorkspace = this.user.organizations.some((org) => {
           // no need to redirect if the user belongs to the workspace
           // or the user is in the personal workspace
           return org.shortcode == this.activeWorkspace || this.activeWorkspace == "";
@@ -252,6 +255,10 @@ export default {
           // make sure to unset the active workspace as well
           this.unsetActiveWorkspace();
         }
+
+        if (window.innerWidth > 500) this.isMenuButtonPressed = true;
+      } else {
+        this.isMenuButtonPressed = false;
       }
     },
     user: {
@@ -479,7 +486,7 @@ export default {
       // config for the text of the main create button
       return {
         value: this.$t("home.create_button"),
-        class: "text-lg md:text-xl lg:text-2xl text-white",
+        class: "text-md sm:text-lg md:text-xl lg:text-2xl text-white",
       };
     },
     logoutButtonTextConfig() {
