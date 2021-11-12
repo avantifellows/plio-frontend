@@ -14,17 +14,16 @@
           v-if="isAuthenticated"
           :iconConfig="menuButtonIconConfig"
           :buttonClass="menuButtonClass"
-          class="rounded-md border shadow-lg"
           @click="toggleMenuButton"
           :isDisabled="pending"
         ></icon-button>
 
-        <!-- create plio button -->
+        <!-- create plio button - visible only in mobile screens -->
         <icon-button
           v-if="onHomePage"
           :titleConfig="createButtonMenuTextConfig"
           :buttonClass="createButtonClass"
-          class="rounded-md shadow-lg bp-500:hidden"
+          class="bp-500:hidden"
           @click="createNewPlio"
           :isDisabled="pending"
         ></icon-button>
@@ -39,7 +38,7 @@
       </div>
       <!-- main container -->
       <div :class="gridContainerClass">
-        <div :class="menuContainerClass" v-if="isMenuShown" class="menu">
+        <div :class="menuContainerClass" v-if="isMenuShown">
           <!-- workspace switcher -->
           <div class="place-self-center w-full" v-if="showWorkspaceSwitcher">
             <WorkspaceSwitcher
@@ -52,7 +51,6 @@
           <icon-button
             :titleConfig="createButtonMenuTextConfig"
             :buttonClass="createButtonClass"
-            class="rounded-md shadow-lg my-4"
             :class="{ 'hidden bp-500:inline': onHomePage }"
             @click="createNewPlio"
             :isDisabled="pending"
@@ -182,8 +180,8 @@ export default {
       userClickedLogout: false, // if the user has clicked the logout button
       // class for the create button
       createButtonClass:
-        "bg-primary hover:bg-primary-hover rounded-lg w-full ring-primary p-2 sm:py-4",
-      isMenuButtonPressed: false,
+        "bg-primary hover:bg-primary-hover rounded-md shadow-lg my-4 w-full ring-primary p-2 sm:py-4",
+      isMenuButtonActive: false,
       menuButtonsClass: "rounded-lg ring-primary p-2 py-4",
       menuButtonsIconClass: "text-gray-500 fill-current h-4 md:h-6 w-4 md:w-6",
       menuButtonsTextClass: "text-sm md:text-base lg:text-lg ml-4 text-gray-500",
@@ -274,9 +272,9 @@ export default {
           this.unsetActiveWorkspace();
         }
 
-        if (window.innerWidth > 500) this.isMenuButtonPressed = true;
+        if (window.innerWidth > 500) this.isMenuButtonActive = true;
       } else {
-        this.resetMenuPressedState();
+        this.resetMenuState();
       }
     },
     user: {
@@ -324,8 +322,8 @@ export default {
       "enableBackground",
     ]),
     ...mapActions("sync", ["stopLoading"]),
-    resetMenuPressedState() {
-      this.isMenuButtonPressed = false;
+    resetMenuState() {
+      this.isMenuButtonActive = false;
     },
     /**
      * Show a toast telling the user that the internet connection went down
@@ -356,13 +354,12 @@ export default {
       });
     },
     logoutButtonClicked() {
-      // set whether the logout action as triggered by the user or not
+      // set whether the logout action was triggered by the user
       this.userClickedLogout = true;
-      // logout the user
       this.logoutUser();
     },
     redirectToHome() {
-      if (window.innerWidth <= 500) this.resetMenuPressedState();
+      if (window.innerWidth <= 500) this.resetMenuState();
       this.$router.push({ name: "Home", params: { org: this.activeWorkspace } });
     },
     redirectToWhatsNew() {
@@ -379,7 +376,7 @@ export default {
       );
     },
     toggleMenuButton() {
-      this.isMenuButtonPressed = !this.isMenuButtonPressed;
+      this.isMenuButtonActive = !this.isMenuButtonActive;
     },
     createNewPlio() {
       // invoked when the user clicks on Create
@@ -404,13 +401,7 @@ export default {
           }
         })
         .catch(() => this.toast.error(this.$t("error.create_plio")));
-      this.resetMenuPressedState();
-    },
-    logoutButtonClicked() {
-      // set whether the logout action as triggered by the user or not
-      this.userClickedLogout = true;
-      // logout the user
-      this.logoutUser();
+      this.resetMenuState();
     },
     logoutUser() {
       // logs out the user
@@ -478,7 +469,7 @@ export default {
     routerViewClass() {
       return [
         {
-          "col-span-2 lg:col-span-3 xl:col-span-4": this.isMenuShownSideways,
+          "col-span-2 lg:col-span-3 xl:col-span-4": this.isMenuShownInline,
           "opacity-50 pointer-events-none w-full": this.isMenuShownOverlay,
         },
       ];
@@ -488,12 +479,12 @@ export default {
         {
           "absolute z-10 bg-white w-full bp-500:w-auto": this.isMenuShownOverlay,
         },
-        `p-2 sm:p-4 border-r-2 flex flex-col h-screen col-span-3 bp-500:col-span-1 h-screen`,
+        `p-2 sm:p-4 border-r-2 flex flex-col h-screen col-span-3 bp-500:col-span-1`,
       ];
     },
     gridContainerClass() {
       return {
-        "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5": this.isMenuShownSideways,
+        "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5": this.isMenuShownInline,
         flex: this.isMenuShownOverlay,
       };
     },
@@ -535,10 +526,10 @@ export default {
     menuButtonClass() {
       return [
         {
-          "bg-gray-300": !this.isMenuButtonPressed,
-          "bg-primary": this.isMenuButtonPressed,
+          "bg-gray-300": !this.isMenuButtonActive,
+          "bg-primary": this.isMenuButtonActive,
         },
-        `rounded-lg shadow-lg ring-primary w-16 p-2`,
+        `rounded-md border shadow-lg ring-primary w-16 p-2`,
       ];
     },
     menuButtonIconConfig() {
@@ -552,20 +543,20 @@ export default {
     menuIconClass() {
       return [
         {
-          "text-white": this.isMenuButtonPressed,
-          "text-black": !this.isMenuButtonPressed,
+          "text-white": this.isMenuButtonActive,
+          "text-black": !this.isMenuButtonActive,
         },
         `fill-current h-8 w-8`,
       ];
     },
     isMenuShown() {
-      return this.isMenuShownSideways || this.isMenuShownOverlay;
+      return this.isMenuShownInline || this.isMenuShownOverlay;
     },
-    isMenuShownSideways() {
-      return this.isAuthenticated && this.isMenuButtonPressed && this.onHomePage;
+    isMenuShownInline() {
+      return this.isAuthenticated && this.isMenuButtonActive && this.onHomePage;
     },
     isMenuShownOverlay() {
-      return this.isAuthenticated && this.isMenuButtonPressed && !this.onHomePage;
+      return this.isAuthenticated && this.isMenuButtonActive && !this.onHomePage;
     },
     createButtonMenuTextConfig() {
       // config for the text of the main create button
