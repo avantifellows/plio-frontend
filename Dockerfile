@@ -50,7 +50,7 @@ RUN npm run build
 
 # production stage
 # multi-stage Dockerfile inspired from: https://vuejs.org/v2/cookbook/dockerize-vuejs-app.html
-FROM nginx:stable-alpine as production-stage
+FROM nginx:1.21.4-alpine as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 # need to configure nginx for using history mode:
 # https://next.router.vuejs.org/guide/essentials/history-mode.html#html5-mode
