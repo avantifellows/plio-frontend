@@ -541,7 +541,7 @@ export default {
     homeButtonIconConfig() {
       return {
         enabled: true,
-        iconName: "home",
+        iconName: "home-rounded",
         iconClass: this.menuButtonsIconClass,
       };
     },
