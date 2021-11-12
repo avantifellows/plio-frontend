@@ -2,10 +2,13 @@
   <div class="flex relative">
     <div
       class="w-full"
-      :class="{ 'opacity-20 pointer-events-none': coverBackground }"
+      :class="{ 'opacity-20 pointer-events-none': isBackgroundDisabledLocal }"
       @keydown="keyboardPressed"
     >
-      <div class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white">
+      <div
+        class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white"
+        :class="navBarClass"
+      >
         <!-- top left logo -->
         <router-link
           :to="{ name: 'Home', params: { org: activeWorkspace } }"
@@ -15,21 +18,19 @@
           <img
             class="h-full w-full object-scale-down"
             id="logo"
+            alt="Plio logo"
             src="@/assets/images/logo.png"
+            height="60"
+            width="40"
           />
         </router-link>
 
         <!-- workspace switcher -->
         <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
-          <WorkspaceSwitcher class="flex justify-center"></WorkspaceSwitcher>
-        </div>
-
-        <!-- page heading -->
-        <div
-          v-if="isAuthenticated"
-          class="hidden sm:grid sm:col-start-4 sm:col-span-1 sm:place-self-center"
-        >
-          <p class="text-2xl sm:text-4xl">{{ currentPageName }}</p>
+          <WorkspaceSwitcher
+            class="flex justify-center"
+            :isDisabled="pending"
+          ></WorkspaceSwitcher>
         </div>
 
         <!-- create plio button -->
@@ -42,6 +43,7 @@
             :buttonClass="createButtonClass"
             class="rounded-md shadow-lg"
             @click="createNewPlio"
+            :isDisabled="pending"
           ></icon-button>
         </div>
 
@@ -106,6 +108,13 @@
         :plioLink="plioLinkToShare"
       ></SharePlioDialog>
     </div>
+    <!-- dialog for embedding plio -->
+    <div class="fixed w-full flex justify-center">
+      <EmbedPlioDialog
+        v-if="isEmbedPlioDialogShown"
+        :plioId="plioIdToEmbed"
+      ></EmbedPlioDialog>
+    </div>
   </div>
   <vue-progress-bar></vue-progress-bar>
 </template>
@@ -116,6 +125,7 @@ import LocaleSwitcher from "@/components/App/LocaleSwitcher.vue";
 import UserConfigService from "@/services/Config/User.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
+import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
@@ -126,6 +136,7 @@ export default {
     LocaleSwitcher,
     IconButton,
     SharePlioDialog,
+    EmbedPlioDialog,
   },
   data() {
     return {
@@ -135,31 +146,52 @@ export default {
     };
   },
   async created() {
+    // whenever the app is set up (on a fresh page load)
+    // reset the reAuthenticationState. This is required because if in the
+    // previous run, if the user exited while the re-authentication was in process,
+    // the reAuthenticationState is set as `in-process` in the store and the next
+    // time user reloads, the value will remain the same
+    this.setReAuthenticationState("not-started");
+
     // reset the value of pending while creating the component
     if (this.pending) this.stopLoading();
+    // reset the value of whether background is disabled
+    if (this.isBackgroundDisabled) this.enableBackground();
     // place a listener for the event of closing of the browser
     window.addEventListener("beforeunload", this.onClose);
     if (this.isAuthenticated) {
       await this.fetchAndUpdateUser();
-      this.setupChatwoot();
     }
     // ask user to pick the language if they are visiting for the first time
-    if (this.locale == null && this.isAuthenticated) {
+    if (this.locale == null && this.user != null) {
       this.showLanguagePickerDialog = true;
     }
+
+    // add event listeners to track if network connection went up or down
+    window.Offline.on("down", this.showInternetLostToast);
+    window.Offline.on("up", this.showInternetRestoredToast);
   },
   beforeUnmount() {
     // remove the listener for the event of closing of the browser
     window.removeEventListener("beforeunload", this.onClose);
+
+    // remove the listeners set to track network connection
+    window.Offline.off("down", this.showInternetLostToast);
+    window.Offline.off("up", this.showInternetRestoredToast);
   },
   mounted() {
+    // remove hash from the url if it is present
+    if (location.hash) {
+      location.replace(location.hash.replace("#", ""));
+    }
+
     // set locale based on their config
     UserConfigService.setLocaleFromUserConfig();
   },
   watch: {
     currentRoute() {
-      // unset `isSharePlioDialogShown` if the share plio dialog is visible when the app is being loaded
-      if (this.isSharePlioDialogShown) this.unsetSharePlioDialog();
+      // when the page is being changed, reset the state variables
+      this.resetState();
     },
     isAuthenticated(value) {
       // if user was logged in before but has been logged out now
@@ -174,8 +206,6 @@ export default {
         // whenever the user logs in again,
         // reset the value of `userClickedLogout`
         this.userClickedLogout = false;
-        // setup chatwoot bubble
-        this.setupChatwoot();
         if (this.locale == null) this.showLanguagePickerDialog = true;
       }
     },
@@ -196,14 +226,9 @@ export default {
             name: "Home",
             query: this.$route.query,
           });
+          // make sure to unset the active workspace as well
+          this.unsetActiveWorkspace();
         }
-      }
-
-      // hide the chatwoot bubble if the user navigates away from the home page
-      var chatwootBubble = document.querySelector(".woot-widget-bubble");
-      if (chatwootBubble != undefined) {
-        if (value) chatwootBubble.classList.remove("hidden");
-        else chatwootBubble.classList.add("hidden");
       }
     },
     user: {
@@ -239,65 +264,45 @@ export default {
   methods: {
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
-    ...mapActions("auth", ["unsetAccessToken", "fetchAndUpdateUser"]),
-    ...mapActions("generic", ["unsetSharePlioDialog"]),
+    ...mapActions("auth", [
+      "unsetAccessToken",
+      "fetchAndUpdateUser",
+      "unsetActiveWorkspace",
+      "setReAuthenticationState",
+    ]),
+    ...mapActions("generic", [
+      "unsetSharePlioDialog",
+      "unsetEmbedPlioDialog",
+      "enableBackground",
+    ]),
     ...mapActions("sync", ["stopLoading"]),
-    mountChatwoot() {
-      // mounting chatwoot SDK to the DOM
-      let chatwootScript = document.createElement("script");
-      chatwootScript.innerHTML = `(function(d,t) {
-          var BASE_URL="${process.env.VUE_APP_CHATWOOT_URL}";
-          var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
-          g.src=BASE_URL+"/packs/js/sdk.js";
-          g.id="chatwoot_sdk_mount"
-          s.parentNode.insertBefore(g,s);
-          g.onload=function(){
-            window.chatwootSDK.run({
-              websiteToken: '${process.env.VUE_APP_CHATWOOT_TOKEN}',
-              baseUrl: BASE_URL
-            })
-          }
-        })(document,"script");`;
-      chatwootScript.id = "chatwoot_script";
-      document.head.appendChild(chatwootScript);
+    /**
+     * Show a toast telling the user that the internet connection went down
+     */
+    showInternetLostToast() {
+      // dismiss the internet restored toast if it exists
+      this.toast.dismiss("internetRestoredToast");
+      // show a internet lost toast
+      this.toast.error(this.$t("error.internet_lost"), {
+        id: "internetLostToast",
+        position: "bottom-center",
+        timeout: false,
+        closeOnClick: false,
+        draggable: false,
+        closeButton: false,
+      });
     },
-    setupChatwoot() {
-      // set up chatwoot instance and add event listener
-      if (window.$chatwoot != undefined) window.$chatwoot.reset();
-      this.mountChatwoot();
-      window.addEventListener("chatwoot:ready", this.assignUserToChatwoot);
-    },
-    teardownChatwoot() {
-      // teardown chatwoot instance
-
-      // reset the instance
-      if (window.$chatwoot != undefined) window.$chatwoot.reset();
-
-      // hide the bubble
-      var chatwootBubble = document.querySelector(".woot-widget-bubble");
-      if (chatwootBubble != undefined) chatwootBubble.classList.add("hidden");
-    },
-    assignUserToChatwoot() {
-      if (this.isAuthenticated) {
-        // unhide chatwoot bubble if it was hidden before
-        var chatwootBubble = document.querySelector(".woot-widget-bubble");
-        if (chatwootBubble != undefined) {
-          chatwootBubble.classList.remove("hidden");
-          chatwootBubble.style.bottom = "60px";
-
-          // hide the chatwoot bubble for all the pages except "Home"
-          if (this.onHomePage) chatwootBubble.classList.remove("hidden");
-          else chatwootBubble.classList.add("hidden");
-        }
-
-        // set the user for the chatwoot instance
-        window.$chatwoot.setUser(this.user.id, {
-          email: this.user.email || "no_email",
-          name: this.user.first_name + this.user.last_name || "no_name",
-        });
-
-        window.removeEventListener("chatwoot:ready", this.assignUserToChatwoot);
-      }
+    /**
+     * Show a toast telling the user that the internet connection is up now
+     */
+    showInternetRestoredToast() {
+      // dismiss the internet lost toast if it exists
+      this.toast.dismiss("internetLostToast");
+      // show an internet restored toast
+      this.toast.success(this.$t("error.internet_restored"), {
+        id: "internetRestoredToast",
+        position: "bottom-center",
+      });
     },
     logoutButtonClicked() {
       // set whether the logout action as triggered by the user or not
@@ -318,7 +323,6 @@ export default {
         // added here so that if someone clicks on logout while
         // some activity is pending
         this.stopLoading();
-        this.teardownChatwoot();
       });
     },
     createNewPlio() {
@@ -353,8 +357,15 @@ export default {
         event.returnValue = "";
       }
 
-      // unset the share plio variable if it was set as true when the app is being loaded
+      // when the page is being closed, reset the state variables
+      this.resetState();
+    },
+    /**
+     * resets various state variables in the store
+     */
+    resetState() {
       if (this.isSharePlioDialogShown) this.unsetSharePlioDialog();
+      if (this.isEmbedPlioDialogShown) this.unsetEmbedPlioDialog();
     },
     setLocale(locale) {
       // sets the given locale as the locale for the user
@@ -367,22 +378,35 @@ export default {
       this.showLanguagePickerDialog = false;
     },
     keyboardPressed() {
-      // triggered when any keyboard button is pressed
+      /**
+       * triggered when any keyboard button is pressed
+       */
 
-      // prevent keyboard buttons from working if coverBackground = true
-      if (this.coverBackground) event.preventDefault();
+      // prevent keyboard buttons from working if isBackgroundDisabledLocal = true
+      if (this.isBackgroundDisabledLocal) event.preventDefault();
     },
   },
   computed: {
-    ...mapGetters("auth", [
-      "isAuthenticated",
-      "isUserApproved",
-      "activeWorkspaceSchema",
-      "locale",
-    ]),
+    ...mapGetters("auth", ["isAuthenticated", "activeWorkspaceSchema", "locale"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
-    ...mapState("generic", ["isSharePlioDialogShown", "plioLinkToShare"]),
+    ...mapState("generic", [
+      "isSharePlioDialogShown",
+      "isEmbedPlioDialogShown",
+      "plioLinkToShare",
+      "plioIdToEmbed",
+      "isBackgroundDisabled",
+    ]),
     ...mapState("sync", ["pending"]),
+    navBarClass() {
+      // dynamic classes for the nav bar
+      return {
+        hidden: this.isNavBarHidden,
+      };
+    },
+    isNavBarHidden() {
+      // whether the nav bar is hidden
+      return this.onPlioPage || this.onPlayerPage;
+    },
     currentRoute() {
       return this.$route.path;
     },
@@ -403,16 +427,15 @@ export default {
     },
     showWorkspaceSwitcher() {
       // whether to show workspace switcher
-      return (
-        this.isAuthenticated &&
-        this.onHomePage &&
-        this.user.organizations.length &&
-        this.isUserApproved
-      );
+      return this.isAuthenticated && this.onHomePage && this.user.organizations.length;
     },
     onHomePage() {
       // whether the current page is the home page
       return this.$route.name == "Home";
+    },
+    onPlioPage() {
+      // whether the current page is the plio embed page
+      return this.$route.name == "Plio";
     },
     onEditorPage() {
       // whether the current page is the editor page
@@ -428,19 +451,16 @@ export default {
     },
     showCreateButton() {
       // whether to show the Create button
-      return this.isAuthenticated && this.$route.name == "Home" && this.isUserApproved;
+      return this.isAuthenticated && this.$route.name == "Home";
     },
-    currentPageName() {
-      // name of the current page as saved in assets/locales
-      var pageName;
-      if (this.$route.name) {
-        pageName = this.$t("nav." + this.$route.name.toLowerCase());
-      }
-      return pageName;
-    },
-    coverBackground() {
-      // whether to apply opacity on the background
-      return this.showLanguagePickerDialog || this.isSharePlioDialogShown;
+    isBackgroundDisabledLocal() {
+      // whether the background should be disabled
+      return (
+        this.showLanguagePickerDialog ||
+        this.isSharePlioDialogShown ||
+        this.isEmbedPlioDialogShown ||
+        this.isBackgroundDisabled
+      );
     },
     allWorkspaces() {
       // list of shortcodes of all workspaces that the user is a part of

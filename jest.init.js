@@ -34,6 +34,11 @@ const $Progress = {
   template: "<div></div>",
 };
 
+// stub for <transition> tags
+const transition = {
+  template: "<div></div>",
+};
+// stub for $gAuth
 const $gAuth = {
   signIn: jest.fn(),
   instance: 1,
@@ -56,6 +61,7 @@ config.global = {
   },
   stubs: {
     InlineSvg: InlineSvg,
+    transition: transition,
   },
 };
 
@@ -64,7 +70,7 @@ Object.defineProperty(document, "currentScript", {
   value: document.createElement("script"),
 });
 
-// as window.matchMedia is not defined in the DOM
+// mock window modules
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
@@ -79,7 +85,20 @@ Object.defineProperty(window, "matchMedia", {
   })),
 });
 
+Object.defineProperty(window, "open", {
+  writable: true,
+  value: jest.fn(),
+});
+
 // mock getBoundingClientRect
 global.document.getElementById = jest.fn(() => ({
-  getBoundingClientRect: jest.fn(),
+  getBoundingClientRect: jest.fn(() => {
+    return {
+      width: 100,
+      height: 100,
+    };
+  }),
+  setAttribute: jest.fn(() => {
+    return;
+  }),
 }));

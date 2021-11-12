@@ -1,6 +1,6 @@
 <template>
   <div class="grid grid-cols-1">
-    <div class="flex justify-between">
+    <div class="flex justify-between" v-if="isTitlePresent || isValidationEnabled">
       <!-- title for the input box -->
       <p class="text-xs pl-2" data-test="title">{{ title }}</p>
       <!-- input validation -->
@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div class="flex relative">
+    <div class="flex relative rounded-lg" :class="containerStyling">
       <!-- start icon -->
       <div
         v-if="isStartIconEnabled"
@@ -46,7 +46,7 @@
 
       <!-- input text area -->
       <input
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full border-gray-200"
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded-lg text-xs sm:text-md md:text-base border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full border-gray-200"
         name="placeholder"
         :placeholder="placeholder"
         v-model="localValue"
@@ -75,9 +75,11 @@ export default {
       default: "",
       type: String,
     },
+    /**
+     * whether to show any validation for the input
+     * format: {enabled: boolean, isValid: boolean, validMessage: String, invalidMessage: String}
+     */
     validation: {
-      // whether to show any validation for the input
-      // format: {enabled: boolean, isValid: boolean, validMessage: String, invalidMessage: String}
       default: () => {
         return {
           enabled: false,
@@ -85,9 +87,10 @@ export default {
       },
       type: Object,
     },
+    /**
+     * whether the start icon is enabled and the icon name, if enabled
+     */
     startIcon: {
-      // whether the start icon is enabled or not
-      // and the icon name if enabled
       default: () => {
         return {
           enabled: false,
@@ -97,34 +100,38 @@ export default {
       },
       type: Object,
     },
+    /** the value of the input to the input box */
     value: {
-      // the value of the input of the input box
       default: "",
       type: [String, Number],
     },
+    /** minimum value acceptable in a number textbox */
     min: {
-      // minimum value possible in a number textbox
       default: 0,
       type: Number,
     },
+    /** maximum value acceptable in a number textbox */
     max: {
-      // maximum value possible in a number textbox
       default: 999,
       type: Number,
     },
+    /** classes for the input boxes */
     boxStyling: {
-      // pass any classes that need to be added to the input
-      // boxes
       default: () => {},
       type: Object,
     },
+    /** classes for the container of the input boxes */
+    containerStyling: {
+      default: () => {},
+      type: [String, Object],
+    },
+    /** maximum length for the input */
     maxLength: {
-      // maximum length for the input
       default: null,
       type: Number,
     },
+    /** whether any static text needs to be displayed */
     staticText: {
-      // whether any static text needs to be displayed
       default: () => {
         return {
           enabled: false,
@@ -134,8 +141,8 @@ export default {
       },
       type: Object,
     },
+    /** whether the input text is disabled */
     isDisabled: {
-      // whether the input text is disabled or not
       default: false,
       type: Boolean,
     },
@@ -149,6 +156,10 @@ export default {
       set(localValue) {
         this.$emit("update:value", localValue);
       },
+    },
+    isTitlePresent() {
+      // whether the title has been provided
+      return this.title != "";
     },
     isStartIconInteractionDisabled() {
       // is interaction with the start icon disabled or not
@@ -185,7 +196,7 @@ export default {
       // fetches and returns the icon object, depending on "isValid"
       var icon = require("@/assets/images/times-solid.svg");
       if (this.isValid) {
-        icon = require("@/assets/images/check-solid.svg");
+        icon = require("@/assets/images/check.svg");
       }
       return icon;
     },

@@ -18,11 +18,11 @@
     <!-- nav bar -->
     <div class="flex space-x-1 flex-row w-full p-4 justify-end">
       <!-- dropdown for choosing items -->
-      <Dropdown
+      <SelectDropdown
         :optionsList="itemOptionsList"
         v-model:value="localSelectedItemIndex"
         class="mr-0"
-      ></Dropdown>
+      ></SelectDropdown>
 
       <!-- previous item button -->
       <icon-button
@@ -48,23 +48,25 @@
 
       <!-- add item button -->
       <icon-button
-        class="rounded-xl w-8 h-8 px-2 hidden xsm:block"
+        class="rounded-xl w-8 h-8 px-2 hidden bp-360:block"
         :iconConfig="addItemIconConfig"
         :buttonClass="addItemButtonClass"
         @click="removeSelectedItemIndex"
         v-tooltip.top="addItemButtonTooltip"
         :disabled="isInteractionDisabled"
+        ariaLabel="add item"
         data-test="addItem"
       ></icon-button>
 
       <!-- delete item button -->
       <icon-button
-        class="rounded-xl bg-delete-button w-8 h-8 shadow-lg px-2"
+        class="rounded-xl bg-red-600 hover:bg-red-700 w-8 h-8 shadow-lg px-2"
         :iconConfig="deleteItemIconConfig"
         @click="deleteSelectedItem"
         :buttonClass="deleteItemButtonClass"
         :disabled="isInteractionDisabled"
         data-test="deleteItem"
+        ariaLabel="delete item"
       ></icon-button>
     </div>
 
@@ -181,10 +183,10 @@
 </template>
 
 <script>
-import IconButton from "../UI/Buttons/IconButton.vue";
-import Dropdown from "../UI/DropDownMenu/Dropdown.vue";
+import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import SelectDropdown from "@/components/UI/DropDownMenu/SelectDropdown.vue";
 import QuestionTypeDropdown from "@/components/Editor/QuestionTypeDropdown.vue";
-import InputText from "../UI/Text/InputText.vue";
+import InputText from "@/components/UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
 import ItemFunctionalService from "@/services/Functional/Item.js";
@@ -202,7 +204,7 @@ export default {
       },
       // styling classes for previous item button
       previousItemButtonClass:
-        "bg-primary-button hover:bg-primary-button-hover focus:ring-primary shadow-lg",
+        "bg-primary hover:bg-primary-hover focus:ring-primary shadow-lg",
       nextItemIconConfig: {
         // icon config for next item button
         enabled: true,
@@ -211,7 +213,7 @@ export default {
       },
       // styling classes for next item button
       nextItemButtonClass:
-        "bg-primary-button hover:bg-primary-button-hover focus:ring-primary shadow-lg",
+        "bg-primary hover:bg-primary-hover focus:ring-primary shadow-lg",
       addItemIconConfig: {
         // icon config for add item button
         enabled: true,
@@ -220,13 +222,13 @@ export default {
       },
       // styling classes for add item button
       addItemButtonClass: [
-        "bg-primary-button hover:bg-primary-button-hover disabled:opacity-40 focus:ring-primary shadow-lg",
+        "bg-primary hover:bg-primary-hover disabled:opacity-40 focus:ring-primary shadow-lg",
         { "cursor-not-allowed": this.isInteractionDisabled },
       ],
       // styling classes for add option button
       addOptionButtonClass: [
-        `rounded-md font-bold p-5 h-2 w-auto bg-primary-button shadow-lg
-        hover:bg-primary-button-hover disabled:opacity-50 focus:ring-primary`,
+        `rounded-md font-bold p-5 h-2 w-auto bg-primary shadow-lg
+        hover:bg-primary-hover disabled:opacity-50 focus:ring-primary`,
         { "cursor-not-allowed": this.isInteractionDisabled },
       ],
       deleteItemIconConfig: {
@@ -259,7 +261,7 @@ export default {
       questionTextboxHeightLimit: 200, // maximum allowed height of the question text box in px
       // styling classes for add image button
       addImageButtonClass:
-        "bg-white hover:bg-primary-button disabled:bg-white focus:ring-primary",
+        "bg-white hover:bg-primary disabled:bg-white focus:ring-primary",
       addImageButtonIconConfig: {
         // icon config for add image button
         enabled: true,
@@ -279,33 +281,41 @@ export default {
 
   props: {
     itemList: {
-      // list of items
+      type: Array,
+      required: true,
+    },
+    itemDetailList: {
       type: Array,
       required: true,
     },
     selectedItemIndex: {
-      // index of the selected item
       default: 0,
       type: Number,
     },
+    /**
+     * total video duration (in seconds)
+     */
     videoDuration: {
-      // total video duration in seconds
       default: 0,
       type: Number,
     },
+    /**
+     * whether interaction with the item editor is allowed
+     */
     isInteractionDisabled: {
-      // whether it is allowed to interact with the item editor
       default: false,
       type: Boolean,
     },
+    /**
+     * index of the type of the question to be created
+     */
     questionTypeIndex: {
-      // index of the type of the question to be created
       default: 0,
       type: Number,
     },
   },
   components: {
-    Dropdown,
+    SelectDropdown,
     IconButton,
     InputText,
     TimeInput,
@@ -367,7 +377,7 @@ export default {
     },
     addOption() {
       // adds an option to the current question
-      this.localItemList[this.localSelectedItemIndex].details.options.push("");
+      this.localItemDetailList[this.localSelectedItemIndex].options.push("");
     },
     getCorrectOptionIconConfig(optionIndex) {
       // config for the correct option icon
@@ -450,9 +460,9 @@ export default {
     updateCorrectOption(selectedOptionIndex) {
       // when some option is selected as correct, update it in the
       // item list
-      this.localItemList[
+      this.localItemDetailList[
         this.localSelectedItemIndex
-      ].details.correct_answer = selectedOptionIndex;
+      ].correct_answer = selectedOptionIndex;
     },
   },
 
@@ -469,7 +479,7 @@ export default {
     },
     isQuestionImagePresent() {
       // if the current selected item has an image present
-      return this.localItemList[this.localSelectedItemIndex].details.image != null;
+      return this.localItemDetailList[this.localSelectedItemIndex].image != null;
     },
     localQuestionTypeIndex: {
       // local copy of the current question type index
@@ -599,11 +609,17 @@ export default {
         isDisabled: this.isInteractionDisabled,
       };
     },
-    localItemList: {
-      // a local copy of the item list
-      get() {
-        return this.itemList;
-      },
+    /**
+     * a local copy of the item list
+     */
+    localItemList() {
+      return this.itemList;
+    },
+    /**
+     * a local copy of the item detail list
+     */
+    localItemDetailList() {
+      return this.itemDetailList;
     },
     localSelectedItemIndex: {
       // a local copy of selected item index
@@ -642,35 +658,35 @@ export default {
     questionText: {
       get() {
         // extract question text from item
-        return this.localItemList[this.localSelectedItemIndex].details.text;
+        return this.localItemDetailList[this.localSelectedItemIndex].text;
       },
       set(value) {
         // set the updated question text back into the item
-        this.localItemList[this.localSelectedItemIndex].details.text = value;
+        this.localItemDetailList[this.localSelectedItemIndex].text = value;
       },
     },
     maxCharLimit: {
       get() {
         // extract the character limit from the item
-        if (this.localItemList[this.localSelectedItemIndex] == null) return null;
+        if (this.localItemDetailList[this.localSelectedItemIndex] == null) return null;
         return (
-          this.localItemList[this.localSelectedItemIndex].details.max_char_limit || 100
+          this.localItemDetailList[this.localSelectedItemIndex].max_char_limit || 100
         );
       },
       set(value) {
         // set the character limit in the item
-        this.localItemList[this.localSelectedItemIndex].details.max_char_limit = value;
+        this.localItemDetailList[this.localSelectedItemIndex].max_char_limit = value;
       },
     },
     isMaxCharLimitSet: {
       get() {
         // extract whether character limit is set from the item
-        if (this.localItemList[this.localSelectedItemIndex] == null) return false;
-        return this.localItemList[this.localSelectedItemIndex].details.has_char_limit;
+        if (this.localItemDetailList[this.localSelectedItemIndex] == null) return false;
+        return this.localItemDetailList[this.localSelectedItemIndex].has_char_limit;
       },
       set(value) {
         // set whether character limit exists in the item
-        this.localItemList[this.localSelectedItemIndex].details.has_char_limit = value;
+        this.localItemDetailList[this.localSelectedItemIndex].has_char_limit = value;
       },
     },
     timeObject: {
@@ -699,12 +715,12 @@ export default {
     options: {
       // computed array of options
       get() {
-        return this.localItemList[this.localSelectedItemIndex].details.options;
+        return this.localItemDetailList[this.localSelectedItemIndex].options;
       },
     },
     correctOptionIndex() {
       // get the index of the correct answer in the list of options
-      return this.localItemList[this.localSelectedItemIndex].details.correct_answer;
+      return this.localItemDetailList[this.localSelectedItemIndex].correct_answer;
     },
     isAnyError() {
       // returns if any error is present after checking individual error

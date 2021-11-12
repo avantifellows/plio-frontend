@@ -80,9 +80,11 @@ export default {
       default: "",
       type: String,
     },
+    /**
+     * whether to show any validation for the input
+     * format: {enabled: boolean, isValid: boolean, validMessage: String, invalidMessage: String}
+     */
     validation: {
-      // whether to show any validation for the input
-      // format: {enabled: boolean, isValid: boolean, validMessage: String, invalidMessage: String}
       default: () => {
         return {
           enabled: false,
@@ -90,9 +92,10 @@ export default {
       },
       type: Object,
     },
+    /**
+     * whether the start icon is enabled and the icon name, if enabled
+     */
     startIcon: {
-      // whether the start icon is enabled or not
-      // and the icon name if enabled
       default: () => {
         return {
           enabled: false,
@@ -104,9 +107,10 @@ export default {
       },
       type: Object,
     },
+    /**
+     * whether the end icon is enabled and the icon name, if enabled
+     */
     endIcon: {
-      // whether the end icon is enabled or not
-      // and the icon name if enabled
       default: () => {
         return {
           enabled: false,
@@ -118,24 +122,23 @@ export default {
       },
       type: Object,
     },
+    /** the value of the input to the input box */
     value: {
-      // the value of the input of the input box
       default: "",
       type: [String, Number],
     },
+    /** classes for the input boxes */
     boxStyling: {
-      // pass any classes that need to be added to the input
-      // boxes
       default: () => {},
       type: [Object, String],
     },
+    /** maximum length for the input */
     maxLength: {
-      // maximum allowed character length of input
       default: null,
       type: Number,
     },
+    /** whether the input text is disabled */
     isDisabled: {
-      // whether the input text is disabled or not
       default: false,
       type: Boolean,
     },
@@ -186,7 +189,7 @@ export default {
       // fetches and returns the icon object, depending on "isValid"
       var icon = require("@/assets/images/times-solid.svg");
       if (this.isValid) {
-        icon = require("@/assets/images/check-solid.svg");
+        icon = require("@/assets/images/check.svg");
       }
       return icon;
     },

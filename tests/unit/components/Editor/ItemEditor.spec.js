@@ -8,12 +8,14 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-              options: ["", ""],
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
+            options: ["", ""],
           },
         ],
       },
@@ -37,12 +39,14 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-              options: ["", ""],
-            },
             time: 13.3,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
+            options: ["", ""],
           },
         ],
       },
@@ -65,12 +69,14 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "subjective",
-              has_char_limit: true,
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "subjective",
+            has_char_limit: true,
           },
         ],
         questionTypeIndex: 1,
@@ -95,12 +101,14 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "subjective",
-              has_char_limit: true,
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "subjective",
+            has_char_limit: true,
           },
         ],
         questionTypeIndex: 1,
@@ -121,12 +129,14 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "subjective",
-              has_char_limit: true,
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "subjective",
+            has_char_limit: true,
           },
         ],
         questionTypeIndex: 1,
@@ -152,11 +162,13 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
           },
         ],
       },
@@ -166,7 +178,7 @@ describe("ItemEditor.vue", () => {
       .find('[data-test="questionText"]')
       .find('[data-test="input"]')
       .setValue(testValue);
-    expect(wrapper.vm.localItemList[0].details.text).toBe(testValue);
+    expect(wrapper.vm.localItemDetailList[0].text).toBe(testValue);
   });
 
   it("enables/disables max char limit", async () => {
@@ -175,23 +187,25 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "subjective",
-              has_char_limit: true,
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "subjective",
+            has_char_limit: true,
           },
         ],
         questionTypeIndex: 1,
       },
     });
     // checkbox should be checked by default
-    expect(wrapper.vm.localItemList[0].details.has_char_limit).toBe(true);
+    expect(wrapper.vm.localItemDetailList[0].has_char_limit).toBe(true);
 
     // uncheck
     await wrapper.find('[data-test="maxCharLimitCheckbox"]').setChecked(false);
-    expect(wrapper.vm.localItemList[0].details.has_char_limit).toBe(false);
+    expect(wrapper.vm.localItemDetailList[0].has_char_limit).toBe(false);
   });
 
   it("updates option value", async () => {
@@ -200,12 +214,14 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-              options: ["", ""],
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
+            options: ["", ""],
           },
         ],
       },
@@ -216,7 +232,7 @@ describe("ItemEditor.vue", () => {
       .findAll('[data-test="option"]')[0]
       .find('[data-test="input"]')
       .setValue(testValue);
-    expect(wrapper.vm.localItemList[0].details.options[0]).toBe(testValue);
+    expect(wrapper.vm.localItemDetailList[0].options[0]).toBe(testValue);
   });
 
   it("updates time value", async () => {
@@ -225,11 +241,13 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
           },
         ],
         videoDuration: 200,
@@ -251,13 +269,15 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-              options: ["", ""],
-              correct_answer: 1,
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
+            options: ["", ""],
+            correct_answer: 1,
           },
         ],
       },
@@ -286,11 +306,13 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "subjective",
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "subjective",
           },
         ],
         questionTypeIndex: 1,
@@ -308,11 +330,13 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "subjective",
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "subjective",
           },
         ],
         questionTypeIndex: 1,
@@ -341,13 +365,15 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-              options: ["", ""],
-              correct_answer: 1,
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
+            options: ["", ""],
+            correct_answer: 1,
           },
         ],
         isInteractionDisabled: true,
@@ -396,12 +422,14 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-              options: ["", ""],
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
+            options: ["", ""],
           },
         ],
       },
@@ -410,7 +438,7 @@ describe("ItemEditor.vue", () => {
       .findAll('[data-test="option"]')[1]
       .find('[data-test="startIcon"]')
       .trigger("click");
-    expect(wrapper.vm.localItemList[0].details.correct_answer).toBe(1);
+    expect(wrapper.vm.localItemDetailList[0].correct_answer).toBe(1);
   });
 
   it("image uploader shows up on clicking image button", async () => {
@@ -419,11 +447,13 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
           },
         ],
       },
@@ -442,11 +472,13 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
           },
         ],
       },
@@ -461,18 +493,20 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-              options: ["", ""],
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
+            options: ["", ""],
           },
         ],
       },
     });
     await wrapper.find('[data-test="addOption"]').trigger("click");
-    expect(wrapper.vm.localItemList[0].details.options.length).toBe(3);
+    expect(wrapper.vm.localItemDetailList[0].options.length).toBe(3);
   });
 
   it("emits on clicking delete item", async () => {
@@ -481,12 +515,14 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-              options: ["", ""],
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
+            options: ["", ""],
           },
         ],
       },
@@ -505,21 +541,23 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-              options: ["", ""],
-            },
             time: 13,
           },
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-              options: ["", ""],
-            },
             time: 20,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
+            options: ["", ""],
+          },
+          {
+            text: "test",
+            type: "mcq",
+            options: ["", ""],
           },
         ],
       },
@@ -538,21 +576,23 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-              options: ["", ""],
-            },
             time: 13,
           },
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-              options: ["", ""],
-            },
             time: 20,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
+            options: ["", ""],
+          },
+          {
+            text: "test",
+            type: "mcq",
+            options: ["", ""],
           },
         ],
         selectedItemIndex: 1,
@@ -568,12 +608,14 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "mcq",
-              options: ["", "", ""],
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "mcq",
+            options: ["", "", ""],
           },
         ],
       },
@@ -591,12 +633,14 @@ describe("ItemEditor.vue", () => {
         itemList: [
           {
             type: "question",
-            details: {
-              text: "test",
-              type: "subjective",
-              has_char_limit: true,
-            },
             time: 13,
+          },
+        ],
+        itemDetailList: [
+          {
+            text: "test",
+            type: "subjective",
+            has_char_limit: true,
           },
         ],
         questionTypeIndex: 1,

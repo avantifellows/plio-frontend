@@ -6,14 +6,19 @@ import store from "@/store";
 import mockAxios from "jest-mock-axios";
 import {
   dummyUser,
+  dummyPublishedPlio,
   dummyEmptyPlioList,
   dummyPlioList,
   dummyUniqueUserCountList,
 } from "@/services/Testing/DummyData.js";
 
-afterEach(() => {
+var clonedeep = require("lodash.clonedeep");
+
+afterEach(async () => {
   // cleaning up the mess left behind by the previous test
   mockAxios.reset();
+  // reset active workspace
+  await store.dispatch("auth/setActiveWorkspace", "");
 });
 
 describe("Home.vue", () => {
@@ -34,12 +39,14 @@ describe("Home.vue", () => {
     // `getAllPlios` inside services/API/Plio.js should've been called
     expect(mockAxios.get).toHaveBeenCalledTimes(1);
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
-      params: {},
+      params: {
+        page: 1,
+      },
     });
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(dummyEmptyPlioList, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyEmptyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -61,14 +68,14 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(dummyUniqueUserCountList);
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(dummyPlioList, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -101,7 +108,7 @@ describe("Home.vue", () => {
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(dummyEmptyPlioList, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyEmptyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -145,14 +152,14 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(dummyUniqueUserCountList);
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(dummyPlioList, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -167,7 +174,10 @@ describe("Home.vue", () => {
     expect(wrapper.vm.sortByField).toBe(sortField);
     // `getAllPlios` inside services/API/Plio.js should've been called with the ordering params
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
-      params: { ordering: sortField },
+      params: {
+        ordering: sortField,
+        page: 1,
+      },
     });
   });
 
@@ -183,14 +193,14 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(dummyUniqueUserCountList);
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(dummyPlioList, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -210,7 +220,10 @@ describe("Home.vue", () => {
     expect(wrapper.vm.searchString).toBe(searchString);
     // `getAllPlios` inside services/API/Plio.js should've been called with the search params
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
-      params: { search: searchString },
+      params: {
+        search: searchString,
+        page: 1,
+      },
     });
   });
 
@@ -226,14 +239,14 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(dummyUniqueUserCountList);
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(dummyPlioList, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -259,7 +272,9 @@ describe("Home.vue", () => {
     expect(wrapper.vm.searchString).toBe("");
     // `getAllPlios` inside services/API/Plio.js should've been called with no additional params
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
-      params: {},
+      params: {
+        page: 1,
+      },
     });
   });
 
@@ -275,19 +290,19 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(dummyUniqueUserCountList);
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(dummyPlioList, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
-    await wrapper.unmount();
+    wrapper.unmount();
     expect(store.state.plioItems.allPlioDetails).toStrictEqual({});
   });
 
@@ -303,14 +318,14 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(dummyUniqueUserCountList);
+          resolve(clonedeep(dummyUniqueUserCountList));
         });
       });
     mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(dummyPlioList, mockAxios.queue()[0]);
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -320,7 +335,104 @@ describe("Home.vue", () => {
 
     await store.dispatch("auth/setActiveWorkspace", "test");
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
-      params: {},
+      params: {
+        page: 1,
+      },
     });
+  });
+
+  it("fetches plios when a plio is deleted", async () => {
+    // set user
+    await store.dispatch("auth/setUser", dummyUser);
+
+    // changing the user to approved makes another API call to list UUIDs
+    // this resets it
+    mockAxios.reset();
+
+    // mock getUniqueUsersCountList method
+    jest
+      .spyOn(PlioAPIService, "getUniqueUsersCountList")
+      .mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve(clonedeep(dummyUniqueUserCountList));
+        });
+      });
+
+    // mock the plioDeleted method
+    const plioDeleted = jest.spyOn(Home.methods, "plioDeleted");
+
+    const wrapper = mount(Home);
+
+    // resolve the `GET` request waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // the page makes getPlio query for every plio in the plioList/dummyPlioList
+    // mocking the published plio as the response for each plio details
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+
+    await flushPromises();
+
+    // reset axios
+    mockAxios.reset();
+
+    // trigger emit from table
+    wrapper.vm.$refs.table.$emit("delete-plio");
+
+    expect(plioDeleted).toHaveBeenCalled();
+  });
+
+  it("fetches plios from last page if last plio from current page is deleted", async () => {
+    // set user
+    await store.dispatch("auth/setUser", dummyUser);
+
+    // changing the user to approved makes another API call to list UUIDs
+    // this resets it
+    mockAxios.reset();
+
+    // mock getUniqueUsersCountList method
+    jest
+      .spyOn(PlioAPIService, "getUniqueUsersCountList")
+      .mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve(clonedeep(dummyUniqueUserCountList));
+        });
+      });
+
+    const wrapper = mount(Home);
+    await wrapper.setData({
+      // set the page number to not be the first page
+      currentPageNumber: 2,
+    });
+
+    // mock how the response for page 2 with one plio would look like
+    let plioList = clonedeep(dummyPlioList);
+    plioList.data.count = 6;
+    plioList.data.page_size = 5;
+    plioList.data.results = [plioList.data.results[0]];
+
+    // resolve the `GET` request waiting in the queue
+    // using the fake response data
+    // only send in one plio as we want to simulate the case when
+    // the last plio from the current page (not the first page) is deleted
+    mockAxios.mockResponse(plioList, mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // the page makes getPlio query for every plio in the plioList/dummyPlioList
+    // mocking the published plio as the response for each plio details
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+
+    await flushPromises();
+
+    // trigger emit from table
+    wrapper.vm.$refs.table.$emit("delete-plio");
+
+    // current page number should be changed
+    expect(wrapper.vm.currentPageNumber).toBe(1);
   });
 });

@@ -8,8 +8,9 @@ const state = {
   user: null,
   activeWorkspace: "",
   userId: null,
-  isReAuthenticating: false,
+  reAuthenticationState: "not-started",
   reAuthenticationPromise: null,
+  reAuthenticationPromiseResolver: null,
   analyticsAccessToken: null,
   analyticsAccessTokenFetchTime: null,
   analyticsAccessTokenExpiryTime: null,
@@ -17,22 +18,39 @@ const state = {
 
 const getters = {
   isAuthenticated: (state) => !!state.accessToken,
+  isRefreshTokenPresent: (state) => {
+    return state.accessToken != null && state.accessToken.refresh_token != null;
+  },
   locale: (state) => {
     var configValue = JSON.parse(state.config);
     if (configValue != null) return configValue.locale;
     return null;
   },
-  isUserApproved: (state) =>
-    state.user != null && state.user.status == "approved",
-  activeWorkspaceSchema: (state) => {
-    let activeOrganizationSchema = "public";
+
+  isPersonalWorkspace: (state) => {
+    // whether the current workspace is the personal workspace
+    return state.activeWorkspace == "";
+  },
+  activeOrganization: (state) => {
+    // gets the current active organization
     if (state.activeWorkspace != "") {
-      let activeOrganization = state.user.organizations.find((organization) => {
+      return state.user.organizations.find((organization) => {
         return organization.shortcode == state.activeWorkspace;
       });
-      activeOrganizationSchema = activeOrganization.schema_name;
     }
-    return activeOrganizationSchema;
+    // returns some default values for personal workspace
+    return {
+      schema_name: "public",
+      api_key: "",
+    };
+  },
+  activeWorkspaceSchema: (_, getters) => {
+    // schema of the current workspace
+    return getters.activeOrganization.schema_name;
+  },
+  activeWorkspaceApiKey: (_, getters) => {
+    // api key of the current workspace
+    return getters.activeOrganization.api_key;
   },
   isAnalyticsAccessTokenValid: (state) => {
     if (state.analyticsAccessToken === null) return false;
@@ -49,55 +67,56 @@ const getters = {
 
 const actions = {
   async setAccessToken({ commit, dispatch }, accessToken) {
-    await commit("setAccessToken", accessToken);
+    commit("setAccessToken", accessToken);
     await dispatch("fetchAndUpdateUser");
   },
-  async unsetAccessToken({ commit, dispatch }) {
-    await commit("unsetAccessToken");
+  unsetAccessToken({ commit, dispatch }) {
+    commit("unsetAccessToken");
     dispatch("unsetUser");
     dispatch("unsetAnalyticsAccessToken");
   },
-  async setUser({ commit }, user) {
-    await commit("setUser", user);
+  setUser({ commit }, user) {
+    commit("setUser", user);
   },
-  async unsetUser({ commit }) {
-    await commit("unsetUser");
+  unsetUser({ commit }) {
+    commit("unsetUser");
   },
-  async setActiveWorkspace({ commit }, activeWorkspace) {
-    await commit("setActiveWorkspace", activeWorkspace);
+  setActiveWorkspace({ commit }, activeWorkspace) {
+    commit("setActiveWorkspace", activeWorkspace);
   },
-  async unsetActiveWorkspace({ commit }) {
-    await commit("unsetActiveWorkspace");
+  unsetActiveWorkspace({ commit }) {
+    commit("unsetActiveWorkspace");
   },
-  async saveConfig({ commit }, config) {
-    await commit("saveConfig", config);
+  saveConfig({ commit }, config) {
+    commit("saveConfig", config);
   },
-  setReAuthenticationState({ commit }, isReAuthenticating) {
-    commit("setReAuthenticationState", isReAuthenticating);
+  setReAuthenticationState({ commit }, state) {
+    commit("setReAuthenticationState", state);
   },
-  setReAuthenticationPromise({ commit }, reAuthenticationPromise) {
-    commit("setReAuthenticationPromise", reAuthenticationPromise);
+  setReAuthenticationPromise({ commit }, promise) {
+    commit("setReAuthenticationPromise", promise);
   },
-  unsetReAuthenticationPromise({ commit }) {
-    commit("unsetReAuthenticationPromise");
+  setReAuthenticationPromiseResolver({ commit }, resolver) {
+    commit("setReAuthenticationPromiseResolver", resolver);
   },
   updateUserStatus({ commit }, status) {
     commit("updateUserStatus", status);
   },
   async fetchAndUpdateUser({ dispatch, state }) {
-    await UserAPIService.getUserByAccessToken(
+    let response = await UserAPIService.getUserByAccessToken(
       state.accessToken.access_token
-    ).then(async (response) => {
-      await dispatch("setUser", response.data);
-    });
+    );
+    if (response != undefined) dispatch("setUser", response.data);
   },
   async getAnalyticsAccessToken({ commit }) {
-    await AnalyticsAPIService.getAnalyticsAccessToken().then((response) =>
-      commit("setAnalyticsAccessToken", response.data)
-    );
+    let response = await AnalyticsAPIService.getAnalyticsAccessToken();
+    if (response != undefined) commit("setAnalyticsAccessToken", response.data);
   },
   unsetAnalyticsAccessToken({ commit }) {
     commit("unsetAnalyticsAccessToken");
+  },
+  autoLogoutUser({ dispatch }) {
+    dispatch("unsetAccessToken");
   },
 };
 
@@ -125,14 +144,14 @@ const mutations = {
   saveConfig(state, config) {
     state.config = config;
   },
-  setReAuthenticationState(state, isReAuthenticating) {
-    state.isReAuthenticating = isReAuthenticating;
+  setReAuthenticationState(state, reAuthenticationState) {
+    state.reAuthenticationState = reAuthenticationState;
   },
-  setReAuthenticationPromise(state, reAuthenticationPromise) {
-    state.reAuthenticationPromise = reAuthenticationPromise;
+  setReAuthenticationPromise(state, promise) {
+    state.reAuthenticationPromise = promise;
   },
-  unsetReAuthenticationPromise(state) {
-    state.reAuthenticationPromise = null;
+  setReAuthenticationPromiseResolver(state, resolver) {
+    state.reAuthenticationPromiseResolver = resolver;
   },
   updateUserStatus(state, status) {
     state.user.status = status;

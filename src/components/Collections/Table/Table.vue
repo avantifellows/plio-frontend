@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col mx-2 xsm:mx-4 sm:mx-6 md:mx-8 lg:mx-10 xl:mx-14">
+  <div class="flex flex-col mx-2 bp-360:mx-4 sm:mx-6 md:mx-8 lg:mx-10 xl:mx-14">
     <!-- nav bar for table : table title and search bar -->
-    <div class="flex flex-col xsm:flex-row justify-between pt-4">
+    <div class="flex flex-col bp-360:flex-row justify-between pt-4">
       <!-- table title -->
       <div :class="tableTitleClass">
         <p class="whitespace-nowrap">{{ tableTitle }}</p>
@@ -19,9 +19,10 @@
         <!-- search bar input -->
         <input
           :class="searchInputBoxClass"
-          type="text"
           :placeholder="searchPlaceholder"
           v-model="searchString"
+          @keypress="searchIfEnter"
+          type="text"
           autocomplete="off"
           data-test="searchBar"
         />
@@ -30,7 +31,7 @@
         <inline-svg
           v-if="isSearchStringPresent"
           :src="require('@/assets/images/times-light.svg')"
-          class="w-10 hover:stroke-2"
+          class="w-10 hover:stroke-2 mx-2 hover:cursor-pointer"
           @click="resetSearchString"
           data-test="resetSearch"
         ></inline-svg>
@@ -41,6 +42,7 @@
           @click="search"
           :disabled="!this.isSearchStringPresent"
           data-test="searchButton"
+          aria-label="search"
         >
           <span class="w-auto flex justify-end items-center">
             <inline-svg
@@ -58,7 +60,7 @@
       <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
           <div
-            class="shadow overflow-hidden border-b border-gray-200 rounded-lg border-l border-r"
+            class="shadow overflow-hidden border-gray-200 rounded-lg border-b border-l border-r"
           >
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-300">
@@ -69,7 +71,7 @@
                     @click="sortBy(columnName)"
                     :key="columnName"
                     scope="col"
-                    class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider w-2/3"
+                    class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-black uppercase tracking-wider w-2/3"
                     :class="getColumnHeaderStyleClass(columnIndex)"
                     data-test="tableHeader"
                   >
@@ -123,11 +125,16 @@
                     </div>
                     <!-- column content -->
                     <div class="flex w-full">
-                      <div v-if="isComponent(entry[columnName])" class="w-full">
+                      <div
+                        v-if="isComponent(entry[columnName])"
+                        class="w-full"
+                        data-test="plioListItem"
+                      >
                         <PlioListItem
                           :plioId="entry[columnName].value"
-                          :showActionsByDefault="!rowIndex"
                           @fetched="savePlioDetails(rowIndex, $event)"
+                          @deleted="deletePlio"
+                          :key="entry[columnName].value"
                         >
                         </PlioListItem>
                       </div>
@@ -149,21 +156,34 @@
                     </div>
                   </td>
                 </tr>
-                <!-- no search results warning -->
-                <tr v-if="isSearchStringPresent && isTableEmpty">
-                  <td :colspan="columns.length" class="text-center">
-                    <div
-                      class="text-xl tracking-tight font-extrabold text-gray-900 sm:text-2xl md:text-3xl inline-flex p-6"
-                    >
-                      {{ $t("home.table.search.no_plios_found") }}
-                    </div>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- no search results warning -->
+    <div
+      v-if="isSearchStringPresent && isTableEmpty & !pending"
+      data-test="noPliosWarning"
+      class="flex flex-col justify-center items-center py-12 space-y-2"
+    >
+      <!-- icon -->
+      <inline-svg
+        :src="getImageSource('exclamation-circle-solid.svg')"
+        class="h-8 sm:h-12"
+      ></inline-svg>
+      <!-- heading -->
+      <p class="text-center font-bold text-base sm:text-xl">
+        {{ $t("home.table.search.no_plios_found.title.1") }}
+        "{{ lastSearchString }}"
+        {{ $t("home.table.search.no_plios_found.title.2") }}
+      </p>
+      <!-- sub-heading -->
+      <p class="text-center text-sm sm:text-base w-full bp-500:w-3/4 md:w-1/2 xl:w-1/3">
+        {{ $t("home.table.search.no_plios_found.description") }}
+      </p>
     </div>
   </div>
 </template>
@@ -171,6 +191,7 @@
 <script>
 import PlioListItem from "@/components/Collections/ListItems/PlioListItem.vue";
 import IconButton from "@/components/UI/Buttons/IconButton";
+import Utilities from "@/services/Functional/Utilities.js";
 import { mapState, mapActions } from "vuex";
 
 export default {
@@ -182,12 +203,11 @@ export default {
       type: String,
     },
     tableTitle: {
-      // title to be given to the table
       default: "",
       type: String,
     },
+    /** total number of plios for the user */
     numTotal: {
-      // total number of plios for the user
       default: 0,
       type: Number,
     },
@@ -199,6 +219,9 @@ export default {
   data() {
     return {
       searchString: "", // the string to use when filtering the results
+      // the string which was used for the last search; this value won't be reactive
+      // with the user input in the search bar
+      lastSearchString: "",
       selectedRowIndex: null, // index of the row currently in focus / being hovered on
       // classes for the analyse button
       analyseButtonClass:
@@ -208,12 +231,13 @@ export default {
         "flex flex-row space-x-2 text-base sm:text-lg md:text-xl xl:text-2xl font-bold p-2 items-center",
       // classes for the search bar container
       searchContainerClass:
-        "bg-white rounded-md flex shadow-md border border-grey-light w-full xsm:w-2/3 sm:w-2/3 md:w-1/3 float-right mb-2 mt-2",
+        "bg-white rounded-md flex shadow-md border focus:outline-none border-grey-light w-full bp-360:w-2/3 sm:w-2/3 md:w-1/3 float-right mb-2 mt-2",
       // classes for search bar input box
       searchInputBoxClass:
-        "w-full text-gray-700 leading-tight p-2 pl-4 focus:outline-none",
+        "w-full rounded-md text-gray-700 leading-tight p-2 pl-4 focus:outline-none focus:ring-0 border-none",
       // sort order for the "number of viewers" column. 1 - ascending, -1 - descending
       numViewersSortOrder: 1,
+      numPliosLoaded: 0, // number of plios which have completed loading
     };
   },
 
@@ -222,14 +246,24 @@ export default {
   },
 
   watch: {
+    activeWorkspace() {
+      // reset search string
+      this.resetSearchString();
+    },
     searchString(value) {
       // emit a message whenever the search string becomes empty
       if (value == "") this.$emit("reset-search-string");
+    },
+    data() {
+      // whenever the data changes, reset the number of plios which
+      // have completed loading
+      this.numPliosLoaded = 0;
     },
   },
 
   computed: {
     ...mapState("sync", ["pending"]),
+    ...mapState("auth", ["activeWorkspace"]),
     isTouchDevice() {
       // detects if the user's device has a touchscreen or not
       return window.matchMedia("(any-pointer: coarse)").matches;
@@ -242,7 +276,7 @@ export default {
       // classes for search bar button
       return [
         { "pointer-events-none": !this.isSearchStringPresent },
-        "bg-grey-lightest border-grey border-l shadow hover:bg-primary-button p-4 text-primary hover:text-white",
+        "bg-grey-lightest border-grey border-l shadow hover:bg-primary p-4 text-primary hover:text-white",
       ];
     },
     analyseButtonTitleConfig() {
@@ -280,10 +314,24 @@ export default {
     },
   },
   methods: {
+    ...Utilities,
     ...mapActions("sync", ["startLoading"]),
+    searchIfEnter(event) {
+      /**
+       * detect if enter has been pressed after entering
+       * a text to search
+       */
+      // check if the key pressed is the enter key
+      if (event.key === "Enter" || event.keyCode === 13) {
+        /**
+         * event.key is the modern way of detecting keys
+         * event.keyCode is deprecated (left here for for legacy browsers support)
+         */
+        if (this.searchString.trim() != "") this.search();
+      }
+    },
     resetSearchString() {
-      // starts loading and resets the search string
-      this.startLoading();
+      // resets the search string
       this.searchString = "";
     },
     analysePlio(rowIndex) {
@@ -345,8 +393,12 @@ export default {
       return value.type == "component";
     },
     sortBy(columnName) {
-      // toggle the sort order for "number_of_viewers" column
-      // and emit it to the parent
+      /**
+       * toggle the sort order for "number_of_viewers" column
+       * and emit it to the parent
+       */
+      // do not perform any action if no rows are present
+      if (!this.localData.length) return;
       if (columnName == "number_of_viewers") {
         this.numViewersSortOrder = this.numViewersSortOrder * -1;
         this.$emit(
@@ -354,6 +406,10 @@ export default {
           this.numViewersSortOrder == -1 ? "-unique_viewers" : "unique_viewers"
         );
       }
+    },
+    deletePlio() {
+      // invoked when a plio is deleted
+      this.$emit("delete-plio");
     },
     savePlioDetails(rowIndex, plioDetails) {
       // save the plio's status after they are fetched from the PlioListItem
@@ -365,6 +421,14 @@ export default {
           ...this.localData[rowIndex]["name"],
           ...plioDetails,
         };
+      }
+
+      // increment the number of plios which have been loaded
+      this.numPliosLoaded += 1;
+
+      // if all the plios in the table have been loaded, emit
+      if (this.numPliosLoaded == this.localData.length) {
+        this.$emit("loaded");
       }
     },
     getColumnHeaderStyleClass(columnIndex) {
@@ -383,10 +447,17 @@ export default {
     },
     search() {
       // emit the search string whenever the user presses the search icon
+      this.lastSearchString = this.searchString;
       this.$emit("search-plios", { searchString: this.searchString });
     },
   },
 
-  emits: ["search-plios", "reset-search-string", "sort-num-viewers"],
+  emits: [
+    "search-plios",
+    "reset-search-string",
+    "sort-num-viewers",
+    "delete-plio",
+    "loaded",
+  ],
 };
 </script>

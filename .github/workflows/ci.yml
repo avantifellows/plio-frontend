@@ -10,9 +10,9 @@ jobs:
     name: Pre-commit
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
-    - uses: pre-commit/action@v2.0.0
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - uses: pre-commit/action@v2.0.0
 
   test:
     name: Test cases
@@ -26,6 +26,7 @@ jobs:
       - name: Run Test Cases
         env:
           VUE_APP_MIXPANEL_PROJECT_TOKEN: ${{ secrets.VUE_APP_MIXPANEL_PROJECT_TOKEN }}
+          VUE_APP_FRONTEND: ${{ secrets.VUE_APP_FRONTEND }}
         # command to run tests and generate coverage metrics
         run: npm run test:unit
 

@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import Dropdown from "@/components/UI/DropDownMenu/Dropdown";
+import SelectDropdown from "@/components/UI/DropDownMenu/SelectDropdown";
 
 const optionsList = [
   {
@@ -12,14 +12,14 @@ const optionsList = [
   },
 ];
 
-describe("Dropdown.vue", () => {
+describe("SelectDropdown.vue", () => {
   it("renders properly with default values", () => {
-    const wrapper = mount(Dropdown);
+    const wrapper = mount(SelectDropdown);
     expect(wrapper).toBeTruthy();
   });
 
   it("renders options list correctly", () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(SelectDropdown, {
       props: {
         optionsList,
       },

@@ -67,41 +67,43 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 export default {
   components: { IconButton },
   props: {
+    /** whether the answer has been submitted */
     isAnswerSubmitted: {
-      // whether the answer has been submitted
       default: false,
       type: Boolean,
     },
+    /** if the answer has been submitted, is it correct */
     isAnswerCorrect: {
-      // if the answer has been submitted, is it correct
       default: false,
       type: Boolean,
     },
+    /** whether the submit button is enabled */
     isSubmitEnabled: {
-      // whether the submit button is enabled
       default: false,
       type: Boolean,
     },
+    /** whether the original modal is in fullscreen */
     isFullscreen: {
-      // whether the original modal is in fullscreen
       default: false,
       type: Boolean,
     },
-    isPortrait: {
-      // whether the screen is in portraid mode
-      default: false,
-      type: Boolean,
-    },
+    /** text to be used as feedback once answer is submitted */
     answerFeedbackText: {
-      // text to be used as feedback once answer is submitted
       default: "",
       type: String,
     },
+    /** class for the text to be used as feedback once answer is submitted */
     answerFeedbackTextClass: {
-      // class for the text to be used as feedback once answer is submitted
       default: "",
       type: String,
     },
+  },
+  data() {
+    return {
+      // main styling class for this component
+      containerClass:
+        "flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end mb-4",
+    };
   },
   computed: {
     hasAnyAnswerFeedback() {
@@ -116,13 +118,6 @@ export default {
       set(localIsFullscreen) {
         this.$emit("update:isFullscreen", localIsFullscreen);
       },
-    },
-    containerClass() {
-      // main styling class for this component
-      return [
-        { "mb-auto": this.isPortrait },
-        "flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end mb-4",
-      ];
     },
     submitButtonTitleConfig() {
       // config for the text of the submit button

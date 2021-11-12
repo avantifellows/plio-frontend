@@ -33,7 +33,6 @@ export default function createUsersWebSocket() {
 
       UsersWebsocket.onclose = () => {
         // websocket has been closed
-        console.log("Websocket has been closed. Reconnecting again!");
 
         setTimeout(() => {
           // reconnect after RECONNECT_TIME if the user is still authenticated
@@ -52,11 +51,18 @@ export default function createUsersWebSocket() {
     const unsubscribe = store.subscribe((mutation) => {
       // subscribe to store mutations
 
-      // if the user has been newly set, make a new websocket connection and
-      // unsubscribe to the mutations of the previous websocket connection
-      if (mutation.type === "auth/setUser") connect(store, unsubscribe);
+      // if the user has been newly set, close any existing connection,
+      // make a new websocket connection and unsubscribe to the mutations of the previous websocket connection
+      if (mutation.type === "auth/setUser" && UsersWebsocket != undefined) {
+        UsersWebsocket.close();
+        connect(store, unsubscribe);
+      }
       // if the user has been unset, close the websocket
-      else if (mutation.type === "auth/unsetUser") UsersWebsocket.close();
+      else if (
+        mutation.type === "auth/unsetUser" &&
+        UsersWebsocket != undefined
+      )
+        UsersWebsocket.close();
     });
   };
 }
