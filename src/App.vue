@@ -504,7 +504,7 @@ export default {
     menuContainerClass() {
       return [
         {
-          "absolute z-10 bg-white w-full bp-500:w-auto":
+          "absolute z-10 bg-white w-full bp-500:w-1/3 lg:w-1/5":
             this.isMenuShownOverlay || (!this.isMenuShown && !this.onHomePage),
         },
         `p-2 sm:p-4 border-r-2 flex flex-col col-span-3 bp-500:col-span-1 h-screen`,
@@ -548,7 +548,7 @@ export default {
     whatsNewButtonIconConfig() {
       return {
         enabled: true,
-        iconName: "docs",
+        iconName: "gift",
         iconClass: this.menuButtonsIconClass,
       };
     },
