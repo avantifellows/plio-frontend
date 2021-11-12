@@ -61,6 +61,7 @@
             <a href="#" v-if="isAuthenticated" @click="logoutButtonClicked">
               <button
                 class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2"
+                data-test="logout"
               >
                 {{ $t("nav.logout") }}
               </button>

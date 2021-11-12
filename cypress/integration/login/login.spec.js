@@ -1,8 +1,6 @@
-/// <reference types="cypress" />
-
 describe('sees login', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:8080/')
+    cy.visit('/login')
   });
 
   it('sees the google sign in option', () => {
@@ -12,5 +10,10 @@ describe('sees login', () => {
 
   it('sees the language switcher dropdown', () => {
     cy.get('#locale > select').should('be.visible');
+  });
+
+  it('logs into the system', () => {
+    cy.loginByGoogleApi()
+    cy.get('[data-test="logout"]').should('be.visible');
   });
 });

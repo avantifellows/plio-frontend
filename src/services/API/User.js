@@ -60,6 +60,9 @@ export default {
 
   getUserConfig(userId) {
     // retrieves the config for the given user ID
+    console.log('userId', userId);
+    console.log('usersEndpoint', usersEndpoint);
+    console.log('userConfigEndpoint', userConfigEndpoint);
     return apiClient().get(usersEndpoint + userId + userConfigEndpoint);
   },
 
@@ -73,7 +76,8 @@ export default {
   refreshAccessToken() {
     // if a refresh token exists locally,
     // use the stored refresh token to request for a new access token
-    if (store.getters["auth/isRefreshTokenPresent"]) {
+    // if (store.getters["auth/isRefreshTokenPresent"]) {
+    if (store.state.auth.accessToken.refresh_token) {
       return apiClient().post(
         refreshTokenEndpoint,
         {
@@ -86,6 +90,6 @@ export default {
       );
     }
 
-    return Promise.reject("Refresh token not found in local storage");
+    return Promise.reject("Refresh token not found in local storage!!!!");
   },
 };
