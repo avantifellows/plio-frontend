@@ -38,74 +38,76 @@
       </div>
       <!-- main container -->
       <div :class="gridContainerClass">
-        <div :class="menuContainerClass" v-if="isMenuShown">
-          <!-- workspace switcher -->
-          <div class="place-self-center w-full" v-if="showWorkspaceSwitcher">
-            <WorkspaceSwitcher
-              class="flex justify-center"
+        <transition :name="menuSlideTransition">
+          <div :class="menuContainerClass" v-if="isMenuShown">
+            <!-- workspace switcher -->
+            <div class="place-self-center w-full" v-if="showWorkspaceSwitcher">
+              <WorkspaceSwitcher
+                class="flex justify-center"
+                :isDisabled="pending"
+              ></WorkspaceSwitcher>
+            </div>
+
+            <!-- create plio button -->
+            <icon-button
+              :titleConfig="createButtonMenuTextConfig"
+              :buttonClass="createButtonClass"
+              :class="{ 'hidden bp-500:inline': onHomePage }"
+              @click="createNewPlio"
               :isDisabled="pending"
-            ></WorkspaceSwitcher>
+            ></icon-button>
+
+            <!-- home button -->
+            <icon-button
+              class="place-self-start"
+              :iconConfig="homeButtonIconConfig"
+              :titleConfig="homeButtonTextConfig"
+              :buttonClass="menuButtonsClass"
+              @click="redirectToHome"
+              :isDisabled="pending"
+            ></icon-button>
+
+            <!-- product guides -->
+            <icon-button
+              class="place-self-start"
+              :iconConfig="productGuidesButtonIconConfig"
+              :titleConfig="productGuidesButtonTextConfig"
+              :buttonClass="menuButtonsClass"
+              @click="redirectToProductGuides"
+              :isDisabled="pending"
+            ></icon-button>
+
+            <!-- docs -->
+            <icon-button
+              class="place-self-start"
+              :iconConfig="docsButtonIconConfig"
+              :titleConfig="docsButtonTextConfig"
+              :buttonClass="menuButtonsClass"
+              @click="redirectToDocs"
+              :isDisabled="pending"
+            ></icon-button>
+
+            <!-- whats new -->
+            <icon-button
+              class="place-self-start"
+              :iconConfig="whatsNewButtonIconConfig"
+              :titleConfig="whatsNewButtonTextConfig"
+              :buttonClass="menuButtonsClass"
+              @click="redirectToWhatsNew"
+              :isDisabled="pending"
+            ></icon-button>
+
+            <!-- logout -->
+            <icon-button
+              class="place-self-start mt-auto"
+              :iconConfig="logoutButtonIconConfig"
+              :titleConfig="logoutButtonTextConfig"
+              :buttonClass="menuButtonsClass"
+              @click="logoutButtonClicked"
+              :isDisabled="pending"
+            ></icon-button>
           </div>
-
-          <!-- create plio button -->
-          <icon-button
-            :titleConfig="createButtonMenuTextConfig"
-            :buttonClass="createButtonClass"
-            :class="{ 'hidden bp-500:inline': onHomePage }"
-            @click="createNewPlio"
-            :isDisabled="pending"
-          ></icon-button>
-
-          <!-- home button -->
-          <icon-button
-            class="place-self-start"
-            :iconConfig="homeButtonIconConfig"
-            :titleConfig="homeButtonTextConfig"
-            :buttonClass="menuButtonsClass"
-            @click="redirectToHome"
-            :isDisabled="pending"
-          ></icon-button>
-
-          <!-- product guides -->
-          <icon-button
-            class="place-self-start"
-            :iconConfig="productGuidesButtonIconConfig"
-            :titleConfig="productGuidesButtonTextConfig"
-            :buttonClass="menuButtonsClass"
-            @click="redirectToProductGuides"
-            :isDisabled="pending"
-          ></icon-button>
-
-          <!-- docs -->
-          <icon-button
-            class="place-self-start"
-            :iconConfig="docsButtonIconConfig"
-            :titleConfig="docsButtonTextConfig"
-            :buttonClass="menuButtonsClass"
-            @click="redirectToDocs"
-            :isDisabled="pending"
-          ></icon-button>
-
-          <!-- whats new -->
-          <icon-button
-            class="place-self-start"
-            :iconConfig="whatsNewButtonIconConfig"
-            :titleConfig="whatsNewButtonTextConfig"
-            :buttonClass="menuButtonsClass"
-            @click="redirectToWhatsNew"
-            :isDisabled="pending"
-          ></icon-button>
-
-          <!-- logout -->
-          <icon-button
-            class="place-self-start"
-            :iconConfig="logoutButtonIconConfig"
-            :titleConfig="logoutButtonTextConfig"
-            :buttonClass="menuButtonsClass"
-            @click="logoutButtonClicked"
-            :isDisabled="pending"
-          ></icon-button>
-        </div>
+        </transition>
         <router-view :class="routerViewClass" :key="$route.fullPath" />
       </div>
     </div>
@@ -185,6 +187,7 @@ export default {
       menuButtonsClass: "rounded-lg ring-primary p-2 py-4",
       menuButtonsIconClass: "text-gray-500 fill-current h-4 md:h-6 w-4 md:w-6",
       menuButtonsTextClass: "text-sm md:text-base lg:text-lg ml-4 text-gray-500",
+      menuSlideTransition: "", // transition name for menu sliding effect
     };
   },
   async created() {
@@ -212,6 +215,11 @@ export default {
     // add event listeners to track if network connection went up or down
     window.Offline.on("down", this.showInternetLostToast);
     window.Offline.on("up", this.showInternetRestoredToast);
+
+    // if user lands on home page, no transition should be applied
+    // else apply a transition with the name "slide-fade"
+    if (this.onHomePage) this.menuSlideTransition = "";
+    else this.menuSlideTransition = "slide-fade";
   },
   beforeUnmount() {
     // remove the listener for the event of closing of the browser
@@ -255,6 +263,7 @@ export default {
       // check if the current user actually belongs to the activeWorkspace
       // set in the store. If not, then redirect to the personal workspace
       if (value) {
+        this.menuSlideTransition = "";
         let isUserInWorkspace = this.user.organizations.some((org) => {
           // no need to redirect if the user belongs to the workspace
           // or the user is in the personal workspace
@@ -275,6 +284,7 @@ export default {
         if (window.innerWidth > 500) this.isMenuButtonActive = true;
       } else {
         this.resetMenuState();
+        this.menuSlideTransition = "slide-fade";
       }
     },
     user: {
@@ -470,6 +480,7 @@ export default {
       return [
         {
           "col-span-2 lg:col-span-3 xl:col-span-4": this.isMenuShownInline,
+          "col-span-full": !this.isMenuShown,
           "opacity-50 pointer-events-none w-full": this.isMenuShownOverlay,
         },
       ];
@@ -477,14 +488,16 @@ export default {
     menuContainerClass() {
       return [
         {
-          "absolute z-10 bg-white w-full bp-500:w-auto": this.isMenuShownOverlay,
+          "absolute z-10 bg-white w-full bp-500:w-1/4":
+            this.isMenuShownOverlay || (!this.isMenuShown && !this.onHomePage),
         },
-        `p-2 sm:p-4 border-r-2 flex flex-col h-screen col-span-3 bp-500:col-span-1`,
+        `p-2 sm:p-4 border-r-2 flex flex-col h-screen-adjusted col-span-3 bp-500:col-span-1`,
       ];
     },
     gridContainerClass() {
       return {
-        "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5": this.isMenuShownInline,
+        "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5":
+          this.isMenuShownInline || !this.isMenuShown,
         flex: this.isMenuShownOverlay,
       };
     },
@@ -670,5 +683,21 @@ export default {
 @font-face {
   font-family: "Kruti Dev";
   src: local("Kruti Dev"), url("./assets/fonts/Kruti_Dev_10.TTF") format("truetype");
+}
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(-100%);
+}
+
+.h-screen-adjusted {
+  height: calc(100vh - 58px);
 }
 </style>
