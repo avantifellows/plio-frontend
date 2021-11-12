@@ -11,7 +11,7 @@
       >
         <!-- menu icon -->
         <icon-button
-          v-if="isAuthenticated"
+          v-if="isAuthenticated && isMenuButtonShown"
           :iconConfig="menuButtonIconConfig"
           :buttonClass="menuButtonClass"
           @click="toggleMenuButton"
@@ -52,6 +52,7 @@
             <icon-button
               :titleConfig="createButtonMenuTextConfig"
               :buttonClass="createButtonClass"
+              class="my-4"
               :class="{ 'hidden bp-500:inline': onHomePage }"
               @click="createNewPlio"
               :isDisabled="pending"
@@ -99,7 +100,7 @@
 
             <!-- logout -->
             <icon-button
-              class="place-self-start mt-auto"
+              class="place-self-start"
               :iconConfig="logoutButtonIconConfig"
               :titleConfig="logoutButtonTextConfig"
               :buttonClass="menuButtonsClass"
@@ -182,12 +183,13 @@ export default {
       userClickedLogout: false, // if the user has clicked the logout button
       // class for the create button
       createButtonClass:
-        "bg-primary hover:bg-primary-hover rounded-md shadow-lg my-4 w-full ring-primary p-2 sm:py-4",
+        "bg-primary hover:bg-primary-hover rounded-md shadow-lg w-full ring-primary p-2 sm:py-4",
       isMenuButtonActive: false,
       menuButtonsClass: "rounded-lg ring-primary p-2 py-4",
       menuButtonsIconClass: "text-gray-500 fill-current h-4 md:h-6 w-4 md:w-6",
       menuButtonsTextClass: "text-sm md:text-base lg:text-lg ml-4 text-gray-500",
       menuSlideTransition: "", // transition name for menu sliding effect
+      windowInnerWidth: window.innerWidth,
     };
   },
   async created() {
@@ -216,14 +218,15 @@ export default {
     window.Offline.on("down", this.showInternetLostToast);
     window.Offline.on("up", this.showInternetRestoredToast);
 
-    // if user lands on home page, no transition should be applied
-    // else apply a transition with the name "slide-fade"
-    if (this.onHomePage) this.menuSlideTransition = "";
-    else this.menuSlideTransition = "slide-fade";
+    // if user does not land on the home page, apply a transition
+    if (!this.onHomePage) this.menuSlideTransition = "slide-fade";
+
+    window.addEventListener("resize", this.setWindowProperties);
   },
   beforeUnmount() {
     // remove the listener for the event of closing of the browser
     window.removeEventListener("beforeunload", this.onClose);
+    window.removeEventListener("resize", this.setWindowProperties);
 
     // remove the listeners set to track network connection
     window.Offline.off("down", this.showInternetLostToast);
@@ -281,7 +284,7 @@ export default {
           this.unsetActiveWorkspace();
         }
 
-        if (window.innerWidth > 500) this.isMenuButtonActive = true;
+        if (!this.isMobileScreen) this.isMenuButtonActive = true;
       } else {
         this.resetMenuState();
         this.menuSlideTransition = "slide-fade";
@@ -335,6 +338,9 @@ export default {
     resetMenuState() {
       this.isMenuButtonActive = false;
     },
+    setWindowProperties() {
+      this.windowInnerWidth = window.innerWidth;
+    },
     /**
      * Show a toast telling the user that the internet connection went down
      */
@@ -369,7 +375,7 @@ export default {
       this.logoutUser();
     },
     redirectToHome() {
-      if (window.innerWidth <= 500) this.resetMenuState();
+      if (this.isMobileScreen) this.resetMenuState();
       this.$router.push({ name: "Home", params: { org: this.activeWorkspace } });
     },
     redirectToWhatsNew() {
@@ -476,12 +482,22 @@ export default {
       "isBackgroundDisabled",
     ]),
     ...mapState("sync", ["pending"]),
+    isRouterViewShown() {
+      return !(this.isMenuShownInline && this.isMobileScreen);
+    },
+    isMenuButtonShown() {
+      return !this.onHomePage || this.isMobileScreen;
+    },
+    isMobileScreen() {
+      return this.windowInnerWidth <= 500;
+    },
     routerViewClass() {
       return [
         {
           "col-span-2 lg:col-span-3 xl:col-span-4": this.isMenuShownInline,
           "col-span-full": !this.isMenuShown,
           "opacity-50 pointer-events-none w-full": this.isMenuShownOverlay,
+          hidden: !this.isRouterViewShown,
         },
       ];
     },
@@ -491,7 +507,7 @@ export default {
           "absolute z-10 bg-white w-full bp-500:w-1/4":
             this.isMenuShownOverlay || (!this.isMenuShown && !this.onHomePage),
         },
-        `p-2 sm:p-4 border-r-2 flex flex-col h-screen-adjusted col-span-3 bp-500:col-span-1`,
+        `p-2 sm:p-4 border-r-2 flex flex-col col-span-3 bp-500:col-span-1 h-screen`,
       ];
     },
     gridContainerClass() {
@@ -542,7 +558,7 @@ export default {
           "bg-gray-300": !this.isMenuButtonActive,
           "bg-primary": this.isMenuButtonActive,
         },
-        `rounded-md border shadow-lg ring-primary w-16 p-2`,
+        `rounded-md border shadow-lg ring-primary h-12 w-12 p-2 self-center`,
       ];
     },
     menuButtonIconConfig() {
@@ -695,9 +711,5 @@ export default {
 .slide-fade-enter-from,
 .slide-fade-leave-to {
   transform: translateX(-100%);
-}
-
-.h-screen-adjusted {
-  height: calc(100vh - 58px);
 }
 </style>
