@@ -139,6 +139,17 @@ router.beforeEach((to, from) => {
   // clear all toasts whenever the route changes
   toast.clear();
 
+  // if internet is down, show the internet lost toast
+  if (window.Offline.state == "down")
+    toast.error(i18n.global.t("error.internet_lost"), {
+      id: "internetLostToast",
+      position: "bottom-center",
+      timeout: false,
+      closeOnClick: false,
+      draggable: false,
+      closeButton: false,
+    });
+
   // clear all confetti whenever the route changes
   if (animationFrameRequest != null) resetConfetti();
 

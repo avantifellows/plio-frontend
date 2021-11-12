@@ -38,6 +38,7 @@ Fixes #{issue id}
 - [ ] Images have `alt` attributes
 - [ ] Any `target="_blank"` links have `rel="noopener"`
 - [ ] Only SVGs are used as images. If PNGs are used, their size has been optimised.
+- [ ] Any SVGs without text have their `aria-label` attributes set
 - [ ] Tested on staging
 - [ ] Tested on an actual physical phone
 - [ ] Tested on production

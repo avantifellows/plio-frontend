@@ -11,6 +11,7 @@ import Toast from "vue-toastification";
 import VueProgressBar from "@aacassandra/vue3-progressbar";
 import VueClickAway from "vue3-click-away";
 import mixpanel from "mixpanel-browser";
+import "offline-js";
 
 // sentry imports
 import * as Sentry from "@sentry/browser";

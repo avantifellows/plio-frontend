@@ -207,13 +207,21 @@ export default {
       await this.fetchAndUpdateUser();
     }
     // ask user to pick the language if they are visiting for the first time
-    if (this.locale == null && this.isAuthenticated) {
+    if (this.locale == null && this.user != null) {
       this.showLanguagePickerDialog = true;
     }
+
+    // add event listeners to track if network connection went up or down
+    window.Offline.on("down", this.showInternetLostToast);
+    window.Offline.on("up", this.showInternetRestoredToast);
   },
   beforeUnmount() {
     // remove the listener for the event of closing of the browser
     window.removeEventListener("beforeunload", this.onClose);
+
+    // remove the listeners set to track network connection
+    window.Offline.off("down", this.showInternetLostToast);
+    window.Offline.off("up", this.showInternetRestoredToast);
   },
   mounted() {
     // remove hash from the url if it is present
@@ -318,6 +326,40 @@ export default {
     ...mapActions("sync", ["stopLoading"]),
     resetMenuPressedState() {
       this.isMenuButtonPressed = false;
+    },
+    /**
+     * Show a toast telling the user that the internet connection went down
+     */
+    showInternetLostToast() {
+      // dismiss the internet restored toast if it exists
+      this.toast.dismiss("internetRestoredToast");
+      // show a internet lost toast
+      this.toast.error(this.$t("error.internet_lost"), {
+        id: "internetLostToast",
+        position: "bottom-center",
+        timeout: false,
+        closeOnClick: false,
+        draggable: false,
+        closeButton: false,
+      });
+    },
+    /**
+     * Show a toast telling the user that the internet connection is up now
+     */
+    showInternetRestoredToast() {
+      // dismiss the internet lost toast if it exists
+      this.toast.dismiss("internetLostToast");
+      // show an internet restored toast
+      this.toast.success(this.$t("error.internet_restored"), {
+        id: "internetRestoredToast",
+        position: "bottom-center",
+      });
+    },
+    logoutButtonClicked() {
+      // set whether the logout action as triggered by the user or not
+      this.userClickedLogout = true;
+      // logout the user
+      this.logoutUser();
     },
     redirectToHome() {
       if (window.innerWidth <= 500) this.resetMenuPressedState();
