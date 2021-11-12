@@ -49,7 +49,7 @@
   </div>
   <!-- generic dialog box -->
   <dialog-box
-    class="fixed top-1/3 bp-420:left-1/4 sm:left-1/3 z-10"
+    class="fixed top-1/3 bp-420:left-1/4 sm:left-1/3 z-50"
     :style="dialogStyle"
     v-if="showDialogBox"
     :title="dialogTitle"
@@ -130,6 +130,8 @@ export default {
 
     // add listener for scrolling
     window.addEventListener("scroll", this.handleScroll);
+
+    this.setOptionsOverflowMarginTop();
   },
   unmounted() {
     // remove listeners
@@ -281,6 +283,9 @@ export default {
       // invoked when the screen is resized
       this.windowWidth = window.innerWidth;
 
+      this.setOptionsOverflowMarginTop();
+    },
+    setOptionsOverflowMarginTop() {
       /**
        * there are 3 conditions which require different values for the margin top:
        * 1. not a touch screen device

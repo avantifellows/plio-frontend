@@ -29,8 +29,12 @@
         ></icon-button>
 
         <div
-          class="grid justify-items-end bp-500:col-span-2"
-          :class="{ 'col-span-2': !onHomePage }"
+          class="grid justify-items-end"
+          :class="{
+            'col-span-2': !isMobileScreen || !onHomePage,
+            'col-span-1': isMobileScreen,
+            'bp-500:col-span-3': onHomePage,
+          }"
         >
           <!-- locale switcher -->
           <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
@@ -507,7 +511,7 @@ export default {
           "absolute z-10 bg-white w-full bp-500:w-1/3 lg:w-1/5":
             this.isMenuShownOverlay || (!this.isMenuShown && !this.onHomePage),
         },
-        `p-2 sm:p-4 border-r-2 flex flex-col col-span-3 bp-500:col-span-1 h-screen`,
+        `p-2 sm:p-4 border-r-2 flex flex-col col-span-3 bp-500:col-span-1 h-full`,
       ];
     },
     gridContainerClass() {
