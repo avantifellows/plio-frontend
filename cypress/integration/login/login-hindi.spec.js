@@ -22,6 +22,5 @@ describe("sees login", () => {
     cy.get('[data-test="logout"]')
       .should("be.visible")
       .should("have.text", "लॉगआउट");
-    // cy.get('[data-test="logout"]').should('have.text', 'लॉगआउट');
   });
 });

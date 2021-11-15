@@ -73,8 +73,7 @@ export default {
   refreshAccessToken() {
     // if a refresh token exists locally,
     // use the stored refresh token to request for a new access token
-    // if (store.getters["auth/isRefreshTokenPresent"]) {
-    if (store.state.auth.accessToken.refresh_token) {
+    if (store.getters["auth/isRefreshTokenPresent"]) {
       return apiClient().post(
         refreshTokenEndpoint,
         {
@@ -87,6 +86,6 @@ export default {
       );
     }
 
-    return Promise.reject("Refresh token not found in local storage!!!!");
+    return Promise.reject("Refresh token not found in local storage");
   },
 };
