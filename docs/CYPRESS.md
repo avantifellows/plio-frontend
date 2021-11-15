@@ -27,7 +27,7 @@ To configure your local setup for Cypress, only the following steps are needed:
 Plio uses `cypress.env.json` to set up environment variables for the Cypress app. Below are the details of all the environment variables.
 
 #### `baseUrl`
-Base url for the frontend App. By default it's `http://localhost:8080`.
+Base url for the frontend App. By default the value is `http://localhost:8080`.
 
 #### `google_auth.refresh_token`
 Google refresh token retrieved in the pre-requisites.
