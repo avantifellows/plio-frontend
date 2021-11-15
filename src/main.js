@@ -63,7 +63,7 @@ const filterBeforeCreate = (toast, toasts) => {
 
 // Cypress automatically sets window.Cypress by default
 if (window.Cypress) {
-  window.__store__ = store
+  window.__store__ = store;
 }
 
 const app = createApp(App).use(store).use(router);

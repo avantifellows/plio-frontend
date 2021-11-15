@@ -60,9 +60,6 @@ export default {
 
   getUserConfig(userId) {
     // retrieves the config for the given user ID
-    console.log('userId', userId);
-    console.log('usersEndpoint', usersEndpoint);
-    console.log('userConfigEndpoint', userConfigEndpoint);
     return apiClient().get(usersEndpoint + userId + userConfigEndpoint);
   },
 
