@@ -4,8 +4,8 @@ const state = {
   isBackgroundDisabled: false,
   plioLinkToShare: null,
   plioIdToEmbed: null, // uuid of the plio to be embedded
-  windowInnerWidth: null,
-  windowInnerHeight: null,
+  windowInnerWidth: null, // inner width of the window
+  windowInnerHeight: null, // inner height of the window
 };
 const getters = {};
 const actions = {

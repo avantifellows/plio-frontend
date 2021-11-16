@@ -43,6 +43,7 @@
       <!-- main container -->
       <div :class="gridContainerClass">
         <transition :name="menuSlideTransition">
+          <!-- menu -->
           <div :class="menuContainerClass" v-if="isMenuShown">
             <!-- workspace switcher -->
             <div class="place-self-center w-full" v-if="showWorkspaceSwitcher">
@@ -172,6 +173,8 @@ import PlioAPIService from "@/services/API/Plio.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 
+const MOBILE_SCREEN_WIDTH_THRESHOLD = 500;
+
 export default {
   components: {
     LocaleSwitcher,
@@ -188,10 +191,10 @@ export default {
       // class for the create button
       createButtonClass:
         "bg-primary hover:bg-primary-hover rounded-md shadow-lg w-full ring-primary p-2 sm:py-4",
-      isMenuButtonActive: false,
-      menuButtonsClass: "rounded-lg ring-primary p-2 py-4",
-      menuButtonsIconClass: "text-gray-500 fill-current h-4 md:h-6 w-4 md:w-6",
-      menuButtonsTextClass: "text-sm md:text-base lg:text-lg ml-4 text-gray-500",
+      isMenuButtonActive: false, // whether the menu button is active
+      menuButtonsClass: "rounded-lg ring-primary p-2 py-4", // common classes for the menu buttons
+      menuButtonsIconClass: "text-gray-500 fill-current h-4 md:h-6 w-4 md:w-6", // common classes for the icon of the menu buttons
+      menuButtonsTextClass: "text-sm md:text-base lg:text-lg ml-4 text-gray-500", // common classes for the text of the menu buttons
       menuSlideTransition: "", // transition name for menu sliding effect
     };
   },
@@ -288,8 +291,10 @@ export default {
           this.unsetActiveWorkspace();
         }
 
+        // if the user visits the home page on a non-mobile device, activate the menu button
         if (!this.isMobileScreen) this.isMenuButtonActive = true;
       } else {
+        // if the user moves away from the home page, hide the menu button
         this.resetMenuState();
         this.menuSlideTransition = "slide-fade";
       }
@@ -341,9 +346,11 @@ export default {
       "setWindowInnerHeight",
     ]),
     ...mapActions("sync", ["stopLoading"]),
+    /** resets the state of the menu button to inactive */
     resetMenuState() {
       this.isMenuButtonActive = false;
     },
+    /** sets various properties dependent on the window size */
     setWindowProperties() {
       this.setWindowInnerWidth(window.innerWidth);
       this.setWindowInnerHeight(window.innerHeight);
@@ -376,21 +383,26 @@ export default {
         position: "bottom-center",
       });
     },
+    /** sets that the user intentionally wants to log out and logs out the user */
     logoutButtonClicked() {
       // set whether the logout action was triggered by the user
       this.userClickedLogout = true;
       this.logoutUser();
     },
+    /** redirects to the home page */
     redirectToHome() {
       if (this.isMobileScreen) this.resetMenuState();
       this.$router.push({ name: "Home", params: { org: this.activeWorkspace } });
     },
+    /** redirects to the What's New page */
     redirectToWhatsNew() {
       window.open("https://plio.substack.com/", "_blank", "noopener");
     },
+    /** redirects to the Documentation page */
     redirectToDocs() {
       window.open("https://docs.plio.in/", "_blank", "noopener");
     },
+    /** redirects to the playlist for the Product Guides */
     redirectToProductGuides() {
       window.open(
         "https://www.youtube.com/playlist?list=PL3U0Jqw-piJgw2hSpuAZym4K1_Tb0RTRV",
@@ -398,12 +410,14 @@ export default {
         "noopener"
       );
     },
+    /** toggles the state of the menu button between active/inactive */
     toggleMenuButton() {
       this.isMenuButtonActive = !this.isMenuButtonActive;
     },
+    /**
+     * creates a new draft plio and redirects the user to the editor
+     */
     createNewPlio() {
-      // invoked when the user clicks on Create
-      // creates a new draft plio and redirects the user to the editor
       this.$Progress.start();
       this.$mixpanel.track("Click Create");
       this.$mixpanel.people.set_once({
@@ -426,8 +440,8 @@ export default {
         .catch(() => this.toast.error(this.$t("error.create_plio")));
       this.resetMenuState();
     },
+    /** logs out the user */
     logoutUser() {
-      // logs out the user
       this.unsetAccessToken().then(() => {
         this.$router.replace({
           name: "Login",
@@ -459,8 +473,10 @@ export default {
       if (this.isSharePlioDialogShown) this.unsetSharePlioDialog();
       if (this.isEmbedPlioDialogShown) this.unsetEmbedPlioDialog();
     },
+    /**
+     * sets the given locale as the locale for the user
+     */
     setLocale(locale) {
-      // sets the given locale as the locale for the user
       this.$mixpanel.register({
         "Current Locale": locale,
       });
@@ -469,11 +485,10 @@ export default {
       UserConfigService.updateLocale();
       this.showLanguagePickerDialog = false;
     },
+    /**
+     * triggered when any keyboard button is pressed
+     */
     keyboardPressed() {
-      /**
-       * triggered when any keyboard button is pressed
-       */
-
       // prevent keyboard buttons from working if isBackgroundDisabledLocal = true
       if (this.isBackgroundDisabledLocal) event.preventDefault();
     },
@@ -490,15 +505,27 @@ export default {
       "windowInnerWidth",
     ]),
     ...mapState("sync", ["pending"]),
+    /**
+     * whether the router view is shown
+     */
     isRouterViewShown() {
       return !(this.isMenuShownInline && this.isMobileScreen);
     },
+    /**
+     * whether the menu button is shown
+     */
     isMenuButtonShown() {
       return !this.onHomePage || this.isMobileScreen;
     },
+    /**
+     * whether the current screen is a mobile screen
+     */
     isMobileScreen() {
-      return this.windowInnerWidth <= 500;
+      return this.windowInnerWidth <= MOBILE_SCREEN_WIDTH_THRESHOLD;
     },
+    /**
+     * classes for the router view
+     */
     routerViewClass() {
       return [
         {
@@ -509,6 +536,9 @@ export default {
         },
       ];
     },
+    /**
+     * classes for the menu container
+     */
     menuContainerClass() {
       return [
         {
@@ -518,6 +548,9 @@ export default {
         `p-2 sm:p-4 border-r-2 flex flex-col col-span-3 bp-500:col-span-1 h-screen`,
       ];
     },
+    /**
+     * classes for the main grid
+     */
     gridContainerClass() {
       return {
         "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5":
@@ -525,6 +558,9 @@ export default {
         flex: this.isMenuShownOverlay,
       };
     },
+    /**
+     * config of the icon for the logout button
+     */
     logoutButtonIconConfig() {
       return {
         enabled: true,
@@ -532,6 +568,9 @@ export default {
         iconClass: this.menuButtonsIconClass,
       };
     },
+    /**
+     * config of the icon for the docs button
+     */
     docsButtonIconConfig() {
       return {
         enabled: true,
@@ -539,6 +578,9 @@ export default {
         iconClass: this.menuButtonsIconClass,
       };
     },
+    /**
+     * config of the icon for the product guides button
+     */
     productGuidesButtonIconConfig() {
       return {
         enabled: true,
@@ -546,6 +588,9 @@ export default {
         iconClass: this.menuButtonsIconClass,
       };
     },
+    /**
+     * config of the icon for the home button
+     */
     homeButtonIconConfig() {
       return {
         enabled: true,
@@ -553,6 +598,9 @@ export default {
         iconClass: this.menuButtonsIconClass,
       };
     },
+    /**
+     * config of the icon for the what's new button
+     */
     whatsNewButtonIconConfig() {
       return {
         enabled: true,
@@ -560,6 +608,9 @@ export default {
         iconClass: this.menuButtonsIconClass,
       };
     },
+    /**
+     * classes for the menu button
+     */
     menuButtonClass() {
       return [
         {
@@ -569,6 +620,9 @@ export default {
         `rounded-md border shadow-lg ring-primary h-12 w-12 p-2 self-center`,
       ];
     },
+    /**
+     * config of the icon for the menu button
+     */
     menuButtonIconConfig() {
       // config for the icon of menu button
       return {
@@ -577,6 +631,9 @@ export default {
         iconClass: this.menuIconClass,
       };
     },
+    /**
+     * classes for the icon of the menu button
+     */
     menuIconClass() {
       return [
         {
@@ -586,15 +643,27 @@ export default {
         `fill-current h-8 w-8`,
       ];
     },
+    /**
+     * whether the menu has been shown
+     */
     isMenuShown() {
       return this.isMenuShownInline || this.isMenuShownOverlay;
     },
+    /**
+     * whether the menu has been shown in line with the router view
+     */
     isMenuShownInline() {
       return this.isAuthenticated && this.isMenuButtonActive && this.onHomePage;
     },
+    /**
+     * whether the menu has been shown as an overlay on top of the router view
+     */
     isMenuShownOverlay() {
       return this.isAuthenticated && this.isMenuButtonActive && !this.onHomePage;
     },
+    /**
+     * config for the text of the create button
+     */
     createButtonMenuTextConfig() {
       // config for the text of the main create button
       return {
@@ -602,6 +671,9 @@ export default {
         class: "text-md sm:text-lg md:text-xl lg:text-2xl text-white",
       };
     },
+    /**
+     * config for the text of the logout button
+     */
     logoutButtonTextConfig() {
       // config for the logout button
       return {
@@ -609,6 +681,9 @@ export default {
         class: this.menuButtonsTextClass,
       };
     },
+    /**
+     * config for the text of the what's new button
+     */
     whatsNewButtonTextConfig() {
       // config for the whats new button
       return {
@@ -616,13 +691,18 @@ export default {
         class: this.menuButtonsTextClass,
       };
     },
+    /**
+     * config for the text of the product guides button
+     */
     productGuidesButtonTextConfig() {
-      // config for the product guides button
       return {
         value: this.$t("nav.product_guides"),
         class: this.menuButtonsTextClass,
       };
     },
+    /**
+     * config for the text of the home button
+     */
     homeButtonTextConfig() {
       // config for the home button
       return {
@@ -630,6 +710,9 @@ export default {
         class: this.menuButtonsTextClass,
       };
     },
+    /**
+     * config for the text of the docs button
+     */
     docsButtonTextConfig() {
       // config for the plio docs button
       return {
@@ -637,45 +720,66 @@ export default {
         class: this.menuButtonsTextClass,
       };
     },
+    /**
+     * whether to show workspace switcher
+     */
     showWorkspaceSwitcher() {
-      // whether to show workspace switcher
       return this.user.organizations.length > 0;
     },
+    /**
+     * dynamic classes for the nav bar
+     */
     navBarClass() {
-      // dynamic classes for the nav bar
       return {
         hidden: this.isNavBarHidden,
       };
     },
+    /**
+     * whether the nav bar is hidden
+     */
     isNavBarHidden() {
-      // whether the nav bar is hidden
       return this.onPlioPage || this.onPlayerPage;
     },
+    /**
+     * the current route that the user is on
+     */
     currentRoute() {
       return this.$route.path;
     },
+    /**
+     * whether the current page is the home page
+     */
     onHomePage() {
-      // whether the current page is the home page
       return this.$route.name == "Home";
     },
+    /**
+     * whether the current page is the plio embed page
+     */
     onPlioPage() {
-      // whether the current page is the plio embed page
       return this.$route.name == "Plio";
     },
+    /**
+     * whether the current page is the editor page
+     */
     onEditorPage() {
-      // whether the current page is the editor page
       return this.$route.name == "Editor";
     },
+    /**
+     * whether the current page is the player page
+     */
     onPlayerPage() {
-      // whether the current page is the player page
       return this.$route.name == "Player";
     },
+    /**
+     * whether the current page is the login page
+     */
     onLoginPage() {
-      // whether the current page is the login page
       return this.$route.name == "Login";
     },
+    /**
+     * whether the background should be disabled
+     */
     isBackgroundDisabledLocal() {
-      // whether the background should be disabled
       return (
         this.showLanguagePickerDialog ||
         this.isSharePlioDialogShown ||
@@ -683,8 +787,10 @@ export default {
         this.isBackgroundDisabled
       );
     },
+    /**
+     * list of shortcodes of all workspaces that the user is a part of
+     */
     allWorkspaces() {
-      // list of shortcodes of all workspaces that the user is a part of
       if (this.user == null) return [];
       var shortcodes = [];
 
@@ -708,6 +814,7 @@ export default {
   font-family: "Kruti Dev";
   src: local("Kruti Dev"), url("./assets/fonts/Kruti_Dev_10.TTF") format("truetype");
 }
+/* defines the transition that happens upon toggling the menu button */
 .slide-fade-enter-active {
   transition: all 0.3s ease-out;
 }

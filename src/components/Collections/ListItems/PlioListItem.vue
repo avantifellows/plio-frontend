@@ -49,7 +49,7 @@
   </div>
   <!-- generic dialog box -->
   <dialog-box
-    class="fixed top-1/3 bp-420:left-1/4 sm:left-1/3 z-50"
+    class="fixed top-1/3 bp-420:left-1/4 sm:left-1/3 z-10"
     :style="dialogStyle"
     v-if="showDialogBox"
     :title="dialogTitle"
@@ -285,13 +285,17 @@ export default {
 
       this.setOptionsOverflowMarginTop();
     },
+    /**
+     * set the default value of margin-top for the options container
+     * for the condition when the container overflows from the bottom
+     * of the screen.
+     *
+     * there are 3 conditions which require different values for the margin top:
+     * 1. not a touch screen device
+     * 2. touch screen device with screen width < 640
+     * 3. touch screen device with screen width >= 640
+     */
     setOptionsOverflowMarginTop() {
-      /**
-       * there are 3 conditions which require different values for the margin top:
-       * 1. not a touch screen device
-       * 2. touch screen device with screen width < 640
-       * 3. touch screen device with screen width >= 640
-       */
       if (this.isTouchDevice) {
         if (this.isMobileScreen) this.optionsOverflowMarginTop = -18;
         else this.optionsOverflowMarginTop = -16;
