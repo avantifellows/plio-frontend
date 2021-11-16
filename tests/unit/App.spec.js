@@ -18,7 +18,11 @@ describe("App.vue", () => {
       global: {
         plugins: [router],
       },
+      stubs: {
+        "vue-progress-bar": true,
+      },
     });
+    expect(wrapper.vm.isAuthenticated).toBeFalsy();
     expect(wrapper).toBeTruthy();
   });
 });
