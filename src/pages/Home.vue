@@ -116,7 +116,7 @@ export default {
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
-    createButtonEmptyTextConfig() {
+    createButtonTextConfig() {
       // config for the text of the create button shown when no plios have been created
       return {
         value: this.$t("home.create_button_empty"),

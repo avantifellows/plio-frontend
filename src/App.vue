@@ -11,7 +11,7 @@
       >
         <!-- menu icon -->
         <icon-button
-          v-if="isAuthenticated && isMenuButtonShown"
+          v-if="isAuthenticated && isMenuButtonShown && !isPageLoading"
           :iconConfig="menuButtonIconConfig"
           :buttonClass="menuButtonClass"
           @click="toggleMenuButton"
@@ -29,8 +29,9 @@
         ></icon-button>
 
         <div
-          class="grid justify-items-end"
+          class="grid justify-items-end z-10"
           :class="{
+            'col-span-3': !isAuthenticated,
             'col-span-2': !isMobileScreen || !onHomePage,
             'col-span-1': isMobileScreen,
             'bp-500:col-span-3': onHomePage,
@@ -751,6 +752,12 @@ export default {
      */
     onHomePage() {
       return this.$route.name == "Home";
+    },
+    /**
+     * whether the page is still loading
+     */
+    isPageLoading() {
+      return this.$route.name == undefined;
     },
     /**
      * whether the current page is the plio embed page
