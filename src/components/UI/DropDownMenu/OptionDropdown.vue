@@ -60,6 +60,7 @@
 
 <script>
 import Utilities from "@/services/Functional/Utilities.js";
+import { mapState } from "vuex";
 
 const DEFAULT_OPTIONS_MARGIN_TOP = 2;
 
@@ -90,6 +91,7 @@ export default {
     },
   },
   computed: {
+    ...mapState("generic", ["windowInnerHeight"]),
     defaultOptionMarginPx() {
       // default margin-top (in pixels) of the option dropdown without any scrolling effect
       return this.convertRemToPixels(this.defaultOptionMarginRem);
@@ -182,7 +184,7 @@ export default {
       const optionsContainer = document.querySelector("#dropdownOptions");
       if (optionsContainer != null) {
         const rectangle = optionsContainer.getBoundingClientRect();
-        return rectangle.bottom >= window.innerHeight;
+        return rectangle.bottom >= this.windowInnerHeight;
       }
       return false;
     },

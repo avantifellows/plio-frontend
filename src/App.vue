@@ -193,7 +193,6 @@ export default {
       menuButtonsIconClass: "text-gray-500 fill-current h-4 md:h-6 w-4 md:w-6",
       menuButtonsTextClass: "text-sm md:text-base lg:text-lg ml-4 text-gray-500",
       menuSlideTransition: "", // transition name for menu sliding effect
-      windowInnerWidth: window.innerWidth,
     };
   },
   async created() {
@@ -225,6 +224,7 @@ export default {
     // if user does not land on the home page, apply a transition
     if (!this.onHomePage) this.menuSlideTransition = "slide-fade";
 
+    this.setWindowProperties();
     window.addEventListener("resize", this.setWindowProperties);
   },
   beforeUnmount() {
@@ -337,13 +337,16 @@ export default {
       "unsetSharePlioDialog",
       "unsetEmbedPlioDialog",
       "enableBackground",
+      "setWindowInnerWidth",
+      "setWindowInnerHeight",
     ]),
     ...mapActions("sync", ["stopLoading"]),
     resetMenuState() {
       this.isMenuButtonActive = false;
     },
     setWindowProperties() {
-      this.windowInnerWidth = window.innerWidth;
+      this.setWindowInnerWidth(window.innerWidth);
+      this.setWindowInnerHeight(window.innerHeight);
     },
     /**
      * Show a toast telling the user that the internet connection went down
@@ -484,6 +487,7 @@ export default {
       "plioLinkToShare",
       "plioIdToEmbed",
       "isBackgroundDisabled",
+      "windowInnerWidth",
     ]),
     ...mapState("sync", ["pending"]),
     isRouterViewShown() {
