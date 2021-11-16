@@ -517,7 +517,7 @@ export default {
     gridContainerClass() {
       return {
         "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5":
-          this.isMenuShownInline || !this.isMenuShown,
+          this.isMenuShownInline || !this.isMenuShownOverlay,
         flex: this.isMenuShownOverlay,
       };
     },
