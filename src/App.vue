@@ -16,7 +16,6 @@
           :buttonClass="menuButtonClass"
           @click="toggleMenuButton"
           :isDisabled="pending"
-          v-click-away="!onHomePage ? toggleMenuButton : () => {}"
         ></icon-button>
 
         <!-- create plio button - visible only in mobile screens -->
@@ -46,7 +45,11 @@
       <div :class="gridContainerClass">
         <transition :name="menuSlideTransition">
           <!-- menu -->
-          <div :class="menuContainerClass" v-if="isMenuShown">
+          <div
+            :class="menuContainerClass"
+            v-if="isMenuShown"
+            v-click-away="!onHomePage ? toggleMenuButton : () => {}"
+          >
             <!-- workspace switcher -->
             <div class="place-self-center w-full" v-if="showWorkspaceSwitcher">
               <WorkspaceSwitcher
