@@ -72,10 +72,8 @@ import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import OptionDropdown from "@/components/UI/DropDownMenu/OptionDropdown.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
-import { mapState, mapActions } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 import { useToast } from "vue-toastification";
-
-const MOBILE_SCREEN_WIDTH_THRESHOLD = 640;
 
 export default {
   name: "PlioThumbnail",
@@ -106,7 +104,6 @@ export default {
       dialogConfirmButtonConfig: {}, // config of the confirm button of the dialog box
       dialogCancelButtonConfig: {}, // config of the cancel button of the dialog box
       toast: useToast(), // toast component
-      windowWidth: window.innerWidth, // width for the window
       optionsOverflowMarginTop: -14, // margin to be set from the top when the options would overflow from the screen
     };
   },
@@ -141,15 +138,9 @@ export default {
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
+    ...mapState("generic", ["windowInnerWidth"]),
     ...mapState("plioItems", ["allPlioDetails"]),
-
-    /**
-     * whether the current screen size can be
-     * classified as a mobile screen
-     */
-    isMobileScreen() {
-      return this.windowWidth < MOBILE_SCREEN_WIDTH_THRESHOLD;
-    },
+    ...mapGetters("generic", ["isTabScreen"]),
 
     dialogStyle() {
       /**
@@ -157,9 +148,9 @@ export default {
        * these styles were not available as part of tailwind
        * seemed too specific to add them to the config
        */
-      if (this.windowWidth > 420) return "";
-      if (this.windowWidth > 400) return "left: 20%";
-      if (this.windowWidth > 340) return "left: 15%";
+      if (this.windowInnerWidth > 420) return "";
+      if (this.windowInnerWidth > 400) return "left: 20%";
+      if (this.windowInnerWidth > 340) return "left: 15%";
       return "left: 10%";
     },
 
@@ -279,10 +270,10 @@ export default {
       "enableBackground",
     ]),
     ...Utilities,
+    /**
+     * sets various attributes based on the screen size
+     */
     handleResize() {
-      // invoked when the screen is resized
-      this.windowWidth = window.innerWidth;
-
       this.setOptionsOverflowMarginTop();
     },
     /**
@@ -297,7 +288,7 @@ export default {
      */
     setOptionsOverflowMarginTop() {
       if (this.isTouchDevice) {
-        if (this.isMobileScreen) this.optionsOverflowMarginTop = -18;
+        if (this.isTabScreen) this.optionsOverflowMarginTop = -18;
         else this.optionsOverflowMarginTop = -16;
       } else this.optionsOverflowMarginTop = -14;
     },

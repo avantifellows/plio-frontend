@@ -7,7 +7,22 @@ const state = {
   windowInnerWidth: null, // inner width of the window
   windowInnerHeight: null, // inner height of the window
 };
-const getters = {};
+const getters = {
+  /**
+   * whether the current screen size can be
+   * classified as a mobile screen
+   */
+  isMobileScreen: (state) => {
+    return state.windowInnerWidth <= 500;
+  },
+  /**
+   * whether the current screen size can be
+   * classified as a tab screen
+   */
+  isTabScreen: (state) => {
+    return state.windowInnerWidth < 640;
+  },
+};
 const actions = {
   async showSharePlioDialog({ commit, dispatch }, plioLink) {
     await commit("setPlioLinkToShare", plioLink);

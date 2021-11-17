@@ -31,7 +31,7 @@
         <div
           class="grid justify-items-end z-10"
           :class="{
-            'col-span-3': !isAuthenticated,
+            'col-span-3': !isAuthenticated || isPageLoading,
             'col-span-2': !isMobileScreen || !onHomePage,
             'col-span-1': isMobileScreen,
             'bp-500:col-span-3': onHomePage,
@@ -173,8 +173,6 @@ import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
-
-const MOBILE_SCREEN_WIDTH_THRESHOLD = 500;
 
 export default {
   components: {
@@ -496,6 +494,7 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated", "activeWorkspaceSchema", "locale"]),
+    ...mapGetters("generic", ["isMobileScreen"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("generic", [
       "isSharePlioDialogShown",
@@ -503,7 +502,6 @@ export default {
       "plioLinkToShare",
       "plioIdToEmbed",
       "isBackgroundDisabled",
-      "windowInnerWidth",
     ]),
     ...mapState("sync", ["pending"]),
     /**
@@ -517,12 +515,6 @@ export default {
      */
     isMenuButtonShown() {
       return !this.onHomePage || this.isMobileScreen;
-    },
-    /**
-     * whether the current screen is a mobile screen
-     */
-    isMobileScreen() {
-      return this.windowInnerWidth <= MOBILE_SCREEN_WIDTH_THRESHOLD;
     },
     /**
      * classes for the router view
