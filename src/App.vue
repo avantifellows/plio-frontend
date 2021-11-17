@@ -14,7 +14,7 @@
           v-if="isAuthenticated && isMenuButtonShown && !isPageLoading"
           :iconConfig="menuButtonIconConfig"
           :buttonClass="menuButtonClass"
-          @click="openMenuButton"
+          @click="toggleMenuButton"
           :isDisabled="pending"
         ></icon-button>
 
@@ -45,11 +45,7 @@
       <div :class="gridContainerClass">
         <transition :name="menuSlideTransition">
           <!-- menu -->
-          <div
-            :class="menuContainerClass"
-            v-if="isMenuShown"
-            v-click-away="!onHomePage ? closeMenuButton : () => {}"
-          >
+          <div :class="menuContainerClass" v-if="isMenuShown">
             <!-- workspace switcher -->
             <div class="place-self-center w-full" v-if="showWorkspaceSwitcher">
               <WorkspaceSwitcher
@@ -414,12 +410,8 @@ export default {
       );
     },
     /** toggles the state of the menu button between active/inactive */
-    openMenuButton() {
-      if (!this.isMenuButtonActive) this.isMenuButtonActive = true;
-    },
-    /** makes the menu button inactive */
-    closeMenuButton() {
-      this.isMenuButtonActive = false;
+    toggleMenuButton() {
+      this.isMenuButtonActive = !this.isMenuButtonActive;
     },
     /**
      * creates a new draft plio and redirects the user to the editor

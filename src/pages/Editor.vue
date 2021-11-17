@@ -13,7 +13,7 @@
         </p>
       </div>
 
-      <div class="grid grid-cols-1 bp-500:grid-cols-2 items-stretch">
+      <div class="grid grid-cols-1 sm:grid-cols-2 items-stretch">
         <!--- preview grid -->
         <div
           class="flex flex-col mx-2 sm:mx-4 md:mx-6 z-0"
@@ -21,7 +21,7 @@
           data-test="previewDiv"
         >
           <div
-            class="mt-4 mb-6 sm:mb-8 flex justify-center space-x-1 bp-360:space-x-2 sm:space-x-4"
+            class="mt-4 mb-6 sm:mb-8 flex justify-center space-x-1 bp-360:space-x-2"
             v-if="isVideoIdValid"
             data-test="upperButtons"
           >
