@@ -16,6 +16,7 @@
           :buttonClass="menuButtonClass"
           @click="toggleMenuButton"
           :isDisabled="pending"
+          v-click-away="!onHomePage ? toggleMenuButton : () => {}"
         ></icon-button>
 
         <!-- create plio button - visible only in mobile screens -->
