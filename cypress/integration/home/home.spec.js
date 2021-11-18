@@ -3,7 +3,7 @@ describe("sees home", () => {
     cy.loginByGoogleApi();
   });
 
-  it("sees the plio list", () => {
+  it("the plio list is loaded", () => {
     cy.get('[data-test="table"]').should("be.visible");
   });
 });

@@ -1,4 +1,4 @@
-describe("sees login", () => {
+describe("Login", () => {
   beforeEach(() => {
     cy.visit("/login");
     cy.get("#locale > select").select("hi");
