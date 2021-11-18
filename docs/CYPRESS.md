@@ -7,6 +7,11 @@ Run the following command to run the Cypress tests. Make sure the Plio Frontend,
 npx cypress open
 ```
 
+The default `baseUrl` for Cypress is `http://localhost:8080` defined it in `cypress.json`. If you want to use a separate baseUrl, simply modify your cypress command:
+```sh
+CYPRESS_BASE_URL=https://staging.app.com npx cypress open
+```
+
 After running the above command, you will see the cypress window. You can select to run all tests or select one. In any case, once the tests start, you will see the UI tests in a separate browser window.
 
 ### Pre-requisites
@@ -25,9 +30,6 @@ To configure your local setup for Cypress, only the following steps are needed:
 
 ### Cypress ENV variables
 Plio uses `cypress.env.json` to set up environment variables for the Cypress app. Below are the details of all the environment variables.
-
-#### `baseUrl`
-Base url for the frontend App. By default the value is `http://localhost:8080`.
 
 #### `google_auth.refresh_token`
 Google refresh token retrieved in the pre-requisites.

@@ -4,6 +4,13 @@ describe("Login", () => {
     cy.get("#locale > select").select("hi");
   });
 
+  it("sees the login page heading", () => {
+    cy.get('[data-test="loginHeading"]').should(
+      "have.text",
+      "वीडियों को इंटरैक्टिव पाठों में बदलें"
+    );
+  });
+
   it("sees the google sign in option", () => {
     cy.get('[data-test="googleLogin"] p').should(
       "have.text",

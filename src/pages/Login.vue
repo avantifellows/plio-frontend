@@ -434,7 +434,6 @@ export default {
         let socialAuthToken = googleUser.getAuthResponse();
         UserAPIService.convertSocialAuthToken(socialAuthToken.access_token).then(
           (response) => {
-            console.log('response', response)
             this.setAccessToken(response.data).then(() => this.routeAfterLogin("google"));
           }
         );

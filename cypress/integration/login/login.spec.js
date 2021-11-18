@@ -3,6 +3,13 @@ describe("Login", () => {
     cy.visit("/login");
   });
 
+  it("sees the login page heading", () => {
+    cy.get('[data-test="loginHeading"]').should(
+      "have.text",
+      "Convert videos into interactive lessons"
+    );
+  });
+
   it("sees the google sign in option", () => {
     cy.get('[data-test="googleLogin"] p').should(
       "have.text",
