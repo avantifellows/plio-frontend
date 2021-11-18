@@ -23,14 +23,13 @@ Follow the links below one-by-one to retrieve required information from Google:
 2. [Using the Google OAuth 2.0 Playground to Create Testing Credentials](https://docs.cypress.io/guides/testing-strategies/google-authentication#Using-the-Google-OAuth-2-0-Playground-to-Create-Testing-Credentials)
 
 ### Setup
-To configure your local setup for Cypress, only the following steps are needed:
+Plio uses `cypress.env.json` to set up environment variables for the Cypress app. To configure your local setup for Cypress, only the following steps are needed:
 1. Set up the Plio Frontend, Plio Backend and Plio Analytics applications on your local Docker.
 2. Copy `cypress.env.example.json` and rename it as `cypress.env.json`
-3. Update the JSON object in `cypress.env.json` by setting the correct configurations
+3. Update the JSON object in `cypress.env.json` by setting the correct configurations - see below.
 
-### Cypress ENV variables
-Plio uses `cypress.env.json` to set up environment variables for the Cypress app. Below are the details of all the environment variables.
-
+#### Cypress ENV variables
+ Below are the details of all the environment variables.
 #### `google_auth.refresh_token`
 Google refresh token retrieved in the pre-requisites.
 

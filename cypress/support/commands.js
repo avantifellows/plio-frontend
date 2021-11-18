@@ -33,12 +33,12 @@ Cypress.Commands.add("loginByGoogleApi", () => {
       url: "https://www.googleapis.com/oauth2/v4/token",
       body: {
         grant_type: "refresh_token",
-        client_id: Cypress.env("google_auth").client_id,
-        client_secret: Cypress.env("google_auth").client_secret,
-        refresh_token: Cypress.env("google_auth").refresh_token,
+        client_id: Cypress.env("auth").google.client_id,
+        client_secret: Cypress.env("auth").google.client_secret,
+        refresh_token: Cypress.env("auth").google.refresh_token,
       },
     }).then(({ body }) => {
-      const { access_token } = body;
+      const { access_token: socialAuthToken } = body;
 
       // call backend to convert social auth token to django app token
       // see if there is a way to reuse the function defined in VueApp
@@ -50,7 +50,7 @@ Cypress.Commands.add("loginByGoogleApi", () => {
           client_id: Cypress.env("plio_backend").client_id,
           client_secret: Cypress.env("plio_backend").client_secret,
           backend: "google-oauth2",
-          token: access_token,
+          token: socialAuthToken,
         },
       }).then(({ body }) => {
         window.__store__.dispatch("auth/setAccessToken", body);

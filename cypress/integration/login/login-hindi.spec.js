@@ -24,7 +24,7 @@ describe("Login", () => {
       .should("contain", "मोबाइल नंबर डालें");
   });
 
-  it("logs into the system", () => {
+  it("logs into the system using google auth", () => {
     cy.loginByGoogleApi();
     cy.get('[data-test="logout"]')
       .should("be.visible")
