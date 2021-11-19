@@ -95,10 +95,7 @@ export default {
       return this.selectedOption != undefined && this.selectedOption.icon != null;
     },
     dropdownIconClass() {
-      return [
-        { "transform rotate-180": this.showDropdown },
-        "transition ease duration-800",
-      ];
+      return [{ "transform rotate-180": this.showDropdown }, "transition duration-800"];
     },
     selectedOption() {
       // the selected option

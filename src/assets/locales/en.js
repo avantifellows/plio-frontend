@@ -3,6 +3,9 @@ export default {
     home: "Home",
     login: "",
     logout: "Logout",
+    whats_new: "What's New",
+    product_guides: "Product Guides",
+    docs: "Documentation",
     editor: "Editor",
     dashboard: "Dashboard",
     abtesting: "",
@@ -189,7 +192,7 @@ export default {
     table: {
       columns: {
         name: "name",
-        number_of_viewers: "Number of Viewers",
+        views: "Views",
       },
       plio_list_item: {
         buttons: {

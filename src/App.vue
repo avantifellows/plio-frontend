@@ -6,73 +6,117 @@
       @keydown="keyboardPressed"
     >
       <div
-        class="grid grid-cols-7 border-b-2 py-2 px-2 border-solid bg-white"
+        class="grid grid-cols-3 border-b-2 py-2 px-2 border-solid bg-white"
         :class="navBarClass"
       >
-        <!-- top left logo -->
-        <router-link
-          :to="{ name: 'Home', params: { org: activeWorkspace } }"
-          class="h-14 w-11 justify-self-start place-self-center"
-          v-if="!onLoginPage"
-        >
-          <img
-            class="h-full w-full object-scale-down"
-            id="logo"
-            alt="Plio logo"
-            src="@/assets/images/logo.png"
-            height="60"
-            width="40"
-          />
-        </router-link>
+        <!-- menu icon -->
+        <icon-button
+          v-if="isAuthenticated && isMenuButtonShown && !isPageLoading"
+          :iconConfig="menuButtonIconConfig"
+          :buttonClass="menuButtonClass"
+          @click="toggleMenuButton"
+          :isDisabled="pending"
+        ></icon-button>
 
-        <!-- workspace switcher -->
-        <div class="place-self-center hidden sm:flex" v-if="showWorkspaceSwitcher">
-          <WorkspaceSwitcher
-            class="flex justify-center"
-            :isDisabled="pending"
-          ></WorkspaceSwitcher>
-        </div>
+        <!-- create plio button - visible only in mobile screens -->
+        <icon-button
+          v-if="onHomePage"
+          :titleConfig="createButtonMenuTextConfig"
+          :buttonClass="createButtonClass"
+          class="bp-500:hidden"
+          @click="createNewPlio"
+          :isDisabled="pending"
+        ></icon-button>
 
-        <!-- create plio button -->
         <div
-          v-if="showCreateButton"
-          class="grid col-start-3 col-end-6 sm:col-start-6 sm:col-end-7 gap-1"
+          class="grid justify-items-end z-10"
+          :class="{
+            'col-span-3': !isAuthenticated || isPageLoading,
+            'col-span-2': !isMobileScreen || !onHomePage,
+            'col-span-1': isMobileScreen,
+            'bp-500:col-span-3': onHomePage,
+          }"
         >
-          <icon-button
-            :titleConfig="createButtonTextConfig"
-            :buttonClass="createButtonClass"
-            class="rounded-md shadow-lg"
-            @click="createNewPlio"
-            :isDisabled="pending"
-          ></icon-button>
-        </div>
-
-        <div class="grid col-start-6 col-end-8 justify-items-end sm:col-start-7">
-          <!-- named routes - https://router.vuejs.org/guide/essentials/named-routes.html -->
-          <!-- logout -->
-          <div v-if="showLogout" class="text-lg sm:text-xl">
-            <router-link v-if="!isAuthenticated" :to="{ name: 'Login' }">
-              <button
-                class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain"
-              >
-                {{ $t("nav.login") }}
-              </button>
-            </router-link>
-            <a href="#" v-if="isAuthenticated" @click="logoutButtonClicked">
-              <button
-                class="bg-white-500 hover:text-red-500 text-black font-bold border-0 object-contain px-1 py-2"
-              >
-                {{ $t("nav.logout") }}
-              </button>
-            </a>
-          </div>
           <!-- locale switcher -->
-          <div class="self-center">
-            <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
-          </div>
+          <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
         </div>
       </div>
-      <router-view />
+      <!-- main container -->
+      <div :class="gridContainerClass">
+        <transition :name="menuSlideTransition">
+          <!-- menu -->
+          <div :class="menuContainerClass" v-if="isMenuShown">
+            <!-- workspace switcher -->
+            <div class="place-self-center w-full" v-if="showWorkspaceSwitcher">
+              <WorkspaceSwitcher
+                class="flex justify-center"
+                :isDisabled="pending"
+              ></WorkspaceSwitcher>
+            </div>
+
+            <!-- create plio button -->
+            <icon-button
+              :titleConfig="createButtonMenuTextConfig"
+              :buttonClass="createButtonClass"
+              class="my-4"
+              :class="{ 'hidden bp-500:inline': onHomePage }"
+              @click="createNewPlio"
+              :isDisabled="pending"
+            ></icon-button>
+
+            <!-- home button -->
+            <icon-button
+              class="place-self-start"
+              :iconConfig="homeButtonIconConfig"
+              :titleConfig="homeButtonTextConfig"
+              :buttonClass="menuButtonsClass"
+              @click="redirectToHome"
+              :isDisabled="pending"
+            ></icon-button>
+
+            <!-- product guides -->
+            <icon-button
+              class="place-self-start"
+              :iconConfig="productGuidesButtonIconConfig"
+              :titleConfig="productGuidesButtonTextConfig"
+              :buttonClass="menuButtonsClass"
+              @click="redirectToProductGuides"
+              :isDisabled="pending"
+            ></icon-button>
+
+            <!-- docs -->
+            <icon-button
+              class="place-self-start"
+              :iconConfig="docsButtonIconConfig"
+              :titleConfig="docsButtonTextConfig"
+              :buttonClass="menuButtonsClass"
+              @click="redirectToDocs"
+              :isDisabled="pending"
+            ></icon-button>
+
+            <!-- whats new -->
+            <icon-button
+              class="place-self-start"
+              :iconConfig="whatsNewButtonIconConfig"
+              :titleConfig="whatsNewButtonTextConfig"
+              :buttonClass="menuButtonsClass"
+              @click="redirectToWhatsNew"
+              :isDisabled="pending"
+            ></icon-button>
+
+            <!-- logout -->
+            <icon-button
+              class="place-self-start"
+              :iconConfig="logoutButtonIconConfig"
+              :titleConfig="logoutButtonTextConfig"
+              :buttonClass="menuButtonsClass"
+              @click="logoutButtonClicked"
+              :isDisabled="pending"
+            ></icon-button>
+          </div>
+        </transition>
+        <router-view :class="routerViewClass" :key="$route.fullPath" />
+      </div>
     </div>
     <!-- first-time language picker -->
     <div class="fixed w-full my-5 flex justify-center" v-if="showLanguagePickerDialog">
@@ -132,17 +176,25 @@ import { useToast } from "vue-toastification";
 
 export default {
   components: {
-    WorkspaceSwitcher,
     LocaleSwitcher,
-    IconButton,
     SharePlioDialog,
     EmbedPlioDialog,
+    WorkspaceSwitcher,
+    IconButton,
   },
   data() {
     return {
       showLanguagePickerDialog: false, // whether to show a language picker dialog box
       toast: useToast(), // use the toast component
       userClickedLogout: false, // if the user has clicked the logout button
+      // class for the create button
+      createButtonClass:
+        "bg-primary hover:bg-primary-hover rounded-md shadow-lg w-full ring-primary p-2 sm:py-4",
+      isMenuButtonActive: false, // whether the menu button is active
+      menuButtonsClass: "rounded-lg ring-primary p-2 py-4", // common classes for the menu buttons
+      menuButtonsIconClass: "text-gray-500 fill-current h-4 md:h-6 w-4 md:w-6", // common classes for the icon of the menu buttons
+      menuButtonsTextClass: "text-sm md:text-base lg:text-lg ml-4 text-gray-500", // common classes for the text of the menu buttons
+      menuSlideTransition: "", // transition name for menu sliding effect
     };
   },
   async created() {
@@ -170,10 +222,17 @@ export default {
     // add event listeners to track if network connection went up or down
     window.Offline.on("down", this.showInternetLostToast);
     window.Offline.on("up", this.showInternetRestoredToast);
+
+    // if user does not land on the home page, apply a transition
+    if (!this.onHomePage) this.menuSlideTransition = "slide-fade";
+
+    this.setWindowProperties();
+    window.addEventListener("resize", this.setWindowProperties);
   },
   beforeUnmount() {
     // remove the listener for the event of closing of the browser
     window.removeEventListener("beforeunload", this.onClose);
+    window.removeEventListener("resize", this.setWindowProperties);
 
     // remove the listeners set to track network connection
     window.Offline.off("down", this.showInternetLostToast);
@@ -213,7 +272,8 @@ export default {
       // check if the current user actually belongs to the activeWorkspace
       // set in the store. If not, then redirect to the personal workspace
       if (value) {
-        var isUserInWorkspace = this.user.organizations.some((org) => {
+        this.menuSlideTransition = "";
+        let isUserInWorkspace = this.user.organizations.some((org) => {
           // no need to redirect if the user belongs to the workspace
           // or the user is in the personal workspace
           return org.shortcode == this.activeWorkspace || this.activeWorkspace == "";
@@ -229,6 +289,13 @@ export default {
           // make sure to unset the active workspace as well
           this.unsetActiveWorkspace();
         }
+
+        // if the user visits the home page on a non-mobile device, activate the menu button
+        if (!this.isMobileScreen) this.isMenuButtonActive = true;
+      } else {
+        // if the user moves away from the home page, hide the menu button
+        this.resetMenuState();
+        this.menuSlideTransition = "slide-fade";
       }
     },
     user: {
@@ -274,8 +341,19 @@ export default {
       "unsetSharePlioDialog",
       "unsetEmbedPlioDialog",
       "enableBackground",
+      "setWindowInnerWidth",
+      "setWindowInnerHeight",
     ]),
     ...mapActions("sync", ["stopLoading"]),
+    /** resets the state of the menu button to inactive */
+    resetMenuState() {
+      this.isMenuButtonActive = false;
+    },
+    /** sets various properties dependent on the window size */
+    setWindowProperties() {
+      this.setWindowInnerWidth(window.innerWidth);
+      this.setWindowInnerHeight(window.innerHeight);
+    },
     /**
      * Show a toast telling the user that the internet connection went down
      */
@@ -304,30 +382,41 @@ export default {
         position: "bottom-center",
       });
     },
+    /** sets that the user intentionally wants to log out and logs out the user */
     logoutButtonClicked() {
-      // set whether the logout action as triggered by the user or not
+      // set whether the logout action was triggered by the user
       this.userClickedLogout = true;
-      // logout the user
       this.logoutUser();
     },
-    logoutUser() {
-      // logs out the user
-      this.unsetAccessToken().then(() => {
-        this.$router.replace({
-          name: "Login",
-          params: { userClickedLogout: this.userClickedLogout },
-        });
-        // resets the distinct ID so that multiple users can use the same device
-        this.$mixpanel.reset();
-        this.$mixpanel.track("Logout");
-        // added here so that if someone clicks on logout while
-        // some activity is pending
-        this.stopLoading();
-      });
+    /** redirects to the home page */
+    redirectToHome() {
+      if (this.isMobileScreen) this.resetMenuState();
+      this.$router.push({ name: "Home", params: { org: this.activeWorkspace } });
     },
+    /** redirects to the What's New page */
+    redirectToWhatsNew() {
+      window.open("https://plio.substack.com/", "_blank", "noopener");
+    },
+    /** redirects to the Documentation page */
+    redirectToDocs() {
+      window.open("https://docs.plio.in/", "_blank", "noopener");
+    },
+    /** redirects to the playlist for the Product Guides */
+    redirectToProductGuides() {
+      window.open(
+        "https://www.youtube.com/playlist?list=PL3U0Jqw-piJgw2hSpuAZym4K1_Tb0RTRV",
+        "_blank",
+        "noopener"
+      );
+    },
+    /** toggles the state of the menu button between active/inactive */
+    toggleMenuButton() {
+      this.isMenuButtonActive = !this.isMenuButtonActive;
+    },
+    /**
+     * creates a new draft plio and redirects the user to the editor
+     */
     createNewPlio() {
-      // invoked when the user clicks on Create
-      // creates a new draft plio and redirects the user to the editor
       this.$Progress.start();
       this.$mixpanel.track("Click Create");
       this.$mixpanel.people.set_once({
@@ -348,6 +437,22 @@ export default {
           }
         })
         .catch(() => this.toast.error(this.$t("error.create_plio")));
+      this.resetMenuState();
+    },
+    /** logs out the user */
+    logoutUser() {
+      this.unsetAccessToken().then(() => {
+        this.$router.replace({
+          name: "Login",
+          params: { userClickedLogout: this.userClickedLogout },
+        });
+        // resets the distinct ID so that multiple users can use the same device
+        this.$mixpanel.reset();
+        this.$mixpanel.track("Logout");
+        // added here so that if someone clicks on logout while
+        // some activity is pending
+        this.stopLoading();
+      });
     },
     onClose(event) {
       // invoked when trying to close the browser or changing pages
@@ -367,8 +472,10 @@ export default {
       if (this.isSharePlioDialogShown) this.unsetSharePlioDialog();
       if (this.isEmbedPlioDialogShown) this.unsetEmbedPlioDialog();
     },
+    /**
+     * sets the given locale as the locale for the user
+     */
     setLocale(locale) {
-      // sets the given locale as the locale for the user
       this.$mixpanel.register({
         "Current Locale": locale,
       });
@@ -377,17 +484,17 @@ export default {
       UserConfigService.updateLocale();
       this.showLanguagePickerDialog = false;
     },
+    /**
+     * triggered when any keyboard button is pressed
+     */
     keyboardPressed() {
-      /**
-       * triggered when any keyboard button is pressed
-       */
-
       // prevent keyboard buttons from working if isBackgroundDisabledLocal = true
       if (this.isBackgroundDisabledLocal) event.preventDefault();
     },
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated", "activeWorkspaceSchema", "locale"]),
+    ...mapGetters("generic", ["isMobileScreen"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("generic", [
       "isSharePlioDialogShown",
@@ -397,64 +504,281 @@ export default {
       "isBackgroundDisabled",
     ]),
     ...mapState("sync", ["pending"]),
+    /**
+     * whether the router view is shown
+     */
+    isRouterViewShown() {
+      return !(this.isMenuShownInline && this.isMobileScreen);
+    },
+    /**
+     * whether the menu button is shown
+     */
+    isMenuButtonShown() {
+      return !this.onHomePage || this.isMobileScreen;
+    },
+    /**
+     * classes for the router view
+     */
+    routerViewClass() {
+      return [
+        {
+          "col-span-2 lg:col-span-3 xl:col-span-4": this.isMenuShownInline,
+          "col-span-full": !this.isMenuShown,
+          "opacity-50 pointer-events-none w-full": this.isMenuShownOverlay,
+          hidden: !this.isRouterViewShown,
+        },
+      ];
+    },
+    /**
+     * classes for the menu container
+     */
+    menuContainerClass() {
+      return [
+        {
+          "absolute z-10 bg-white w-full bp-500:w-1/3 lg:w-1/4":
+            this.isMenuShownOverlay || (!this.isMenuShown && !this.onHomePage),
+        },
+        `p-2 sm:p-4 border-r-2 flex flex-col col-span-3 bp-500:col-span-1 h-screen`,
+      ];
+    },
+    /**
+     * classes for the main grid
+     */
+    gridContainerClass() {
+      return {
+        "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5":
+          this.isMenuShownInline || !this.isMenuShownOverlay,
+        flex: this.isMenuShownOverlay,
+      };
+    },
+    /**
+     * config of the icon for the logout button
+     */
+    logoutButtonIconConfig() {
+      return {
+        enabled: true,
+        iconName: "logout",
+        iconClass: this.menuButtonsIconClass,
+      };
+    },
+    /**
+     * config of the icon for the docs button
+     */
+    docsButtonIconConfig() {
+      return {
+        enabled: true,
+        iconName: "docs",
+        iconClass: this.menuButtonsIconClass,
+      };
+    },
+    /**
+     * config of the icon for the product guides button
+     */
+    productGuidesButtonIconConfig() {
+      return {
+        enabled: true,
+        iconName: "exclamation-circle-solid",
+        iconClass: this.menuButtonsIconClass,
+      };
+    },
+    /**
+     * config of the icon for the home button
+     */
+    homeButtonIconConfig() {
+      return {
+        enabled: true,
+        iconName: "home-rounded",
+        iconClass: this.menuButtonsIconClass,
+      };
+    },
+    /**
+     * config of the icon for the what's new button
+     */
+    whatsNewButtonIconConfig() {
+      return {
+        enabled: true,
+        iconName: "gift",
+        iconClass: this.menuButtonsIconClass,
+      };
+    },
+    /**
+     * classes for the menu button
+     */
+    menuButtonClass() {
+      return [
+        {
+          "bg-gray-300": !this.isMenuButtonActive,
+          "bg-primary": this.isMenuButtonActive,
+        },
+        `rounded-md border shadow-lg ring-primary h-12 w-12 p-2 self-center`,
+      ];
+    },
+    /**
+     * config of the icon for the menu button
+     */
+    menuButtonIconConfig() {
+      // config for the icon of menu button
+      return {
+        enabled: true,
+        iconName: "menu",
+        iconClass: this.menuIconClass,
+      };
+    },
+    /**
+     * classes for the icon of the menu button
+     */
+    menuIconClass() {
+      return [
+        {
+          "text-white": this.isMenuButtonActive,
+          "text-black": !this.isMenuButtonActive,
+        },
+        `fill-current h-8 w-8`,
+      ];
+    },
+    /**
+     * whether the menu has been shown
+     */
+    isMenuShown() {
+      return this.isMenuShownInline || this.isMenuShownOverlay;
+    },
+    /**
+     * whether the menu has been shown in line with the router view
+     */
+    isMenuShownInline() {
+      return this.isAuthenticated && this.isMenuButtonActive && this.onHomePage;
+    },
+    /**
+     * whether the menu has been shown as an overlay on top of the router view
+     */
+    isMenuShownOverlay() {
+      return this.isAuthenticated && this.isMenuButtonActive && !this.onHomePage;
+    },
+    /**
+     * config for the text of the create button
+     */
+    createButtonMenuTextConfig() {
+      // config for the text of the main create button
+      return {
+        value: this.$t("home.create_button"),
+        class: "text-md sm:text-lg md:text-xl lg:text-2xl text-white",
+      };
+    },
+    /**
+     * config for the text of the logout button
+     */
+    logoutButtonTextConfig() {
+      // config for the logout button
+      return {
+        value: this.$t("nav.logout"),
+        class: this.menuButtonsTextClass,
+      };
+    },
+    /**
+     * config for the text of the what's new button
+     */
+    whatsNewButtonTextConfig() {
+      // config for the whats new button
+      return {
+        value: this.$t("nav.whats_new"),
+        class: this.menuButtonsTextClass,
+      };
+    },
+    /**
+     * config for the text of the product guides button
+     */
+    productGuidesButtonTextConfig() {
+      return {
+        value: this.$t("nav.product_guides"),
+        class: this.menuButtonsTextClass,
+      };
+    },
+    /**
+     * config for the text of the home button
+     */
+    homeButtonTextConfig() {
+      // config for the home button
+      return {
+        value: this.$t("nav.home"),
+        class: this.menuButtonsTextClass,
+      };
+    },
+    /**
+     * config for the text of the docs button
+     */
+    docsButtonTextConfig() {
+      // config for the plio docs button
+      return {
+        value: this.$t("nav.docs"),
+        class: this.menuButtonsTextClass,
+      };
+    },
+    /**
+     * whether to show workspace switcher
+     */
+    showWorkspaceSwitcher() {
+      return this.user.organizations.length > 0;
+    },
+    /**
+     * dynamic classes for the nav bar
+     */
     navBarClass() {
-      // dynamic classes for the nav bar
       return {
         hidden: this.isNavBarHidden,
       };
     },
+    /**
+     * whether the nav bar is hidden
+     */
     isNavBarHidden() {
-      // whether the nav bar is hidden
       return this.onPlioPage || this.onPlayerPage;
     },
+    /**
+     * the current route that the user is on
+     */
     currentRoute() {
       return this.$route.path;
     },
-    showLogout() {
-      // whether to show the logout button
-      return this.onHomePage;
-    },
-    createButtonTextConfig() {
-      // config for the text of the main create button
-      return {
-        value: this.$t("home.create_button"),
-        class: "text-lg md:text-xl lg:text-2xl text-white",
-      };
-    },
-    createButtonClass() {
-      // class for the create button
-      return "bg-primary hover:bg-primary-hover rounded-lg ring-primary px-2";
-    },
-    showWorkspaceSwitcher() {
-      // whether to show workspace switcher
-      return this.isAuthenticated && this.onHomePage && this.user.organizations.length;
-    },
+    /**
+     * whether the current page is the home page
+     */
     onHomePage() {
-      // whether the current page is the home page
       return this.$route.name == "Home";
     },
+    /**
+     * whether the page is still loading
+     */
+    isPageLoading() {
+      return this.$route.name == undefined;
+    },
+    /**
+     * whether the current page is the plio embed page
+     */
     onPlioPage() {
-      // whether the current page is the plio embed page
       return this.$route.name == "Plio";
     },
+    /**
+     * whether the current page is the editor page
+     */
     onEditorPage() {
-      // whether the current page is the editor page
       return this.$route.name == "Editor";
     },
+    /**
+     * whether the current page is the player page
+     */
     onPlayerPage() {
-      // whether the current page is the player page
       return this.$route.name == "Player";
     },
+    /**
+     * whether the current page is the login page
+     */
     onLoginPage() {
-      // whether the current page is the login page
       return this.$route.name == "Login";
     },
-    showCreateButton() {
-      // whether to show the Create button
-      return this.isAuthenticated && this.$route.name == "Home";
-    },
+    /**
+     * whether the background should be disabled
+     */
     isBackgroundDisabledLocal() {
-      // whether the background should be disabled
       return (
         this.showLanguagePickerDialog ||
         this.isSharePlioDialogShown ||
@@ -462,8 +786,10 @@ export default {
         this.isBackgroundDisabled
       );
     },
+    /**
+     * list of shortcodes of all workspaces that the user is a part of
+     */
     allWorkspaces() {
-      // list of shortcodes of all workspaces that the user is a part of
       if (this.user == null) return [];
       var shortcodes = [];
 
@@ -486,5 +812,18 @@ export default {
 @font-face {
   font-family: "Kruti Dev";
   src: local("Kruti Dev"), url("./assets/fonts/Kruti_Dev_10.TTF") format("truetype");
+}
+/* defines the transition that happens upon toggling the menu button */
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(-100%);
 }
 </style>

@@ -6,10 +6,7 @@
     :disabled="isDisabled"
     :aria-label="ariaLabel"
   >
-    <div
-      class="flex w-full justify-center"
-      :class="{ 'flex-col': isStackedVertically, 'space-x-2': !isStackedVertically }"
-    >
+    <div :class="innerContainerClass">
       <inline-svg
         v-if="isIconConfigEnabled"
         :src="icon"
@@ -71,6 +68,15 @@ export default {
     },
   },
   computed: {
+    innerContainerClass() {
+      return [
+        {
+          "flex-col": this.isStackedVertically,
+          "space-x-2": !this.isStackedVertically,
+        },
+        `flex w-full justify-center`,
+      ];
+    },
     isStackedVertically() {
       return this.orientation == "vertical";
     },
