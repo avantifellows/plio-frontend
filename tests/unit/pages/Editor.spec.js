@@ -1397,7 +1397,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemDetails[0].image).toStrictEqual(mockImageResponse);
   });
 
-  it("delete option functionality works correctly", async () => {
+  it("delete option does not work with only 2 options", async () => {
     const endIconSelected = jest.spyOn(InputText.methods, "endIconSelected");
     const itemEditorDeleteOption = jest.spyOn(
       ItemEditor.methods,
@@ -1431,6 +1431,9 @@ describe("Editor.vue", () => {
     const itemEditorWrapper = wrapper.findComponent(ItemEditor);
     const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[4];
 
+    // clear past values of dialog description
+    await store.dispatch("dialog/unsetDialogDescription");
+
     await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
 
     expect(endIconSelected).toHaveBeenCalled();
@@ -1440,9 +1443,26 @@ describe("Editor.vue", () => {
     expect(itemEditorWrapper.emitted()).toHaveProperty("delete-option");
 
     expect(editorDeleteOption).toHaveBeenCalled();
+    await flushPromises();
 
+    expect(store.state.dialog.title).toBe(
+      "Are you sure you want to delete this option?"
+    );
+    expect(store.state.dialog.description).toBe("");
+    expect(store.state.dialog.confirmButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.confirmButtonConfig.text).toBe("Yes");
+    expect(store.state.dialog.confirmButtonConfig.class).toBe(
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
+    );
+    expect(store.state.dialog.cancelButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.cancelButtonConfig.text).toBe("No");
+    expect(store.state.dialog.cancelButtonConfig.class).toBe(
+      "bg-white hover:bg-gray-100 focus:outline-none text-primary"
+    );
     expect(wrapper.vm.dialogAction).toBe("deleteOption");
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
+
+    expect(wrapper.vm.optionIndexToDelete).toBe(0);
 
     // simulate clicking the confirm button of the dialog box
     await store.dispatch("dialog/unsetDialogBox");
@@ -1451,12 +1471,42 @@ describe("Editor.vue", () => {
     expect(deleteSelectedOption).toHaveBeenCalled();
     expect(showCannotDeleteOptionDialog).toHaveBeenCalled();
 
+    expect(store.state.dialog.title).toBe("Cannot delete the option");
+    expect(store.state.dialog.description).toBe(
+      "A question must have at least 2 options"
+    );
+    expect(store.state.dialog.confirmButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.confirmButtonConfig.text).toBe("Got it");
+    expect(store.state.dialog.confirmButtonConfig.class).toBe(
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
+    );
+    expect(store.state.dialog.cancelButtonConfig.enabled).toBeFalsy();
+    expect(store.state.dialog.cancelButtonConfig.text).toBe("");
+    expect(store.state.dialog.cancelButtonConfig.class).toBe("");
+
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
+    await store.dispatch("dialog/unsetDialogDescription");
+  });
 
-    // simulate clicking the confirm button of the dialog box
-    await store.dispatch("dialog/unsetDialogBox");
-    await store.dispatch("dialog/setConfirmClicked");
+  it("delete option works with more than 2 options", async () => {
+    const endIconSelected = jest.spyOn(InputText.methods, "endIconSelected");
+    const itemEditorDeleteOption = jest.spyOn(
+      ItemEditor.methods,
+      "deleteOption"
+    );
+    const editorDeleteOption = jest.spyOn(Editor.methods, "deleteOption");
+    const deleteSelectedOption = jest.spyOn(
+      Editor.methods,
+      "deleteSelectedOption"
+    );
 
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
     // add another option to allow deleting an option
     let updatedDummyItemDetails = clonedeep(dummyItemDetails);
     updatedDummyItemDetails[0].options.push("option 3");
@@ -1469,6 +1519,9 @@ describe("Editor.vue", () => {
       currentQuestionTypeIndex: 0,
     });
 
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[4];
+
     await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
 
     expect(endIconSelected).toHaveBeenCalled();
@@ -1479,8 +1532,23 @@ describe("Editor.vue", () => {
 
     expect(editorDeleteOption).toHaveBeenCalled();
 
+    expect(store.state.dialog.title).toBe(
+      "Are you sure you want to delete this option?"
+    );
+    expect(store.state.dialog.description).toBe("");
+    expect(store.state.dialog.confirmButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.confirmButtonConfig.text).toBe("Yes");
+    expect(store.state.dialog.confirmButtonConfig.class).toBe(
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
+    );
+    expect(store.state.dialog.cancelButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.cancelButtonConfig.text).toBe("No");
+    expect(store.state.dialog.cancelButtonConfig.class).toBe(
+      "bg-white hover:bg-gray-100 focus:outline-none text-primary"
+    );
     expect(wrapper.vm.dialogAction).toBe("deleteOption");
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
+    expect(wrapper.vm.optionIndexToDelete).toBe(0);
 
     // simulate clicking the confirm button of the dialog box
     await store.dispatch("dialog/unsetDialogBox");
@@ -1654,6 +1722,23 @@ describe("Editor.vue", () => {
     expect(itemEditorDeleteSelectedItem).toHaveBeenCalled();
     expect(itemEditorWrapper.emitted()).toHaveProperty("delete-selected-item");
     expect(showDeleteItemDialogBox).toHaveBeenCalled();
+
+    expect(store.state.dialog.title).toBe(
+      "Are you sure you want to delete this?"
+    );
+    expect(store.state.dialog.description).toBe(
+      "This will permanently delete this question"
+    );
+    expect(store.state.dialog.confirmButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.confirmButtonConfig.text).toBe("Yes");
+    expect(store.state.dialog.confirmButtonConfig.class).toBe(
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
+    );
+    expect(store.state.dialog.cancelButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.cancelButtonConfig.text).toBe("No");
+    expect(store.state.dialog.cancelButtonConfig.class).toBe(
+      "bg-white hover:bg-gray-100 focus:outline-none text-primary"
+    );
 
     expect(wrapper.vm.dialogAction).toBe("deleteItem");
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
