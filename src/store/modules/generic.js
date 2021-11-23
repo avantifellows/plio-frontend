@@ -3,7 +3,7 @@ const state = {
   isEmbedPlioDialogShown: false, // whether to show the dialog with info on embedding plio
   isBackgroundDisabled: false,
   plioLinkToShare: null,
-  selectedPlioId: null, // uuid of the plio in focus
+  selectedPlioId: null, // uuid of the plio selected
   windowInnerWidth: null, // inner width of the window
   windowInnerHeight: null, // inner height of the window
 };

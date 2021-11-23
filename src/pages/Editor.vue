@@ -703,6 +703,8 @@ export default {
             this.unsetDialogBox();
             break;
           default:
+            // returning here so that it doesn't interfere with the
+            // confirmation step of a different dialog action
             return;
         }
 
@@ -730,6 +732,8 @@ export default {
             }
             break;
           default:
+            // returning here so that it doesn't interfere with the
+            // cancellation step of a different dialog action
             return;
         }
 

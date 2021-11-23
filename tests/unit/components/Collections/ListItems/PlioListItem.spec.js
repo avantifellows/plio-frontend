@@ -5,6 +5,8 @@ import { setMatchMedia } from "@/services/Testing/Utilities";
 import mockAxios from "jest-mock-axios";
 
 describe("PlioListItem.vue", () => {
+  let wrapper;
+
   beforeEach(async () => {
     await store.dispatch("sync/stopLoading");
     setMatchMedia(false);
@@ -13,16 +15,17 @@ describe("PlioListItem.vue", () => {
   afterEach(() => {
     // cleaning up the mess left behind by the previous test
     mockAxios.reset();
+    wrapper.unmount();
   });
 
   it("should render with default values", () => {
-    const wrapper = mount(PlioListItem);
+    wrapper = mount(PlioListItem);
     expect(wrapper).toBeTruthy();
   });
 
   it("should load plio given plio id", () => {
     const loadPlio = jest.spyOn(PlioListItem.methods, "loadPlio");
-    mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       props: {
         plioId: "test",
       },
@@ -36,7 +39,7 @@ describe("PlioListItem.vue", () => {
       status: "draft",
       plioTitle: "testTitle",
     };
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       data() {
         return {
           plioDetails: plioDetails,
@@ -56,7 +59,7 @@ describe("PlioListItem.vue", () => {
       updatedAt: new Date(2018, 12, 31),
       status: "draft",
     };
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       data() {
         return {
           plioDetails: plioDetails,
@@ -71,7 +74,7 @@ describe("PlioListItem.vue", () => {
       updatedAt: new Date(2018, 12, 31),
       status: "draft",
     };
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       data() {
         return {
           plioDetails: plioDetails,
@@ -93,7 +96,7 @@ describe("PlioListItem.vue", () => {
       status: "published",
     };
 
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       props: {
         plioId: "123",
       },
@@ -118,7 +121,7 @@ describe("PlioListItem.vue", () => {
   });
 
   it("play disabled for draft plio ", async () => {
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       data() {
         return {
           plioDetails: {
@@ -158,7 +161,7 @@ describe("PlioListItem.vue", () => {
       }),
     };
 
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       props: {
         plioId: plioId,
       },
@@ -209,7 +212,7 @@ describe("PlioListItem.vue", () => {
     };
     const plioId = "123";
 
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       props: {
         plioId: plioId,
       },
@@ -249,7 +252,7 @@ describe("PlioListItem.vue", () => {
       push: jest.fn(),
     };
 
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       props: {
         plioId: plioId,
       },
@@ -291,7 +294,7 @@ describe("PlioListItem.vue", () => {
   it("share disabled for draft plio ", async () => {
     // needed as buttons are not present by default for screen width < 420
     jest.spyOn(screen, "availWidth", "get").mockReturnValue(500);
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       data() {
         return {
           plioDetails: {
@@ -326,7 +329,7 @@ describe("PlioListItem.vue", () => {
     };
     const plioId = "123";
 
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       props: {
         plioId: plioId,
       },
@@ -363,7 +366,7 @@ describe("PlioListItem.vue", () => {
     };
     const plioId = "123";
 
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       props: {
         plioId: plioId,
       },
@@ -392,7 +395,7 @@ describe("PlioListItem.vue", () => {
   });
 
   it("clicking dropdown shows action buttons", async () => {
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       props: {
         plioId: "123",
       },
@@ -425,7 +428,7 @@ describe("PlioListItem.vue", () => {
     // set `matches` as `True` for testing on touch screen devices
     setMatchMedia(true);
 
-    const wrapper = mount(PlioListItem);
+    wrapper = mount(PlioListItem);
 
     // click the option dropdown
     await wrapper
@@ -446,7 +449,7 @@ describe("PlioListItem.vue", () => {
     // set `matches` as `True` for testing on touch screen devices
     setMatchMedia(true);
 
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       data() {
         return {
           plioDetails: {
@@ -482,7 +485,7 @@ describe("PlioListItem.vue", () => {
       push: jest.fn(),
     };
 
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       data() {
         return {
           plioDetails: {
@@ -531,7 +534,7 @@ describe("PlioListItem.vue", () => {
       push: jest.fn(),
     };
 
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       data() {
         return {
           plioDetails: {
@@ -553,7 +556,7 @@ describe("PlioListItem.vue", () => {
     await store.dispatch("sync/stopLoading");
 
     // there should be no dialog box
-    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeFalsy();
+    expect(wrapper.vm.isDialogBoxShown).toBeFalsy();
 
     // click the option dropdown
     await wrapper
@@ -568,7 +571,7 @@ describe("PlioListItem.vue", () => {
       .trigger("click");
 
     // there should be a dialog box now
-    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
   });
 
   it("choosing no after clicking on delete closes the dialog box", async () => {
@@ -578,7 +581,7 @@ describe("PlioListItem.vue", () => {
       push: jest.fn(),
     };
 
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       data() {
         return {
           plioDetails: {
@@ -611,14 +614,12 @@ describe("PlioListItem.vue", () => {
       .find('[data-test="option-delete"]')
       .trigger("click");
 
-    // click the cancel button of the dialog box
-    await wrapper
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="cancelButton"]')
-      .trigger("click");
+    // simulate clicking the cancel button of the dialog box
+    await store.dispatch("dialog/unsetDialogBox");
+    await store.dispatch("dialog/setCancelClicked");
 
-    // there should be no dialog box now
-    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeFalsy();
+    // dialog action should be unset
+    expect(wrapper.vm.dialogAction).toBeFalsy();
   });
 
   it("choosing yes after clicking on delete triggers deletion", async () => {
@@ -637,7 +638,7 @@ describe("PlioListItem.vue", () => {
       "enableBackground"
     );
 
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       data() {
         return {
           plioDetails: {
@@ -673,11 +674,9 @@ describe("PlioListItem.vue", () => {
       .find('[data-test="option-delete"]')
       .trigger("click");
 
-    // click the confirm button of the dialog box
-    await wrapper
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="confirmButton"]')
-      .trigger("click");
+    // simulate clicking the confirm button of the dialog box
+    await store.dispatch("dialog/unsetDialogBox");
+    await store.dispatch("dialog/setConfirmClicked");
 
     // `deletePlio` inside services/API/Plio.js should've been called
     expect(mockAxios.delete).toHaveBeenCalled();
@@ -698,8 +697,8 @@ describe("PlioListItem.vue", () => {
 
     // background should be enabled
     expect(enableBackground).toHaveBeenCalled();
-    // there should be no dialog box now
-    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeFalsy();
+    // dialog action should be unset
+    expect(wrapper.vm.dialogAction).toBeFalsy();
     // check emit
     expect(wrapper.emitted()).toHaveProperty("deleted");
   });
@@ -715,7 +714,7 @@ describe("PlioListItem.vue", () => {
       "enableBackground"
     );
 
-    const wrapper = mount(PlioListItem, {
+    wrapper = mount(PlioListItem, {
       data() {
         return {
           plioDetails: {
@@ -751,11 +750,9 @@ describe("PlioListItem.vue", () => {
       .find('[data-test="option-delete"]')
       .trigger("click");
 
-    // click the confirm button of the dialog box
-    await wrapper
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="confirmButton"]')
-      .trigger("click");
+    // simulate clicking the confirm button of the dialog box
+    await store.dispatch("dialog/unsetDialogBox");
+    await store.dispatch("dialog/setConfirmClicked");
 
     // mock the response to the request
     mockAxios.mockError();
@@ -764,59 +761,7 @@ describe("PlioListItem.vue", () => {
 
     // background should be enabled
     expect(enableBackground).toHaveBeenCalled();
-    // there should be no dialog box now
-    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeFalsy();
-  });
-
-  it("delete confirmation dialog box margin is set correctly ", async () => {
-    // margin value changes based on window width
-    const wrapper = mount(PlioListItem, {
-      data() {
-        return {
-          plioDetails: {
-            updatedAt: new Date(2018, 12, 31),
-            status: "draft",
-          },
-        };
-      },
-    });
-
-    // click the option dropdown
-    await wrapper
-      .get('[data-test="optionDropdown"]')
-      .get('[data-test="toggleButton"]')
-      .trigger("click");
-
-    // click the delete button
-    await wrapper
-      .get('[data-test="optionDropdown"]')
-      .find('[data-test="option-delete"]')
-      .trigger("click");
-
-    // there should be no style attribute by default
-    expect(wrapper.get('[data-test="dialogBox"]').attributes()).not.toContain(
-      "style"
-    );
-
-    // screen size < 420 but > 400
-    store.dispatch("generic/setWindowInnerWidth", 410);
-    await flushPromises();
-    expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
-      "left: 20%;"
-    );
-
-    // screen size < 400 but > 340
-    store.dispatch("generic/setWindowInnerWidth", 350);
-    await flushPromises();
-    expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
-      "left: 15%;"
-    );
-
-    // screen size < 340
-    store.dispatch("generic/setWindowInnerWidth", 320);
-    await flushPromises();
-    expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
-      "left: 10%;"
-    );
+    // dialog action should be unset
+    expect(wrapper.vm.dialogAction).toBeFalsy();
   });
 });

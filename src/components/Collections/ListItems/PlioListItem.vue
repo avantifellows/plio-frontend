@@ -242,6 +242,8 @@ export default {
             this.deletePlio();
             break;
           default:
+            // returning here so that it doesn't interfere with the
+            // confirmation step of a different dialog action
             return;
         }
         this.unsetConfirmClicked();
@@ -256,6 +258,8 @@ export default {
           case "deletePlio":
             break;
           default:
+            // returning here so that it doesn't interfere with the
+            // cancellation step of a different dialog action
             return;
         }
         this.unsetCancelClicked();
@@ -281,7 +285,6 @@ export default {
       "setDialogDescription",
       "setConfirmButtonConfig",
       "setCancelButtonConfig",
-      "setDialogBoxClass",
       "setDialogAction",
       "unsetDialogAction",
       "unsetConfirmClicked",

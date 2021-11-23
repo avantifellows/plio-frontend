@@ -380,7 +380,6 @@ export default {
      * invoked when the confirm button of the dialog box is clicked
      */
     dialogConfirmed() {
-      // reset the dialog box
       this.resetDialogBox();
       this.setConfirmClicked();
     },
@@ -388,7 +387,6 @@ export default {
      * invoked when the cancel button of the dialog box is clicked;
      */
     dialogCancelled() {
-      // reset the dialog box
       this.resetDialogBox();
       this.setCancelClicked();
     },
