@@ -1,11 +1,12 @@
 import { createStore } from "vuex";
 import createPersistedState from "vuex-persistedstate";
+import SecureLS from "secure-ls";
 import createUsersWebSocket from "./plugins/usersWebSocketPlugin";
 import plioItems from "./modules/plioItems";
 import auth from "./modules/auth";
 import generic from "./modules/generic";
 import sync from "./modules/sync";
-import SecureLS from "secure-ls";
+import dialog from "./modules/dialog";
 
 // encrypt and decrypt the localStorage
 // github.com/robinvdvleuten/vuex-persistedstate#encrypted-local-storage
@@ -33,5 +34,6 @@ export default createStore({
     auth,
     generic,
     sync,
+    dialog,
   },
 });

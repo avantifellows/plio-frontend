@@ -118,8 +118,28 @@
         <router-view :class="routerViewClass" :key="$route.fullPath" />
       </div>
     </div>
+    <!-- generic dialog box -->
+    <div class="w-full fixed top-1/3">
+      <dialog-box
+        :class="dialogBoxClass"
+        v-if="isDialogBoxShown"
+        :title="dialogTitle"
+        :description="dialogDescription"
+        :confirmButtonConfig="dialogConfirmButtonConfig"
+        :cancelButtonConfig="dialogCancelButtonConfig"
+        :isCloseButtonShown="isDialogCloseButtonShown"
+        @confirm="dialogConfirmed"
+        @cancel="dialogCancelled"
+        @close="resetDialogBox"
+        v-click-away="resetDialogBox"
+        data-test="dialogBox"
+      ></dialog-box>
+    </div>
     <!-- first-time language picker -->
-    <div class="fixed w-full my-5 flex justify-center" v-if="showLanguagePickerDialog">
+    <div
+      class="fixed w-full top-1/4 my-5 flex justify-center"
+      v-if="showLanguagePickerDialog"
+    >
       <div
         class="bg-white w-11/12 sm:w-9/12 lg:w-7/12 p-4 sm:p-10 rounded-lg border border-black"
       >
@@ -156,7 +176,7 @@
     <div class="fixed w-full flex justify-center">
       <EmbedPlioDialog
         v-if="isEmbedPlioDialogShown"
-        :plioId="plioIdToEmbed"
+        :plioId="selectedPlioId"
       ></EmbedPlioDialog>
     </div>
   </div>
@@ -171,6 +191,7 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
 import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
 import PlioAPIService from "@/services/API/Plio.js";
+import DialogBox from "@/components/UI/Alert/DialogBox";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 
@@ -181,6 +202,7 @@ export default {
     EmbedPlioDialog,
     WorkspaceSwitcher,
     IconButton,
+    DialogBox,
   },
   data() {
     return {
@@ -205,10 +227,10 @@ export default {
     // time user reloads, the value will remain the same
     this.setReAuthenticationState("not-started");
 
-    // reset the value of pending while creating the component
     if (this.pending) this.stopLoading();
-    // reset the value of whether background is disabled
     if (this.isBackgroundDisabled) this.enableBackground();
+    if (this.isDialogBoxShown) this.resetDialogBox();
+
     // place a listener for the event of closing of the browser
     window.addEventListener("beforeunload", this.onClose);
     if (this.isAuthenticated) {
@@ -345,6 +367,41 @@ export default {
       "setWindowInnerHeight",
     ]),
     ...mapActions("sync", ["stopLoading"]),
+    ...mapActions("dialog", [
+      "unsetDialogBox",
+      "unsetDialogTitle",
+      "unsetDialogDescription",
+      "unsetDialogBoxClass",
+      "setConfirmClicked",
+      "setCancelClicked",
+      "unsetDialogCloseButton",
+    ]),
+    /**
+     * invoked when the confirm button of the dialog box is clicked
+     */
+    dialogConfirmed() {
+      // reset the dialog box
+      this.resetDialogBox();
+      this.setConfirmClicked();
+    },
+    /**
+     * invoked when the cancel button of the dialog box is clicked;
+     */
+    dialogCancelled() {
+      // reset the dialog box
+      this.resetDialogBox();
+      this.setCancelClicked();
+    },
+    /**
+     * resets the config of the dialog box
+     */
+    resetDialogBox() {
+      this.unsetDialogBox();
+      this.unsetDialogDescription();
+      this.unsetDialogTitle();
+      this.unsetDialogBoxClass();
+      this.unsetDialogCloseButton();
+    },
     /** resets the state of the menu button to inactive */
     resetMenuState() {
       this.isMenuButtonActive = false;
@@ -437,7 +494,6 @@ export default {
           }
         })
         .catch(() => this.toast.error(this.$t("error.create_plio")));
-      this.resetMenuState();
     },
     /** logs out the user */
     logoutUser() {
@@ -500,10 +556,20 @@ export default {
       "isSharePlioDialogShown",
       "isEmbedPlioDialogShown",
       "plioLinkToShare",
-      "plioIdToEmbed",
+      "selectedPlioId",
       "isBackgroundDisabled",
     ]),
     ...mapState("sync", ["pending"]),
+    ...mapState("dialog", {
+      dialogTitle: (state) => state.title,
+      dialogDescription: (state) => state.description,
+      isDialogBoxShown: (state) => state.isShown,
+      isDialogCloseButtonShown: (state) => state.isCloseButtonShown,
+      dialogConfirmButtonConfig: (state) => state.confirmButtonConfig,
+      dialogCancelButtonConfig: (state) => state.cancelButtonConfig,
+      dialogBoxClass: (state) => state.boxClass,
+      dialogAction: (state) => state.action,
+    }),
     /**
      * whether the router view is shown
      */
@@ -783,7 +849,8 @@ export default {
         this.showLanguagePickerDialog ||
         this.isSharePlioDialogShown ||
         this.isEmbedPlioDialogShown ||
-        this.isBackgroundDisabled
+        this.isBackgroundDisabled ||
+        this.isDialogBoxShown
       );
     },
     /**

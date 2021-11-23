@@ -332,22 +332,7 @@
         </div>
       </div>
     </div>
-    <!-- generic dialog box -->
-    <dialog-box
-      :class="dialogBoxClass"
-      class="fixed top-1/3"
-      v-if="isDialogBoxShown"
-      :title="dialogTitle"
-      :description="dialogDescription"
-      :confirmButtonConfig="dialogConfirmButtonConfig"
-      :cancelButtonConfig="dialogCancelButtonConfig"
-      :isCloseButtonShown="isDialogCloseButtonShown"
-      @confirm="dialogConfirmed"
-      @cancel="dialogCancelled"
-      @close="resetDialogBox"
-      v-click-away="resetDialogBox"
-      data-test="dialogBox"
-    ></dialog-box>
+
     <!-- image uploader dialog box -->
     <ImageUploaderDialog
       v-if="isImageUploaderDialogShown"
@@ -480,7 +465,6 @@ import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
-import DialogBox from "@/components/UI/Alert/DialogBox";
 import ItemModal from "@/components/Player/ItemModal.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 
@@ -526,7 +510,6 @@ export default {
     ItemEditor,
     IconButton,
     SimpleBadge,
-    DialogBox,
     ItemModal,
     ImageUploaderDialog,
     Plio,
@@ -585,14 +568,6 @@ export default {
       lastUpdated: new Date(), // time when the last update to remote was made
       minUpdateInterval: 1000, // minimum time in milliseconds between updates
       isBeingPublished: false, // whether the current plio is in the process of being published
-      isDialogBoxShown: false, // whether to show dialog box
-      isDialogCloseButtonShown: false, // whether to show the close button of the dialog box
-      dialogTitle: "", // title for the dialog box
-      dialogDescription: "", // description for the dialog box
-      dialogConfirmButtonConfig: {}, // config for the confirm button of the dialog box
-      dialogCancelButtonConfig: {}, // config for the cancel button of the dialog box
-      dialogBoxClass: "", // classes for the dialog box
-      dialogAction: "",
       hasUnpublishedChanges: false,
       // whether there are changes which have not been published
       // once plio is published, we don't automatically save changes
@@ -709,6 +684,63 @@ export default {
       }
     },
     /**
+     * execute appropriate actions based on the dialog action value when the
+     * confirm button of the dialog box is clicked
+     */
+    isDialogConfirmClicked(value) {
+      if (value) {
+        switch (this.dialogAction) {
+          case "publish":
+            this.confirmPublish();
+            break;
+          case "deleteItem":
+            this.deleteSelectedItem();
+            break;
+          case "deleteOption":
+            this.deleteSelectedOption();
+            break;
+          case "closeDialog":
+            this.unsetDialogBox();
+            break;
+          default:
+            return;
+        }
+
+        this.unsetConfirmClicked();
+
+        // reset the dialog action value if no new dialog
+        // boxes have been shown
+        if (!this.isDialogBoxShown) this.unsetDialogAction();
+      }
+    },
+    /**
+     * execute appropriate actions based on the dialog action value when the
+     * cancel button of the dialog box is clicked
+     */
+    isDialogCancelClicked(value) {
+      if (value) {
+        switch (this.dialogAction) {
+          case "deleteOption":
+            this.cancelDeleteOption();
+            break;
+          case "publish":
+            if (!this.isPublished) {
+              // show the plio preview
+              this.togglePlioPreviewMode();
+            }
+            break;
+          default:
+            return;
+        }
+
+        this.unsetCancelClicked();
+
+        // reset the dialog action value if no new dialog
+        // boxes have been shown
+        if (!this.isDialogBoxShown) this.unsetDialogAction();
+      }
+    },
+    /**
      * When video url is updated, check its validity; if valid, update the player with the new URL
      * and push the updated video object to the backend
      * @param {String} newVideoURL - The new video URL that the user has entered
@@ -754,6 +786,12 @@ export default {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
     ...mapGetters("auth", ["isPersonalWorkspace"]),
+    ...mapState("dialog", {
+      isDialogBoxShown: (state) => state.isShown,
+      dialogAction: (state) => state.action,
+      isDialogConfirmClicked: (state) => state.isConfirmClicked,
+      isDialogCancelClicked: (state) => state.isCancelClicked,
+    }),
     /**
      * whether the spinner needs to be shown
      */
@@ -973,7 +1011,6 @@ export default {
     isBackgroundDisabled() {
       return (
         this.isBeingPublished ||
-        this.isDialogBoxShown ||
         this.isImageUploaderDialogShown ||
         this.isPublishedPlioDialogShown ||
         this.isEmbedPlioDialogShown ||
@@ -1200,6 +1237,20 @@ export default {
       "stopLoading",
     ]),
     ...mapActions("generic", ["showSharePlioDialog", "showEmbedPlioDialog"]),
+    ...mapActions("dialog", [
+      "setDialogBox",
+      "unsetDialogBox",
+      "setDialogCloseButton",
+      "setDialogTitle",
+      "setDialogDescription",
+      "setConfirmButtonConfig",
+      "setCancelButtonConfig",
+      "setDialogBoxClass",
+      "setDialogAction",
+      "unsetDialogAction",
+      "unsetConfirmClicked",
+      "unsetCancelClicked",
+    ]),
     ...Utilities,
     /**
      * copies the plio draft link to the clipboard
@@ -1762,7 +1813,7 @@ export default {
       this.status = "published";
       await this.saveChanges("all");
       this.isBeingPublished = false;
-      this.isDialogBoxShown = false;
+      this.unsetDialogBox();
       this.isPublishedPlioDialogShown = true;
       throwConfetti(this.confettiHandler);
       this.hasUnpublishedChanges = false;
@@ -1786,64 +1837,24 @@ export default {
      */
     showPublishConfirmationDialogBox() {
       // set dialog properties
-      this.dialogTitle = this.publishDialogTitle;
-      this.dialogDescription = this.publishDialogDescription;
-      this.isDialogCloseButtonShown = true;
-      this.dialogConfirmButtonConfig = {
+      this.setDialogTitle(this.publishDialogTitle);
+      this.setDialogDescription(this.publishDialogDescription);
+      this.setDialogCloseButton();
+      this.setConfirmButtonConfig({
         enabled: true,
         text: this.$t(`editor.dialog.publish.${this.status}.confirm`),
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
-      };
-      this.dialogCancelButtonConfig = {
+      });
+      this.setCancelButtonConfig({
         enabled: true,
         text: this.$t(`editor.dialog.publish.${this.status}.cancel`),
         class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
-      };
-      this.dialogBoxClass = "w-72";
+      });
+      this.setDialogBoxClass("w-72");
       // closing the dialog executes this action
-      this.dialogAction = "publish";
-      // show the dialogue
-      this.isDialogBoxShown = true;
-    },
-    /**
-     * invoked when the confirm button of the dialog box is clicked
-     * calls the appropriate method based on the dialogAction
-     */
-    dialogConfirmed() {
-      // reset the dialog box
-      this.resetDialogBox();
-
-      // call separate methods depening on the dialog action that
-      // was set
-      if (this.dialogAction == "publish") this.confirmPublish();
-      else if (this.dialogAction == "deleteItem") this.deleteSelectedItem();
-      else if (this.dialogAction == "deleteOption") this.confirmDeleteOption();
-      else if (this.dialogAction == "closeDialog") this.isDialogBoxShown = false;
-
-      // reset the dialog action value
-      this.dialogAction = "";
-    },
-    /**
-     * invoked when the cancel button of the dialog box is clicked;
-     * calls the appropriate method based on the dialogAction
-     */
-    dialogCancelled() {
-      // reset the dialog box
-      this.resetDialogBox();
-      if (this.dialogAction == "deleteOption") this.cancelDeleteOption();
-      if (this.dialogAction == "publish" && !this.isPublished) {
-        // show the plio preview
-        this.togglePlioPreviewMode();
-      }
-    },
-    /**
-     * resets the config of the dialog box
-     */
-    resetDialogBox() {
-      this.isDialogBoxShown = false;
-      this.dialogDescription = "";
-      this.dialogBoxClass = "";
-      this.isDialogCloseButtonShown = false;
+      this.setDialogAction("publish");
+      // show the dialog box
+      this.setDialogBox();
     },
     /**
      * cancels the deletion of the marked option
@@ -1857,23 +1868,23 @@ export default {
      */
     showCannotAddItemDialog() {
       // set up the dialog properties
-      this.dialogTitle = this.$t("editor.dialog.cannot_add_question.title");
-      this.dialogDescription = this.$t("editor.dialog.cannot_add_question.description");
-      this.dialogConfirmButtonConfig = {
+      this.setDialogTitle(this.$t("editor.dialog.cannot_add_question.title"));
+      this.setDialogDescription(this.$t("editor.dialog.cannot_add_question.description"));
+      this.setConfirmButtonConfig({
         enabled: true,
         text: this.$t("generic.got_it"),
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
-      };
-      this.dialogCancelButtonConfig = {
+      });
+      this.setCancelButtonConfig({
         enabled: false,
         text: "",
         class: "",
-      };
+      });
 
       // carry out the closeDialog action when dialog is closed
-      this.dialogAction = "closeDialog";
-      // show the dialogue
-      this.isDialogBoxShown = true;
+      this.setDialogAction("closeDialog");
+      // show the dialog box
+      this.setDialogBox();
     },
     /**
      * shows a dialog box when the user tries to delete an option
@@ -1881,40 +1892,42 @@ export default {
      */
     showCannotDeleteOptionDialog() {
       // set up the dialog properties
-      this.dialogTitle = this.$t("editor.dialog.cannot_delete_option.title");
-      this.dialogDescription = this.$t("editor.dialog.cannot_delete_option.description");
-      this.dialogConfirmButtonConfig = {
+      this.setDialogTitle(this.$t("editor.dialog.cannot_delete_option.title"));
+      this.setDialogDescription(
+        this.$t("editor.dialog.cannot_delete_option.description")
+      );
+      this.setConfirmButtonConfig({
         enabled: true,
         text: this.$t("generic.got_it"),
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
-      };
-      this.dialogCancelButtonConfig = {
+      });
+      this.setCancelButtonConfig({
         enabled: false,
         text: "",
         class: "",
-      };
+      });
 
       // carry out the closeDialog action when dialog is closed
-      this.dialogAction = "closeDialog";
-      // show the dialogue
-      this.isDialogBoxShown = true;
+      this.setDialogAction("closeDialog");
+      // show the dialog box
+      this.setDialogBox();
     },
     /**
      * hides the dialog box and invokes the method for publishing the plio
      */
     confirmPublish() {
-      this.isDialogBoxShown = true;
-      this.dialogTitle = this.publishInProgressDialogTitle;
-      this.dialogConfirmButtonConfig = {
+      this.setDialogBox();
+      this.setDialogTitle(this.publishInProgressDialogTitle);
+      this.setConfirmButtonConfig({
         enabled: false,
         text: "",
         class: "",
-      };
-      this.dialogCancelButtonConfig = {
+      });
+      this.setCancelButtonConfig({
         enabled: false,
         text: "",
         class: "",
-      };
+      });
       // publish the plio or its changes
       this.publishPlio();
     },
@@ -1922,7 +1935,7 @@ export default {
      * deletes the option marked to be deleted if the question contains
      * more than 2 options
      */
-    confirmDeleteOption() {
+    deleteSelectedOption() {
       // there should always be at least 2 options, allow deletion only
       // if the number of options is >= 3
       if (this.itemDetails[this.currentItemIndex].options.length < 3) {
@@ -2030,24 +2043,24 @@ export default {
      */
     showDeleteItemDialogBox() {
       // set dialog properties
-      this.dialogTitle = this.$t(`editor.dialog.delete_item.${this.itemType}.title`);
-      this.dialogDescription = this.$t(
-        `editor.dialog.delete_item.${this.itemType}.description`
+      this.setDialogTitle(this.$t(`editor.dialog.delete_item.${this.itemType}.title`));
+      this.setDialogDescription(
+        this.$t(`editor.dialog.delete_item.${this.itemType}.description`)
       );
-      this.dialogConfirmButtonConfig = {
+      this.setConfirmButtonConfig({
         enabled: true,
         text: this.$t("generic.yes"),
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
-      };
-      this.dialogCancelButtonConfig = {
+      });
+      this.setCancelButtonConfig({
         enabled: true,
         text: this.$t("generic.no"),
         class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
-      };
+      });
       // set the action to be carried out
-      this.dialogAction = "deleteItem";
-      // show the dialogue
-      this.isDialogBoxShown = true;
+      this.setDialogAction("deleteItem");
+      // show the dialog box
+      this.setDialogBox();
     },
     /**
      * remove the current item from the item list, the corresponding
@@ -2065,7 +2078,7 @@ export default {
       ItemAPIService.deleteItem(itemToDelete[0].id);
       // set currentItemIndex to null to hide the item editor
       this.currentItemIndex = null;
-      this.isDialogBoxShown = false;
+      this.unsetDialogBox();
     },
     /**
      * deletes the option of the current item at the given index
@@ -2074,23 +2087,22 @@ export default {
      */
     deleteOption(optionIndex) {
       // set dialog properties
-      this.dialogTitle = this.$t("editor.dialog.delete_option.title");
-      this.dialogDescription = "";
-      this.dialogConfirmButtonConfig = {
+      this.setDialogTitle(this.$t("editor.dialog.delete_option.title"));
+      this.setConfirmButtonConfig({
         enabled: true,
         text: this.$t("generic.yes"),
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
-      };
-      this.dialogCancelButtonConfig = {
+      });
+      this.setCancelButtonConfig({
         enabled: true,
         text: this.$t("generic.no"),
         class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
-      };
+      });
 
       // set the index to delete, set the dialog action, show the dialog
       this.optionIndexToDelete = optionIndex;
-      this.dialogAction = "deleteOption";
-      this.isDialogBoxShown = true;
+      this.setDialogAction("deleteOption");
+      this.setDialogBox();
     },
     /**
      * sets that some unresolved errors are present

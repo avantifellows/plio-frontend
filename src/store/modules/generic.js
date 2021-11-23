@@ -3,7 +3,7 @@ const state = {
   isEmbedPlioDialogShown: false, // whether to show the dialog with info on embedding plio
   isBackgroundDisabled: false,
   plioLinkToShare: null,
-  plioIdToEmbed: null, // uuid of the plio to be embedded
+  selectedPlioId: null, // uuid of the plio in focus
   windowInnerWidth: null, // inner width of the window
   windowInnerHeight: null, // inner height of the window
 };
@@ -28,9 +28,12 @@ const actions = {
     await commit("setPlioLinkToShare", plioLink);
     dispatch("setSharePlioDialog");
   },
-  async showEmbedPlioDialog({ commit, dispatch }, plioId) {
-    await commit("setPlioIdToEmbed", plioId);
+  async showEmbedPlioDialog({ dispatch }, plioId) {
+    await dispatch("setSelectedPlioId", plioId);
     dispatch("setEmbedPlioDialog");
+  },
+  async setSelectedPlioId({ commit }, plioId) {
+    await commit("setSelectedPlioId", plioId);
   },
   setWindowInnerWidth({ commit }, windowInnerWidth) {
     commit("setWindowInnerWidth", windowInnerWidth);
@@ -62,8 +65,8 @@ const mutations = {
   setPlioLinkToShare(state, plioLink) {
     state.plioLinkToShare = plioLink;
   },
-  setPlioIdToEmbed(state, plioId) {
-    state.plioIdToEmbed = plioId;
+  setSelectedPlioId(state, plioId) {
+    state.selectedPlioId = plioId;
   },
   setWindowInnerWidth(state, windowInnerWidth) {
     state.windowInnerWidth = windowInnerWidth;
