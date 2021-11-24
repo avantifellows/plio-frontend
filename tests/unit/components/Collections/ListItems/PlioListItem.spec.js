@@ -176,7 +176,7 @@ describe("PlioListItem.vue", () => {
         },
       },
     });
-    // passing in plioID triggers startLoading which keeps the component in pending state
+    // passing in plioId triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
     // click the option dropdown
@@ -222,7 +222,7 @@ describe("PlioListItem.vue", () => {
         };
       },
     });
-    // passing in plioID triggers startLoading which keeps the component in pending state
+    // passing in plioId triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
     // click the option dropdown
@@ -267,7 +267,7 @@ describe("PlioListItem.vue", () => {
         },
       },
     });
-    // passing in plioID triggers startLoading which keeps the component in pending state
+    // passing in plioId triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
     // click the option dropdown
@@ -339,7 +339,7 @@ describe("PlioListItem.vue", () => {
         };
       },
     });
-    // passing in plioID triggers startLoading which keeps the component in pending state
+    // passing in plioId triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
     // click the option dropdown
@@ -376,7 +376,7 @@ describe("PlioListItem.vue", () => {
         };
       },
     });
-    // passing in plioID triggers startLoading which keeps the component in pending state
+    // passing in plioId triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
     // click the option dropdown
@@ -503,7 +503,7 @@ describe("PlioListItem.vue", () => {
         },
       },
     });
-    // passing in plioID triggers startLoading which keeps the component in pending state
+    // passing in plioId triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
     // click the option dropdown
@@ -529,11 +529,6 @@ describe("PlioListItem.vue", () => {
 
   it("clicking on delete launches a dialog box", async () => {
     const plioId = "123";
-    // mock router
-    const mockRouter = {
-      push: jest.fn(),
-    };
-
     wrapper = mount(PlioListItem, {
       data() {
         return {
@@ -546,13 +541,8 @@ describe("PlioListItem.vue", () => {
       props: {
         plioId: plioId,
       },
-      global: {
-        mocks: {
-          $router: mockRouter,
-        },
-      },
     });
-    // passing in plioID triggers startLoading which keeps the component in pending state
+    // passing in plioId triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
     // there should be no dialog box
@@ -576,11 +566,6 @@ describe("PlioListItem.vue", () => {
 
   it("choosing no after clicking on delete closes the dialog box", async () => {
     const plioId = "123";
-    // mock router
-    const mockRouter = {
-      push: jest.fn(),
-    };
-
     wrapper = mount(PlioListItem, {
       data() {
         return {
@@ -593,13 +578,8 @@ describe("PlioListItem.vue", () => {
       props: {
         plioId: plioId,
       },
-      global: {
-        mocks: {
-          $router: mockRouter,
-        },
-      },
     });
-    // passing in plioID triggers startLoading which keeps the component in pending state
+    // passing in plioId triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
     // click the option dropdown
@@ -618,16 +598,14 @@ describe("PlioListItem.vue", () => {
     await store.dispatch("dialog/unsetDialogBox");
     await store.dispatch("dialog/setCancelClicked");
 
+    // dialog cancel button state should have been reset
+    expect(wrapper.vm.isDialogCancelClicked).toBeFalsy();
     // dialog action should be unset
     expect(wrapper.vm.dialogAction).toBeFalsy();
   });
 
   it("choosing yes after clicking on delete triggers deletion", async () => {
     const plioId = "123";
-    // mock router
-    const mockRouter = {
-      push: jest.fn(),
-    };
     // spy on the enableBackground and disableBackground methods
     const disableBackground = jest.spyOn(
       PlioListItem.methods,
@@ -650,13 +628,8 @@ describe("PlioListItem.vue", () => {
       props: {
         plioId: plioId,
       },
-      global: {
-        mocks: {
-          $router: mockRouter,
-        },
-      },
     });
-    // passing in plioID triggers startLoading which keeps the component in pending state
+    // passing in plioId triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
     // click the option dropdown
@@ -697,6 +670,8 @@ describe("PlioListItem.vue", () => {
 
     // background should be enabled
     expect(enableBackground).toHaveBeenCalled();
+    // dialog confirm button state should have been reset
+    expect(wrapper.vm.isDialogConfirmClicked).toBeFalsy();
     // dialog action should be unset
     expect(wrapper.vm.dialogAction).toBeFalsy();
     // check emit
@@ -705,10 +680,6 @@ describe("PlioListItem.vue", () => {
 
   it("error in deletion closes dialog box", async () => {
     const plioId = "123";
-    // mock router
-    const mockRouter = {
-      push: jest.fn(),
-    };
     const enableBackground = jest.spyOn(
       PlioListItem.methods,
       "enableBackground"
@@ -726,13 +697,8 @@ describe("PlioListItem.vue", () => {
       props: {
         plioId: plioId,
       },
-      global: {
-        mocks: {
-          $router: mockRouter,
-        },
-      },
     });
-    // passing in plioID triggers startLoading which keeps the component in pending state
+    // passing in plioId triggers startLoading which keeps the component in pending state
     await store.dispatch("sync/stopLoading");
 
     // click the option dropdown
@@ -761,7 +727,107 @@ describe("PlioListItem.vue", () => {
 
     // background should be enabled
     expect(enableBackground).toHaveBeenCalled();
+    // dialog confirm button state should have been reset
+    expect(wrapper.vm.isDialogConfirmClicked).toBeFalsy();
     // dialog action should be unset
     expect(wrapper.vm.dialogAction).toBeFalsy();
+  });
+
+  it("does not interfere with irrelevant dialog confirm trigger", async () => {
+    const plioId = "123";
+    wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "published",
+          },
+        };
+      },
+      props: {
+        plioId: plioId,
+      },
+    });
+    // passing in plioId triggers startLoading which keeps the
+    // component in pending state
+    await store.dispatch("sync/stopLoading");
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // cleanup past requests
+    mockAxios.reset();
+
+    // click the delete button
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .find('[data-test="option-delete"]')
+      .trigger("click");
+
+    // change the dialog action so that it is no longer
+    // relevant to this component
+    const newDialogAction = "testAction";
+    await store.dispatch("dialog/setDialogAction", newDialogAction);
+
+    // set the dialog confirm button to have been clicked
+    await store.dispatch("dialog/unsetDialogBox");
+    await store.dispatch("dialog/setConfirmClicked");
+
+    // the dialog action shouldn't have been affected and
+    // the confirm click status should remain active
+    expect(wrapper.vm.isDialogConfirmClicked).toBeTruthy();
+    expect(wrapper.vm.dialogAction).toBe(newDialogAction);
+  });
+
+  it("does not interfere with irrelevant dialog cancel trigger", async () => {
+    const plioId = "123";
+    wrapper = mount(PlioListItem, {
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "published",
+          },
+        };
+      },
+      props: {
+        plioId: plioId,
+      },
+    });
+    // passing in plioId triggers startLoading which keeps the
+    // component in pending state
+    await store.dispatch("sync/stopLoading");
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // cleanup past requests
+    mockAxios.reset();
+
+    // click the delete button
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .find('[data-test="option-delete"]')
+      .trigger("click");
+
+    // change the dialog action so that it is no longer
+    // relevant to this component
+    const newDialogAction = "testAction";
+    await store.dispatch("dialog/setDialogAction", newDialogAction);
+
+    // set the dialog cancel button to have been clicked
+    await store.dispatch("dialog/unsetDialogBox");
+    await store.dispatch("dialog/setCancelClicked");
+
+    // the dialog action shouldn't have been affected and
+    // the confirm click status should remain active
+    expect(wrapper.vm.isDialogCancelClicked).toBeTruthy();
+    expect(wrapper.vm.dialogAction).toBe(newDialogAction);
   });
 });
