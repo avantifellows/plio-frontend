@@ -9,15 +9,15 @@ var clonedeep = require("lodash.clonedeep");
 var dummyTableData = [
   {
     name: { type: "component", value: "123", status: "draft" },
-    number_of_viewers: "0",
+    views: "0",
   },
   {
     name: { type: "component", value: "234", status: "published" },
-    number_of_viewers: "10",
+    views: "10",
   },
 ];
 
-const tableColumns = ["name", "number_of_viewers"];
+const tableColumns = ["name", "views"];
 const totalNumberOfPlios = dummyTableData.length;
 
 describe("Table.vue", () => {

@@ -122,6 +122,7 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 import domtoimage from "dom-to-image";
 import i18n from "@/services/Localisation/i18n.js";
+import { mapState } from "vuex";
 
 const confetti = require("canvas-confetti");
 const confettiCanvas = document.getElementById("confetticanvas");
@@ -233,6 +234,7 @@ export default {
     window.removeEventListener("resize", this.handleScreenSizeChange);
   },
   computed: {
+    ...mapState("generic", ["windowInnerHeight"]),
     /**
      * returns the text to be shared for % accuracy and number of questions answered
      */
@@ -342,7 +344,7 @@ export default {
      * screen in landscape mode
      */
     checkMobileLandscapeMode() {
-      return !this.isPortrait && window.innerHeight < MOBILE_SCREEN_HEIGHT_THRESHOLD;
+      return !this.isPortrait && this.windowInnerHeight < MOBILE_SCREEN_HEIGHT_THRESHOLD;
     },
     /**
      * share the scorecard message on whatsapp

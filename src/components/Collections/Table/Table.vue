@@ -37,20 +37,14 @@
         ></inline-svg>
 
         <!-- search button to perform the search when clicked -->
-        <button
-          :class="searchButtonClass"
+        <icon-button
+          :iconConfig="searchButtonIconConfig"
+          :buttonClass="searchButtonClass"
+          ariaLabel="search"
+          :isDisabled="!isSearchStringPresent"
           @click="search"
-          :disabled="!this.isSearchStringPresent"
           data-test="searchButton"
-          aria-label="search"
-        >
-          <span class="w-auto flex justify-end items-center">
-            <inline-svg
-              :src="require('@/assets/images/search-solid.svg')"
-              class="h-5 w-5"
-            ></inline-svg>
-          </span>
-        </button>
+        ></icon-button>
       </div>
     </div>
 
@@ -71,7 +65,7 @@
                     @click="sortBy(columnName)"
                     :key="columnName"
                     scope="col"
-                    class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-black uppercase tracking-wider w-2/3"
+                    class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-black uppercase tracking-wider w-4/5"
                     :class="getColumnHeaderStyleClass(columnIndex)"
                     data-test="tableHeader"
                   >
@@ -84,7 +78,7 @@
                       <div class="p-1 my-auto cursor-pointer">
                         <inline-svg
                           :src="require('@/assets/images/chevron-down-solid.svg')"
-                          class="h-3 w-3 my-1 transition ease duration-800"
+                          class="h-3 w-3 my-1 transition duration-800"
                           :class="getSortIconStyleClass(columnName)"
                         ></inline-svg>
                       </div>
@@ -234,10 +228,19 @@ export default {
         "bg-white rounded-md flex shadow-md border focus:outline-none border-grey-light w-full bp-360:w-2/3 sm:w-2/3 md:w-1/3 float-right mb-2 mt-2",
       // classes for search bar input box
       searchInputBoxClass:
-        "w-full rounded-md text-gray-700 leading-tight p-2 pl-4 focus:outline-none focus:ring-0 border-none",
+        "w-full rounded-md text-gray-700 leading-tight p-2 py-4 pl-4 focus:outline-none focus:ring-0 border-none",
       // sort order for the "number of viewers" column. 1 - ascending, -1 - descending
       numViewersSortOrder: 1,
       numPliosLoaded: 0, // number of plios which have completed loading
+      searchButtonIconConfig: {
+        // config for the icon of the search button
+        enabled: true,
+        iconName: "search-solid",
+        iconClass: "h-5 w-5",
+      },
+      // classes for search bar button
+      searchButtonClass:
+        "bg-grey-lightest border-grey border-l shadow hover:bg-primary p-4 text-primary hover:text-white",
     };
   },
 
@@ -271,13 +274,6 @@ export default {
     isSearchStringPresent() {
       // if a string is present in the search bar
       return this.searchString != "";
-    },
-    searchButtonClass() {
-      // classes for search bar button
-      return [
-        { "pointer-events-none": !this.isSearchStringPresent },
-        "bg-grey-lightest border-grey border-l shadow hover:bg-primary p-4 text-primary hover:text-white",
-      ];
     },
     analyseButtonTitleConfig() {
       // title config for the analyse button
@@ -394,12 +390,12 @@ export default {
     },
     sortBy(columnName) {
       /**
-       * toggle the sort order for "number_of_viewers" column
+       * toggle the sort order for "views" column
        * and emit it to the parent
        */
       // do not perform any action if no rows are present
       if (!this.localData.length) return;
-      if (columnName == "number_of_viewers") {
+      if (columnName == "views") {
         this.numViewersSortOrder = this.numViewersSortOrder * -1;
         this.$emit(
           "sort-num-viewers",

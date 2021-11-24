@@ -3,6 +3,9 @@ export default {
     home: "होम",
     login: "",
     logout: "लॉगआउट",
+    whats_new: "नया क्या है",
+    product_guides: "उत्पाद गाइड",
+    docs: "दस्तावेज़ीकरण",
     editor: "एडिटर",
     dashboard: "डैशबोर्ड",
     abtesting: "",
@@ -191,7 +194,7 @@ export default {
     table: {
       columns: {
         name: "नाम",
-        number_of_viewers: "दर्शको की संख्या",
+        views: "व्यूज",
       },
       plio_list_item: {
         buttons: {
