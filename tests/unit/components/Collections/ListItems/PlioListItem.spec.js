@@ -87,7 +87,7 @@ describe("PlioListItem.vue", () => {
     expect(wrapper.vm.isPublished).toBe(true);
   });
 
-  it("sets whether the current screen is mobile screen based on window width", async () => {
+  it("sets whether the current screen is tab screen based on window width", async () => {
     const plioDetails = {
       updatedAt: new Date(2018, 12, 31),
       status: "published",
@@ -104,16 +104,17 @@ describe("PlioListItem.vue", () => {
       },
     });
 
+    // set the value of the window width
+    store.dispatch("generic/setWindowInnerWidth", window.innerWidth);
+
     // the default screen size should be classified as false
-    expect(wrapper.vm.isMobileScreen).toBeFalsy();
+    expect(wrapper.vm.isTabScreen).toBeFalsy();
 
     // update the value of the window width
-    await wrapper.setData({
-      windowWidth: 500,
-    });
+    store.dispatch("generic/setWindowInnerWidth", 500);
 
     // now the screen size should be classified as true
-    expect(wrapper.vm.isMobileScreen).toBeTruthy();
+    expect(wrapper.vm.isTabScreen).toBeTruthy();
   });
 
   it("play disabled for draft plio ", async () => {
@@ -798,25 +799,22 @@ describe("PlioListItem.vue", () => {
     );
 
     // screen size < 420 but > 400
-    await wrapper.setData({
-      windowWidth: 410,
-    });
+    store.dispatch("generic/setWindowInnerWidth", 410);
+    await flushPromises();
     expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
       "left: 20%;"
     );
 
     // screen size < 400 but > 340
-    await wrapper.setData({
-      windowWidth: 350,
-    });
+    store.dispatch("generic/setWindowInnerWidth", 350);
+    await flushPromises();
     expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
       "left: 15%;"
     );
 
     // screen size < 340
-    await wrapper.setData({
-      windowWidth: 320,
-    });
+    store.dispatch("generic/setWindowInnerWidth", 320);
+    await flushPromises();
     expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
       "left: 10%;"
     );

@@ -90,7 +90,7 @@ import ItemFunctionalService from "@/services/Functional/Item.js";
 import ItemModal from "@/components/Player/ItemModal.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 import { resetConfetti } from "@/services/Functional/Utilities.js";
 
 // difference in seconds between consecutive checks for item pop-up
@@ -191,8 +191,6 @@ export default {
       isScorecardShown: false, // to show the scorecard or not
       plioTitle: "", // title of the plio
       isAspectRatioChecked: false, // whether the check for aspect ratio has been done
-      windowWidth: window.innerWidth, // width of the window
-      windowHeight: window.innerHeight, // height of the window
     };
   },
   watch: {
@@ -328,6 +326,7 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
+    ...mapState("generic", ["windowInnerWidth", "windowInnerHeight"]),
     /**
      * whether player has the correct aspect ratio as desired
      */
@@ -343,7 +342,7 @@ export default {
      * the desired aspect ratio for the player
      */
     getDesiredPlayerAspectRatio() {
-      return (100 * this.windowHeight) / this.windowWidth;
+      return (100 * this.windowInnerHeight) / this.windowInnerWidth;
     },
     /**
      * id of the DOM element for the main container of the plio
@@ -502,8 +501,6 @@ export default {
      * sets various properties based on the screen size
      */
     setScreenProperties() {
-      this.windowHeight = window.innerHeight;
-      this.windowWidth = window.innerWidth;
       this.setPlayerAspectRatio();
       this.setPlayerVolumeVisibility();
     },
