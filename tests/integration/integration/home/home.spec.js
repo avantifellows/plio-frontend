@@ -1,4 +1,4 @@
-describe("sees home", () => {
+describe("Home", () => {
   beforeEach(() => {
     cy.loginByGoogleApi();
   });
