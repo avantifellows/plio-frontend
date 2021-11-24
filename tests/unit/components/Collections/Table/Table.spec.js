@@ -23,7 +23,7 @@ describe("Table.vue", () => {
   let wrapper;
   beforeEach(async () => {
     await store.dispatch("sync/stopLoading");
-    setMatchMedia(false);
+    setMatchMedia(false); // deepscan-disable-line
   });
 
   afterEach(() => {
@@ -57,7 +57,7 @@ describe("Table.vue", () => {
 
   it("does not render analyze button on hover on phone ", async () => {
     // set `matches` as `True` for testing on touch screen devices
-    setMatchMedia(true);
+    setMatchMedia(true); // deepscan-disable-line
 
     wrapper = mount(Table, {
       props: {
@@ -366,7 +366,7 @@ describe("Table.vue", () => {
       .trigger("click");
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
+    await simulateConfirmClick(); // deepscan-disable-line
 
     // mock the response to the request
     mockAxios.mockResponse(
