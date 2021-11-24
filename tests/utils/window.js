@@ -1,4 +1,4 @@
-export function setMatchMedia(value) {
+global.setMatchMedia = (value) => {
   Object.defineProperty(window, "matchMedia", {
     writable: true,
     value: jest.fn().mockImplementation((query) => ({
@@ -12,4 +12,4 @@ export function setMatchMedia(value) {
       dispatchEvent: jest.fn(),
     })),
   });
-}
+};

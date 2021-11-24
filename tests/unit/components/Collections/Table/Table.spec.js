@@ -1,6 +1,5 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import Table from "@/components/Collections/Table/Table";
-import { setMatchMedia } from "@/services/Testing/Utilities";
 import store from "@/store";
 import mockAxios from "jest-mock-axios";
 import { dummyPublishedPlio } from "@/services/Testing/DummyData.js";
@@ -24,7 +23,7 @@ describe("Table.vue", () => {
   let wrapper;
   beforeEach(async () => {
     await store.dispatch("sync/stopLoading");
-    await setMatchMedia(false);
+    setMatchMedia(false);
   });
 
   afterEach(() => {
@@ -367,8 +366,7 @@ describe("Table.vue", () => {
       .trigger("click");
 
     // simulate clicking the confirm button of the dialog box
-    await store.dispatch("dialog/unsetDialogBox");
-    await store.dispatch("dialog/setConfirmClicked");
+    await simulateConfirmClick();
 
     // mock the response to the request
     mockAxios.mockResponse(

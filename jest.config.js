@@ -13,6 +13,11 @@ module.exports = {
     "!src/components/Vue2PortedPackages/**/*.{js,vue}",
     "!src/services/Testing/**/*.{js,vue}",
   ],
-  setupFiles: ["<rootDir>/jest.init.js", "jest-canvas-mock"],
+  setupFiles: [
+    "<rootDir>/jest.init.js",
+    "<rootDir>/tests/utils/dialog.js",
+    "<rootDir>/tests/utils/window.js",
+    "jest-canvas-mock",
+  ],
   restoreMocks: true,
 };
