@@ -30,20 +30,20 @@ Plio uses `cypress.env.json` to set up environment variables for the Cypress app
 
 #### Cypress ENV variables
  Below are the details of all the environment variables.
-#### `google_auth.refresh_token`
+##### `google_auth.refresh_token`
 Google refresh token retrieved in the pre-requisites.
 
-#### `google_auth.client_id`
+##### `google_auth.client_id`
 Google client ID retrieved in the pre-requisites.
 
-#### `google_auth.client_secret`
+##### `google_auth.client_secret`
 Google client secret retrieved in the pre-requisites.
 
-#### `plio_backend.convert_social_auth_token_url`
+##### `plio_backend.convert_social_auth_token_url`
 The convert token URL in the Plio backend repo that converts the Social Auth Token and returns a valid Django Auth Token. By default, the value is `http://0.0.0.0:8001/auth/convert-token`.
 
-#### `plio_backend.client_id`
+##### `plio_backend.client_id`
 The client id for backend API application.
 
-#### `plio_backend.client_secret`
+##### `plio_backend.client_secret`
 The client secret for backend API application.
