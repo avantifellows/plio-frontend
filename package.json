@@ -23,7 +23,7 @@
     "axios": "^0.22.0",
     "canvas-confetti": "^1.4.0",
     "core-js": "^3.6.5",
-    "cypress": "^8.7.0",
+    "cypress": "^9.1.0",
     "debounce": "^1.2.1",
     "deep-eql": "^4.0.0",
     "dom-to-image": "^2.6.0",
