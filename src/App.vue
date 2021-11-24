@@ -121,8 +121,8 @@
     <!-- generic dialog box -->
     <div class="w-full fixed top-1/3">
       <dialog-box
-        :class="dialogBoxClass"
         v-if="isDialogBoxShown"
+        :class="dialogBoxClass"
         :title="dialogTitle"
         :description="dialogDescription"
         :confirmButtonConfig="dialogConfirmButtonConfig"
@@ -372,6 +372,8 @@ export default {
       "unsetDialogTitle",
       "unsetDialogDescription",
       "unsetDialogBoxClass",
+      "unsetConfirmButtonConfig",
+      "unsetCancelButtonConfig",
       "setConfirmClicked",
       "setCancelClicked",
       "unsetDialogCloseButton",
@@ -395,8 +397,10 @@ export default {
      */
     resetDialogBox() {
       this.unsetDialogBox();
-      this.unsetDialogDescription();
       this.unsetDialogTitle();
+      this.unsetDialogDescription();
+      this.unsetConfirmButtonConfig();
+      this.unsetCancelButtonConfig();
       this.unsetDialogBoxClass();
       this.unsetDialogCloseButton();
     },

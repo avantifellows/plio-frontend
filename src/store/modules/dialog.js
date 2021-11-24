@@ -1,10 +1,21 @@
+const DEFAULT_CONFIRM_BUTTON_CONFIG = {
+  enabled: false,
+  text: "",
+  class: "",
+};
+const DEFAULT_CANCEL_BUTTON_CONFIG = {
+  enabled: false,
+  text: "",
+  class: "",
+};
+
 const state = {
   isShown: false,
   isCloseButtonShown: false,
   title: "",
   description: "",
-  confirmButtonConfig: "",
-  cancelButtonConfig: "",
+  confirmButtonConfig: DEFAULT_CONFIRM_BUTTON_CONFIG,
+  cancelButtonConfig: DEFAULT_CANCEL_BUTTON_CONFIG,
   boxClass: "",
   action: "",
   isConfirmClicked: false,
@@ -105,13 +116,13 @@ const mutations = {
     state.confirmButtonConfig = config;
   },
   unsetConfirmButtonConfig(state) {
-    state.confirmButtonConfig = "";
+    state.confirmButtonConfig = DEFAULT_CONFIRM_BUTTON_CONFIG;
   },
   setCancelButtonConfig(state, config) {
     state.cancelButtonConfig = config;
   },
   unsetCancelButtonConfig(state) {
-    state.cancelButtonConfig = "";
+    state.cancelButtonConfig = DEFAULT_CANCEL_BUTTON_CONFIG;
   },
   setDialogBoxClass(state, boxClass) {
     state.boxClass = boxClass;

@@ -1880,11 +1880,6 @@ export default {
         text: this.$t("generic.got_it"),
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
       });
-      this.setCancelButtonConfig({
-        enabled: false,
-        text: "",
-        class: "",
-      });
 
       // carry out the closeDialog action when dialog is closed
       this.setDialogAction("closeDialog");
@@ -1906,11 +1901,6 @@ export default {
         text: this.$t("generic.got_it"),
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
       });
-      this.setCancelButtonConfig({
-        enabled: false,
-        text: "",
-        class: "",
-      });
 
       // carry out the closeDialog action when dialog is closed
       this.setDialogAction("closeDialog");
@@ -1923,16 +1913,7 @@ export default {
     confirmPublish() {
       this.setDialogBox();
       this.setDialogTitle(this.publishInProgressDialogTitle);
-      this.setConfirmButtonConfig({
-        enabled: false,
-        text: "",
-        class: "",
-      });
-      this.setCancelButtonConfig({
-        enabled: false,
-        text: "",
-        class: "",
-      });
+
       // publish the plio or its changes
       this.publishPlio();
     },
