@@ -826,7 +826,7 @@ describe("PlioListItem.vue", () => {
     await store.dispatch("dialog/setCancelClicked");
 
     // the dialog action shouldn't have been affected and
-    // the confirm click status should remain active
+    // the cancel click status should remain active
     expect(wrapper.vm.isDialogCancelClicked).toBeTruthy();
     expect(wrapper.vm.dialogAction).toBe(newDialogAction);
   });

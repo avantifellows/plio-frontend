@@ -700,7 +700,8 @@ export default {
             this.deleteSelectedOption();
             break;
           case "closeDialog":
-            this.unsetDialogBox();
+            // the dialog would already be closed
+            // nothing else needs to be done
             break;
           default:
             // returning here so that it doesn't interfere with the

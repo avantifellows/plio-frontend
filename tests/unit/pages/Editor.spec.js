@@ -1488,6 +1488,39 @@ describe("Editor.vue", () => {
     await store.dispatch("dialog/unsetDialogDescription");
   });
 
+  it("cancelling delete option dialog resets index to delete", async () => {
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+    await wrapper.setData({
+      items: clonedeep(dummyItems),
+      itemDetails: clonedeep(dummyItemDetails),
+      currentItemIndex: 0,
+      videoDuration: 200,
+      status: "draft",
+      currentQuestionTypeIndex: 0,
+    });
+
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[4];
+
+    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+
+    // the option index to delete must be set
+    expect(wrapper.vm.optionIndexToDelete).toBe(0);
+
+    // simulate clicking the cancel button of the dialog box
+    await store.dispatch("dialog/unsetDialogBox");
+    await store.dispatch("dialog/setCancelClicked");
+
+    // the option index to delete must now be reset
+    expect(wrapper.vm.optionIndexToDelete).toBe(-1);
+  });
+
   it("delete option works with more than 2 options", async () => {
     const endIconSelected = jest.spyOn(InputText.methods, "endIconSelected");
     const itemEditorDeleteOption = jest.spyOn(
@@ -1819,5 +1852,63 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="maximizeButton"]').trigger("click");
     expect(maximizeModal).toHaveBeenCalled();
     expect(wrapper.vm.isModalMinimized).toBe(false);
+  });
+
+  it("does not interfere with irrelevant dialog confirm trigger", async () => {
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+
+    // change the dialog action so that it is no longer
+    // relevant to this component
+    const newDialogAction = "testAction";
+    await store.dispatch("dialog/setDialogAction", newDialogAction);
+
+    // simulate clicking the confirm button of the dialog box
+    await store.dispatch("dialog/unsetDialogBox");
+    await store.dispatch("dialog/setConfirmClicked");
+
+    // the dialog action shouldn't have been affected and
+    // the confirm click status should remain active
+    expect(wrapper.vm.isDialogConfirmClicked).toBeTruthy();
+    expect(wrapper.vm.dialogAction).toBe(newDialogAction);
+
+    // reset dialog confirm clicked status
+    await store.dispatch("dialog/unsetConfirmClicked");
+  });
+
+  it("does not interfere with irrelevant dialog cancel trigger", async () => {
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+
+    // change the dialog action so that it is no longer
+    // relevant to this component
+    const newDialogAction = "testAction";
+    await store.dispatch("dialog/setDialogAction", newDialogAction);
+
+    // simulate clicking the cancel button of the dialog box
+    await store.dispatch("dialog/unsetDialogBox");
+    await store.dispatch("dialog/setCancelClicked");
+
+    // the dialog action shouldn't have been affected and
+    // the cancel click status should remain active
+    expect(wrapper.vm.isDialogCancelClicked).toBeTruthy();
+    expect(wrapper.vm.dialogAction).toBe(newDialogAction);
+
+    // reset dialog cancel clicked status
+    await store.dispatch("dialog/unsetCancelClicked");
   });
 });
