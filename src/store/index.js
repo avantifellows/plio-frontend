@@ -10,7 +10,7 @@ import dialog from "./modules/dialog";
 
 // encrypt and decrypt the localStorage
 // github.com/robinvdvleuten/vuex-persistedstate#encrypted-local-storage
-var localStorage = new SecureLS({ isCompression: false });
+let localStorage = new SecureLS({ isCompression: false });
 
 export default createStore({
   plugins: [

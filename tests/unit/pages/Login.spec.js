@@ -2,8 +2,6 @@ import { flushPromises, mount } from "@vue/test-utils";
 import Login from "@/pages/Login.vue";
 import UserAPIService from "@/services/API/User.js";
 
-import { dummyAccessToken, dummyUser } from "@/services/Testing/DummyData.js";
-
 describe("Login.vue", () => {
   it("renders properly with default values", async () => {
     const wrapper = mount(Login);

@@ -17,6 +17,7 @@ module.exports = {
     "<rootDir>/jest.init.js",
     "<rootDir>/tests/utils/dialog.js",
     "<rootDir>/tests/utils/window.js",
+    "<rootDir>/tests/utils/dummyData.js",
     "jest-canvas-mock",
   ],
   restoreMocks: true,

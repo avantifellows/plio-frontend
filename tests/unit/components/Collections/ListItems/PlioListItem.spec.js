@@ -69,7 +69,7 @@ describe("PlioListItem.vue", () => {
   });
 
   it("sets isPublished based on status correctly", async () => {
-    var plioDetails = {
+    let plioDetails = {
       updatedAt: new Date(2018, 12, 31),
       status: "draft",
     };

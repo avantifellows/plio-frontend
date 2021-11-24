@@ -41,7 +41,7 @@ describe("Footer.vue", () => {
   });
 
   it("toggles fullscreen button text correctly based on prop", async () => {
-    var fullscreenButtonTitle = wrapper
+    let fullscreenButtonTitle = wrapper
       .find('[data-test="fullscreenButton"]')
       .find('[data-test="title"]');
     expect(fullscreenButtonTitle.text()).toBe("Go Fullscreen");

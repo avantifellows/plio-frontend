@@ -4,15 +4,8 @@ import Home from "@/pages/Home.vue";
 import store from "@/store";
 
 import mockAxios from "jest-mock-axios";
-import {
-  dummyUser,
-  dummyPublishedPlio,
-  dummyEmptyPlioList,
-  dummyPlioList,
-  dummyUniqueUserCountList,
-} from "@/services/Testing/DummyData.js";
 
-var clonedeep = require("lodash.clonedeep");
+let clonedeep = require("lodash.clonedeep");
 
 afterEach(async () => {
   // cleaning up the mess left behind by the previous test

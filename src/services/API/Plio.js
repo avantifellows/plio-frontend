@@ -29,7 +29,7 @@ export default {
       .get(plioEndpoint)
       .then((plio) => {
         // prepares plio details to be consumed by the components
-        var plioDetails = {};
+        let plioDetails = {};
         plioDetails.itemDetails = [];
         for (let item of plio.data.items) {
           // convert str to int
@@ -67,9 +67,9 @@ export default {
     searchString = "",
     sortBy = undefined
   ) {
-    var url = uuidOnly ? pliosEndpoint + listPliosEndpoint : pliosEndpoint;
+    let url = uuidOnly ? pliosEndpoint + listPliosEndpoint : pliosEndpoint;
 
-    var queryParams = {};
+    let queryParams = {};
     // add page number query param
     if (pageNumber != undefined && pageNumber >= 1)
       queryParams["page"] = pageNumber;
@@ -136,19 +136,19 @@ export default {
   async getUniqueUsersCountList(plioIds) {
     if (plioIds.length == 0) return [];
 
-    var resultSet = await analyticsAPIClient().load(
+    let resultSet = await analyticsAPIClient().load(
       uniqueUsersListQuery(plioIds)
     );
 
     // holds the mapping of plio ID to count
-    var resultsMap = {};
+    let resultsMap = {};
     if (resultSet.series()[0] != undefined)
       resultSet.series()[0].series.forEach((seriesItem) => {
         resultsMap[seriesItem.x] = seriesItem.value;
       });
 
     // holds the final list of values to be returned
-    var results = [];
+    let results = [];
     plioIds.forEach((plioId) => {
       // plios which do not have any sessions do not show up in
       // the resultMap - use a default value for those plios
@@ -165,14 +165,14 @@ export default {
    * @returns {Object} key-value pairs of metrics
    */
   async getDashboardMetrics(plioId) {
-    var metrics = {};
+    let metrics = {};
 
     // get session level metrics (except 1-minute retention)
-    var resultSet = await analyticsAPIClient().load(
+    let resultSet = await analyticsAPIClient().load(
       dashboardSessionMetricsQuery(plioId)
     );
-    var resultKeys = resultSet.seriesNames().map((x) => x.key);
-    var resultChartPivot = resultSet.chartPivot()[0];
+    let resultKeys = resultSet.seriesNames().map((x) => x.key);
+    let resultChartPivot = resultSet.chartPivot()[0];
     resultKeys.forEach((key) => {
       metrics[key] = resultChartPivot[key];
     });

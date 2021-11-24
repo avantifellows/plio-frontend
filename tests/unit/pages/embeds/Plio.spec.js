@@ -3,12 +3,7 @@ import Plio from "@/pages/Embeds/Plio.vue";
 import mockAxios from "jest-mock-axios";
 import store from "@/store";
 import UserAPIService from "@/services/API/User.js";
-import {
-  dummyPublishedPlio,
-  dummyAccessToken,
-  dummyUser,
-} from "@/services/Testing/DummyData.js";
-var clonedeep = require("lodash.clonedeep");
+let clonedeep = require("lodash.clonedeep");
 
 beforeEach(() => {
   jest.useFakeTimers();

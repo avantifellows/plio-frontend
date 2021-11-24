@@ -6,17 +6,9 @@ import Plio from "@/pages/Embeds/Plio.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
-import {
-  dummyDraftPlio,
-  dummyItems,
-  dummyVideo,
-  imageData,
-  dummyItemDetails,
-  dummyPublishedPlio,
-} from "@/services/Testing/DummyData.js";
 import store from "@/store";
 
-var clonedeep = require("lodash.clonedeep");
+let clonedeep = require("lodash.clonedeep");
 
 describe("Editor.vue", () => {
   let wrapper;

@@ -2,10 +2,9 @@ import { mount, flushPromises } from "@vue/test-utils";
 import Table from "@/components/Collections/Table/Table";
 import store from "@/store";
 import mockAxios from "jest-mock-axios";
-import { dummyPublishedPlio } from "@/services/Testing/DummyData.js";
-var clonedeep = require("lodash.clonedeep");
+let clonedeep = require("lodash.clonedeep");
 
-var dummyTableData = [
+let dummyTableData = [
   {
     name: { type: "component", value: "123", status: "draft" },
     views: "0",

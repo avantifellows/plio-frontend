@@ -1,13 +1,7 @@
 import { mount } from "@vue/test-utils";
 import ItemModal from "@/components/Player/ItemModal";
 
-import {
-  dummyItems,
-  dummyItemDetails,
-  dummyItemResponses,
-} from "@/services/Testing/DummyData.js";
-
-var clonedeep = require("lodash.clonedeep");
+let clonedeep = require("lodash.clonedeep");
 
 describe("ItemModal.vue", () => {
   it("should render with default values", () => {
@@ -122,13 +116,13 @@ describe("ItemModal.vue", () => {
   });
 
   it("submits subjective question", async () => {
-    var responseList = [];
+    let responseList = [];
     dummyItems.forEach(() => {
       responseList.push({
         answer: null,
       });
     });
-    var draftResponses = clonedeep(dummyItemResponses);
+    let draftResponses = clonedeep(dummyItemResponses);
     const submitQuestionMock = jest.spyOn(ItemModal.methods, "submitQuestion");
     const wrapper = mount(ItemModal, {
       props: {
@@ -159,7 +153,7 @@ describe("ItemModal.vue", () => {
   });
 
   it("submits mcq question", async () => {
-    var responseList = [];
+    let responseList = [];
     dummyItems.forEach(() => {
       responseList.push({
         answer: null,

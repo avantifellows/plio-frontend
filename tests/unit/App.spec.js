@@ -3,7 +3,6 @@ import UserAPIService from "@/services/API/User.js";
 import router from "@/router";
 import store from "@/store";
 import App from "@/App";
-import { dummyAccessToken, dummyUser } from "@/services/Testing/DummyData.js";
 
 describe("App.vue for unauthenticated user", () => {
   let wrapper;
