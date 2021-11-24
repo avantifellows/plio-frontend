@@ -1486,6 +1486,14 @@ describe("Editor.vue", () => {
 
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
     await store.dispatch("dialog/unsetDialogDescription");
+
+    // simulate clicking the confirm button of the dialog box
+    await store.dispatch("dialog/unsetDialogBox");
+    await store.dispatch("dialog/setConfirmClicked");
+
+    // dialogAction and dialog confirm click status should be reset
+    expect(wrapper.vm.dialogAction).toBeFalsy();
+    expect(wrapper.vm.isDialogConfirmClicked).toBeFalsy();
   });
 
   it("cancelling delete option dialog resets index to delete", async () => {
