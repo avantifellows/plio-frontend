@@ -1064,13 +1064,12 @@ export default {
        * in preview mode
        */
       if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode) return;
-      var eventData = {
+      let response = await EventAPIService.createEvent({
         type: eventType,
         details: eventDetails,
         player_time: this.player.currentTime != null ? this.player.currentTime : 0,
         session: this.sessionDBId,
-      };
-      let response = await EventAPIService.createEvent(eventData);
+      });
       if (eventType == "watching") this.watchingEventDBId = response.id;
     },
     /**
@@ -1080,13 +1079,12 @@ export default {
      * @param {Object} eventDetails - details of the event
      */
     updateEvent(eventType, eventDBId, eventDetails = {}) {
-      let eventData = {
+      EventAPIService.updateEvent(eventDBId, {
         type: eventType,
         details: eventDetails,
         player_time: this.player.currentTime != null ? this.player.currentTime : 0,
         session: this.sessionDBId,
-      };
-      EventAPIService.updateEvent(eventDBId, eventData);
+      });
     },
     goFullscreen() {
       this.isFullscreen = true;
