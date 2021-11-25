@@ -22,7 +22,7 @@ describe("Home.vue", () => {
 
   it("renders plios for approved user with no plios", async () => {
     // set user
-    await store.dispatch("auth/setUser", dummyUser);
+    await store.dispatch("auth/setUser", global.dummyUser);
 
     // changing the user to approved makes another API call to list UUIDs
     // this resets it
@@ -39,7 +39,10 @@ describe("Home.vue", () => {
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyEmptyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyEmptyPlioList),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -51,7 +54,7 @@ describe("Home.vue", () => {
 
   it("renders plios for approved user with multiple plios", async () => {
     // set user
-    await store.dispatch("auth/setUser", dummyUser);
+    await store.dispatch("auth/setUser", global.dummyUser);
 
     // changing the user to approved makes another API call to list UUIDs
     // this resets it
@@ -61,14 +64,17 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(clonedeep(dummyUniqueUserCountList));
+          resolve(clonedeep(global.dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPlioList),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -85,7 +91,7 @@ describe("Home.vue", () => {
     };
 
     // set user
-    await store.dispatch("auth/setUser", dummyUser);
+    await store.dispatch("auth/setUser", global.dummyUser);
 
     // changing the user to approved makes another API call to list UUIDs
     // this resets it
@@ -101,7 +107,10 @@ describe("Home.vue", () => {
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyEmptyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyEmptyPlioList),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -135,7 +144,7 @@ describe("Home.vue", () => {
 
   it("sorts correctly based on column value", async () => {
     // set user
-    await store.dispatch("auth/setUser", dummyUser);
+    await store.dispatch("auth/setUser", global.dummyUser);
 
     // changing the user to approved makes another API call to list UUIDs
     // this resets it
@@ -145,14 +154,17 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(clonedeep(dummyUniqueUserCountList));
+          resolve(clonedeep(global.dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPlioList),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -176,7 +188,7 @@ describe("Home.vue", () => {
 
   it("searches plios when search string is present", async () => {
     // set user
-    await store.dispatch("auth/setUser", dummyUser);
+    await store.dispatch("auth/setUser", global.dummyUser);
 
     // changing the user to approved makes another API call to list UUIDs
     // this resets it
@@ -186,14 +198,17 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(clonedeep(dummyUniqueUserCountList));
+          resolve(clonedeep(global.dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPlioList),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -222,7 +237,7 @@ describe("Home.vue", () => {
 
   it("fetches all plios when search string is reset", async () => {
     // set user
-    await store.dispatch("auth/setUser", dummyUser);
+    await store.dispatch("auth/setUser", global.dummyUser);
 
     // changing the user to approved makes another API call to list UUIDs
     // this resets it
@@ -232,14 +247,17 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(clonedeep(dummyUniqueUserCountList));
+          resolve(clonedeep(global.dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPlioList),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -273,7 +291,7 @@ describe("Home.vue", () => {
 
   it("destroys all plios on unmount", async () => {
     // set user
-    await store.dispatch("auth/setUser", dummyUser);
+    await store.dispatch("auth/setUser", global.dummyUser);
 
     // changing the user to approved makes another API call to list UUIDs
     // this resets it
@@ -283,14 +301,17 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(clonedeep(dummyUniqueUserCountList));
+          resolve(clonedeep(global.dummyUniqueUserCountList));
         });
       });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPlioList),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -301,7 +322,7 @@ describe("Home.vue", () => {
 
   it("responds to workspace changing", async () => {
     // set user
-    await store.dispatch("auth/setUser", dummyUser);
+    await store.dispatch("auth/setUser", global.dummyUser);
 
     // changing the user to approved makes another API call to list UUIDs
     // this resets it
@@ -311,14 +332,17 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(clonedeep(dummyUniqueUserCountList));
+          resolve(clonedeep(global.dummyUniqueUserCountList));
         });
       });
     mount(Home);
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPlioList),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -336,7 +360,7 @@ describe("Home.vue", () => {
 
   it("fetches plios when a plio is deleted", async () => {
     // set user
-    await store.dispatch("auth/setUser", dummyUser);
+    await store.dispatch("auth/setUser", global.dummyUser);
 
     // changing the user to approved makes another API call to list UUIDs
     // this resets it
@@ -347,7 +371,7 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(clonedeep(dummyUniqueUserCountList));
+          resolve(clonedeep(global.dummyUniqueUserCountList));
         });
       });
 
@@ -358,14 +382,20 @@ describe("Home.vue", () => {
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPlioList), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPlioList),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
-    // the page makes getPlio query for every plio in the plioList/dummyPlioList
+    // the page makes getPlio query for every plio in the plioList/global.dummyPlioList
     // mocking the published plio as the response for each plio details
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
 
     await flushPromises();
 
@@ -380,7 +410,7 @@ describe("Home.vue", () => {
 
   it("fetches plios from last page if last plio from current page is deleted", async () => {
     // set user
-    await store.dispatch("auth/setUser", dummyUser);
+    await store.dispatch("auth/setUser", global.dummyUser);
 
     // changing the user to approved makes another API call to list UUIDs
     // this resets it
@@ -391,7 +421,7 @@ describe("Home.vue", () => {
       .spyOn(PlioAPIService, "getUniqueUsersCountList")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(clonedeep(dummyUniqueUserCountList));
+          resolve(clonedeep(global.dummyUniqueUserCountList));
         });
       });
 
@@ -402,7 +432,7 @@ describe("Home.vue", () => {
     });
 
     // mock how the response for page 2 with one plio would look like
-    let plioList = clonedeep(dummyPlioList);
+    let plioList = clonedeep(global.dummyPlioList);
     plioList.data.count = 6;
     plioList.data.page_size = 5;
     plioList.data.results = [plioList.data.results[0]];
@@ -416,9 +446,12 @@ describe("Home.vue", () => {
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
-    // the page makes getPlio query for every plio in the plioList/dummyPlioList
+    // the page makes getPlio query for every plio in the plioList/global.dummyPlioList
     // mocking the published plio as the response for each plio details
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
 
     await flushPromises();
 

@@ -42,12 +42,12 @@ describe("App.vue for authenticated user", () => {
       .spyOn(UserAPIService, "getUserByAccessToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyUser });
+          resolve({ data: global.dummyUser });
         });
       });
 
     // set user
-    await store.dispatch("auth/setAccessToken", dummyAccessToken);
+    await store.dispatch("auth/setAccessToken", global.dummyAccessToken);
 
     router.push("/home");
 

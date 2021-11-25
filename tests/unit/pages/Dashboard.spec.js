@@ -19,7 +19,7 @@ describe("Dashboard.vue", () => {
       .spyOn(PlioAPIService, "getDashboardMetrics")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(dummyPlioAnalytics);
+          resolve(global.dummyPlioAnalytics);
         });
       });
     const wrapper = mount(Dashboard, {
@@ -35,12 +35,15 @@ describe("Dashboard.vue", () => {
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
-    let dummyVideoID = dummyPublishedPlio.data.video.url.split("=")[1];
+    let dummyVideoID = global.dummyPublishedPlio.data.video.url.split("=")[1];
     expect(wrapper.vm.videoID).toBe(dummyVideoID);
     expect(wrapper.find('[data-test="thumbnail"]').exists()).toBe(true);
     expect(wrapper.vm.videoThumbnailURL).toBe(
@@ -48,30 +51,39 @@ describe("Dashboard.vue", () => {
     );
 
     expect(wrapper.find('[data-test="title"]').text()).toBe(
-      dummyPublishedPlio.data.name
+      global.dummyPublishedPlio.data.name
     );
     expect(getDashboardMetrics).toHaveBeenCalled();
 
     expect(wrapper.find('[data-test="numViewers"]').text()).toBe(
-      String(dummyPlioAnalytics["Session.uniqueUsers"])
+      String(global.dummyPlioAnalytics["Session.uniqueUsers"])
     );
     expect(wrapper.find('[data-test="watchTime"]').text()).toBe(
       "3 mins 22 secs"
     );
     expect(wrapper.find('[data-test="completion"]').text()).toBe(
       String(
-        dummyPlioAnalytics["AggregateSessionMetrics.completionPercentage"]
+        global.dummyPlioAnalytics[
+          "AggregateSessionMetrics.completionPercentage"
+        ]
       ) + "%"
     );
     expect(wrapper.find('[data-test="questionAnswered"]').text()).toBe(
-      String(dummyPlioAnalytics["AggregateSessionMetrics.numQuestionsAnswered"])
+      String(
+        global.dummyPlioAnalytics[
+          "AggregateSessionMetrics.numQuestionsAnswered"
+        ]
+      )
     );
     expect(wrapper.find('[data-test="accuracy"]').text()).toBe(
-      String(dummyPlioAnalytics["AggregateSessionMetrics.accuracy"]) + "%"
+      String(global.dummyPlioAnalytics["AggregateSessionMetrics.accuracy"]) +
+        "%"
     );
     expect(wrapper.find('[data-test="retention"]').text()).toBe(
       String(
-        dummyPlioAnalytics["GroupedSessionRetention.averageOneMinuteRetention"]
+        global.dummyPlioAnalytics[
+          "GroupedSessionRetention.averageOneMinuteRetention"
+        ]
       ) + "%"
     );
   });
@@ -91,7 +103,10 @@ describe("Dashboard.vue", () => {
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -128,7 +143,10 @@ describe("Dashboard.vue", () => {
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -163,7 +181,10 @@ describe("Dashboard.vue", () => {
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -196,7 +217,10 @@ describe("Dashboard.vue", () => {
 
     // resolve the `GET` request waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();

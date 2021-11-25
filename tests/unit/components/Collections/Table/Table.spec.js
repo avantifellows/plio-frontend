@@ -22,7 +22,7 @@ describe("Table.vue", () => {
   let wrapper;
   beforeEach(async () => {
     await store.dispatch("sync/stopLoading");
-    setMatchMedia(false);
+    global.setMatchMedia(false);
   });
 
   afterEach(() => {
@@ -56,7 +56,7 @@ describe("Table.vue", () => {
 
   it("does not render analyze button on hover on phone ", async () => {
     // set `matches` as `True` for testing on touch screen devices
-    setMatchMedia(true);
+    global.setMatchMedia(true);
 
     wrapper = mount(Table, {
       props: {
@@ -327,8 +327,14 @@ describe("Table.vue", () => {
 
     // resolve the two `GET` requests (for each plio) waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[1]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[1]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -365,7 +371,7 @@ describe("Table.vue", () => {
       .trigger("click");
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
+    await global.simulateConfirmClick();
 
     // mock the response to the request
     mockAxios.mockResponse(

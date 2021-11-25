@@ -50,13 +50,16 @@ describe("Plio.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
     expect(wrapper.vm.isPlioLoaded).toBeTruthy();
-    expect(wrapper.items).toStrictEqual(dummyPublishedPlio.items);
+    expect(wrapper.items).toStrictEqual(global.dummyPublishedPlio.items);
     expect(setPlayerAspectRatio).toHaveBeenCalled();
     expect(playerInitiated).toHaveBeenCalled();
   });
@@ -94,7 +97,10 @@ describe("Plio.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -144,7 +150,10 @@ describe("Plio.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -166,12 +175,12 @@ describe("Plio.vue", () => {
       .spyOn(UserAPIService, "getUserByAccessToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyUser });
+          resolve({ data: global.dummyUser });
         });
       });
 
     // set user
-    await store.dispatch("auth/setAccessToken", dummyAccessToken);
+    await store.dispatch("auth/setAccessToken", global.dummyAccessToken);
 
     mount(Plio, {
       props: {
@@ -182,7 +191,10 @@ describe("Plio.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -190,7 +202,7 @@ describe("Plio.vue", () => {
     // 1 `POST` request should have been made
     expect(mockAxios.post).toHaveBeenCalledTimes(1);
     expect(mockAxios.post).toHaveBeenCalledWith("/sessions/", {
-      plio: dummyPublishedPlio.data.id,
+      plio: global.dummyPublishedPlio.data.id,
     });
   });
 
@@ -205,12 +217,12 @@ describe("Plio.vue", () => {
       .spyOn(UserAPIService, "getUserByAccessToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyUser });
+          resolve({ data: global.dummyUser });
         });
       });
 
     // set user
-    await store.dispatch("auth/setAccessToken", dummyAccessToken);
+    await store.dispatch("auth/setAccessToken", global.dummyAccessToken);
 
     mount(Plio, {
       props: {
@@ -222,7 +234,10 @@ describe("Plio.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -275,7 +290,10 @@ describe("Plio.vue", () => {
       { baseURL: process.env.VUE_APP_BACKEND_AUTH_URL }
     );
 
-    mockAxios.mockResponse({ data: dummyAccessToken }, mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      { data: global.dummyAccessToken },
+      mockAxios.queue()[0]
+    );
     await flushPromises();
     expect(setAccessToken).toHaveBeenCalled();
     await flushPromises();
@@ -301,7 +319,10 @@ describe("Plio.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -340,12 +361,12 @@ describe("Plio.vue", () => {
       .spyOn(UserAPIService, "getUserByAccessToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyUser });
+          resolve({ data: global.dummyUser });
         });
       });
 
     // set user
-    await store.dispatch("auth/setAccessToken", dummyAccessToken);
+    await store.dispatch("auth/setAccessToken", global.dummyAccessToken);
 
     // simulating the case where a 'watching' event has already been created
     let sessionDBId = 1;
@@ -368,7 +389,10 @@ describe("Plio.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
