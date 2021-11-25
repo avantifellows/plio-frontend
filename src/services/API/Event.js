@@ -3,8 +3,7 @@ import { eventsEndpoint } from "@/services/API/Endpoints.js";
 
 export default {
   /**
-   *
-   * @param {Object} eventData - The data that will be used as a payload in the POST request
+   * @param {Object} eventData - The data that will be used as a payload
    */
   createEvent(eventData) {
     // creates a new event
@@ -15,11 +14,10 @@ export default {
       });
   },
   /**
-   *
-   * @param {Number} eventId - The ID of the event that needs to be patched
-   * @param {Object} eventData - The event will be patched with this data
+   * @param {Number} eventId - The ID of the event that needs to be updated
+   * @param {Object} eventData - The data that will be used as a payload
    */
   updateEvent(eventId, eventData) {
-    return apiClient().patch(eventsEndpoint + eventId, eventData);
+    return apiClient().put(eventsEndpoint + eventId, eventData);
   },
 };

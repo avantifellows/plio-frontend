@@ -352,6 +352,10 @@ describe("Plio.vue", () => {
     // set user
     await store.dispatch("auth/setAccessToken", dummyAccessToken);
 
+    // stimulating the case where a 'watching' event has already been created
+    let sessionDBId = 1;
+    let watchingEventDBId = 1;
+
     mount(Plio, {
       shallow: true,
       props: {
@@ -359,8 +363,8 @@ describe("Plio.vue", () => {
       },
       data() {
         return {
-          watchingEventDBId: 1,
-          sessionDBId: 1,
+          watchingEventDBId: watchingEventDBId,
+          sessionDBId: sessionDBId,
           videoId: "_hJEyDOn6Ho",
         };
       },
@@ -374,16 +378,16 @@ describe("Plio.vue", () => {
     // wait until the DOM updates after promises resolve
     await flushPromises();
     // assert that updateEvent method has been called with the correct params
-    expect(updateEvent).toHaveBeenCalledWith("watching", 1);
+    expect(updateEvent).toHaveBeenCalledWith("watching", watchingEventDBId);
   });
 
   it("makes a PATCH call to update a watching event", () => {
     // spy on the updateEvent method inside EventAPIService
     let updateEventAPICall = jest.spyOn(EventAPIService, "updateEvent");
 
-    // we're testing the individual method using 'call'
-    // refer this - https://lmiller1990.github.io/vue-testing-handbook/v3/computed-properties.html#testing-with-call
-    // build a local context object - localThis. It will serve as 'this' in our test
+    // Testing the individual method using 'call'
+    // refer to this - https://lmiller1990.github.io/vue-testing-handbook/v3/computed-properties.html#testing-with-call
+    // build a local context object - localThis. It will serve as 'this' in our test.
     let localThis = {
       hasSessionStarted: true,
       isAuthenticated: true,
@@ -401,10 +405,10 @@ describe("Plio.vue", () => {
     Plio.methods.updateEvent.call(localThis, eventType, eventDBId);
 
     // the updateEvent method inside EventAPIService would've been called
-    // A patch request would've been made with the correct payload
+    // An update request would've been made with the correct payload
     expect(updateEventAPICall).toHaveBeenCalled();
-    expect(mockAxios.patch).toHaveBeenCalledTimes(1);
-    expect(mockAxios.patch).toHaveBeenCalledWith(`/events/${eventDBId}`, {
+    expect(mockAxios.put).toHaveBeenCalledTimes(1);
+    expect(mockAxios.put).toHaveBeenCalledWith(`/events/${eventDBId}`, {
       type: eventType,
       details: {},
       player_time: localThis.player.currentTime,
