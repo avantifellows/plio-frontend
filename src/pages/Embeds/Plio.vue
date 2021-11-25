@@ -1055,7 +1055,7 @@ export default {
     /**
      * creates a new event
      * @param {String} eventType - The type of event that needs to be logged
-     * @param {Object} eventDetails - An object with the details of the event
+     * @param {Object} eventDetails - details of the event
      */
     async createEvent(eventType, eventDetails = {}) {
       /**
