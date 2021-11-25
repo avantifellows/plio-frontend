@@ -701,8 +701,6 @@ export default {
       reRenderKey: 0, // key required to re-render the plio preview player
       editorVideoPlayerElementId: "editorVideoPlayer", // id of the video player in the editor
       isPlioPreviewLoaded: false, // whether the plio preview has been loaded
-      // class for the button to close the dialog that comes after publishing
-      closeDialogButtonClass: "bg-white w-10 h-10 p-2",
       // class for the heading of each question type
       questionTypeHeadingClass:
         "font-bold text-center text-xs bp-420:text-sm lg:test-base",
