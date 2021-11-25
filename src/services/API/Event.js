@@ -4,7 +4,7 @@ import { eventsEndpoint } from "@/services/API/Endpoints.js";
 export default {
   /**
    *
-   * @param {Object} eventData - The data that will be used as a payload in the POST request
+   * @param {Object} eventData - details for the event to be created
    */
   createEvent(eventData) {
     // creates a new event
