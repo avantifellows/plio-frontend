@@ -1077,7 +1077,7 @@ export default {
      * Updates an event
      * @param {String} eventType - The type of event that needs to be logged
      * @param {Number} eventDBId - The id of an event as pulled from the database which needs to be updated
-     * @param {Object} eventDetails - An object with the details of the event
+     * @param {Object} eventDetails - details of the event
      */
     updateEvent(eventType, eventDBId, eventDetails = {}) {
       if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode) return;
