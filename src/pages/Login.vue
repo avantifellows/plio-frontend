@@ -14,7 +14,7 @@
           alt="Plio logo"
         />
 
-        <p class="mt-2 text-center text-md sm:text-xl font-bold text-primary">
+        <p class="mt-2 text-center text-md sm:text-xl font-bold text-primary" data-test="loginHeading">
           {{ $t("login.heading") }}
         </p>
       </div>
