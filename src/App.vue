@@ -112,6 +112,7 @@
               :buttonClass="menuButtonsClass"
               @click="logoutButtonClicked"
               :isDisabled="pending"
+              data-test="logout"
             ></icon-button>
           </div>
         </transition>
