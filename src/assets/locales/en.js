@@ -3,6 +3,9 @@ export default {
     home: "Home",
     login: "",
     logout: "Logout",
+    whats_new: "What's New",
+    product_guides: "Product Guides",
+    docs: "Documentation",
     editor: "Editor",
     dashboard: "Dashboard",
     abtesting: "",
@@ -30,7 +33,7 @@ export default {
     headings: {
       add_question: "Add a new question",
       subjective_question_warning:
-        "Subjective Questions are not included while calculating the accuracy in the dashboard",
+        "All answers to subjective questions are considered correct",
     },
     buttons: {
       home: "Home",
@@ -42,7 +45,10 @@ export default {
       show_question: "Show Question",
       share_plio: "Share",
       play_plio: "Play",
+      preview_plio: "Preview",
+      embed_plio: "Embed",
       analyze_plio: "Analyze",
+      share_draft: "Copy Draft Link",
     },
     updated: "Updated at",
     item_editor: {
@@ -100,11 +106,15 @@ export default {
           title: "Are you sure you want to publish your changes?",
           description:
             "The plio will be permananently changed once you publish the changes",
+          confirm: "Yes",
+          cancel: "No",
         },
         draft: {
           title: "Are you sure you want to publish the plio?",
           description:
-            "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question",
+            "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question. You can also preview the plio before publishing it.",
+          confirm: "Publish",
+          cancel: "Preview",
         },
       },
       publishing: {
@@ -118,6 +128,7 @@ export default {
       published: {
         buttons: {
           play_plio: "Play",
+          embed_plio: "Embed",
           share_plio: "Share",
           home: "Home",
         },
@@ -129,6 +140,33 @@ export default {
           copy_link: {
             not_copied: "Copy Link",
             copied: "Copied!",
+          },
+        },
+      },
+      embed_plio: {
+        title: "Embed this Plio",
+        headings: {
+          without_sso: "Without Single Sign-On (SSO)",
+          with_sso: "With Single Sign-On (SSO)",
+        },
+        buttons: {
+          copy_link: {
+            not_copied: "Copy",
+            copied: "Copied!",
+          },
+        },
+        info: {
+          embed_data: {
+            personal_workspace: {
+              1: "In your current plan, you will not receive any data from the embedded plio if your viewers haven't already logged in to Plio. Fill ",
+              2: "this",
+              3: " form if you want to apply for a team workspace to receive data using Single Sign-On (SSO).",
+            },
+            org_workspace: {
+              1: "By default, you will not receive any data from the embedded plio if your viewers haven't already logged in to Plio. However, you can receive data using Single Sign-On (SSO). Click ",
+              2: "here",
+              3: " to understand how to use it!",
+            },
           },
         },
       },
@@ -149,19 +187,12 @@ export default {
   home: {
     create_button: "Create",
     create_button_empty: "Create a plio",
-    waitlist: {
-      1: "You have been added to the waitlist",
-      2: "You will hear from us soon",
-      3: "Please fill",
-      4: "this",
-      5: "form to get access quicker",
-    },
     all_plios: "All Plios",
     no_plios: "Go ahead and create a plio",
     table: {
       columns: {
         name: "name",
-        number_of_viewers: "Number of Viewers",
+        views: "Views",
       },
       plio_list_item: {
         buttons: {
@@ -171,12 +202,13 @@ export default {
           analyse: "Analyse",
           share: "Share",
           delete: "Delete",
+          embed: "Embed",
         },
         dialog: {
           delete: {
             title: "Are you sure you want to delete this plio?",
             description:
-              "This will permananently delete this plio and all the data associated with it, including all the responses. Once deleted, the data cannot be covered.",
+              "This will permananently delete this plio and all the data associated with it, including all the responses. Once deleted, the data cannot be recovered.",
           },
         },
         toast: {
@@ -188,7 +220,14 @@ export default {
       },
       search: {
         placeholder: "Search",
-        no_plios_found: "No Plios Found",
+        no_plios_found: {
+          title: {
+            1: "Sorry, we couldn't find any plios matching",
+            2: "",
+          },
+          description:
+            "Please don't worry. Try double-checking the spelling or even searching by status (draft/published)",
+        },
       },
       buttons: {
         analyse: "Analyse Plio",
@@ -207,10 +246,10 @@ export default {
     },
   },
   login: {
-    heading: "Make Videos Interactive",
+    heading: "Convert videos into interactive lessons",
     sub_headings: {
       interactive: {
-        title: "Interactive YouTube videos",
+        title: "Use Any YouTube video",
         description:
           "Convert any passive youtube video into an interactive lesson",
       },
@@ -225,7 +264,7 @@ export default {
           "Sharing interactive videos is as simple as sharing a link",
       },
       analytics: {
-        title: "Rich Analytics",
+        title: "Gather Rich Analytics",
         description:
           "Go beyond traditional YouTube metrics to understand your audience better",
       },
@@ -278,12 +317,51 @@ export default {
       enter: "Go Fullscreen",
       exit: "Exit Fullscreen",
     },
+    scorecard: {
+      greeting: "Hooray! Congratulations on completing the plio!",
+      metric: {
+        description: {
+          correct: "Correct",
+          wrong: "Wrong",
+          skipped: "Skipped",
+          accuracy: "Accuracy",
+        },
+      },
+      buttons: {
+        watchAgain: "Watch Again",
+        share: "Share",
+      },
+      share: {
+        hooray: "Hooray",
+        completed_plio: "I completed a Plio",
+        result: {
+          1: "I answered",
+          2: "with",
+          3: "on Plio today",
+          question: "question",
+          questions: "questions",
+        },
+      },
+    },
   },
   error: {
-    404: "Page Not Found",
+    404: {
+      title: "Page Not Found",
+      description:
+        "We were unable to find what you are looking for. You can try going back to your home.",
+    },
+    403: {
+      title: "Access Denied",
+      description:
+        "You do not have the permission to access this page. If you are not a part of the organisational workspace, please contact the organisation's admin to get yourself added or you can go back to your home.",
+    },
+    buttons: {
+      home: "Go to Home",
+    },
     create_plio: "Could not create Plio. Please try again",
     generic: "Something went wrong. Please try again!",
-    internet: "Please check your internet connection",
+    internet_lost: "Internet connection lost",
+    internet_restored: "Internet connection restored",
     copying: "Error while copying",
     auto_logout: "You have been logged out!",
   },

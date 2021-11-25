@@ -9,9 +9,9 @@ import PrimeVue from "primevue/config";
 import Tooltip from "primevue/tooltip";
 import Toast from "vue-toastification";
 import VueProgressBar from "@aacassandra/vue3-progressbar";
-import VueGtag from "vue-gtag";
 import VueClickAway from "vue3-click-away";
 import mixpanel from "mixpanel-browser";
+import "offline-js";
 
 // sentry imports
 import * as Sentry from "@sentry/browser";
@@ -50,7 +50,11 @@ const vueProgressBarOptions = {
 const filterBeforeCreate = (toast, toasts) => {
   // adapted from here - https://github.com/Maronato/vue-toastification#filterbeforecreate
   // Prevents toasts with the same content from appearing simultaneously, discarding duplicates
-  if (toasts.filter((t) => t.content === toast.content).length !== 0) {
+  // and prevent toasts from showing up for an embedded plio
+  if (
+    toasts.filter((t) => t.content === toast.content).length !== 0 ||
+    router.currentRoute._value.name == "Plio"
+  ) {
     // Returning false discards the toast
     return false;
   }
@@ -83,17 +87,7 @@ if (
 }
 
 app.component("inline-svg", InlineSvg);
-
 app.use(i18n);
-app.use(
-  VueGtag,
-  {
-    appName: process.env.VUE_APP_GOOGLE_ANALYTICS_APP_NAME,
-    pageTrackerScreenviewEnabled: true,
-    config: { id: process.env.VUE_APP_GOOGLE_ANALYTICS_ID },
-  },
-  router
-);
 app.use(PrimeVue, { ripple: true });
 app.use(GAuth, gAuthOptions);
 app.use(Toast, { filterBeforeCreate });

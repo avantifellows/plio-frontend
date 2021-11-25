@@ -39,6 +39,7 @@ export default {
     this.$nextTick(() => {
       if (this.isVideoIdValid) {
         this.initiatePlayer();
+        this.$emit("initiated");
       }
     });
   },
@@ -64,20 +65,49 @@ export default {
     },
   },
   methods: {
+    /**
+     * creates a new instance of plyr and sets its properties
+     */
     initiatePlayer() {
-      // creates a new instance of plyr and sets its properties
-      this.player = new Plyr("#player", this.plyrConfig);
+      this.player = this.createPlayer();
       this.setPlayerProperties(this.player);
     },
+    /**
+     * creates a new instance of plyr
+     */
+    createPlayer() {
+      return new Plyr("#player", this.plyrConfig);
+    },
+    /**
+     * sets the properties of the player
+     */
     setPlayerProperties(player) {
-      // set properties of the player
-      player.on("timeupdate", this.emitTimeUpdate);
-      player.on("ready", this.emitReady);
-      player.on("play", this.emitPlay);
-      player.on("pause", this.emitPause);
-      player.on("enterfullscreen", this.emitEnterFullscreen);
-      player.on("exitfullscreen", this.emitExitFullscreen);
-      player.on("seeked", this.emitSeeked);
+      player.on("timeupdate", this.playerTimeUpdated);
+      player.on("ready", this.playerReady);
+      player.on("play", this.playerPlayed);
+      player.on("pause", this.playerPaused);
+      player.on("enterfullscreen", this.enteredFullscreen);
+      player.on("exitfullscreen", this.exitedFullscreen);
+      player.on("seeked", this.playerSeekEnded);
+      player.on("ended", this.playbackEnded);
+      player.on("progress", this.progressUpdated);
+
+      /**
+       * prevents entering into fullscreen by double clicking
+       * on a modal added on top of the video; double clicking
+       * on the video still enters fullscreen
+       */
+      if (player.eventListeners != undefined) {
+        player.eventListeners.forEach((eventListener) => {
+          if (eventListener != undefined && eventListener.type === "dblclick") {
+            eventListener.element.removeEventListener(
+              eventListener.type,
+              eventListener.callback,
+              eventListener.options
+            );
+          }
+        });
+      }
 
       this.removePlyrPoster();
     },
@@ -86,35 +116,43 @@ export default {
       var plyrPoster = document.getElementById("plyr__poster");
       if (plyrPoster != null && plyrPoster.remove === "function") plyrPoster.remove();
     },
-    emitTimeUpdate() {
-      // emit an event saying that the player time has been updated
+    playerTimeUpdated() {
+      // invoked when the player time has been updated
       var updatedTime = Number(this.player.currentTime.toFixed(2));
       this.$emit("update:currentTime", updatedTime);
       this.$emit("update", updatedTime);
     },
-    emitReady() {
-      // emit an event indicating that the player instance is ready
+    playerReady() {
+      // invoked when the player instance is ready
       this.$emit("ready");
     },
-    emitPlay() {
-      // emit an event indicating that the player has been played
+    playerPlayed() {
+      // invoked when the player has been played
       this.$emit("play");
     },
-    emitSeeked() {
-      // emit an event indicating that a seek operation has ended
+    playerSeekEnded() {
+      // invoked when a seek operation has ended
       this.$emit("seeked");
     },
-    emitPause() {
-      // emit an event indicating that the player has been paused
+    playerPaused() {
+      // invoked when the player has been paused
       this.$emit("pause");
     },
-    emitEnterFullscreen() {
-      // emit an event indicating that the player is entering fullscreen
+    enteredFullscreen() {
+      // invoked when the player is entering fullscreen
       this.$emit("enterfullscreen");
     },
-    emitExitFullscreen() {
-      // emit an event indicating that the player is exiting fullscreen
+    exitedFullscreen() {
+      // invoked when the player is exiting fullscreen
       this.$emit("exitfullscreen");
+    },
+    playbackEnded() {
+      // invoked when the video has ended (and autoPlay is not true)
+      this.$emit("playback-ended");
+    },
+    progressUpdated() {
+      // invokes whenever the amount of buffered media changes
+      if (this.player.buffered > 0) this.$emit("buffered");
     },
   },
   computed: {
@@ -125,6 +163,7 @@ export default {
   },
   emits: [
     "update",
+    "initiated",
     "ready",
     "play",
     "pause",
@@ -132,11 +171,18 @@ export default {
     "enterfullscreen",
     "exitfullscreen",
     "seeked",
+    "playback-ended",
+    "buffered",
   ],
 };
 </script>
 <style lang="scss">
 .plyr__poster {
   z-index: -1 !important;
+}
+// hides the youtube video title and buttons like "watch later"
+.plyr iframe[id^="youtube"] {
+  top: -50%;
+  height: 200%;
 }
 </style>

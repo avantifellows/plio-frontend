@@ -75,9 +75,11 @@ export default {
       default: "",
       type: String,
     },
+    /**
+     * whether to show any validation for the input
+     * format: {enabled: boolean, isValid: boolean, validMessage: String, invalidMessage: String}
+     */
     validation: {
-      // whether to show any validation for the input
-      // format: {enabled: boolean, isValid: boolean, validMessage: String, invalidMessage: String}
       default: () => {
         return {
           enabled: false,
@@ -85,9 +87,10 @@ export default {
       },
       type: Object,
     },
+    /**
+     * whether the start icon is enabled and the icon name, if enabled
+     */
     startIcon: {
-      // whether the start icon is enabled or not
-      // and the icon name if enabled
       default: () => {
         return {
           enabled: false,
@@ -97,40 +100,38 @@ export default {
       },
       type: Object,
     },
+    /** the value of the input to the input box */
     value: {
-      // the value of the input of the input box
       default: "",
       type: [String, Number],
     },
+    /** minimum value acceptable in a number textbox */
     min: {
-      // minimum value possible in a number textbox
       default: 0,
       type: Number,
     },
+    /** maximum value acceptable in a number textbox */
     max: {
-      // maximum value possible in a number textbox
       default: 999,
       type: Number,
     },
+    /** classes for the input boxes */
     boxStyling: {
-      // pass any classes that need to be added to the input
-      // boxes
       default: () => {},
       type: Object,
     },
+    /** classes for the container of the input boxes */
     containerStyling: {
-      // pass any classes that need to be added to the container of the input
-      // boxes
       default: () => {},
       type: [String, Object],
     },
+    /** maximum length for the input */
     maxLength: {
-      // maximum length for the input
       default: null,
       type: Number,
     },
+    /** whether any static text needs to be displayed */
     staticText: {
-      // whether any static text needs to be displayed
       default: () => {
         return {
           enabled: false,
@@ -140,8 +141,8 @@ export default {
       },
       type: Object,
     },
+    /** whether the input text is disabled */
     isDisabled: {
-      // whether the input text is disabled or not
       default: false,
       type: Boolean,
     },
@@ -158,7 +159,7 @@ export default {
     },
     isTitlePresent() {
       // whether the title has been provided
-      return this.title != ""
+      return this.title != "";
     },
     isStartIconInteractionDisabled() {
       // is interaction with the start icon disabled or not
@@ -195,7 +196,7 @@ export default {
       // fetches and returns the icon object, depending on "isValid"
       var icon = require("@/assets/images/times-solid.svg");
       if (this.isValid) {
-        icon = require("@/assets/images/check-solid.svg");
+        icon = require("@/assets/images/check.svg");
       }
       return icon;
     },

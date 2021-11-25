@@ -2,335 +2,376 @@
   <!--- base grid -->
   <div class="flex relative justify-center md:mx-4 lg:mx-10 xl:mx-20">
     <div
-      class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
-      :class="{ 'opacity-30 pointer-events-none': blurMainScreen }"
+      class="flex flex-col w-full"
+      :class="{ 'opacity-30 pointer-events-none': isBackgroundDisabled }"
       data-test="blurDiv"
     >
-      <!--- preview grid -->
-      <div
-        class="flex flex-col mx-6 z-0"
-        :class="{ 'mt-6': !isVideoIdValid || !isPublished }"
-        data-test="previewDiv"
-      >
-        <div
-          class="my-8 flex justify-center space-x-4"
-          v-if="isVideoIdValid && isPublished"
-          data-test="upperButtons"
-        >
-          <!-- share plio -->
-          <icon-button
-            :isDisabled="!isPublished"
-            :titleConfig="sharePlioTitleClass"
-            :iconConfig="sharePlioIconConfig"
-            :buttonClass="sharePlioButtonClass"
-            @click="showSharePlioLinkDialog"
-            data-test="sharePlioButton"
-          ></icon-button>
-
-          <!-- play plio -->
-          <icon-button
-            :isDisabled="!isPublished"
-            :titleConfig="playPlioTitleClass"
-            :iconConfig="playPlioIconConfig"
-            :buttonClass="playPlioButtonClass"
-            @click="redirectToPlayer"
-            data-test="playPlioButton"
-          ></icon-button>
-        </div>
-
-        <div class="justify-center" data-test="video">
-          <!--- video preview -->
-          <div
-            v-if="!isVideoIdValid"
-            class="flex justify-center"
-            data-test="videoPreviewSkeleton"
-          >
-            <div class="flex relative justify-center items-center w-full">
-              <div
-                class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-96 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
-              ></div>
-              <div class="absolute flex flex-col items-center">
-                <img
-                  class="w-12 bp-420:w-16 bp-500:w-24 md:w-16 lg:w-24"
-                  src="@/assets/images/youtube.png"
-                />
-                <p class="text-sm bp-420:text-base">{{ $t("generic.preview") }}</p>
-              </div>
-            </div>
-          </div>
-          <div v-else data-test="videoPreview">
-            <div class="relative">
-              <!-- video player -->
-              <video-player
-                :videoId="videoId"
-                :plyrConfig="plyrConfig"
-                @update="videoTimestampUpdated"
-                @ready="playerReady"
-                @play="playerPlayed"
-                ref="videoPlayer"
-                id="videoPlayer"
-                class="z-0"
-                data-test="videoPlayer"
-              ></video-player>
-              <!-- maximize button -->
-              <transition name="maximize-btn-transition" data-test="transitionMaximize">
-                <icon-button
-                  v-if="showItemModal && isModalMinimized"
-                  :titleConfig="maximizeButtonTitleClass"
-                  :buttonClass="maximizeButtonClass"
-                  @click="maximizeModal"
-                  class="absolute z-20"
-                  id="maximizeButton"
-                  data-test="maximizeButton"
-                ></icon-button>
-              </transition>
-              <!-- transition for minimizing/maximizing item modal -->
-              <transition enter-active-class="grow" leave-active-class="shrink">
-                <!-- item modal component -->
-                <item-modal
-                  v-if="!isModalMinimized"
-                  id="modal"
-                  class="absolute z-10 inset-0 border-2"
-                  :class="{ hidden: !showItemModal }"
-                  :selectedItemIndex="currentItemIndex"
-                  :itemList="items"
-                  :previewMode="true"
-                  @toggle-minimize="minimizeModal"
-                  data-test="itemModal"
-                ></item-modal>
-              </transition>
-            </div>
-            <!--- slider with question markers -->
-            <slider-with-markers
-              :end="videoDuration"
-              :step="sliderStep"
-              v-model:value="currentTimestamp"
-              v-model:markerPositions="itemTimestamps"
-              @marker-selected="itemSelected"
-              @marker-drag-end="itemMarkerTimestampDragEnd"
-              @update="sliderUpdated"
-              ref="slider"
-              :isDragDisabled="isPublished"
-            ></slider-with-markers>
-          </div>
-        </div>
-
-        <div
-          v-if="isQuestionTypeSubjective"
-          class="mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
-        >
-          <inline-svg
-            :src="getIconSource('exclamation-circle-solid.svg')"
-            class="w-10 h-10 text-yellow-600 fill-current"
-          ></inline-svg>
-          <p class="text-yellow-600">
-            {{ $t("editor.headings.subjective_question_warning") }}
-          </p>
-        </div>
-
-        <!--- buttons -->
-        <div
-          class="flex justify-center space-x-2 my-6"
-          v-if="isVideoIdValid"
-          data-test="lowerButtons"
-        >
-          <!--- button to go back to home -->
-          <icon-button
-            :titleConfig="backButtonTitleConfig"
-            :iconConfig="homeIconConfig"
-            :buttonClass="backButtonClass"
-            @click="returnToHome"
-          ></icon-button>
-          <!--- publish button -->
-          <icon-button
-            :titleConfig="publishButtonTitleConfig"
-            :iconConfig="publishButtonIconConfig"
-            :class="publishButtonClass"
-            class="shadow-lg"
-            v-tooltip.right="publishButtonTooltip"
-            @click="publishButtonClicked"
-            data-test="publishButton"
-          ></icon-button>
-          <!-- analyze plio -->
-          <icon-button
-            v-if="isPublished"
-            :titleConfig="analyzePlioTitleConfig"
-            :iconConfig="analyzePlioIconConfig"
-            :buttonClass="analyzePlioButtonClass"
-            @click="redirectToDashboard"
-            data-test="analyseButton"
-          ></icon-button>
-        </div>
+      <div class="w-full flex justify-between px-6" :class="{ hidden: !isVideoIdValid }">
+        <!--- text to show updated time status -->
+        <p class="my-2 sm:my-4 text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
+          {{ syncStatusText }}
+        </p>
       </div>
 
-      <!--- input grid -->
-      <div class="flex flex-col m-5 justify-start" data-test="inputDiv">
-        <div class="grid gap-y-4" data-test="meta">
-          <!-- info about pasting youtube link -->
-          <div
-            class="flex items-center space-x-2 bg-primary rounded-lg p-4"
-            v-if="!isVideoIdValid"
-            data-test="videoLinkInfo"
-          >
-            <inline-svg
-              :src="getIconSource('publish.svg')"
-              class="w-12 h-12 text-white fill-current"
-            ></inline-svg>
-            <p class="text-white text-xs bp-500:text-base md:text-sm lg:text-base">
-              {{ $t("editor.video_input.info.1") }}
-              <a href="https://youtube.com/upload" class="underline font-bold">{{
-                $t("editor.video_input.info.2")
-              }}</a>
-              {{ $t("editor.video_input.info.3") }}
-            </p>
-          </div>
-          <div class="flex w-full justify-between" v-else>
-            <!--- publish/draft badge -->
-            <simple-badge
-              :text="statusBadge"
-              :badgeClass="statusBadgeClass"
-              v-tooltip.top="statusBadgeTooltip"
-            ></simple-badge>
-            <!--- text to show updated time status -->
-            <p class="text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
-              {{ syncStatusText }}
-            </p>
-          </div>
-
-          <!--- video link -->
-          <input-text
-            :placeholder="videoInputPlaceholder"
-            :title="videoInputTitle"
-            :validation="videoInputValidation"
-            v-model:value="videoURL"
-            ref="videoLink"
-            :boxStyling="videoLinkInputStyling"
-            :isDisabled="isPublished"
-            v-tooltip.top="videoLinkTooltip"
-            data-test="videoLinkInput"
-          ></input-text>
-
-          <!--- plio title -->
-          <input-text
-            :placeholder="titleInputPlaceholder"
-            :title="titleInputTitle"
-            v-model:value="plioTitle"
-            ref="title"
-            :boxStyling="'pl-4'"
-            v-if="isVideoIdValid"
-            data-test="plioName"
-          ></input-text>
-        </div>
-
+      <div class="grid grid-cols-1 sm:grid-cols-2 items-stretch">
+        <!--- preview grid -->
         <div
-          class="flex justify-center py-2 mt-8 sm:mt-10 mb-16"
-          v-if="isVideoIdValid"
-          data-test="itemDiv"
+          class="flex flex-col mx-2 sm:mx-4 md:mx-6 z-0"
+          :class="{ 'mt-6': !isVideoIdValid }"
+          data-test="previewDiv"
         >
-          <!-- boxes for adding different types of items -->
           <div
-            class="bg-peach rounded-lg p-4 lg:p-8 w-full flex flex-col items-center shadow-lg"
-            :class="itemPickerClass"
-            v-if="currentItemIndex == null"
+            class="mt-4 mb-6 sm:mb-8 flex justify-center space-x-1 bp-360:space-x-2"
+            v-if="isVideoIdValid"
+            data-test="upperButtons"
           >
-            <div class="place-self-center px-10 h-32 flex items-center" v-if="pending">
-              <inline-svg
-                :src="require('@/assets/images/spinner-solid.svg')"
-                class="animate-spin h-5 bp-500:h-6 md:h-8 lg:h-10 object-scale-down"
-              ></inline-svg>
-            </div>
-            <div class="flex flex-col items-center w-full" v-else>
-              <!-- add new question text -->
-              <p class="text-yellow-900 test-base lg:text-xl font-bold">
-                {{ $t("editor.headings.add_question") }}
-              </p>
-              <div class="grid grid-cols-3 mt-6 w-full justify-items-center">
-                <!-- choose mcq question -->
-                <button
-                  :disabled="addItemDisabled"
-                  @click="addNewItem('mcq')"
-                  :class="questionTypeSelectorClass"
-                  v-tooltip.bottom="addMCQTooltip"
-                  data-test="addMCQItem"
-                >
-                  <inline-svg
-                    :src="getIconSource('radio-button.svg')"
-                    class="w-4 h-8 fill-current text-primary group-hover:text-white group-disabled:text-primary"
-                  ></inline-svg>
-                  <p :class="questionTypeHeadingClass">
-                    {{ $t("generic.mcq") }}
-                  </p>
-                </button>
+            <!-- share plio -->
+            <icon-button
+              v-if="isPublished"
+              :titleConfig="sharePlioTitleClass"
+              :iconConfig="sharePlioIconConfig"
+              :buttonClass="sharePlioButtonClass"
+              @click="showSharePlioLinkDialog"
+              data-test="sharePlioButton"
+            ></icon-button>
 
-                <!-- choose subjective question -->
-                <button
-                  :disabled="addItemDisabled"
-                  @click="addNewItem('subjective')"
-                  :class="questionTypeSelectorClass"
-                  v-tooltip.bottom="addSubjectiveQuestionTooltip"
-                  data-test="addSubjectiveItem"
-                >
-                  <inline-svg
-                    :src="getIconSource('subjective-question.svg')"
-                    class="w-12 bp-420:w-16 h-8 pb-2 fill-current text-primary group-hover:text-white group-disabled:text-primary"
-                  ></inline-svg>
-                  <p :class="questionTypeHeadingClass">
-                    {{ $t("generic.subjective") }}
-                  </p>
-                </button>
+            <!-- play plio -->
+            <icon-button
+              v-if="isPublished"
+              :titleConfig="playPlioTitleClass"
+              :iconConfig="playPlioIconConfig"
+              :buttonClass="playPlioButtonClass"
+              @click="redirectToPlayer"
+              data-test="playPlioButton"
+            ></icon-button>
 
-                <!-- choose checkbox question -->
-                <button
-                  :disabled="addItemDisabled"
-                  @click="addNewItem('checkbox')"
-                  :class="questionTypeSelectorClass"
-                  v-tooltip.bottom="addCheckboxQuestionTooltip"
-                  data-test="addCheckboxQuestionItem"
-                >
+            <!-- preview plio -->
+            <icon-button
+              v-if="!isPublished"
+              :titleConfig="plioPreviewTitleClass"
+              :iconConfig="playPlioIconConfig"
+              :buttonClass="playPlioButtonClass"
+              :isDisabled="uploading"
+              @click="togglePlioPreviewMode"
+              data-test="plioPreviewButton"
+            ></icon-button>
+
+            <!-- copy draft link -->
+            <icon-button
+              v-if="!isPublished && !isPersonalWorkspace"
+              :titleConfig="copyDraftTitleClass"
+              :iconConfig="copyDraftIconConfig"
+              :buttonClass="copyDraftButtonClass"
+              @click="copyPlioDraftLink"
+              data-test="copyDraftButton"
+            ></icon-button>
+
+            <!-- embed plio -->
+            <icon-button
+              v-if="isPublished"
+              :titleConfig="embedPlioTitleClass"
+              :iconConfig="embedPlioIconConfig"
+              :buttonClass="embedPlioButtonClass"
+              @click="showEmbedPlio"
+              data-test="embedPlioButton"
+            ></icon-button>
+          </div>
+
+          <div class="justify-center" data-test="video">
+            <!--- video preview -->
+            <div
+              v-if="!isVideoIdValid"
+              class="flex justify-center"
+              data-test="videoPreviewSkeleton"
+            >
+              <div class="flex relative justify-center items-center w-full">
+                <div
+                  class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-80 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
+                ></div>
+                <div class="absolute flex flex-col items-center">
                   <inline-svg
-                    :src="getIconSource('checkbox.svg')"
-                    class="w-10 h-8 pb-2 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                    :src="getImageSource('youtube.svg')"
+                    class="h-16 w-16 bp-420:w-24 bp-420:h-24 bp-500:w-32 bp-500:h-32 md:w-24 md:h-24 lg:w-32 lg:h-32"
                   ></inline-svg>
-                  <p :class="questionTypeHeadingClass">{{ $t("generic.checkbox") }}</p>
-                </button>
+                  <p class="text-sm bp-420:text-base">{{ $t("generic.preview") }}</p>
+                </div>
               </div>
             </div>
+            <div v-else data-test="videoPreview">
+              <div class="relative">
+                <!-- video player -->
+                <video-player
+                  :videoId="videoId"
+                  :plyrConfig="plyrConfig"
+                  :id="editorVideoPlayerElementId"
+                  @update="videoTimestampUpdated"
+                  @ready="playerReady"
+                  @play="playerPlayed"
+                  ref="videoPlayer"
+                  class="z-0"
+                  data-test="videoPlayer"
+                ></video-player>
+                <!-- maximize button -->
+                <transition name="maximize-btn-transition" data-test="transitionMaximize">
+                  <icon-button
+                    v-if="showItemModal && isModalMinimized"
+                    :titleConfig="maximizeButtonTitleClass"
+                    :buttonClass="maximizeButtonClass"
+                    @click="maximizeModal"
+                    class="absolute z-20"
+                    id="maximizeButton"
+                    data-test="maximizeButton"
+                  ></icon-button>
+                </transition>
+                <!-- transition for minimizing/maximizing item modal -->
+                <transition enter-active-class="grow" leave-active-class="shrink">
+                  <!-- item modal component -->
+                  <item-modal
+                    v-if="!isModalMinimized"
+                    id="editorModal"
+                    class="absolute z-10 inset-0 border-2"
+                    :class="{ hidden: !showItemModal }"
+                    :selectedItemIndex="currentItemIndex"
+                    :itemList="items"
+                    :itemDetailList="itemDetails"
+                    :previewMode="true"
+                    :videoPlayerElementId="editorVideoPlayerElementId"
+                    @toggle-minimize="minimizeModal"
+                    data-test="itemModal"
+                  ></item-modal>
+                </transition>
+              </div>
+              <!--- slider with question markers -->
+              <slider-with-markers
+                :end="videoDuration"
+                :step="sliderStep"
+                v-model:value="currentTimestamp"
+                v-model:markerPositions="itemTimestamps"
+                @marker-selected="itemSelected"
+                @marker-drag-end="itemMarkerTimestampDragEnd"
+                @update="sliderUpdated"
+                ref="slider"
+                :isDragDisabled="isPublished"
+              ></slider-with-markers>
+            </div>
           </div>
-          <!--- item editor  -->
-          <item-editor
-            v-if="hasAnyItems && currentItemIndex != null"
-            v-model:itemList="items"
-            v-model:selectedItemIndex="currentItemIndex"
-            :videoDuration="videoDuration"
-            :isInteractionDisabled="isPublished"
-            v-model:questionTypeIndex="currentQuestionTypeIndex"
-            @update:selectedItemIndex="navigateToItem"
-            @delete-selected-item="deleteItemButtonClicked"
-            @delete-option="deleteOption"
-            @error-occurred="setErrorOccurred"
-            @error-resolved="setErrorResolved"
-            @question-type-changed="questionTypeChanged"
-            @show-image-uploader="toggleImageUploaderBox"
-            data-test="itemEditor"
-          ></item-editor>
+          <!-- info for subjective question -->
+          <div
+            v-if="isQuestionTypeSubjective"
+            class="mt-6 sm:mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
+          >
+            <!-- icon -->
+            <inline-svg
+              :src="getImageSource('exclamation-circle-solid.svg')"
+              class="w-10 h-10 text-yellow-600 fill-current"
+            ></inline-svg>
+            <!-- text -->
+            <p class="text-yellow-600 my-auto">
+              {{ $t("editor.headings.subjective_question_warning") }}
+            </p>
+          </div>
+
+          <!--- buttons below the preview -->
+          <div
+            class="flex justify-center space-x-1 bp-360:space-x-2"
+            :class="lowerButtonsContainerClass"
+            v-if="isVideoIdValid"
+            data-test="lowerButtons"
+          >
+            <!--- button to go back to home -->
+            <icon-button
+              :titleConfig="homeButtonTitleConfig"
+              :iconConfig="homeIconConfig"
+              :buttonClass="homeButtonClass"
+              @click="returnToHome"
+              data-test="homeButton"
+            ></icon-button>
+            <!--- publish button -->
+            <icon-button
+              :titleConfig="publishButtonTitleConfig"
+              :iconConfig="publishButtonIconConfig"
+              :class="publishButtonClass"
+              class="shadow-lg"
+              v-tooltip.right="publishButtonTooltip"
+              @click="showPublishConfirmationDialogBox"
+              data-test="publishButton"
+            ></icon-button>
+            <!-- analyze plio -->
+            <icon-button
+              v-if="isPublished"
+              :titleConfig="analyzePlioTitleConfig"
+              :iconConfig="analyzePlioIconConfig"
+              :buttonClass="analyzePlioButtonClass"
+              @click="redirectToDashboard"
+              data-test="analyseButton"
+            ></icon-button>
+          </div>
+        </div>
+
+        <!--- input grid -->
+        <div
+          class="flex flex-col mx-2 sm:mx-4 md:mx-6 justify-start"
+          :class="{ 'mt-6': !isVideoIdValid }"
+          data-test="inputDiv"
+        >
+          <div class="grid gap-y-4" data-test="meta">
+            <!-- info about pasting youtube link -->
+            <div
+              class="flex items-center space-x-2 bg-primary rounded-lg p-4"
+              v-if="!isVideoIdValid && !pending"
+              data-test="videoLinkInfo"
+            >
+              <!-- icon -->
+              <inline-svg
+                :src="getImageSource('publish.svg')"
+                class="w-12 h-12 text-white fill-current"
+              ></inline-svg>
+              <!-- info -->
+              <p class="text-white text-xs bp-500:text-base md:text-sm lg:text-base">
+                {{ $t("editor.video_input.info.1") }}
+                <a
+                  href="https://youtube.com/upload"
+                  target="_blank"
+                  class="underline font-bold"
+                  rel="noopener"
+                  >{{ $t("editor.video_input.info.2") }}</a
+                >
+                {{ $t("editor.video_input.info.3") }}
+              </p>
+            </div>
+
+            <!--- video link -->
+            <input-text
+              :placeholder="videoInputPlaceholder"
+              :title="videoInputTitle"
+              :validation="videoInputValidation"
+              v-model:value="videoURL"
+              ref="videoLink"
+              :boxStyling="videoLinkInputStyling"
+              :isDisabled="isPublished"
+              v-tooltip.top="videoLinkTooltip"
+              data-test="videoLinkInput"
+            ></input-text>
+
+            <!--- plio title -->
+            <input-text
+              :placeholder="titleInputPlaceholder"
+              :title="titleInputTitle"
+              v-model:value="plioTitle"
+              ref="title"
+              :boxStyling="'pl-4'"
+              v-if="isVideoIdValid"
+              data-test="plioName"
+            ></input-text>
+          </div>
+
+          <div
+            class="flex justify-center py-2 mt-8 sm:mt-10 mb-16"
+            v-if="isVideoIdValid"
+            data-test="itemDiv"
+          >
+            <!-- boxes for adding different types of items -->
+            <div
+              class="bg-peach rounded-lg p-4 bp-360:p-8 bp-500:p-4 sm:p-8 w-full lg:w-3/4 flex flex-col items-center shadow-lg"
+              :class="itemPickerClass"
+              v-if="currentItemIndex == null"
+            >
+              <div class="flex flex-col items-center w-full">
+                <!-- add new question text -->
+                <p class="text-yellow-900 test-base lg:text-xl font-bold">
+                  {{ $t("editor.headings.add_question") }}
+                </p>
+                <div class="grid grid-cols-3 mt-6 w-full justify-items-center">
+                  <!-- choose mcq question -->
+                  <button
+                    :disabled="addItemDisabled"
+                    @click="addNewItem('mcq')"
+                    :class="questionTypeSelectorClass"
+                    v-tooltip.bottom="addMCQTooltip"
+                    data-test="addMCQItem"
+                  >
+                    <inline-svg
+                      :src="getImageSource('radio-button.svg')"
+                      class="w-4 h-8 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                    ></inline-svg>
+                    <p :class="questionTypeHeadingClass">{{ $t("generic.mcq") }}</p>
+                  </button>
+
+                  <!-- choose subjective question -->
+                  <button
+                    :disabled="addItemDisabled"
+                    @click="addNewItem('subjective')"
+                    :class="questionTypeSelectorClass"
+                    v-tooltip.bottom="addSubjectiveQuestionTooltip"
+                    data-test="addSubjectiveItem"
+                  >
+                    <inline-svg
+                      :src="getImageSource('subjective-question.svg')"
+                      class="w-12 bp-420:w-16 h-8 pb-2 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                    ></inline-svg>
+                    <p :class="questionTypeHeadingClass">
+                      {{ $t("generic.subjective") }}
+                    </p>
+                  </button>
+
+                  <!-- choose checkbox question -->
+                  <button
+                    :disabled="addItemDisabled"
+                    @click="addNewItem('checkbox')"
+                    :class="questionTypeSelectorClass"
+                    v-tooltip.bottom="addCheckboxQuestionTooltip"
+                    data-test="addCheckboxQuestionItem"
+                  >
+                    <inline-svg
+                      :src="getIconSource('checkbox.svg')"
+                      class="w-10 h-8 pb-2 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                    ></inline-svg>
+                    <p :class="questionTypeHeadingClass">{{ $t("generic.checkbox") }}</p>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!--- item editor  -->
+            <item-editor
+              v-if="hasAnyItems && currentItemIndex != null"
+              v-model:itemList="items"
+              v-model:itemDetailList="itemDetails"
+              v-model:selectedItemIndex="currentItemIndex"
+              :videoDuration="videoDuration"
+              :isInteractionDisabled="isPublished"
+              v-model:questionTypeIndex="currentQuestionTypeIndex"
+              @update:selectedItemIndex="navigateToItem"
+              @delete-selected-item="showDeleteItemDialogBox"
+              @delete-option="deleteOption"
+              @error-occurred="setErrorOccurred"
+              @error-resolved="setErrorResolved"
+              @question-type-changed="questionTypeChanged"
+              @show-image-uploader="toggleImageUploaderBox"
+              data-test="itemEditor"
+            ></item-editor>
+          </div>
         </div>
       </div>
     </div>
     <!-- generic dialog box -->
     <dialog-box
+      :class="dialogBoxClass"
       class="fixed top-1/3"
-      v-if="showDialogBox"
+      v-if="isDialogBoxShown"
       :title="dialogTitle"
       :description="dialogDescription"
       :confirmButtonConfig="dialogConfirmButtonConfig"
       :cancelButtonConfig="dialogCancelButtonConfig"
+      :isCloseButtonShown="isDialogCloseButtonShown"
       @confirm="dialogConfirmed"
       @cancel="dialogCancelled"
+      @close="resetDialogBox"
+      v-click-away="resetDialogBox"
       data-test="dialogBox"
     ></dialog-box>
     <!-- image uploader dialog box -->
     <ImageUploaderDialog
-      v-if="showImageUploaderDialog"
+      v-if="isImageUploaderDialogShown"
       :uploadedImage="itemImage"
       @close-dialog="toggleImageUploaderBox"
       @image-selected="uploadImage"
@@ -338,13 +379,62 @@
       data-test="imageUploaderDialog"
     ></ImageUploaderDialog>
 
-    <ConfettiCelebration v-if="showPublishedPlioDialog" class="z-0"></ConfettiCelebration>
+    <!--- publish/draft badge -->
+    <simple-badge
+      class="absolute -top-12"
+      :text="statusBadge"
+      :badgeClass="statusBadgeClass"
+      v-tooltip.top="statusBadgeTooltip"
+    ></simple-badge>
+
+    <canvas
+      id="sharePlioConfettiCanvas"
+      class="fixed z-50"
+      v-if="isPublishedPlioDialogShown"
+    ></canvas>
+
+    <!-- plio preview -->
+    <div
+      class="fixed top-1/20 w-11/12 bp-420:w-10/12 shadow-xl"
+      :class="plioPreviewContainerClass"
+      v-if="isPlioPreviewShown"
+    >
+      <div class="flex relative w-full">
+        <Plio
+          class="w-full"
+          :plioId="plioId"
+          :org="org"
+          :previewMode="true"
+          :key="reRenderKey"
+          containerClass="h-full"
+          @initiated="setPlioPreviewLoaded"
+        ></Plio>
+        <!-- close button -->
+        <div class="w-full absolute flex justify-end">
+          <icon-button
+            v-if="isPlioPreviewLoaded"
+            :iconConfig="closePlioPreviewIconConfig"
+            :buttonClass="closePlioPreviewButtonClass"
+            @click="closePlioPreview"
+            data-test="closePlioPreviewButton"
+          ></icon-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- spinner -->
+    <inline-svg
+      v-if="isSpinnerShown"
+      :src="getImageSource('spinner.svg')"
+      class="fixed animate-spin h-10 top-1/4"
+    ></inline-svg>
 
     <!-- dialog to show after publishing -->
     <div
-      class="fixed top-1/3 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10 mx-2 sm:mx-0"
-      v-if="showPublishedPlioDialog"
+      class="fixed top-1/4 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10 mx-2 sm:mx-0"
+      v-if="isPublishedPlioDialogShown"
       v-click-away="closePublishedPlioDialog"
+      data-test="publishedDialog"
     >
       <div class="w-full flex justify-end p-2">
         <!-- close button -->
@@ -356,7 +446,7 @@
         ></icon-button>
       </div>
 
-      <div class="px-4 xsm:px-8 bp-500:px-12 pt-4 pb-8">
+      <div class="px-4 bp-360:px-8 bp-500:px-12 pt-4 pb-8">
         <!-- title -->
         <p class="text-md bp-420:text-xl sm:text-2xl text-gray-500 font-bold mx-4">
           {{ $t("editor.dialog.published.title") }}
@@ -368,7 +458,7 @@
             :iconConfig="sharePlioIconConfig"
             :buttonClass="sharePlioButtonClass"
             @click="hidePublishedDialogShowShareDialog"
-            data-test="dialogShareButton"
+            data-test="publishedDialogShareButton"
           ></icon-button>
 
           <!-- play plio -->
@@ -377,6 +467,16 @@
             :iconConfig="playPlioIconConfig"
             :buttonClass="playPlioButtonClass"
             @click="redirectToPlayer"
+            data-test="publishedDialogPlayButton"
+          ></icon-button>
+
+          <!-- embed plio -->
+          <icon-button
+            :titleConfig="dialogEmbedPlioTitleClass"
+            :iconConfig="embedPlioIconConfig"
+            :buttonClass="embedPlioButtonClass"
+            @click="hidePublishedDialogShowEmbedDialog"
+            data-test="publishedDialogEmbedButton"
           ></icon-button>
 
           <!-- go back home -->
@@ -385,6 +485,7 @@
             :iconConfig="homeIconConfig"
             :buttonClass="dialogHomeButtonClass"
             @click="returnToHome"
+            data-test="publishedDialogHomeButton"
           ></icon-button>
         </div>
       </div>
@@ -394,26 +495,36 @@
 
 <script>
 import InputText from "@/components/UI/Text/InputText.vue";
+import Plio from "@/pages/Embeds/Plio.vue";
 import SliderWithMarkers from "@/components/UI/Slider/SliderWithMarkers.vue";
 import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
+import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
+import DialogBox from "@/components/UI/Alert/DialogBox";
+import ItemModal from "@/components/Player/ItemModal.vue";
+import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
+
 import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
 import ImageAPIService from "@/services/API/Image.js";
+import VideoAPIService from "@/services/API/Video.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
-import Utilities from "@/services/Functional/Utilities.js";
-import IconButton from "@/components/UI/Buttons/IconButton.vue";
-import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
-import DialogBox from "@/components/UI/Alert/DialogBox";
-import ItemModal from "../components/Player/ItemModal.vue";
-import { mapActions, mapState } from "vuex";
-import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
-import ConfettiCelebration from "@/components/UI/Animations/ConfettiCelebration.vue";
+import Utilities, {
+  throwConfetti,
+  resetConfetti,
+} from "@/services/Functional/Utilities.js";
+import { mapActions, mapState, mapGetters } from "vuex";
+import debounce from "debounce";
+import { useToast } from "vue-toastification";
+
+// importing the confetti.js module
+const confetti = require("canvas-confetti");
 
 // used for deep cloning objects
-var cloneDeep = require("lodash.clonedeep");
+var clonedeep = require("lodash.clonedeep");
 var isEqual = require("deep-eql");
 
 // difference in seconds between consecutive checks for item pop-up
@@ -423,6 +534,9 @@ var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 var MINIMUM_QUESTION_TIME_OFFSET = 0.1;
 // minimum timestamp for each question
 var MINIMUM_QUESTION_TIMESTAMP = MINIMUM_QUESTION_TIME_OFFSET + POP_UP_CHECKING_FREQUENCY;
+
+// debounce time - milliseconds
+const DEBOUNCE_DELAY_TIME = 500;
 
 export default {
   name: "Editor",
@@ -436,7 +550,7 @@ export default {
     DialogBox,
     ItemModal,
     ImageUploaderDialog,
-    ConfettiCelebration,
+    Plio,
   },
   props: {
     plioId: {
@@ -449,9 +563,16 @@ export default {
     },
   },
   data() {
+    // setting up the confetti handler, giving it access to a canvas element
+    const confettiCanvas = document.getElementById("sharePlioConfettiCanvas");
+    const confettiHandler = confetti.create(confettiCanvas, { resize: true });
+
     return {
       items: [], // list of all items created for this plio
-      videoDuration: 0,
+      itemUnwatchers: {}, // functions to unwatch all the items
+      itemDetails: [], // list of all the items' details created for this plio
+      itemDetailUnwatchers: {}, // functions to unwatch all the itemDetails
+      videoDuration: 0, // duration of the video in seconds
       videoId: "", // ID of the YouTube video
       status: "draft", // whether the plio is in draft/publish mode
       isItemSelected: false, // indicated if an item has been selected currently
@@ -463,19 +584,35 @@ export default {
         controls: ["play-large", "play", "volume", "current-time"],
         invertTime: false,
       },
+      closeDialogIconConfig: {
+        // config for the icon of the button to close the dialog that comes after publishing
+        enabled: true,
+        iconName: "times-circle-solid",
+        iconClass: "text-primary fill-current h-8 w-8",
+      },
+      // class for the button to close the dialog that comes after publishing
+      closeDialogButtonClass: "bg-white w-10 h-10 p-2",
+      closePlioPreviewIconConfig: {
+        // config for the icon of the button to close the plio preview
+        enabled: true,
+        iconName: "times-circle-white",
+        iconClass: "text-primary fill-current h-8 w-8",
+      },
+      // class for the button to close the plio preview
+      closePlioPreviewButtonClass: "w-10 h-10 -mr-4 -mt-4",
       sliderStep: 0.1, // timestep for the slider
       itemTimestamps: [], // stores the list of the timestamps of all items
       videoURL: "", // full video url
       lastUpdated: new Date(), // time when the last update to remote was made
       minUpdateInterval: 1000, // minimum time in milliseconds between updates
-      changeInProgress: false, // whether a change is in progress but has not been saved yet
-      saveInterval: 5000, // time interval
       isBeingPublished: false, // whether the current plio is in the process of being published
-      showDialogBox: false, // whether to show dialog box
+      isDialogBoxShown: false, // whether to show dialog box
+      isDialogCloseButtonShown: false, // whether to show the close button of the dialog box
       dialogTitle: "", // title for the dialog box
       dialogDescription: "", // description for the dialog box
       dialogConfirmButtonConfig: {}, // config for the confirm button of the dialog box
       dialogCancelButtonConfig: {}, // config for the cancel button of the dialog box
+      dialogBoxClass: "", // classes for the dialog box
       dialogAction: "",
       hasUnpublishedChanges: false,
       // whether there are changes which have not been published
@@ -492,7 +629,7 @@ export default {
       videoDBId: null, // store the DB id of video object linked to the plio
       plioDBId: null, // store the DB id of plio object
       anyErrorsPresent: false, // store if any errors are present or not
-      showPublishedPlioDialog: false, // whether to show the dialog that comes after publishing plio
+      isPublishedPlioDialogShown: false, // whether to show the dialog that comes after publishing plio
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       // mapping of questionType value to index in the list of question types
       questionTypeToIndex: {
@@ -510,10 +647,14 @@ export default {
         // config for the icon of the share plio button
         enabled: true,
         iconName: "share",
-        iconClass: "text-yellow-800 fill-current h-4 w-4",
+        iconClass: "text-yellow-800 fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
       },
       // styling class for the play plio button
       playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
+      // styling class for the copy draft button
+      copyDraftButtonClass: "bg-yellow-300 hover:bg-yellow-400 p-2 px-4 rounded-md",
+      // styling class for the embed plio button
+      embedPlioButtonClass: "bg-brown hover:bg-dark-brown p-2 px-4 rounded-md",
       // styling class for the analyze plio button
       analyzePlioButtonClass: "bg-red-500 hover:bg-red-600 p-2 bp-420:px-4 rounded-md",
       // styling class for the home button on dialog that comes after publishing
@@ -522,7 +663,19 @@ export default {
         // config for the icon of the play plio button
         enabled: true,
         iconName: "play",
-        iconClass: "text-white fill-current h-4 w-4",
+        iconClass: "text-white fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
+      },
+      copyDraftIconConfig: {
+        // config for the icon of the copy draft link button
+        enabled: true,
+        iconName: "link",
+        iconClass: "text-yellow-800 fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
+      },
+      embedPlioIconConfig: {
+        // config for the icon of the embed plio button
+        enabled: true,
+        iconName: "code-braces",
+        iconClass: "text-white fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
       },
       analyzePlioIconConfig: {
         // config for the icon of the analyze plio button
@@ -542,62 +695,50 @@ export default {
         iconName: "publish",
         iconClass: "text-white fill-current h-4 w-4",
       },
-      showImageUploaderDialog: false, // whether to show the image uploader or not
+      isImageUploaderDialogShown: false, // whether to show the image uploader or not
       loadedPlioDetails: {}, // details of the plio fetched when the page was loaded
-      closeDialogIconConfig: {
-        // config for the icon of the button to close the dialog that comes after publishing
-        enabled: true,
-        iconName: "times-circle-solid",
-        iconClass: "text-primary fill-current h-8 w-8",
-      },
+      isPlioPreviewShown: false, // whether to show a full preview of the plio (draft mode only)
+      reRenderKey: 0, // key required to re-render the plio preview player
+      editorVideoPlayerElementId: "editorVideoPlayer", // id of the video player in the editor
+      isPlioPreviewLoaded: false, // whether the plio preview has been loaded
       // class for the button to close the dialog that comes after publishing
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
       // class for the heading of each question type
       questionTypeHeadingClass:
         "font-bold text-center text-xs bp-420:text-sm lg:test-base",
+      confettiHandler: confettiHandler,
+      toast: useToast(), // use the toast component
     };
   },
   async created() {
     // fetch plio details
     await this.loadPlio();
 
-    // periodically check if anything has not been updated yet
-    // and update it
-    this.savingInterval = setInterval(() => {
-      // if anything was changed but not updated, update it
-      if (this.changeInProgress) {
-        this.savePlio();
-      }
-    }, this.saveInterval);
+    // debounce checkAndSaveChanges method
+    this.checkAndSaveChanges = debounce(this.checkAndSaveChanges, DEBOUNCE_DELAY_TIME);
   },
   beforeUnmount() {
     // clear interval
     clearInterval(this.savingInterval);
   },
   watch: {
-    items: {
-      handler() {
-        this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
-        if (isEqual(this.loadedPlioDetails.items, this.items)) return;
-        this.checkAndSavePlio();
-      },
-      deep: true,
-    },
+    /**
+     * Whenever itemTimestamps is updated, check if the current item timestamp is
+     * greater than the minimum allowed timestamp or not. If it's not, then adjust it.
+     */
     itemTimestamps() {
-      this.itemTimestamps.forEach((itemTimestamp, index) => {
-        this.items[index]["time"] = itemTimestamp;
-      });
-      // handle item sorting and marker positioning
-      // when time is changed from the time input boxes
-      // or when item is added using the add item button
-      this.checkAndFixItemOrder();
+      // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
       if (this.items != null && this.currentItemIndex != null) {
-        // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
         if (this.items[this.currentItemIndex].time < MINIMUM_QUESTION_TIMESTAMP)
           this.items[this.currentItemIndex].time = MINIMUM_QUESTION_TIMESTAMP;
         this.currentTimestamp = this.items[this.currentItemIndex].time;
       }
     },
+    /**
+     * When video url is updated, check its validity; if valid, update the player with the new URL
+     * and push the updated video object to the backend
+     * @param {String} newVideoURL - The new video URL that the user has entered
+     */
     videoURL(newVideoURL) {
       // invoked when the video link is updated
       var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
@@ -609,31 +750,83 @@ export default {
       this.videoId = linkValidation["ID"];
 
       if (this.loadedPlioDetails.videoURL == newVideoURL) return;
-      this.checkAndSavePlio();
+      this.checkAndSaveChanges("video", this.videoDBId, {
+        url: newVideoURL,
+        duration: this.videoDuration,
+      });
     },
+    /**
+     * When plio's title is updated, check if it's different than the loaded plio's title
+     * and push the updated title to the backend
+     */
     plioTitle(newTitle) {
       // invoked when the plio title is update
       if (this.loadedPlioDetails.plioTitle == newTitle) return;
-      this.checkAndSavePlio();
+      this.checkAndSaveChanges("plio", this.plioId, {
+        name: newTitle,
+      });
+    },
+    /**
+     * Video duration is updated when plyr loads up the video. If the updated duration
+     * is not 0, push the updated duration to the backend
+     */
+    videoDuration(newVideoDuration) {
+      if (this.loadedPlioDetails.videoDuration == newVideoDuration) return;
+      if (newVideoDuration != 0)
+        this.checkAndSaveChanges("video", this.videoDBId, { duration: newVideoDuration });
     },
   },
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
+    ...mapState("generic", ["isEmbedPlioDialogShown"]),
+    ...mapGetters("auth", ["isPersonalWorkspace"]),
+    /**
+     * whether the spinner needs to be shown
+     */
+    isSpinnerShown() {
+      return (this.isPlioPreviewShown && !this.isPlioPreviewLoaded) || this.pending;
+    },
+    /**
+     * classes for the container holding the buttons below the slider
+     */
+    lowerButtonsContainerClass() {
+      return {
+        "my-6 sm:my-10": !this.isQuestionTypeSubjective,
+        "my-4 sm:my-8": this.isQuestionTypeSubjective,
+      };
+    },
+    /**
+     * classes for the container holding the plio preview
+     */
+    plioPreviewContainerClass() {
+      return {
+        "bg-white border-2 border-gray-400 rounded-lg": this.isPlioPreviewLoaded,
+      };
+    },
+    /**
+     * URL of the image present for the current item
+     */
     itemImage() {
-      // URL of the image present for the current item
       if (this.currentItemIndex == null) return null;
-      if (this.items[this.currentItemIndex].details.image == null) return null;
-      return this.items[this.currentItemIndex].details.image.url;
+      if (this.itemDetails[this.currentItemIndex].image == null) return null;
+      return this.itemDetails[this.currentItemIndex].image.url;
     },
+    /**
+     * whether the type of the question being created is subjective
+     */
     isQuestionTypeSubjective() {
-      // whether the type of the question being created is subjective
       if (this.currentItemIndex == null) return false;
-      return this.items[this.currentItemIndex].details.type == "subjective";
+      return this.itemDetails[this.currentItemIndex].type == "subjective";
     },
+    /**
+     * class for the item picker
+     */
     itemPickerClass() {
-      // class for the item picker
       return { "opacity-30 cursor-not-allowed": this.addItemDisabled };
     },
+    /**
+     * class for the question type selectors
+     */
     questionTypeSelectorClass() {
       // class for the question type selectors
       return [
@@ -643,8 +836,10 @@ export default {
         `w-11/12 group flex flex-col bp-420:space-y-2 focus:outline-none bg-white p-2 bp-420:p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed`,
       ];
     },
+    /**
+     * styling class for the title of minimize/maximize button
+     */
     maximizeButtonTitleClass() {
-      // styling class for the title of minimize button
       return {
         value: this.isModalMinimized
           ? this.$t(`editor.buttons.show_${this.itemType}`)
@@ -652,57 +847,110 @@ export default {
         class: "text-white text-xs lg:text-sm tracking-tighter",
       };
     },
+    /**
+     * styling class for the title of share plio button
+     */
     sharePlioTitleClass() {
-      // styling class for the title of share plio button
       return {
         value: this.$t("editor.buttons.share_plio"),
-        class: "text-yellow-800",
+        class: "text-sm bp-420:text-base text-yellow-800",
       };
     },
+    /**
+     * styling class for the title of share plio button on dialog box
+     * that comes after publishing
+     */
     dialogSharePlioTitleClass() {
-      // styling class for the title of share plio button on dialog box
-      // that comes after publishing
       return {
         value: this.$t("editor.dialog.published.buttons.share_plio"),
         class: "text-yellow-800",
       };
     },
+    /**
+     * styling class for the title of play plio button
+     */
     playPlioTitleClass() {
-      // styling class for the title of play plio button
       return {
         value: this.$t("editor.buttons.play_plio"),
-        class: "text-white",
+        class: "text-sm bp-420:text-base text-white",
       };
     },
+    /**
+     * styling class for the title of preview plio button
+     */
+    plioPreviewTitleClass() {
+      return {
+        value: this.$t("editor.buttons.preview_plio"),
+        class: "text-sm bp-420:text-base text-white",
+      };
+    },
+    /**
+     * styling class for the title of copy draft link button
+     */
+    copyDraftTitleClass() {
+      return {
+        value: this.$t("editor.buttons.share_draft"),
+        class: "text-sm bp-420:text-base text-yellow-800",
+      };
+    },
+    /**
+     * styling class for the title of play plio button on dialog box
+     * that comes after publishing
+     */
     dialogPlayPlioTitleClass() {
-      // styling class for the title of play plio button on dialog box
-      // that comes after publishing
       return {
         value: this.$t("editor.dialog.published.buttons.play_plio"),
         class: "text-white",
       };
     },
+    /**
+     * styling class for the title of embed plio button
+     */
+    embedPlioTitleClass() {
+      return {
+        value: this.$t("editor.buttons.embed_plio"),
+        class: "text-sm bp-420:text-base text-white",
+      };
+    },
+    /**
+     * styling class for the title of embed plio button on dialog box
+     * that comes after publishing
+     */
+    dialogEmbedPlioTitleClass() {
+      return {
+        value: this.$t("editor.dialog.published.buttons.embed_plio"),
+        class: "text-white",
+      };
+    },
+    /**
+     * styling class for the title of go back home button on dialog box
+     * that comes after publishing
+     */
     dialogHomeTitleClass() {
-      // styling class for the title of go back home button on dialog box
-      // that comes after publishing
       return {
         value: this.$t("editor.dialog.published.buttons.home"),
         class: "text-yellow-800",
       };
     },
+    /**
+     * styling class for the title of analyze plio button
+     */
     analyzePlioTitleConfig() {
-      // styling class for the title of analyze plio button
       return {
         value: this.$t("editor.buttons.analyze_plio"),
         class: "text-white text-sm bp-420:text-base",
       };
     },
+    /**
+     * whether the item modal needs to be shown
+     */
     showItemModal() {
-      // whether the item modal needs to be shown
       return this.hasAnyItems && this.isAnyItemActive;
     },
+    /**
+     * whether any item is currently active
+     */
     isAnyItemActive() {
-      // whether any item is currently active
       return this.currentItemIndex != null;
     },
     itemType() {
@@ -710,12 +958,16 @@ export default {
       if (!this.isItemSelected) return null;
       return this.items[this.currentItemIndex].type;
     },
+    /**
+     * text for the status badge
+     */
     statusBadge() {
-      // text for the status badge
       return this.$t(`generic.status.${this.status}`);
     },
+    /**
+     * video link validation display config
+     */
     videoInputValidation() {
-      // video link validation display config
       return {
         enabled: this.videoURL,
         isValid: this.isVideoIdValid,
@@ -723,94 +975,123 @@ export default {
         invalidMessage: this.$t("editor.video_input.validation.invalid"),
       };
     },
+    /**
+     * returns the player instance
+     */
     player() {
-      // returns the player instance
       return this.$refs.videoPlayer.player;
     },
+    /**
+     * get the index of the correct answer from options list
+     */
     correctOptionIndex() {
-      // get the index of the correct answer from options list
-      return this.items[this.currentItemIndex].details.correct_answer;
+      return this.itemDetails[this.currentItemIndex].correct_answer;
     },
+    /**
+     * whether the publish button is enabled
+     */
     isPublishButtonEnabled() {
-      // whether the publish button is enabled
-
       // enable publish button if video id is valid
       // and no errors are present
       if (!this.isPublished) return this.isVideoIdValid && !this.anyErrorsPresent;
 
       return this.hasUnpublishedChanges;
     },
-    blurMainScreen() {
-      // whether to blur the main screen with opacity
+    /**
+     * whether to disable the main screen
+     */
+    isBackgroundDisabled() {
       return (
         this.isBeingPublished ||
-        this.showDialogBox ||
-        this.showImageUploaderDialog ||
-        this.showPublishedPlioDialog
+        this.isDialogBoxShown ||
+        this.isImageUploaderDialogShown ||
+        this.isPublishedPlioDialogShown ||
+        this.isEmbedPlioDialogShown ||
+        this.pending ||
+        this.isPlioPreviewShown
       );
     },
+    /**
+     * class for the status badge
+     */
     statusBadgeClass() {
-      // class for the status badge
-      var badgeClass = {
-        "text-green-500 border-green-500": this.isPublished,
-        "border-black text-black": !this.isPublished,
-        "text-xs": true,
-        "lg:text-base": true,
-        "px-4 py-2": true,
-      };
-      return badgeClass;
+      return [
+        {
+          "text-green-700 border-green-700": this.isPublished,
+          "border-black text-black": !this.isPublished,
+        },
+        `text-base px-4 py-2`,
+      ];
     },
+    /**
+     * tooltip for the status badge
+     */
     statusBadgeTooltip() {
-      // tooltip for the status badge
       if (!this.isPublished) return this.$t("tooltip.editor.status.draft");
       return this.$t("tooltip.editor.status.published");
     },
+    /**
+     * text to show the sync status
+     */
     syncStatusText() {
-      // text to show the sync status
       if (this.uploading) return "Updating...";
       else return this.$t("editor.updated") + ": " + this.lastUpdatedStr;
     },
+    /**
+     * class for the sync status text
+     */
     syncStatusClass() {
-      // class for the sync status text
       return {
         "text-red-500": this.isPublished && this.hasUnpublishedChanges,
       };
     },
-    backButtonClass() {
-      // classes for the back button
+    /**
+     * classes for the home button
+     */
+    homeButtonClass() {
       return "p-2 bp-420:px-4 bg-peach hover:bg-peach-hover rounded-md shadow-lg ring-primary";
     },
-    backButtonTitleConfig() {
-      // config for text of back button
+    /**
+     * config for text of the home button
+     */
+    homeButtonTitleConfig() {
       return {
         value: this.$t("editor.buttons.home"),
         class: "text-yellow-800 font-bold text-sm bp-420:text-base",
       };
     },
+    /**
+     * config for text of back button
+     */
     publishButtonTitleConfig() {
-      // config for text of back button
       return {
         value: this.publishButtonText,
         class: "text-white font-bold text-sm bp-420:text-base",
       };
     },
+    /**
+     * text for the publish button
+     */
     publishButtonText() {
-      // text for the publish button
       if (!this.isPublished) return this.$t("editor.buttons.publish.draft");
       return this.$t("editor.buttons.publish.published");
     },
+    /**
+     * class for the publish button
+     */
     publishButtonClass() {
-      // class for the publish button
       return [
         {
           "opacity-50 cursor-not-allowed pointer-events-none": !this
             .isPublishButtonEnabled,
         },
-        `rounded-md ring-green-500 bg-green-500 hover:bg-green-600 p-2 bp-420:px-4`,
+        `rounded-md ring-green-500 bg-green-500 hover:bg-green-600 p-2 bp-420:px-4 bp-500:px-2 sm:px-4`,
       ];
     },
+    /**
+     * tooltip text for publish button
+     */
     publishButtonTooltip() {
-      // tooltip text for publish button
       if (!this.isPublished) {
         if (!this.isPublishButtonEnabled)
           return this.$t("tooltip.editor.publish.draft.disabled");
@@ -820,89 +1101,126 @@ export default {
         return this.$t("tooltip.editor.publish.published.disabled");
       return this.$t("tooltip.editor.publish.published.enabled");
     },
+    /**
+     * lastUpdated as a human readable string
+     */
     lastUpdatedStr() {
-      // lastUpdated as a human readable string
       return this.lastUpdated.toLocaleString();
     },
+    /**
+     * whether there are any items
+     */
     hasAnyItems() {
-      // whether there are any itesm
       return this.items.length != 0;
     },
+    /**
+     * whether the plio has been pubished
+     */
     isPublished() {
-      // whether the plio has been pubished
       return this.status == "published";
     },
+    /**
+     * placeholder text for the video link input box
+     */
     videoInputPlaceholder() {
-      // placeholder text for the video link input box
       return this.$t("editor.video_input.placeholder");
     },
+    /**
+     * title text for the video link input box
+     */
     videoInputTitle() {
-      // title text for the video link input box
       if (!this.isVideoIdValid) return "";
       return this.$t("editor.video_input.title");
     },
+    /**
+     * placeholder text for the Plio title input box
+     */
     titleInputPlaceholder() {
-      // placeholder text for the Plio title input box
       return this.$t("editor.plio_title.placeholder");
     },
+    /**
+     * title text for the Plio title input box
+     */
     titleInputTitle() {
-      // title text for the Plio title input box
       return this.$t("editor.plio_title.title");
     },
+    /**
+     * prepare the link for the plio from the plio ID
+     */
     plioLink() {
-      // prepare the link for the plio from the plio ID
       return this.getPlioLink(this.plioId, this.org);
     },
+    /**
+     * whether the video Id is valid
+     */
     isVideoIdValid() {
-      // whether the video Id is valid
       return this.videoId != "";
     },
+    /**
+     * title for the dialog box that appears when publishing a
+     *  draft plio or publishing changes to a published plio
+     */
     publishDialogTitle() {
-      // title for the dialog box that appears when publishing a
-      // draft plio or publishing changes to a published plio
       if (this.isPublished) {
         return this.$t("editor.dialog.publish.published.title");
       }
       return this.$t("editor.dialog.publish.draft.title");
     },
+    /**
+     * description for the dialog box that appears when publishing a
+     * draft plio or publishing changes to a published plio
+     */
     publishDialogDescription() {
-      // description for the dialog box that appears when publishing a
-      // draft plio or publishing changes to a published plio
       if (this.isPublished) {
         return this.$t("editor.dialog.publish.published.description");
       }
       return this.$t("editor.dialog.publish.draft.description");
     },
+    /**
+     * title for the dialog box that appears when the
+     * publishing for a plio is in progress
+     */
     publishInProgressDialogTitle() {
-      // title for the dialog box that appears when the
-      // publishing for a plio is in progress
       if (this.isPublished) {
         return this.$t("editor.dialog.publishing.published.title");
       }
       return this.$t("editor.dialog.publishing.draft.title");
     },
+    /**
+     * whether adding item is disabled
+     */
     addItemDisabled() {
-      // whether adding item is disabled
       return this.isPublished || !this.isVideoIdValid;
     },
+    /**
+     * tooltip for adding the mcq question
+     */
     addMCQTooltip() {
-      // tooltip for adding the mcq question
       return this.$t("tooltip.editor.add_item.mcq");
     },
+    /**
+     * tooltip for the subjective question
+     */
     addSubjectiveQuestionTooltip() {
-      // tooltip for the subjective question
       return this.$t("tooltip.editor.add_item.subjective");
     },
     addCheckboxQuestionTooltip() {
       // tooltip for the checkbox question
       return this.$t("tooltip.editor.add_item.checkbox");
     },
+    /**
+     * styling classes for the video link input box
+     */
     videoLinkInputStyling() {
-      // styling classes for the video link input box
-      return ["pl-4 disabled:opacity-50", { "cursor-not-allowed": this.isPublished }];
+      return [
+        "pl-4 disabled:opacity-50 text-sm bp-500:text-base",
+        { "cursor-not-allowed": this.isPublished },
+      ];
     },
+    /**
+     * tooltip for the video link input box
+     */
     videoLinkTooltip() {
-      // tooltip for the video link input box
       return this.isPublished
         ? this.$t("tooltip.editor.video_input.published")
         : this.$t("tooltip.editor.video_input.draft");
@@ -915,62 +1233,195 @@ export default {
       "startLoading",
       "stopLoading",
     ]),
-    ...mapActions("generic", ["showSharePlioDialog"]),
+    ...mapActions("generic", ["showSharePlioDialog", "showEmbedPlioDialog"]),
     ...Utilities,
+    /**
+     * copies the plio draft link to the clipboard
+     */
+    copyPlioDraftLink() {
+      let success = this.copyToClipboard(this.getPlioDraftLink(this.plioId, this.org));
+
+      if (success) this.toast.success(this.$t("success.copying"));
+      else this.toast.error(this.$t("error.copying"));
+    },
+    /**
+     * Iterates through all items, extracts the times and populates itemTimestamps array
+     */
+    updateItemTimestamps() {
+      this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
+    },
+    /**
+     * Clears the watcher corresponding to an item and its associated itemDetail
+     * @param {Number} itemId - The id of the item whose watcher should be cleared
+     */
+    clearItemAndItemDetailWatcher(itemId) {
+      // invoke the unwatch functions
+      this.itemUnwatchers[itemId]();
+      this.itemDetailUnwatchers[itemId]();
+
+      // remove the stored unwatch functions
+      delete this.itemUnwatchers[itemId];
+      delete this.itemDetailUnwatchers[itemId];
+    },
+    /**
+     * Adds watchers to all items and itemDetails and store their unwatch functions
+     */
+    addItemAndItemDetailWatchers() {
+      this.items.forEach((item, index) => {
+        this.addItemAndItemDetailWatcher(item, this.itemDetails[index]);
+      });
+    },
+    /**
+     * Adds a watcher on the item and itemDetail given
+     * @param {Object} item - the item to be watched
+     * @param {Object} itemDetail - the itemDetail to be watched
+     */
+    addItemAndItemDetailWatcher(item, itemDetail) {
+      // watch the item
+      let unwatch = this.$watch(
+        // reason for using clonedeep - https://v3.vuejs.org/guide/reactivity-computed-watchers.html#watching-reactive-objects
+        () => clonedeep(item),
+        (item, prevItem) => {
+          // return if there's no change
+          if (isEqual(item, prevItem)) return;
+          // sort items/itemDetails
+          this.checkAndFixItemOrder();
+          // update itemTimestamps array
+          this.updateItemTimestamps();
+          // push the changes for that item to the backend
+          this.checkAndSaveChanges("item", item.id, {
+            plio: this.plioDBId,
+            ...item,
+          });
+        },
+        { deep: true }
+      );
+      // store the unwatch function for later use
+      this.itemUnwatchers[item.id] = unwatch;
+
+      // watch the itemDetail
+      unwatch = this.$watch(
+        // reason for using clonedeep - https://v3.vuejs.org/guide/reactivity-computed-watchers.html#watching-reactive-objects
+        () => clonedeep(itemDetail),
+        (itemDetail, prevItemDetail) => {
+          // return if there's no change
+          if (isEqual(itemDetail, prevItemDetail)) return;
+
+          // push the changes for that item's detail to the backend
+          this.checkAndSaveChanges("question", itemDetail.id, itemDetail);
+        },
+        { deep: true }
+      );
+      // store the unwatch function for later use
+      this.itemDetailUnwatchers[itemDetail.item] = unwatch;
+    },
+    /**
+     * sets the plio preview to have loaded
+     */
+    setPlioPreviewLoaded() {
+      this.isPlioPreviewLoaded = true;
+    },
+    /**
+     * hides the published plio dialog and shows the share plio dialog
+     */
     hidePublishedDialogShowShareDialog() {
-      // hides the published plio dialog and shows the share plio dialog
-      this.showPublishedPlioDialog = false;
+      this.isPublishedPlioDialogShown = false;
       this.showSharePlioLinkDialog();
     },
-    closePublishedPlioDialog() {
-      // close the published plio dialog
-      this.showPublishedPlioDialog = false;
+    /**
+     * hides the published plio dialog and shows the embed plio dialog
+     */
+    hidePublishedDialogShowEmbedDialog() {
+      this.isPublishedPlioDialogShown = false;
+      this.showEmbedPlio();
     },
+    /**
+     * closes the published plio dialog
+     */
+    closePublishedPlioDialog() {
+      this.isPublishedPlioDialogShown = false;
+      resetConfetti();
+    },
+
+    /**
+     * shows the embed plio dialog
+     */
+    showEmbedPlio() {
+      this.player.pause();
+      this.showEmbedPlioDialog(this.plioId);
+    },
+    /**
+     * shows the share plio dialog
+     */
     showSharePlioLinkDialog() {
-      // show the share plio dialog
       this.player.pause();
       this.showSharePlioDialog(this.plioLink);
     },
+    /**
+     * redirects the user to the player for this plio if it is published
+     */
     redirectToPlayer() {
-      // redirect user to the player for this plio if it is published
       if (!this.isPublished) return;
-      this.$router.push({
+      let routeData = this.$router.resolve({
         name: "Player",
         params: { org: this.org, plioId: this.plioId },
       });
+      // required for opening in a new tab
+      window.open(routeData.href, "_blank");
     },
+    /**
+     * redirects the user to the dashboard for this plio if it is published
+     */
     redirectToDashboard() {
-      // redirect user to the dashboard for this plio if it is published
       if (!this.isPublished) return;
       this.$router.push({
         name: "Dashboard",
         params: { org: this.org, plioId: this.plioId },
       });
     },
+    /**
+     * unlinks the image from the current question, and deletes it from S3
+     */
     deleteLinkedImage() {
-      // unlink image from the question, and delete it on S3
-      var imageIdToDelete = this.items[this.currentItemIndex].details.image.id;
+      var imageIdToDelete = this.itemDetails[this.currentItemIndex].image.id;
       ImageAPIService.deleteImage(imageIdToDelete);
-      this.items[this.currentItemIndex].details.image = null;
+      this.itemDetails[this.currentItemIndex].image = null;
     },
+    /**
+     * upload the image file to the server and update
+     * the question object with the linked image data
+     *
+     * @param {File} imageFile - the image content to be uploaded
+     */
     uploadImage(imageFile) {
-      // POST the image file to the backend.
-      // and update the question object with the linked image data
+      this.startLoading();
       ImageAPIService.uploadImage(imageFile).then((response) => {
-        this.items[this.currentItemIndex].details.image = response.data;
+        this.itemDetails[this.currentItemIndex].image = response.data;
+        this.stopLoading();
       });
     },
+    /**
+     * toggles the visibility of the image uploader dialog box
+     */
     toggleImageUploaderBox() {
-      // show or hide the image uploader dialog box
-      this.showImageUploaderDialog = !this.showImageUploaderDialog;
+      this.isImageUploaderDialogShown = !this.isImageUploaderDialogShown;
     },
+    /**
+     * invoked when the question type is changed
+     * updates the question type in the item list
+     *
+     * @param {String} newQuestionType - the new type of the question
+     */
     questionTypeChanged(newQuestionType) {
-      // invoked when the question type is changed
-      this.items[this.currentItemIndex].details.type = newQuestionType;
+      this.itemDetails[this.currentItemIndex].type = newQuestionType;
     },
+    /**
+     * minimizes the modal
+     *
+     * @param {Object} positions - contains the coordinates required to hide the
+     *                           minimize button and show the maximize button
+     */
     minimizeModal(positions) {
-      // invoked when minimize button is clicked
-
       // set some CSS variables which tells the animation
       // where the modal should shrink to and where the maximize button should pop up
       let root = document.documentElement;
@@ -981,14 +1432,23 @@ export default {
 
       this.isModalMinimized = true;
     },
+    /**
+     * toggles the visibility of the minimize / maximize buttons
+     */
     maximizeModal() {
-      // invoked when maximize button is clicked
       this.isModalMinimized = !this.isModalMinimized;
     },
+    /**
+     * returns the user back to Home
+     */
     returnToHome() {
-      // returns the user back to Home
       this.$router.push({ name: "Home", params: { org: this.org } });
     },
+    /**
+     * navigate the player to the item selected in the item editor
+     *
+     * @param {String} itemIndex - the index of the item to be selected
+     */
     navigateToItem(itemIndex) {
       if (itemIndex == null) return;
 
@@ -998,29 +1458,55 @@ export default {
         this.itemSelected(itemIndex);
       }
     },
+    /**
+     * sort the items according to new timestamps
+     * and reset the currentItemIndex
+     */
     checkAndFixItemOrder() {
-      // sort the items according to new timestamps
-      // and reset the currentItemIndex
-      if (this.currentItemIndex != null) {
-        var currentItem = this.items[this.currentItemIndex];
-        this.sortItems();
+      // if an item has already been selected, persist the selection
+      // by storing the item in a temporary variable, and re-setting the
+      // currentItemIndex later on
+      let currentItem = undefined;
+      if (this.currentItemIndex != null) currentItem = this.items[this.currentItemIndex];
+
+      // sort the items and itemDetails arrays
+      this.sortItems();
+      this.sortItemDetails();
+      if (currentItem != undefined)
         this.currentItemIndex = this.items.indexOf(currentItem);
-      }
     },
+    /**
+     * sort items based on ascending time values
+     */
     sortItems() {
-      // sort items based on ascending time values
       this.items.sort(function (a, b) {
         return a["time"] - b["time"];
       });
     },
+    /**
+     * sort itemDetails array based on the order of the corresponding items in items list
+     */
+    sortItemDetails() {
+      // construct a list of item ids in order from the items array
+      let itemIds = [];
+      this.items.forEach((item) => itemIds.push(item.id));
+
+      // sort itemDetails according to the itemIds list created above
+      this.itemDetails.sort(function (a, b) {
+        return itemIds.indexOf(a.item) - itemIds.indexOf(b.item);
+      });
+    },
+    /**
+     * invoked when dragging the marker for an item is completed
+     *
+     * @param {Number} itemIndex - the index of the item whose marker was being dragged
+     */
     itemMarkerTimestampDragEnd(itemIndex) {
-      // invoked when the drag on the marker for an item is completed
+      // get the time to which the user wants to drag the marker
       var timeBeforeDragEnded = this.items[itemIndex].time;
       var itemTimestamp = this.itemTimestamps[itemIndex];
-
       // check if the time after drag is valid and if not, set the item time
-      // back to the one before the drag
-      // else proceed with the new time
+      // back to the one before the drag; else proceed with the new time
       if (
         !ItemFunctionalService.isTimestampValid(
           itemTimestamp,
@@ -1034,18 +1520,24 @@ export default {
       } else {
         this.items[itemIndex]["time"] = itemTimestamp;
       }
-      // sort the items based on timestamp
-      this.sortItems();
+      // sort the items based on timestamp and
+      // sort the itemDetails array based on the above sorted items
+      this.checkAndFixItemOrder();
       // update itemTimestamps based on new sorted items
-      this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
+      this.updateItemTimestamps();
       // update everything else
       this.currentItemIndex = this.itemTimestamps.indexOf(itemTimestamp);
       this.currentTimestamp = itemTimestamp;
       this.updatePlayerTimestamp(itemTimestamp);
       this.markItemSelected(this.currentItemIndex);
     },
+    /**
+     * checks if an item should be selected based on the given timestamp
+     * and selects/unselects accordingly
+     *
+     * @param {Number} timestamp - the timestamp to be used for checking if an item should be selected
+     */
     checkItemToSelect(timestamp) {
-      // checks if an item is to be selected and marks/unmarks accordingly
       if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
         return;
       this.lastCheckTimestamp = timestamp;
@@ -1059,38 +1551,58 @@ export default {
         this.isModalMinimized = false;
       } else this.markNoItemSelected();
     },
+    /**
+     * updates the player time to the given timestamp
+     *
+     * @param {Number} timestamp - the timestamp that the player should be set to
+     */
     updatePlayerTimestamp(timestamp) {
-      // update player time to the given timestamp
       this.player.currentTime = timestamp;
     },
+    /**
+     * invoked when the time slider is updated
+     *
+     * @param {Number} timestamp - the current value of the time slider
+     */
     sliderUpdated(timestamp) {
-      // invoked when the time slider is updated
       this.updatePlayerTimestamp(timestamp);
       this.checkItemToSelect(timestamp);
     },
+    /**
+     * invoked when an item marker has been selected
+     *
+     * @param {Number} itemIndex - index of the item whose marker is selected
+     */
     itemSelected(itemIndex) {
-      // invoked when an item marker has been selected
       this.updatePlayerTimestamp(this.currentTimestamp);
       this.markItemSelected(itemIndex);
     },
+    /**
+     * marks the item at the given index as selected
+     *
+     * @param {Number} itemIndex - the index of the item to be marked as selected
+     */
     markItemSelected(itemIndex) {
-      // mark the item at the given index as selected
       if (itemIndex != null) {
         this.isItemSelected = true;
         this.player.pause();
         this.currentItemIndex = itemIndex;
         this.currentQuestionTypeIndex = this.questionTypeToIndex[
-          this.items[itemIndex].details.type
+          this.itemDetails[itemIndex].type
         ];
       }
     },
+    /**
+     * marks that no item has been currently selected
+     */
     markNoItemSelected() {
-      // mark that no item has been currently selected
       this.isItemSelected = false;
       this.currentItemIndex = null;
     },
+    /**
+     * updates the value of slider when the video's timestamp is updated
+     */
     videoTimestampUpdated(timestamp) {
-      // update the value of slider when the video's timestamp is updated
       if (this.isItemSelected) {
         // handles the case when the marker has been selected (and hence, video should pause)
         // but the emit from the video time update is still on the way
@@ -1100,13 +1612,19 @@ export default {
       this.currentTimestamp = timestamp;
       this.checkItemToSelect(timestamp);
     },
+    /**
+     * sets variables once the player instance is ready
+     */
     playerReady() {
-      // set variables once the player instance is ready
       this.videoDuration = this.player.duration;
       if (!this.plioTitle) this.plioTitle = this.player.config.title;
+      // re-render the plio preview component
+      this.reRenderKey = !this.reRenderKey;
     },
+    /**
+     * checks if the video link is valid
+     */
     isVideoLinkValid(link) {
-      // checks if the link is valid
       var pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
       var matches = link.match(pattern);
       if (matches) {
@@ -1118,12 +1636,18 @@ export default {
       // invoked when the player is played from a paused state
       this.isItemSelected = false;
     },
+    /**
+     * fetches the details of the plio
+     */
     async loadPlio() {
-      // fetch plio details
+      this.startLoading();
       await PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
-          this.loadedPlioDetails = cloneDeep(plioDetails);
+          this.loadedPlioDetails = clonedeep(plioDetails);
           this.items = plioDetails.items || [];
+          this.updateItemTimestamps();
+          this.itemDetails = plioDetails.itemDetails || [];
+          this.addItemAndItemDetailWatchers();
           this.videoURL = plioDetails.videoURL || "";
           this.plioTitle = plioDetails.plioTitle || "";
           this.status = plioDetails.status;
@@ -1132,6 +1656,7 @@ export default {
           this.hasUnpublishedChanges = false;
           this.videoDBId = plioDetails.videoDBId;
           this.plioDBId = plioDetails.plioDBId;
+          this.stopLoading();
         })
         .then(() => {
           this.$mixpanel.track("Visit Editor", {
@@ -1140,8 +1665,13 @@ export default {
           });
         });
     },
-    checkAndSavePlio() {
-      // ensures that requests are made after a minimum time interval
+    /**
+     * Filtering before pushing the data to the server
+     * @param {String} resourceName - name of the resource that needs to be updated/created (plio, video, question etc...)
+     * @param {Number} resourceId - id of the resource
+     * @param {Object} resourceValue - payload of the resource that needs to be pushed to the backend
+     */
+    async checkAndSaveChanges(resourceName, resourceId, resourceValue) {
       // don't update changes automatically once published
       if (this.isPublished) {
         this.hasUnpublishedChanges = true;
@@ -1150,98 +1680,223 @@ export default {
       // don't save plio if video URL is empty or if any errors are present
       if (this.anyErrorsPresent || !this.isVideoIdValid) return;
 
-      this.changeInProgress = true;
-      var time = new Date();
-      // only update after a certain interval between last and current update
-      if (time - this.lastUpdated >= this.minUpdateInterval) {
-        this.savePlio();
-      }
+      await this.saveChanges(resourceName, resourceId, resourceValue);
     },
-    savePlio() {
-      // saves the plio data on remote
-      this.changeInProgress = false;
+    /**
+     * updates the data on the server
+     * @param {String} resourceName - name of the resource that needs to be updated/created (plio, video, question etc...)
+     * @param {Number} resourceId - id of the resource
+     * @param {Object} resourceValue - payload of the resource that needs to be pushed to the backend
+     */
+    async saveChanges(resourceName, resourceId, resourceValue) {
       this.startUploading();
       this.lastUpdated = new Date();
-      var plioValue = {
-        name: this.plioTitle,
-        status: this.status,
-        items: this.items,
-        videoDBId: this.videoDBId,
-        url: this.videoURL,
-        duration: this.videoDuration,
-      };
-      return PlioAPIService.updatePlio(plioValue, this.plioId).then(() => {
-        this.stopUploading();
-        return;
-      });
+
+      switch (resourceName) {
+        case "video":
+          await this.updateVideo(resourceId, resourceValue);
+          break;
+        case "item":
+          await this.updateItem(resourceId, resourceValue);
+          break;
+        case "question":
+          await this.updateQuestionDetails(resourceId, resourceValue);
+          break;
+        case "plio":
+          await this.updatePlio(resourceId, resourceValue);
+          break;
+        case "all":
+          // update video
+          await this.updateVideo(this.videoDBId, {
+            url: this.videoURL,
+            duration: this.videoDuration,
+          });
+
+          // update all the items
+          this.items.forEach(async (item) => {
+            await this.updateItem(item.id, item);
+          });
+
+          // update all the item details
+          this.itemDetails.forEach(async (itemDetail, index) => {
+            if (this.items[index].type == "question") {
+              await this.updateQuestionDetails(itemDetail.id, itemDetail);
+            }
+          });
+
+          // update plio
+          await this.updatePlio(this.plioId, {
+            name: this.plioTitle,
+            status: this.status,
+            video: this.videoDBId,
+          });
+          break;
+      }
+
+      this.stopUploading();
+      return new Promise((resolve) => resolve());
     },
-    publishPlio() {
+
+    /**
+     * Create or update the video resource
+     * @param {Number} id - The database id of the video that needs to be updated
+     * @param {Object} payload - The payload that needs to be pushed to the backend
+     */
+    async updateVideo(id, payload) {
+      // 'url' key in the payload is a required field
+      if (id == null && Object.prototype.hasOwnProperty.call(payload, "url")) {
+        // Create the video and link it to the plio
+        let createdVideo = await VideoAPIService.createVideo(payload);
+        this.videoDBId = createdVideo.data.id;
+        await this.updatePlio(this.plioId, { video: this.videoDBId });
+      } else if (id != null) {
+        // update the existing video
+        await VideoAPIService.updateVideo(id, payload);
+      }
+    },
+
+    /**
+     * Update the plio resource
+     * @param {Number} id - The uuid of the plio that needs to be updated
+     * @param {Object} payload - The payload that needs to be pushed to the backend
+     */
+    async updatePlio(id, payload) {
+      await PlioAPIService.updatePlio(id, payload);
+    },
+
+    /**
+     * Update the item resource
+     * @param {Number} id - The database id of the item that needs to be updated
+     * @param {Object} payload - The payload that needs to be pushed to the backend
+     */
+    async updateItem(id, payload) {
+      await ItemAPIService.updateItem(id, payload);
+    },
+
+    /**
+     * Update the itemDetail resource
+     * @param {Number} id - The database id of the itemDetail that needs to be updated
+     * @param {Object} payload - The payload that needs to be pushed to the backend
+     */
+    async updateQuestionDetails(id, payload) {
+      // cloning as we are replacing the value of the "image" key
+      var payloadClone = clonedeep(payload);
+      if ("image" in payload && payload["image"] != undefined) {
+        payloadClone["image"] = payload["image"]["id"];
+      }
+      await QuestionAPIService.updateQuestion(id, payloadClone);
+    },
+    /**
+     * publishes the plio
+     */
+    async publishPlio() {
       // mark the plio as published if in draft mode
       // and update the changes only if already published
       this.isBeingPublished = true;
       this.status = "published";
-      this.savePlio().then(() => {
-        this.isBeingPublished = false;
-        this.showDialogBox = false;
-        this.showPublishedPlioDialog = true;
-        this.hasUnpublishedChanges = false;
-      });
+      await this.saveChanges("all");
+      this.isBeingPublished = false;
+      this.isDialogBoxShown = false;
+      this.isPublishedPlioDialogShown = true;
+      throwConfetti(this.confettiHandler);
+      this.hasUnpublishedChanges = false;
     },
-    publishButtonClicked() {
-      // invoked when the publish button is clicked
+    /**
+     * closes the plio preview
+     */
+    closePlioPreview() {
+      this.isPlioPreviewShown = false;
+      this.isPlioPreviewLoaded = false;
+      resetConfetti();
+    },
+    /**
+     * toggles plio preview mode
+     */
+    togglePlioPreviewMode() {
+      this.isPlioPreviewShown = !this.isPlioPreviewShown;
+    },
+    /**
+     * shows the dialog box for confirming whether to publish the plio
+     */
+    showPublishConfirmationDialogBox() {
       // set dialog properties
       this.dialogTitle = this.publishDialogTitle;
       this.dialogDescription = this.publishDialogDescription;
+      this.isDialogCloseButtonShown = true;
       this.dialogConfirmButtonConfig = {
         enabled: true,
-        text: this.$t("generic.yes"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        text: this.$t(`editor.dialog.publish.${this.status}.confirm`),
+        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
-        text: this.$t("generic.no"),
+        text: this.$t(`editor.dialog.publish.${this.status}.cancel`),
         class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
       };
+      this.dialogBoxClass = "w-72";
       // closing the dialog executes this action
       this.dialogAction = "publish";
       // show the dialogue
-      this.showDialogBox = true;
+      this.isDialogBoxShown = true;
     },
+    /**
+     * invoked when the confirm button of the dialog box is clicked
+     * calls the appropriate method based on the dialogAction
+     */
     dialogConfirmed() {
-      // invoked when the confirm button of the dialog box is clicked
-      this.showDialogBox = false;
-      this.dialogDescription = "";
+      // reset the dialog box
+      this.resetDialogBox();
 
       // call separate methods depening on the dialog action that
       // was set
       if (this.dialogAction == "publish") this.confirmPublish();
       else if (this.dialogAction == "deleteItem") this.deleteSelectedItem();
       else if (this.dialogAction == "deleteOption") this.confirmDeleteOption();
-      else if (this.dialogAction == "closeDialog") this.showDialogBox = false;
+      else if (this.dialogAction == "closeDialog") this.isDialogBoxShown = false;
 
       // reset the dialog action value
       this.dialogAction = "";
     },
+    /**
+     * invoked when the cancel button of the dialog box is clicked;
+     * calls the appropriate method based on the dialogAction
+     */
     dialogCancelled() {
-      // invoked when the cancel button of the dialog box is clicked
-      this.showDialogBox = false;
+      // reset the dialog box
+      this.resetDialogBox();
       if (this.dialogAction == "deleteOption") this.cancelDeleteOption();
+      if (this.dialogAction == "publish" && !this.isPublished) {
+        // show the plio preview
+        this.togglePlioPreviewMode();
+      }
     },
+    /**
+     * resets the config of the dialog box
+     */
+    resetDialogBox() {
+      this.isDialogBoxShown = false;
+      this.dialogDescription = "";
+      this.dialogBoxClass = "";
+      this.isDialogCloseButtonShown = false;
+    },
+    /**
+     * cancels the deletion of the marked option
+     */
     cancelDeleteOption() {
-      // invoked when the cancel button of the dialog box for deleting option is clicked
       this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
+    /**
+     * shows a dialog box when the user tries to add an item
+     * at an invalid timestamp
+     */
     showCannotAddItemDialog() {
-      // set up the dialog properties when user tries to add an item
-      // at an invalid time
+      // set up the dialog properties
       this.dialogTitle = this.$t("editor.dialog.cannot_add_question.title");
       this.dialogDescription = this.$t("editor.dialog.cannot_add_question.description");
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.got_it"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: false,
@@ -1252,10 +1907,37 @@ export default {
       // carry out the closeDialog action when dialog is closed
       this.dialogAction = "closeDialog";
       // show the dialogue
-      this.showDialogBox = true;
+      this.isDialogBoxShown = true;
     },
+    /**
+     * shows a dialog box when the user tries to delete an option
+     * for a question with only 2 options
+     */
+    showCannotDeleteOptionDialog() {
+      // set up the dialog properties
+      this.dialogTitle = this.$t("editor.dialog.cannot_delete_option.title");
+      this.dialogDescription = this.$t("editor.dialog.cannot_delete_option.description");
+      this.dialogConfirmButtonConfig = {
+        enabled: true,
+        text: this.$t("generic.got_it"),
+        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
+      };
+      this.dialogCancelButtonConfig = {
+        enabled: false,
+        text: "",
+        class: "",
+      };
+
+      // carry out the closeDialog action when dialog is closed
+      this.dialogAction = "closeDialog";
+      // show the dialogue
+      this.isDialogBoxShown = true;
+    },
+    /**
+     * hides the dialog box and invokes the method for publishing the plio
+     */
     confirmPublish() {
-      this.showDialogBox = true;
+      this.isDialogBoxShown = true;
       this.dialogTitle = this.publishInProgressDialogTitle;
       this.dialogConfirmButtonConfig = {
         enabled: false,
@@ -1270,39 +1952,52 @@ export default {
       // publish the plio or its changes
       this.publishPlio();
     },
+    /**
+     * deletes the option marked to be deleted if the question contains
+     * more than 2 options
+     */
     confirmDeleteOption() {
-      /*
-       * invoked when the confirm button of the dialog box for
-       * deleting option is clicked
-       */
+      // there should always be at least 2 options, allow deletion only
+      // if the number of options is >= 3
+      if (this.itemDetails[this.currentItemIndex].options.length < 3) {
+        this.showCannotDeleteOptionDialog();
+        return;
+      }
 
       // delete the option
-      this.items[this.currentItemIndex].details.options.splice(
-        this.optionIndexToDelete,
-        1
-      );
+      this.itemDetails[this.currentItemIndex].options.splice(this.optionIndexToDelete, 1);
       // if the deleted option was the correct answer, reset the correct answer
       if (this.optionIndexToDelete == this.correctOptionIndex) {
-        this.items[this.currentItemIndex].details.correct_answer = 0;
+        this.itemDetails[this.currentItemIndex].correct_answer = 0;
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
+    /**
+     * returns the type of item being added when add item button is clicked
+     */
     getItemTypeForNewItem() {
-      // returns the type of item being added when add item button is clicked
+      // hard-coded for now as the only item type that we support is "question"
       return "question";
     },
+    /**
+     * returns a metadata object which contains only the name of the source from where
+     * the question is coming from.
+     */
     getMetadataForNewItem() {
-      // returns a metadata object which contains only the name of the source from where
-      // the question is coming from.
       // currently the source is only "default" as questions will be created on the editor only
       var meta = {};
       meta["source"] = {};
       meta["source"]["name"] = "default";
       return meta;
     },
+    /**
+     * returns an object containing the default values required
+     * for creating a new question of the given question type
+     *
+     * @param {String} questionType - type of the question
+     */
     getDetailsForNewQuestion(questionType) {
-      // barebones question structure
-      var details = {};
+      let details = {};
 
       if (questionType == "mcq") {
         details["correct_answer"] = 0;
@@ -1315,13 +2010,16 @@ export default {
       details["max_char_limit"] = 100;
       return details;
     },
-    addNewItem(questionType) {
+    /**
+     * creates a new item of the given question type and adds it to the item list
+     *
+     * @param {String} questionType - the type of the question to be added
+     */
+    async addNewItem(questionType) {
       this.player.pause();
       this.startLoading();
       const currentTimestamp = this.currentTimestamp;
-      // newItem object will store the information of the newly created
-      // item and the question
-      var newItem = {};
+
       // check if the time where user is trying to add an item is valid or not
       if (
         !ItemFunctionalService.isTimestampValid(currentTimestamp, this.itemTimestamps)
@@ -1330,35 +2028,46 @@ export default {
         this.stopLoading();
         return;
       }
+
       // create item, then create the question, then update local states
-      ItemAPIService.createItem({
+      let createdItem = await ItemAPIService.createItem({
         plio: this.plioDBId,
         type: this.getItemTypeForNewItem(),
         time: currentTimestamp,
         meta: this.getMetadataForNewItem(),
-      })
-        .then((createdItem) => {
-          // storing the newly created item into "newItem"
-          newItem = createdItem;
-          if (createdItem.type == "question") {
-            var questionDetails = this.getDetailsForNewQuestion(questionType);
-            questionDetails.item = createdItem.id;
-            return QuestionAPIService.createQuestion(questionDetails);
-          }
-        })
-        .then((createdQuestion) => {
-          // storing the newly created question into "newItem"
-          newItem.details = createdQuestion;
-          // push it into items, update the itemTimestamps and currentItemIndex
-          this.items.push(newItem);
-          this.itemTimestamps = ItemFunctionalService.getItemTimestamps(this.items);
-          this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
-          this.markItemSelected(this.currentItemIndex);
-        })
-        .finally(() => this.stopLoading());
+      });
+
+      let itemDetail;
+
+      if (createdItem.type == "question") {
+        let questionDetails = this.getDetailsForNewQuestion(questionType);
+        questionDetails.item = createdItem.id;
+
+        // create question and push it into itemDetails array
+        itemDetail = await QuestionAPIService.createQuestion(questionDetails);
+      }
+
+      this.itemDetails.push(itemDetail);
+
+      // add the newly created item into items array
+      this.items.push(createdItem);
+      // add watchers to items and itemDetails
+      this.addItemAndItemDetailWatcher(
+        this.items[this.items.length - 1],
+        this.itemDetails[this.items.length - 1]
+      );
+      // sort items/itemDetails
+      this.checkAndFixItemOrder();
+      // update itemTimestamps and currentItemIndex, and select the item
+      this.updateItemTimestamps();
+      this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
+      this.markItemSelected(this.currentItemIndex);
+      this.stopLoading();
     },
-    deleteItemButtonClicked() {
-      // invoked when the delete item button is clicked
+    /**
+     * shows the dialog box for confirming whether the item should be deleted
+     */
+    showDeleteItemDialogBox() {
       // set dialog properties
       this.dialogTitle = this.$t(`editor.dialog.delete_item.${this.itemType}.title`);
       this.dialogDescription = this.$t(
@@ -1367,8 +2076,7 @@ export default {
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
@@ -1378,26 +2086,39 @@ export default {
       // set the action to be carried out
       this.dialogAction = "deleteItem";
       // show the dialogue
-      this.showDialogBox = true;
+      this.isDialogBoxShown = true;
     },
+    /**
+     * remove the current item from the item list, the corresponding
+     * itemDetail as well, and remove their watchers
+     */
     deleteSelectedItem() {
-      // remove current item from the item list
-      // set currentItemIndex to null to hide the item editor
+      // unwatch the item and the corresponding itemDetail
+      let currentItem = this.items[this.currentItemIndex];
+      this.clearItemAndItemDetailWatcher(currentItem.id);
+
+      // remove the item and itemDetails locally and remotely
+      this.itemDetails.splice(this.currentItemIndex, 1);
       var itemToDelete = this.items.splice(this.currentItemIndex, 1);
+      this.updateItemTimestamps();
       ItemAPIService.deleteItem(itemToDelete[0].id);
+      // set currentItemIndex to null to hide the item editor
       this.currentItemIndex = null;
-      this.showDialogBox = false;
+      this.isDialogBoxShown = false;
     },
+    /**
+     * deletes the option of the current item at the given index
+     *
+     * @param {Number} optionIndex - the index of the option to be deleted
+     */
     deleteOption(optionIndex) {
-      // invoked when delete option button is clicked
       // set dialog properties
       this.dialogTitle = this.$t("editor.dialog.delete_option.title");
       this.dialogDescription = "";
       this.dialogConfirmButtonConfig = {
         enabled: true,
         text: this.$t("generic.yes"),
-        class:
-          "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
+        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
       };
       this.dialogCancelButtonConfig = {
         enabled: true,
@@ -1408,14 +2129,18 @@ export default {
       // set the index to delete, set the dialog action, show the dialog
       this.optionIndexToDelete = optionIndex;
       this.dialogAction = "deleteOption";
-      this.showDialogBox = true;
+      this.isDialogBoxShown = true;
     },
+    /**
+     * sets that some unresolved errors are present
+     */
     setErrorOccurred() {
-      // invoked when some error is present
       this.anyErrorsPresent = true;
     },
+    /**
+     * sets that all errors have been resolved
+     */
     setErrorResolved() {
-      // invoked when erros have been resolved
       this.anyErrorsPresent = false;
     },
   },

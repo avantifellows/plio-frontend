@@ -8,17 +8,18 @@
         :disabled="isDisabled"
         class="disabled:opacity-50 w-full flex space-x-2 bg-primary rounded-lg shadow-lg p-2 text-left cursor-default focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:text-sm items-center"
         data-test="toggleButton"
+        aria-label="toggle options visibility"
       >
         <span class="flex flex-1 space-x-2 items-center">
           <inline-svg
             v-if="selectedOptionHasIcon"
-            :src="getIconSource(selectedOption.icon)"
+            :src="getImageSource(selectedOption.icon)"
             class="text-white h-4 w-full bp-420:w-2/3 bp-500:w-full sm:w-2/3 fill-current"
           ></inline-svg>
         </span>
         <!-- dropdown icon -->
         <inline-svg
-          :src="getIconSource('chevron-down-solid-white.svg')"
+          :src="getImageSource('chevron-down-solid-white.svg')"
           class="h-4 w-4 text-primary fill-current"
           :class="dropdownIconClass"
         ></inline-svg>
@@ -47,7 +48,7 @@
             <!-- option icon -->
             <inline-svg
               v-if="doesOptionHaveIcon(option)"
-              :src="getIconSource(option.icon)"
+              :src="getImageSource(option.icon)"
               class="w-1/4 h-4 fill-current"
               data-test="icon"
             ></inline-svg>
@@ -61,7 +62,7 @@
 </template>
 
 <script>
-import Utilties from "@/services/Functional/Utilities.js";
+import Utilities from "@/services/Functional/Utilities.js";
 
 export default {
   name: "QuestionTypeDropdown",
@@ -72,18 +73,18 @@ export default {
     };
   },
   props: {
+    /** the list of options in the dropdown */
     options: {
-      // the list of options in the dropdown
       type: Array,
       default: () => [],
     },
+    /** the default selected index */
     selectedIndex: {
-      // the default selected index
       type: Number,
       default: 0,
     },
+    /** whether the dropdown is disabled */
     isDisabled: {
-      // whether the dropdown is disabled
       default: false,
       type: Boolean,
     },
@@ -94,10 +95,7 @@ export default {
       return this.selectedOption != undefined && this.selectedOption.icon != null;
     },
     dropdownIconClass() {
-      return [
-        { "transform rotate-180": this.showDropdown },
-        "transition ease duration-800",
-      ];
+      return [{ "transform rotate-180": this.showDropdown }, "transition duration-800"];
     },
     selectedOption() {
       // the selected option
@@ -122,7 +120,7 @@ export default {
     },
   },
   methods: {
-    ...Utilties,
+    ...Utilities,
     doesOptionHaveIcon(option) {
       // whether the given option has an icon
       return option != undefined && option.icon != null;

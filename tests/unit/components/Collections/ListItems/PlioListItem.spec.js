@@ -87,30 +87,34 @@ describe("PlioListItem.vue", () => {
     expect(wrapper.vm.isPublished).toBe(true);
   });
 
-  it("clicking dropdown shows action buttons", async () => {
+  it("sets whether the current screen is tab screen based on window width", async () => {
+    const plioDetails = {
+      updatedAt: new Date(2018, 12, 31),
+      status: "published",
+    };
+
     const wrapper = mount(PlioListItem, {
+      props: {
+        plioId: "123",
+      },
       data() {
         return {
-          plioDetails: {
-            updatedAt: new Date(2018, 12, 31),
-            status: "draft",
-          },
+          plioDetails: plioDetails,
         };
       },
     });
 
-    // click the option dropdown
-    await wrapper
-      .get('[data-test="optionDropdown"]')
-      .get('[data-test="toggleButton"]')
-      .trigger("click");
+    // set the value of the window width
+    store.dispatch("generic/setWindowInnerWidth", window.innerWidth);
 
-    // there should be 5 buttons - edit, play, share, duplicate, delete
-    expect(
-      wrapper
-        .get('[data-test="optionDropdown"]')
-        .findAll('[data-test="option"]').length
-    ).toBe(5);
+    // the default screen size should be classified as false
+    expect(wrapper.vm.isTabScreen).toBeFalsy();
+
+    // update the value of the window width
+    store.dispatch("generic/setWindowInnerWidth", 500);
+
+    // now the screen size should be classified as true
+    expect(wrapper.vm.isTabScreen).toBeTruthy();
   });
 
   it("play disabled for draft plio ", async () => {
@@ -134,7 +138,7 @@ describe("PlioListItem.vue", () => {
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
-        .findAll('[data-test="option"]')[1]
+        .find('[data-test="option-play"]')
         .classes()
     ).toContain("cursor-not-allowed");
   });
@@ -147,7 +151,11 @@ describe("PlioListItem.vue", () => {
     const plioId = "123";
     // mock router
     const mockRouter = {
-      push: jest.fn(),
+      resolve: jest.fn(() => {
+        return {
+          href: "test",
+        };
+      }),
     };
 
     const wrapper = mount(PlioListItem, {
@@ -177,10 +185,10 @@ describe("PlioListItem.vue", () => {
     // click the play button
     wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[1]
+      .find('[data-test="option-play"]')
       .trigger("click");
 
-    expect(mockRouter.push).toHaveBeenCalledWith({
+    expect(mockRouter.resolve).toHaveBeenCalledWith({
       name: "Player",
       params: {
         org: "",
@@ -223,7 +231,7 @@ describe("PlioListItem.vue", () => {
     // click the duplicate button
     wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[3]
+      .find('[data-test="option-duplicate"]')
       .trigger("click");
 
     expect(duplicatePlio).toHaveBeenCalled();
@@ -268,7 +276,7 @@ describe("PlioListItem.vue", () => {
     // click the edit button
     wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[0]
+      .find('[data-test="option-edit"]')
       .trigger("click");
 
     expect(mockRouter.push).toHaveBeenCalledWith({
@@ -304,12 +312,12 @@ describe("PlioListItem.vue", () => {
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
-        .findAll('[data-test="option"]')[2]
+        .find('[data-test="option-share"]')
         .classes()
     ).toContain("cursor-not-allowed");
   });
 
-  it("clicking share shows the share dialog ", async () => {
+  it("clicking share shows the share dialog", async () => {
     const sharePlio = jest.spyOn(PlioListItem.methods, "sharePlio");
 
     const plioDetails = {
@@ -340,10 +348,77 @@ describe("PlioListItem.vue", () => {
     // click the share button
     wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[2]
+      .find('[data-test="option-share"]')
       .trigger("click");
 
     expect(sharePlio).toHaveBeenCalled();
+  });
+
+  it("clicking embed shows the embed dialog ", async () => {
+    const embedPlio = jest.spyOn(PlioListItem.methods, "embedPlio");
+
+    const plioDetails = {
+      updatedAt: new Date(2018, 12, 31),
+      status: "published",
+    };
+    const plioId = "123";
+
+    const wrapper = mount(PlioListItem, {
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          plioDetails: plioDetails,
+        };
+      },
+    });
+    // passing in plioID triggers startLoading which keeps the component in pending state
+    await store.dispatch("sync/stopLoading");
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // click the embed button
+    wrapper
+      .get('[data-test="optionDropdown"]')
+      .find('[data-test="option-embed"]')
+      .trigger("click");
+
+    expect(embedPlio).toHaveBeenCalled();
+  });
+
+  it("clicking dropdown shows action buttons", async () => {
+    const wrapper = mount(PlioListItem, {
+      props: {
+        plioId: "123",
+      },
+      data() {
+        return {
+          plioDetails: {
+            updatedAt: new Date(2018, 12, 31),
+            status: "published",
+          },
+        };
+      },
+    });
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // there should be 6 buttons - edit, play, share, embed, duplicate, delete
+    expect(
+      wrapper
+        .get('[data-test="optionDropdown"]')
+        .find('[data-test="options"]')
+        .findAll("li").length
+    ).toBe(6);
   });
 
   it("analyze button should show up for touch device ", async () => {
@@ -358,12 +433,13 @@ describe("PlioListItem.vue", () => {
       .get('[data-test="toggleButton"]')
       .trigger("click");
 
-    // there should be 6 buttons - edit, play, share, duplicate, delete, analyse
+    // there should be 7 buttons - edit, play, share, embed, duplicate, delete, analyse
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
-        .findAll('[data-test="option"]').length
-    ).toBe(6);
+        .find('[data-test="options"]')
+        .findAll("li").length
+    ).toBe(7);
   });
 
   it("analyze disabled for draft plio ", async () => {
@@ -391,7 +467,7 @@ describe("PlioListItem.vue", () => {
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')
-        .findAll('[data-test="option"]')[3]
+        .find('[data-test="option-analyse"]')
         .classes()
     ).toContain("cursor-not-allowed");
   });
@@ -436,7 +512,7 @@ describe("PlioListItem.vue", () => {
     // click the analyse button
     wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[3]
+      .find('[data-test="option-analyse"]')
       .trigger("click");
 
     expect(mockRouter.push).toHaveBeenCalledWith({
@@ -488,7 +564,7 @@ describe("PlioListItem.vue", () => {
     // click the delete button
     await wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[4]
+      .find('[data-test="option-delete"]')
       .trigger("click");
 
     // there should be a dialog box now
@@ -532,7 +608,7 @@ describe("PlioListItem.vue", () => {
     // click the delete button
     await wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[4]
+      .find('[data-test="option-delete"]')
       .trigger("click");
 
     // click the cancel button of the dialog box
@@ -594,7 +670,7 @@ describe("PlioListItem.vue", () => {
     // click the delete button
     await wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[4]
+      .find('[data-test="option-delete"]')
       .trigger("click");
 
     // click the confirm button of the dialog box
@@ -672,7 +748,7 @@ describe("PlioListItem.vue", () => {
     // click the delete button
     await wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[4]
+      .find('[data-test="option-delete"]')
       .trigger("click");
 
     // click the confirm button of the dialog box
@@ -714,7 +790,7 @@ describe("PlioListItem.vue", () => {
     // click the delete button
     await wrapper
       .get('[data-test="optionDropdown"]')
-      .findAll('[data-test="option"]')[4]
+      .find('[data-test="option-delete"]')
       .trigger("click");
 
     // there should be no style attribute by default
@@ -723,25 +799,22 @@ describe("PlioListItem.vue", () => {
     );
 
     // screen size < 420 but > 400
-    await wrapper.setData({
-      windowWidth: 410,
-    });
+    store.dispatch("generic/setWindowInnerWidth", 410);
+    await flushPromises();
     expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
       "left: 20%;"
     );
 
     // screen size < 400 but > 340
-    await wrapper.setData({
-      windowWidth: 350,
-    });
+    store.dispatch("generic/setWindowInnerWidth", 350);
+    await flushPromises();
     expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
       "left: 15%;"
     );
 
     // screen size < 340
-    await wrapper.setData({
-      windowWidth: 320,
-    });
+    store.dispatch("generic/setWindowInnerWidth", 320);
+    await flushPromises();
     expect(wrapper.get('[data-test="dialogBox"]').attributes("style")).toEqual(
       "left: 10%;"
     );

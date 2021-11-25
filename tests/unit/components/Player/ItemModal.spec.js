@@ -1,34 +1,13 @@
 import { mount } from "@vue/test-utils";
 import ItemModal from "@/components/Player/ItemModal";
 
-const itemList = [
-  {
-    type: "question",
-    details: {
-      text: "test",
-      type: "subjective",
-      has_char_limit: true,
-      max_char_limit: 50,
-      image: null,
-      options: null,
-      correct_answer: null,
-    },
-    time: 13,
-  },
-  {
-    type: "question",
-    details: {
-      text: "test2",
-      type: "mcq",
-      image: null,
-      max_char_limit: null,
-      has_char_limit: false,
-      options: ["o1", "o2"],
-      correct_answer: "0",
-    },
-    time: 50,
-  },
-];
+import {
+  dummyItems,
+  dummyItemDetails,
+  dummyItemResponses,
+} from "@/services/Testing/DummyData.js";
+
+var clonedeep = require("lodash.clonedeep");
 
 describe("ItemModal.vue", () => {
   it("should render with default values", () => {
@@ -39,49 +18,53 @@ describe("ItemModal.vue", () => {
   it("should prepare draft responses for each item", () => {
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: itemList,
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
       },
     });
-    expect(wrapper.vm.draftResponses.length).toBe(2);
+    expect(wrapper.vm.draftResponses.length).toBe(dummyItems.length);
   });
 
   it("extract current item details correctly", async () => {
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: itemList,
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
       },
     });
     // test subjective
-    expect(wrapper.vm.currentItem).toEqual(itemList[0]);
-    expect(wrapper.vm.currentItemDetails).toEqual(itemList[0].details);
-    expect(wrapper.vm.currentItemImage).toBe(itemList[0].details.image);
-    expect(wrapper.vm.hasCharLimit).toBe(itemList[0].details.has_char_limit);
-    expect(wrapper.vm.maxCharLimit).toBe(itemList[0].details.max_char_limit);
-    expect(wrapper.vm.itemType).toBe(itemList[0].type);
-    expect(wrapper.vm.questionOptions).toBe(itemList[0].details.options);
-    expect(wrapper.vm.questionCorrectAnswer).toBe(NaN);
-    expect(wrapper.vm.questionText).toBe(itemList[0].details.text);
-    expect(wrapper.vm.questionType).toBe(itemList[0].details.type);
-    expect(wrapper.vm.isQuestionTypeMCQ).toBe(false);
-    expect(wrapper.vm.isQuestionTypeSubjective).toBe(true);
+    expect(wrapper.vm.currentItem).toEqual(dummyItems[0]);
+    expect(wrapper.vm.currentItemDetails).toEqual(dummyItemDetails[0]);
+    expect(wrapper.vm.currentItemImage).toBe(dummyItemDetails[0].image);
+    expect(wrapper.vm.hasCharLimit).toBe(dummyItemDetails[0].has_char_limit);
+    expect(wrapper.vm.maxCharLimit).toBe(dummyItemDetails[0].max_char_limit);
+    expect(wrapper.vm.itemType).toBe(dummyItems[0].type);
+    expect(wrapper.vm.questionOptions).toStrictEqual(
+      dummyItemDetails[0].options
+    );
+    expect(wrapper.vm.questionCorrectAnswer).toBe(0);
+    expect(wrapper.vm.questionText).toBe(dummyItemDetails[0].text);
+    expect(wrapper.vm.questionType).toBe(dummyItemDetails[0].type);
+    expect(wrapper.vm.isQuestionTypeMCQ).toBe(true);
+    expect(wrapper.vm.isQuestionTypeSubjective).toBe(false);
 
     // test mcq
     await wrapper.setProps({
       selectedItemIndex: 1,
     });
 
-    expect(wrapper.vm.currentItem).toEqual(itemList[1]);
-    expect(wrapper.vm.currentItemDetails).toEqual(itemList[1].details);
-    expect(wrapper.vm.currentItemImage).toBe(itemList[1].details.image);
-    expect(wrapper.vm.hasCharLimit).toBe(itemList[1].details.has_char_limit);
-    expect(wrapper.vm.maxCharLimit).toBe(itemList[1].details.max_char_limit);
-    expect(wrapper.vm.itemType).toBe(itemList[1].type);
-    expect(wrapper.vm.questionOptions).toEqual(itemList[1].details.options);
+    expect(wrapper.vm.currentItem).toEqual(dummyItems[1]);
+    expect(wrapper.vm.currentItemDetails).toEqual(dummyItemDetails[1]);
+    expect(wrapper.vm.currentItemImage).toBe(dummyItemDetails[1].image);
+    expect(wrapper.vm.hasCharLimit).toBe(dummyItemDetails[1].has_char_limit);
+    expect(wrapper.vm.maxCharLimit).toBe(dummyItemDetails[1].max_char_limit);
+    expect(wrapper.vm.itemType).toBe(dummyItems[1].type);
+    expect(wrapper.vm.questionOptions).toEqual(dummyItemDetails[1].options);
     expect(wrapper.vm.questionCorrectAnswer).toBe(
-      parseInt(itemList[1].details.correct_answer)
+      parseInt(dummyItemDetails[1].correct_answer)
     );
-    expect(wrapper.vm.questionText).toBe(itemList[1].details.text);
-    expect(wrapper.vm.questionType).toBe(itemList[1].details.type);
+    expect(wrapper.vm.questionText).toBe(dummyItemDetails[1].text);
+    expect(wrapper.vm.questionType).toBe(dummyItemDetails[1].type);
     expect(wrapper.vm.isQuestionTypeMCQ).toBe(true);
     expect(wrapper.vm.isQuestionTypeSubjective).toBe(false);
   });
@@ -90,7 +73,9 @@ describe("ItemModal.vue", () => {
     const toggleMinimizeMock = jest.spyOn(ItemModal.methods, "toggleMinimize");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: itemList,
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
+        videoPlayerElementId: "videoPlayer",
       },
     });
     wrapper
@@ -106,7 +91,8 @@ describe("ItemModal.vue", () => {
     const skipQuestionMock = jest.spyOn(ItemModal.methods, "skipQuestion");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: itemList,
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
       },
     });
     wrapper
@@ -122,7 +108,8 @@ describe("ItemModal.vue", () => {
     const reviseQuestionMock = jest.spyOn(ItemModal.methods, "emitRevise");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: itemList,
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
       },
     });
     wrapper
@@ -136,17 +123,19 @@ describe("ItemModal.vue", () => {
 
   it("submits subjective question", async () => {
     var responseList = [];
-    itemList.forEach(() => {
+    dummyItems.forEach(() => {
       responseList.push({
         answer: null,
       });
     });
-    var draftResponses = ["a", null];
+    var draftResponses = clonedeep(dummyItemResponses);
     const submitQuestionMock = jest.spyOn(ItemModal.methods, "submitQuestion");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: itemList,
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
         responseList: responseList,
+        selectedItemIndex: 2,
       },
     });
     // enter some value in the input field
@@ -154,7 +143,7 @@ describe("ItemModal.vue", () => {
     await body
       .find('[data-test="subjectiveAnswer"]')
       .find('[data-test="input"]')
-      .setValue(draftResponses[0]);
+      .setValue(draftResponses[2].answer);
 
     // submit the answer
     wrapper
@@ -162,16 +151,16 @@ describe("ItemModal.vue", () => {
       .find('[data-test="submitButton"]')
       .trigger("click");
 
-    expect(wrapper.vm.localResponseList[0]).toEqual({
-      answer: draftResponses[0],
-    });
+    expect(wrapper.vm.localResponseList[2].answer).toEqual(
+      draftResponses[2].answer
+    );
     expect(submitQuestionMock).toHaveBeenCalled();
     expect(wrapper.emitted()).toHaveProperty("submit-question");
   });
 
   it("submits mcq question", async () => {
     var responseList = [];
-    itemList.forEach(() => {
+    dummyItems.forEach(() => {
       responseList.push({
         answer: null,
       });
@@ -179,7 +168,8 @@ describe("ItemModal.vue", () => {
     const submitQuestionMock = jest.spyOn(ItemModal.methods, "submitQuestion");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: itemList,
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
         responseList: responseList,
         selectedItemIndex: 1,
       },
@@ -202,14 +192,20 @@ describe("ItemModal.vue", () => {
   });
 
   it("proceeds with subjective question on answering", () => {
-    const responseList = [{ answer: "a" }, { answer: null }];
+    const responseList = [
+      { answer: 0 },
+      { answer: 1 },
+      { answer: "xyz" },
+      { answer: "abc" },
+    ];
     const proceedQuestionMock = jest.spyOn(
       ItemModal.methods,
       "proceedQuestion"
     );
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: itemList,
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
         responseList: responseList,
       },
     });
@@ -223,14 +219,20 @@ describe("ItemModal.vue", () => {
   });
 
   it("proceeds with mcq question on answering", () => {
-    const responseList = [{ answer: null }, { answer: 0 }];
+    const responseList = [
+      { answer: 0 },
+      { answer: 1 },
+      { answer: "xyz" },
+      { answer: "abc" },
+    ];
     const proceedQuestionMock = jest.spyOn(
       ItemModal.methods,
       "proceedQuestion"
     );
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: itemList,
+        itemList: clonedeep(dummyItems),
+        itemDetailList: clonedeep(dummyItemDetails),
         responseList: responseList,
         selectedItemIndex: 1,
       },

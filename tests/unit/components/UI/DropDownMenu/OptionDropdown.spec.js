@@ -23,12 +23,14 @@ describe("OptionDropdown.vue", () => {
       },
     });
     // no options should exist at first
-    expect(wrapper.findAll('[data-test="option"]').length).toBe(0);
+    expect(wrapper.find('[data-test="option-a"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="option-b"]').exists()).toBeFalsy();
 
     // trigger dropdown
     await wrapper.find('[data-test="toggleButton"]').trigger("click");
 
-    expect(wrapper.findAll('[data-test="option"]').length).toBe(2);
+    expect(wrapper.find('[data-test="option-a"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="option-b"]').exists()).toBeTruthy();
   });
 
   it("sets margin of the option container correctly", async () => {
@@ -110,13 +112,15 @@ describe("OptionDropdown.vue", () => {
     await wrapper.find('[data-test="toggleButton"]').trigger("click");
 
     // options show up
-    expect(wrapper.findAll('[data-test="option"]').length).toBe(2);
+    expect(wrapper.find('[data-test="option-a"]').exists()).toBeTruthy();
+    expect(wrapper.find('[data-test="option-b"]').exists()).toBeTruthy();
 
     // close dropdown
     await wrapper.find('[data-test="toggleButton"]').trigger("click");
 
     // options should be gone
-    expect(wrapper.findAll('[data-test="option"]').length).toBe(0);
+    expect(wrapper.find('[data-test="option-a"]').exists()).toBeFalsy();
+    expect(wrapper.find('[data-test="option-b"]').exists()).toBeFalsy();
   });
 
   it("changing default margin rem updates box styling", async () => {

@@ -8,7 +8,7 @@
         :isModalMinimized="isModalMinimized"
         :isFullscreen="isFullscreen"
         :previewMode="previewMode"
-        :isPortrait="isPortrait"
+        :videoPlayerElementId="videoPlayerElementId"
         @toggle-minimize="toggleMinimize"
         @skip-question="skipQuestion"
         data-test="header"
@@ -24,12 +24,11 @@
         :questionType="questionType"
         :hasCharLimit="hasCharLimit"
         :maxCharLimit="maxCharLimit"
-        @option-selected="optionSelected"
-        @answer-updated="subjectiveAnswerUpdated"
         :previewMode="previewMode"
         :imageData="imageData"
         :isPortrait="isPortrait"
-        :isFullscreen="isFullscreen"
+        @option-selected="optionSelected"
+        @answer-updated="subjectiveAnswerUpdated"
         data-test="body"
       ></item-question-body>
       <!-- footer -->
@@ -40,7 +39,6 @@
         :isAnswerSubmitted="isAnswerSubmitted"
         :isAnswerCorrect="isAnswerCorrect"
         :isSubmitEnabled="isAnswerValid"
-        :isPortrait="isPortrait"
         :answerFeedbackText="answerFeedbackText"
         :answerFeedbackTextClass="answerFeedbackTextClass"
         @proceed-question="proceedQuestion"
@@ -56,6 +54,7 @@
 import ItemQuestionHeader from "@/components/Items/Question/Header";
 import ItemQuestionBody from "@/components/Items/Question/Body";
 import ItemQuestionFooter from "@/components/Items/Question/Footer";
+import { isScreenPortrait } from "@/services/Functional/Utilities.js";
 
 export default {
   data() {
@@ -82,36 +81,44 @@ export default {
   },
   props: {
     itemList: {
-      // list of items
       default: () => {
         return [];
       },
       type: Array,
     },
+    itemDetailList: {
+      default: () => [],
+      type: Array,
+    },
+    /**
+     * list of submitted responses to the items
+     */
     responseList: {
-      // list of submitted responses to the items
       default: () => {},
       type: Array,
     },
     selectedItemIndex: {
-      // index of the selected item
       default: 0,
       type: Number,
     },
     isFullscreen: {
-      // whether the modal is in fullscreen
       default: false,
       type: Boolean,
     },
+    /** whether the item modal will be shown in editor's mini-preview mode */
     previewMode: {
-      // whether the item modal will be shown in editor preview mode
       default: false,
       type: Boolean,
     },
+    /** whether the item modal is minimized */
     isModalMinimized: {
-      // whether the item modal is minimized or not
       default: false,
       type: Boolean,
+    },
+    /** id of the DOM element corresponding to video player */
+    videoPlayerElementId: {
+      default: null,
+      type: String,
     },
   },
   components: {
@@ -128,7 +135,7 @@ export default {
     },
     currentItemDetails() {
       // details for the current item
-      return this.currentItem.details;
+      return this.itemDetailList[this.selectedItemIndex];
     },
     currentItemImage() {
       // image data for the current item
@@ -146,11 +153,11 @@ export default {
     },
     hasCharLimit() {
       // whether the question has a character limit if the item is a question
-      return this.currentItem["details"]["has_char_limit"];
+      return this.currentItemDetails["has_char_limit"];
     },
     maxCharLimit() {
       // the character limit for a question's answer
-      return this.currentItem["details"]["max_char_limit"];
+      return this.currentItemDetails["max_char_limit"];
     },
     containerClass() {
       // main styling class for this component's container
@@ -169,9 +176,10 @@ export default {
     },
     isAnswerValid() {
       // whether an option has been selected
-      if (this.draftResponses[this.selectedItemIndex] == null) return false;
-      if (this.isQuestionTypeSubjective)
-        return this.draftResponses[this.selectedItemIndex] != "";
+      const currentResponse = this.draftResponses[this.selectedItemIndex];
+      if (currentResponse == null) return false;
+      if (this.isQuestionTypeSubjective) return currentResponse != "";
+      if (this.isQuestionTypeMCQ) return !isNaN(currentResponse);
       return true;
     },
     localResponseList: {
@@ -227,18 +235,18 @@ export default {
     },
     questionOptions() {
       // options for the question
-      if (this.currentItem == undefined) return null;
-      return this.currentItem["details"]["options"];
+      if (this.currentItemDetails == undefined) return null;
+      return this.currentItemDetails["options"];
     },
     questionCorrectAnswer() {
       // correct answer for the question
-      if (this.currentItem == undefined) return null;
-      return parseInt(this.currentItem["details"]["correct_answer"]);
+      if (this.currentItemDetails == undefined) return null;
+      return parseInt(this.currentItemDetails["correct_answer"]);
     },
     questionText() {
       // text for the question
-      if (this.currentItem == undefined) return null;
-      return this.currentItem["details"]["text"];
+      if (this.currentItemDetails == undefined) return null;
+      return this.currentItemDetails["text"];
     },
     isItemQuestion() {
       // whether the item is a Question
@@ -247,7 +255,7 @@ export default {
     questionType() {
       // type of the question if the item is a question
       if (!this.isItemQuestion) return null;
-      return this.currentItem["details"]["type"];
+      return this.currentItemDetails["type"];
     },
     isQuestionTypeMCQ() {
       // whether the type of the question is MCQ if item is question
@@ -266,8 +274,8 @@ export default {
         this.isPortrait = false;
         return;
       }
-      if (screen.availHeight > 1.5 * screen.availWidth) this.isPortrait = true;
-      else this.isPortrait = false;
+      // set whether the screen is in portrait mode
+      this.isPortrait = isScreenPortrait();
     },
     subjectiveAnswerUpdated(answer) {
       // invoked when the answer to a subjective question is updated

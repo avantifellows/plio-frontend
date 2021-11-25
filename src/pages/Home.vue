@@ -1,78 +1,54 @@
 <template>
   <div>
-    <div v-if="!isUserApproved" class="flex flex-col w-full h-full mt-10">
-      <div class="flex justify-center">
-        <inline-svg
-          :src="confirmIcon"
-          class="h-12 w-12 sm:h-20 sm:w-20 place-self-center text-green-600"
-        ></inline-svg>
-      </div>
-      <div class="mt-10">
-        <p class="text-center text-lg sm:text-2xl">
-          {{ $t("home.waitlist.1") }} <br />
-          {{ $t("home.waitlist.2") }} <br />
-          {{ $t("home.waitlist.3") }}
-          <a
-            href="https://forms.gle/7dxyWSi66FLrckBY8"
-            target="_blank"
-            class="text-green-600"
-            >{{ $t("home.waitlist.4") }}</a
-          >
-          {{ $t("home.waitlist.5") }}
-        </p>
-      </div>
-    </div>
-    <div v-else>
-      <!-- table -->
-      <Table
-        v-if="showTable"
-        :data="tableData"
-        :columns="tableColumns"
-        :tableTitle="tableTitle"
-        :numTotal="totalNumberOfPlios"
-        :org="org"
-        @search-plios="fetchPlioIds($event)"
-        @reset-search-string="resetSearchString"
-        @sort-num-viewers="sortPlios"
-        @delete-plio="plioDeleted"
-        @loaded="stopLoading"
-        data-test="table"
-        ref="table"
-      >
-      </Table>
+    <!-- table -->
+    <Table
+      v-if="showTable"
+      :data="tableData"
+      :columns="tableColumns"
+      :tableTitle="tableTitle"
+      :numTotal="totalNumberOfPlios"
+      :org="org"
+      @search-plios="fetchPlioIds($event)"
+      @reset-search-string="resetSearchString"
+      @sort-num-viewers="sortPlios"
+      @delete-plio="plioDeleted"
+      @loaded="stopLoading"
+      data-test="table"
+      ref="table"
+    >
+    </Table>
 
-      <!-- pagination nav bar -->
-      <Paginator
-        v-if="showTable"
-        :totalItems="totalNumberOfPlios"
-        :pageSize="numberOfPliosPerPage"
-        :initialPage="currentPageNumber"
-        @page-selected="fetchPlioIds($event)"
-      >
-      </Paginator>
+    <!-- pagination nav bar -->
+    <Paginator
+      v-if="showTable"
+      :totalItems="totalNumberOfPlios"
+      :pageSize="numberOfPliosPerPage"
+      :initialPage="currentPageNumber"
+      @page-selected="fetchPlioIds($event)"
+    >
+    </Paginator>
 
-      <!-- no plios exist warning -->
-      <div
-        v-if="!showTable"
-        class="flex flex-col bg-white w-full m-auto mt-32 px-8"
-        data-test="noPlio"
-      >
-        <inline-svg
-          :src="noPliosIcon"
-          class="w-50 h-50 opacity-50 place-self-center m-10"
-        ></inline-svg>
-        <p class="text-center text-md sm:text-lg md:text-xl lg:text-2xl">
-          {{ $t("home.no_plios") }}
-        </p>
-        <!-- create plio button -->
-        <icon-button
-          :titleConfig="createButtonTextConfig"
-          :buttonClass="createButtonClass"
-          class="rounded-md shadow-lg mt-4 place-self-center"
-          @click="createNewPlio"
-          data-test="create"
-        ></icon-button>
-      </div>
+    <!-- no plios exist warning -->
+    <div
+      v-if="!showTable"
+      class="flex flex-col bg-white w-full m-auto mt-32 px-8"
+      data-test="noPlio"
+    >
+      <inline-svg
+        :src="noPliosIcon"
+        class="w-50 h-50 opacity-50 place-self-center m-10"
+      ></inline-svg>
+      <p class="text-center text-md sm:text-lg md:text-xl lg:text-2xl">
+        {{ $t("home.no_plios") }}
+      </p>
+      <!-- create plio button -->
+      <icon-button
+        :titleConfig="createButtonTextConfig"
+        :buttonClass="createButtonClass"
+        class="rounded-md shadow-lg mt-4 place-self-center"
+        @click="createNewPlio"
+        data-test="create"
+      ></icon-button>
     </div>
   </div>
 </template>
@@ -82,7 +58,7 @@ import Table from "@/components/Collections/Table/Table.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import Paginator from "@/components/UI/Navigation/Paginator.vue";
-import { mapState, mapActions, mapGetters } from "vuex";
+import { mapState, mapActions } from "vuex";
 import { useToast } from "vue-toastification";
 
 export default {
@@ -102,22 +78,20 @@ export default {
     async activeWorkspace() {
       // reset currentPageNumber
       this.currentPageNumber = 1;
-      if (this.isUserApproved) await this.fetchPlioIds();
-    },
-    isUserApproved(value) {
-      // fetch plios again if user approval status changes
-      if (value) this.fetchPlioIds();
+      // reset search string
+      this.resetSearchString();
+      await this.fetchPlioIds();
     },
   },
   data() {
     return {
-      tableColumns: ["name", "number_of_viewers"], // columns for the table
+      tableColumns: ["name", "views"], // columns for the table
       tableData: [],
       countUniqueUsersList: [], // holds the number of unique users for all the plios fetched
       // dummy table data - to show skeletons when data is being loaded
       dummyTableData: Array(5).fill({
         name: { type: "component", value: "" },
-        number_of_viewers: "-",
+        views: "-",
       }),
       showTable: true, // whether to show the table or not
       confirmIcon: require("@/assets/images/check-circle-regular.svg"),
@@ -128,32 +102,26 @@ export default {
       searchString: "", // the search string to filter the plios on
       sortByField: undefined, // string which holds the field to sort the plios on
       currentPageNumber: 1, // holds the current page number
+      // class for the create button
+      createButtonClass:
+        "bg-primary hover:bg-primary-hover rounded-lg h-14 w-40 sm:h-20 sm:w-60 ring-primary px-2",
     };
   },
   async created() {
     // feed the dummy data to show skeletons before loading the actual data
     this.tableData = this.dummyTableData;
-    if (this.isUserApproved) await this.fetchPlioIds();
+    await this.fetchPlioIds();
     this.$mixpanel.track("Visit Home");
-
-    // show the chatwoot bubble
-    var chatwootBubble = document.querySelector(".woot-widget-bubble");
-    if (chatwootBubble != undefined) chatwootBubble.classList.remove("hidden");
   },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
-    ...mapGetters("auth", ["isUserApproved"]),
     createButtonTextConfig() {
-      // config for the text of the main create button
+      // config for the text of the create button shown when no plios have been created
       return {
         value: this.$t("home.create_button_empty"),
         class: "text-lg md:text-xl lg:text-2xl text-white",
       };
-    },
-    createButtonClass() {
-      // class for the create button
-      return "bg-primary hover:bg-primary-hover rounded-lg h-14 w-40 sm:h-20 sm:w-60 ring-primary px-2";
     },
     tableTitle() {
       // title for the table of all plios
@@ -216,8 +184,10 @@ export default {
           // to handle the case when the user lands on the homepage for the first time
           // if no plios exist, then hide the table else show it
           if (params == undefined) {
-            if (response.data.count <= 0) this.showTable = false;
-            else this.showTable = true;
+            if (response.data.count <= 0) {
+              this.showTable = false;
+              this.stopLoading();
+            } else this.showTable = true;
           }
           this.totalNumberOfPlios = response.data.count; // set total number of plios and show the paginator
           this.numberOfPliosPerPage = response.data.page_size; // set the page size
@@ -259,6 +229,16 @@ export default {
     },
 
     async prepareTableData(plioIdList) {
+      /**
+       * prepares the data for the plios to be fed into the table
+       */
+
+      if (!plioIdList.length) {
+        // no plios found
+        this.stopLoading();
+        this.tableData = [];
+      }
+
       // holds the data to be fed to the table
       var tableData = [];
 
@@ -277,7 +257,7 @@ export default {
               };
               break;
 
-            case "number_of_viewers":
+            case "views":
               tableRow[column] = this.countUniqueUsersList[plioIndex];
               break;
           }

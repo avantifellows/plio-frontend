@@ -4,11 +4,9 @@
     :class="buttonClass"
     class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
     :disabled="isDisabled"
+    :aria-label="ariaLabel"
   >
-    <div
-      class="flex w-full justify-center"
-      :class="{ 'flex-col': isStackedVertically, 'space-x-2': !isStackedVertically }"
-    >
+    <div :class="innerContainerClass">
       <inline-svg
         v-if="isIconConfigEnabled"
         :src="icon"
@@ -64,8 +62,21 @@ export default {
       type: String,
       default: "horizontal",
     },
+    ariaLabel: {
+      type: String,
+      default: "",
+    },
   },
   computed: {
+    innerContainerClass() {
+      return [
+        {
+          "flex-col": this.isStackedVertically,
+          "space-x-2": !this.isStackedVertically,
+        },
+        `flex w-full justify-center`,
+      ];
+    },
     isStackedVertically() {
       return this.orientation == "vertical";
     },

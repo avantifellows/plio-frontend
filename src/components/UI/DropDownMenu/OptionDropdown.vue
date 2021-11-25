@@ -7,10 +7,11 @@
         @click="toggleDropdownDisplay"
         class="sm:w-full flex space-x-2 p-2 text-left cursor-default focus:outline-none sm:text-sm items-center bg-gray-200 rounded-md shadow-md"
         data-test="toggleButton"
+        aria-label="toggle options visibility"
       >
         <!-- dropdown icon -->
         <inline-svg
-          :src="getIconSource('chevron-down-solid.svg')"
+          :src="getImageSource('chevron-down-solid.svg')"
           class="h-4 w-4 fill-current hover:cursor-pointer"
           :class="dropdownIconClass"
         ></inline-svg>
@@ -28,6 +29,7 @@
         tabindex="-1"
         role="listbox"
         class="text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm"
+        data-test="options"
       >
         <li
           v-for="(option, optionIndex) in options"
@@ -37,13 +39,13 @@
           :class="optionClass(optionIndex)"
           @click="setOption(optionIndex)"
           :disabled="isOptionDisabled(optionIndex)"
-          data-test="option"
+          :data-test="`option-${option.value}`"
         >
           <div class="flex space-x-4 items-center">
             <!-- option icon -->
             <inline-svg
               v-if="doesOptionHaveIcon(option)"
-              :src="getIconSource(option.icon)"
+              :src="getImageSource(option.icon)"
               class="w-4 h-4 fill-current"
               data-test="icon"
             ></inline-svg>
@@ -57,11 +59,10 @@
 </template>
 
 <script>
-import Utilties from "@/services/Functional/Utilities.js";
+import Utilities from "@/services/Functional/Utilities.js";
+import { mapState } from "vuex";
 
 const DEFAULT_OPTIONS_MARGIN_TOP = 2;
-const OPTIONS_OVERFLOW_MARGIN_TOP_DESKTOP = -12;
-const OPTIONS_OVERFLOW_MARGIN_TOP_TOUCH = -16;
 
 export default {
   name: "OptionDropdown",
@@ -83,13 +84,14 @@ export default {
       default: 0,
       type: Number,
     },
-    isTouchDevice: {
-      // whether the device being used on is a touch device
-      default: false,
-      type: Boolean,
+    overflowMarginTop: {
+      // margin to be set from the top when the options would overflow from the screen
+      default: 0,
+      type: Number,
     },
   },
   computed: {
+    ...mapState("generic", ["windowInnerHeight"]),
     defaultOptionMarginPx() {
       // default margin-top (in pixels) of the option dropdown without any scrolling effect
       return this.convertRemToPixels(this.defaultOptionMarginRem);
@@ -98,7 +100,7 @@ export default {
       // class for the dropdown icon
       return [
         { "transform rotate-180": this.showDropdown },
-        "transition ease duration-800 text-gray-600",
+        "transition duration-800 text-gray-600",
       ];
     },
   },
@@ -123,7 +125,7 @@ export default {
     this.setOptionBoxStyling();
   },
   methods: {
-    ...Utilties,
+    ...Utilities,
     optionClass(index) {
       // class for each option
       return {
@@ -182,7 +184,7 @@ export default {
       const optionsContainer = document.querySelector("#dropdownOptions");
       if (optionsContainer != null) {
         const rectangle = optionsContainer.getBoundingClientRect();
-        return rectangle.bottom >= window.innerHeight;
+        return rectangle.bottom >= this.windowInnerHeight;
       }
       return false;
     },
@@ -195,13 +197,7 @@ export default {
           // if the dropdown is going to go below the screen
           // set the margin-top to fix that
           if (this.isOptionsOverflowBottom()) {
-            if (this.isTouchDevice) {
-              // adds an extra button for analyse
-              // so, the value is larger
-              this.defaultOptionMarginRem = OPTIONS_OVERFLOW_MARGIN_TOP_TOUCH;
-            } else {
-              this.defaultOptionMarginRem = OPTIONS_OVERFLOW_MARGIN_TOP_DESKTOP;
-            }
+            this.defaultOptionMarginRem = this.overflowMarginTop;
           } else {
             this.defaultOptionMarginRem = DEFAULT_OPTIONS_MARGIN_TOP;
           }

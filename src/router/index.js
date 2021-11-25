@@ -1,12 +1,11 @@
-import { createRouter, createWebHashHistory } from "vue-router";
-import Home from "@/pages/Home.vue";
-import Editor from "@/pages/Editor.vue";
-import Player from "@/pages/Player.vue";
-import Dashboard from "@/pages/Dashboard.vue";
-import Login from "@/pages/Login";
-import store from "../store";
+import { createRouter, createWebHistory } from "vue-router";
+import store from "@/store";
 import i18n from "@/services/Localisation/i18n.js";
 import { useToast } from "vue-toastification";
+import {
+  animationFrameRequest,
+  resetConfetti,
+} from "@/services/Functional/Utilities.js";
 
 const toast = useToast();
 // these keys should be present as query params when a third party
@@ -23,7 +22,7 @@ const routes = [
   {
     path: "/:org?/home",
     name: "Home",
-    component: Home,
+    component: () => import(/* webpackChunkName: "home" */ "@/pages/Home.vue"),
     props: true,
     meta: {
       requiresAuth: true,
@@ -33,9 +32,9 @@ const routes = [
   {
     path: "/:org?/edit/:plioId",
     name: "Editor",
-    component: Editor,
+    component: () =>
+      import(/* webpackChunkName: "editor" */ "@/pages/Editor.vue"),
     props: true,
-    beforeEnter: restrictUnapprovedUser,
     meta: {
       requiresAuth: true,
       title: "Editor - Plio",
@@ -46,7 +45,8 @@ const routes = [
     // id: the unique ID for the component invoking this path (optional)
     path: "/login/:id?/:type?",
     name: "Login",
-    component: Login,
+    component: () =>
+      import(/* webpackChunkName: "login" */ "@/pages/Login.vue"),
     props: true,
     meta: {
       guest: true,
@@ -56,14 +56,14 @@ const routes = [
   {
     path: "/:org?/play/:plioId",
     name: "Player",
-    component: Player,
+    component: () =>
+      import(/* webpackChunkName: "player" */ "@/pages/Player.vue"),
     query: {
       src: "",
     },
     // passing props to route components
     // https://router.vuejs.org/guide/essentials/passing-props.html#passing-props-to-route-components
     props: (route) => ({
-      experiment: route.query.experiment,
       plioId: route.params.plioId,
       org: route.params.org,
       thirdPartyUniqueId: route.query.unique_id,
@@ -75,11 +75,26 @@ const routes = [
     },
   },
   {
+    path: "/:org?/plio/:plioId",
+    name: "Plio",
+    component: () =>
+      import(/* webpackChunkName: "plio" */ "@/pages/Embeds/Plio.vue"),
+    props: (route) => ({
+      plioId: route.params.plioId,
+      org: route.params.org,
+      thirdPartyUniqueId: route.query.unique_id,
+      thirdPartyApiKey: route.query.api_key,
+    }),
+    meta: {
+      title: "Plio",
+    },
+  },
+  {
     path: "/:org?/analyse/:plioId",
     name: "Dashboard",
-    component: Dashboard,
+    component: () =>
+      import(/* webpackChunkName: "dashboard" */ "@/pages/Dashboard.vue"),
     props: true,
-    beforeEnter: restrictUnapprovedUser,
     meta: {
       requiresAuth: true,
       title: "Dashboard - Plio",
@@ -88,8 +103,14 @@ const routes = [
   {
     path: "/404-not-found",
     name: "404",
-    component: () => import("@/pages/Error"),
+    component: () => import(/* webpackChunkName: "error" */ "@/pages/Error"),
     props: { type: "404" },
+  },
+  {
+    path: "/403-access-denied",
+    name: "403",
+    component: () => import(/* webpackChunkName: "error" */ "@/pages/Error"),
+    props: { type: "403" },
   },
   {
     // Refer to: https://stackoverflow.com/a/64186073/7870587
@@ -101,7 +122,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   base: process.env.VUE_APP_FRONTEND,
   routes,
 });
@@ -117,6 +138,20 @@ The code below works on `isAuthenticated` state and before every route:
 router.beforeEach((to, from) => {
   // clear all toasts whenever the route changes
   toast.clear();
+
+  // if internet is down, show the internet lost toast
+  if (window.Offline.state == "down")
+    toast.error(i18n.global.t("error.internet_lost"), {
+      id: "internetLostToast",
+      position: "bottom-center",
+      timeout: false,
+      closeOnClick: false,
+      draggable: false,
+      closeButton: false,
+    });
+
+  // clear all confetti whenever the route changes
+  if (animationFrameRequest != null) resetConfetti();
 
   // show auto logout toast
   if (
@@ -207,12 +242,6 @@ router.beforeEach((to) => {
   }
   return;
 });
-
-function restrictUnapprovedUser(to) {
-  if (!store.getters["auth/isUserApproved"])
-    return { name: "Home", params: { org: to.params.org }, replace: true };
-  else return;
-}
 
 export default router;
 export { routes };

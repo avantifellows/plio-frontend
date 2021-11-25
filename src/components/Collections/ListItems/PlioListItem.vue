@@ -31,7 +31,7 @@
         <OptionDropdown
           :options="plioActionOptions"
           :scrollY="scrollY"
-          :isTouchDevice="isTouchDevice"
+          :overflowMarginTop="optionsOverflowMarginTop"
           class="flex-grow flex justify-end sm:justify-start"
           @select="runAction"
           data-test="optionDropdown"
@@ -72,14 +72,13 @@ import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import OptionDropdown from "@/components/UI/DropDownMenu/OptionDropdown.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
-import { mapState, mapActions } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 import { useToast } from "vue-toastification";
 
 export default {
   name: "PlioThumbnail",
   props: {
     plioId: {
-      // the id of the plio to render
       default: "",
       type: String,
     },
@@ -105,7 +104,7 @@ export default {
       dialogConfirmButtonConfig: {}, // config of the confirm button of the dialog box
       dialogCancelButtonConfig: {}, // config of the cancel button of the dialog box
       toast: useToast(), // toast component
-      windowWidth: window.innerWidth, // width for the window
+      optionsOverflowMarginTop: -14, // margin to be set from the top when the options would overflow from the screen
     };
   },
   async created() {
@@ -128,6 +127,8 @@ export default {
 
     // add listener for scrolling
     window.addEventListener("scroll", this.handleScroll);
+
+    this.setOptionsOverflowMarginTop();
   },
   unmounted() {
     // remove listeners
@@ -137,15 +138,19 @@ export default {
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
+    ...mapState("generic", ["windowInnerWidth"]),
     ...mapState("plioItems", ["allPlioDetails"]),
+    ...mapGetters("generic", ["isTabScreen"]),
 
     dialogStyle() {
-      // dynamic style for the dialog box
-      // these styles were not available as part of tailwind
-      // seemed too specific to add them to the config
-      if (this.windowWidth > 420) return "";
-      if (this.windowWidth > 400) return "left: 20%";
-      if (this.windowWidth > 340) return "left: 15%";
+      /**
+       * dynamic style for the dialog box
+       * these styles were not available as part of tailwind
+       * seemed too specific to add them to the config
+       */
+      if (this.windowInnerWidth > 420) return "";
+      if (this.windowInnerWidth > 400) return "left: 20%";
+      if (this.windowInnerWidth > 340) return "left: 15%";
       return "left: 10%";
     },
 
@@ -167,6 +172,12 @@ export default {
           value: "share",
           label: this.$t("home.table.plio_list_item.buttons.share"),
           icon: "share.svg",
+          disabled: !this.isPublished,
+        },
+        {
+          value: "embed",
+          label: this.$t("home.table.plio_list_item.buttons.embed"),
+          icon: "code-braces.svg",
           disabled: !this.isPublished,
         },
       ];
@@ -214,7 +225,7 @@ export default {
     statusBadgeClass() {
       // class for the status badge
       var badgeClass = {
-        "text-green-500 border-green-500": this.isPublished,
+        "text-green-700 border-green-700": this.isPublished,
         "border-black text-black": !this.isPublished,
         "text-xs": true,
         "px-2 py-1": true,
@@ -254,13 +265,32 @@ export default {
     ...mapActions("plioItems", ["fetchPlio"]),
     ...mapActions("generic", [
       "showSharePlioDialog",
+      "showEmbedPlioDialog",
       "disableBackground",
       "enableBackground",
     ]),
     ...Utilities,
+    /**
+     * sets various attributes based on the screen size
+     */
     handleResize() {
-      // invoked when the screen is resized
-      this.windowWidth = window.innerWidth;
+      this.setOptionsOverflowMarginTop();
+    },
+    /**
+     * set the default value of margin-top for the options container
+     * for the condition when the container overflows from the bottom
+     * of the screen.
+     *
+     * there are 3 conditions which require different values for the margin top:
+     * 1. not a touch screen device
+     * 2. touch screen device with screen width < 640
+     * 3. touch screen device with screen width >= 640
+     */
+    setOptionsOverflowMarginTop() {
+      if (this.isTouchDevice) {
+        if (this.isTabScreen) this.optionsOverflowMarginTop = -18;
+        else this.optionsOverflowMarginTop = -16;
+      } else this.optionsOverflowMarginTop = -14;
     },
     runAction(_, action) {
       // invoked when one of the action buttons is clicked
@@ -274,6 +304,9 @@ export default {
         case "share":
           this.sharePlio();
           break;
+        case "embed":
+          this.embedPlio();
+          break;
         case "duplicate":
           this.duplicateThenRoute();
           break;
@@ -282,23 +315,21 @@ export default {
           break;
         case "delete":
           // configure the dialog box
-          if (!this.dialogTitle) {
-            this.dialogTitle = this.$t("home.table.plio_list_item.dialog.delete.title");
-            this.dialogDescription = this.$t(
-              "home.table.plio_list_item.dialog.delete.description"
-            );
-            this.dialogConfirmButtonConfig = {
-              enabled: true,
-              text: this.$t("generic.yes"),
-              class:
-                "bg-primary-button hover:bg-primary-button-hover focus:outline-none focus:ring-0",
-            };
-            this.dialogCancelButtonConfig = {
-              enabled: true,
-              text: this.$t("generic.no"),
-              class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
-            };
-          }
+          this.dialogTitle = this.$t("home.table.plio_list_item.dialog.delete.title");
+          this.dialogDescription = this.$t(
+            "home.table.plio_list_item.dialog.delete.description"
+          );
+          this.dialogConfirmButtonConfig = {
+            enabled: true,
+            text: this.$t("generic.yes"),
+            class:
+              "bg-white hover:bg-gray-100 focus:outline-none focus:ring-0 text-primary",
+          };
+          this.dialogCancelButtonConfig = {
+            enabled: true,
+            text: this.$t("generic.no"),
+            class: "bg-primary hover:bg-primary-hover focus:outline-none text-white",
+          };
           // show the dialog box
           this.showDialogBox = true;
           break;
@@ -315,15 +346,21 @@ export default {
       this.plioDetails = this.allPlioDetails[this.plioId];
     },
     sharePlio() {
-      // invoked when share button is clicked
+      // show the dialog containing the plio link to be shared
       this.showSharePlioDialog(this.plioLink);
+    },
+    embedPlio() {
+      // show the dialog containing the code to embed plio
+      this.showEmbedPlioDialog(this.plioId);
     },
     playPlio() {
       // invoked when play button is clicked
-      this.$router.push({
+      let routeData = this.$router.resolve({
         name: "Player",
-        params: { plioId: this.plioId, org: this.activeWorkspace },
+        params: { org: this.activeWorkspace, plioId: this.plioId },
       });
+      // required for opening in a new tab
+      window.open(routeData.href, "_blank");
     },
     editPlio() {
       // invoked when edit button is clicked
@@ -361,28 +398,28 @@ export default {
       // triggered upon clicking on the cancel button of the dialog box
       this.showDialogBox = false;
     },
+    /**
+     * Duplicates the current plio in the following sequence:
+     * 1. Duplicate the plio details, save the id of the duplicated plio
+     * 2. Iterate through items and questions, duplicate each one of them
+     * 3. Link the duplicated items and questions to the newly created plio
+     */
     async duplicatePlio() {
-      // invoked when duplicate button is clicked
-
-      // 1. Duplicate the plio, save the id of the duplicated plio
-      // 2. Iterate through items and questions, duplicate each one of them
-      // 3. Link the duplicated items and questions to the newly created plio
-
       this.$Progress.start();
       this.$mixpanel.track("Click Duplicate", {
         "Plio UUID": this.plioId,
         "Plio Status": this.status,
       });
       var newPlio = await PlioAPIService.duplicatePlio(this.plioId);
-      var newPlioDBId = newPlio.data.id;
-
       await Promise.all(
-        this.plioDetails.items.map(async (item) => {
-          // duplicate item and update it to link the item to the plio
-          var newItem = await ItemAPIService.duplicateItem(item.id, newPlioDBId);
-
-          // duplicate question and update it to link the item to the question
-          await QuestionAPIService.duplicateQuestion(item.details.id, newItem.data.id);
+        this.plioDetails.items.map(async (item, index) => {
+          // duplicate item and link it to the newly created plio
+          var newItem = await ItemAPIService.duplicateItem(item.id, newPlio.data.id);
+          // duplicate question and link it to the newly created item
+          await QuestionAPIService.duplicateQuestion(
+            this.plioDetails.itemDetails[index].id,
+            newItem.data.id
+          );
         })
       );
       return newPlio.data.uuid;

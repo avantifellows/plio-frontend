@@ -10,6 +10,7 @@
     ></icon-button>
     <!-- minimize button -->
     <icon-button
+      v-if="isVideoPlayerElementPresent"
       :titleConfig="minimizeButtonTitleConfig"
       :buttonClass="minimizeButtonClass"
       @click="minimizeModal"
@@ -32,11 +33,14 @@ export default {
   },
   components: { IconButton },
   computed: {
+    isVideoPlayerElementPresent() {
+      // whether the id of the video player element is valid
+      return this.videoPlayerElementId != null;
+    },
     containerClass() {
       // main styling class for this component
       return [
         {
-          "mt-auto": this.isPortrait && !this.previewMode,
           "px-6 md:px-8 xl:px-12": !this.previewMode,
           "pr-4": this.previewMode,
         },
@@ -71,25 +75,25 @@ export default {
     },
   },
   props: {
+    /** whether the answer has been submitted */
     isAnswerSubmitted: {
-      // whether the answer has been submitted
       default: false,
       type: Boolean,
     },
+    /** whether the modal is in fullscreen */
     isFullscreen: {
-      // whether the modal is in fullscreen
       default: false,
       type: Boolean,
     },
+    /** whether the item modal will be shown in editor's mini-preview mode */
     previewMode: {
-      // whether the item modal will be shown in editor preview mode
       default: false,
       type: Boolean,
     },
-    isPortrait: {
-      // whether the screen is in portraid mode
-      default: false,
-      type: Boolean,
+    /** id of the DOM element corresponding to video player */
+    videoPlayerElementId: {
+      default: null,
+      type: String,
     },
   },
   methods: {
@@ -109,7 +113,7 @@ export default {
         .getElementById("minimize")
         .getBoundingClientRect();
       var plyrInstancePositions = document
-        .getElementById("videoPlayer")
+        .getElementById(this.videoPlayerElementId)
         .getBoundingClientRect();
 
       return this.getLeftCenterCoordinates(
