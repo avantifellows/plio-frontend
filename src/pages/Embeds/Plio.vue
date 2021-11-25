@@ -1080,7 +1080,6 @@ export default {
      * @param {Object} eventDetails - details of the event
      */
     updateEvent(eventType, eventDBId, eventDetails = {}) {
-      if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode) return;
       let eventData = {
         type: eventType,
         details: eventDetails,
