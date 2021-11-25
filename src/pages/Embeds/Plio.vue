@@ -728,7 +728,7 @@ export default {
         // update session data
         this.updateSession();
         // if a 'watching' event exists for the current session, update that event
-        // else create a new event for the user watching the plio
+        // else create a new event
         if (this.watchingEventDBId == null) this.createEvent("watching");
         else this.updateEvent("watching", this.watchingEventDBId);
 
