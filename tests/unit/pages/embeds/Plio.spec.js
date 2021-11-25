@@ -352,7 +352,7 @@ describe("Plio.vue", () => {
     // set user
     await store.dispatch("auth/setAccessToken", dummyAccessToken);
 
-    // stimulating the case where a 'watching' event has already been created
+    // simulating the case where a 'watching' event has already been created
     let sessionDBId = 1;
     let watchingEventDBId = 1;
 
