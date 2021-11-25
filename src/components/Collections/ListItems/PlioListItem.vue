@@ -275,8 +275,8 @@ export default {
     ...mapActions("generic", [
       "showSharePlioDialog",
       "showEmbedPlioDialog",
-      "disableBackground",
-      "enableBackground",
+      "showSpinner",
+      "hideSpinner",
       "setSelectedPlioId",
     ]),
     ...mapActions("dialog", [
@@ -396,23 +396,20 @@ export default {
      * deletes the selected plio
      */
     deletePlio() {
-      // blur background and disable all buttons to prevent any action
-      // from taking action while the deletion is in progress
-      this.disableBackground();
+      this.showSpinner();
       // using selectedPlioId here instead of plioId because
       // the watcher that calls this function always runs on the
       // last plio in the list of plios
       PlioAPIService.deletePlio(this.selectedPlioId)
         .then(() => {
-          // restore background
-          this.enableBackground();
+          this.hideSpinner();
           // notify of success
           this.toast.success(this.$t("home.table.plio_list_item.toast.delete.success"));
           this.$emit("deleted");
         })
         .catch(() => {
           // restore background
-          this.enableBackground();
+          this.hideSpinner();
           // notify of error
           this.toast.error(this.$t("home.table.plio_list_item.toast.delete.error"));
         });

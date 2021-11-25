@@ -386,13 +386,6 @@
       </div>
     </div>
 
-    <!-- spinner -->
-    <inline-svg
-      v-if="isSpinnerShown"
-      :src="getImageSource('spinner.svg')"
-      class="fixed animate-spin h-10 top-1/4"
-    ></inline-svg>
-
     <!-- dialog to show after publishing -->
     <div
       class="fixed top-1/4 bg-white rounded-lg flex flex-col border border-gray-700 shadow-lg z-10 mx-2 sm:mx-0"
@@ -682,6 +675,10 @@ export default {
           this.items[this.currentItemIndex].time = MINIMUM_QUESTION_TIMESTAMP;
         this.currentTimestamp = this.items[this.currentItemIndex].time;
       }
+    },
+    isSpinnerShown(value) {
+      if (value) this.showSpinner();
+      else this.hideSpinner();
     },
     /**
      * execute appropriate actions based on the dialog action value when the
@@ -1019,7 +1016,6 @@ export default {
         this.isImageUploaderDialogShown ||
         this.isPublishedPlioDialogShown ||
         this.isEmbedPlioDialogShown ||
-        this.pending ||
         this.isPlioPreviewShown
       );
     },
@@ -1241,7 +1237,12 @@ export default {
       "startLoading",
       "stopLoading",
     ]),
-    ...mapActions("generic", ["showSharePlioDialog", "showEmbedPlioDialog"]),
+    ...mapActions("generic", [
+      "showSharePlioDialog",
+      "showEmbedPlioDialog",
+      "showSpinner",
+      "hideSpinner",
+    ]),
     ...mapActions("dialog", [
       "setDialogBox",
       "unsetDialogBox",

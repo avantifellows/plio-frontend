@@ -604,15 +604,9 @@ describe("PlioListItem.vue", () => {
 
   it("choosing yes after clicking on delete triggers deletion", async () => {
     const plioId = "123";
-    // spy on the enableBackground and disableBackground methods
-    const disableBackground = jest.spyOn(
-      PlioListItem.methods,
-      "disableBackground"
-    );
-    const enableBackground = jest.spyOn(
-      PlioListItem.methods,
-      "enableBackground"
-    );
+    // spy on the hideSpinner and showSpinner methods
+    const showSpinner = jest.spyOn(PlioListItem.methods, "showSpinner");
+    const hideSpinner = jest.spyOn(PlioListItem.methods, "hideSpinner");
 
     wrapper = mount(PlioListItem, {
       data() {
@@ -652,8 +646,8 @@ describe("PlioListItem.vue", () => {
     expect(mockAxios.delete).toHaveBeenCalled();
     expect(mockAxios.delete).toHaveBeenCalledWith(`/plios/${plioId}`);
 
-    // background should be disabled
-    expect(disableBackground).toHaveBeenCalled();
+    // spinner should be shown
+    expect(showSpinner).toHaveBeenCalled();
 
     // mock the response to the request
     mockAxios.mockResponse(
@@ -665,8 +659,8 @@ describe("PlioListItem.vue", () => {
 
     await flushPromises();
 
-    // background should be enabled
-    expect(enableBackground).toHaveBeenCalled();
+    // spinner should be reset
+    expect(hideSpinner).toHaveBeenCalled();
     // dialog confirm button state should have been reset
     expect(wrapper.vm.isDialogConfirmClicked).toBeFalsy();
     // dialog action should be unset
@@ -677,10 +671,7 @@ describe("PlioListItem.vue", () => {
 
   it("error in deletion closes dialog box", async () => {
     const plioId = "123";
-    const enableBackground = jest.spyOn(
-      PlioListItem.methods,
-      "enableBackground"
-    );
+    const hideSpinner = jest.spyOn(PlioListItem.methods, "hideSpinner");
 
     wrapper = mount(PlioListItem, {
       data() {
@@ -721,8 +712,8 @@ describe("PlioListItem.vue", () => {
 
     await flushPromises();
 
-    // background should be enabled
-    expect(enableBackground).toHaveBeenCalled();
+    // spinner should be reset
+    expect(hideSpinner).toHaveBeenCalled();
     // dialog confirm button state should have been reset
     expect(wrapper.vm.isDialogConfirmClicked).toBeFalsy();
     // dialog action should be unset

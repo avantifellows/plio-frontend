@@ -1,11 +1,11 @@
 const state = {
   isSharePlioDialogShown: false,
   isEmbedPlioDialogShown: false, // whether to show the dialog with info on embedding plio
-  isBackgroundDisabled: false,
   plioLinkToShare: null,
   selectedPlioId: null, // uuid of the plio selected
-  windowInnerWidth: null, // inner width of the window
-  windowInnerHeight: null, // inner height of the window
+  windowInnerWidth: null,
+  windowInnerHeight: null,
+  isSpinnerShown: false,
 };
 const getters = {
   /**
@@ -53,11 +53,11 @@ const actions = {
   unsetEmbedPlioDialog({ commit }) {
     commit("unsetEmbedPlioDialog");
   },
-  disableBackground({ commit }) {
-    commit("disableBackground");
+  showSpinner({ commit }) {
+    commit("showSpinner");
   },
-  enableBackground({ commit }) {
-    commit("enableBackground");
+  hideSpinner({ commit }) {
+    commit("hideSpinner");
   },
 };
 
@@ -86,11 +86,11 @@ const mutations = {
   unsetEmbedPlioDialog(state) {
     state.isEmbedPlioDialogShown = false;
   },
-  disableBackground(state) {
-    state.isBackgroundDisabled = true;
+  showSpinner(state) {
+    state.isSpinnerShown = true;
   },
-  enableBackground(state) {
-    state.isBackgroundDisabled = false;
+  hideSpinner(state) {
+    state.isSpinnerShown = false;
   },
 };
 
