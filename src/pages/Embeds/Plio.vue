@@ -102,7 +102,7 @@ var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 const PLYR_INTERVAL_TIME = 0.05;
 
 // upload data periodically - period in milliseconds
-const UPLOAD_INTERVAL = 10000;
+const UPLOAD_INTERVAL = 20000;
 var UPLOAD_INTERVAL_TIMEOUT = null;
 
 // screen width below which the volume bar won't be shown in the player controls
@@ -191,6 +191,7 @@ export default {
       isScorecardShown: false, // to show the scorecard or not
       plioTitle: "", // title of the plio
       isAspectRatioChecked: false, // whether the check for aspect ratio has been done
+      watchingEventDBId: null, // the DB id of the latest 'watching' event for a given session
     };
   },
   watch: {
@@ -726,8 +727,11 @@ export default {
       if (this.hasSessionStarted) {
         // update session data
         this.updateSession();
-        // create an event for the user watching the plio
-        this.createEvent("watching");
+        // if a 'watching' event exists for the current session, update that event
+        // else create a new event
+        if (this.watchingEventDBId == null) this.createEvent("watching");
+        else this.updateEvent("watching", this.watchingEventDBId);
+
         this.$mixpanel.people.increment(
           "Total Watch Time",
           this.watchTimeIncrement.toFixed(2)
@@ -1050,21 +1054,37 @@ export default {
     },
     /**
      * creates a new event
+     * @param {String} eventType - The type of event that needs to be logged
+     * @param {Object} eventDetails - details of the event
      */
-    createEvent(eventType, eventDetails = {}) {
+    async createEvent(eventType, eventDetails = {}) {
       /**
        * do not create an event if the session has not started
        * or the user is not authenticated or if the plio is opened
        * in preview mode
        */
       if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode) return;
-      var eventData = {
+      let response = await EventAPIService.createEvent({
         type: eventType,
         details: eventDetails,
         player_time: this.player.currentTime != null ? this.player.currentTime : 0,
         session: this.sessionDBId,
-      };
-      EventAPIService.createEvent(eventData);
+      });
+      if (eventType == "watching") this.watchingEventDBId = response.id;
+    },
+    /**
+     * Updates an event
+     * @param {String} eventType - The type of event that needs to be logged
+     * @param {Number} eventDBId - The id of the event instance which needs to be updated
+     * @param {Object} eventDetails - details of the event
+     */
+    updateEvent(eventType, eventDBId, eventDetails = {}) {
+      EventAPIService.updateEvent(eventDBId, {
+        type: eventType,
+        details: eventDetails,
+        player_time: this.player.currentTime != null ? this.player.currentTime : 0,
+        session: this.sessionDBId,
+      });
     },
     goFullscreen() {
       this.isFullscreen = true;

@@ -121,10 +121,10 @@ export default {
     ...mapState("plioItems", ["allPlioDetails"]),
     ...mapGetters("generic", ["isTabScreen"]),
     ...mapState("dialog", {
-      isDialogBoxShown: (state) => state.isShown,
-      dialogAction: (state) => state.action,
-      isDialogConfirmClicked: (state) => state.isConfirmClicked,
-      isDialogCancelClicked: (state) => state.isCancelClicked,
+      isDialogBoxShown: "isShown",
+      dialogAction: "action",
+      isDialogConfirmClicked: "isConfirmClicked",
+      isDialogCancelClicked: "isCancelClicked",
     }),
 
     plioActionOptions() {
@@ -242,13 +242,16 @@ export default {
             this.deletePlio();
             break;
           default:
+            // this watch will be triggered whenever the confirm button
+            // of the shared dialog box will be clicked
             // returning here so that it doesn't interfere with the
-            // confirmation step of a different dialog action
+            // confirmation step of a different dialogAction triggered
+            // by a different component
             return;
         }
         this.unsetConfirmClicked();
-        // reset the dialog action value if no new dialog
-        // boxes have been shown
+        // if any of the cases above creates a new dialog box
+        // with a new dialogAction, we do not want to unset it
         if (!this.isDialogBoxShown) this.unsetDialogAction();
       }
     },
@@ -258,13 +261,16 @@ export default {
           case "deletePlio":
             break;
           default:
+            // this watch will be triggered whenever the cancel button
+            // of the shared dialog box will be clicked
             // returning here so that it doesn't interfere with the
-            // cancellation step of a different dialog action
+            // cancellation step of a different dialogAction triggered
+            // by a different component
             return;
         }
         this.unsetCancelClicked();
-        // reset the dialog action value if no new dialog
-        // boxes have been shown
+        // if any of the cases above creates a new dialog box
+        // with a new dialogAction, we do not want to unset it
         if (!this.isDialogBoxShown) this.unsetDialogAction();
       }
     },
@@ -280,7 +286,7 @@ export default {
       "setSelectedPlioId",
     ]),
     ...mapActions("dialog", [
-      "setDialogBox",
+      "showDialogBox",
       "setDialogTitle",
       "setDialogDescription",
       "setConfirmButtonConfig",
@@ -352,7 +358,7 @@ export default {
             class: "bg-primary hover:bg-primary-hover focus:outline-none text-white",
           });
           // show the dialog box
-          this.setDialogBox();
+          this.showDialogBox();
           this.setDialogAction("deletePlio");
           await this.setSelectedPlioId(this.plioId);
           break;

@@ -3,6 +3,7 @@ import Plio from "@/pages/Embeds/Plio.vue";
 import mockAxios from "jest-mock-axios";
 import store from "@/store";
 import UserAPIService from "@/services/API/User.js";
+import EventAPIService from "@/services/API/Event.js";
 let clonedeep = require("lodash.clonedeep");
 
 beforeEach(() => {
@@ -312,5 +313,101 @@ describe("Plio.vue", () => {
 
     expect(checkAndSetPlayerAspectRatio).toHaveBeenCalled();
     expect(wrapper.vm.isAspectRatioChecked).toBeTruthy();
+  });
+
+  it("calls updateEvent method for consecutive 'watching' events for a given session", async () => {
+    const plioId = "123";
+
+    // mock setPlayerAspectRatio method
+    jest
+      .spyOn(Plio.methods, "setPlayerAspectRatio")
+      .mockImplementation(() => jest.fn());
+
+    // mock createSession method
+    jest.spyOn(Plio.methods, "createSession").mockImplementation(() => {
+      return new Promise((resolve) => resolve());
+    });
+
+    // mock updateEvent method
+    let updateEvent = jest
+      .spyOn(Plio.methods, "updateEvent")
+      .mockImplementation(() => {
+        return;
+      });
+
+    // mock user service
+    jest
+      .spyOn(UserAPIService, "getUserByAccessToken")
+      .mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve({ data: dummyUser });
+        });
+      });
+
+    // set user
+    await store.dispatch("auth/setAccessToken", dummyAccessToken);
+
+    // simulating the case where a 'watching' event has already been created
+    let sessionDBId = 1;
+    let watchingEventDBId = 1;
+
+    mount(Plio, {
+      shallow: true,
+      props: {
+        plioId: plioId,
+      },
+      data() {
+        return {
+          watchingEventDBId: watchingEventDBId,
+          sessionDBId: sessionDBId,
+          videoId: "_hJEyDOn6Ho",
+        };
+      },
+    });
+    await flushPromises();
+
+    // resolve the `GET` request waiting in the queue (for receiving plio details)
+    // using the fake response data
+    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+    // assert that updateEvent method has been called with the correct params
+    expect(updateEvent).toHaveBeenCalledWith("watching", watchingEventDBId);
+  });
+
+  it("updates a watching event when updateEvent is called", () => {
+    // spy on the updateEvent method inside EventAPIService
+    let updateEventAPICall = jest.spyOn(EventAPIService, "updateEvent");
+
+    // Testing the individual method using 'call'
+    // refer to this - https://lmiller1990.github.io/vue-testing-handbook/v3/computed-properties.html#testing-with-call
+    // build a local context object - localThis. It will serve as 'this' in our test.
+    let localThis = {
+      hasSessionStarted: true,
+      isAuthenticated: true,
+      previewMode: false,
+      sessionDBId: 3,
+      player: {
+        currentTime: 10,
+      },
+    };
+
+    let eventType = "watching";
+    let eventDBId = 1;
+
+    // invoke the method using the local context object and appropriate params
+    Plio.methods.updateEvent.call(localThis, eventType, eventDBId);
+
+    // the updateEvent method inside EventAPIService would've been called
+    // An update request would've been made with the correct payload
+    expect(updateEventAPICall).toHaveBeenCalled();
+    expect(mockAxios.put).toHaveBeenCalledTimes(1);
+    expect(mockAxios.put).toHaveBeenCalledWith(`/events/${eventDBId}`, {
+      type: eventType,
+      details: {},
+      player_time: localThis.player.currentTime,
+      session: localThis.sessionDBId,
+    });
   });
 });

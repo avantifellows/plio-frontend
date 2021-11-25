@@ -228,9 +228,7 @@ export default {
     // time user reloads, the value will remain the same
     this.setReAuthenticationState("not-started");
 
-    if (this.pending) this.stopLoading();
-    if (this.isBackgroundDisabled) this.enableBackground();
-    if (this.isDialogBoxShown) this.resetDialogBox();
+    this.resetAppState();
 
     // place a listener for the event of closing of the browser
     window.addEventListener("beforeunload", this.onClose);
@@ -369,7 +367,7 @@ export default {
     ]),
     ...mapActions("sync", ["stopLoading"]),
     ...mapActions("dialog", [
-      "unsetDialogBox",
+      "hideDialogBox",
       "unsetDialogTitle",
       "unsetDialogDescription",
       "unsetDialogBoxClass",
@@ -379,6 +377,14 @@ export default {
       "setCancelClicked",
       "unsetDialogCloseButton",
     ]),
+    /**
+     * resets various state variables when the app is created
+     */
+    resetAppState() {
+      if (this.pending) this.stopLoading();
+      if (this.isBackgroundDisabled) this.enableBackground();
+      if (this.isDialogBoxShown) this.resetDialogBox();
+    },
     /**
      * invoked when the confirm button of the dialog box is clicked
      */
@@ -397,7 +403,7 @@ export default {
      * resets the config of the dialog box
      */
     resetDialogBox() {
-      this.unsetDialogBox();
+      this.hideDialogBox();
       this.unsetDialogTitle();
       this.unsetDialogDescription();
       this.unsetConfirmButtonConfig();
@@ -564,14 +570,14 @@ export default {
     ]),
     ...mapState("sync", ["pending"]),
     ...mapState("dialog", {
-      dialogTitle: (state) => state.title,
-      dialogDescription: (state) => state.description,
-      isDialogBoxShown: (state) => state.isShown,
-      isDialogCloseButtonShown: (state) => state.isCloseButtonShown,
-      dialogConfirmButtonConfig: (state) => state.confirmButtonConfig,
-      dialogCancelButtonConfig: (state) => state.cancelButtonConfig,
-      dialogBoxClass: (state) => state.boxClass,
-      dialogAction: (state) => state.action,
+      dialogTitle: "title",
+      dialogDescription: "description",
+      isDialogBoxShown: "isShown",
+      isDialogCloseButtonShown: "isCloseButtonShown",
+      dialogConfirmButtonConfig: "confirmButtonConfig",
+      dialogCancelButtonConfig: "cancelButtonConfig",
+      dialogBoxClass: "boxClass",
+      dialogAction: "action",
     }),
     /**
      * whether the router view is shown

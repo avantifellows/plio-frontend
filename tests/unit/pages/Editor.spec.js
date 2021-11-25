@@ -69,6 +69,17 @@ describe("Editor.vue", () => {
     await simulateConfirmClick(); // deepscan-disable-line
     await flushPromises();
 
+    expect(store.state.dialog.action).toBe("");
+    expect(store.state.dialog.isShown).toBeTruthy();
+    expect(store.state.dialog.title).toBe("Publishing the plio...");
+
+    expect(store.state.dialog.confirmButtonConfig.enabled).toBeFalsy();
+    expect(store.state.dialog.confirmButtonConfig.text).toBe("");
+    expect(store.state.dialog.confirmButtonConfig.class).toBe("");
+    expect(store.state.dialog.cancelButtonConfig.enabled).toBeFalsy();
+    expect(store.state.dialog.cancelButtonConfig.text).toBe("");
+    expect(store.state.dialog.cancelButtonConfig.class).toBe("");
+
     expect(confirmPublish).toHaveBeenCalled();
     expect(publishPlio).toHaveBeenCalled();
   });
@@ -1481,7 +1492,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.isDialogConfirmClicked).toBeFalsy();
   });
 
-  it("cancelling delete option dialog resets index to delete", async () => {
+  it("cancelling delete option dialog resets option's index to delete", async () => {
     wrapper = mount(Editor, {
       data() {
         return {

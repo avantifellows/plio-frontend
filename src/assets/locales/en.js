@@ -119,7 +119,7 @@ export default {
       },
       publishing: {
         published: {
-          title: "Publishing the changes..",
+          title: "Publishing the changes...",
         },
         draft: {
           title: "Publishing the plio...",
