@@ -1076,7 +1076,7 @@ export default {
     /**
      * Updates an event
      * @param {String} eventType - The type of event that needs to be logged
-     * @param {Number} eventDBId - The id of an event as pulled from the database which needs to be updated
+     * @param {Number} eventDBId - The id of the event instance which needs to be updated
      * @param {Object} eventDetails - details of the event
      */
     updateEvent(eventType, eventDBId, eventDetails = {}) {
