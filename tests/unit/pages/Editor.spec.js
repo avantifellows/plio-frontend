@@ -66,12 +66,13 @@ describe("Editor.vue", () => {
     expect(showPublishConfirmationDialogBox).toHaveBeenCalled();
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
     await flushPromises();
 
     expect(store.state.dialog.action).toBe("");
     expect(store.state.dialog.isShown).toBeTruthy();
     expect(store.state.dialog.title).toBe("Publishing the plio...");
+    console.log(wrapper.vm.publishInProgressDialogTitle);
 
     expect(store.state.dialog.confirmButtonConfig.enabled).toBeFalsy();
     expect(store.state.dialog.confirmButtonConfig.text).toBe("");
@@ -244,7 +245,7 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="publishButton"]').trigger("click");
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     await flushPromises();
 
@@ -919,7 +920,7 @@ describe("Editor.vue", () => {
     });
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     expect(confirmPublish).toHaveBeenCalled();
     expect(publishPlio).toHaveBeenCalled();
@@ -1019,7 +1020,7 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="publishButton"]').trigger("click");
 
     // simulate clicking the cancel button of the dialog box
-    await simulateCancelClick(); // deepscan-disable-line
+    await simulateCancelClick();
 
     expect(togglePlioPreviewMode).toHaveBeenCalled();
   });
@@ -1040,7 +1041,7 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="publishButton"]').trigger("click");
 
     // simulate clicking the cancel button of the dialog box
-    await simulateCancelClick(); // deepscan-disable-line
+    await simulateCancelClick();
 
     expect(togglePlioPreviewMode).not.toHaveBeenCalled();
   });
@@ -1463,7 +1464,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.optionIndexToDelete).toBe(0);
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     expect(deleteSelectedOption).toHaveBeenCalled();
     expect(showCannotDeleteOptionDialog).toHaveBeenCalled();
@@ -1485,7 +1486,7 @@ describe("Editor.vue", () => {
     await store.dispatch("dialog/unsetDialogDescription");
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     // dialogAction and dialog confirm click status should be reset
     expect(wrapper.vm.dialogAction).toBeFalsy();
@@ -1518,7 +1519,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.optionIndexToDelete).toBe(0);
 
     // simulate clicking the cancel button of the dialog box
-    await simulateCancelClick(); // deepscan-disable-line
+    await simulateCancelClick();
 
     // the option index to delete must now be reset
     expect(wrapper.vm.optionIndexToDelete).toBe(-1);
@@ -1587,7 +1588,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.optionIndexToDelete).toBe(0);
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     expect(deleteSelectedOption).toHaveBeenCalled();
     expect(wrapper.vm.optionIndexToDelete).toBe(-1);
@@ -1781,7 +1782,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemUnwatchers[dummyItems[0].id]).toBeTruthy();
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     expect(editorDeleteSelectedItem).toHaveBeenCalled();
     expect(clearItemAndItemDetailWatcher).toHaveBeenCalled();
@@ -1872,7 +1873,7 @@ describe("Editor.vue", () => {
     await store.dispatch("dialog/setDialogAction", newDialogAction);
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     // the dialog action shouldn't have been affected and
     // the confirm click status should remain active
@@ -1900,7 +1901,7 @@ describe("Editor.vue", () => {
     await store.dispatch("dialog/setDialogAction", newDialogAction);
 
     // simulate clicking the cancel button of the dialog box
-    await simulateCancelClick(); // deepscan-disable-line
+    await simulateCancelClick();
 
     // the dialog action shouldn't have been affected and
     // the cancel click status should remain active
