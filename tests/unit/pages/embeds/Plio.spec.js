@@ -377,7 +377,7 @@ describe("Plio.vue", () => {
     expect(updateEvent).toHaveBeenCalledWith("watching", 1);
   });
 
-  it("makes a PATCH call to update a watching event", () => {
+  it("updates a watching event when updateEvent is called", () => {
     // spy on the updateEvent method inside EventAPIService
     let updateEventAPICall = jest.spyOn(EventAPIService, "updateEvent");
 
