@@ -6,36 +6,30 @@ import Plio from "@/pages/Embeds/Plio.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
-import {
-  dummyDraftPlio,
-  dummyItems,
-  dummyVideo,
-  imageData,
-  dummyItemDetails,
-  dummyPublishedPlio,
-} from "@/services/Testing/DummyData.js";
 import store from "@/store";
 
-var clonedeep = require("lodash.clonedeep");
-
-beforeEach(() => {
-  jest.useFakeTimers();
-  jest.clearAllMocks();
-});
-
-afterEach(() => {
-  // cleaning up the mess left behind by the previous test
-  mockAxios.reset();
-});
+let clonedeep = require("lodash.clonedeep");
 
 describe("Editor.vue", () => {
+  let wrapper;
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    // cleaning up the mess left behind by the previous test
+    mockAxios.reset();
+    wrapper.unmount();
+  });
+
   it("renders properly with default values", () => {
-    const wrapper = mount(Editor);
+    wrapper = mount(Editor);
     expect(wrapper).toBeTruthy();
   });
 
   it("blurs the main screen when plio is being published", async () => {
-    const wrapper = mount(Editor);
+    wrapper = mount(Editor);
 
     // editor goes into pending = true state upon loading
     // this resets pending to false
@@ -60,9 +54,7 @@ describe("Editor.vue", () => {
       Editor.methods,
       "showPublishConfirmationDialogBox"
     );
-    const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
-    const wrapper = mount(Editor, {
-      shallow: false,
+    wrapper = mount(Editor, {
       data() {
         return {
           videoId: "abcdefgh",
@@ -73,30 +65,27 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="publishButton"]').trigger("click");
     expect(showPublishConfirmationDialogBox).toHaveBeenCalled();
 
-    await wrapper
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="confirmButton"]')
-      .trigger("click");
-    expect(dialogConfirmed).toHaveBeenCalled();
-    expect(wrapper.vm.dialogDescription).toBe("");
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+    await flushPromises();
+
+    expect(store.state.dialog.action).toBe("");
+    expect(store.state.dialog.isShown).toBeTruthy();
+    expect(store.state.dialog.title).toBe("Publishing the plio...");
+
+    expect(store.state.dialog.confirmButtonConfig.enabled).toBeFalsy();
+    expect(store.state.dialog.confirmButtonConfig.text).toBe("");
+    expect(store.state.dialog.confirmButtonConfig.class).toBe("");
+    expect(store.state.dialog.cancelButtonConfig.enabled).toBeFalsy();
+    expect(store.state.dialog.cancelButtonConfig.text).toBe("");
+    expect(store.state.dialog.cancelButtonConfig.class).toBe("");
+
     expect(confirmPublish).toHaveBeenCalled();
-    expect(wrapper.vm.dialogAction).toBe("");
-    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
-    expect(wrapper.vm.dialogTitle).toBe("Publishing the plio...");
-    expect(wrapper.vm.publishInProgressDialogTitle).toBe(
-      "Publishing the changes.."
-    );
-    expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeFalsy();
-    expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("");
-    expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe("");
-    expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeFalsy();
-    expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("");
-    expect(wrapper.vm.dialogCancelButtonConfig.class).toBe("");
     expect(publishPlio).toHaveBeenCalled();
   });
 
   it("shows only the video preview + video input field when video ID is not set", async () => {
-    const wrapper = mount(Editor);
+    wrapper = mount(Editor);
 
     // editor goes into pending = true state upon loading
     // this resets pending to false
@@ -117,7 +106,7 @@ describe("Editor.vue", () => {
   });
 
   it("shows publish + home + preview buttons when video ID is added", async () => {
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       shallow: true,
       data() {
         return {
@@ -145,7 +134,7 @@ describe("Editor.vue", () => {
   });
 
   it("also shows copy draft link button when video ID is added for org workspace", async () => {
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       shallow: true,
       data() {
         return {
@@ -182,7 +171,7 @@ describe("Editor.vue", () => {
 
     const plioId = "123";
     const activeWorkspace = "test";
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       shallow: true,
       data() {
         return {
@@ -222,7 +211,7 @@ describe("Editor.vue", () => {
       return new Promise((resolve) => resolve());
     });
 
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       global: {
         mocks: {
           player: mockPlayer,
@@ -238,8 +227,8 @@ describe("Editor.vue", () => {
         });
         return {
           videoId: "jdYJf_ybyVo",
-          items: clonedeep(dummyItems),
-          itemDetails: clonedeep(dummyItemDetails),
+          items: clonedeep(global.dummyItems),
+          itemDetails: clonedeep(global.dummyItemDetails),
           currentItemIndex: 0,
           confettiHandler: confettiHandler,
         };
@@ -253,11 +242,9 @@ describe("Editor.vue", () => {
 
     // click on the publish button
     await wrapper.find('[data-test="publishButton"]').trigger("click");
-    // confirm that you want to publish
-    await wrapper
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="confirmButton"]')
-      .trigger("click");
+
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
 
     await flushPromises();
 
@@ -267,24 +254,8 @@ describe("Editor.vue", () => {
     expect(wrapper.find('[data-test="embedPlioButton"]').exists()).toBeTruthy();
   });
 
-  it("blurs the main screen when dialog box is shown", async () => {
-    const wrapper = mount(Editor, { shallow: true });
-    // editor goes into pending = true state upon loading
-    // this resets pending to false
-    await store.dispatch("sync/stopLoading");
-
-    // blur classes should not be present initially
-    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
-      expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
-    );
-    await wrapper.setData({ isDialogBoxShown: true });
-    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
-      expect.arrayContaining(["opacity-30", "pointer-events-none"])
-    );
-  });
-
   it("blurs the main screen when image uploader dialog is shown", async () => {
-    const wrapper = mount(Editor, { shallow: true });
+    wrapper = mount(Editor, { shallow: true });
     // editor goes into pending = true state upon loading
     // this resets pending to false
     await store.dispatch("sync/stopLoading");
@@ -300,7 +271,7 @@ describe("Editor.vue", () => {
   });
 
   it("blurs the main screen and show dialog when published plio dialog is shown", async () => {
-    const wrapper = mount(Editor, { shallow: true });
+    wrapper = mount(Editor, { shallow: true });
     // editor goes into pending = true state upon loading
     // this resets pending to false
     await store.dispatch("sync/stopLoading");
@@ -322,7 +293,7 @@ describe("Editor.vue", () => {
 
   it("loads a plio and populates local variables properly", async () => {
     let plioId = "mlungtvmyl";
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       props: {
         plioId: plioId,
       },
@@ -333,26 +304,29 @@ describe("Editor.vue", () => {
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
 
     // resolve the loadPlio method with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
     // use `wrapper.vm.__` to access the updated data variables inside the component
-    expect(wrapper.vm.loadedPlioDetails.items).toStrictEqual(dummyItems);
+    expect(wrapper.vm.loadedPlioDetails.items).toStrictEqual(global.dummyItems);
     expect(wrapper.vm.loadedPlioDetails.itemDetails).toStrictEqual(
-      dummyItemDetails
+      global.dummyItemDetails
     );
-    expect(wrapper.vm.items).toStrictEqual(dummyItems);
-    expect(wrapper.vm.videoURL).toEqual(dummyDraftPlio.data.video.url);
-    expect(wrapper.vm.plioTitle).toEqual(dummyDraftPlio.data.name);
-    expect(wrapper.vm.status).toEqual(dummyDraftPlio.data.status);
+    expect(wrapper.vm.items).toStrictEqual(global.dummyItems);
+    expect(wrapper.vm.videoURL).toEqual(global.dummyDraftPlio.data.video.url);
+    expect(wrapper.vm.plioTitle).toEqual(global.dummyDraftPlio.data.name);
+    expect(wrapper.vm.status).toEqual(global.dummyDraftPlio.data.status);
     expect(wrapper.vm.lastUpdated).toEqual(
-      new Date(dummyDraftPlio.data.updated_at)
+      new Date(global.dummyDraftPlio.data.updated_at)
     );
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
-    expect(wrapper.vm.videoDBId).toEqual(dummyDraftPlio.data.video.id);
-    expect(wrapper.vm.plioDBId).toEqual(dummyDraftPlio.data.id);
+    expect(wrapper.vm.videoDBId).toEqual(global.dummyDraftPlio.data.video.id);
+    expect(wrapper.vm.plioDBId).toEqual(global.dummyDraftPlio.data.id);
   });
 
   it("saves changes when items are changed", async () => {
@@ -363,7 +337,7 @@ describe("Editor.vue", () => {
 
     const saveChanges = jest.spyOn(Editor.methods, "saveChanges");
 
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       props: {
         plioId: "123",
       },
@@ -374,29 +348,32 @@ describe("Editor.vue", () => {
       },
       data() {
         return {
-          items: clonedeep(dummyItems),
-          itemDetails: clonedeep(dummyItemDetails),
+          items: clonedeep(global.dummyItems),
+          itemDetails: clonedeep(global.dummyItemDetails),
           videoId: "jdYJf_ybyVo",
         };
       },
     });
 
     // resolve the loadPlio method with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
     await flushPromises();
 
     // items not changed, method not called at first
     expect(saveChanges).not.toHaveBeenCalled();
 
     // update time of one of the items
-    let updatedItems = clonedeep(dummyItems);
+    let updatedItems = clonedeep(global.dummyItems);
     updatedItems[0].time += 10;
     wrapper.vm.items[0].time += 10;
     await flushPromises();
 
     expect(saveChanges).toHaveBeenCalledWith(
       "item",
-      dummyItems[0].id,
+      global.dummyItems[0].id,
       updatedItems[0]
     );
   });
@@ -409,7 +386,7 @@ describe("Editor.vue", () => {
 
     const saveChanges = jest.spyOn(Editor.methods, "saveChanges");
 
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       shallow: true,
       props: {
         plioId: "123",
@@ -421,15 +398,18 @@ describe("Editor.vue", () => {
       },
       data() {
         return {
-          items: clonedeep(dummyItems),
-          itemDetails: clonedeep(dummyItemDetails),
+          items: clonedeep(global.dummyItems),
+          itemDetails: clonedeep(global.dummyItemDetails),
           videoId: "jdYJf_ybyVo",
         };
       },
     });
 
     // resolve the loadPlio method with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
     await flushPromises();
     await store.dispatch("sync/stopLoading");
 
@@ -438,13 +418,13 @@ describe("Editor.vue", () => {
 
     // update the text of one of the itemDetails
     const newQuestionText = "text";
-    let updatedItemDetails = clonedeep(dummyItemDetails);
+    let updatedItemDetails = clonedeep(global.dummyItemDetails);
     updatedItemDetails[0].text = newQuestionText;
     wrapper.vm.itemDetails[0].text = updatedItemDetails[0].text;
     await flushPromises();
     expect(saveChanges).toHaveBeenCalledWith(
       "question",
-      dummyItemDetails[0].id,
+      global.dummyItemDetails[0].id,
       updatedItemDetails[0]
     );
   });
@@ -455,7 +435,7 @@ describe("Editor.vue", () => {
       "checkAndSaveChanges"
     );
     const plioId = "1234";
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       props: {
         plioId: plioId,
       },
@@ -511,7 +491,7 @@ describe("Editor.vue", () => {
 
     mockAxios.mockResponse(
       {
-        data: dummyVideo,
+        data: global.dummyVideo,
       },
       mockAxios.queue()[0]
     );
@@ -520,7 +500,7 @@ describe("Editor.vue", () => {
 
     expect(mockAxios.patch).toHaveBeenCalledTimes(1);
     expect(mockAxios.patch).toHaveBeenCalledWith(`/plios/${plioId}`, {
-      video: dummyVideo.id,
+      video: global.dummyVideo.id,
     });
   });
 
@@ -530,11 +510,11 @@ describe("Editor.vue", () => {
       "checkAndSaveChanges"
     );
     const initialVideoId = "jdYJf_ybyVo";
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       data() {
         return {
           videoId: initialVideoId,
-          videoDBId: dummyVideo.id,
+          videoDBId: global.dummyVideo.id,
         };
       },
     });
@@ -557,16 +537,23 @@ describe("Editor.vue", () => {
       .setValue(newVideoURL);
 
     expect(wrapper.vm.videoId).toBe("abcdefghijk");
-    expect(checkAndSaveChanges).toHaveBeenCalledWith("video", dummyVideo.id, {
-      duration: 0,
-      url: newVideoURL,
-    });
+    expect(checkAndSaveChanges).toHaveBeenCalledWith(
+      "video",
+      global.dummyVideo.id,
+      {
+        duration: 0,
+        url: newVideoURL,
+      }
+    );
 
     expect(mockAxios.patch).toHaveBeenCalledTimes(1);
-    expect(mockAxios.patch).toHaveBeenCalledWith(`/videos/${dummyVideo.id}`, {
-      url: newVideoURL,
-      duration: 0,
-    });
+    expect(mockAxios.patch).toHaveBeenCalledWith(
+      `/videos/${global.dummyVideo.id}`,
+      {
+        url: newVideoURL,
+        duration: 0,
+      }
+    );
   });
 
   it("share plio button works correctly", async () => {
@@ -578,7 +565,7 @@ describe("Editor.vue", () => {
       Editor.methods,
       "showSharePlioDialog"
     );
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       global: {
         stubs: {
           DialogBox: {
@@ -610,7 +597,7 @@ describe("Editor.vue", () => {
     };
     const plioId = "123";
     const redirectToPlayer = jest.spyOn(Editor.methods, "redirectToPlayer");
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       props: {
         plioId: plioId,
       },
@@ -652,7 +639,7 @@ describe("Editor.vue", () => {
       Editor.methods,
       "setPlioPreviewLoaded"
     );
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       props: {
         plioId: plioId,
       },
@@ -682,7 +669,7 @@ describe("Editor.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    let plioResponse = clonedeep(dummyDraftPlio);
+    let plioResponse = clonedeep(global.dummyDraftPlio);
 
     mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
 
@@ -700,7 +687,7 @@ describe("Editor.vue", () => {
       .mockImplementation(() => jest.fn());
     const closePlioPreview = jest.spyOn(Editor.methods, "closePlioPreview");
 
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       props: {
         plioId: plioId,
       },
@@ -712,7 +699,10 @@ describe("Editor.vue", () => {
     });
 
     // resolve the loadPlio method with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -720,7 +710,10 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="plioPreviewButton"]').trigger("click");
 
     // resolve the getPlio method within Plio.vue with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
     await flushPromises();
 
     await wrapper.find('[data-test="closePlioPreviewButton"]').trigger("click");
@@ -736,7 +729,7 @@ describe("Editor.vue", () => {
       push: jest.fn(),
     };
     const returnToHome = jest.spyOn(Editor.methods, "returnToHome");
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       data() {
         return {
           videoId: "abcdefgh",
@@ -760,25 +753,28 @@ describe("Editor.vue", () => {
   });
 
   it("checks that no question time is smaller than minimum question timestamp", async () => {
-    const wrapper = mount(Editor, { shallow: true });
+    wrapper = mount(Editor, { shallow: true });
     // defined in Editor.vue, cannot access the variable from there,
     // hence harcoding here
     const MINIMUM_QUESTION_TIMESTAMP = 0.6;
 
     // set items, currentItemIndex and itemDetails
     await wrapper.setData({
-      items: clonedeep(dummyItems),
+      items: clonedeep(global.dummyItems),
       currentItemIndex: 0,
-      itemDetails: dummyItemDetails,
+      itemDetails: global.dummyItemDetails,
     });
 
     // resolve the loadPlio method call with dummy plio details
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
     await flushPromises();
 
     // without any change, the time value of the first item should be the same as
     // originally provided
-    expect(wrapper.vm.items[0].time).toBe(dummyItems[0].time);
+    expect(wrapper.vm.items[0].time).toBe(global.dummyItems[0].time);
 
     // giving the first item an invalid time value
     wrapper.vm.items[0].time = 0.1;
@@ -793,7 +789,7 @@ describe("Editor.vue", () => {
       Editor.methods,
       "checkAndSaveChanges"
     );
-    const wrapper = mount(Editor);
+    wrapper = mount(Editor);
 
     await wrapper.setData({ plioTitle: "title for plio" });
     expect(wrapper.vm.loadedPlioDetails.plioTitle).not.toBe(
@@ -803,10 +799,10 @@ describe("Editor.vue", () => {
   });
 
   it("computes the itemImage property correctly", async () => {
-    const wrapper = mount(Editor);
+    wrapper = mount(Editor);
 
     const imageURL = "test url";
-    const dummyItemDetailsWithImage = clonedeep(dummyItemDetails);
+    const dummyItemDetailsWithImage = clonedeep(global.dummyItemDetails);
     dummyItemDetailsWithImage[0].image = {
       id: 56,
       url: imageURL,
@@ -816,7 +812,7 @@ describe("Editor.vue", () => {
     };
 
     await wrapper.setData({
-      items: clonedeep(dummyItems),
+      items: clonedeep(global.dummyItems),
       itemDetails: clonedeep(dummyItemDetailsWithImage),
       currentItemIndex: 0,
     });
@@ -825,33 +821,33 @@ describe("Editor.vue", () => {
   });
 
   it("computes itemType correctly", async () => {
-    const wrapper = mount(Editor);
+    wrapper = mount(Editor);
     await wrapper.setData({
       currentItemIndex: 0,
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
     });
     expect(wrapper.vm.itemType).toBe(null);
     await wrapper.setData({
       isItemSelected: true,
     });
-    expect(wrapper.vm.itemType).toBe(dummyItems[0].type);
+    expect(wrapper.vm.itemType).toBe(global.dummyItems[0].type);
   });
 
   it("computes correctOptionInex correctly", async () => {
-    const wrapper = mount(Editor);
+    wrapper = mount(Editor);
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: 0,
     });
     expect(wrapper.vm.correctOptionIndex).toBe(
-      dummyItemDetails[0].correct_answer
+      global.dummyItemDetails[0].correct_answer
     );
   });
 
   it("renders publish button tooltip correctly", async () => {
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       data() {
         return {
           videoId: "abcdefgh",
@@ -879,10 +875,9 @@ describe("Editor.vue", () => {
       Editor.methods,
       "updateQuestionDetails"
     );
-    const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
     const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       data() {
         const confetti = require("canvas-confetti");
         // have to create it manually as jest creates a DIV instead of CANVAS on it's own
@@ -893,14 +888,14 @@ describe("Editor.vue", () => {
         });
         return {
           videoId: "abcdefgh",
-          videoDBId: dummyVideo.id,
+          videoDBId: global.dummyVideo.id,
           confettiHandler: confettiHandler,
-          items: clonedeep(dummyItems),
-          itemDetails: clonedeep(dummyItemDetails),
+          items: clonedeep(global.dummyItems),
+          itemDetails: clonedeep(global.dummyItemDetails),
         };
       },
       props: {
-        plioId: String(dummyPublishedPlio.data.id),
+        plioId: String(global.dummyPublishedPlio.data.id),
       },
     });
 
@@ -908,19 +903,19 @@ describe("Editor.vue", () => {
     mockAxios.reset();
 
     await wrapper.find('[data-test="publishButton"]').trigger("click");
-    expect(wrapper.vm.dialogTitle).toBe(
+    expect(store.state.dialog.title).toBe(
       "Are you sure you want to publish the plio?"
     );
-    expect(wrapper.vm.dialogDescription).toBe(
+    expect(store.state.dialog.description).toBe(
       "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question. You can also preview the plio before publishing it."
     );
-    expect(wrapper.vm.dialogConfirmButtonConfig).toStrictEqual({
+    expect(store.state.dialog.confirmButtonConfig).toStrictEqual({
       enabled: true,
       text: "Publish",
       class:
         "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
     });
-    expect(wrapper.vm.dialogCancelButtonConfig).toStrictEqual({
+    expect(store.state.dialog.cancelButtonConfig).toStrictEqual({
       enabled: true,
       text: "Preview",
       class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
@@ -930,35 +925,27 @@ describe("Editor.vue", () => {
 
     await wrapper.setData({ status: "published" });
     await wrapper.find('[data-test="publishButton"]').trigger("click");
-    expect(wrapper.vm.publishDialogTitle).toBe(
+    expect(store.state.dialog.title).toBe(
       "Are you sure you want to publish your changes?"
     );
-    expect(wrapper.vm.dialogTitle).toBe(
-      "Are you sure you want to publish your changes?"
-    );
-    expect(wrapper.vm.publishDialogDescription).toBe(
+    expect(store.state.dialog.description).toBe(
       "The plio will be permananently changed once you publish the changes"
     );
-    expect(wrapper.vm.dialogDescription).toBe(
-      "The plio will be permananently changed once you publish the changes"
-    );
-    expect(wrapper.vm.dialogConfirmButtonConfig).toStrictEqual({
+    expect(store.state.dialog.confirmButtonConfig).toStrictEqual({
       enabled: true,
       text: "Yes",
       class:
         "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
     });
-    expect(wrapper.vm.dialogCancelButtonConfig).toStrictEqual({
+    expect(store.state.dialog.cancelButtonConfig).toStrictEqual({
       enabled: true,
       text: "No",
       class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
     });
 
-    await wrapper
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="confirmButton"]')
-      .trigger("click");
-    expect(dialogConfirmed).toHaveBeenCalled();
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+
     expect(confirmPublish).toHaveBeenCalled();
     expect(publishPlio).toHaveBeenCalled();
     expect(wrapper.vm.status).toBe("published");
@@ -970,7 +957,7 @@ describe("Editor.vue", () => {
     // mock video response
     mockAxios.mockResponse(
       {
-        data: dummyVideo,
+        data: global.dummyVideo,
       },
       mockAxios.queue()[0]
     );
@@ -978,31 +965,31 @@ describe("Editor.vue", () => {
     await flushPromises();
 
     // 1 call to /items and /questions for each item and 1 call to /plio
-    expect(mockAxios.queue().length).toBe(dummyItems.length * 2 + 1);
+    expect(mockAxios.queue().length).toBe(global.dummyItems.length * 2 + 1);
     expect(updateItem).toHaveBeenCalledTimes(4);
 
     // mock responses to requests for /items
     mockAxios.mockResponse(
       {
-        data: dummyItems[0],
+        data: global.dummyItems[0],
       },
       mockAxios.queue()[0]
     );
     mockAxios.mockResponse(
       {
-        data: dummyItems[1],
+        data: global.dummyItems[1],
       },
       mockAxios.queue()[0]
     );
     mockAxios.mockResponse(
       {
-        data: dummyItems[2],
+        data: global.dummyItems[2],
       },
       mockAxios.queue()[0]
     );
     mockAxios.mockResponse(
       {
-        data: dummyItems[3],
+        data: global.dummyItems[3],
       },
       mockAxios.queue()[0]
     );
@@ -1014,25 +1001,25 @@ describe("Editor.vue", () => {
     // mock responses to requests for /questions
     mockAxios.mockResponse(
       {
-        data: dummyItemDetails[0],
+        data: global.dummyItemDetails[0],
       },
       mockAxios.queue()[0]
     );
     mockAxios.mockResponse(
       {
-        data: dummyItemDetails[1],
+        data: global.dummyItemDetails[1],
       },
       mockAxios.queue()[0]
     );
     mockAxios.mockResponse(
       {
-        data: dummyItemDetails[2],
+        data: global.dummyItemDetails[2],
       },
       mockAxios.queue()[0]
     );
     mockAxios.mockResponse(
       {
-        data: dummyItemDetails[3],
+        data: global.dummyItemDetails[3],
       },
       mockAxios.queue()[0]
     );
@@ -1043,12 +1030,11 @@ describe("Editor.vue", () => {
   });
 
   it("clicking on preview button of publish confirmation dialog shows plio preview", async () => {
-    const dialogCancelled = jest.spyOn(Editor.methods, "dialogCancelled");
     const togglePlioPreviewMode = jest.spyOn(
       Editor.methods,
       "togglePlioPreviewMode"
     );
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       data() {
         return {
           videoId: "abcdefgh",
@@ -1057,22 +1043,18 @@ describe("Editor.vue", () => {
     });
     await wrapper.find('[data-test="publishButton"]').trigger("click");
 
-    await wrapper
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="cancelButton"]')
-      .trigger("click");
+    // simulate clicking the cancel button of the dialog box
+    await simulateCancelClick();
 
-    expect(dialogCancelled).toHaveBeenCalled();
     expect(togglePlioPreviewMode).toHaveBeenCalled();
   });
 
   it("clicking on cancel button of publish confirmation dialog for published plio closes dialog", async () => {
-    const dialogCancelled = jest.spyOn(Editor.methods, "dialogCancelled");
     const togglePlioPreviewMode = jest.spyOn(
       Editor.methods,
       "togglePlioPreviewMode"
     );
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       data() {
         return {
           videoId: "abcdefgh",
@@ -1082,12 +1064,9 @@ describe("Editor.vue", () => {
     });
     await wrapper.find('[data-test="publishButton"]').trigger("click");
 
-    await wrapper
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="cancelButton"]')
-      .trigger("click");
+    // simulate clicking the cancel button of the dialog box
+    await simulateCancelClick();
 
-    expect(dialogCancelled).toHaveBeenCalled();
     expect(togglePlioPreviewMode).not.toHaveBeenCalled();
   });
 
@@ -1113,7 +1092,7 @@ describe("Editor.vue", () => {
       destroy: jest.fn(),
     };
 
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       shallow: true,
       props: {
         plioId: plioId,
@@ -1167,7 +1146,7 @@ describe("Editor.vue", () => {
       destroy: jest.fn(),
     };
 
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       shallow: true,
       props: {
         plioId: plioId,
@@ -1202,7 +1181,7 @@ describe("Editor.vue", () => {
       Editor.methods,
       "showEmbedPlioDialog"
     );
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       props: {
         plioId: plioId,
       },
@@ -1247,7 +1226,7 @@ describe("Editor.vue", () => {
       destroy: jest.fn(),
     };
 
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       shallow: true,
       global: {
         mocks: {
@@ -1297,7 +1276,7 @@ describe("Editor.vue", () => {
       destroy: jest.fn(),
     };
 
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       shallow: true,
       global: {
         mocks: {
@@ -1324,7 +1303,7 @@ describe("Editor.vue", () => {
       Editor.methods,
       "closePublishedPlioDialog"
     );
-    const wrapper = mount(Editor);
+    wrapper = mount(Editor);
     await wrapper.setData({
       isPublishedPlioDialogShown: true,
       videoId: "jdYJf_ybyVo",
@@ -1343,7 +1322,7 @@ describe("Editor.vue", () => {
       "redirectToDashboard"
     );
     const mockRouter = { push: jest.fn() };
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       global: {
         mocks: {
           $router: mockRouter,
@@ -1371,9 +1350,9 @@ describe("Editor.vue", () => {
 
   it("deletes linked image properly", async () => {
     const deleteLinkedImage = jest.spyOn(Editor.methods, "deleteLinkedImage");
-    const wrapper = mount(Editor);
+    wrapper = mount(Editor);
 
-    const dummyItemDetailsWithImage = clonedeep(dummyItemDetails);
+    const dummyItemDetailsWithImage = clonedeep(global.dummyItemDetails);
     dummyItemDetailsWithImage[0].image = {
       id: 56,
       url: "https://plio-prod-assets.s3.amazonaws.com/images/hxojrjdasf.png",
@@ -1384,7 +1363,7 @@ describe("Editor.vue", () => {
 
     await wrapper.setData({
       isImageUploaderDialogShown: true,
-      items: clonedeep(dummyItems),
+      items: clonedeep(global.dummyItems),
       itemDetails: clonedeep(dummyItemDetailsWithImage),
       itemImage: clonedeep(dummyItemDetailsWithImage[0].image.url),
       currentItemIndex: 0,
@@ -1401,17 +1380,17 @@ describe("Editor.vue", () => {
     mockAxios.reset();
     const uploadImage = jest.spyOn(Editor.methods, "uploadImage");
     const submitImage = jest.spyOn(ImageUploaderDialog.methods, "submitImage");
-    const wrapper = mount(Editor);
+    wrapper = mount(Editor);
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       isImageUploaderDialogShown: true,
       currentItemIndex: 0,
     });
 
     let imageUploaderWrapper = wrapper.findComponent(ImageUploaderDialog);
     imageUploaderWrapper.setData({
-      localImageData: imageData,
+      localImageData: global.imageData,
     });
 
     await imageUploaderWrapper
@@ -1441,23 +1420,22 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemDetails[0].image).toStrictEqual(mockImageResponse);
   });
 
-  it("delete option functionality works correctly", async () => {
+  it("delete option does not work with only 2 options", async () => {
     const endIconSelected = jest.spyOn(InputText.methods, "endIconSelected");
     const itemEditorDeleteOption = jest.spyOn(
       ItemEditor.methods,
       "deleteOption"
     );
     const editorDeleteOption = jest.spyOn(Editor.methods, "deleteOption");
-    const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
-    const confirmDeleteOption = jest.spyOn(
+    const deleteSelectedOption = jest.spyOn(
       Editor.methods,
-      "confirmDeleteOption"
+      "deleteSelectedOption"
     );
     const showCannotDeleteOptionDialog = jest.spyOn(
       Editor.methods,
       "showCannotDeleteOptionDialog"
     );
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       data() {
         return {
           videoId: "abcdefgh",
@@ -1465,8 +1443,137 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
+      currentItemIndex: 0,
+      videoDuration: 200,
+      status: "draft",
+      currentQuestionTypeIndex: 0,
+    });
+
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[4];
+
+    // clear past values of dialog description
+    await store.dispatch("dialog/unsetDialogDescription");
+
+    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+
+    expect(endIconSelected).toHaveBeenCalled();
+    expect(inputTextWrapper.emitted()).toHaveProperty("end-icon-selected");
+
+    expect(itemEditorDeleteOption).toHaveBeenCalled();
+    expect(itemEditorWrapper.emitted()).toHaveProperty("delete-option");
+
+    expect(editorDeleteOption).toHaveBeenCalled();
+    await flushPromises();
+
+    expect(store.state.dialog.title).toBe(
+      "Are you sure you want to delete this option?"
+    );
+    expect(store.state.dialog.description).toBe("");
+    expect(store.state.dialog.confirmButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.confirmButtonConfig.text).toBe("Yes");
+    expect(store.state.dialog.confirmButtonConfig.class).toBe(
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
+    );
+    expect(store.state.dialog.cancelButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.cancelButtonConfig.text).toBe("No");
+    expect(store.state.dialog.cancelButtonConfig.class).toBe(
+      "bg-white hover:bg-gray-100 focus:outline-none text-primary"
+    );
+    expect(wrapper.vm.dialogAction).toBe("deleteOption");
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
+
+    expect(wrapper.vm.optionIndexToDelete).toBe(0);
+
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+
+    expect(deleteSelectedOption).toHaveBeenCalled();
+    expect(showCannotDeleteOptionDialog).toHaveBeenCalled();
+
+    expect(store.state.dialog.title).toBe("Cannot delete the option");
+    expect(store.state.dialog.description).toBe(
+      "A question must have at least 2 options"
+    );
+    expect(store.state.dialog.confirmButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.confirmButtonConfig.text).toBe("Got it");
+    expect(store.state.dialog.confirmButtonConfig.class).toBe(
+      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
+    );
+    expect(store.state.dialog.cancelButtonConfig.enabled).toBeFalsy();
+    expect(store.state.dialog.cancelButtonConfig.text).toBe("");
+    expect(store.state.dialog.cancelButtonConfig.class).toBe("");
+
+    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
+    await store.dispatch("dialog/unsetDialogDescription");
+
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+
+    // dialogAction and dialog confirm click status should be reset
+    expect(wrapper.vm.dialogAction).toBeFalsy();
+    expect(wrapper.vm.isDialogConfirmClicked).toBeFalsy();
+  });
+
+  it("cancelling delete option dialog resets option's index to delete", async () => {
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+    await wrapper.setData({
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
+      currentItemIndex: 0,
+      videoDuration: 200,
+      status: "draft",
+      currentQuestionTypeIndex: 0,
+    });
+
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[4];
+
+    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+
+    // the option index to delete must be set
+    expect(wrapper.vm.optionIndexToDelete).toBe(0);
+
+    // simulate clicking the cancel button of the dialog box
+    await simulateCancelClick();
+
+    // the option index to delete must now be reset
+    expect(wrapper.vm.optionIndexToDelete).toBe(-1);
+  });
+
+  it("delete option works with more than 2 options", async () => {
+    const endIconSelected = jest.spyOn(InputText.methods, "endIconSelected");
+    const itemEditorDeleteOption = jest.spyOn(
+      ItemEditor.methods,
+      "deleteOption"
+    );
+    const editorDeleteOption = jest.spyOn(Editor.methods, "deleteOption");
+    const deleteSelectedOption = jest.spyOn(
+      Editor.methods,
+      "deleteSelectedOption"
+    );
+
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+    // add another option to allow deleting an option
+    let updatedDummyItemDetails = clonedeep(global.dummyItemDetails);
+    updatedDummyItemDetails[0].options.push("option 3");
+    await wrapper.setData({
+      items: clonedeep(global.dummyItems),
+      itemDetails: updatedDummyItemDetails,
       currentItemIndex: 0,
       videoDuration: 200,
       status: "draft",
@@ -1485,96 +1592,29 @@ describe("Editor.vue", () => {
     expect(itemEditorWrapper.emitted()).toHaveProperty("delete-option");
 
     expect(editorDeleteOption).toHaveBeenCalled();
-    expect(wrapper.vm.dialogTitle).toBe(
+
+    expect(store.state.dialog.title).toBe(
       "Are you sure you want to delete this option?"
     );
-    expect(wrapper.vm.dialogDescription).toBe("");
-    expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
-    expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Yes");
-    expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
+    expect(store.state.dialog.description).toBe("");
+    expect(store.state.dialog.confirmButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.confirmButtonConfig.text).toBe("Yes");
+    expect(store.state.dialog.confirmButtonConfig.class).toBe(
       "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
     );
-    expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeTruthy();
-    expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("No");
-    expect(wrapper.vm.dialogCancelButtonConfig.class).toBe(
+    expect(store.state.dialog.cancelButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.cancelButtonConfig.text).toBe("No");
+    expect(store.state.dialog.cancelButtonConfig.class).toBe(
       "bg-white hover:bg-gray-100 focus:outline-none text-primary"
     );
-    expect(wrapper.vm.optionIndexToDelete).toBe(0);
     expect(wrapper.vm.dialogAction).toBe("deleteOption");
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
-    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
-
-    await wrapper
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="confirmButton"]')
-      .trigger("click");
-    expect(dialogConfirmed).toHaveBeenCalled();
-    expect(confirmDeleteOption).toHaveBeenCalled();
-    expect(showCannotDeleteOptionDialog).toHaveBeenCalled();
-
-    expect(wrapper.vm.dialogTitle).toBe("Cannot delete the option");
-    expect(wrapper.vm.dialogDescription).toBe(
-      "A question must have at least 2 options"
-    );
-    expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
-    expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Got it");
-    expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
-      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
-    );
-    expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeFalsy();
-    expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("");
-    expect(wrapper.vm.dialogCancelButtonConfig.class).toBe("");
-    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
-    await wrapper
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="confirmButton"]')
-      .trigger("click");
-
-    let updatedDummyItemDetails = clonedeep(dummyItemDetails);
-    updatedDummyItemDetails[0].options.push("option 3");
-    await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: updatedDummyItemDetails,
-      currentItemIndex: 0,
-      videoDuration: 200,
-      status: "draft",
-      currentQuestionTypeIndex: 0,
-    });
-
-    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
-
-    expect(endIconSelected).toHaveBeenCalled();
-    expect(inputTextWrapper.emitted()).toHaveProperty("end-icon-selected");
-
-    expect(itemEditorDeleteOption).toHaveBeenCalled();
-    expect(itemEditorWrapper.emitted()).toHaveProperty("delete-option");
-
-    expect(editorDeleteOption).toHaveBeenCalled();
-    expect(wrapper.vm.dialogTitle).toBe(
-      "Are you sure you want to delete this option?"
-    );
-    expect(wrapper.vm.dialogDescription).toBe("");
-    expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
-    expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Yes");
-    expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
-      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
-    );
-    expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeTruthy();
-    expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("No");
-    expect(wrapper.vm.dialogCancelButtonConfig.class).toBe(
-      "bg-white hover:bg-gray-100 focus:outline-none text-primary"
-    );
     expect(wrapper.vm.optionIndexToDelete).toBe(0);
-    expect(wrapper.vm.dialogAction).toBe("deleteOption");
-    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
-    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
 
-    await wrapper
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="confirmButton"]')
-      .trigger("click");
-    expect(dialogConfirmed).toHaveBeenCalled();
-    expect(confirmDeleteOption).toHaveBeenCalled();
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+
+    expect(deleteSelectedOption).toHaveBeenCalled();
     expect(wrapper.vm.optionIndexToDelete).toBe(-1);
     expect(wrapper.vm.itemDetails[0].options.length).toBe(2);
   });
@@ -1594,7 +1634,7 @@ describe("Editor.vue", () => {
       "getDetailsForNewQuestion"
     );
     const markItemSelected = jest.spyOn(Editor.methods, "markItemSelected");
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       global: {
         mocks: {
           player: mockPlayer,
@@ -1602,15 +1642,18 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: null,
       videoId: "jdYJf_ybyVo",
       currentTimestamp: 15.6,
     });
 
     // resolve the loadPlio method call with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
     await flushPromises();
 
     // trying to add an item where another item already exists is not possible
@@ -1621,8 +1664,8 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.pending).toBeFalsy();
 
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: null,
       videoId: "jdYJf_ybyVo",
       currentTimestamp: 12,
@@ -1710,12 +1753,11 @@ describe("Editor.vue", () => {
       Editor.methods,
       "clearItemAndItemDetailWatcher"
     );
-    const dialogConfirmed = jest.spyOn(Editor.methods, "dialogConfirmed");
     const editorDeleteSelectedItem = jest.spyOn(
       Editor.methods,
       "deleteSelectedItem"
     );
-    const wrapper = mount(Editor, {
+    wrapper = mount(Editor, {
       data() {
         return {
           videoId: "abcdefgh",
@@ -1723,8 +1765,8 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: 0,
       videoDuration: 200,
       status: "draft",
@@ -1733,7 +1775,10 @@ describe("Editor.vue", () => {
     });
 
     // resolve the loadPlio method call with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
     await flushPromises();
 
     const itemEditorWrapper = wrapper.findComponent(ItemEditor);
@@ -1743,48 +1788,49 @@ describe("Editor.vue", () => {
     expect(itemEditorDeleteSelectedItem).toHaveBeenCalled();
     expect(itemEditorWrapper.emitted()).toHaveProperty("delete-selected-item");
     expect(showDeleteItemDialogBox).toHaveBeenCalled();
-    expect(wrapper.vm.dialogTitle).toBe(
+
+    expect(store.state.dialog.title).toBe(
       "Are you sure you want to delete this?"
     );
-    expect(wrapper.vm.dialogDescription).toBe(
+    expect(store.state.dialog.description).toBe(
       "This will permanently delete this question"
     );
-    expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeTruthy();
-    expect(wrapper.vm.dialogConfirmButtonConfig.text).toBe("Yes");
-    expect(wrapper.vm.dialogConfirmButtonConfig.class).toBe(
+    expect(store.state.dialog.confirmButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.confirmButtonConfig.text).toBe("Yes");
+    expect(store.state.dialog.confirmButtonConfig.class).toBe(
       "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
     );
-    expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeTruthy();
-    expect(wrapper.vm.dialogCancelButtonConfig.text).toBe("No");
-    expect(wrapper.vm.dialogCancelButtonConfig.class).toBe(
+    expect(store.state.dialog.cancelButtonConfig.enabled).toBeTruthy();
+    expect(store.state.dialog.cancelButtonConfig.text).toBe("No");
+    expect(store.state.dialog.cancelButtonConfig.class).toBe(
       "bg-white hover:bg-gray-100 focus:outline-none text-primary"
     );
+
     expect(wrapper.vm.dialogAction).toBe("deleteItem");
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
-    expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeTruthy();
 
-    expect(wrapper.vm.itemUnwatchers[dummyItems[0].id]).toBeTruthy();
+    expect(wrapper.vm.itemUnwatchers[global.dummyItems[0].id]).toBeTruthy();
 
-    await wrapper
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="confirmButton"]')
-      .trigger("click");
-    expect(dialogConfirmed).toHaveBeenCalled();
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+
     expect(editorDeleteSelectedItem).toHaveBeenCalled();
     expect(clearItemAndItemDetailWatcher).toHaveBeenCalled();
-    expect(wrapper.vm.itemUnwatchers[dummyItems[0].id]).toBe(undefined);
-    expect(wrapper.vm.itemDetailUnwatchers[dummyItems[0].id]).toBe(undefined);
-    expect(wrapper.vm.items.length).toBeLessThan(dummyItems.length);
+    expect(wrapper.vm.itemUnwatchers[global.dummyItems[0].id]).toBe(undefined);
+    expect(wrapper.vm.itemDetailUnwatchers[global.dummyItems[0].id]).toBe(
+      undefined
+    );
+    expect(wrapper.vm.items.length).toBeLessThan(global.dummyItems.length);
   });
 
   it("updating plio title calls saveChanges with resource as plio", async () => {
     const saveChanges = jest.spyOn(Editor.methods, "saveChanges");
-    const plioId = String(dummyPublishedPlio.data.id);
-    const wrapper = mount(Editor, {
+    const plioId = String(global.dummyPublishedPlio.data.id);
+    wrapper = mount(Editor, {
       data() {
         return {
           videoId: "abcdefgh",
-          plioTitle: dummyPublishedPlio.data.title,
+          plioTitle: global.dummyPublishedPlio.data.title,
         };
       },
       props: {
@@ -1806,13 +1852,13 @@ describe("Editor.vue", () => {
 
   it("minimizes modal correctly", async () => {
     const minimizeModal = jest.spyOn(Editor.methods, "minimizeModal");
-    const wrapper = mount(Editor);
+    wrapper = mount(Editor);
 
     await wrapper.setData({
       isModalMinimized: false,
       isItemSelected: true,
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: 0,
       videoId: "jdYJf_ybyVo",
     });
@@ -1827,10 +1873,10 @@ describe("Editor.vue", () => {
 
   it("maximize modal functions correctly", async () => {
     const maximizeModal = jest.spyOn(Editor.methods, "maximizeModal");
-    const wrapper = mount(Editor);
+    wrapper = mount(Editor);
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: 1,
       isItemSelected: true,
       isModalMinimized: true,
@@ -1840,5 +1886,61 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="maximizeButton"]').trigger("click");
     expect(maximizeModal).toHaveBeenCalled();
     expect(wrapper.vm.isModalMinimized).toBe(false);
+  });
+
+  it("does not interfere with irrelevant dialog confirm trigger", async () => {
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+
+    // change the dialog action so that it is no longer
+    // relevant to this component
+    const newDialogAction = "testAction";
+    await store.dispatch("dialog/setDialogAction", newDialogAction);
+
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+
+    // the dialog action shouldn't have been affected and
+    // the confirm click status should remain active
+    expect(wrapper.vm.isDialogConfirmClicked).toBeTruthy();
+    expect(wrapper.vm.dialogAction).toBe(newDialogAction);
+
+    // reset dialog confirm clicked status
+    await store.dispatch("dialog/unsetConfirmClicked");
+  });
+
+  it("does not interfere with irrelevant dialog cancel trigger", async () => {
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+
+    await wrapper.find('[data-test="publishButton"]').trigger("click");
+
+    // change the dialog action so that it is no longer
+    // relevant to this component
+    const newDialogAction = "testAction";
+    await store.dispatch("dialog/setDialogAction", newDialogAction);
+
+    // simulate clicking the cancel button of the dialog box
+    await simulateCancelClick();
+
+    // the dialog action shouldn't have been affected and
+    // the cancel click status should remain active
+    expect(wrapper.vm.isDialogCancelClicked).toBeTruthy();
+    expect(wrapper.vm.dialogAction).toBe(newDialogAction);
+
+    // reset dialog cancel clicked status
+    await store.dispatch("dialog/unsetCancelClicked");
   });
 });

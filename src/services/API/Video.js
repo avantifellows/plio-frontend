@@ -8,7 +8,7 @@ export default {
    * @returns {Promise}
    */
   async createVideo(payload) {
-    var response = await apiClient().post(videosEndpoint, payload);
+    let response = await apiClient().post(videosEndpoint, payload);
     return response;
   },
 

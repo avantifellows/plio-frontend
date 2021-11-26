@@ -25,7 +25,7 @@ describe("ItemEditor.vue", () => {
       wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
     ).toBeFalsy();
     // no option should be marked as correct answer as no correct answer has been given
-    var options = wrapper.findAll('[data-test="option"]');
+    let options = wrapper.findAll('[data-test="option"]');
     options.forEach((option) => {
       expect(option.find('[data-test="startIcon"]').classes()).not.toContain(
         "text-green-500"
@@ -287,7 +287,7 @@ describe("ItemEditor.vue", () => {
       wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
     ).toBeFalsy();
     // the 2nd option should be marked as correct answer
-    var options = wrapper.findAll('[data-test="option"]');
+    let options = wrapper.findAll('[data-test="option"]');
     options.forEach((option, optionIndex) => {
       if (!optionIndex)
         expect(option.find('[data-test="startIcon"]').classes()).not.toContain(
@@ -401,7 +401,7 @@ describe("ItemEditor.vue", () => {
       true
     );
 
-    var options = wrapper.findAll('[data-test="option"]');
+    let options = wrapper.findAll('[data-test="option"]');
     options.forEach((option) => {
       // option text area should not be disabled
       expect(option.find('[data-test="input"]').element.disabled).toBe(false);

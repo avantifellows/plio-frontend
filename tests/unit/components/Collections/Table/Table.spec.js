@@ -1,12 +1,10 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import Table from "@/components/Collections/Table/Table";
-import { setMatchMedia } from "@/services/Testing/Utilities";
 import store from "@/store";
 import mockAxios from "jest-mock-axios";
-import { dummyPublishedPlio } from "@/services/Testing/DummyData.js";
-var clonedeep = require("lodash.clonedeep");
+let clonedeep = require("lodash.clonedeep");
 
-var dummyTableData = [
+let dummyTableData = [
   {
     name: { type: "component", value: "123", status: "draft" },
     views: "0",
@@ -21,24 +19,26 @@ const tableColumns = ["name", "views"];
 const totalNumberOfPlios = dummyTableData.length;
 
 describe("Table.vue", () => {
+  let wrapper;
   beforeEach(async () => {
     await store.dispatch("sync/stopLoading");
-    await setMatchMedia(false);
+    global.setMatchMedia(false);
   });
 
   afterEach(() => {
     // cleanup all pending requests from the last test
     mockAxios.reset();
+    wrapper.unmount();
   });
 
   it("should render with default values", () => {
-    const wrapper = mount(Table);
+    wrapper = mount(Table);
     expect(wrapper.vm.totalItemsInTable).toBe(0);
     expect(wrapper.vm.isTableEmpty).toBe(true);
   });
 
   it("renders the right number of rows ", async () => {
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -56,9 +56,9 @@ describe("Table.vue", () => {
 
   it("does not render analyze button on hover on phone ", async () => {
     // set `matches` as `True` for testing on touch screen devices
-    setMatchMedia(true);
+    global.setMatchMedia(true);
 
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -69,7 +69,7 @@ describe("Table.vue", () => {
   });
 
   it("does not render analyze on pending", async () => {
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -87,7 +87,7 @@ describe("Table.vue", () => {
   });
 
   it("analyze button should be disabled for draft plio ", async () => {
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -115,7 +115,7 @@ describe("Table.vue", () => {
       push: jest.fn(),
     };
 
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -139,7 +139,7 @@ describe("Table.vue", () => {
   });
 
   it("clearing search string resets search", async () => {
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -155,7 +155,7 @@ describe("Table.vue", () => {
 
   it("resets search string on button click", async () => {
     const resetSearchString = jest.spyOn(Table.methods, "resetSearchString");
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -172,7 +172,7 @@ describe("Table.vue", () => {
 
   it("does not trigger search on button click when search string empty", async () => {
     const search = jest.spyOn(Table.methods, "search");
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -187,7 +187,7 @@ describe("Table.vue", () => {
 
   it("triggers search on button click when search string non-empty", async () => {
     const search = jest.spyOn(Table.methods, "search");
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -204,7 +204,7 @@ describe("Table.vue", () => {
 
   it("triggers search on pressing enter when search string non-empty", async () => {
     const search = jest.spyOn(Table.methods, "search");
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -226,7 +226,7 @@ describe("Table.vue", () => {
 
   it("does not trigger search on pressing enter when search string empty", async () => {
     const search = jest.spyOn(Table.methods, "search");
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -247,7 +247,7 @@ describe("Table.vue", () => {
   });
 
   it("shows warning on search when there are no plios matching the search string", async () => {
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: [],
         columns: tableColumns,
@@ -269,7 +269,7 @@ describe("Table.vue", () => {
 
   it("selects row on hover", async () => {
     const tableRowHoverOn = jest.spyOn(Table.methods, "tableRowHoverOn");
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -286,7 +286,7 @@ describe("Table.vue", () => {
 
   it("deselects row on removing hover", async () => {
     const tableRowHoverOff = jest.spyOn(Table.methods, "tableRowHoverOff");
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -305,7 +305,7 @@ describe("Table.vue", () => {
   });
 
   it("sorts on arrow click by num viewers", async () => {
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -317,7 +317,7 @@ describe("Table.vue", () => {
   });
 
   it("emits after all plios have been loaded", async () => {
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -327,8 +327,14 @@ describe("Table.vue", () => {
 
     // resolve the two `GET` requests (for each plio) waiting in the queue
     // using the fake response data
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[0]);
-    mockAxios.mockResponse(clonedeep(dummyPublishedPlio), mockAxios.queue()[1]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[0]
+    );
+    mockAxios.mockResponse(
+      clonedeep(global.dummyPublishedPlio),
+      mockAxios.queue()[1]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -338,7 +344,7 @@ describe("Table.vue", () => {
   });
 
   it("emits on deleting plio", async () => {
-    const wrapper = mount(Table, {
+    wrapper = mount(Table, {
       props: {
         data: dummyTableData,
         columns: tableColumns,
@@ -364,11 +370,8 @@ describe("Table.vue", () => {
       .find('[data-test="option-delete"]')
       .trigger("click");
 
-    // click the confirm button of the dialog box
-    await plioListItem
-      .find('[data-test="dialogBox"]')
-      .find('[data-test="confirmButton"]')
-      .trigger("click");
+    // simulate clicking the confirm button of the dialog box
+    await global.simulateConfirmClick();
 
     // mock the response to the request
     mockAxios.mockResponse(

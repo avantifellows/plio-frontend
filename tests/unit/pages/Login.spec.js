@@ -2,8 +2,6 @@ import { flushPromises, mount } from "@vue/test-utils";
 import Login from "@/pages/Login.vue";
 import UserAPIService from "@/services/API/User.js";
 
-import { dummyAccessToken, dummyUser } from "@/services/Testing/DummyData.js";
-
 describe("Login.vue", () => {
   it("renders properly with default values", async () => {
     const wrapper = mount(Login);
@@ -116,7 +114,7 @@ describe("Login.vue", () => {
       .spyOn(UserAPIService, "verifyOtp")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyAccessToken });
+          resolve({ data: global.dummyAccessToken });
         });
       });
 
@@ -125,7 +123,7 @@ describe("Login.vue", () => {
       .spyOn(UserAPIService, "getUserByAccessToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyUser });
+          resolve({ data: global.dummyUser });
         });
       });
 
@@ -175,7 +173,7 @@ describe("Login.vue", () => {
       .spyOn(UserAPIService, "verifyOtp")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyAccessToken });
+          resolve({ data: global.dummyAccessToken });
         });
       });
 
@@ -184,7 +182,7 @@ describe("Login.vue", () => {
       .spyOn(UserAPIService, "getUserByAccessToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyUser });
+          resolve({ data: global.dummyUser });
         });
       });
 
@@ -257,7 +255,7 @@ describe("Login.vue", () => {
       signIn: jest.fn(() => {
         return {
           getAuthResponse: jest.fn(() => {
-            return dummyAccessToken;
+            return global.dummyAccessToken;
           }),
         };
       }),
@@ -282,7 +280,7 @@ describe("Login.vue", () => {
       .spyOn(UserAPIService, "convertSocialAuthToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyAccessToken });
+          resolve({ data: global.dummyAccessToken });
         });
       });
 
@@ -291,7 +289,7 @@ describe("Login.vue", () => {
       .spyOn(UserAPIService, "getUserByAccessToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyUser });
+          resolve({ data: global.dummyUser });
         });
       });
 

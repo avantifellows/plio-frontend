@@ -1,13 +1,7 @@
 import { mount } from "@vue/test-utils";
 import ItemModal from "@/components/Player/ItemModal";
 
-import {
-  dummyItems,
-  dummyItemDetails,
-  dummyItemResponses,
-} from "@/services/Testing/DummyData.js";
-
-var clonedeep = require("lodash.clonedeep");
+let clonedeep = require("lodash.clonedeep");
 
 describe("ItemModal.vue", () => {
   it("should render with default values", () => {
@@ -18,33 +12,37 @@ describe("ItemModal.vue", () => {
   it("should prepare draft responses for each item", () => {
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: clonedeep(dummyItems),
-        itemDetailList: clonedeep(dummyItemDetails),
+        itemList: clonedeep(global.dummyItems),
+        itemDetailList: clonedeep(global.dummyItemDetails),
       },
     });
-    expect(wrapper.vm.draftResponses.length).toBe(dummyItems.length);
+    expect(wrapper.vm.draftResponses.length).toBe(global.dummyItems.length);
   });
 
   it("extract current item details correctly", async () => {
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: clonedeep(dummyItems),
-        itemDetailList: clonedeep(dummyItemDetails),
+        itemList: clonedeep(global.dummyItems),
+        itemDetailList: clonedeep(global.dummyItemDetails),
       },
     });
     // test subjective
-    expect(wrapper.vm.currentItem).toEqual(dummyItems[0]);
-    expect(wrapper.vm.currentItemDetails).toEqual(dummyItemDetails[0]);
-    expect(wrapper.vm.currentItemImage).toBe(dummyItemDetails[0].image);
-    expect(wrapper.vm.hasCharLimit).toBe(dummyItemDetails[0].has_char_limit);
-    expect(wrapper.vm.maxCharLimit).toBe(dummyItemDetails[0].max_char_limit);
-    expect(wrapper.vm.itemType).toBe(dummyItems[0].type);
+    expect(wrapper.vm.currentItem).toEqual(global.dummyItems[0]);
+    expect(wrapper.vm.currentItemDetails).toEqual(global.dummyItemDetails[0]);
+    expect(wrapper.vm.currentItemImage).toBe(global.dummyItemDetails[0].image);
+    expect(wrapper.vm.hasCharLimit).toBe(
+      global.dummyItemDetails[0].has_char_limit
+    );
+    expect(wrapper.vm.maxCharLimit).toBe(
+      global.dummyItemDetails[0].max_char_limit
+    );
+    expect(wrapper.vm.itemType).toBe(global.dummyItems[0].type);
     expect(wrapper.vm.questionOptions).toStrictEqual(
-      dummyItemDetails[0].options
+      global.dummyItemDetails[0].options
     );
     expect(wrapper.vm.questionCorrectAnswer).toBe(0);
-    expect(wrapper.vm.questionText).toBe(dummyItemDetails[0].text);
-    expect(wrapper.vm.questionType).toBe(dummyItemDetails[0].type);
+    expect(wrapper.vm.questionText).toBe(global.dummyItemDetails[0].text);
+    expect(wrapper.vm.questionType).toBe(global.dummyItemDetails[0].type);
     expect(wrapper.vm.isQuestionTypeMCQ).toBe(true);
     expect(wrapper.vm.isQuestionTypeSubjective).toBe(false);
 
@@ -53,18 +51,24 @@ describe("ItemModal.vue", () => {
       selectedItemIndex: 1,
     });
 
-    expect(wrapper.vm.currentItem).toEqual(dummyItems[1]);
-    expect(wrapper.vm.currentItemDetails).toEqual(dummyItemDetails[1]);
-    expect(wrapper.vm.currentItemImage).toBe(dummyItemDetails[1].image);
-    expect(wrapper.vm.hasCharLimit).toBe(dummyItemDetails[1].has_char_limit);
-    expect(wrapper.vm.maxCharLimit).toBe(dummyItemDetails[1].max_char_limit);
-    expect(wrapper.vm.itemType).toBe(dummyItems[1].type);
-    expect(wrapper.vm.questionOptions).toEqual(dummyItemDetails[1].options);
-    expect(wrapper.vm.questionCorrectAnswer).toBe(
-      parseInt(dummyItemDetails[1].correct_answer)
+    expect(wrapper.vm.currentItem).toEqual(global.dummyItems[1]);
+    expect(wrapper.vm.currentItemDetails).toEqual(global.dummyItemDetails[1]);
+    expect(wrapper.vm.currentItemImage).toBe(global.dummyItemDetails[1].image);
+    expect(wrapper.vm.hasCharLimit).toBe(
+      global.dummyItemDetails[1].has_char_limit
     );
-    expect(wrapper.vm.questionText).toBe(dummyItemDetails[1].text);
-    expect(wrapper.vm.questionType).toBe(dummyItemDetails[1].type);
+    expect(wrapper.vm.maxCharLimit).toBe(
+      global.dummyItemDetails[1].max_char_limit
+    );
+    expect(wrapper.vm.itemType).toBe(global.dummyItems[1].type);
+    expect(wrapper.vm.questionOptions).toEqual(
+      global.dummyItemDetails[1].options
+    );
+    expect(wrapper.vm.questionCorrectAnswer).toBe(
+      parseInt(global.dummyItemDetails[1].correct_answer)
+    );
+    expect(wrapper.vm.questionText).toBe(global.dummyItemDetails[1].text);
+    expect(wrapper.vm.questionType).toBe(global.dummyItemDetails[1].type);
     expect(wrapper.vm.isQuestionTypeMCQ).toBe(true);
     expect(wrapper.vm.isQuestionTypeSubjective).toBe(false);
   });
@@ -73,8 +77,8 @@ describe("ItemModal.vue", () => {
     const toggleMinimizeMock = jest.spyOn(ItemModal.methods, "toggleMinimize");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: clonedeep(dummyItems),
-        itemDetailList: clonedeep(dummyItemDetails),
+        itemList: clonedeep(global.dummyItems),
+        itemDetailList: clonedeep(global.dummyItemDetails),
         videoPlayerElementId: "videoPlayer",
       },
     });
@@ -91,8 +95,8 @@ describe("ItemModal.vue", () => {
     const skipQuestionMock = jest.spyOn(ItemModal.methods, "skipQuestion");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: clonedeep(dummyItems),
-        itemDetailList: clonedeep(dummyItemDetails),
+        itemList: clonedeep(global.dummyItems),
+        itemDetailList: clonedeep(global.dummyItemDetails),
       },
     });
     wrapper
@@ -108,8 +112,8 @@ describe("ItemModal.vue", () => {
     const reviseQuestionMock = jest.spyOn(ItemModal.methods, "emitRevise");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: clonedeep(dummyItems),
-        itemDetailList: clonedeep(dummyItemDetails),
+        itemList: clonedeep(global.dummyItems),
+        itemDetailList: clonedeep(global.dummyItemDetails),
       },
     });
     wrapper
@@ -122,18 +126,18 @@ describe("ItemModal.vue", () => {
   });
 
   it("submits subjective question", async () => {
-    var responseList = [];
-    dummyItems.forEach(() => {
+    let responseList = [];
+    global.dummyItems.forEach(() => {
       responseList.push({
         answer: null,
       });
     });
-    var draftResponses = clonedeep(dummyItemResponses);
+    let draftResponses = clonedeep(global.dummyItemResponses);
     const submitQuestionMock = jest.spyOn(ItemModal.methods, "submitQuestion");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: clonedeep(dummyItems),
-        itemDetailList: clonedeep(dummyItemDetails),
+        itemList: clonedeep(global.dummyItems),
+        itemDetailList: clonedeep(global.dummyItemDetails),
         responseList: responseList,
         selectedItemIndex: 2,
       },
@@ -159,8 +163,8 @@ describe("ItemModal.vue", () => {
   });
 
   it("submits mcq question", async () => {
-    var responseList = [];
-    dummyItems.forEach(() => {
+    let responseList = [];
+    global.dummyItems.forEach(() => {
       responseList.push({
         answer: null,
       });
@@ -168,8 +172,8 @@ describe("ItemModal.vue", () => {
     const submitQuestionMock = jest.spyOn(ItemModal.methods, "submitQuestion");
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: clonedeep(dummyItems),
-        itemDetailList: clonedeep(dummyItemDetails),
+        itemList: clonedeep(global.dummyItems),
+        itemDetailList: clonedeep(global.dummyItemDetails),
         responseList: responseList,
         selectedItemIndex: 1,
       },
@@ -204,8 +208,8 @@ describe("ItemModal.vue", () => {
     );
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: clonedeep(dummyItems),
-        itemDetailList: clonedeep(dummyItemDetails),
+        itemList: clonedeep(global.dummyItems),
+        itemDetailList: clonedeep(global.dummyItemDetails),
         responseList: responseList,
       },
     });
@@ -231,8 +235,8 @@ describe("ItemModal.vue", () => {
     );
     const wrapper = mount(ItemModal, {
       props: {
-        itemList: clonedeep(dummyItems),
-        itemDetailList: clonedeep(dummyItemDetails),
+        itemList: clonedeep(global.dummyItems),
+        itemDetailList: clonedeep(global.dummyItemDetails),
         responseList: responseList,
         selectedItemIndex: 1,
       },

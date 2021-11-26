@@ -24,7 +24,7 @@ describe("QuestionTypeDropdown.vue", () => {
       },
     });
     await nextTick();
-    var listItems = wrapper.findAll("li");
+    let listItems = wrapper.findAll("li");
     expect(listItems.length).toBe(2);
 
     const option1 = wrapper.find('[data-test="option-0"]');
