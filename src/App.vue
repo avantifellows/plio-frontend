@@ -2,7 +2,7 @@
   <div class="flex relative">
     <div
       class="w-full"
-      :class="{ 'opacity-20 pointer-events-none': isBackgroundDisabledLocal }"
+      :class="{ 'opacity-20 pointer-events-none': isBackgroundDisabled }"
       @keydown="keyboardPressed"
     >
       <div
@@ -180,6 +180,12 @@
         :plioId="selectedPlioId"
       ></EmbedPlioDialog>
     </div>
+    <!-- spinner -->
+    <inline-svg
+      v-if="isSpinnerShown"
+      :src="getImageSource('spinner.svg')"
+      class="fixed animate-spin h-10 top-1/2 w-full"
+    ></inline-svg>
   </div>
   <vue-progress-bar></vue-progress-bar>
 </template>
@@ -193,6 +199,7 @@ import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
 import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import DialogBox from "@/components/UI/Alert/DialogBox";
+import Utilities from "@/services/Functional/Utilities.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 
@@ -361,7 +368,7 @@ export default {
     ...mapActions("generic", [
       "unsetSharePlioDialog",
       "unsetEmbedPlioDialog",
-      "enableBackground",
+      "hideSpinner",
       "setWindowInnerWidth",
       "setWindowInnerHeight",
     ]),
@@ -377,12 +384,13 @@ export default {
       "setCancelClicked",
       "unsetDialogCloseButton",
     ]),
+    ...Utilities,
     /**
      * resets various state variables when the app is created
      */
     resetAppState() {
       if (this.pending) this.stopLoading();
-      if (this.isBackgroundDisabled) this.enableBackground();
+      if (this.isSpinnerShown) this.hideSpinner();
       if (this.isDialogBoxShown) this.resetDialogBox();
     },
     /**
@@ -553,8 +561,8 @@ export default {
      * triggered when any keyboard button is pressed
      */
     keyboardPressed() {
-      // prevent keyboard buttons from working if isBackgroundDisabledLocal = true
-      if (this.isBackgroundDisabledLocal) event.preventDefault();
+      // prevent keyboard buttons from working if the background is disabled
+      if (this.isBackgroundDisabled) event.preventDefault();
     },
   },
   computed: {
@@ -566,7 +574,7 @@ export default {
       "isEmbedPlioDialogShown",
       "plioLinkToShare",
       "selectedPlioId",
-      "isBackgroundDisabled",
+      "isSpinnerShown",
     ]),
     ...mapState("sync", ["pending"]),
     ...mapState("dialog", {
@@ -853,13 +861,13 @@ export default {
     /**
      * whether the background should be disabled
      */
-    isBackgroundDisabledLocal() {
+    isBackgroundDisabled() {
       return (
         this.showLanguagePickerDialog ||
         this.isSharePlioDialogShown ||
         this.isEmbedPlioDialogShown ||
-        this.isBackgroundDisabled ||
-        this.isDialogBoxShown
+        this.isDialogBoxShown ||
+        this.isSpinnerShown
       );
     },
     /**
