@@ -7,7 +7,7 @@ export default function createUsersWebSocket() {
     // https://vuex.vuejs.org/api/#subscribe
     if (unsubscribeCallback != null) unsubscribeCallback();
 
-    var UsersWebsocket;
+    let UsersWebsocket;
     if (
       store.getters["auth/isAuthenticated"] &&
       process.env.VUE_APP_BACKEND_WEBSOCKET != undefined

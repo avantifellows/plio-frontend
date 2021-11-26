@@ -22,7 +22,7 @@ const getters = {
     return state.accessToken != null && state.accessToken.refresh_token != null;
   },
   locale: (state) => {
-    var configValue = JSON.parse(state.config);
+    let configValue = JSON.parse(state.config);
     if (configValue != null) return configValue.locale;
     return null;
   },
@@ -54,7 +54,7 @@ const getters = {
   },
   isAnalyticsAccessTokenValid: (state) => {
     if (state.analyticsAccessToken === null) return false;
-    var currentTimeString = new Date().toString();
+    let currentTimeString = new Date().toString();
     const timeDifference =
       (Date.parse(currentTimeString) -
         Date.parse(state.analyticsAccessTokenFetchTime)) /

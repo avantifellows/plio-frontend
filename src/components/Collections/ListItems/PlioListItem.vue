@@ -47,20 +47,6 @@
       </div>
     </div>
   </div>
-  <!-- generic dialog box -->
-  <dialog-box
-    class="fixed top-1/3 bp-420:left-1/4 sm:left-1/3 z-10"
-    :style="dialogStyle"
-    v-if="showDialogBox"
-    :title="dialogTitle"
-    :description="dialogDescription"
-    :confirmButtonConfig="dialogConfirmButtonConfig"
-    :cancelButtonConfig="dialogCancelButtonConfig"
-    @confirm="dialogConfirmed"
-    @cancel="dialogCancelled"
-    data-test="dialogBox"
-    v-click-away="dialogCancelled"
-  ></dialog-box>
 </template>
 
 <script>
@@ -69,7 +55,6 @@ import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
 import Utilities from "@/services/Functional/Utilities.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
-import DialogBox from "@/components/UI/Alert/DialogBox";
 import OptionDropdown from "@/components/UI/DropDownMenu/OptionDropdown.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
 import { mapState, mapGetters, mapActions } from "vuex";
@@ -87,7 +72,6 @@ export default {
     SimpleBadge,
     PlioListItemSkeleton,
     OptionDropdown,
-    DialogBox,
   },
 
   data() {
@@ -98,11 +82,6 @@ export default {
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       urlCopyButtonClass: "text-yellow-600",
       scrollY: window.scrollY, // the number of pixels scrolled vertically
-      showDialogBox: false, // whether to show the dialog box
-      dialogTitle: "", // title for the dialog box
-      dialogDescription: "", // description for the dialog box
-      dialogConfirmButtonConfig: {}, // config of the confirm button of the dialog box
-      dialogCancelButtonConfig: {}, // config of the cancel button of the dialog box
       toast: useToast(), // toast component
       optionsOverflowMarginTop: -14, // margin to be set from the top when the options would overflow from the screen
     };
@@ -138,21 +117,15 @@ export default {
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
-    ...mapState("generic", ["windowInnerWidth"]),
+    ...mapState("generic", ["selectedPlioId"]),
     ...mapState("plioItems", ["allPlioDetails"]),
     ...mapGetters("generic", ["isTabScreen"]),
-
-    dialogStyle() {
-      /**
-       * dynamic style for the dialog box
-       * these styles were not available as part of tailwind
-       * seemed too specific to add them to the config
-       */
-      if (this.windowInnerWidth > 420) return "";
-      if (this.windowInnerWidth > 400) return "left: 20%";
-      if (this.windowInnerWidth > 340) return "left: 15%";
-      return "left: 10%";
-    },
+    ...mapState("dialog", {
+      isDialogBoxShown: "isShown",
+      dialogAction: "action",
+      isDialogConfirmClicked: "isConfirmClicked",
+      isDialogCancelClicked: "isCancelClicked",
+    }),
 
     plioActionOptions() {
       // the list of action buttons
@@ -261,13 +234,67 @@ export default {
     },
   },
 
+  watch: {
+    isDialogConfirmClicked(value) {
+      if (value) {
+        switch (this.dialogAction) {
+          case "deletePlio":
+            this.deletePlio();
+            break;
+          default:
+            // this watch will be triggered whenever the confirm button
+            // of the shared dialog box will be clicked
+            // returning here so that it doesn't interfere with the
+            // confirmation step of a different dialogAction triggered
+            // by a different component
+            return;
+        }
+        this.unsetConfirmClicked();
+        // if any of the cases above creates a new dialog box
+        // with a new dialogAction, we do not want to unset it
+        if (!this.isDialogBoxShown) this.unsetDialogAction();
+      }
+    },
+    isDialogCancelClicked(value) {
+      if (value) {
+        switch (this.dialogAction) {
+          case "deletePlio":
+            break;
+          default:
+            // this watch will be triggered whenever the cancel button
+            // of the shared dialog box will be clicked
+            // returning here so that it doesn't interfere with the
+            // cancellation step of a different dialogAction triggered
+            // by a different component
+            return;
+        }
+        this.unsetCancelClicked();
+        // if any of the cases above creates a new dialog box
+        // with a new dialogAction, we do not want to unset it
+        if (!this.isDialogBoxShown) this.unsetDialogAction();
+      }
+    },
+  },
+
   methods: {
     ...mapActions("plioItems", ["fetchPlio"]),
     ...mapActions("generic", [
       "showSharePlioDialog",
       "showEmbedPlioDialog",
-      "disableBackground",
-      "enableBackground",
+      "showSpinner",
+      "hideSpinner",
+      "setSelectedPlioId",
+    ]),
+    ...mapActions("dialog", [
+      "showDialogBox",
+      "setDialogTitle",
+      "setDialogDescription",
+      "setConfirmButtonConfig",
+      "setCancelButtonConfig",
+      "setDialogAction",
+      "unsetDialogAction",
+      "unsetConfirmClicked",
+      "unsetCancelClicked",
     ]),
     ...Utilities,
     /**
@@ -292,7 +319,7 @@ export default {
         else this.optionsOverflowMarginTop = -16;
       } else this.optionsOverflowMarginTop = -14;
     },
-    runAction(_, action) {
+    async runAction(_, action) {
       // invoked when one of the action buttons is clicked
       switch (action) {
         case "play":
@@ -315,23 +342,25 @@ export default {
           break;
         case "delete":
           // configure the dialog box
-          this.dialogTitle = this.$t("home.table.plio_list_item.dialog.delete.title");
-          this.dialogDescription = this.$t(
-            "home.table.plio_list_item.dialog.delete.description"
+          this.setDialogTitle(this.$t("home.table.plio_list_item.dialog.delete.title"));
+          this.setDialogDescription(
+            this.$t("home.table.plio_list_item.dialog.delete.description")
           );
-          this.dialogConfirmButtonConfig = {
+          this.setConfirmButtonConfig({
             enabled: true,
             text: this.$t("generic.yes"),
             class:
               "bg-white hover:bg-gray-100 focus:outline-none focus:ring-0 text-primary",
-          };
-          this.dialogCancelButtonConfig = {
+          });
+          this.setCancelButtonConfig({
             enabled: true,
             text: this.$t("generic.no"),
             class: "bg-primary hover:bg-primary-hover focus:outline-none text-white",
-          };
+          });
           // show the dialog box
-          this.showDialogBox = true;
+          this.showDialogBox();
+          this.setDialogAction("deletePlio");
+          await this.setSelectedPlioId(this.plioId);
           break;
       }
     },
@@ -369,34 +398,27 @@ export default {
         params: { plioId: this.plioId, org: this.activeWorkspace },
       });
     },
-    dialogConfirmed() {
-      // triggered upon clicking on the confirm button of the dialog box
-
-      // blur background and disable all buttons to prevent any action
-      // from taking action while the deletion is in progress
-      this.disableBackground();
-      PlioAPIService.deletePlio(this.plioId)
+    /**
+     * deletes the selected plio
+     */
+    deletePlio() {
+      this.showSpinner();
+      // using selectedPlioId here instead of plioId because
+      // the watcher that calls this function always runs on the
+      // last plio in the list of plios
+      PlioAPIService.deletePlio(this.selectedPlioId)
         .then(() => {
-          // restore background
-          this.enableBackground();
-          // hide dialog box
-          this.showDialogBox = false;
+          this.hideSpinner();
           // notify of success
           this.toast.success(this.$t("home.table.plio_list_item.toast.delete.success"));
           this.$emit("deleted");
         })
         .catch(() => {
           // restore background
-          this.enableBackground();
-          // hide dialog box
-          this.showDialogBox = false;
+          this.hideSpinner();
           // notify of error
           this.toast.error(this.$t("home.table.plio_list_item.toast.delete.error"));
         });
-    },
-    dialogCancelled() {
-      // triggered upon clicking on the cancel button of the dialog box
-      this.showDialogBox = false;
     },
     /**
      * Duplicates the current plio in the following sequence:

@@ -8,7 +8,7 @@ export default {
    */
   getPlioLink(plioId, activeWorkspace) {
     if (plioId == "") return "";
-    var baseURL = process.env.VUE_APP_FRONTEND;
+    let baseURL = process.env.VUE_APP_FRONTEND;
     baseURL = baseURL.replace("http://", "");
     baseURL = baseURL.replace("https://", "");
     if (activeWorkspace != "") baseURL += "/" + activeWorkspace;
@@ -35,7 +35,7 @@ export default {
    */
   getPlioEmbedLink(plioId, activeWorkspace) {
     if (plioId == "") return "";
-    var baseURL = process.env.VUE_APP_FRONTEND;
+    let baseURL = process.env.VUE_APP_FRONTEND;
     if (activeWorkspace != "") baseURL += "/" + activeWorkspace;
     return baseURL + "/plio/" + plioId;
   },
@@ -105,11 +105,11 @@ export default {
    * @returns {Boolean} whether the value was successfully copied
    */
   copyToClipboard(value) {
-    var hiddenElement = document.createElement("textarea");
+    let hiddenElement = document.createElement("textarea");
     document.body.appendChild(hiddenElement);
     hiddenElement.value = value;
     hiddenElement.select();
-    var success = document.execCommand("copy");
+    let success = document.execCommand("copy");
     document.body.removeChild(hiddenElement);
     return success;
   },
@@ -119,7 +119,7 @@ export default {
  * An identifier to hold the current animation frame request.
  * useful when it's needed to cancel a particular animation frame
  */
-export var animationFrameRequest = null;
+export let animationFrameRequest = null;
 
 /**
  * Animates confetti gun for a certain amount of time

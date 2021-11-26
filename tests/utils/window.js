@@ -1,15 +1,17 @@
-export function setMatchMedia(value) {
+global.setMatchMedia = (value) => {
   Object.defineProperty(window, "matchMedia", {
     writable: true,
+    /* deepscan-disable */
     value: jest.fn().mockImplementation((query) => ({
       matches: value,
       media: query,
       onchange: null,
-      addListener: jest.fn(), // deprecated
-      removeListener: jest.fn(), // deprecated
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
       addEventListener: jest.fn(),
       removeEventListener: jest.fn(),
       dispatchEvent: jest.fn(),
     })),
+    /* deepscan-enable */
   });
-}
+};

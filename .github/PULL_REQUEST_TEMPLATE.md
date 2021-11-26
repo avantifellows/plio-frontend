@@ -29,17 +29,20 @@ Fixes #{issue id}
    - [ ] Firefox
    - [ ] Safari (use BrowserStack)
 - [ ] Local Language Support
-- [ ] Wrote tests
-- [ ] Tested locally
-- [ ] Self-review
-- [ ] Comments have been added appropriately
-- [ ] Check for bundle size [here](https://bundlephobia.com/) if adding a package
-- [ ] Added relevant details like Labels/Projects/Milestones etc.
-- [ ] Images have `alt` attributes
-- [ ] Any `<img>` tags have `width` and `height` specified
-- [ ] Any `target="_blank"` links have `rel="noopener"`
-- [ ] Only SVGs are used as images. If PNGs are used, their size has been optimised.
-- [ ] Any SVGs without text have their `aria-label` attributes set
-- [ ] Tested on staging
-- [ ] Tested on an actual physical phone
-- [ ] Tested on production
+- [ ] Hygiene and Housekeeping
+   - [ ] Self-review
+   - [ ] Comments have been added appropriately
+   - [ ] Check for bundle size [here](https://bundlephobia.com/) if adding a package
+   - [ ] Added relevant details like Labels/Projects/Milestones etc.
+- [ ] Testing
+   - [ ] Wrote tests
+   - [ ] Tested locally
+   - [ ] Tested on staging
+   - [ ] Tested on an actual physical phone
+   - [ ] Tested on production
+- [ ] Lighthouse Checks
+   - [ ] Images have `alt` attributes
+   - [ ] Any `<img>` tags have `width` and `height` specified
+   - [ ] Any `target="_blank"` links have `rel="noopener"`
+   - [ ] Only SVGs are used as images. If PNGs are used, their size has been optimised.
+   - [ ] Any SVGs without text have their `aria-label` attributes set
