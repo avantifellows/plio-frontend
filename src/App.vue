@@ -561,7 +561,7 @@ export default {
      * triggered when any keyboard button is pressed
      */
     keyboardPressed() {
-      // prevent keyboard buttons from working if isBackgroundDisabled = true
+      // prevent keyboard buttons from working if the background is disabled
       if (this.isBackgroundDisabled) event.preventDefault();
     },
   },
