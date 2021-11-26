@@ -12,7 +12,7 @@
             :text="statusBadge"
             class="absolute"
             :badgeClass="statusBadgeClass"
-            v-tooltip.top="statusBadgeTooltip"
+            v-tooltip="statusBadgeTooltip"
           ></simple-badge>
 
           <!--
@@ -23,7 +23,7 @@
             :text="$t(`generic.status.published`)"
             class="invisible"
             :badgeClass="statusBadgeClass"
-            v-tooltip.top="statusBadgeTooltip"
+            v-tooltip="statusBadgeTooltip"
           ></simple-badge>
         </div>
 

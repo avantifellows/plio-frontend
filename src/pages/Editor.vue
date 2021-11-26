@@ -192,7 +192,7 @@
               :iconConfig="publishButtonIconConfig"
               :class="publishButtonClass"
               class="shadow-lg"
-              v-tooltip.right="publishButtonTooltip"
+              v-tooltip="publishButtonTooltip"
               @click="showPublishConfirmationDialogBox"
               data-test="publishButton"
             ></icon-button>
@@ -247,7 +247,7 @@
               ref="videoLink"
               :boxStyling="videoLinkInputStyling"
               :isDisabled="isPublished"
-              v-tooltip.top="videoLinkTooltip"
+              v-tooltip="videoLinkTooltip"
               data-test="videoLinkInput"
             ></input-text>
 
@@ -284,7 +284,7 @@
                     @click="addNewItem('mcq')"
                     class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                     :class="questionTypeSelectorClass"
-                    v-tooltip.bottom="addMCQTooltip"
+                    v-tooltip="addMCQTooltip"
                     data-test="addMCQItem"
                   >
                     <inline-svg
@@ -298,7 +298,7 @@
                     @click="addNewItem('subjective')"
                     class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                     :class="questionTypeSelectorClass"
-                    v-tooltip.bottom="addSubjectiveQuestionTooltip"
+                    v-tooltip="addSubjectiveQuestionTooltip"
                     data-test="addSubjectiveItem"
                   >
                     <inline-svg
@@ -348,7 +348,7 @@
       class="absolute -top-12"
       :text="statusBadge"
       :badgeClass="statusBadgeClass"
-      v-tooltip.top="statusBadgeTooltip"
+      v-tooltip="statusBadgeTooltip"
     ></simple-badge>
 
     <canvas

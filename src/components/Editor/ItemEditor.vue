@@ -47,27 +47,34 @@
       ></icon-button>
 
       <!-- add item button -->
-      <icon-button
-        class="rounded-xl w-8 h-8 px-2 hidden bp-360:block"
-        :iconConfig="addItemIconConfig"
-        :buttonClass="addItemButtonClass"
-        @click="removeSelectedItemIndex"
-        v-tooltip.top="addItemButtonTooltip"
-        :disabled="isInteractionDisabled"
-        ariaLabel="add item"
-        data-test="addItem"
-      ></icon-button>
+      <!-- adding an enclosing span to show tooltip when disabled -->
+      <span v-tooltip="addItemButtonTooltip" tabindex="0">
+        <icon-button
+          class="rounded-xl w-8 h-8 px-2 hidden bp-360:block"
+          :iconConfig="addItemIconConfig"
+          :buttonClass="addItemButtonClass"
+          @click="removeSelectedItemIndex"
+          v-tooltip="addItemButtonTooltip"
+          :disabled="isInteractionDisabled"
+          ariaLabel="add item"
+          data-test="addItem"
+        ></icon-button>
+      </span>
 
       <!-- delete item button -->
-      <icon-button
-        class="rounded-xl bg-red-600 hover:bg-red-700 w-8 h-8 shadow-lg px-2"
-        :iconConfig="deleteItemIconConfig"
-        @click="deleteSelectedItem"
-        :buttonClass="deleteItemButtonClass"
-        :disabled="isInteractionDisabled"
-        data-test="deleteItem"
-        ariaLabel="delete item"
-      ></icon-button>
+      <!-- adding an enclosing span to show tooltip when disabled -->
+      <span v-tooltip="deleteItemButtonTooltip" tabindex="0">
+        <icon-button
+          class="rounded-xl bg-red-600 hover:bg-red-700 w-8 h-8 shadow-lg px-2"
+          :iconConfig="deleteItemIconConfig"
+          @click="deleteSelectedItem"
+          :buttonClass="deleteItemButtonClass"
+          :disabled="isInteractionDisabled"
+          v-tooltip="deleteItemButtonTooltip"
+          data-test="deleteItem"
+          ariaLabel="delete item"
+        ></icon-button>
+      </span>
     </div>
 
     <!-- item editor -->
@@ -129,15 +136,17 @@
       </div>
       <!-- add option button -->
       <div class="flex justify-end mr-2 mt-2" v-if="isQuestionTypeMCQ">
-        <icon-button
-          :titleConfig="addOptionButtonTitleConfig"
-          class="float-right"
-          @click="addOption"
-          :buttonClass="addOptionButtonClass"
-          :disabled="isInteractionDisabled"
-          v-tooltip.bottom="addOptionTooltip"
-          data-test="addOption"
-        ></icon-button>
+        <span v-tooltip="addOptionTooltip" tabindex="0">
+          <icon-button
+            :titleConfig="addOptionButtonTitleConfig"
+            class="float-right"
+            @click="addOption"
+            :buttonClass="addOptionButtonClass"
+            :disabled="isInteractionDisabled"
+            v-tooltip="addOptionTooltip"
+            data-test="addOption"
+          ></icon-button>
+        </span>
       </div>
 
       <!-- setting max char limit -->
@@ -572,13 +581,10 @@ export default {
       // tooltip text for delete item button
       // itemType is just "question" right now - parametrize when more types are supported
 
-      // TODO: uncomment below code when a non-buggy tooltip is implemented
-
-      // var itemType = "question"
-      // if (this.isInteractionDisabled)
-      //   return `You cannot delete a ${itemType} once the plio is published`
-      // return "Delete this ${itemType}"
-      return undefined;
+      let itemType = "question";
+      if (this.isInteractionDisabled)
+        return `You cannot delete a ${itemType} once the plio is published`;
+      return `Delete this ${itemType}`;
     },
     addItemButtonTooltip() {
       // tooltip for the smaller add item button

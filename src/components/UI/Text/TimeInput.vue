@@ -16,7 +16,7 @@
         :maxLength="2"
         :boxStyling="[defaultBoxClass, hourInputInvalidClass]"
         :isDisabled="isDisabled"
-        v-tooltip.bottom="{ value: disabledInputTooltip, disabled: !isDisabled }"
+        v-tooltip="disabledInputTooltip"
         data-test="hour"
       ></input-text>
 
@@ -31,7 +31,7 @@
         :maxLength="2"
         :boxStyling="[defaultBoxClass, minuteInputInvalidClass]"
         :isDisabled="isDisabled"
-        v-tooltip.bottom="{ value: disabledInputTooltip, disabled: !isDisabled }"
+        v-tooltip="disabledInputTooltip"
         data-test="minute"
       ></input-text>
 
@@ -46,7 +46,7 @@
         :maxLength="2"
         :boxStyling="[defaultBoxClass, secondInputInvalidClass]"
         :isDisabled="isDisabled"
-        v-tooltip.bottom="{ value: disabledInputTooltip, disabled: !isDisabled }"
+        v-tooltip="disabledInputTooltip"
         data-test="second"
       ></input-text>
 
@@ -63,7 +63,7 @@
         :maxLength="3"
         :boxStyling="[defaultBoxClass, millisecondInputInvalidClass]"
         :isDisabled="isDisabled"
-        v-tooltip.bottom="{ value: disabledInputTooltip, disabled: !isDisabled }"
+        v-tooltip="disabledInputTooltip"
         data-test="millisecond"
       ></input-text>
     </div>
