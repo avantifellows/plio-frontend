@@ -42,12 +42,12 @@ describe("App.vue for authenticated user", () => {
       .spyOn(UserAPIService, "getUserByAccessToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyUser });
+          resolve({ data: global.dummyUser });
         });
       });
 
     // set user
-    await store.dispatch("auth/setAccessToken", dummyAccessToken);
+    await store.dispatch("auth/setAccessToken", global.dummyAccessToken);
 
     router.push("/home");
 
@@ -65,17 +65,17 @@ describe("App.vue for authenticated user", () => {
     expect(wrapper.vm.isAuthenticated).toBeTruthy();
   });
 
-  it("shows dialog box when dialog box is set to be shown", async () => {
+  it("shows dialog box correctly", async () => {
     // dialog box shouldn't be shown at first
     expect(wrapper.vm.isDialogBoxShown).toBeFalsy();
     expect(wrapper.find('[data-test="dialogBox"]').exists()).toBeFalsy();
 
-    // set the dialog box to be shown and its properties
+    // set the properties of the dialog box and show it
     await store.dispatch("dialog/setDialogTitle", dialogTitle);
     await store.dispatch("dialog/setDialogDescription", dialogDescription);
     await store.dispatch("dialog/setConfirmButtonConfig", confirmButtonConfig);
     await store.dispatch("dialog/setCancelButtonConfig", cancelButtonConfig);
-    await store.dispatch("dialog/setDialogBox");
+    await store.dispatch("dialog/showDialogBox");
 
     // the dialog box should be shown now
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
@@ -103,7 +103,7 @@ describe("App.vue for authenticated user", () => {
         confirmButtonConfig
       );
       await store.dispatch("dialog/setCancelButtonConfig", cancelButtonConfig);
-      await store.dispatch("dialog/setDialogBox");
+      await store.dispatch("dialog/showDialogBox");
     });
 
     it("clicking cancel closes dialog and sets cancel click status", async () => {

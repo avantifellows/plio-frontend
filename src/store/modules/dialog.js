@@ -25,11 +25,11 @@ const state = {
 const getters = {};
 
 const actions = {
-  setDialogBox({ commit }) {
-    commit("setDialogBox");
+  showDialogBox({ commit }) {
+    commit("showDialogBox");
   },
-  unsetDialogBox({ commit }) {
-    commit("unsetDialogBox");
+  hideDialogBox({ commit }) {
+    commit("hideDialogBox");
   },
   setDialogCloseButton({ commit }) {
     commit("setDialogCloseButton");
@@ -88,10 +88,10 @@ const actions = {
 };
 
 const mutations = {
-  setDialogBox(state) {
+  showDialogBox(state) {
     state.isShown = true;
   },
-  unsetDialogBox(state) {
+  hideDialogBox(state) {
     state.isShown = false;
   },
   setDialogCloseButton(state) {

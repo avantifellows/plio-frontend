@@ -66,8 +66,19 @@ describe("Editor.vue", () => {
     expect(showPublishConfirmationDialogBox).toHaveBeenCalled();
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
     await flushPromises();
+
+    expect(store.state.dialog.action).toBe("");
+    expect(store.state.dialog.isShown).toBeTruthy();
+    expect(store.state.dialog.title).toBe("Publishing the plio...");
+
+    expect(store.state.dialog.confirmButtonConfig.enabled).toBeFalsy();
+    expect(store.state.dialog.confirmButtonConfig.text).toBe("");
+    expect(store.state.dialog.confirmButtonConfig.class).toBe("");
+    expect(store.state.dialog.cancelButtonConfig.enabled).toBeFalsy();
+    expect(store.state.dialog.cancelButtonConfig.text).toBe("");
+    expect(store.state.dialog.cancelButtonConfig.class).toBe("");
 
     expect(confirmPublish).toHaveBeenCalled();
     expect(publishPlio).toHaveBeenCalled();
@@ -216,8 +227,8 @@ describe("Editor.vue", () => {
         });
         return {
           videoId: "jdYJf_ybyVo",
-          items: clonedeep(dummyItems),
-          itemDetails: clonedeep(dummyItemDetails),
+          items: clonedeep(global.dummyItems),
+          itemDetails: clonedeep(global.dummyItemDetails),
           currentItemIndex: 0,
           confettiHandler: confettiHandler,
         };
@@ -233,7 +244,7 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="publishButton"]').trigger("click");
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     await flushPromises();
 
@@ -293,26 +304,29 @@ describe("Editor.vue", () => {
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
 
     // resolve the loadPlio method with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
     // use `wrapper.vm.__` to access the updated data variables inside the component
-    expect(wrapper.vm.loadedPlioDetails.items).toStrictEqual(dummyItems);
+    expect(wrapper.vm.loadedPlioDetails.items).toStrictEqual(global.dummyItems);
     expect(wrapper.vm.loadedPlioDetails.itemDetails).toStrictEqual(
-      dummyItemDetails
+      global.dummyItemDetails
     );
-    expect(wrapper.vm.items).toStrictEqual(dummyItems);
-    expect(wrapper.vm.videoURL).toEqual(dummyDraftPlio.data.video.url);
-    expect(wrapper.vm.plioTitle).toEqual(dummyDraftPlio.data.name);
-    expect(wrapper.vm.status).toEqual(dummyDraftPlio.data.status);
+    expect(wrapper.vm.items).toStrictEqual(global.dummyItems);
+    expect(wrapper.vm.videoURL).toEqual(global.dummyDraftPlio.data.video.url);
+    expect(wrapper.vm.plioTitle).toEqual(global.dummyDraftPlio.data.name);
+    expect(wrapper.vm.status).toEqual(global.dummyDraftPlio.data.status);
     expect(wrapper.vm.lastUpdated).toEqual(
-      new Date(dummyDraftPlio.data.updated_at)
+      new Date(global.dummyDraftPlio.data.updated_at)
     );
     expect(wrapper.vm.hasUnpublishedChanges).toBeFalsy();
-    expect(wrapper.vm.videoDBId).toEqual(dummyDraftPlio.data.video.id);
-    expect(wrapper.vm.plioDBId).toEqual(dummyDraftPlio.data.id);
+    expect(wrapper.vm.videoDBId).toEqual(global.dummyDraftPlio.data.video.id);
+    expect(wrapper.vm.plioDBId).toEqual(global.dummyDraftPlio.data.id);
   });
 
   it("saves changes when items are changed", async () => {
@@ -334,29 +348,32 @@ describe("Editor.vue", () => {
       },
       data() {
         return {
-          items: clonedeep(dummyItems),
-          itemDetails: clonedeep(dummyItemDetails),
+          items: clonedeep(global.dummyItems),
+          itemDetails: clonedeep(global.dummyItemDetails),
           videoId: "jdYJf_ybyVo",
         };
       },
     });
 
     // resolve the loadPlio method with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
     await flushPromises();
 
     // items not changed, method not called at first
     expect(saveChanges).not.toHaveBeenCalled();
 
     // update time of one of the items
-    let updatedItems = clonedeep(dummyItems);
+    let updatedItems = clonedeep(global.dummyItems);
     updatedItems[0].time += 10;
     wrapper.vm.items[0].time += 10;
     await flushPromises();
 
     expect(saveChanges).toHaveBeenCalledWith(
       "item",
-      dummyItems[0].id,
+      global.dummyItems[0].id,
       updatedItems[0]
     );
   });
@@ -381,15 +398,18 @@ describe("Editor.vue", () => {
       },
       data() {
         return {
-          items: clonedeep(dummyItems),
-          itemDetails: clonedeep(dummyItemDetails),
+          items: clonedeep(global.dummyItems),
+          itemDetails: clonedeep(global.dummyItemDetails),
           videoId: "jdYJf_ybyVo",
         };
       },
     });
 
     // resolve the loadPlio method with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
     await flushPromises();
     await store.dispatch("sync/stopLoading");
 
@@ -398,13 +418,13 @@ describe("Editor.vue", () => {
 
     // update the text of one of the itemDetails
     const newQuestionText = "text";
-    let updatedItemDetails = clonedeep(dummyItemDetails);
+    let updatedItemDetails = clonedeep(global.dummyItemDetails);
     updatedItemDetails[0].text = newQuestionText;
     wrapper.vm.itemDetails[0].text = updatedItemDetails[0].text;
     await flushPromises();
     expect(saveChanges).toHaveBeenCalledWith(
       "question",
-      dummyItemDetails[0].id,
+      global.dummyItemDetails[0].id,
       updatedItemDetails[0]
     );
   });
@@ -471,7 +491,7 @@ describe("Editor.vue", () => {
 
     mockAxios.mockResponse(
       {
-        data: dummyVideo,
+        data: global.dummyVideo,
       },
       mockAxios.queue()[0]
     );
@@ -480,7 +500,7 @@ describe("Editor.vue", () => {
 
     expect(mockAxios.patch).toHaveBeenCalledTimes(1);
     expect(mockAxios.patch).toHaveBeenCalledWith(`/plios/${plioId}`, {
-      video: dummyVideo.id,
+      video: global.dummyVideo.id,
     });
   });
 
@@ -494,7 +514,7 @@ describe("Editor.vue", () => {
       data() {
         return {
           videoId: initialVideoId,
-          videoDBId: dummyVideo.id,
+          videoDBId: global.dummyVideo.id,
         };
       },
     });
@@ -517,16 +537,23 @@ describe("Editor.vue", () => {
       .setValue(newVideoURL);
 
     expect(wrapper.vm.videoId).toBe("abcdefghijk");
-    expect(checkAndSaveChanges).toHaveBeenCalledWith("video", dummyVideo.id, {
-      duration: 0,
-      url: newVideoURL,
-    });
+    expect(checkAndSaveChanges).toHaveBeenCalledWith(
+      "video",
+      global.dummyVideo.id,
+      {
+        duration: 0,
+        url: newVideoURL,
+      }
+    );
 
     expect(mockAxios.patch).toHaveBeenCalledTimes(1);
-    expect(mockAxios.patch).toHaveBeenCalledWith(`/videos/${dummyVideo.id}`, {
-      url: newVideoURL,
-      duration: 0,
-    });
+    expect(mockAxios.patch).toHaveBeenCalledWith(
+      `/videos/${global.dummyVideo.id}`,
+      {
+        url: newVideoURL,
+        duration: 0,
+      }
+    );
   });
 
   it("share plio button works correctly", async () => {
@@ -642,7 +669,7 @@ describe("Editor.vue", () => {
 
     // resolve the `GET` request waiting in the queue (for receiving plio details)
     // using the fake response data
-    let plioResponse = clonedeep(dummyDraftPlio);
+    let plioResponse = clonedeep(global.dummyDraftPlio);
 
     mockAxios.mockResponse(plioResponse, mockAxios.queue()[0]);
 
@@ -672,7 +699,10 @@ describe("Editor.vue", () => {
     });
 
     // resolve the loadPlio method with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
@@ -680,7 +710,10 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="plioPreviewButton"]').trigger("click");
 
     // resolve the getPlio method within Plio.vue with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
     await flushPromises();
 
     await wrapper.find('[data-test="closePlioPreviewButton"]').trigger("click");
@@ -727,18 +760,21 @@ describe("Editor.vue", () => {
 
     // set items, currentItemIndex and itemDetails
     await wrapper.setData({
-      items: clonedeep(dummyItems),
+      items: clonedeep(global.dummyItems),
       currentItemIndex: 0,
-      itemDetails: dummyItemDetails,
+      itemDetails: global.dummyItemDetails,
     });
 
     // resolve the loadPlio method call with dummy plio details
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
     await flushPromises();
 
     // without any change, the time value of the first item should be the same as
     // originally provided
-    expect(wrapper.vm.items[0].time).toBe(dummyItems[0].time);
+    expect(wrapper.vm.items[0].time).toBe(global.dummyItems[0].time);
 
     // giving the first item an invalid time value
     wrapper.vm.items[0].time = 0.1;
@@ -766,7 +802,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor);
 
     const imageURL = "test url";
-    const dummyItemDetailsWithImage = clonedeep(dummyItemDetails);
+    const dummyItemDetailsWithImage = clonedeep(global.dummyItemDetails);
     dummyItemDetailsWithImage[0].image = {
       id: 56,
       url: imageURL,
@@ -776,7 +812,7 @@ describe("Editor.vue", () => {
     };
 
     await wrapper.setData({
-      items: clonedeep(dummyItems),
+      items: clonedeep(global.dummyItems),
       itemDetails: clonedeep(dummyItemDetailsWithImage),
       currentItemIndex: 0,
     });
@@ -788,25 +824,25 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor);
     await wrapper.setData({
       currentItemIndex: 0,
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
     });
     expect(wrapper.vm.itemType).toBe(null);
     await wrapper.setData({
       isItemSelected: true,
     });
-    expect(wrapper.vm.itemType).toBe(dummyItems[0].type);
+    expect(wrapper.vm.itemType).toBe(global.dummyItems[0].type);
   });
 
   it("computes correctOptionInex correctly", async () => {
     wrapper = mount(Editor);
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: 0,
     });
     expect(wrapper.vm.correctOptionIndex).toBe(
-      dummyItemDetails[0].correct_answer
+      global.dummyItemDetails[0].correct_answer
     );
   });
 
@@ -852,14 +888,14 @@ describe("Editor.vue", () => {
         });
         return {
           videoId: "abcdefgh",
-          videoDBId: dummyVideo.id,
+          videoDBId: global.dummyVideo.id,
           confettiHandler: confettiHandler,
-          items: clonedeep(dummyItems),
-          itemDetails: clonedeep(dummyItemDetails),
+          items: clonedeep(global.dummyItems),
+          itemDetails: clonedeep(global.dummyItemDetails),
         };
       },
       props: {
-        plioId: String(dummyPublishedPlio.data.id),
+        plioId: String(global.dummyPublishedPlio.data.id),
       },
     });
 
@@ -908,7 +944,7 @@ describe("Editor.vue", () => {
     });
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     expect(confirmPublish).toHaveBeenCalled();
     expect(publishPlio).toHaveBeenCalled();
@@ -921,7 +957,7 @@ describe("Editor.vue", () => {
     // mock video response
     mockAxios.mockResponse(
       {
-        data: dummyVideo,
+        data: global.dummyVideo,
       },
       mockAxios.queue()[0]
     );
@@ -929,31 +965,31 @@ describe("Editor.vue", () => {
     await flushPromises();
 
     // 1 call to /items and /questions for each item and 1 call to /plio
-    expect(mockAxios.queue().length).toBe(dummyItems.length * 2 + 1);
+    expect(mockAxios.queue().length).toBe(global.dummyItems.length * 2 + 1);
     expect(updateItem).toHaveBeenCalledTimes(4);
 
     // mock responses to requests for /items
     mockAxios.mockResponse(
       {
-        data: dummyItems[0],
+        data: global.dummyItems[0],
       },
       mockAxios.queue()[0]
     );
     mockAxios.mockResponse(
       {
-        data: dummyItems[1],
+        data: global.dummyItems[1],
       },
       mockAxios.queue()[0]
     );
     mockAxios.mockResponse(
       {
-        data: dummyItems[2],
+        data: global.dummyItems[2],
       },
       mockAxios.queue()[0]
     );
     mockAxios.mockResponse(
       {
-        data: dummyItems[3],
+        data: global.dummyItems[3],
       },
       mockAxios.queue()[0]
     );
@@ -965,25 +1001,25 @@ describe("Editor.vue", () => {
     // mock responses to requests for /questions
     mockAxios.mockResponse(
       {
-        data: dummyItemDetails[0],
+        data: global.dummyItemDetails[0],
       },
       mockAxios.queue()[0]
     );
     mockAxios.mockResponse(
       {
-        data: dummyItemDetails[1],
+        data: global.dummyItemDetails[1],
       },
       mockAxios.queue()[0]
     );
     mockAxios.mockResponse(
       {
-        data: dummyItemDetails[2],
+        data: global.dummyItemDetails[2],
       },
       mockAxios.queue()[0]
     );
     mockAxios.mockResponse(
       {
-        data: dummyItemDetails[3],
+        data: global.dummyItemDetails[3],
       },
       mockAxios.queue()[0]
     );
@@ -1008,7 +1044,7 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="publishButton"]').trigger("click");
 
     // simulate clicking the cancel button of the dialog box
-    await simulateCancelClick(); // deepscan-disable-line
+    await simulateCancelClick();
 
     expect(togglePlioPreviewMode).toHaveBeenCalled();
   });
@@ -1029,7 +1065,7 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="publishButton"]').trigger("click");
 
     // simulate clicking the cancel button of the dialog box
-    await simulateCancelClick(); // deepscan-disable-line
+    await simulateCancelClick();
 
     expect(togglePlioPreviewMode).not.toHaveBeenCalled();
   });
@@ -1316,7 +1352,7 @@ describe("Editor.vue", () => {
     const deleteLinkedImage = jest.spyOn(Editor.methods, "deleteLinkedImage");
     wrapper = mount(Editor);
 
-    const dummyItemDetailsWithImage = clonedeep(dummyItemDetails);
+    const dummyItemDetailsWithImage = clonedeep(global.dummyItemDetails);
     dummyItemDetailsWithImage[0].image = {
       id: 56,
       url: "https://plio-prod-assets.s3.amazonaws.com/images/hxojrjdasf.png",
@@ -1327,7 +1363,7 @@ describe("Editor.vue", () => {
 
     await wrapper.setData({
       isImageUploaderDialogShown: true,
-      items: clonedeep(dummyItems),
+      items: clonedeep(global.dummyItems),
       itemDetails: clonedeep(dummyItemDetailsWithImage),
       itemImage: clonedeep(dummyItemDetailsWithImage[0].image.url),
       currentItemIndex: 0,
@@ -1346,15 +1382,15 @@ describe("Editor.vue", () => {
     const submitImage = jest.spyOn(ImageUploaderDialog.methods, "submitImage");
     wrapper = mount(Editor);
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       isImageUploaderDialogShown: true,
       currentItemIndex: 0,
     });
 
     let imageUploaderWrapper = wrapper.findComponent(ImageUploaderDialog);
     imageUploaderWrapper.setData({
-      localImageData: imageData,
+      localImageData: global.imageData,
     });
 
     await imageUploaderWrapper
@@ -1407,8 +1443,8 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: 0,
       videoDuration: 200,
       status: "draft",
@@ -1452,7 +1488,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.optionIndexToDelete).toBe(0);
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     expect(deleteSelectedOption).toHaveBeenCalled();
     expect(showCannotDeleteOptionDialog).toHaveBeenCalled();
@@ -1474,14 +1510,14 @@ describe("Editor.vue", () => {
     await store.dispatch("dialog/unsetDialogDescription");
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     // dialogAction and dialog confirm click status should be reset
     expect(wrapper.vm.dialogAction).toBeFalsy();
     expect(wrapper.vm.isDialogConfirmClicked).toBeFalsy();
   });
 
-  it("cancelling delete option dialog resets index to delete", async () => {
+  it("cancelling delete option dialog resets option's index to delete", async () => {
     wrapper = mount(Editor, {
       data() {
         return {
@@ -1490,8 +1526,8 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: 0,
       videoDuration: 200,
       status: "draft",
@@ -1507,7 +1543,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.optionIndexToDelete).toBe(0);
 
     // simulate clicking the cancel button of the dialog box
-    await simulateCancelClick(); // deepscan-disable-line
+    await simulateCancelClick();
 
     // the option index to delete must now be reset
     expect(wrapper.vm.optionIndexToDelete).toBe(-1);
@@ -1533,10 +1569,10 @@ describe("Editor.vue", () => {
       },
     });
     // add another option to allow deleting an option
-    let updatedDummyItemDetails = clonedeep(dummyItemDetails);
+    let updatedDummyItemDetails = clonedeep(global.dummyItemDetails);
     updatedDummyItemDetails[0].options.push("option 3");
     await wrapper.setData({
-      items: clonedeep(dummyItems),
+      items: clonedeep(global.dummyItems),
       itemDetails: updatedDummyItemDetails,
       currentItemIndex: 0,
       videoDuration: 200,
@@ -1576,7 +1612,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.optionIndexToDelete).toBe(0);
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     expect(deleteSelectedOption).toHaveBeenCalled();
     expect(wrapper.vm.optionIndexToDelete).toBe(-1);
@@ -1606,15 +1642,18 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: null,
       videoId: "jdYJf_ybyVo",
       currentTimestamp: 15.6,
     });
 
     // resolve the loadPlio method call with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
     await flushPromises();
 
     // trying to add an item where another item already exists is not possible
@@ -1625,8 +1664,8 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.pending).toBeFalsy();
 
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: null,
       videoId: "jdYJf_ybyVo",
       currentTimestamp: 12,
@@ -1726,8 +1765,8 @@ describe("Editor.vue", () => {
       },
     });
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: 0,
       videoDuration: 200,
       status: "draft",
@@ -1736,7 +1775,10 @@ describe("Editor.vue", () => {
     });
 
     // resolve the loadPlio method call with a dummy plio
-    mockAxios.mockResponse(clonedeep(dummyDraftPlio), mockAxios.queue()[0]);
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
     await flushPromises();
 
     const itemEditorWrapper = wrapper.findComponent(ItemEditor);
@@ -1767,26 +1809,28 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogAction).toBe("deleteItem");
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
 
-    expect(wrapper.vm.itemUnwatchers[dummyItems[0].id]).toBeTruthy();
+    expect(wrapper.vm.itemUnwatchers[global.dummyItems[0].id]).toBeTruthy();
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     expect(editorDeleteSelectedItem).toHaveBeenCalled();
     expect(clearItemAndItemDetailWatcher).toHaveBeenCalled();
-    expect(wrapper.vm.itemUnwatchers[dummyItems[0].id]).toBe(undefined);
-    expect(wrapper.vm.itemDetailUnwatchers[dummyItems[0].id]).toBe(undefined);
-    expect(wrapper.vm.items.length).toBeLessThan(dummyItems.length);
+    expect(wrapper.vm.itemUnwatchers[global.dummyItems[0].id]).toBe(undefined);
+    expect(wrapper.vm.itemDetailUnwatchers[global.dummyItems[0].id]).toBe(
+      undefined
+    );
+    expect(wrapper.vm.items.length).toBeLessThan(global.dummyItems.length);
   });
 
   it("updating plio title calls saveChanges with resource as plio", async () => {
     const saveChanges = jest.spyOn(Editor.methods, "saveChanges");
-    const plioId = String(dummyPublishedPlio.data.id);
+    const plioId = String(global.dummyPublishedPlio.data.id);
     wrapper = mount(Editor, {
       data() {
         return {
           videoId: "abcdefgh",
-          plioTitle: dummyPublishedPlio.data.title,
+          plioTitle: global.dummyPublishedPlio.data.title,
         };
       },
       props: {
@@ -1813,8 +1857,8 @@ describe("Editor.vue", () => {
     await wrapper.setData({
       isModalMinimized: false,
       isItemSelected: true,
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: 0,
       videoId: "jdYJf_ybyVo",
     });
@@ -1831,8 +1875,8 @@ describe("Editor.vue", () => {
     const maximizeModal = jest.spyOn(Editor.methods, "maximizeModal");
     wrapper = mount(Editor);
     await wrapper.setData({
-      items: clonedeep(dummyItems),
-      itemDetails: clonedeep(dummyItemDetails),
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: 1,
       isItemSelected: true,
       isModalMinimized: true,
@@ -1861,7 +1905,7 @@ describe("Editor.vue", () => {
     await store.dispatch("dialog/setDialogAction", newDialogAction);
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await simulateConfirmClick();
 
     // the dialog action shouldn't have been affected and
     // the confirm click status should remain active
@@ -1889,7 +1933,7 @@ describe("Editor.vue", () => {
     await store.dispatch("dialog/setDialogAction", newDialogAction);
 
     // simulate clicking the cancel button of the dialog box
-    await simulateCancelClick(); // deepscan-disable-line
+    await simulateCancelClick();
 
     // the dialog action shouldn't have been affected and
     // the cancel click status should remain active

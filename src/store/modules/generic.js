@@ -24,16 +24,16 @@ const getters = {
   },
 };
 const actions = {
-  async showSharePlioDialog({ commit, dispatch }, plioLink) {
-    await commit("setPlioLinkToShare", plioLink);
+  showSharePlioDialog({ commit, dispatch }, plioLink) {
+    commit("setPlioLinkToShare", plioLink);
     dispatch("setSharePlioDialog");
   },
-  async showEmbedPlioDialog({ dispatch }, plioId) {
-    await dispatch("setSelectedPlioId", plioId);
+  showEmbedPlioDialog({ dispatch }, plioId) {
+    dispatch("setSelectedPlioId", plioId);
     dispatch("setEmbedPlioDialog");
   },
-  async setSelectedPlioId({ commit }, plioId) {
-    await commit("setSelectedPlioId", plioId);
+  setSelectedPlioId({ commit }, plioId) {
+    commit("setSelectedPlioId", plioId);
   },
   setWindowInnerWidth({ commit }, windowInnerWidth) {
     commit("setWindowInnerWidth", windowInnerWidth);

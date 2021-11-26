@@ -8,7 +8,7 @@ describe("PlioListItem.vue", () => {
 
   beforeEach(async () => {
     await store.dispatch("sync/stopLoading");
-    setMatchMedia(false); // deepscan-disable-line
+    global.setMatchMedia(false);
   });
 
   afterEach(() => {
@@ -425,7 +425,7 @@ describe("PlioListItem.vue", () => {
 
   it("analyze button should show up for touch device ", async () => {
     // set `matches` as `True` for testing on touch screen devices
-    setMatchMedia(true); // deepscan-disable-line
+    global.setMatchMedia(true);
 
     wrapper = mount(PlioListItem);
 
@@ -446,7 +446,7 @@ describe("PlioListItem.vue", () => {
 
   it("analyze disabled for draft plio ", async () => {
     // set `matches` as `True` for testing on touch screen devices
-    setMatchMedia(true); // deepscan-disable-line
+    global.setMatchMedia(true);
 
     wrapper = mount(PlioListItem, {
       data() {
@@ -476,7 +476,7 @@ describe("PlioListItem.vue", () => {
 
   it("clicking analyze routes to Dashboard ", async () => {
     // set `matches` as `True` for testing on touch screen devices
-    setMatchMedia(true); // deepscan-disable-line
+    global.setMatchMedia(true);
 
     const plioId = "123";
     // mock router
@@ -594,7 +594,7 @@ describe("PlioListItem.vue", () => {
       .trigger("click");
 
     // simulate clicking the cancel button of the dialog box
-    await simulateCancelClick(); // deepscan-disable-line
+    await global.simulateCancelClick();
 
     // dialog cancel button state should have been reset
     expect(wrapper.vm.isDialogCancelClicked).toBeFalsy();
@@ -640,7 +640,7 @@ describe("PlioListItem.vue", () => {
       .trigger("click");
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await global.simulateConfirmClick();
 
     // `deletePlio` inside services/API/Plio.js should've been called
     expect(mockAxios.delete).toHaveBeenCalled();
@@ -705,7 +705,7 @@ describe("PlioListItem.vue", () => {
       .trigger("click");
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick(); // deepscan-disable-line
+    await global.simulateConfirmClick();
 
     // mock the response to the request
     mockAxios.mockError();
@@ -760,7 +760,7 @@ describe("PlioListItem.vue", () => {
     await store.dispatch("dialog/setDialogAction", newDialogAction);
 
     // set the dialog confirm button to have been clicked
-    await simulateConfirmClick(); // deepscan-disable-line
+    await global.simulateConfirmClick();
 
     // the dialog action shouldn't have been affected and
     // the confirm click status should remain active
@@ -808,7 +808,7 @@ describe("PlioListItem.vue", () => {
     await store.dispatch("dialog/setDialogAction", newDialogAction);
 
     // set the dialog cancel button to have been clicked
-    await simulateCancelClick(); // deepscan-disable-line
+    await global.simulateCancelClick();
 
     // the dialog action shouldn't have been affected and
     // the cancel click status should remain active
