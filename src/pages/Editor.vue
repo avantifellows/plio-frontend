@@ -16,7 +16,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 items-stretch">
         <!--- preview grid -->
         <div
-          class="flex flex-col mx-2 sm:mx-4 md:mx-6 z-0"
+          class="flex flex-col mx-2 md:mx-6 z-0"
           :class="{ 'mt-6': !isVideoIdValid }"
           data-test="previewDiv"
         >
@@ -210,7 +210,7 @@
 
         <!--- input grid -->
         <div
-          class="flex flex-col mx-2 sm:mx-4 md:mx-6 justify-start"
+          class="flex flex-col mx-2 md:mx-6 justify-start"
           :class="{ 'mt-6': !isVideoIdValid }"
           data-test="inputDiv"
         >
@@ -266,13 +266,13 @@
           </div>
 
           <div
-            class="flex justify-center py-2 mt-8 sm:mt-10 mb-16"
+            class="flex justify-center py-2 mt-8 md:mt-10 mb-16"
             v-if="isVideoIdValid"
             data-test="itemDiv"
           >
             <!-- boxes for adding different types of items -->
             <div
-              class="bg-peach rounded-lg p-4 bp-360:p-8 bp-500:p-4 sm:p-8 w-full lg:w-3/4 flex flex-col items-center shadow-lg"
+              class="bg-peach rounded-lg p-4 bp-360:p-6 sm:p-4 md:p-6 lg:p-8 w-full lg:w-5/6 flex flex-col items-center shadow-lg"
               :class="itemPickerClass"
               v-if="currentItemIndex == null"
             >
@@ -323,7 +323,7 @@
                     data-test="addCheckboxQuestionItem"
                   >
                     <inline-svg
-                      :src="getIconSource('checkbox.svg')"
+                      :src="getImageSource('checkbox.svg')"
                       class="w-10 h-8 pb-2 fill-current text-primary group-hover:text-white group-disabled:text-primary"
                     ></inline-svg>
                     <p :class="questionTypeHeadingClass">{{ $t("generic.checkbox") }}</p>
@@ -877,7 +877,7 @@ export default {
         {
           "hover:bg-primary hover:text-white hover:border-primary": !this.addItemDisabled,
         },
-        `w-11/12 group flex flex-col bp-420:space-y-2 focus:outline-none bg-white p-2 bp-420:p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed`,
+        `w-11/12 group flex flex-col bp-420:space-y-2 focus:outline-none bg-white p-2 bp-420:p-4 sm:p-1 md:p-2 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed`,
       ];
     },
     /**
