@@ -114,7 +114,7 @@ describe("Login.vue", () => {
       .spyOn(UserAPIService, "verifyOtp")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyAccessToken });
+          resolve({ data: global.dummyAccessToken });
         });
       });
 
@@ -123,7 +123,7 @@ describe("Login.vue", () => {
       .spyOn(UserAPIService, "getUserByAccessToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyUser });
+          resolve({ data: global.dummyUser });
         });
       });
 
@@ -173,7 +173,7 @@ describe("Login.vue", () => {
       .spyOn(UserAPIService, "verifyOtp")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyAccessToken });
+          resolve({ data: global.dummyAccessToken });
         });
       });
 
@@ -182,7 +182,7 @@ describe("Login.vue", () => {
       .spyOn(UserAPIService, "getUserByAccessToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyUser });
+          resolve({ data: global.dummyUser });
         });
       });
 
@@ -255,7 +255,7 @@ describe("Login.vue", () => {
       signIn: jest.fn(() => {
         return {
           getAuthResponse: jest.fn(() => {
-            return dummyAccessToken;
+            return global.dummyAccessToken;
           }),
         };
       }),
@@ -280,7 +280,7 @@ describe("Login.vue", () => {
       .spyOn(UserAPIService, "convertSocialAuthToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyAccessToken });
+          resolve({ data: global.dummyAccessToken });
         });
       });
 
@@ -289,7 +289,7 @@ describe("Login.vue", () => {
       .spyOn(UserAPIService, "getUserByAccessToken")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve({ data: dummyUser });
+          resolve({ data: global.dummyUser });
         });
       });
 

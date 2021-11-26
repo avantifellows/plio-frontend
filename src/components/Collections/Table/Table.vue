@@ -159,7 +159,7 @@
 
     <!-- no search results warning -->
     <div
-      v-if="isSearchStringPresent && isTableEmpty & !pending"
+      v-if="isSearchStringPresent && isTableEmpty && !pending"
       data-test="noPliosWarning"
       class="flex flex-col justify-center items-center py-12 space-y-2"
     >

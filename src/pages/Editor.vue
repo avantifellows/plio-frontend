@@ -701,15 +701,18 @@ export default {
             // nothing else needs to be done
             break;
           default:
+            // this watch will be triggered whenever the confirm button
+            // of the shared dialog box will be clicked
             // returning here so that it doesn't interfere with the
-            // confirmation step of a different dialog action
+            // confirmation step of a different dialogAction triggered
+            // by a different component
             return;
         }
 
         this.unsetConfirmClicked();
 
-        // reset the dialog action value if no new dialog
-        // boxes have been shown
+        // if any of the cases above creates a new dialog box
+        // with a new dialogAction, we do not want to unset it
         if (!this.isDialogBoxShown) this.unsetDialogAction();
       }
     },
@@ -730,15 +733,18 @@ export default {
             }
             break;
           default:
+            // this watch will be triggered whenever the cancel button
+            // of the shared dialog box will be clicked
             // returning here so that it doesn't interfere with the
-            // cancellation step of a different dialog action
+            // cancellation step of a different dialogAction triggered
+            // by a different component
             return;
         }
 
         this.unsetCancelClicked();
 
-        // reset the dialog action value if no new dialog
-        // boxes have been shown
+        // if any of the cases above creates a new dialog box
+        // with a new dialogAction, we do not want to unset it
         if (!this.isDialogBoxShown) this.unsetDialogAction();
       }
     },
@@ -789,10 +795,10 @@ export default {
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
     ...mapGetters("auth", ["isPersonalWorkspace"]),
     ...mapState("dialog", {
-      isDialogBoxShown: (state) => state.isShown,
-      dialogAction: (state) => state.action,
-      isDialogConfirmClicked: (state) => state.isConfirmClicked,
-      isDialogCancelClicked: (state) => state.isCancelClicked,
+      isDialogBoxShown: "isShown",
+      dialogAction: "action",
+      isDialogConfirmClicked: "isConfirmClicked",
+      isDialogCancelClicked: "isCancelClicked",
     }),
     /**
      * whether the spinner needs to be shown
@@ -1244,8 +1250,8 @@ export default {
       "hideSpinner",
     ]),
     ...mapActions("dialog", [
-      "setDialogBox",
-      "unsetDialogBox",
+      "showDialogBox",
+      "hideDialogBox",
       "setDialogCloseButton",
       "setDialogTitle",
       "setDialogDescription",
@@ -1819,7 +1825,7 @@ export default {
       this.status = "published";
       await this.saveChanges("all");
       this.isBeingPublished = false;
-      this.unsetDialogBox();
+      this.hideDialogBox();
       this.isPublishedPlioDialogShown = true;
       throwConfetti(this.confettiHandler);
       this.hasUnpublishedChanges = false;
@@ -1860,7 +1866,7 @@ export default {
       // closing the dialog executes this action
       this.setDialogAction("publish");
       // show the dialog box
-      this.setDialogBox();
+      this.showDialogBox();
     },
     /**
      * cancels the deletion of the marked option
@@ -1885,7 +1891,7 @@ export default {
       // carry out the closeDialog action when dialog is closed
       this.setDialogAction("closeDialog");
       // show the dialog box
-      this.setDialogBox();
+      this.showDialogBox();
     },
     /**
      * shows a dialog box when the user tries to delete an option
@@ -1906,13 +1912,14 @@ export default {
       // carry out the closeDialog action when dialog is closed
       this.setDialogAction("closeDialog");
       // show the dialog box
-      this.setDialogBox();
+      this.showDialogBox();
     },
     /**
      * hides the dialog box and invokes the method for publishing the plio
      */
     confirmPublish() {
-      this.setDialogBox();
+      this.showDialogBox();
+      this.unsetDialogAction();
       this.setDialogTitle(this.publishInProgressDialogTitle);
 
       // publish the plio or its changes
@@ -2047,7 +2054,7 @@ export default {
       // set the action to be carried out
       this.setDialogAction("deleteItem");
       // show the dialog box
-      this.setDialogBox();
+      this.showDialogBox();
     },
     /**
      * remove the current item from the item list, the corresponding
@@ -2065,7 +2072,7 @@ export default {
       ItemAPIService.deleteItem(itemToDelete[0].id);
       // set currentItemIndex to null to hide the item editor
       this.currentItemIndex = null;
-      this.unsetDialogBox();
+      this.hideDialogBox();
     },
     /**
      * deletes the option of the current item at the given index
@@ -2089,7 +2096,7 @@ export default {
       // set the index to delete, set the dialog action, show the dialog
       this.optionIndexToDelete = optionIndex;
       this.setDialogAction("deleteOption");
-      this.setDialogBox();
+      this.showDialogBox();
     },
     /**
      * sets that some unresolved errors are present
