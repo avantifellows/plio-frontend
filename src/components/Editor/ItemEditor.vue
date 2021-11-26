@@ -583,8 +583,12 @@ export default {
 
       let itemType = "question";
       if (this.isInteractionDisabled)
-        return `You cannot delete a ${itemType} once the plio is published`;
-      return `Delete this ${itemType}`;
+        return this.$t(
+          `tooltip.editor.item_editor.buttons.delete_item.${itemType}.disabled`
+        );
+      return this.$t(
+        `tooltip.editor.item_editor.buttons.delete_item.${itemType}.enabled`
+      );
     },
     addItemButtonTooltip() {
       // tooltip for the smaller add item button

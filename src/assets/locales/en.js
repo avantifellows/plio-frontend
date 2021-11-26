@@ -429,6 +429,13 @@ export default {
               enabled: "Add a question",
             },
           },
+          delete_item: {
+            question: {
+              disabled:
+                "You cannot delete a question once the plio is published",
+              enabled: "Delete this question",
+            },
+          },
           add_option: {
             disabled: "You cannot add an option once the plio is published",
             enabled: "Add an option",

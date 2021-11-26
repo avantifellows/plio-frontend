@@ -861,9 +861,6 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.publishButtonTooltip).toBe(
       "Click to publish your changes"
     );
-    expect(
-      wrapper.find('[data-test="publishButton"]').element.$_ptooltipValue
-    ).toBe("Click to publish your changes");
   });
 
   it("shows published dialog when publish is confirmed", async () => {
