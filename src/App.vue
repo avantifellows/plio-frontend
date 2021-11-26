@@ -256,6 +256,11 @@ export default {
 
     this.setWindowProperties();
     window.addEventListener("resize", this.setWindowProperties);
+
+    // prevent menu from getting hidden on hot reload + when new
+    // changes are fetched for the first time for a user
+    if (!this.isMenuButtonActive && !this.isMobileScreen && this.onHomePage)
+      this.isMenuButtonActive = true;
   },
   beforeUnmount() {
     // remove the listener for the event of closing of the browser
