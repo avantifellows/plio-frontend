@@ -20,6 +20,8 @@ jobs:
           mkdir projects/ && cd projects/
           git clone https://github.com/avantifellows/plio-frontend/
           cd plio-frontend/
+          # temporary git checkout
+          git checkout feature/cypress-ci && git pull origin feature/cypress-ci
           cp .env.example .env
           echo 'VUE_APP_I18N_LOCALE=${{ secrets.VUE_APP_I18N_LOCALE }}' >> .env
           echo 'VUE_APP_GOOGLE_CLIENT_ID=${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }}' >> .env
