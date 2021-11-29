@@ -16,6 +16,11 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up Plio Frontend
+        env:
+          VUE_APP_I18N_LOCALE: ${{ secrets.VUE_APP_I18N_LOCALE }}
+          VUE_APP_GOOGLE_CLIENT_ID: ${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }}
+          VUE_APP_BACKEND_API_CLIENT_ID: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }}
+          VUE_APP_BACKEND_API_CLIENT_SECRET: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}
         run: |
           mkdir projects/ && cd projects/
           git clone https://github.com/avantifellows/plio-frontend/
