@@ -52,8 +52,8 @@ Cypress.Commands.add("loginByGoogleApi", () => {
           backend: "google-oauth2",
           token: socialAuthToken,
         },
-      }).then(({ body }) => {
-        window.__store__.dispatch("auth/setAccessToken", body);
+      }).then(async ({ body }) => {
+        await window.__store__.dispatch("auth/setAccessToken", body);
         cy.visit("/home");
       });
     });

@@ -25,7 +25,12 @@ jobs:
           cd plio-backend/
           cp .env.example .env
           docker-compose up -d --build --renew-anon-volumes --remove-orphans
-          cd ..
+
+      - name: Run cypress
+        run: |
+          cd projects/
+          cd plio-frontend/
+          npx cypress run
 
       - name: Stop the container
         if: always()
