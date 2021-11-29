@@ -30,6 +30,7 @@ jobs:
       - name: Stop the container
         if: always()
         run: |
+          cd projects/
           cd plio-frontend/
           docker-compose down
           cd ../plio-backend/
