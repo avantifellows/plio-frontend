@@ -353,7 +353,7 @@ export default {
     403: {
       title: "Access Denied",
       description:
-        "You do not have the permission to access this page. If you are not a part of the organisational workspace, please contact the organisation's admin to get yourself added or you can go back to your home.",
+        "You do not have the permission to access this page. Please make sure you're logged in with the correct email id. If you are not a part of the organisational workspace, please contact the organisation's admin to get yourself added or you can go back to your home.",
     },
     buttons: {
       home: "Go to Home",
