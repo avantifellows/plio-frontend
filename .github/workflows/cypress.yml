@@ -34,7 +34,10 @@ jobs:
           cd projects/
           git clone https://github.com/avantifellows/plio-backend
           cd plio-backend/
+          # temporary git checkout
+          git checkout feature/cypress-ci && git pull origin feature/cypress-ci
           cp .env.example .env
+          echo 'SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}' >> .env
           echo 'DEFAULT_OAUTH2_CLIENT_SETUP=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SETUP }}' >> .env
           echo 'DEFAULT_OAUTH2_CLIENT_ID=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
           echo 'DEFAULT_OAUTH2_CLIENT_SECRET=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
