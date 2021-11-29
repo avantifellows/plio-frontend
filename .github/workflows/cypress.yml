@@ -27,14 +27,6 @@ jobs:
           export VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}
           docker-compose up -d --build
 
-      - name: Set up Plio Backend
-        run: |
-          cd projects/
-          git clone https://github.com/avantifellows/plio-backend
-          cd plio-backend/
-          cp .env.example .env
-          docker-compose up -d --build
-
       - name: Run cypress
         run: |
           cd projects/
