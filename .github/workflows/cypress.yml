@@ -13,7 +13,9 @@ jobs:
       - name: Build the stack
         env:
           APP_PORT: 8080
-        run: docker-compose up -d --build --renew-anon-volumes --remove-orphans
+        run: |
+          cp .env.example .env
+          docker-compose up -d --build --renew-anon-volumes --remove-orphans
 
       - name: Stop the container
         if: always()
