@@ -16,17 +16,16 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Set up Plio Frontend
-        env:
-          VUE_APP_I18N_LOCALE: ${{ secrets.VUE_APP_I18N_LOCALE }}
-          VUE_APP_GOOGLE_CLIENT_ID: ${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }}
-          VUE_APP_BACKEND_API_CLIENT_ID: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }}
-          VUE_APP_BACKEND_API_CLIENT_SECRET: ${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}
         run: |
           mkdir projects/ && cd projects/
           git clone https://github.com/avantifellows/plio-frontend/
           cd plio-frontend/
           cp .env.example .env
-          docker-compose up -d --build --renew-anon-volumes --remove-orphans
+          export VUE_APP_I18N_LOCALE=${{ secrets.VUE_APP_I18N_LOCALE }}
+          export VUE_APP_GOOGLE_CLIENT_ID=${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }}
+          export VUE_APP_BACKEND_API_CLIENT_ID=${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }}
+          export VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}
+          docker-compose up -d --build
 
       - name: Set up Plio Backend
         run: |
@@ -34,18 +33,18 @@ jobs:
           git clone https://github.com/avantifellows/plio-backend
           cd plio-backend/
           cp .env.example .env
-          docker-compose up -d --build --renew-anon-volumes --remove-orphans
+          docker-compose up -d --build
 
       - name: Run cypress
         run: |
+          cd projects/
+          cd plio-frontend/
           export cypress_plio_backend_convert_social_auth_token_url=${{ secrets.cypress_plio_backend_convert_social_auth_token_url }}
           export cypress_plio_backend_client_id=${{ secrets.cypress_plio_backend_client_id }}
           export cypress_plio_backend_client_secret=${{ secrets.cypress_plio_backend_client_secret }}
           export cypress_auth_google_refresh_token=${{ secrets.cypress_auth_google_refresh_token }}
           export cypress_auth_google_refresh_client_id=${{ secrets.cypress_auth_google_refresh_client_id }}
           export cypress_auth_google_refresh_client_secret=${{ secrets.cypress_auth_google_refresh_client_secret }}
-          cd projects/
-          cd plio-frontend/
           npx cypress run
 
       - name: Stop the container
