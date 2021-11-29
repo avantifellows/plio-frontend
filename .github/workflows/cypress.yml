@@ -45,7 +45,7 @@ jobs:
           export cypress_auth_google_refresh_token=${{ secrets.cypress_auth_google_refresh_token }}
           export cypress_auth_google_client_id=${{ secrets.cypress_auth_google_client_id }}
           export cypress_auth_google_client_secret=${{ secrets.cypress_auth_google_client_secret }}
-          npx cypress run
+          npx cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
       - name: Stop the container
         if: always()
