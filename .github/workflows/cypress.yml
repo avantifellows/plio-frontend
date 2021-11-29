@@ -5,18 +5,32 @@ on:
     branches: [feature/cypress-ci]
 
 jobs:
-  frontend:
+  cypress:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build the stack
-        env:
-          APP_PORT: 8080
+      - name: Set up Plio Frontend
         run: |
+          mkdir projects/ && cd projects/
+          git clone https://github.com/avantifellows/plio-frontend/
+          cd plio-frontend/
           cp .env.example .env
           docker-compose up -d --build --renew-anon-volumes --remove-orphans
 
+      - name: Set up Plio Backend
+        run: |
+          cd projects/
+          git clone https://github.com/avantifellows/plio-backend
+          cd plio-backend/
+          cp .env.example .env
+          docker-compose up -d --build --renew-anon-volumes --remove-orphans
+          cd ..
+
       - name: Stop the container
         if: always()
-        run: docker-compose down
+        run: |
+          cd plio-frontend/
+          docker-compose down
+          cd ../plio-backend/
+          docker-compose down
