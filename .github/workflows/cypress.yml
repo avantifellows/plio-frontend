@@ -1,8 +1,9 @@
 name: Plio Integration Tests
 
 on:
+  pull_request:
   push:
-    branches: [feature/cypress-ci]
+    branches: [master]
 
 jobs:
   cypress:
