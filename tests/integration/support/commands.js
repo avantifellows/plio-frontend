@@ -33,9 +33,9 @@ Cypress.Commands.add("loginByGoogleApi", () => {
       url: "https://www.googleapis.com/oauth2/v4/token",
       body: {
         grant_type: "refresh_token",
-        client_id: Cypress.env("auth").google.client_id,
-        client_secret: Cypress.env("auth").google.client_secret,
-        refresh_token: Cypress.env("auth").google.refresh_token,
+        client_id: Cypress.env("auth_google_client_id"),
+        client_secret: Cypress.env("auth_google_client_secret"),
+        refresh_token: Cypress.env("auth_google_refresh_token"),
       },
     }).then(({ body }) => {
       const { access_token: socialAuthToken } = body;
@@ -44,11 +44,11 @@ Cypress.Commands.add("loginByGoogleApi", () => {
       // see if there is a way to reuse the function defined in VueApp
       cy.request({
         method: "POST",
-        url: Cypress.env("plio_backend").convert_social_auth_token_url,
+        url: Cypress.env("plio_backend_convert_social_auth_token_url"),
         body: {
           grant_type: "convert_token",
-          client_id: Cypress.env("plio_backend").client_id,
-          client_secret: Cypress.env("plio_backend").client_secret,
+          client_id: Cypress.env("plio_backend_client_id"),
+          client_secret: Cypress.env("plio_backend_client_secret"),
           backend: "google-oauth2",
           token: socialAuthToken,
         },
