@@ -21,15 +21,11 @@ jobs:
           git clone https://github.com/avantifellows/plio-frontend/
           cd plio-frontend/
           cp .env.example .env
-          export VUE_APP_I18N_LOCALE=${{ secrets.VUE_APP_I18N_LOCALE }}
-          export VUE_APP_GOOGLE_CLIENT_ID=${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }}
-          export VUE_APP_BACKEND_API_CLIENT_ID=${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }}
-          export VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}
-          docker-compose up -d --build \
-          -e VUE_APP_I18N_LOCALE=${{ secrets.VUE_APP_I18N_LOCALE }} \
-          -e VUE_APP_GOOGLE_CLIENT_ID=${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }} \
-          -e VUE_APP_BACKEND_API_CLIENT_ID=${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }} \
-          -e VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}
+          echo 'VUE_APP_I18N_LOCALE=${{ secrets.VUE_APP_I18N_LOCALE }}' >> .env
+          echo 'VUE_APP_GOOGLE_CLIENT_ID=${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }}' >> .env
+          echo 'VUE_APP_BACKEND_API_CLIENT_ID=${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }}' >> .env
+          echo 'VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}' >> .env
+          docker-compose up -d --build
 
       - name: Run cypress
         run: |
