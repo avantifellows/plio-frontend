@@ -30,7 +30,6 @@ jobs:
           cp .env.example .env
 
           # add env secrets
-          echo 'VUE_APP_I18N_LOCALE=${{ secrets.VUE_APP_I18N_LOCALE }}' >> .env
           echo 'VUE_APP_GOOGLE_CLIENT_ID=${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }}' >> .env
           echo 'VUE_APP_BACKEND_API_CLIENT_ID=${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }}' >> .env
           echo 'VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}' >> .env

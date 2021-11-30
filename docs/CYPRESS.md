@@ -56,8 +56,8 @@ The client secret for backend API application.
 
 ### Cypress Dashboard
 The Cypress Dashboard is a web interface that allows you to run and debug your Cypress tests. To integrate Cypress Dashboard with your local integration tests, follow the steps below:
-1.  Create an account in [Cypress Dashboard](https://dashboard.cypress.io/)
-2.  Create a project if not already exists
+1.  Create an account in [Cypress Dashboard](https://dashboard.cypress.io/).
+2.  Create a project if not already exists.
 3.  Get the projectId from project settings page and replace the `projectId` in `cypress.json` with the projectId.
 4.  Get the Cypress Record Key from project settings page.
 5.  Run the following command. This will record the integration tests and upload the results to the Cypress Dashboard.
@@ -81,13 +81,12 @@ To set up CI, follow the steps below:
       4. `CYPRESS_PLIO_BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL`
    4. Plio Frontend (VueJS) - Refer [Plio Frontend ENV guide](../docs/ENV.md)
       1. `VUE_APP_BACKEND_API_CLIENT_ID`
-      2.  `VUE_APP_BACKEND_API_CLIENT_SECRET`
-      3.  `VUE_APP_GOOGLE_CLIENT_ID`
-      4.  `VUE_APP_I18N_LOCALE`
+      2. `VUE_APP_BACKEND_API_CLIENT_SECRET`
+      3. `VUE_APP_GOOGLE_CLIENT_ID`
    5. Plio Backend (Django) - Refer [Plio Backend ENV guide](https://github.com/avantifellows/plio-backend/blob/master/docs/ENV.md)
       1. `DJANGO_DEFAULT_OAUTH2_CLIENT_ID`
-      2.  `DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET`
-      3.  `DJANGO_DEFAULT_OAUTH2_CLIENT_SETUP`
-      4.  `DJANGO_GOOGLE_OAUTH2_CLIENT_ID`
-      5.  `DJANGO_GOOGLE_OAUTH2_CLIENT_SECRET`
-      6.  `DJANGO_SECRET_KEY`
+      2. `DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET`
+      3. `DJANGO_DEFAULT_OAUTH2_CLIENT_SETUP`
+      4. `DJANGO_GOOGLE_OAUTH2_CLIENT_ID`
+      5. `DJANGO_GOOGLE_OAUTH2_CLIENT_SECRET`
+      6. `DJANGO_SECRET_KEY`
