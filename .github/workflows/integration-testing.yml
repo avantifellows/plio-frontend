@@ -23,7 +23,7 @@ jobs:
           git clone https://github.com/avantifellows/plio-frontend/
           cd plio-frontend/
 
-          # temporary git checkout
+          # temporary git checkout -- remove before merge
           git checkout feature/cypress-ci && git pull origin feature/cypress-ci
 
           # create the env file
@@ -45,7 +45,7 @@ jobs:
           git clone https://github.com/avantifellows/plio-backend
           cd plio-backend/
 
-          # temporary git checkout
+          # temporary git checkout -- remove before merge
           git checkout feature/cypress-ci && git pull origin feature/cypress-ci
 
           # create the env file
