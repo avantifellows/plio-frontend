@@ -805,7 +805,7 @@ export default {
      * whether to show workspace switcher
      */
     showWorkspaceSwitcher() {
-      return this.user.organizations.length > 0;
+      return this.user.organizations != null && this.user.organizations.length > 0;
     },
     /**
      * dynamic classes for the nav bar
