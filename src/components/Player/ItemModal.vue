@@ -176,10 +176,12 @@ export default {
     },
     isAnswerValid() {
       // whether an option has been selected
-      const currentResponse = this.draftResponses[this.selectedItemIndex];
+      let currentResponse = this.draftResponses[this.selectedItemIndex];
       if (currentResponse == null) return false;
       if (this.isQuestionTypeSubjective) return currentResponse != "";
       if (this.isQuestionTypeMCQ) return !isNaN(currentResponse);
+      if (this.isQuestionTypeCheckbox)
+        return currentResponse != null && currentResponse.size > 0;
       return true;
     },
     localResponseList: {
@@ -258,11 +260,15 @@ export default {
       return this.currentItemDetails["type"];
     },
     isQuestionTypeMCQ() {
-      // whether the type of the question is MCQ if item is question
+      // whether the type of the question is MCQ
       return this.questionType == "mcq";
     },
+    isQuestionTypeCheckbox() {
+      // whether the type of the question is checkbox
+      return this.questionType == "checkbox";
+    },
     isQuestionTypeSubjective() {
-      // whether the type of the question is subjective if item is question
+      // whether the type of the question is subjective
       return this.questionType == "subjective";
     },
   },
@@ -298,7 +304,15 @@ export default {
     },
     optionSelected(optionIndex) {
       // invoked when an option is selected
-      this.draftResponses[this.selectedItemIndex] = optionIndex;
+      if (this.isQuestionTypeMCQ)
+        this.draftResponses[this.selectedItemIndex] = optionIndex;
+      else if (this.isQuestionTypeCheckbox) {
+        if (this.draftResponses[this.selectedItemIndex] == null)
+          this.draftResponses[this.selectedItemIndex] = new Set();
+        let currentResponse = this.draftResponses[this.selectedItemIndex];
+        if (currentResponse.has(optionIndex)) currentResponse.delete(optionIndex);
+        else currentResponse.add(optionIndex);
+      }
       this.$emit("option-selected", optionIndex);
     },
     submitQuestion() {

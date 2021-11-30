@@ -4,7 +4,6 @@
     class="flex flex-col w-full h-full rounded-md main-container relative"
     v-if="localSelectedItemIndex != null"
   >
-    {{ correctAnswer }}
     <!-- question type picker -->
     <div class="absolute rounded-md mt-4 ml-4 z-5" :class="questionTypeDropdownClass">
       <QuestionTypeDropdown
@@ -476,7 +475,6 @@ export default {
           this.localSelectedItemIndex
         ].correct_answer = selectedOptionIndex;
       } else if (this.isQuestionTypeCheckbox) {
-        console.log(this.correctAnswer);
         /*
          * for checkbox question, if the selected index was previously marked
          * as a correct option, unmark it. otherwise, mark it as a correct option
@@ -486,12 +484,7 @@ export default {
             selectedOptionIndex
           );
         } else {
-          console.log(
-            Array.isArray(
-              this.localItemDetailList[this.localSelectedItemIndex].correct_answer
-            )
-          );
-          this.localItemDetailList[this.localSelectedItemIndex].correct_answer.add(
+          this.localItemDetailList[this.localSelectedItemIndex].correct_answer.push(
             selectedOptionIndex
           );
         }
@@ -768,9 +761,6 @@ export default {
     correctAnswer() {
       let rawCorrectAnswer = this.localItemDetailList[this.localSelectedItemIndex]
         .correct_answer;
-      console.log(rawCorrectAnswer);
-      console.log(new Set(rawCorrectAnswer));
-      console.log(new Set([0]));
       if (this.isQuestionTypeCheckbox) return new Set(rawCorrectAnswer);
       return rawCorrectAnswer;
     },

@@ -162,7 +162,7 @@ export default {
     /** answer for the question which has been entered but not submitted */
     draftAnswer: {
       default: null,
-      type: [String, Number],
+      type: [String, Number, Set],
     },
     isAnswerSubmitted: {
       default: false,
@@ -229,7 +229,11 @@ export default {
     },
     isOptionChecked(optionIndex) {
       // whether the given option index should be checked
-      return this.draftAnswer == optionIndex;
+      if (this.isQuestionTypeMCQ) return this.draftAnswer == optionIndex;
+      if (this.isQuestionTypeCheckbox) {
+        return this.draftAnswer != null && this.draftAnswer.has(optionIndex);
+      }
+      return false;
     },
   },
   computed: {
