@@ -5,7 +5,11 @@
     v-if="localSelectedItemIndex != null"
   >
     <!-- question type picker -->
-    <div class="absolute rounded-md mt-4 ml-4 z-5" :class="questionTypeDropdownClass">
+    <div
+      class="absolute rounded-md mt-4 ml-4 z-5"
+      :class="questionTypeDropdownClass"
+      v-tooltip="questionTypePickerTooltip"
+    >
       <QuestionTypeDropdown
         class="w-full"
         @toggle-visibility="toggleQuestionTypeDropdown"
@@ -54,7 +58,6 @@
           :iconConfig="addItemIconConfig"
           :buttonClass="addItemButtonClass"
           @click="removeSelectedItemIndex"
-          v-tooltip="addItemButtonTooltip"
           :disabled="isInteractionDisabled"
           ariaLabel="add item"
           data-test="addItem"
@@ -70,7 +73,6 @@
           @click="deleteSelectedItem"
           :buttonClass="deleteItemButtonClass"
           :disabled="isInteractionDisabled"
-          v-tooltip="deleteItemButtonTooltip"
           data-test="deleteItem"
           ariaLabel="delete item"
         ></icon-button>
@@ -92,16 +94,21 @@
           data-test="questionText"
         ></Textarea>
         <!-- add image to item button -->
-        <icon-button
-          class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
-          orientation="vertical"
-          :iconConfig="addImageButtonIconConfig"
-          :titleConfig="addImageButtonTitleConfig"
-          :buttonClass="addImageButtonClass"
-          :isDisabled="isInteractionDisabled"
-          @click="showImageUploaderBox"
-          data-test="questionImage"
-        ></icon-button>
+        <span
+          v-tooltip="{ content: addImageButtonTooltip, placement: 'left' }"
+          class="my-auto"
+        >
+          <icon-button
+            class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
+            orientation="vertical"
+            :iconConfig="addImageButtonIconConfig"
+            :titleConfig="addImageButtonTitleConfig"
+            :buttonClass="addImageButtonClass"
+            :isDisabled="isInteractionDisabled"
+            @click="showImageUploaderBox"
+            data-test="questionImage"
+          ></icon-button>
+        </span>
       </div>
 
       <!-- time input HH : MM : SS : mmm -->
@@ -143,7 +150,6 @@
             @click="addOption"
             :buttonClass="addOptionButtonClass"
             :disabled="isInteractionDisabled"
-            v-tooltip="addOptionTooltip"
             data-test="addOption"
           ></icon-button>
         </span>
@@ -476,6 +482,21 @@ export default {
   },
 
   computed: {
+    questionTypePickerTooltip() {
+      return this.isPublished
+        ? this.$t("tooltip.editor.item_editor.buttons.question_type_picker.enabled")
+        : this.$t("tooltip.editor.item_editor.buttons.question_type_picker.disabled");
+    },
+    addImageButtonTooltip() {
+      if (!this.isQuestionImagePresent) {
+        return this.isPublished
+          ? this.$t("tooltip.editor.item_editor.buttons.add_image.disabled")
+          : this.$t("tooltip.editor.item_editor.buttons.add_image.enabled");
+      }
+      return this.isPublished
+        ? this.$t("tooltip.editor.item_editor.buttons.update_image.disabled")
+        : this.$t("tooltip.editor.item_editor.buttons.update_image.enabled");
+    },
     addImageButtonTitleConfig() {
       // title config for the add image button
       return {
@@ -578,9 +599,7 @@ export default {
       return this.$t("tooltip.editor.item_editor.buttons.add_option.enabled");
     },
     deleteItemButtonTooltip() {
-      // tooltip text for delete item button
       // itemType is just "question" right now - parametrize when more types are supported
-
       let itemType = "question";
       if (this.isInteractionDisabled)
         return this.$t(
@@ -591,9 +610,8 @@ export default {
       );
     },
     addItemButtonTooltip() {
-      // tooltip for the smaller add item button
       // itemType is just "question" right now - parametrize when more types are supported
-      var itemType = "question";
+      let itemType = "question";
       if (this.isInteractionDisabled)
         return this.$t(
           `tooltip.editor.item_editor.buttons.add_item.${itemType}.disabled`

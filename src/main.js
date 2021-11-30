@@ -9,7 +9,7 @@ import Toast from "vue-toastification";
 import VueProgressBar from "@aacassandra/vue3-progressbar";
 import VueClickAway from "vue3-click-away";
 import mixpanel from "mixpanel-browser";
-import VueTippy from "vue-tippy";
+import VueTooltip from "vue-tippy";
 import "offline-js";
 
 // sentry imports
@@ -22,6 +22,7 @@ import GAuth from "vue3-google-oauth2";
 import "./index.css";
 import "vue-toastification/dist/index.css";
 import "tippy.js/dist/tippy.css";
+import "tippy.js/animations/shift-toward.css";
 
 const gAuthOptions = {
   clientId: process.env.VUE_APP_GOOGLE_CLIENT_ID,
@@ -90,11 +91,13 @@ if (
 
 app.component("inline-svg", InlineSvg);
 app.use(i18n);
-app.use(VueTippy, {
+app.use(VueTooltip, {
   // https://vue-tippy.netlify.app/installation
-  directive: "tooltip", // => use as <button v-tippy="your text"></button>
+  directive: "tooltip", // => use as <button v-tooltip="your text"></button>
   defaultProps: {
     placement: "auto",
+    animation: "shift-toward",
+    maxWidth: 200,
   },
 });
 app.use(GAuth, gAuthOptions);

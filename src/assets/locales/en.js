@@ -232,6 +232,11 @@ export default {
       buttons: {
         analyse: "Analyse Plio",
       },
+      tooltip: {
+        header: {
+          views: "Click to sort by number of views",
+        },
+      },
     },
     paginator: {
       first: "First",
@@ -395,11 +400,11 @@ export default {
     editor: {
       publish: {
         published: {
-          enabled: "Click to publish your changes",
+          enabled: "Click to publish the changes you've made",
           disabled: "No unpublished changes yet",
         },
         draft: {
-          enabled: "Click to publish the plio",
+          enabled: "Publish the plio to share it with your viewers",
           disabled: "Enter a valid video link first",
         },
       },
@@ -444,6 +449,19 @@ export default {
             disabled: "Cannot delete option once the plio is published",
             enabled: "Delete this option",
           },
+          add_image: {
+            disbaled: "Add an image to your question",
+            enabled: "Cannot add an image in a published plio",
+          },
+          update_image: {
+            disbaled: "Update or delete the image in this question",
+            enabled: "Cannot update the image in a published plio",
+          },
+          question_type_picker: {
+            disabled:
+              "Cannot change the question type after you have published a plio",
+            enabled: "Click to change the type of this question",
+          },
         },
         correct_option: {
           marked:
@@ -451,6 +469,15 @@ export default {
           unmarked: "Mark this option as the correct option for this question",
         },
       },
+      home: "Go to home",
+      preview:
+        "Click to preview the plio and see how it will look like to your viewers",
+      copy_draft_link:
+        "Copy a link of this draft plio to share it with your teammates",
+      analyze: "Analyse the data collected from the viewers of this plio",
+      share_plio: "Share this plio with your viewers",
+      play_plio: "Try out the created plio yourself",
+      embed_plio: "Embed this plio as an iframe",
     },
     home: {
       table: {
@@ -474,6 +501,11 @@ export default {
             enabled: "Look at the data for the plio",
           },
         },
+      },
+    },
+    dashboard: {
+      buttons: {
+        download_report: "Download a detailed report for this plio",
       },
     },
   },

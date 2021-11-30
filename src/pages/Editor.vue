@@ -33,6 +33,7 @@
               :buttonClass="sharePlioButtonClass"
               @click="showSharePlioLinkDialog"
               data-test="sharePlioButton"
+              v-tooltip="{ content: sharePlioButtonTooltip, placement: 'top' }"
             ></icon-button>
 
             <!-- play plio -->
@@ -43,6 +44,7 @@
               :buttonClass="playPlioButtonClass"
               @click="redirectToPlayer"
               data-test="playPlioButton"
+              v-tooltip="{ content: playPlioButtonTooltip, placement: 'top' }"
             ></icon-button>
 
             <!-- preview plio -->
@@ -54,6 +56,7 @@
               :isDisabled="uploading"
               @click="togglePlioPreviewMode"
               data-test="plioPreviewButton"
+              v-tooltip="{ content: previewButtonTooltip, placement: 'top' }"
             ></icon-button>
 
             <!-- copy draft link -->
@@ -63,6 +66,7 @@
               :iconConfig="copyDraftIconConfig"
               :buttonClass="copyDraftButtonClass"
               @click="copyPlioDraftLink"
+              v-tooltip="{ content: copyPlioDraftLinkTooltip, placement: 'top' }"
               data-test="copyDraftButton"
             ></icon-button>
 
@@ -74,6 +78,7 @@
               :buttonClass="embedPlioButtonClass"
               @click="showEmbedPlio"
               data-test="embedPlioButton"
+              v-tooltip="{ content: embedPlioButtonTooltip, placement: 'top' }"
             ></icon-button>
           </div>
 
@@ -183,19 +188,21 @@
               :titleConfig="homeButtonTitleConfig"
               :iconConfig="homeIconConfig"
               :buttonClass="homeButtonClass"
+              v-tooltip="{ content: homeButtonTooltip, placement: 'bottom' }"
               @click="returnToHome"
               data-test="homeButton"
             ></icon-button>
             <!--- publish button -->
-            <icon-button
-              :titleConfig="publishButtonTitleConfig"
-              :iconConfig="publishButtonIconConfig"
-              :class="publishButtonClass"
-              class="shadow-lg"
-              v-tooltip="publishButtonTooltip"
-              @click="showPublishConfirmationDialogBox"
-              data-test="publishButton"
-            ></icon-button>
+            <span v-tooltip="{ content: publishButtonTooltip, placement: 'bottom' }">
+              <icon-button
+                :titleConfig="publishButtonTitleConfig"
+                :iconConfig="publishButtonIconConfig"
+                :class="publishButtonClass"
+                class="shadow-lg"
+                @click="showPublishConfirmationDialogBox"
+                data-test="publishButton"
+              ></icon-button>
+            </span>
             <!-- analyze plio -->
             <icon-button
               v-if="isPublished"
@@ -204,6 +211,7 @@
               :buttonClass="analyzePlioButtonClass"
               @click="redirectToDashboard"
               data-test="analyseButton"
+              v-tooltip="{ content: analyseButtonTooltip, placement: 'bottom' }"
             ></icon-button>
           </div>
         </div>
@@ -284,7 +292,7 @@
                     @click="addNewItem('mcq')"
                     class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                     :class="questionTypeSelectorClass"
-                    v-tooltip="addMCQTooltip"
+                    v-tooltip="{ content: addMCQTooltip, placement: 'bottom' }"
                     data-test="addMCQItem"
                   >
                     <inline-svg
@@ -298,7 +306,10 @@
                     @click="addNewItem('subjective')"
                     class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                     :class="questionTypeSelectorClass"
-                    v-tooltip="addSubjectiveQuestionTooltip"
+                    v-tooltip="{
+                      content: addSubjectiveQuestionTooltip,
+                      placement: 'bottom',
+                    }"
                     data-test="addSubjectiveItem"
                   >
                     <inline-svg
@@ -1037,6 +1048,24 @@ export default {
         `text-base px-4 py-2`,
       ];
     },
+    sharePlioButtonTooltip() {
+      return this.$t("tooltip.editor.share_plio");
+    },
+    playPlioButtonTooltip() {
+      return this.$t("tooltip.editor.play_plio");
+    },
+    embedPlioButtonTooltip() {
+      return this.$t("tooltip.editor.embed_plio");
+    },
+    analyseButtonTooltip() {
+      return this.$t("tooltip.editor.analyze");
+    },
+    copyPlioDraftLinkTooltip() {
+      return this.$t("tooltip.editor.copy_draft_link");
+    },
+    previewButtonTooltip() {
+      return this.$t("tooltip.editor.preview");
+    },
     /**
      * tooltip for the status badge
      */
@@ -1217,6 +1246,9 @@ export default {
      */
     addSubjectiveQuestionTooltip() {
       return this.$t("tooltip.editor.add_item.subjective");
+    },
+    homeButtonTooltip() {
+      return this.$t("tooltip.editor.home");
     },
     /**
      * styling classes for the video link input box

@@ -68,6 +68,7 @@
                     class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-black uppercase tracking-wider w-4/5"
                     :class="getColumnHeaderStyleClass(columnIndex)"
                     data-test="tableHeader"
+                    v-tooltip="getTableHeaderTooltip(columnName)"
                   >
                     <div class="flex">
                       <div
@@ -312,6 +313,14 @@ export default {
   methods: {
     ...Utilities,
     ...mapActions("sync", ["startLoading"]),
+    /**
+     * Get tooltip for table headers
+     * @param {String} columnName - The name of the column
+     */
+    getTableHeaderTooltip(columnName) {
+      if (columnName == "views") return this.$t("home.table.tooltip.header.views");
+      return undefined;
+    },
     searchIfEnter(event) {
       /**
        * detect if enter has been pressed after entering
