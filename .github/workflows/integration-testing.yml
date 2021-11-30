@@ -75,3 +75,5 @@ jobs:
           docker-compose down
           cd ../plio-backend/
           docker-compose down
+          cd ../plio-analytics/
+          docker-compose down
