@@ -55,6 +55,7 @@ import ItemQuestionHeader from "@/components/Items/Question/Header";
 import ItemQuestionBody from "@/components/Items/Question/Body";
 import ItemQuestionFooter from "@/components/Items/Question/Footer";
 import { isScreenPortrait } from "@/services/Functional/Utilities.js";
+var isEqual = require("deep-eql");
 
 export default {
   data() {
@@ -227,7 +228,7 @@ export default {
       )
         return null;
       if (this.isQuestionTypeSubjective) return true;
-      return this.questionCorrectAnswer == this.currentItemResponseAnswer;
+      return isEqual(this.questionCorrectAnswer, this.currentItemResponseAnswer);
     },
     isAnswerSubmitted() {
       // has the answer for the current item submitted - if current item is a question
@@ -243,7 +244,11 @@ export default {
     questionCorrectAnswer() {
       // correct answer for the question
       if (this.currentItemDetails == undefined) return null;
-      return parseInt(this.currentItemDetails["correct_answer"]);
+      if (this.isQuestionTypeMCQ)
+        return parseInt(this.currentItemDetails["correct_answer"]);
+      if (this.isQuestionTypeCheckbox)
+        return new Set(this.currentItemDetails["correct_answer"]);
+      return null;
     },
     questionText() {
       // text for the question

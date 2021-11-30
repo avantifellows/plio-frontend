@@ -501,16 +501,17 @@ import { useToast } from "vue-toastification";
 const confetti = require("canvas-confetti");
 
 // used for deep cloning objects
-var clonedeep = require("lodash.clonedeep");
+let clonedeep = require("lodash.clonedeep");
 var isEqual = require("deep-eql");
 
 // difference in seconds between consecutive checks for item pop-up
-var POP_UP_CHECKING_FREQUENCY = 0.5;
-var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
+const POP_UP_CHECKING_FREQUENCY = 0.5;
+const POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 // offset from the POP_UP_CHECKING_FREQUENCY for the minimum question timestamp
-var MINIMUM_QUESTION_TIME_OFFSET = 0.1;
+const MINIMUM_QUESTION_TIME_OFFSET = 0.1;
 // minimum timestamp for each question
-var MINIMUM_QUESTION_TIMESTAMP = MINIMUM_QUESTION_TIME_OFFSET + POP_UP_CHECKING_FREQUENCY;
+const MINIMUM_QUESTION_TIMESTAMP =
+  MINIMUM_QUESTION_TIME_OFFSET + POP_UP_CHECKING_FREQUENCY;
 
 // debounce time - milliseconds
 const DEBOUNCE_DELAY_TIME = 500;

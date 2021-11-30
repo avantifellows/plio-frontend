@@ -152,12 +152,12 @@ export default {
     },
     correctAnswer: {
       default: null,
-      type: Number,
+      type: [Number, Set],
     },
     /** answer for the question which has been submitted */
     submittedAnswer: {
       default: null,
-      type: [String, Number],
+      type: [String, Number, Set],
     },
     /** answer for the question which has been entered but not submitted */
     draftAnswer: {
@@ -224,8 +224,14 @@ export default {
     optionBackgroundClass(optionIndex) {
       // returns the background class for the option
       if (!this.isAnswerSubmitted) return {};
-      if (optionIndex == this.correctAnswer) return "text-white bg-green-500";
-      if (optionIndex == this.submittedAnswer) return "text-white bg-red-500";
+      if (this.isQuestionTypeMCQ) {
+        if (optionIndex == this.correctAnswer) return "text-white bg-green-500";
+        if (optionIndex == this.submittedAnswer) return "text-white bg-red-500";
+      }
+      if (this.isQuestionTypeCheckbox) {
+        if (this.correctAnswer.has(optionIndex)) return "text-white bg-green-500";
+        if (this.submittedAnswer.has(optionIndex)) return "text-white bg-red-500";
+      }
     },
     isOptionChecked(optionIndex) {
       // whether the given option index should be checked
