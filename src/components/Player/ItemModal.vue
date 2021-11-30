@@ -304,11 +304,15 @@ export default {
     },
     optionSelected(optionIndex) {
       // invoked when an option is selected
-      if (this.isQuestionTypeMCQ)
+      if (this.isQuestionTypeMCQ) {
+        // for MCQ, simply set the option as the current response
         this.draftResponses[this.selectedItemIndex] = optionIndex;
-      else if (this.isQuestionTypeCheckbox) {
+      } else if (this.isQuestionTypeCheckbox) {
+        // for checkbox, create a set for the response if the response is empty
         if (this.draftResponses[this.selectedItemIndex] == null)
           this.draftResponses[this.selectedItemIndex] = new Set();
+        // if the selection option was already in the response
+        // remove it from the response; otherwise add it
         let currentResponse = this.draftResponses[this.selectedItemIndex];
         if (currentResponse.has(optionIndex)) currentResponse.delete(optionIndex);
         else currentResponse.add(optionIndex);
