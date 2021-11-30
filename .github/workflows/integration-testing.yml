@@ -18,41 +18,64 @@ jobs:
 
       - name: Set up Plio Frontend
         run: |
-          mkdir projects/ && cd projects/
+          # clone the project
+          mkdir -p projects/ && cd projects/
           git clone https://github.com/avantifellows/plio-frontend/
           cd plio-frontend/
+
           # temporary git checkout
           git checkout feature/cypress-ci && git pull origin feature/cypress-ci
+
+          # create the env file
           cp .env.example .env
+
+          # add env secrets
           echo 'VUE_APP_I18N_LOCALE=${{ secrets.VUE_APP_I18N_LOCALE }}' >> .env
           echo 'VUE_APP_GOOGLE_CLIENT_ID=${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }}' >> .env
           echo 'VUE_APP_BACKEND_API_CLIENT_ID=${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }}' >> .env
           echo 'VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}' >> .env
+
+          # setup docker containers
           docker-compose up -d --build
 
       - name: Set up Plio Backend
         run: |
-          cd projects/
+          # clone the project
+          mkdir -p projects/ && cd projects/
           git clone https://github.com/avantifellows/plio-backend
           cd plio-backend/
+
           # temporary git checkout
           git checkout feature/cypress-ci && git pull origin feature/cypress-ci
+
+          # create the env file
           cp .env.example .env
+
+          # add env secrets
           echo 'SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}' >> .env
           echo 'DEFAULT_OAUTH2_CLIENT_SETUP=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SETUP }}' >> .env
           echo 'DEFAULT_OAUTH2_CLIENT_ID=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
           echo 'DEFAULT_OAUTH2_CLIENT_SECRET=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
           echo 'GOOGLE_OAUTH2_CLIENT_ID=${{ secrets.DJANGO_GOOGLE_OAUTH2_CLIENT_ID }}' >> .env
           echo 'GOOGLE_OAUTH2_CLIENT_SECRET=${{ secrets.DJANGO_GOOGLE_OAUTH2_CLIENT_SECRET }}' >> .env
+
+          # setup docker containers
           docker-compose up -d --build
 
       - name: Set up Plio Analytics
         run: |
-          cd projects/
+          # clone the project
+          mkdir -p projects/ && cd projects/
           git clone https://github.com/avantifellows/plio-analytics
           cd plio-analytics/
+
+          # create the env file
           cp .env.example .env
+
+          # add env secrets
           echo 'CUBEJS_API_SECRET=${{ secrets.ANALYTICS_CUBEJS_API_SECRET }}' >> .env
+
+          # setup docker containers
           docker-compose up -d --build
 
       - name: Run cypress
@@ -67,13 +90,10 @@ jobs:
           export cypress_auth_google_client_secret=${{ secrets.cypress_auth_google_client_secret }}
           npx cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
-      - name: Stop the container
+      - name: Stop the containers
         if: always()
         run: |
           cd projects/
-          cd plio-frontend/
-          docker-compose down
-          cd ../plio-backend/
-          docker-compose down
-          cd ../plio-analytics/
-          docker-compose down
+          cd plio-frontend/ && docker-compose down
+          cd ../plio-backend/ && docker-compose down
+          cd ../plio-analytics/ && docker-compose down
