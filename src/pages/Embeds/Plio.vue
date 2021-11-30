@@ -93,6 +93,8 @@ import { useToast } from "vue-toastification";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { resetConfetti } from "@/services/Functional/Utilities.js";
 
+let clonedeep = require("lodash.clonedeep");
+
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
 var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
@@ -667,7 +669,12 @@ export default {
        * and the plio is not opened in preview mode
        */
       if (this.isAuthenticated && !this.previewMode) {
-        SessionAPIService.updateSessionAnswer(this.itemResponses[this.currentItemIndex]);
+        let itemResponse = clonedeep(this.itemResponses[this.currentItemIndex]);
+
+        if (this.isItemCheckbox(this.currentItemIndex)) {
+          itemResponse.answer = Array.from(itemResponse.answer);
+        }
+        SessionAPIService.updateSessionAnswer(itemResponse);
         // create an event for the submit action
         this.createEvent("question_answered", {
           itemIndex: this.currentItemIndex,
@@ -801,13 +808,15 @@ export default {
           // removing the _id in keys like session_id, question_id
           // so that we can directly update the answers without having to
           // create another dictionary every time we want to upload
-          var itemResponse = {};
-          for (var key of Object.keys(sessionAnswer)) {
+          let itemResponse = {};
+          for (let key of Object.keys(sessionAnswer)) {
             itemResponse[key.replace("_id", "")] = sessionAnswer[key];
           }
           // for mcq items, convert answers to integer
           if (this.isItemMCQ(itemIndex)) {
             itemResponse.answer = parseInt(itemResponse.answer);
+          } else if (this.isItemCheckbox(itemIndex) && itemResponse.answer != null) {
+            itemResponse.answer = new Set(itemResponse.answer);
           }
           this.itemResponses.push(itemResponse);
         });
@@ -973,6 +982,16 @@ export default {
       return (
         this.items[itemIndex].type == "question" &&
         this.itemDetails[itemIndex].type == "mcq"
+      );
+    },
+    /**
+     * Whether the item at the given index is an checkbox question
+     * @param {Number} itemIndex - index of an item in the items array
+     */
+    isItemCheckbox(itemIndex) {
+      return (
+        this.items[itemIndex].type == "question" &&
+        this.itemDetails[itemIndex].type == "checkbox"
       );
     },
     /**
