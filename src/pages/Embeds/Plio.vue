@@ -672,7 +672,7 @@ export default {
         let itemResponse = clonedeep(this.itemResponses[this.currentItemIndex]);
 
         if (this.isItemCheckbox(this.currentItemIndex)) {
-          itemResponse.answer = Array.from(itemResponse.answer);
+          itemResponse.answer = Array.from(itemResponse.answer).sort();
         }
         SessionAPIService.updateSessionAnswer(itemResponse);
         // create an event for the submit action
