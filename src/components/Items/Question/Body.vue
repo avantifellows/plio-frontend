@@ -44,19 +44,18 @@
               :class="[optionBackgroundClass(optionIndex), optionTextClass]"
             >
               <!-- each option is defined here -->
-              <!-- adding <label> so that touch input is just not limited to the radio button -->
+              <!-- adding <label> so that touch input is just not limited to the radio/checkbox button -->
               <label :class="labelClass(option)">
                 <!-- understand the meaning of the keys here:
                     https://www.w3schools.com/tags/att_input_type_radio.asp -->
                 <input
-                  type="radio"
-                  name="questionOptions"
+                  :type="optionInputType"
                   :value="option"
                   class="place-self-center"
                   @click="selectOption(optionIndex)"
                   :checked="isOptionChecked(optionIndex)"
                   :disabled="isAnswerSubmitted || previewMode"
-                  :data-test="`radio-${optionIndex}`"
+                  :data-test="`optionSelector-${optionIndex}`"
                 />
                 <div
                   v-html="option"
@@ -234,6 +233,12 @@ export default {
     },
   },
   computed: {
+    optionInputType() {
+      if (!this.areOptionsVisible) return null;
+      if (this.isQuestionTypeMCQ) return "radio";
+      if (this.isQuestionTypeCheckbox) return "checkbox";
+      return null;
+    },
     /**
      * classes for the various containers corresponding to the possible types of answers
      * to the various types of questions (options for MCQ, textarea for subjective)
@@ -342,8 +347,16 @@ export default {
       return this.questionTypesWithOptions.has(this.questionType);
     },
     isQuestionTypeSubjective() {
-      // whether the question type is mcq
+      // whether the question type is subjective
       return this.questionType == "subjective";
+    },
+    isQuestionTypeCheckbox() {
+      // whether the question type is checkbox
+      return this.questionType == "checkbox";
+    },
+    isQuestionTypeMCQ() {
+      // whether the question type is mcq
+      return this.questionType == "mcq";
     },
     subjectiveAnswerInputPlaceholder() {
       // placeholder for the subjective answer input area

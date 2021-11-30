@@ -53,7 +53,7 @@ describe("Body.vue", () => {
         options: options,
       },
     });
-    wrapper.find('[data-test="radio-0"]').trigger("click");
+    wrapper.find('[data-test="optionSelector-0"]').trigger("click");
     expect(wrapper.emitted()).toHaveProperty("option-selected");
   });
 

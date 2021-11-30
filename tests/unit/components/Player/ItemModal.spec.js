@@ -180,7 +180,7 @@ describe("ItemModal.vue", () => {
     });
     // enter some value in the input field
     const body = wrapper.find('[data-test="body"]');
-    await body.find('[data-test="radio-0"]').trigger("click");
+    await body.find('[data-test="optionSelector-0"]').trigger("click");
 
     // submit the answer
     wrapper
