@@ -46,6 +46,15 @@ jobs:
           echo 'GOOGLE_OAUTH2_CLIENT_SECRET=${{ secrets.DJANGO_GOOGLE_OAUTH2_CLIENT_SECRET }}' >> .env
           docker-compose up -d --build
 
+      - name: Set up Plio Analytics
+        run: |
+          cd projects/
+          git clone https://github.com/avantifellows/plio-analytics
+          cd plio-analytics/
+          cp .env.example .env
+          echo 'CUBEJS_API_SECRET=${{ secrets.ANALYTICS_CUBEJS_API_SECRET }}' >> .env
+          docker-compose up -d --build
+
       - name: Run cypress
         run: |
           cd projects/
