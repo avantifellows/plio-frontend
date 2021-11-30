@@ -859,7 +859,7 @@ describe("Editor.vue", () => {
       hasUnpublishedChanges: true,
     });
     expect(wrapper.vm.publishButtonTooltip).toBe(
-      "Click to publish your changes"
+      "Click to publish the changes you've made"
     );
   });
 
