@@ -480,8 +480,13 @@ export default {
          * as a correct option, unmark it. otherwise, mark it as a correct option
          */
         if (this.correctAnswer.has(selectedOptionIndex)) {
-          this.localItemDetailList[this.localSelectedItemIndex].correct_answer.delete(
-            selectedOptionIndex
+          let currentOptionIndex = this.localItemDetailList[
+            this.localSelectedItemIndex
+          ].correct_answer.indexOf(selectedOptionIndex);
+
+          this.localItemDetailList[this.localSelectedItemIndex].correct_answer.splice(
+            currentOptionIndex,
+            1
           );
         } else {
           this.localItemDetailList[this.localSelectedItemIndex].correct_answer.push(
