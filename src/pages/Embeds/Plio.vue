@@ -94,6 +94,7 @@ import { mapActions, mapState, mapGetters } from "vuex";
 import { resetConfetti } from "@/services/Functional/Utilities.js";
 
 let clonedeep = require("lodash.clonedeep");
+var isEqual = require("deep-eql");
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
@@ -573,14 +574,22 @@ export default {
      * @param  {String, Number, Object} userAnswer - User's answer to that item
      */
     updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
-      if (this.isItemMCQ(itemIndex)) {
+      if (this.isItemMCQ(itemIndex) && !isNaN(userAnswer)) {
         const correctAnswer = this.itemDetails[itemIndex].correct_answer;
-        if (!isNaN(userAnswer)) {
-          userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
-          // reduce numSkipped by 1 if numCorrect or numWrong increases
-          this.numSkipped -= 1;
-        }
+        userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
+        // reduce numSkipped by 1 if numCorrect or numWrong increases
+        this.numSkipped -= 1;
+      } else if (this.isItemCheckbox && userAnswer != null && userAnswer.length > 0) {
+        // for checkbox questions, check if the answers match exactly
+        const correctAnswer = this.itemDetails[itemIndex].correct_answer;
+
+        isEqual(userAnswer, correctAnswer)
+          ? (this.numCorrect += 1)
+          : (this.numWrong += 1);
+        this.numSkipped -= 1;
       } else if (this.isSubjectiveQuestionAnswered(itemIndex, userAnswer)) {
+        // for subjective questions, as long as the viewer has given any answer
+        // their response is considered correct
         this.numCorrect += 1;
         this.numSkipped -= 1;
       }
@@ -588,15 +597,17 @@ export default {
     /**
      * Calculate the scorecard metrics
      * @param {Number} [itemIndex = null] - If null, iterate through all items else just consider the provided item
+     * @param {Number} [userAnswer = null] - the response given by the user corresponding to the item
      */
-    calculateScorecardMetrics(itemIndex = null) {
+    calculateScorecardMetrics(itemIndex = null, userAnswer = null) {
       if (itemIndex == null) {
         this.itemResponses.forEach((itemResponse, itemIndex) => {
-          const userAnswer = itemResponse.answer;
-          this.updateNumCorrectWrongSkipped(itemIndex, userAnswer);
-        });
+          // convert Set to Array if the item is a checkbox question
+          if (this.isItemCheckbox(itemIndex) && itemResponse.answer != null)
+            itemResponse.answer = Array.from(itemResponse.answer);
+          this.updateNumCorrectWrongSkipped(itemIndex, itemResponse.answer);
+        }, this);
       } else {
-        const userAnswer = this.itemResponses[itemIndex].answer;
         this.updateNumCorrectWrongSkipped(itemIndex, userAnswer);
       }
     },
@@ -664,28 +675,28 @@ export default {
      * saves the answer to the question at the current index
      */
     submitQuestion() {
+      let itemResponse = clonedeep(this.itemResponses[this.currentItemIndex]);
+
+      if (this.isItemCheckbox(this.currentItemIndex)) {
+        itemResponse.answer = Array.from(itemResponse.answer).sort();
+      }
       /**
        * update the session answer on server if the user is authenticated
        * and the plio is not opened in preview mode
        */
       if (this.isAuthenticated && !this.previewMode) {
-        let itemResponse = clonedeep(this.itemResponses[this.currentItemIndex]);
-
-        if (this.isItemCheckbox(this.currentItemIndex)) {
-          itemResponse.answer = Array.from(itemResponse.answer).sort();
-        }
         SessionAPIService.updateSessionAnswer(itemResponse);
         // create an event for the submit action
         this.createEvent("question_answered", {
           itemIndex: this.currentItemIndex,
-          answer: this.itemResponses[this.currentItemIndex].answer,
+          answer: itemResponse.answer,
         });
       }
       // update the marker colors on the player
       this.showItemMarkersOnSlider();
 
       // recalculate the scorecard metrics
-      this.calculateScorecardMetrics(this.currentItemIndex);
+      this.calculateScorecardMetrics(this.currentItemIndex, itemResponse.answer);
     },
     skipQuestion() {
       // invoked when the user skips the question
