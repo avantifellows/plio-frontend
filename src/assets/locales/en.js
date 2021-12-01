@@ -86,10 +86,6 @@ export default {
       delete_option: {
         title: "Are you sure you want to delete this option?",
       },
-      cannot_delete_option: {
-        title: "Cannot delete the option",
-        description: "A question must have at least 2 options",
-      },
       cannot_add_question: {
         title: "Cannot add a new question here",
         description:

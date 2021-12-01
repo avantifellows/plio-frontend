@@ -1927,27 +1927,6 @@ export default {
       this.showDialogBox();
     },
     /**
-     * shows a dialog box when the user tries to delete an option
-     * for a question with only 2 options
-     */
-    showCannotDeleteOptionDialog() {
-      // set up the dialog properties
-      this.setDialogTitle(this.$t("editor.dialog.cannot_delete_option.title"));
-      this.setDialogDescription(
-        this.$t("editor.dialog.cannot_delete_option.description")
-      );
-      this.setConfirmButtonConfig({
-        enabled: true,
-        text: this.$t("generic.got_it"),
-        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
-      });
-
-      // carry out the closeDialog action when dialog is closed
-      this.setDialogAction("closeDialog");
-      // show the dialog box
-      this.showDialogBox();
-    },
-    /**
      * hides the dialog box and invokes the method for publishing the plio
      */
     confirmPublish() {
@@ -1963,13 +1942,6 @@ export default {
      * more than 2 options
      */
     deleteSelectedOption() {
-      // there should always be at least 2 options, allow deletion only
-      // if the number of options is >= 3
-      if (this.itemDetails[this.currentItemIndex].options.length < 3) {
-        this.showCannotDeleteOptionDialog();
-        return;
-      }
-
       // delete the option
       this.itemDetails[this.currentItemIndex].options.splice(this.optionIndexToDelete, 1);
       // if the deleted option was the correct answer, reset the correct answer

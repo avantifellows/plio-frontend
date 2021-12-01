@@ -87,10 +87,6 @@ export default {
       delete_option: {
         title: "क्या आप वाकई इस विकल्प को हटाना चाहते हैं?",
       },
-      cannot_delete_option: {
-        title: "विकल्प को हटा नहीं सकता",
-        description: "एक प्रश्न में कम से कम 2 विकल्प होने चाहिए",
-      },
       cannot_add_question: {
         title: "यहां एक नया प्रश्न नहीं जोड़ा जा सकता",
         description:
