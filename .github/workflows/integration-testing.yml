@@ -82,12 +82,12 @@ jobs:
           cd projects/plio-frontend/
 
           # setup env secrets
-          export CYPRESS_BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL=${{ secrets.CYPRESS_PLIO_BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL }}
-          export CYPRESS_BACKEND_CLIENT_ID=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}
-          export CYPRESS_BACKEND_CLIENT_SECRET=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}
-          export CYPRESS_AUTH_GOOGLE_REFRESH_TOKEN=${{ secrets.CYPRESS_AUTH_GOOGLE_REFRESH_TOKEN }}
-          export CYPRESS_AUTH_GOOGLE_CLIENT_ID=${{ secrets.CYPRESS_AUTH_GOOGLE_CLIENT_ID }}
-          export CYPRESS_AUTH_GOOGLE_CLIENT_SECRET=${{ secrets.CYPRESS_AUTH_GOOGLE_CLIENT_SECRET }}
+          export cypress_backend_convert_social_auth_token_url=${{ secrets.CYPRESS_PLIO_BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL }}
+          export cypress_backend_client_id=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}
+          export cypress_backend_client_secret=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}
+          export cypress_auth_google_refresh_token=${{ secrets.CYPRESS_AUTH_GOOGLE_REFRESH_TOKEN }}
+          export cypress_auth_google_client_id=${{ secrets.CYPRESS_AUTH_GOOGLE_CLIENT_ID }}
+          export cypress_auth_google_client_secret=${{ secrets.CYPRESS_AUTH_GOOGLE_CLIENT_SECRET }}
 
           # run cypress test cases
           npx cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
