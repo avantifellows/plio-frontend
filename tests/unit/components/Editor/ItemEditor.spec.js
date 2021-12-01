@@ -372,7 +372,7 @@ describe("ItemEditor.vue", () => {
           {
             text: "test",
             type: "mcq",
-            options: ["", ""],
+            options: ["", "", ""],
             correct_answer: 1,
           },
         ],

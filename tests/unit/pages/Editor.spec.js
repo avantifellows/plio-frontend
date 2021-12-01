@@ -1457,64 +1457,9 @@ describe("Editor.vue", () => {
     // clear past values of dialog description
     await store.dispatch("dialog/unsetDialogDescription");
 
-    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+    console.log(inputTextWrapper.html());
 
-    expect(endIconSelected).toHaveBeenCalled();
-    expect(inputTextWrapper.emitted()).toHaveProperty("end-icon-selected");
-
-    expect(itemEditorDeleteOption).toHaveBeenCalled();
-    expect(itemEditorWrapper.emitted()).toHaveProperty("delete-option");
-
-    expect(editorDeleteOption).toHaveBeenCalled();
-    await flushPromises();
-
-    expect(store.state.dialog.title).toBe(
-      "Are you sure you want to delete this option?"
-    );
-    expect(store.state.dialog.description).toBe("");
-    expect(store.state.dialog.confirmButtonConfig.enabled).toBeTruthy();
-    expect(store.state.dialog.confirmButtonConfig.text).toBe("Yes");
-    expect(store.state.dialog.confirmButtonConfig.class).toBe(
-      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
-    );
-    expect(store.state.dialog.cancelButtonConfig.enabled).toBeTruthy();
-    expect(store.state.dialog.cancelButtonConfig.text).toBe("No");
-    expect(store.state.dialog.cancelButtonConfig.class).toBe(
-      "bg-white hover:bg-gray-100 focus:outline-none text-primary"
-    );
-    expect(wrapper.vm.dialogAction).toBe("deleteOption");
-    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
-
-    expect(wrapper.vm.optionIndexToDelete).toBe(0);
-
-    // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
-
-    expect(deleteSelectedOption).toHaveBeenCalled();
-    expect(showCannotDeleteOptionDialog).toHaveBeenCalled();
-
-    expect(store.state.dialog.title).toBe("Cannot delete the option");
-    expect(store.state.dialog.description).toBe(
-      "A question must have at least 2 options"
-    );
-    expect(store.state.dialog.confirmButtonConfig.enabled).toBeTruthy();
-    expect(store.state.dialog.confirmButtonConfig.text).toBe("Got it");
-    expect(store.state.dialog.confirmButtonConfig.class).toBe(
-      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
-    );
-    expect(store.state.dialog.cancelButtonConfig.enabled).toBeFalsy();
-    expect(store.state.dialog.cancelButtonConfig.text).toBe("");
-    expect(store.state.dialog.cancelButtonConfig.class).toBe("");
-
-    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
-    await store.dispatch("dialog/unsetDialogDescription");
-
-    // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
-
-    // dialogAction and dialog confirm click status should be reset
-    expect(wrapper.vm.dialogAction).toBeFalsy();
-    expect(wrapper.vm.isDialogConfirmClicked).toBeFalsy();
+    expect(inputTextWrapper.find('[data-test="endIcon"]').exists()).toBeFalsy();
   });
 
   it("cancelling delete option dialog resets option's index to delete", async () => {
@@ -1525,9 +1470,11 @@ describe("Editor.vue", () => {
         };
       },
     });
+    let updatedDummyItemDetails = clonedeep(global.dummyItemDetails);
+    updatedDummyItemDetails[0].options.push("option 3");
     await wrapper.setData({
       items: clonedeep(global.dummyItems),
-      itemDetails: clonedeep(global.dummyItemDetails),
+      itemDetails: updatedDummyItemDetails,
       currentItemIndex: 0,
       videoDuration: 200,
       status: "draft",
