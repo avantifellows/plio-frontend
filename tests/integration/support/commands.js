@@ -44,11 +44,11 @@ Cypress.Commands.add("loginByGoogleApi", () => {
       // see if there is a way to reuse the function defined in VueApp
       cy.request({
         method: "POST",
-        url: Cypress.env("plio_backend_convert_social_auth_token_url"),
+        url: Cypress.env("backend_convert_social_auth_token_url"),
         body: {
           grant_type: "convert_token",
-          client_id: Cypress.env("plio_backend_client_id"),
-          client_secret: Cypress.env("plio_backend_client_secret"),
+          client_id: Cypress.env("backend_client_id"),
+          client_secret: Cypress.env("backend_client_secret"),
           backend: "google-oauth2",
           token: socialAuthToken,
         },
