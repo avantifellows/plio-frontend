@@ -81,12 +81,12 @@ jobs:
         run: |
           cd projects/
           cd plio-frontend/
-          export cypress_backend_convert_social_auth_token_url=${{ secrets.cypress_plio_backend_convert_social_auth_token_url }}
+          export cypress_backend_convert_social_auth_token_url=${{ secrets.CYPRESS_PLIO_BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL }}
           export cypress_backend_client_id=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}
           export cypress_backend_client_secret=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}
-          export cypress_auth_google_refresh_token=${{ secrets.cypress_auth_google_refresh_token }}
-          export cypress_auth_google_client_id=${{ secrets.cypress_auth_google_client_id }}
-          export cypress_auth_google_client_secret=${{ secrets.cypress_auth_google_client_secret }}
+          export cypress_auth_google_refresh_token=${{ secrets.CYPRESS_AUTH_GOOGLE_REFRESH_TOKEN }}
+          export cypress_auth_google_client_id=${{ secrets.CYPRESS_AUTH_GOOGLE_CLIENT_ID }}
+          export cypress_auth_google_client_secret=${{ secrets.CYPRESS_AUTH_GOOGLE_CLIENT_SECRET }}
           npx cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
       - name: Stop the containers
