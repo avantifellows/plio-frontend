@@ -205,7 +205,10 @@ import InputText from "@/components/UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
 import ItemFunctionalService from "@/services/Functional/Item.js";
-import { convertSecondsToISOTime, convertISOTimeToSeconds } from "@/services/Functional/Utilities.js";"
+import {
+  convertSecondsToISOTime,
+  convertISOTimeToSeconds,
+} from "@/services/Functional/Utilities.js";
 
 export default {
   name: "ItemEditor",
@@ -449,17 +452,17 @@ export default {
 
   computed: {
     questionTypePickerTooltip() {
-      return this.isPublished
-        ? this.$t("tooltip.editor.item_editor.buttons.question_type_picker.enabled")
-        : this.$t("tooltip.editor.item_editor.buttons.question_type_picker.disabled");
+      return this.isInteractionDisabled
+        ? this.$t("tooltip.editor.item_editor.buttons.question_type_picker.disabled")
+        : this.$t("tooltip.editor.item_editor.buttons.question_type_picker.enabled");
     },
     addImageButtonTooltip() {
       if (!this.isQuestionImagePresent) {
-        return this.isPublished
+        return this.isInteractionDisabled
           ? this.$t("tooltip.editor.item_editor.buttons.add_image.disabled")
           : this.$t("tooltip.editor.item_editor.buttons.add_image.enabled");
       }
-      return this.isPublished
+      return this.isInteractionDisabled
         ? this.$t("tooltip.editor.item_editor.buttons.update_image.disabled")
         : this.$t("tooltip.editor.item_editor.buttons.update_image.enabled");
     },

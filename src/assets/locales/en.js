@@ -450,12 +450,12 @@ export default {
             enabled: "Delete this option",
           },
           add_image: {
-            disbaled: "Add an image to your question",
-            enabled: "Cannot add an image in a published plio",
+            enabled: "Add an image to your question",
+            disabled: "Cannot add an image in a published plio",
           },
           update_image: {
-            disbaled: "Update or delete the image in this question",
-            enabled: "Cannot update the image in a published plio",
+            enabled: "Update or delete the image in this question",
+            disabled: "Cannot update the image in a published plio",
           },
           question_type_picker: {
             disabled:
