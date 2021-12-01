@@ -205,6 +205,7 @@ import InputText from "@/components/UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
 import ItemFunctionalService from "@/services/Functional/Item.js";
+import { convertSecondsToISOTime, convertISOTimeToSeconds } from "@/services/Functional/Utilities.js";"
 
 export default {
   name: "ItemEditor",
@@ -431,41 +432,6 @@ export default {
     updateSelectedItemIndex(index) {
       // updates the current item selected
       this.localSelectedItemIndex = index;
-    },
-    convertSecondsToISOTime(timeInSeconds) {
-      // converts time in seconds to ISOString format
-      // reference -
-      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-      // https://stackoverflow.com/questions/1322732/convert-seconds-to-hh-mm-ss-with-javascript
-
-      var timestampObject = {};
-      var isoTime = new Date(Math.floor(timeInSeconds) * 1000)
-        .toISOString()
-        .substr(11, 8);
-      var hour = parseInt(isoTime.split(":")[0]);
-      var minute = parseInt(isoTime.split(":")[1]);
-      var second = parseInt(isoTime.split(":")[2]);
-
-      timestampObject["hour"] = hour;
-      timestampObject["minute"] = minute;
-      timestampObject["second"] = second;
-      timestampObject["millisecond"] = 0;
-
-      if (Math.floor(timeInSeconds) < timeInSeconds) {
-        var ms = parseInt(String(timeInSeconds).split(".")[1].padEnd(3, "0"));
-        timestampObject["millisecond"] = ms;
-      }
-
-      return timestampObject;
-    },
-    convertISOTimeToSeconds(timeInISO) {
-      // converts the timestamp object recieved from the timeinput component
-      // into seconds
-      var hour = parseInt(timeInISO.hour) || 0;
-      var minute = parseInt(timeInISO.minute) || 0;
-      var second = parseInt(timeInISO.second) || 0;
-      var millisecond = parseInt(timeInISO.millisecond) || 0;
-      return hour * 3600 + minute * 60 + second + millisecond / 1000;
     },
     deleteSelectedItem() {
       // emit a request to delete the selected item
@@ -726,13 +692,13 @@ export default {
 
         var itemTime = this.localItemList[this.localSelectedItemIndex].time;
         this.checkTimeInputErrors(itemTime);
-        return this.convertSecondsToISOTime(itemTime);
+        return convertSecondsToISOTime(itemTime);
       },
       set(value) {
         // convert timeObject to seconds and
         // check for any time input errors and toggle the respective error flags
 
-        var timeInSeconds = this.convertISOTimeToSeconds(value);
+        var timeInSeconds = convertISOTimeToSeconds(value);
         this.checkTimeInputErrors(timeInSeconds);
 
         // update the local time values if no error is present

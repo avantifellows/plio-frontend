@@ -44,6 +44,7 @@
 </template>
 
 <script>
+import { convertSecondsToISOTime } from "@/services/Functional/Utilities.js";
 export default {
   data() {
     return {
@@ -102,7 +103,21 @@ export default {
         // don't show anything
         this.markerTooltipContent = null;
       } else {
-        this.markerTooltipContent = this.localMarkerPositions[markerIndex];
+        // convert the time in seconds to ISO time
+        let timeInSeconds = this.localMarkerPositions[markerIndex];
+        let ISOTimeObject = convertSecondsToISOTime(timeInSeconds);
+        this.markerTooltipContent =
+          ISOTimeObject.minute +
+          ":" +
+          ISOTimeObject.second +
+          ":" +
+          ISOTimeObject.millisecond;
+
+        // Only show the hour value if it's available
+        if (ISOTimeObject.hour != 0) {
+          this.markerTooltipContent =
+            ISOTimeObject.hour + ":" + this.markerTooltipContent;
+        }
         // adjust the position of the tooltip's start to take into account the marker width
         this.markerTooltipPosition =
           "left: " +
@@ -152,7 +167,7 @@ export default {
     markerSliderSelected(markerIndex) {
       // invoked when a marker has been selected
       if (!this.isDragDisabled) this.activeMarkerIndex = markerIndex;
-      this.updateMarkerTooltip(this.activeMarkerIndex);
+      this.updateMarkerTooltip(markerIndex);
     },
     markerSliderTouched(markerIndex) {
       this.touched = true;
@@ -212,7 +227,10 @@ export default {
     },
     isMarkerTooltipVisible() {
       // hide the tooltip if no marker is active or if there's no content to show
-      return this.activeMarkerIndex != null && this.markerTooltipContent != null;
+      return (
+        (this.activeMarkerIndex != null || this.isDragDisabled) &&
+        this.markerTooltipContent != null
+      );
     },
     markerArenaWidth() {
       // the width in pixels of the possible range where the left margin of each marker

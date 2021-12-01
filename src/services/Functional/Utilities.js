@@ -173,3 +173,44 @@ export function isScreenPortrait() {
   if (screen.availHeight > 0.8 * screen.availWidth) return true;
   return false;
 }
+
+/**
+ * Converts a timestamp in seconds to ISO format
+ * @param {Number} timeInSeconds - A timestamp value in seconds
+ * @returns {Object} - The converted timestamp in ISO format
+ */
+export function convertSecondsToISOTime(timeInSeconds) {
+  // reference -
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
+  // https://stackoverflow.com/questions/1322732/convert-seconds-to-hh-mm-ss-with-javascript
+
+  let timestampObject = {};
+  let isoTime = new Date(Math.floor(timeInSeconds) * 1000)
+    .toISOString()
+    .substr(11, 8);
+
+  timestampObject["hour"] = parseInt(isoTime.split(":")[0]);
+  timestampObject["minute"] = parseInt(isoTime.split(":")[1]);
+  timestampObject["second"] = parseInt(isoTime.split(":")[2]);
+  timestampObject["millisecond"] = 0;
+
+  if (Math.floor(timeInSeconds) < timeInSeconds) {
+    var ms = parseInt(String(timeInSeconds).split(".")[1].padEnd(3, "0"));
+    timestampObject["millisecond"] = ms;
+  }
+
+  return timestampObject;
+}
+
+/**
+ * Converts a timestamp in ISO format to seconds
+ * @param {Object} timeInISO - An object containing the ISO time as it's keys
+ * @returns {Number} - The converted time in seconds
+ */
+export function convertISOTimeToSeconds(timeInISO) {
+  var hour = parseInt(timeInISO.hour) || 0;
+  var minute = parseInt(timeInISO.minute) || 0;
+  var second = parseInt(timeInISO.second) || 0;
+  var millisecond = parseInt(timeInISO.millisecond) || 0;
+  return hour * 3600 + minute * 60 + second + millisecond / 1000;
+}

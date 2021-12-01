@@ -86,9 +86,12 @@ import InputText from "@/components/UI/Text/InputText.vue";
 
 export default {
   data() {
+    // don't show the hour part if the value is 0
+    let showHour = true;
+    if (this.timeObject.hour == 0) showHour = false;
     return {
       defaultConfig: {
-        showHour: true,
+        showHour: showHour,
         showMinute: true,
         showSecond: true,
         showMillisecond: true,
@@ -196,6 +199,8 @@ export default {
         this.localMinute = this.timeObject.minute;
         this.localSecond = this.timeObject.second;
         this.localMillisecond = this.timeObject.millisecond;
+        // update whether to show the hour value
+        this.localConfig.showHour = this.localHour == 0 ? false : true;
       },
       deep: true,
     },
