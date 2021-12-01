@@ -181,8 +181,7 @@ export default {
       if (currentResponse == null) return false;
       if (this.isQuestionTypeSubjective) return currentResponse != "";
       if (this.isQuestionTypeMCQ) return !isNaN(currentResponse);
-      if (this.isQuestionTypeCheckbox)
-        return currentResponse != null && currentResponse.size > 0;
+      if (this.isQuestionTypeCheckbox) return currentResponse.size > 0;
       return true;
     },
     localResponseList: {
