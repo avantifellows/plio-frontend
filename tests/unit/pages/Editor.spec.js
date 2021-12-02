@@ -1442,9 +1442,6 @@ describe("Editor.vue", () => {
 
     // clear past values of dialog description
     await store.dispatch("dialog/unsetDialogDescription");
-
-    console.log(inputTextWrapper.html());
-
     expect(inputTextWrapper.find('[data-test="endIcon"]').exists()).toBeFalsy();
   });
 
