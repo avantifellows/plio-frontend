@@ -22,7 +22,6 @@ import GAuth from "vue3-google-oauth2";
 
 import "primevue/resources/themes/saga-blue/theme.css";
 import "primevue/resources/primevue.min.css";
-import "primeicons/primeicons.css";
 import "./index.css";
 import "vue-toastification/dist/index.css";
 
