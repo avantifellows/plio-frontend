@@ -5,11 +5,7 @@ describe("TimeInput.vue", () => {
   let wrapper = mount(TimeInput);
   it("should render with default values", () => {
     expect(wrapper).toBeTruthy();
-    if (wrapper.vm.localConfig.showHour)
-      expect(
-        wrapper.find('[data-test="hour"]').find('[data-test="input"]').element
-          .value
-      ).toBe("0");
+    expect(wrapper.find('[data-test="hour"]').exists()).toBe(wrapper.vm.localConfig.showHour)
     expect(
       wrapper.find('[data-test="minute"]').find('[data-test="input"]').element
         .value
@@ -34,11 +30,10 @@ describe("TimeInput.vue", () => {
     await wrapper.setProps({
       timeObject: timeObjectValue,
     });
-    if (wrapper.vm.localConfig.showHour)
-      expect(
-        wrapper.find('[data-test="hour"]').find('[data-test="input"]').element
-          .value
-      ).toBe(String(timeObjectValue.hour));
+    expect(
+      wrapper.find('[data-test="hour"]').find('[data-test="input"]').element
+        .value
+    ).toBe(String(timeObjectValue.hour));
     expect(
       wrapper.find('[data-test="minute"]').find('[data-test="input"]').element
         .value

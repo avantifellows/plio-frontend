@@ -140,7 +140,7 @@
                 </p>
                 <div
                   class="flex relative"
-                  v-tooltip="$t('dashboard.summary.completion_rate.tooltip')"
+                  v-tooltip="$t('tooltip.dashboard.summary.completion_rate')"
                 >
                   <!-- info icon -->
                   <inline-svg
@@ -173,7 +173,7 @@
                   </p>
                   <div
                     class="flex relative"
-                    v-tooltip="$t('dashboard.summary.one_minute_retention.tooltip')"
+                    v-tooltip="$t('tooltip.dashboard.summary.one_minute_retention')"
                   >
                     <!-- info icon -->
                     <inline-svg
@@ -208,7 +208,7 @@
                 </p>
                 <div
                   class="flex relative"
-                  v-tooltip="$t('dashboard.summary.accuracy.tooltip')"
+                  v-tooltip="$t('tooltip.dashboard.summary.accuracy')"
                 >
                   <!-- info icon -->
                   <inline-svg
@@ -241,7 +241,7 @@
                   </p>
                   <div
                     class="flex relative"
-                    v-tooltip="$t('dashboard.summary.num_questions_answered.tooltip')"
+                    v-tooltip="$t('tooltip.dashboard.summary.num_questions_answered')"
                   >
                     <!-- info icon -->
                     <inline-svg

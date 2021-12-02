@@ -104,20 +104,15 @@ export default {
         this.markerTooltipContent = null;
       } else {
         // convert the time in seconds to ISO time
-        let timeInSeconds = this.localMarkerPositions[markerIndex];
-        let ISOTimeObject = convertSecondsToISOTime(timeInSeconds);
-        this.markerTooltipContent =
-          ISOTimeObject.minute +
-          ":" +
-          ISOTimeObject.second +
-          ":" +
-          ISOTimeObject.millisecond;
+        let ISOTimeObject = convertSecondsToISOTime(
+          this.localMarkerPositions[markerIndex]
+        );
+        this.markerTooltipContent = `${ISOTimeObject.minute}:${ISOTimeObject.second}:${ISOTimeObject.millisecond}`;
 
         // Only show the hour value if it's available
-        if (ISOTimeObject.hour != 0) {
-          this.markerTooltipContent =
-            ISOTimeObject.hour + ":" + this.markerTooltipContent;
-        }
+        if (ISOTimeObject.hour != 0)
+          this.markerTooltipContent = `${ISOTimeObject.hour}:${this.markerTooltipContent}`;
+
         // adjust the position of the tooltip's start to take into account the marker width
         this.markerTooltipPosition =
           "left: " +

@@ -194,10 +194,8 @@ export function convertSecondsToISOTime(timeInSeconds) {
   timestampObject["second"] = parseInt(isoTime.split(":")[2]);
   timestampObject["millisecond"] = 0;
 
-  if (Math.floor(timeInSeconds) < timeInSeconds) {
-    var ms = parseInt(String(timeInSeconds).split(".")[1].padEnd(3, "0"));
-    timestampObject["millisecond"] = ms;
-  }
+  if (Math.floor(timeInSeconds) < timeInSeconds)
+    timestampObject["millisecond"] = parseInt(String(timeInSeconds).split(".")[1].padEnd(3, "0"));
 
   return timestampObject;
 }
@@ -208,9 +206,9 @@ export function convertSecondsToISOTime(timeInSeconds) {
  * @returns {Number} - The converted time in seconds
  */
 export function convertISOTimeToSeconds(timeInISO) {
-  var hour = parseInt(timeInISO.hour) || 0;
-  var minute = parseInt(timeInISO.minute) || 0;
-  var second = parseInt(timeInISO.second) || 0;
-  var millisecond = parseInt(timeInISO.millisecond) || 0;
+  let hour = parseInt(timeInISO.hour) || 0;
+  let minute = parseInt(timeInISO.minute) || 0;
+  let second = parseInt(timeInISO.second) || 0;
+  let millisecond = parseInt(timeInISO.millisecond) || 0;
   return hour * 3600 + minute * 60 + second + millisecond / 1000;
 }

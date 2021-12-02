@@ -318,7 +318,7 @@ export default {
      * @param {String} columnName - The name of the column
      */
     getTableHeaderTooltip(columnName) {
-      if (columnName == "views") return this.$t("home.table.tooltip.header.views");
+      if (columnName == "views") return this.$t("tooltip.home.table.header.views");
       return undefined;
     },
     searchIfEnter(event) {

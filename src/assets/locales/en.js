@@ -232,11 +232,6 @@ export default {
       buttons: {
         analyse: "Analyse Plio",
       },
-      tooltip: {
-        header: {
-          views: "Click to sort by the number of views",
-        },
-      },
     },
     paginator: {
       first: "First",
@@ -501,13 +496,22 @@ export default {
             enabled: "Look at the data for the plio",
           },
         },
+        header: {
+          views: "Click to sort by the number of views",
+        },
       },
     },
     dashboard: {
       buttons: {
         download_report: "Download a detailed report for this plio",
       },
-    },
+      summary: {
+        completion_rate: "Percentage of viewers who answered all the questions",
+        one_minute_retention: "Percentage of viewers who watched your video beyond 1 minute",
+        accuracy: "Average accuracy for each viewer - accuracy is calculated only for the questions that have been answered by the viewer",
+        num_questions_answered: "Average number of questions answered by each viewer",
+      },
+    }
   },
   dashboard: {
     updated: "Last published on",
@@ -521,20 +525,15 @@ export default {
       avg_watch_time: "AVERAGE WATCH TIME",
       completion_rate: {
         title: "COMPLETED",
-        tooltip: "Percentage of viewers who answered all the questions",
       },
       one_minute_retention: {
         title: "RETENTION AT 1 MINUTE",
-        tooltip: "Percentage of viewers who watched your video beyond 1 minute",
       },
       accuracy: {
         title: "ACCURACY",
-        tooltip:
-          "Average accuracy for each viewer - accuracy is calculated only for the questions that have been answered by the viewer",
       },
       num_questions_answered: {
         title: "QUESTIONS ANSWERED",
-        tooltip: "Average number of questions answered by each viewer",
       },
     },
   },
