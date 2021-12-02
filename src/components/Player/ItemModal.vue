@@ -173,7 +173,9 @@ export default {
     currentItemResponseAnswer() {
       // `answer` object for `currentItemResponse`
       if (this.currentItemResponse == null) return null;
-      return this.currentItemResponse.answer;
+      let answer = this.currentItemResponse.answer;
+      if (this.isQuestionTypeCheckbox) answer = new Set(answer);
+      return answer;
     },
     isAnswerValid() {
       // whether an option has been selected
@@ -233,6 +235,7 @@ export default {
       // has the answer for the current item submitted - if current item is a question
       if (this.currentItemResponseAnswer == null) return false;
       if (this.isQuestionTypeMCQ) return !isNaN(this.currentItemResponseAnswer);
+      if (this.isQuestionTypeCheckbox) return this.currentItemResponseAnswer.size > 0;
       return true;
     },
     questionOptions() {

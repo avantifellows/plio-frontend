@@ -826,8 +826,6 @@ export default {
           // for mcq items, convert answers to integer
           if (this.isItemMCQ(itemIndex)) {
             itemResponse.answer = parseInt(itemResponse.answer);
-          } else if (this.isItemCheckbox(itemIndex) && itemResponse.answer != null) {
-            itemResponse.answer = new Set(itemResponse.answer);
           }
           this.itemResponses.push(itemResponse);
         });

@@ -412,14 +412,12 @@ export default {
     isOptionMarkedCorrect(optionIndex) {
       // whether the given option index is marked as a correct option
       if (this.isQuestionTypeMCQ) return optionIndex == this.correctAnswer;
-      if (this.isQuestionTypeCheckbox) return this.correctAnswer.has(optionIndex);
-      return false;
+      return this.correctAnswer.has(optionIndex);
     },
     getOptionBoxStyling(optionIndex) {
       // returns the styling for the option box for the given index
       return {
         "border-green-500": this.isOptionMarkedCorrect(optionIndex),
-        "border-4": this.isOptionMarkedCorrect(optionIndex),
       };
     },
     updateSelectedItemIndex(index) {
