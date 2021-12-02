@@ -195,7 +195,9 @@ export function convertSecondsToISOTime(timeInSeconds) {
   timestampObject["millisecond"] = 0;
 
   if (Math.floor(timeInSeconds) < timeInSeconds)
-    timestampObject["millisecond"] = parseInt(String(timeInSeconds).split(".")[1].padEnd(3, "0"));
+    timestampObject["millisecond"] = parseInt(
+      String(timeInSeconds).split(".")[1].padEnd(3, "0")
+    );
 
   return timestampObject;
 }
