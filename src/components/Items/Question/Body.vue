@@ -243,18 +243,14 @@ export default {
     isOptionChecked(optionIndex) {
       // whether the given option index should be checked
       if (this.isQuestionTypeMCQ) return this.draftAnswer == optionIndex;
-      if (this.isQuestionTypeCheckbox) {
-        return this.draftAnswer != null && this.draftAnswer.has(optionIndex);
-      }
-      return false;
+      return this.draftAnswer != null && this.draftAnswer.has(optionIndex);
     },
   },
   computed: {
     optionInputType() {
       if (!this.areOptionsVisible) return null;
       if (this.isQuestionTypeMCQ) return "radio";
-      if (this.isQuestionTypeCheckbox) return "checkbox";
-      return null;
+      return "checkbox";
     },
     /**
      * classes for the various containers corresponding to the possible types of answers
