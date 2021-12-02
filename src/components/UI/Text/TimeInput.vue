@@ -191,7 +191,7 @@ export default {
     },
     timeObject: {
       handler() {
-        // update the local values if the user selects a different item than the current selected one
+        // update the local values if the timeObject prop gets updated
         this.localHour = this.timeObject.hour;
         this.localMinute = this.timeObject.minute;
         this.localSecond = this.timeObject.second;

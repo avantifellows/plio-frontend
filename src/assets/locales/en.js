@@ -472,7 +472,7 @@ export default {
       analyze: "Analyse the data collected from the viewers of this plio",
       share_plio: "Share this plio with your viewers",
       play_plio: "Try out the created plio yourself",
-      embed_plio: "Embed this plio as an iframe",
+      embed_plio: "Embed this plio",
     },
     home: {
       table: {

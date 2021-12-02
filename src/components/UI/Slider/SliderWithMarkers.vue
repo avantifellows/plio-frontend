@@ -114,10 +114,9 @@ export default {
           this.markerTooltipContent = `${ISOTimeObject.hour}:${this.markerTooltipContent}`;
 
         // adjust the position of the tooltip's start to take into account the marker width
-        this.markerTooltipPosition =
-          "left: " +
-          (this.markerRelativePositions[markerIndex] - this.markerWidthPercent / 2) +
-          "%";
+        let computedPercentPosition =
+          this.markerRelativePositions[markerIndex] - this.markerWidthPercent / 2;
+        this.markerTooltipPosition = `left: ${computedPercentPosition}%`;
       }
     },
     handleScreenSizeChange() {
