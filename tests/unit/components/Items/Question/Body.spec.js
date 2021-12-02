@@ -37,6 +37,21 @@ describe("Body.vue", () => {
       expect(wrapper.find('[data-test="option-0"]').text()).toBe(options[0]);
       expect(wrapper.vm.optionInputType).toBe("radio");
     });
+
+    it("starts loading image if imageData is passed", () => {
+      const startImageLoading = jest.spyOn(Body.methods, "startImageLoading");
+      mount(Body, {
+        props: {
+          questionType: "mcq",
+          imageData: {
+            url: "mock",
+            alt_text: "mock",
+          },
+        },
+      });
+
+      expect(startImageLoading).toHaveBeenCalled();
+    });
   });
 
   describe("subjective questions", () => {
@@ -330,20 +345,5 @@ describe("Body.vue", () => {
         wrapper.find('[data-test="optionContainer-2"]').classes()
       ).toContain("bg-red-500");
     });
-  });
-
-  it("starts loading image if imageData is passed", () => {
-    const startImageLoading = jest.spyOn(Body.methods, "startImageLoading");
-    mount(Body, {
-      props: {
-        questionType: "mcq",
-        imageData: {
-          url: "mock",
-          alt_text: "mock",
-        },
-      },
-    });
-
-    expect(startImageLoading).toHaveBeenCalled();
   });
 });
