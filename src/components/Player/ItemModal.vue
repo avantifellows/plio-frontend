@@ -183,8 +183,7 @@ export default {
       if (currentResponse == null) return false;
       if (this.isQuestionTypeSubjective) return currentResponse != "";
       if (this.isQuestionTypeMCQ) return !isNaN(currentResponse);
-      if (this.isQuestionTypeCheckbox) return currentResponse.size > 0;
-      return true;
+      return currentResponse.size > 0;
     },
     localResponseList: {
       // local copy of the responseList prop
