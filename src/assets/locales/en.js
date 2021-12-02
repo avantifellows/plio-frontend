@@ -234,7 +234,7 @@ export default {
       },
       tooltip: {
         header: {
-          views: "Click to sort by number of views",
+          views: "Click to sort by the number of views",
         },
       },
     },
@@ -459,7 +459,7 @@ export default {
           },
           question_type_picker: {
             disabled:
-              "Cannot change the question type after you have published a plio",
+              "Cannot change the question type once a plio is published",
             enabled: "Click to change the type of this question",
           },
         },
@@ -469,11 +469,11 @@ export default {
           unmarked: "Mark this option as the correct option for this question",
         },
       },
-      home: "Go to home",
+      home: "Go to the home page",
       preview:
         "Click to preview the plio and see how it will look like to your viewers",
       copy_draft_link:
-        "Copy a link of this draft plio to share it with your teammates",
+        "Copy a link of this draft plio to share it with your collaborators",
       analyze: "Analyse the data collected from the viewers of this plio",
       share_plio: "Share this plio with your viewers",
       play_plio: "Try out the created plio yourself",
