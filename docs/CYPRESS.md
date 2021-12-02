@@ -44,13 +44,13 @@ Google client ID retrieved in the pre-requisites.
 ##### `auth_google_client_secret`
 Google client secret retrieved in the pre-requisites.
 
-##### `plio_backend_convert_social_auth_token_url`
+##### `backend_convert_social_auth_token_url`
 The convert token URL in the Plio backend repo that converts the Social Auth Token and returns a valid Django Auth Token. By default, the value is `http://0.0.0.0:8001/auth/convert-token`.
 
-##### `plio_backend_client_id`
+##### `backend_client_id`
 The client id for backend API application.
 
-##### `plio_backend_client_secret`
+##### `backend_client_secret`
 The client secret for backend API application.
 
 
