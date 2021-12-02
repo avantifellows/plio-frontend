@@ -119,6 +119,12 @@ export default {
     };
   },
   watch: {
+    draftAnswer(value) {
+      if (this.submittedAnswer == null) this.subjectiveAnswer = value;
+    },
+    submittedAnswer(value) {
+      this.subjectiveAnswer = value;
+    },
     subjectiveAnswer() {
       if (
         this.subjectiveAnswer != null &&
