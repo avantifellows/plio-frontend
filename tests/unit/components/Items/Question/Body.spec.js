@@ -8,13 +8,14 @@ describe("Body.vue", () => {
     wrapper = mount(Body);
   });
 
+  it("should render with default values", () => {
+    expect(wrapper.find('[data-test="optionContainer"]').exists()).toBe(true);
+    expect(
+      wrapper.find('[data-test="subjectiveAnswerContainer"]').exists()
+    ).toBe(false);
+  });
+
   describe("generic", () => {
-    //   it("should render with default values", () => {
-    //     expect(wrapper.find('[data-test="optionContainer"]').exists()).toBe(true);
-    //     expect(
-    //       wrapper.find('[data-test="subjectiveAnswerContainer"]').exists()
-    //     ).toBe(false);
-    //   });
     //   it("renders question text", async () => {
     //     const testQuestionText = "ABC";
     //     await wrapper.setProps({
