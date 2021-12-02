@@ -1421,20 +1421,6 @@ describe("Editor.vue", () => {
   });
 
   it("delete option does not work with only 2 options", async () => {
-    const endIconSelected = jest.spyOn(InputText.methods, "endIconSelected");
-    const itemEditorDeleteOption = jest.spyOn(
-      ItemEditor.methods,
-      "deleteOption"
-    );
-    const editorDeleteOption = jest.spyOn(Editor.methods, "deleteOption");
-    const deleteSelectedOption = jest.spyOn(
-      Editor.methods,
-      "deleteSelectedOption"
-    );
-    const showCannotDeleteOptionDialog = jest.spyOn(
-      Editor.methods,
-      "showCannotDeleteOptionDialog"
-    );
     wrapper = mount(Editor, {
       data() {
         return {
