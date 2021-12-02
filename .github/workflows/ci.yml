@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install Dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Run Test Cases
         env:
