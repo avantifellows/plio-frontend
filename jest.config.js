@@ -20,5 +20,6 @@ module.exports = {
     "<rootDir>/tests/utils/dummyData.js",
     "jest-canvas-mock",
   ],
+  setupFilesAfterEnv: ["./jest.setup.js"],
   restoreMocks: true,
 };

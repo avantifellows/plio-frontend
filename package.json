@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --modern",
-    "test:unit": "vue-cli-service test:unit",
+    "test:unit": "vue-cli-service test:unit --verbose",
     "lint": "vue-cli-service lint",
     "deploy": "vue-cli-service build && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend --delete --acl public-read",
     "build-staging": "vue-cli-service build --mode staging",
