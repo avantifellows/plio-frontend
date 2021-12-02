@@ -39,7 +39,7 @@ export default {
 
     // TODO: this is currently not added to the session
     // update source for the plio
-    if (this.$route.query.src) {
+    if (this.$route != undefined && this.$route.query.src) {
       this.source = this.$route.query.src;
     }
   },

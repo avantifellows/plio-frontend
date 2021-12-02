@@ -227,17 +227,13 @@ describe("Scorecard.vue", () => {
 
     // mock navigator.canShare
     global.navigator.canShare = jest.fn(() => true);
+    global.navigator.share = jest.fn(() => new Promise((resolve) => resolve()));
 
     await wrapper.find('[data-test="share"]').trigger("click");
     expect(toBlob).toHaveBeenCalled();
   });
 
   it("calls navigator.share when domtoimage is done preparing the blob", async () => {
-    jest.spyOn(domtoimage, "toBlob").mockImplementation(() => {
-      return new Promise((resolve) => {
-        resolve(new Blob(["test"], { type: "text/plain" }));
-      });
-    });
     const wrapper = mount(Scorecard, {
       props: {
         numQuestionsAnswered: 4,
@@ -256,11 +252,6 @@ describe("Scorecard.vue", () => {
   });
 
   it("triggers sharing whatsapp text if canShare in general but can't share the image", async () => {
-    jest.spyOn(domtoimage, "toBlob").mockImplementation(() => {
-      return new Promise((resolve) => {
-        resolve(new Blob(["test"], { type: "text/plain" }));
-      });
-    });
     const wrapper = mount(Scorecard, {
       props: {
         numQuestionsAnswered: 4,
