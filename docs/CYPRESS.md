@@ -70,11 +70,11 @@ The file [integration-testing.yml](../.github/workflows/integration-testing.yml)
 To set up CI, follow the steps below:
 1. Create a new GitHub Environment and name it `Integration Testing`.
 2. Add the following variables to the GitHub environment:
-   1. Cypress Dashboard - Refer Cypress Dashboard section above
+   1. Cypress Dashboard - Refer [Cypress Dashboard section](#cypress-dashboard) above
       1. `CYPRESS_RECORD_KEY`
    2. Plio Analytics (CubeJS) - Refer [Plio Analytics ENV guide](https://github.com/avantifellows/plio-analytics/blob/master/docs/ENV.md)
       1. `CUBEJS_API_SECRET`
-   3. Plio Frontend (Cypress) - Refer Frontend Cypress ENV guide above
+   3. Plio Frontend (Cypress) - Refer [Frontend Cypress ENV guide](#cypress-env-variables) above
       1. `CYPRESS_AUTH_GOOGLE_CLIENT_ID`
       2. `CYPRESS_AUTH_GOOGLE_CLIENT_SECRET`
       3. `CYPRESS_AUTH_GOOGLE_REFRESH_TOKEN`
