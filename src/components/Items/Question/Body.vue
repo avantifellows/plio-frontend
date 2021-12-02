@@ -42,6 +42,7 @@
               v-for="(option, optionIndex) in options"
               :key="optionIndex"
               :class="[optionBackgroundClass(optionIndex), optionTextClass]"
+              :data-test="`optionContainer-${optionIndex}`"
             >
               <!-- each option is defined here -->
               <!-- adding <label> so that touch input is just not limited to the radio/checkbox button -->

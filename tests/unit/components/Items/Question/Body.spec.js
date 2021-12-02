@@ -22,7 +22,7 @@ describe("Body.vue", () => {
     );
   });
 
-  it("renders options", () => {
+  it("renders mcq options", () => {
     const options = ["a", ""];
     const wrapper = mount(Body, {
       props: {
@@ -33,6 +33,76 @@ describe("Body.vue", () => {
     expect(wrapper.find('[data-test="option-1"]').exists()).toBe(true);
     expect(wrapper.find('[data-test="option-2"]').exists()).toBe(false);
     expect(wrapper.find('[data-test="option-0"]').text()).toBe(options[0]);
+    expect(wrapper.vm.optionInputType).toBe("radio");
+  });
+
+  it("checks mcq options based on draft answer", () => {
+    const options = ["a", ""];
+    const draftAnswer = 0;
+    const wrapper = mount(Body, {
+      props: {
+        options: options,
+        draftAnswer: draftAnswer,
+      },
+    });
+
+    expect(wrapper.vm.isOptionChecked(0)).toBeTruthy();
+    expect(wrapper.vm.isOptionChecked(1)).toBeFalsy();
+  });
+
+  it("renders checkbox options", () => {
+    const options = ["a", ""];
+    const wrapper = mount(Body, {
+      props: {
+        options: options,
+        questionType: "checkbox",
+      },
+    });
+    expect(wrapper.find('[data-test="option-0"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="option-1"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="option-2"]').exists()).toBe(false);
+    expect(wrapper.find('[data-test="option-0"]').text()).toBe(options[0]);
+    expect(wrapper.vm.optionInputType).toBe("checkbox");
+  });
+
+  it("checks checkbox options based on draft answer", () => {
+    const options = ["a", "b", "c"];
+    const draftAnswer = new Set([1, 2]);
+    const wrapper = mount(Body, {
+      props: {
+        options: options,
+        draftAnswer: draftAnswer,
+        questionType: "checkbox",
+      },
+    });
+
+    expect(wrapper.vm.isOptionChecked(0)).toBeFalsy();
+    expect(wrapper.vm.isOptionChecked(1)).toBeTruthy();
+    expect(wrapper.vm.isOptionChecked(2)).toBeTruthy();
+  });
+
+  it("highlights options based on correct/wrong answers", () => {
+    const options = ["a", "b", "c"];
+    const submittedAnswer = new Set([1, 2]);
+    const correctAnswer = new Set([0, 1]);
+    const wrapper = mount(Body, {
+      props: {
+        options: options,
+        submittedAnswer: submittedAnswer,
+        correctAnswer: correctAnswer,
+        isAnswerSubmitted: true,
+        questionType: "checkbox",
+      },
+    });
+    expect(wrapper.find('[data-test="optionContainer-0"]').classes()).toContain(
+      "bg-green-500"
+    );
+    expect(wrapper.find('[data-test="optionContainer-1"]').classes()).toContain(
+      "bg-green-500"
+    );
+    expect(wrapper.find('[data-test="optionContainer-2"]').classes()).toContain(
+      "bg-red-500"
+    );
   });
 
   it("option text selected correctly", () => {
@@ -46,7 +116,7 @@ describe("Body.vue", () => {
     expect(wrapper.emitted()).toHaveProperty("option-selected");
   });
 
-  it("option radio selected correctly", () => {
+  it("mcq option radio selected correctly", () => {
     const options = ["a", ""];
     const wrapper = mount(Body, {
       props: {
