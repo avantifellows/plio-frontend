@@ -184,18 +184,32 @@ export function convertSecondsToISOTime(timeInSeconds) {
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
   // https://stackoverflow.com/questions/1322732/convert-seconds-to-hh-mm-ss-with-javascript
 
-  let timestampObject = {};
+  let timestampObject = {
+    hour: null,
+    minute: null,
+    second: null,
+    millisecond: null,
+    /**
+     * Converts the timepart from a Number to a String and pads it with zeros accordingly
+     * @param {String} timepart - "hour", "minute", "second" or "millisecond"
+     * @returns {String} - A string padded on the start with zeroes depending on the timepart
+     */
+    getAsString(timepart) {
+      let targetLength = timepart == "millisecond" ? 3 : 2;
+      return String(this[timepart]).padStart(targetLength, "0");
+    },
+  };
   let isoTime = new Date(Math.floor(timeInSeconds) * 1000)
     .toISOString()
     .substr(11, 8);
 
-  timestampObject["hour"] = parseInt(isoTime.split(":")[0]);
-  timestampObject["minute"] = parseInt(isoTime.split(":")[1]);
-  timestampObject["second"] = parseInt(isoTime.split(":")[2]);
-  timestampObject["millisecond"] = 0;
+  timestampObject.hour = parseInt(isoTime.split(":")[0]);
+  timestampObject.minute = parseInt(isoTime.split(":")[1]);
+  timestampObject.second = parseInt(isoTime.split(":")[2]);
+  timestampObject.millisecond = 0;
 
   if (Math.floor(timeInSeconds) < timeInSeconds)
-    timestampObject["millisecond"] = parseInt(
+    timestampObject.millisecond = parseInt(
       String(timeInSeconds).split(".")[1].padEnd(3, "0")
     );
 
