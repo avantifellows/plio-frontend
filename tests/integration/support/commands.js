@@ -24,6 +24,10 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
+Cypress.Commands.add("setLocale", (locale) => {
+  cy.get("#locale > select").select(locale, { force: true });
+});
+
 Cypress.Commands.add("loginByGoogleApi", () => {
   cy.log("Logging in to Google");
   cy.visit("/login");

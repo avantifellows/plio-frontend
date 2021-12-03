@@ -1,6 +1,7 @@
 describe("Login", () => {
   beforeEach(() => {
     cy.visit("/login");
+    cy.setLocale("en");
   });
 
   it("sees the login page heading", () => {

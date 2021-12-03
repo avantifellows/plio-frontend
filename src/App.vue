@@ -64,56 +64,58 @@
               :isDisabled="pending"
             ></icon-button>
 
-            <!-- home button -->
-            <icon-button
-              class="place-self-start"
-              :iconConfig="homeButtonIconConfig"
-              :titleConfig="homeButtonTextConfig"
-              :buttonClass="menuButtonsClass"
-              @click="redirectToHome"
-              :isDisabled="pending"
-            ></icon-button>
+            <nav data-test="sidebar">
+              <!-- home button -->
+              <icon-button
+                class="place-self-start"
+                :iconConfig="homeButtonIconConfig"
+                :titleConfig="homeButtonTextConfig"
+                :buttonClass="menuButtonsClass"
+                @click="redirectToHome"
+                :isDisabled="pending"
+              ></icon-button>
 
-            <!-- product guides -->
-            <icon-button
-              class="place-self-start"
-              :iconConfig="productGuidesButtonIconConfig"
-              :titleConfig="productGuidesButtonTextConfig"
-              :buttonClass="menuButtonsClass"
-              @click="redirectToProductGuides"
-              :isDisabled="pending"
-            ></icon-button>
+              <!-- product guides -->
+              <icon-button
+                class="place-self-start"
+                :iconConfig="productGuidesButtonIconConfig"
+                :titleConfig="productGuidesButtonTextConfig"
+                :buttonClass="menuButtonsClass"
+                @click="redirectToProductGuides"
+                :isDisabled="pending"
+              ></icon-button>
 
-            <!-- docs -->
-            <icon-button
-              class="place-self-start"
-              :iconConfig="docsButtonIconConfig"
-              :titleConfig="docsButtonTextConfig"
-              :buttonClass="menuButtonsClass"
-              @click="redirectToDocs"
-              :isDisabled="pending"
-            ></icon-button>
+              <!-- docs -->
+              <icon-button
+                class="place-self-start"
+                :iconConfig="docsButtonIconConfig"
+                :titleConfig="docsButtonTextConfig"
+                :buttonClass="menuButtonsClass"
+                @click="redirectToDocs"
+                :isDisabled="pending"
+              ></icon-button>
 
-            <!-- whats new -->
-            <icon-button
-              class="place-self-start"
-              :iconConfig="whatsNewButtonIconConfig"
-              :titleConfig="whatsNewButtonTextConfig"
-              :buttonClass="menuButtonsClass"
-              @click="redirectToWhatsNew"
-              :isDisabled="pending"
-            ></icon-button>
+              <!-- whats new -->
+              <icon-button
+                class="place-self-start"
+                :iconConfig="whatsNewButtonIconConfig"
+                :titleConfig="whatsNewButtonTextConfig"
+                :buttonClass="menuButtonsClass"
+                @click="redirectToWhatsNew"
+                :isDisabled="pending"
+              ></icon-button>
 
-            <!-- logout -->
-            <icon-button
-              class="place-self-start"
-              :iconConfig="logoutButtonIconConfig"
-              :titleConfig="logoutButtonTextConfig"
-              :buttonClass="menuButtonsClass"
-              @click="logoutButtonClicked"
-              :isDisabled="pending"
-              data-test="logout"
-            ></icon-button>
+              <!-- logout -->
+              <icon-button
+                class="place-self-start"
+                :iconConfig="logoutButtonIconConfig"
+                :titleConfig="logoutButtonTextConfig"
+                :buttonClass="menuButtonsClass"
+                @click="logoutButtonClicked"
+                :isDisabled="pending"
+                data-test="logout"
+              ></icon-button>
+            </nav>
           </div>
         </transition>
         <router-view :class="routerViewClass" :key="$route.fullPath" />
