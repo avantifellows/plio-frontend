@@ -153,16 +153,12 @@ export default {
           icon: "code-braces.svg",
           disabled: !this.isPublished,
         },
-      ];
-      if (this.isTouchDevice) {
-        options.push({
+        {
           value: "analyse",
           label: this.$t("home.table.plio_list_item.buttons.analyse"),
           icon: "analyze.svg",
           disabled: !this.isPublished,
-        });
-      }
-      let moreOptions = [
+        },
         {
           value: "duplicate",
           label: this.$t("home.table.plio_list_item.buttons.duplicate"),
@@ -174,7 +170,6 @@ export default {
           icon: "delete2.svg",
         },
       ];
-      options.push(...moreOptions);
       return options;
     },
     isTouchDevice() {
