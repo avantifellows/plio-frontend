@@ -68,6 +68,7 @@
                     class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-black uppercase tracking-wider w-4/5"
                     :class="getColumnHeaderStyleClass(columnIndex)"
                     data-test="tableHeader"
+                    v-tooltip="getTableHeaderTooltip(columnName)"
                   >
                     <div class="flex">
                       <div
@@ -102,21 +103,6 @@
                     class="sm:py-3 py-1.5 whitespace-normal flex relative"
                     :class="getColumnHeaderStyleClass(columnIndex)"
                   >
-                    <div
-                      class="absolute w-full flex justify-center"
-                      :class="tableCellOverlayClass(rowIndex, columnIndex)"
-                    >
-                      <!-- analyse button -->
-                      <icon-button
-                        :titleConfig="analyseButtonTitleConfig"
-                        :buttonClass="analyseButtonClass"
-                        :isDisabled="!isPublished(rowIndex)"
-                        @click="analysePlio(rowIndex)"
-                        v-tooltip="analyseButtonTooltip(rowIndex)"
-                        v-if="!isTouchDevice"
-                        data-test="analyzeButton"
-                      ></icon-button>
-                    </div>
                     <!-- column content -->
                     <div class="flex w-full">
                       <div
@@ -217,9 +203,6 @@ export default {
       // with the user input in the search bar
       lastSearchString: "",
       selectedRowIndex: null, // index of the row currently in focus / being hovered on
-      // classes for the analyse button
-      analyseButtonClass:
-        "bg-red-500 hover:bg-red-700 rounded-md shadow-md h-10 md:h-12 ring-red-500 -mt-2",
       // classes for the table title
       tableTitleClass:
         "flex flex-row space-x-2 text-base sm:text-lg md:text-xl xl:text-2xl font-bold p-2 items-center",
@@ -275,13 +258,6 @@ export default {
       // if a string is present in the search bar
       return this.searchString != "";
     },
-    analyseButtonTitleConfig() {
-      // title config for the analyse button
-      return {
-        value: this.$t("home.table.buttons.analyse"),
-        class: "pl-4 pr-4 text-white text-lg md:text-xl font-semibold",
-      };
-    },
     tableRowClass() {
       // class for each row of the table
       return [{ "hover:bg-gray-100": !this.isTouchDevice }, "hover:cursor-pointer"];
@@ -312,6 +288,14 @@ export default {
   methods: {
     ...Utilities,
     ...mapActions("sync", ["startLoading"]),
+    /**
+     * Get tooltip for table headers
+     * @param {String} columnName - The name of the column
+     */
+    getTableHeaderTooltip(columnName) {
+      if (columnName == "views") return this.$t("tooltip.home.table.header.views");
+      return undefined;
+    },
     searchIfEnter(event) {
       /**
        * detect if enter has been pressed after entering
@@ -330,23 +314,6 @@ export default {
       // resets the search string
       this.searchString = "";
     },
-    analysePlio(rowIndex) {
-      // redirects to the dashboard page for the selected plio
-      this.$router.push({
-        name: "Dashboard",
-        params: { plioId: this.localData[rowIndex]["name"]["value"], org: this.org },
-      });
-    },
-    analyseButtonTooltip(rowIndex) {
-      // tooltip for the analyse button
-      if (!this.isPublished(rowIndex))
-        return this.$t(`tooltip.home.table.buttons.analyse_plio.disabled`);
-      return this.$t(`tooltip.home.table.buttons.analyse_plio.enabled`);
-    },
-    isPublished(rowIndex) {
-      // whether the plio in the given row is published
-      return this.localData[rowIndex]["name"]["status"] == "published";
-    },
     tableRowHoverOn(rowIndex) {
       // triggered upon hovering over a row
       if (!this.pending) {
@@ -358,23 +325,6 @@ export default {
       // triggered when the hover over a row is exited
       // unset variables when hover is removed
       this.selectedRowIndex = null;
-    },
-    isRowSelected(rowIndex) {
-      // whether the given row index is selected
-      return this.selectedRowIndex == rowIndex;
-    },
-    tableCellOverlayClass(rowIndex, columnIndex) {
-      // class for each cell of the table
-      return {
-        hidden:
-          !this.isLastColumn(columnIndex) ||
-          !this.isRowSelected(rowIndex) ||
-          this.pending,
-      };
-    },
-    isLastColumn(columnIndex) {
-      // whether the given column index is the last column index
-      return columnIndex == this.columns.length - 1;
     },
     isFirstColumn(columnIndex) {
       // whether the given column index is the first column index
