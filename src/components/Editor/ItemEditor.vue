@@ -142,7 +142,6 @@
         ></input-text>
       </div>
       <!-- add option button -->
-      <<<<<<< HEAD
       <div class="flex justify-end mr-2 mt-2" v-if="areOptionsVisible">
         <span v-tooltip="addOptionTooltip" tabindex="0">
           <icon-button
