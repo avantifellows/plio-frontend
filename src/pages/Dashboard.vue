@@ -144,7 +144,7 @@
                 >
                   <!-- info icon -->
                   <inline-svg
-                    :src="require('@/assets/images/info.svg')"
+                    :src="questionIcon"
                     class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
                   ></inline-svg>
                 </div>
@@ -177,7 +177,7 @@
                   >
                     <!-- info icon -->
                     <inline-svg
-                      :src="require('@/assets/images/info.svg')"
+                      :src="questionIcon"
                       class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
                     ></inline-svg>
                   </div>
@@ -212,7 +212,7 @@
                 >
                   <!-- info icon -->
                   <inline-svg
-                    :src="require('@/assets/images/info.svg')"
+                    :src="questionIcon"
                     class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
                   ></inline-svg>
                 </div>
@@ -245,7 +245,7 @@
                   >
                     <!-- info icon -->
                     <inline-svg
-                      :src="require('@/assets/images/info.svg')"
+                      :src="questionIcon"
                       class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
                     ></inline-svg>
                   </div>
@@ -326,6 +326,7 @@ export default {
       // styling class for the title of the second type of metric
       cardMetricTitleClass:
         "w-full text-center text-xs md:text-sm text-yellow-900 mt-2 flex justify-center flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center",
+      questionIcon: require("@/assets/images/question-circle-regular.svg"),
     };
   },
   async created() {
