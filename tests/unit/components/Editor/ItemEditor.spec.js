@@ -355,14 +355,16 @@ describe("ItemEditor.vue", () => {
     expect(wrapper.emitted()["question-type-changed"][0][0]).toBe("subjective");
   });
 
-  // it("updates question text", async () => {
-  //   const testValue = "test2";
-  //   await wrapper
-  //     .find('[data-test="questionText"]')
-  //     .find('[data-test="input"]')
-  //     .setValue(testValue);
-  //   expect(wrapper.vm.localItemDetailList[0].text).toBe(testValue);
-  // });
+  it("updates question text", async () => {
+    const testValue = "test2";
+    await wrapper
+      .find('[data-test="questionText"]')
+      .find('[data-test="input"]')
+      .setValue(testValue);
+    expect(
+      wrapper.vm.localItemDetailList[wrapper.vm.selectedItemIndex].text
+    ).toBe(testValue);
+  });
 
   it("image uploader shows up on clicking image button", async () => {
     await wrapper.find('[data-test="questionImage"]').trigger("click");
