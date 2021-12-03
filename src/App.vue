@@ -308,7 +308,8 @@ export default {
       // set in the store. If not, then redirect to the personal workspace
       if (value) {
         this.menuSlideTransition = "";
-        let isUserInWorkspace = this.user.organizations.some((org) => {
+        let userOrganizations = this.user ? this.user.organizations : [];
+        let isUserInWorkspace = userOrganizations.some((org) => {
           // no need to redirect if the user belongs to the workspace
           // or the user is in the personal workspace
           return org.shortcode == this.activeWorkspace || this.activeWorkspace == "";
@@ -807,7 +808,8 @@ export default {
      * whether to show workspace switcher
      */
     showWorkspaceSwitcher() {
-      return this.user.organizations.length > 0;
+      let userOrganizations = this.user ? this.user.organizations : [];
+      return userOrganizations.length > 0;
     },
     /**
      * dynamic classes for the nav bar
@@ -884,7 +886,8 @@ export default {
       if (this.user == null) return [];
       var shortcodes = [];
 
-      this.user.organizations.forEach((organization) => {
+      let userOrganizations = this.user ? this.user.organizations : [];
+      userOrganizations.forEach((organization) => {
         shortcodes.push(organization.shortcode);
       });
 

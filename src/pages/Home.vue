@@ -18,15 +18,17 @@
     >
     </Table>
 
-    <!-- pagination nav bar -->
-    <Paginator
-      v-if="showTable"
-      :totalItems="totalNumberOfPlios"
-      :pageSize="numberOfPliosPerPage"
-      :initialPage="currentPageNumber"
-      @page-selected="fetchPlioIds($event)"
-    >
-    </Paginator>
+    <div data-test="paginator">
+      <!-- pagination nav bar -->
+      <Paginator
+        v-if="showTable"
+        :totalItems="totalNumberOfPlios"
+        :pageSize="numberOfPliosPerPage"
+        :initialPage="currentPageNumber"
+        @page-selected="fetchPlioIds($event)"
+      >
+      </Paginator>
+    </div>
 
     <!-- no plios exist warning -->
     <div

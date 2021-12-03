@@ -45,9 +45,9 @@
         </p>
       </div>
 
-      <!-- pagingator nav bar -->
+      <!-- paginator nav bar -->
       <div>
-        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" data-test="paginationNav">
           <!-- "First" button -->
           <button
             @click="setAndRouteToPage(1)"

@@ -34,7 +34,8 @@ const getters = {
   activeOrganization: (state) => {
     // gets the current active organization
     if (state.activeWorkspace != "") {
-      return state.user.organizations.find((organization) => {
+      let userOrganizations = state.user ? state.user.organizations : [];
+      return userOrganizations.find((organization) => {
         return organization.shortcode == state.activeWorkspace;
       });
     }
