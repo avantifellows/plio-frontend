@@ -36,7 +36,7 @@
     <div
       v-if="isMarkerTooltipVisible"
       class="absolute z-10 inline-block bg-gray-900 font-semibold shadow-sm text-white py-2 px-3 text-sm rounded-lg mt-10"
-      :style="markerTooltipPosition"
+      :style="markerTooltipStyle"
     >
       {{ markerTooltipContent }}
     </div>
@@ -114,9 +114,9 @@ export default {
           this.markerTooltipContent = `${ISOTimeObject.hour}:${this.markerTooltipContent}`;
 
         // adjust the position of the tooltip's start to take into account the marker width
-        let computedPercentPosition =
+        let markerTooltipPercentPosition =
           this.markerRelativePositions[markerIndex] - this.markerWidthPercent / 2;
-        this.markerTooltipPosition = `left: ${computedPercentPosition}%`;
+        this.markerTooltipStyle = `left: ${markerTooltipPercentPosition}%`;
       }
     },
     handleScreenSizeChange() {
