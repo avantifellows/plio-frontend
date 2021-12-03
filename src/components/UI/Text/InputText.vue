@@ -32,7 +32,7 @@
         class="absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center w-5 inset-y-1/4 left-1.5"
         @click="startIconSelected"
         :class="startIconClass"
-        v-tooltip.left="startIconTooltip"
+        v-tooltip="startIconTooltip"
         data-test="startIcon"
       >
         <inline-svg :src="startIconObj"></inline-svg>
@@ -60,7 +60,7 @@
         class="absolute rounded text-base place-content-center w-5 right-1.5 flex"
         @click="endIconSelected"
         :class="endIconClass"
-        v-tooltip.left="endIconTooltip"
+        v-tooltip="endIconTooltip"
         data-test="endIcon"
       >
         <inline-svg :src="endIconObj" class="place-self-center"></inline-svg>

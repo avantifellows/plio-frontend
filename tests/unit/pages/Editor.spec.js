@@ -859,11 +859,8 @@ describe("Editor.vue", () => {
       hasUnpublishedChanges: true,
     });
     expect(wrapper.vm.publishButtonTooltip).toBe(
-      "Click to publish your changes"
+      "Click to publish the changes you've made"
     );
-    expect(
-      wrapper.find('[data-test="publishButton"]').element.$_ptooltipValue
-    ).toBe("Click to publish your changes");
   });
 
   it("shows published dialog when publish is confirmed", async () => {
@@ -1420,7 +1417,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemDetails[0].image).toStrictEqual(mockImageResponse);
   });
 
-  it("delete option does not work with only 2 options", async () => {
+  it("deleting options is prevented with only 2 options", async () => {
     wrapper = mount(Editor, {
       data() {
         return {
@@ -1470,7 +1467,7 @@ describe("Editor.vue", () => {
     await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
 
     // the option index to delete must be set
-    expect(wrapper.vm.optionIndexToDelete).toBe(0);
+    expect(wrapper.vm.optionIndexToDelete).toBe(1);
 
     // simulate clicking the cancel button of the dialog box
     await simulateCancelClick();
@@ -1539,7 +1536,7 @@ describe("Editor.vue", () => {
     );
     expect(wrapper.vm.dialogAction).toBe("deleteOption");
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
-    expect(wrapper.vm.optionIndexToDelete).toBe(0);
+    expect(wrapper.vm.optionIndexToDelete).toBe(1);
 
     // simulate clicking the confirm button of the dialog box
     await simulateConfirmClick();

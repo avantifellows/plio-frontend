@@ -33,6 +33,7 @@
               :buttonClass="sharePlioButtonClass"
               @click="showSharePlioLinkDialog"
               data-test="sharePlioButton"
+              v-tooltip="{ content: $t('tooltip.editor.share_plio'), placement: 'top' }"
             ></icon-button>
 
             <!-- play plio -->
@@ -43,6 +44,7 @@
               :buttonClass="playPlioButtonClass"
               @click="redirectToPlayer"
               data-test="playPlioButton"
+              v-tooltip="{ content: $t('tooltip.editor.play_plio'), placement: 'top' }"
             ></icon-button>
 
             <!-- preview plio -->
@@ -54,6 +56,7 @@
               :isDisabled="uploading"
               @click="togglePlioPreviewMode"
               data-test="plioPreviewButton"
+              v-tooltip="{ content: $t('tooltip.editor.preview'), placement: 'top' }"
             ></icon-button>
 
             <!-- copy draft link -->
@@ -63,6 +66,10 @@
               :iconConfig="copyDraftIconConfig"
               :buttonClass="copyDraftButtonClass"
               @click="copyPlioDraftLink"
+              v-tooltip="{
+                content: $t('tooltip.editor.copy_draft_link'),
+                placement: 'top',
+              }"
               data-test="copyDraftButton"
             ></icon-button>
 
@@ -74,6 +81,7 @@
               :buttonClass="embedPlioButtonClass"
               @click="showEmbedPlio"
               data-test="embedPlioButton"
+              v-tooltip="{ content: $t('tooltip.editor.embed_plio'), placement: 'top' }"
             ></icon-button>
           </div>
 
@@ -183,19 +191,21 @@
               :titleConfig="homeButtonTitleConfig"
               :iconConfig="homeIconConfig"
               :buttonClass="homeButtonClass"
+              v-tooltip="{ content: $t('tooltip.editor.home'), placement: 'bottom' }"
               @click="returnToHome"
               data-test="homeButton"
             ></icon-button>
             <!--- publish button -->
-            <icon-button
-              :titleConfig="publishButtonTitleConfig"
-              :iconConfig="publishButtonIconConfig"
-              :class="publishButtonClass"
-              class="shadow-lg"
-              v-tooltip.right="publishButtonTooltip"
-              @click="showPublishConfirmationDialogBox"
-              data-test="publishButton"
-            ></icon-button>
+            <span v-tooltip="{ content: publishButtonTooltip, placement: 'bottom' }">
+              <icon-button
+                :titleConfig="publishButtonTitleConfig"
+                :iconConfig="publishButtonIconConfig"
+                :class="publishButtonClass"
+                class="shadow-lg"
+                @click="showPublishConfirmationDialogBox"
+                data-test="publishButton"
+              ></icon-button>
+            </span>
             <!-- analyze plio -->
             <icon-button
               v-if="isPublished"
@@ -204,6 +214,7 @@
               :buttonClass="analyzePlioButtonClass"
               @click="redirectToDashboard"
               data-test="analyseButton"
+              v-tooltip="{ content: $t('tooltip.editor.analyze'), placement: 'bottom' }"
             ></icon-button>
           </div>
         </div>
@@ -249,7 +260,7 @@
               ref="videoLink"
               :boxStyling="videoLinkInputStyling"
               :isDisabled="isPublished"
-              v-tooltip.top="videoLinkTooltip"
+              v-tooltip="videoLinkTooltip"
               data-test="videoLinkInput"
             ></input-text>
 
@@ -287,7 +298,10 @@
                     :disabled="addItemDisabled"
                     @click="addNewItem('mcq')"
                     :class="questionTypeSelectorClass"
-                    v-tooltip.bottom="addMCQTooltip"
+                    v-tooltip="{
+                      content: $t('tooltip.editor.add_item.mcq'),
+                      placement: 'bottom',
+                    }"
                     data-test="addMCQItem"
                   >
                     <inline-svg
@@ -302,7 +316,10 @@
                     :disabled="addItemDisabled"
                     @click="addNewItem('subjective')"
                     :class="questionTypeSelectorClass"
-                    v-tooltip.bottom="addSubjectiveQuestionTooltip"
+                    v-tooltip="{
+                      content: $t('tooltip.editor.add_item.subjective'),
+                      placement: 'bottom',
+                    }"
                     data-test="addSubjectiveQuestionItem"
                   >
                     <inline-svg
@@ -319,7 +336,10 @@
                     :disabled="addItemDisabled"
                     @click="addNewItem('checkbox')"
                     :class="questionTypeSelectorClass"
-                    v-tooltip.bottom="addCheckboxQuestionTooltip"
+                    v-tooltip="{
+                      content: $t("tooltip.editor.add_item.checkbox"),
+                      placement: 'bottom',
+                    }"
                     data-test="addCheckboxQuestionItem"
                   >
                     <inline-svg
@@ -366,10 +386,10 @@
 
     <!--- publish/draft badge -->
     <simple-badge
-      class="absolute -top-12"
+      class="absolute -top-12 z-10"
       :text="statusBadge"
       :badgeClass="statusBadgeClass"
-      v-tooltip.top="statusBadgeTooltip"
+      v-tooltip="statusBadgeTooltip"
     ></simple-badge>
 
     <canvas
@@ -1234,22 +1254,6 @@ export default {
      */
     addItemDisabled() {
       return this.isPublished || !this.isVideoIdValid;
-    },
-    /**
-     * tooltip for adding the mcq question
-     */
-    addMCQTooltip() {
-      return this.$t("tooltip.editor.add_item.mcq");
-    },
-    /**
-     * tooltip for the subjective question
-     */
-    addSubjectiveQuestionTooltip() {
-      return this.$t("tooltip.editor.add_item.subjective");
-    },
-    addCheckboxQuestionTooltip() {
-      // tooltip for the checkbox question
-      return this.$t("tooltip.editor.add_item.checkbox");
     },
     /**
      * styling classes for the video link input box

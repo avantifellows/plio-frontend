@@ -21,7 +21,7 @@ export default {
         invalid: "Invalid Link",
       },
       info: {
-        1: "To get started, you need to paste the link of the YouTube video that you want to make interactive. If you don't have a link, you can ",
+        1: "To get started, you need to paste the link of the YouTube video that you want to convert into an interactive lesson. If you don't have a link, you can ",
         2: "upload the video to YouTube",
         3: " and get the link.",
       },
@@ -392,11 +392,11 @@ export default {
     editor: {
       publish: {
         published: {
-          enabled: "Click to publish your changes",
+          enabled: "Click to publish the changes you've made",
           disabled: "No unpublished changes yet",
         },
         draft: {
-          enabled: "Click to publish the plio",
+          enabled: "Publish the plio to share it with your viewers",
           disabled: "Enter a valid video link first",
         },
       },
@@ -408,7 +408,7 @@ export default {
       video_input: {
         published: "You cannot edit the video link in a published plio",
         draft:
-          "Paste the link of the YouTube video you want to make interactive",
+          "Paste the link of the YouTube video you want to convert into an interactive lesson",
       },
       add_item: {
         published: "You cannot add new questions in a published plio",
@@ -427,6 +427,13 @@ export default {
               enabled: "Add a question",
             },
           },
+          delete_item: {
+            question: {
+              disabled:
+                "You cannot delete a question once the plio is published",
+              enabled: "Delete this question",
+            },
+          },
           add_option: {
             disabled: "You cannot add an option once the plio is published",
             enabled: "Add an option",
@@ -435,6 +442,19 @@ export default {
             disabled: "Cannot delete option once the plio is published",
             enabled: "Delete this option",
           },
+          add_image: {
+            enabled: "Add an image to your question",
+            disabled: "Cannot add an image in a published plio",
+          },
+          update_image: {
+            enabled: "Update or delete the image in this question",
+            disabled: "Cannot update the image in a published plio",
+          },
+          question_type_picker: {
+            disabled:
+              "Cannot change the question type once a plio is published",
+            enabled: "Click to change the type of this question",
+          },
         },
         correct_option: {
           marked:
@@ -442,6 +462,15 @@ export default {
           unmarked: "Mark this option as the correct option for this question",
         },
       },
+      home: "Go to the home page",
+      preview:
+        "Click to preview the plio and see how it will look like to your viewers",
+      copy_draft_link:
+        "Copy a link of this draft plio to share it with your collaborators",
+      analyze: "Analyse the data collected from the viewers of this plio",
+      share_plio: "Share this plio with your viewers",
+      play_plio: "Try out the created plio yourself",
+      embed_plio: "Embed this plio",
     },
     home: {
       table: {
@@ -465,6 +494,23 @@ export default {
             enabled: "Look at the data for the plio",
           },
         },
+        header: {
+          views: "Click to sort by the number of views",
+        },
+      },
+    },
+    dashboard: {
+      buttons: {
+        download_report: "Download a detailed report for this plio",
+      },
+      summary: {
+        completion_rate: "Percentage of viewers who answered all the questions",
+        one_minute_retention:
+          "Percentage of viewers who watched your video beyond 1 minute",
+        accuracy:
+          "Average accuracy for each viewer - accuracy is calculated only for the questions that have been answered by the viewer",
+        num_questions_answered:
+          "Average number of questions answered by each viewer",
       },
     },
   },
@@ -480,20 +526,15 @@ export default {
       avg_watch_time: "AVERAGE WATCH TIME",
       completion_rate: {
         title: "COMPLETED",
-        tooltip: "Percentage of viewers who answered all the questions",
       },
       one_minute_retention: {
         title: "RETENTION AT 1 MINUTE",
-        tooltip: "Percentage of viewers who watched your video beyond 1 minute",
       },
       accuracy: {
         title: "ACCURACY",
-        tooltip:
-          "Average accuracy for each viewer - accuracy is calculated only for the questions that have been answered by the viewer",
       },
       num_questions_answered: {
         title: "QUESTIONS ANSWERED",
-        tooltip: "Average number of questions answered by each viewer",
       },
     },
   },
