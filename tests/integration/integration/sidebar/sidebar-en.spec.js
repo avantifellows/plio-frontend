@@ -2,8 +2,8 @@ describe("Sidebar", () => {
   context("Desktop", () => {
     beforeEach(() => {
       cy.viewport("macbook-13"); // tailwind viewport `xl and above`
+      cy.visit("/").setLocale("en");
       cy.loginByGoogleApi();
-      cy.setLocale("en");
     });
 
     it("sees the sidebar", () => {

@@ -2,8 +2,8 @@ describe("Home", () => {
   context("Desktop", () => {
     beforeEach(() => {
       cy.viewport("macbook-13"); // tailwind viewport `xl and above`
+      cy.visit("/").setLocale("hi");
       cy.loginByGoogleApi();
-      cy.setLocale("hi");
     });
 
     it("sees the plio list and pagination options", () => {

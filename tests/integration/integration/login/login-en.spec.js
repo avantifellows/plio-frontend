@@ -2,8 +2,7 @@ describe("Login", () => {
   context("Desktop", () => {
     beforeEach(() => {
       cy.viewport("macbook-13"); // tailwind viewport `xl and above`
-      cy.visit("/login");
-      cy.setLocale("en");
+      cy.visit("/login").setLocale("en");
     });
 
     it("sees the login page heading", () => {
