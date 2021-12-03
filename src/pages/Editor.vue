@@ -303,7 +303,7 @@
                     @click="addNewItem('subjective')"
                     :class="questionTypeSelectorClass"
                     v-tooltip.bottom="addSubjectiveQuestionTooltip"
-                    data-test="addSubjectiveItem"
+                    data-test="addSubjectiveQuestionItem"
                   >
                     <inline-svg
                       :src="getImageSource('subjective-question.svg')"

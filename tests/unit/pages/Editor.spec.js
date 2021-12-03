@@ -1605,7 +1605,9 @@ describe("Editor.vue", () => {
 
     // the item will be added now because the timestamp is not clashing
     // with the timestamp of another item
-    await wrapper.find('[data-test="addMCQItem"]').trigger("click");
+    await wrapper
+      .find('[data-test="addCheckboxQuestionItem"]')
+      .trigger("click");
     expect(addNewItem).toHaveBeenCalled();
 
     expect(mockAxios.post).toHaveBeenCalledWith("/items/", {
@@ -1639,9 +1641,9 @@ describe("Editor.vue", () => {
     expect(getDetailsForNewQuestion).toHaveBeenCalled();
 
     expect(mockAxios.post).toHaveBeenCalledWith("/questions/", {
-      correct_answer: 0,
+      correct_answer: [0],
       text: "",
-      type: "mcq",
+      type: "checkbox",
       options: ["", ""],
       max_char_limit: 100,
       item: createdItemResponse.data.id,
@@ -1652,9 +1654,9 @@ describe("Editor.vue", () => {
         id: 212,
         item: 212,
         text: "",
-        type: "mcq",
+        type: "checkbox",
         options: ["", ""],
-        correct_answer: "0",
+        correct_answer: [0],
         image: null,
         has_char_limit: false,
         max_char_limit: 100,
