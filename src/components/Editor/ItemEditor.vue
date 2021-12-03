@@ -5,7 +5,11 @@
     v-if="localSelectedItemIndex != null"
   >
     <!-- question type picker -->
-    <div class="absolute rounded-md mt-4 ml-4 z-5" :class="questionTypeDropdownClass">
+    <div
+      class="absolute rounded-md mt-4 ml-4 z-5"
+      :class="questionTypeDropdownClass"
+      v-tooltip="questionTypePickerTooltip"
+    >
       <QuestionTypeDropdown
         class="w-full"
         @toggle-visibility="toggleQuestionTypeDropdown"
@@ -47,27 +51,32 @@
       ></icon-button>
 
       <!-- add item button -->
-      <icon-button
-        class="rounded-xl w-8 h-8 px-2 hidden bp-360:block"
-        :iconConfig="addItemIconConfig"
-        :buttonClass="addItemButtonClass"
-        @click="removeSelectedItemIndex"
-        v-tooltip.top="addItemButtonTooltip"
-        :disabled="isInteractionDisabled"
-        ariaLabel="add item"
-        data-test="addItem"
-      ></icon-button>
+      <!-- adding an enclosing span to show tooltip when disabled -->
+      <span v-tooltip="addItemButtonTooltip" tabindex="0">
+        <icon-button
+          class="rounded-xl w-8 h-8 px-2 hidden bp-360:block"
+          :iconConfig="addItemIconConfig"
+          :buttonClass="addItemButtonClass"
+          @click="removeSelectedItemIndex"
+          :disabled="isInteractionDisabled"
+          ariaLabel="add item"
+          data-test="addItem"
+        ></icon-button>
+      </span>
 
       <!-- delete item button -->
-      <icon-button
-        class="rounded-xl bg-red-600 hover:bg-red-700 w-8 h-8 shadow-lg px-2"
-        :iconConfig="deleteItemIconConfig"
-        @click="deleteSelectedItem"
-        :buttonClass="deleteItemButtonClass"
-        :disabled="isInteractionDisabled"
-        data-test="deleteItem"
-        ariaLabel="delete item"
-      ></icon-button>
+      <!-- adding an enclosing span to show tooltip when disabled -->
+      <span v-tooltip="deleteItemButtonTooltip" tabindex="0">
+        <icon-button
+          class="rounded-xl bg-red-600 hover:bg-red-700 w-8 h-8 shadow-lg px-2"
+          :iconConfig="deleteItemIconConfig"
+          @click="deleteSelectedItem"
+          :buttonClass="deleteItemButtonClass"
+          :disabled="isInteractionDisabled"
+          data-test="deleteItem"
+          ariaLabel="delete item"
+        ></icon-button>
+      </span>
     </div>
 
     <!-- item editor -->
@@ -85,16 +94,21 @@
           data-test="questionText"
         ></Textarea>
         <!-- add image to item button -->
-        <icon-button
-          class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
-          orientation="vertical"
-          :iconConfig="addImageButtonIconConfig"
-          :titleConfig="addImageButtonTitleConfig"
-          :buttonClass="addImageButtonClass"
-          :isDisabled="isInteractionDisabled"
-          @click="showImageUploaderBox"
-          data-test="questionImage"
-        ></icon-button>
+        <span
+          v-tooltip="{ content: addImageButtonTooltip, placement: 'left' }"
+          class="my-auto"
+        >
+          <icon-button
+            class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
+            orientation="vertical"
+            :iconConfig="addImageButtonIconConfig"
+            :titleConfig="addImageButtonTitleConfig"
+            :buttonClass="addImageButtonClass"
+            :isDisabled="isInteractionDisabled"
+            @click="showImageUploaderBox"
+            data-test="questionImage"
+          ></icon-button>
+        </span>
       </div>
 
       <!-- time input HH : MM : SS : mmm -->
@@ -129,15 +143,16 @@
       </div>
       <!-- add option button -->
       <div class="flex justify-end mr-2 mt-2" v-if="isQuestionTypeMCQ">
-        <icon-button
-          :titleConfig="addOptionButtonTitleConfig"
-          class="float-right"
-          @click="addOption"
-          :buttonClass="addOptionButtonClass"
-          :disabled="isInteractionDisabled"
-          v-tooltip.bottom="addOptionTooltip"
-          data-test="addOption"
-        ></icon-button>
+        <span v-tooltip="addOptionTooltip" tabindex="0">
+          <icon-button
+            :titleConfig="addOptionButtonTitleConfig"
+            class="float-right"
+            @click="addOption"
+            :buttonClass="addOptionButtonClass"
+            :disabled="isInteractionDisabled"
+            data-test="addOption"
+          ></icon-button>
+        </span>
       </div>
 
       <!-- setting max char limit -->
@@ -190,6 +205,10 @@ import InputText from "@/components/UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
 import ItemFunctionalService from "@/services/Functional/Item.js";
+import {
+  convertSecondsToISOTime,
+  convertISOTimeToSeconds,
+} from "@/services/Functional/Utilities.js";
 
 export default {
   name: "ItemEditor",
@@ -417,41 +436,6 @@ export default {
       // updates the current item selected
       this.localSelectedItemIndex = index;
     },
-    convertSecondsToISOTime(timeInSeconds) {
-      // converts time in seconds to ISOString format
-      // reference -
-      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-      // https://stackoverflow.com/questions/1322732/convert-seconds-to-hh-mm-ss-with-javascript
-
-      var timestampObject = {};
-      var isoTime = new Date(Math.floor(timeInSeconds) * 1000)
-        .toISOString()
-        .substr(11, 8);
-      var hour = parseInt(isoTime.split(":")[0]);
-      var minute = parseInt(isoTime.split(":")[1]);
-      var second = parseInt(isoTime.split(":")[2]);
-
-      timestampObject["hour"] = hour;
-      timestampObject["minute"] = minute;
-      timestampObject["second"] = second;
-      timestampObject["millisecond"] = 0;
-
-      if (Math.floor(timeInSeconds) < timeInSeconds) {
-        var ms = parseInt(String(timeInSeconds).split(".")[1].padEnd(3, "0"));
-        timestampObject["millisecond"] = ms;
-      }
-
-      return timestampObject;
-    },
-    convertISOTimeToSeconds(timeInISO) {
-      // converts the timestamp object recieved from the timeinput component
-      // into seconds
-      var hour = parseInt(timeInISO.hour) || 0;
-      var minute = parseInt(timeInISO.minute) || 0;
-      var second = parseInt(timeInISO.second) || 0;
-      var millisecond = parseInt(timeInISO.millisecond) || 0;
-      return hour * 3600 + minute * 60 + second + millisecond / 1000;
-    },
     deleteSelectedItem() {
       // emit a request to delete the selected item
       // will be listened by Editor.vue
@@ -467,6 +451,21 @@ export default {
   },
 
   computed: {
+    questionTypePickerTooltip() {
+      return this.isInteractionDisabled
+        ? this.$t("tooltip.editor.item_editor.buttons.question_type_picker.disabled")
+        : this.$t("tooltip.editor.item_editor.buttons.question_type_picker.enabled");
+    },
+    addImageButtonTooltip() {
+      if (!this.isQuestionImagePresent) {
+        return this.isInteractionDisabled
+          ? this.$t("tooltip.editor.item_editor.buttons.add_image.disabled")
+          : this.$t("tooltip.editor.item_editor.buttons.add_image.enabled");
+      }
+      return this.isInteractionDisabled
+        ? this.$t("tooltip.editor.item_editor.buttons.update_image.disabled")
+        : this.$t("tooltip.editor.item_editor.buttons.update_image.enabled");
+    },
     addImageButtonTitleConfig() {
       // title config for the add image button
       return {
@@ -569,21 +568,19 @@ export default {
       return this.$t("tooltip.editor.item_editor.buttons.add_option.enabled");
     },
     deleteItemButtonTooltip() {
-      // tooltip text for delete item button
       // itemType is just "question" right now - parametrize when more types are supported
-
-      // TODO: uncomment below code when a non-buggy tooltip is implemented
-
-      // var itemType = "question"
-      // if (this.isInteractionDisabled)
-      //   return `You cannot delete a ${itemType} once the plio is published`
-      // return "Delete this ${itemType}"
-      return undefined;
+      let itemType = "question";
+      if (this.isInteractionDisabled)
+        return this.$t(
+          `tooltip.editor.item_editor.buttons.delete_item.${itemType}.disabled`
+        );
+      return this.$t(
+        `tooltip.editor.item_editor.buttons.delete_item.${itemType}.enabled`
+      );
     },
     addItemButtonTooltip() {
-      // tooltip for the smaller add item button
       // itemType is just "question" right now - parametrize when more types are supported
-      var itemType = "question";
+      let itemType = "question";
       if (this.isInteractionDisabled)
         return this.$t(
           `tooltip.editor.item_editor.buttons.add_item.${itemType}.disabled`
@@ -698,13 +695,13 @@ export default {
 
         var itemTime = this.localItemList[this.localSelectedItemIndex].time;
         this.checkTimeInputErrors(itemTime);
-        return this.convertSecondsToISOTime(itemTime);
+        return convertSecondsToISOTime(itemTime);
       },
       set(value) {
         // convert timeObject to seconds and
         // check for any time input errors and toggle the respective error flags
 
-        var timeInSeconds = this.convertISOTimeToSeconds(value);
+        var timeInSeconds = convertISOTimeToSeconds(value);
         this.checkTimeInputErrors(timeInSeconds);
 
         // update the local time values if no error is present

@@ -6,5 +6,6 @@
   "screenshotsFolder": "tests/integration/screenshots",
   "videosFolder": "tests/integration/videos",
   "downloadsFolder": "tests/integration/downloads",
-  "supportFile": "tests/integration/support/index.js"
+  "supportFile": "tests/integration/support/index.js",
+  "projectId": "cywmry"
 }
