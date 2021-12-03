@@ -271,7 +271,7 @@
       class="rounded-md shadow-lg bp-500:mb-8 sm:mb-20 md:mb-10 xl:mb-0"
       @click="downloadReport"
       data-test="download"
-      v-tooltip="downlodReportButtonTooltip"
+      v-tooltip="$t('tooltip.dashboard.buttons.download_report')"
     ></icon-button>
   </div>
 </template>
@@ -335,9 +335,6 @@ export default {
   },
   computed: {
     ...mapState("sync", ["pending"]),
-    downlodReportButtonTooltip() {
-      return this.$t("tooltip.dashboard.buttons.download_report");
-    },
     numberOfViewers() {
       // total number of unique viewers
       return this.plioAnalytics["viewers"] || 0;

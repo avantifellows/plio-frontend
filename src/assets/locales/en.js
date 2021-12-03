@@ -21,7 +21,7 @@ export default {
         invalid: "Invalid Link",
       },
       info: {
-        1: "To get started, you need to paste the link of the YouTube video that you want to make interactive. If you don't have a link, you can ",
+        1: "To get started, you need to paste the link of the YouTube video that you want to convert into an interactive lesson. If you don't have a link, you can ",
         2: "upload the video to YouTube",
         3: " and get the link.",
       },
@@ -411,7 +411,7 @@ export default {
       video_input: {
         published: "You cannot edit the video link in a published plio",
         draft:
-          "Paste the link of the YouTube video you want to make interactive",
+          "Paste the link of the YouTube video you want to convert into an interactive lesson",
       },
       add_item: {
         published: "You cannot add new questions in a published plio",
