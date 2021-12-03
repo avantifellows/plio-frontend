@@ -109,5 +109,6 @@ describe("Home", () => {
 
     // TODO: interaction with dropdown options
     // TODO: interaction with search bar
+    // TODO: sorting functionality
   });
 });
