@@ -314,10 +314,6 @@ export default {
       // resets the search string
       this.searchString = "";
     },
-    isPublished(rowIndex) {
-      // whether the plio in the given row is published
-      return this.localData[rowIndex]["name"]["status"] == "published";
-    },
     tableRowHoverOn(rowIndex) {
       // triggered upon hovering over a row
       if (!this.pending) {
