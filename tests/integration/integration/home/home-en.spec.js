@@ -4,6 +4,7 @@ describe("Home", () => {
       cy.viewport("macbook-13"); // tailwind viewport `xl and above`
       cy.visit("/").setLocale("en");
       cy.loginByGoogleApi();
+      cy.wait(5000); // wait for some time for page to render
     });
 
     it("sees the plio list and pagination options", () => {
@@ -11,32 +12,42 @@ describe("Home", () => {
       cy.get('[data-test="table"]').should("be.visible");
 
       // pagination details
-      cy.get('[data-test="paginator"]').should("be.visible");
-      cy.get('[data-test="paginator"] [data-test="totalItems"]').should(
-        "be.visible"
-      );
-      cy.get('[data-test="paginator"] [data-test="paginationNav"] button')
-        .eq(0)
-        .should("have.text", "First");
-      cy.get('[data-test="paginator"] [data-test="paginationNav"] button')
-        .eq(1)
-        .should("have.text", "Previous");
-      cy.get('[data-test="paginator"] [data-test="paginationNav"] button')
-        .eq(-2)
-        .should("have.text", "Next");
-      cy.get('[data-test="paginator"] [data-test="paginationNav"] button')
-        .eq(-1)
-        .should("have.text", "Last");
+      cy.get('[data-test="paginator"]').as("paginator");
+      cy.get("@paginator").should("be.visible");
+      cy.get("@paginator")
+        .find('[data-test="totalItems"]')
+        .should("be.visible");
+
+      cy.get("@paginator")
+        .find('[data-test="paginationNav"] button')
+        .as("paginatorNavButtons");
+      cy.get("@paginatorNavButtons").eq(0).should("have.text", "First");
+      cy.get("@paginatorNavButtons").eq(1).should("have.text", "Previous");
+      cy.get("@paginatorNavButtons").eq(-2).should("have.text", "Next");
+      cy.get("@paginatorNavButtons").eq(-1).should("have.text", "Last");
     });
 
     it("sees the plio details in the table row", () => {
-      cy.wait(5000);
       cy.get('[data-test="table"] [data-test="row"]').eq(0).as("plioRow");
       cy.get("@plioRow").should("be.visible");
       cy.get("@plioRow")
         .find('[data-test="lastUpdatedAt"]')
         .should("be.visible");
       cy.get("@plioRow").find('[data-test="simpleBadge"]').should("be.visible");
+      cy.get("@plioRow").find('[data-test="plioViews"]').should("be.visible");
+
+      // There are two analyze buttons in the plioRow. The first one is visible only
+      // in mobile while the other one is visible in larger devices (sm & above).
+      cy.get("@plioRow")
+        .find('[data-test="analyzeButton"]')
+        .eq(1)
+        .as("analyzeButton");
+      cy.get("@analyzeButton").should("not.be.visible");
+      cy.get("@plioRow").trigger("mouseover");
+      cy.get("@analyzeButton")
+        .should("be.visible")
+        .and("have.text", "Analyse Plio");
+
       cy.get("@plioRow")
         .find('[data-test="optionDropdown"]')
         .should("be.visible");
@@ -56,43 +67,47 @@ describe("Home", () => {
         .find('[data-test="optionsContainer"] [data-test="options"]')
         .as("plioOptions");
 
-      let dropdownOptions = [
-        "edit",
-        "play",
-        "share",
-        "embed",
-        "duplicate",
-        "delete",
-      ];
-      dropdownOptions.forEach((option) => {
+      let dropdownOptions = {
+        edit: "Edit",
+        play: "Play",
+        share: "Share",
+        embed: "Embed",
+        duplicate: "Duplicate",
+        delete: "Delete",
+      };
+      Object.entries(dropdownOptions).forEach(([key, value]) => {
         cy.get("@plioOptions")
-          .find(`[data-test="option-${option}"]`)
-          .should("be.visible");
+          .find(`[data-test="option-${key}"]`)
+          .should("be.visible")
+          .and("have.text", value);
       });
-
-      cy.get("@plioRow").find('[data-test="plioViews"]').should("be.visible");
-
-      cy.get("@plioRow")
-        .find('[data-test="analyzeButton"]')
-        .should("not.be.visible");
-      cy.get("@plioRow").trigger("mouseover");
-      cy.get("@plioRow")
-        .find('[data-test="analyzeButton"]')
-        .should("be.visible");
     });
 
-    // it("interacts with the search option", () => {
-    //   // cy.get('[data-test="table"]').should("be.visible");
-    //   // search bar is visible
-    //   // typing on search bar bring results
-    //   // sees the cross icon
-    //   // shows search results
-    // });
+    it("interacts with the search option", () => {
+      cy.get('[data-test="table"]').as("plioTable");
+      cy.get("@plioTable").find('[data-test="searchBar"]').as("searchBar");
+      cy.get("@searchBar").should("be.visible");
 
-    // it("sees create plio option", () => {
-    //   // cy.get('[data-test="table"]').should("be.visible");
-    //   // pagination bar - right
-    //   // pagination count - left
-    // });
+      cy.get("@plioTable")
+        .find('[data-test="resetSearch"]')
+        .should("not.exist");
+      cy.get("@searchBar").type("My Plio", { force: true });
+      cy.get("@plioTable")
+        .find('[data-test="resetSearch"]')
+        .should("exist")
+        .and("be.visible");
+      cy.get("@plioTable").find('[data-test="resetSearch"]').click();
+      cy.get("@plioTable")
+        .find('[data-test="resetSearch"]')
+        .should("not.exist");
+    });
+
+    it("sees the create plio option", () => {
+      cy.get('[data-title="createPlio"]').as("createPlio");
+      cy.get("@createPlio").should("be.visible").and("have.text", "Create");
+    });
+
+    // TODO: interaction with dropdown options
+    // TODO: interaction with search bar
   });
 });

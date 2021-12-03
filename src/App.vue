@@ -62,6 +62,7 @@
               :class="{ 'hidden bp-500:inline': onHomePage }"
               @click="createNewPlio"
               :isDisabled="pending"
+              data-title="createPlio"
             ></icon-button>
 
             <nav data-test="sidebar">
