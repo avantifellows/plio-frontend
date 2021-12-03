@@ -5,14 +5,14 @@
       <button
         type="button"
         @click="toggleDropdownDisplay"
-        class="sm:w-full flex space-x-2 p-2 text-left cursor-default focus:outline-none sm:text-sm items-center bg-gray-200 rounded-md shadow-md"
+        class="sm:w-full group flex space-x-2 p-2 text-left cursor-default hover:cursor-pointer focus:outline-none sm:text-sm items-center bg-gray-200 hover:bg-primary rounded-md shadow-md"
         data-test="toggleButton"
         aria-label="toggle options visibility"
       >
         <!-- dropdown icon -->
         <inline-svg
           :src="getImageSource('chevron-down-solid.svg')"
-          class="h-4 w-4 fill-current hover:cursor-pointer"
+          class="h-4 w-4 fill-current group-hover:text-white"
           :class="dropdownIconClass"
         ></inline-svg>
       </button>

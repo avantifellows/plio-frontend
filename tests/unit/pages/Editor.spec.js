@@ -859,11 +859,8 @@ describe("Editor.vue", () => {
       hasUnpublishedChanges: true,
     });
     expect(wrapper.vm.publishButtonTooltip).toBe(
-      "Click to publish your changes"
+      "Click to publish the changes you've made"
     );
-    expect(
-      wrapper.find('[data-test="publishButton"]').element.$_ptooltipValue
-    ).toBe("Click to publish your changes");
   });
 
   it("shows published dialog when publish is confirmed", async () => {
@@ -1485,7 +1482,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.dialogAction).toBe("deleteOption");
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
 
-    expect(wrapper.vm.optionIndexToDelete).toBe(0);
+    expect(wrapper.vm.optionIndexToDelete).toBe(1);
 
     // simulate clicking the confirm button of the dialog box
     await simulateConfirmClick();
@@ -1540,7 +1537,7 @@ describe("Editor.vue", () => {
     await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
 
     // the option index to delete must be set
-    expect(wrapper.vm.optionIndexToDelete).toBe(0);
+    expect(wrapper.vm.optionIndexToDelete).toBe(1);
 
     // simulate clicking the cancel button of the dialog box
     await simulateCancelClick();
@@ -1609,7 +1606,7 @@ describe("Editor.vue", () => {
     );
     expect(wrapper.vm.dialogAction).toBe("deleteOption");
     expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
-    expect(wrapper.vm.optionIndexToDelete).toBe(0);
+    expect(wrapper.vm.optionIndexToDelete).toBe(1);
 
     // simulate clicking the confirm button of the dialog box
     await simulateConfirmClick();

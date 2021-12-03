@@ -16,7 +16,7 @@
         :maxLength="2"
         :boxStyling="[defaultBoxClass, hourInputInvalidClass]"
         :isDisabled="isDisabled"
-        v-tooltip.bottom="{ value: disabledInputTooltip, disabled: !isDisabled }"
+        v-tooltip="inputTooltip"
         data-test="hour"
       ></input-text>
 
@@ -31,7 +31,7 @@
         :maxLength="2"
         :boxStyling="[defaultBoxClass, minuteInputInvalidClass]"
         :isDisabled="isDisabled"
-        v-tooltip.bottom="{ value: disabledInputTooltip, disabled: !isDisabled }"
+        v-tooltip="inputTooltip"
         data-test="minute"
       ></input-text>
 
@@ -46,7 +46,7 @@
         :maxLength="2"
         :boxStyling="[defaultBoxClass, secondInputInvalidClass]"
         :isDisabled="isDisabled"
-        v-tooltip.bottom="{ value: disabledInputTooltip, disabled: !isDisabled }"
+        v-tooltip="inputTooltip"
         data-test="second"
       ></input-text>
 
@@ -63,7 +63,7 @@
         :maxLength="3"
         :boxStyling="[defaultBoxClass, millisecondInputInvalidClass]"
         :isDisabled="isDisabled"
-        v-tooltip.bottom="{ value: disabledInputTooltip, disabled: !isDisabled }"
+        v-tooltip="inputTooltip"
         data-test="millisecond"
       ></input-text>
     </div>
@@ -88,7 +88,7 @@ export default {
   data() {
     return {
       defaultConfig: {
-        showHour: true,
+        showHour: this.timeObject.hour != 0, // don't show the hour part if the value is 0
         showMinute: true,
         showSecond: true,
         showMillisecond: true,
@@ -191,11 +191,13 @@ export default {
     },
     timeObject: {
       handler() {
-        // update the local values if the user selects a different item than the current selected one
+        // update the local values if the timeObject prop gets updated
         this.localHour = this.timeObject.hour;
         this.localMinute = this.timeObject.minute;
         this.localSecond = this.timeObject.second;
         this.localMillisecond = this.timeObject.millisecond;
+        // update whether to show the hour value
+        this.localConfig.showHour = this.localHour == 0 ? false : true;
       },
       deep: true,
     },
@@ -269,7 +271,7 @@ export default {
       let mergedErrorStates = { ...localErrorStates, ...this.errorStates };
       return mergedErrorStates;
     },
-    disabledInputTooltip() {
+    inputTooltip() {
       // tooltip for time input box when it's disabled
       if (this.isDisabled) return this.disabledTooltip;
       return undefined;
