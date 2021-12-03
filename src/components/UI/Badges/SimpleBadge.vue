@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span class="rounded-full border" :class="badgeClass">
+    <span class="rounded-full border" :class="badgeClass" data-test="simpleBadge">
       {{ text }}
     </span>
   </div>

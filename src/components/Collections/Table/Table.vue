@@ -143,7 +143,7 @@
                           class="animate-pulse w-6 bg-gray-500 h-6 rounded-md"
                         ></div>
                         <!-- actual value -->
-                        <div v-else>
+                        <div data-test="plioViews" v-else>
                           {{ entry[columnName] }}
                         </div>
                       </div>

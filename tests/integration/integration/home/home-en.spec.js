@@ -37,14 +37,53 @@ describe("Home", () => {
     //   // shows search results
     // });
 
-    // it("sees the plio details in the table row", () => {
-    //   // date
-    //   // status
-    //   // title
-    //   // dropdown - items
-    //   // views
-    //   // analyze plio option
-    // });
+    it("sees the plio details in the table row", () => {
+      cy.wait(5000);
+      cy.get('[data-test="table"] [data-test="row"]').eq(0).as("plioRow");
+      cy.get("@plioRow").should("be.visible");
+      cy.get("@plioRow")
+        .find('[data-test="lastUpdatedAt"]')
+        .should("be.visible");
+      cy.get("@plioRow").find('[data-test="simpleBadge"]').should("be.visible");
+      cy.get("@plioRow")
+        .find('[data-test="optionDropdown"]')
+        .should("be.visible");
+
+      // dropdown - items
+      cy.get("@plioRow")
+        .find('[data-test="optionsContainer"]')
+        .should("not.exist");
+      cy.get("@plioRow")
+        .find('[data-test="optionDropdown"] [data-test="toggleButton"]')
+        .click();
+      cy.get("@plioRow")
+        .find('[data-test="optionsContainer"]')
+        .should("exist")
+        .and("be.visible");
+      cy.get("@plioRow")
+        .find('[data-test="optionsContainer"] [data-test="options"]')
+        .as("plioOptions");
+
+      let dropdownOptions = [
+        "edit",
+        "play",
+        "share",
+        "embed",
+        "duplicate",
+        "delete",
+      ];
+      dropdownOptions.forEach((option) => {
+        cy.get("@plioOptions")
+          .find(`[data-test="option-${option}"]`)
+          .should("be.visible");
+      });
+
+      cy.get("@plioRow").find('[data-test="plioViews"]').should("be.visible");
+
+      // cy.get("@plioRow").find('[data-test="analyzeButton"]').should("not.be.visible");
+      // cy.get("@plioRow").trigger('mouseover');
+      // cy.get("@plioRow").find('[data-test="analyzeButton"]').should("be.visible");
+    });
 
     // it("sees create plio option", () => {
     //   // cy.get('[data-test="table"]').should("be.visible");

@@ -4,7 +4,7 @@
     <div class="grid grid-flow-row auto-rows-min gap-2 w-full">
       <!-- last updated date -->
       <div class="flex flex-row justify-start space-x-3">
-        <p class="text-xs place-self-center">{{ updatedAt }}</p>
+        <p class="text-xs place-self-center" data-test="lastUpdatedAt">{{ updatedAt }}</p>
 
         <div class="flex relative">
           <!-- status badge -->
@@ -42,6 +42,7 @@
       <div
         class="text-base sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold truncate"
         :class="{ 'opacity-50': isUntitled }"
+        data-test="plioTitle"
       >
         {{ title }}
       </div>
