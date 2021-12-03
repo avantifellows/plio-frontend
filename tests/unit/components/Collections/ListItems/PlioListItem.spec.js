@@ -414,7 +414,7 @@ describe("PlioListItem.vue", () => {
       .get('[data-test="toggleButton"]')
       .trigger("click");
 
-    // there should be 6 buttons - edit, play, share, embed, duplicate, delete
+    // there should be 7 buttons - edit, play, share, embed, duplicate, delete, analyse
     expect(
       wrapper
         .get('[data-test="optionDropdown"]')

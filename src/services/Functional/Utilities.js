@@ -190,13 +190,13 @@ export function convertSecondsToISOTime(timeInSeconds) {
     second: null,
     millisecond: null,
     /**
-     * Converts the timepart from a Number to a String and pads it with zeros accordingly
+     * Converts the time component from a Number to a String and pads it with zeros accordingly
      * @param {String} timepart - "hour", "minute", "second" or "millisecond"
-     * @returns {String} - A string padded on the start with zeroes depending on the timepart
+     * @returns {String} - A string padded on the start with zeroes depending on the time component
      */
-    getAsString(timepart) {
-      let targetLength = timepart == "millisecond" ? 3 : 2;
-      return String(this[timepart]).padStart(targetLength, "0");
+    getAsString(timeComponent) {
+      let targetLength = timeComponent == "millisecond" ? 3 : 2;
+      return String(this[timeComponent]).padStart(targetLength, "0");
     },
   };
   let isoTime = new Date(Math.floor(timeInSeconds) * 1000)
