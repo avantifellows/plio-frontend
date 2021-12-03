@@ -29,6 +29,10 @@ describe("ItemEditor.vue", () => {
     });
   };
 
+  beforeEach(() => {
+    mountWrapper();
+  });
+
   describe("time input", () => {
     beforeEach(() => {
       mountWrapper();
@@ -64,7 +68,7 @@ describe("ItemEditor.vue", () => {
   });
 
   describe("mcq questions", () => {
-    it("should render with required values for mcq question", () => {
+    it("should render with required values", () => {
       expect(wrapper.find('[data-test="options"]').exists()).toBeTruthy();
       expect(
         wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
@@ -78,6 +82,49 @@ describe("ItemEditor.vue", () => {
       });
     });
 
+    it("should disable appropriate fields", async () => {
+      await wrapper.setProps({
+        isInteractionDisabled: true,
+      });
+      // question type dropdown should be disabled
+      expect(
+        wrapper
+          .find('[data-test="questionTypeDropdown"]')
+          .find('[data-test="toggleButton"]').element.disabled
+      ).toBe(true);
+      // question text area should not be disabled
+      expect(
+        wrapper.find('[data-test="questionText"]').find('[data-test="input"]')
+          .element.disabled
+      ).toBe(false);
+      // question image button should be disabled
+      expect(wrapper.find('[data-test="questionImage"]').element.disabled).toBe(
+        true
+      );
+      // button to add option should be disabled
+      expect(wrapper.find('[data-test="addOption"]').element.disabled).toBe(
+        true
+      );
+      // button to delete question should be disabled
+      expect(wrapper.find('[data-test="deleteItem"]').element.disabled).toBe(
+        true
+      );
+
+      let options = wrapper.findAll('[data-test="option"]');
+      options.forEach((option) => {
+        // option text area should not be disabled
+        expect(option.find('[data-test="input"]').element.disabled).toBe(false);
+        // setting correct answer should not be disabled
+        expect(option.find('[data-test="startIcon"]').classes()).not.toContain(
+          "cursor-not-allowed"
+        );
+      });
+
+      await wrapper.setProps({
+        isInteractionDisabled: false,
+      });
+    });
+
     it("updates option value", async () => {
       const testValue = "test";
       await wrapper
@@ -87,16 +134,13 @@ describe("ItemEditor.vue", () => {
       expect(wrapper.vm.localItemDetailList[0].options[0]).toBe(testValue);
     });
 
-    it("set correct answer correctly for mcq question", async () => {
+    it("sets correct answer correctly", async () => {
       let updatedItemDetailList = clonedeep(itemDetailList);
       updatedItemDetailList[0].correct_answer = 1;
       await wrapper.setProps({
         itemDetailList: updatedItemDetailList,
       });
-      expect(wrapper.find('[data-test="options"]').exists()).toBeTruthy();
-      expect(
-        wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
-      ).toBeFalsy();
+
       // the 2nd option should be marked as correct answer
       let options = wrapper.findAll('[data-test="option"]');
       options.forEach((option, optionIndex) => {
@@ -108,6 +152,78 @@ describe("ItemEditor.vue", () => {
           expect(option.find('[data-test="startIcon"]').classes()).toContain(
             "text-green-500"
           );
+      });
+    });
+
+    it("updates correct answer on selecting option", async () => {
+      const correctOptionIndex = 1;
+      await wrapper
+        .findAll('[data-test="option"]')
+        [correctOptionIndex].find('[data-test="startIcon"]')
+        .trigger("click");
+      expect(wrapper.vm.localItemDetailList[0].correct_answer).toBe(
+        correctOptionIndex
+      );
+    });
+
+    it("clicking add option adds a new option", async () => {
+      await wrapper.find('[data-test="addOption"]').trigger("click");
+      expect(wrapper.vm.localItemDetailList[0].options.length).toBe(3);
+    });
+
+    it("clicking on delete option deletes option", async () => {
+      await wrapper
+        .findAll('[data-test="option"]')[0]
+        .find('[data-test="endIcon"]')
+        .trigger("click");
+      expect(wrapper.emitted()).toHaveProperty("delete-option");
+    });
+  });
+
+  describe("checkbox questions", () => {
+    let itemList = [
+      {
+        type: "question",
+        time: 13.3,
+      },
+    ];
+    let itemDetailList = [
+      {
+        text: "test",
+        type: "checkbox",
+        options: ["", "", ""],
+        correct_answer: [],
+      },
+    ];
+
+    const mountWrapper = (newItemList = null, newItemDetailList = null) => {
+      wrapper = mount(ItemEditor, {
+        props: {
+          itemList: newItemList == null ? clonedeep(itemList) : newItemList,
+          itemDetailList:
+            newItemDetailList == null
+              ? clonedeep(itemDetailList)
+              : newItemDetailList,
+          questionTypeIndex: 2,
+        },
+      });
+    };
+
+    beforeEach(() => {
+      mountWrapper();
+    });
+
+    it("should render with required values for mcq question", () => {
+      expect(wrapper.find('[data-test="options"]').exists()).toBeTruthy();
+      expect(
+        wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
+      ).toBeFalsy();
+      // no option should be marked as correct answer as no correct answer has been given
+      let options = wrapper.findAll('[data-test="option"]');
+      options.forEach((option) => {
+        expect(option.find('[data-test="startIcon"]').classes()).not.toContain(
+          "text-green-500"
+        );
       });
     });
 
@@ -154,20 +270,83 @@ describe("ItemEditor.vue", () => {
       });
     });
 
-    it("updates correct answer on selecting option", async () => {
-      const correctOptionIndex = 1;
+    it("updates option value", async () => {
+      const testValue = "test";
+      await wrapper
+        .findAll('[data-test="option"]')[0]
+        .find('[data-test="input"]')
+        .setValue(testValue);
+      expect(wrapper.vm.localItemDetailList[0].options[0]).toBe(testValue);
+    });
+
+    it("sets correct answer correctly", async () => {
+      const correctAnswers = new Set([0, 1]);
+      let updatedItemDetailList = clonedeep(itemDetailList);
+      updatedItemDetailList[0].correct_answer = Array.from(correctAnswers);
+      await wrapper.setProps({
+        itemDetailList: updatedItemDetailList,
+      });
+
+      let options = wrapper.findAll('[data-test="option"]');
+      options.forEach((option, optionIndex) => {
+        if (!correctAnswers.has(optionIndex))
+          // the option is not a correct answer
+          expect(
+            option.find('[data-test="startIcon"]').classes()
+          ).not.toContain("text-green-500");
+        // the option is a correct answer
+        else
+          expect(option.find('[data-test="startIcon"]').classes()).toContain(
+            "text-green-500"
+          );
+      });
+    });
+
+    it("adds new option to the correct answer", async () => {
+      // select first option as an answer
+      const correctOptionIndex = 0;
       await wrapper
         .findAll('[data-test="option"]')
         [correctOptionIndex].find('[data-test="startIcon"]')
         .trigger("click");
-      expect(wrapper.vm.localItemDetailList[0].correct_answer).toBe(
-        correctOptionIndex
+      expect(wrapper.vm.localItemDetailList[0].correct_answer).toStrictEqual([
+        correctOptionIndex,
+      ]);
+
+      // select second option as another answer
+      const newCorrectOptionIndex = 1;
+      await wrapper
+        .findAll('[data-test="option"]')
+        [newCorrectOptionIndex].find('[data-test="startIcon"]')
+        .trigger("click");
+      expect(wrapper.vm.localItemDetailList[0].correct_answer).toStrictEqual([
+        correctOptionIndex,
+        newCorrectOptionIndex,
+      ]);
+    });
+
+    it("clicking on option already part of correct answer removes it as an answer", async () => {
+      // select first option as an answer
+      const correctOptionIndex = 0;
+      await wrapper
+        .findAll('[data-test="option"]')
+        [correctOptionIndex].find('[data-test="startIcon"]')
+        .trigger("click");
+
+      // re-selecting first option should reset it
+      await wrapper
+        .findAll('[data-test="option"]')
+        [correctOptionIndex].find('[data-test="startIcon"]')
+        .trigger("click");
+
+      expect(wrapper.vm.localItemDetailList[0].correct_answer).toStrictEqual(
+        []
       );
     });
 
     it("clicking add option adds a new option", async () => {
       await wrapper.find('[data-test="addOption"]').trigger("click");
-      expect(wrapper.vm.localItemDetailList[0].options.length).toBe(3);
+      expect(wrapper.vm.localItemDetailList[0].options.length).toBe(4);
     });
 
     it("clicking on delete option deletes option", async () => {
@@ -209,6 +388,13 @@ describe("ItemEditor.vue", () => {
       mountWrapper();
     });
 
+    it("should render with required values", () => {
+      expect(wrapper.find('[data-test="options"]').exists()).toBeFalsy();
+      expect(
+        wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
+      ).toBeTruthy();
+    });
+
     it("enables/disables max char limit", async () => {
       // checkbox should be checked by default
       expect(wrapper.vm.localItemDetailList[0].has_char_limit).toBe(true);
@@ -220,13 +406,6 @@ describe("ItemEditor.vue", () => {
       expect(wrapper.vm.localItemDetailList[0].has_char_limit).toBe(false);
 
       await wrapper.find('[data-test="maxCharLimitCheckbox"]').setChecked(true);
-    });
-
-    it("should render with required values for subjective question", () => {
-      expect(wrapper.find('[data-test="options"]').exists()).toBeFalsy();
-      expect(
-        wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
-      ).toBeTruthy();
     });
 
     it("clearing max limit sets it to the minimum value", async () => {
