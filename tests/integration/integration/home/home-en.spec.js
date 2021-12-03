@@ -29,14 +29,6 @@ describe("Home", () => {
         .should("have.text", "Last");
     });
 
-    // it("interacts with the search option", () => {
-    //   // cy.get('[data-test="table"]').should("be.visible");
-    //   // search bar is visible
-    //   // typing on search bar bring results
-    //   // sees the cross icon
-    //   // shows search results
-    // });
-
     it("sees the plio details in the table row", () => {
       cy.wait(5000);
       cy.get('[data-test="table"] [data-test="row"]').eq(0).as("plioRow");
@@ -80,10 +72,22 @@ describe("Home", () => {
 
       cy.get("@plioRow").find('[data-test="plioViews"]').should("be.visible");
 
-      // cy.get("@plioRow").find('[data-test="analyzeButton"]').should("not.be.visible");
-      // cy.get("@plioRow").trigger('mouseover');
-      // cy.get("@plioRow").find('[data-test="analyzeButton"]').should("be.visible");
+      cy.get("@plioRow")
+        .find('[data-test="analyzeButton"]')
+        .should("not.be.visible");
+      cy.get("@plioRow").trigger("mouseover");
+      cy.get("@plioRow")
+        .find('[data-test="analyzeButton"]')
+        .should("be.visible");
     });
+
+    // it("interacts with the search option", () => {
+    //   // cy.get('[data-test="table"]').should("be.visible");
+    //   // search bar is visible
+    //   // typing on search bar bring results
+    //   // sees the cross icon
+    //   // shows search results
+    // });
 
     // it("sees create plio option", () => {
     //   // cy.get('[data-test="table"]').should("be.visible");
