@@ -191,7 +191,7 @@ export function convertSecondsToISOTime(timeInSeconds) {
     millisecond: null,
     /**
      * Converts the time component from a Number to a String and pads it with zeros accordingly
-     * @param {String} timepart - "hour", "minute", "second" or "millisecond"
+     * @param {String} timeComponent - "hour", "minute", "second" or "millisecond"
      * @returns {String} - A string padded on the start with zeroes depending on the time component
      */
     getAsString(timeComponent) {
