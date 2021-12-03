@@ -337,7 +337,7 @@
                     @click="addNewItem('checkbox')"
                     :class="questionTypeSelectorClass"
                     v-tooltip="{
-                      content: $t("tooltip.editor.add_item.checkbox"),
+                      content: $t('tooltip.editor.add_item.checkbox'),
                       placement: 'bottom',
                     }"
                     data-test="addCheckboxQuestionItem"
