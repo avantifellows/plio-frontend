@@ -412,9 +412,11 @@ export default {
       },
       add_item: {
         published: "You cannot add new questions in a published plio",
-        mcq: "Click here to add a multiple-choice question",
+        mcq:
+          "Click here to add a multiple-choice question with one correct answer",
         subjective: "Click here to add a subjective question",
-        checkbox: "Click here to add a checkbox question",
+        checkbox:
+          "Click here to add a multiple-choice question with multiple correct answers",
       },
       item_editor: {
         buttons: {
@@ -457,9 +459,18 @@ export default {
           },
         },
         correct_option: {
-          marked:
-            "This option has been marked as the correct option for this question",
-          unmarked: "Mark this option as the correct option for this question",
+          checkbox: {
+            marked:
+              "This option has been marked as one of the correct options for this question",
+            unmarked:
+              "Mark this option as one of the correct options for this question",
+          },
+          mcq: {
+            marked:
+              "This option has been marked as the correct option for this question",
+            unmarked:
+              "Mark this option as the correct option for this question",
+          },
         },
       },
       home: "Go to the home page",

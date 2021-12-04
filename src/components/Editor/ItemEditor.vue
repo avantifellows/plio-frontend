@@ -425,8 +425,12 @@ export default {
     getCorrectOptionTooltip(optionIndex) {
       // returns the tooltip for the correct option button for the given option index
       if (this.isOptionMarkedCorrect(optionIndex))
-        return this.$t("tooltip.editor.item_editor.correct_option.marked");
-      return this.$t("tooltip.editor.item_editor.correct_option.unmarked");
+        return this.$t(
+          `tooltip.editor.item_editor.correct_option.${this.questionType}.marked`
+        );
+      return this.$t(
+        `tooltip.editor.item_editor.correct_option.${this.questionType}.unmarked`
+      );
     },
     isOptionMarkedCorrect(optionIndex) {
       // whether the given option index is marked as a correct option
