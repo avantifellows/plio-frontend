@@ -116,6 +116,8 @@ export default {
       // set containing the question types in which options are present
       questionTypesWithOptions: new Set(["mcq", "checkbox"]),
       isImageLoading: false, // whether the image is loading
+      correctOptionClass: "text-white bg-green-500",
+      wrongOptionClass: "text-white bg-red-500",
     };
   },
   watch: {
@@ -232,12 +234,12 @@ export default {
       // returns the background class for the option
       if (!this.isAnswerSubmitted) return {};
       if (this.isQuestionTypeMCQ) {
-        if (optionIndex == this.correctAnswer) return "text-white bg-green-500";
-        if (optionIndex == this.submittedAnswer) return "text-white bg-red-500";
+        if (optionIndex == this.correctAnswer) return this.correctOptionClass;
+        if (optionIndex == this.submittedAnswer) return this.wrongOptionClass;
       }
       if (this.isQuestionTypeCheckbox) {
-        if (this.correctAnswer.has(optionIndex)) return "text-white bg-green-500";
-        if (this.submittedAnswer.has(optionIndex)) return "text-white bg-red-500";
+        if (this.correctAnswer.has(optionIndex)) return this.correctOptionClass;
+        if (this.submittedAnswer.has(optionIndex)) return this.wrongOptionClass;
       }
     },
     isOptionChecked(optionIndex) {

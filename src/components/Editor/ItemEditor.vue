@@ -635,14 +635,17 @@ export default {
         class: "p-4 text-white rounded-md font-bold",
       };
     },
+    /**
+     * whether options can be deleted
+     * not allowed if only 2 options are remaining
+     */
     isDeleteOptionEnabled() {
-      /** whether options can be deleted
-       *  not allowed if only 2 options are remaining
-       */
       return this.options.length > 2;
     },
+    /**
+     * config for the delete option icon
+     */
     getDeleteOptionIconConfig() {
-      // config for the delete option icon
       return {
         enabled: this.isDeleteOptionEnabled,
         name: "delete",

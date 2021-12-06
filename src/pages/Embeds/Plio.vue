@@ -682,6 +682,7 @@ export default {
     submitQuestion() {
       let itemResponse = clonedeep(this.itemResponses[this.currentItemIndex]);
 
+      // convert Set to Array as Set is invalid as a response
       if (this.isItemCheckbox(this.currentItemIndex)) {
         itemResponse.answer = Array.from(itemResponse.answer).sort();
       }
