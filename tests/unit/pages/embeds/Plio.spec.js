@@ -324,11 +324,11 @@ describe("Plio.vue", () => {
   describe("submitting question", () => {
     let createEvent;
 
-    const setupWrapper = async () => {
+    const setupWrapper = async (params = { currentItemIndex: 0 }) => {
       await mountWrapper({
         loadPlio: true,
         data: {
-          currentItemIndex: 0,
+          currentItemIndex: params.currentItemIndex,
           itemResponses: clonedeep(global.dummyItemResponses),
         },
       });
@@ -381,6 +381,23 @@ describe("Plio.vue", () => {
         expect(createEvent).toHaveBeenCalled();
         expect(showItemMarkersOnSlider).toHaveBeenCalled();
         expect(calculateScorecardMetrics).toHaveBeenCalled();
+      });
+      it("converts checkbox answers from set to array", async () => {
+        const currentItemIndex = 4;
+        await setupWrapper({
+          currentItemIndex: currentItemIndex,
+        });
+        wrapper.vm.$refs.plioModal.$emit("submit-question");
+        let expectedItemResponse = clonedeep(
+          global.dummyItemResponses[currentItemIndex]
+        );
+        expectedItemResponse["answer"] = Array.from(
+          expectedItemResponse["answer"]
+        );
+        expect(mockAxios.put).toHaveBeenCalledWith(
+          "/session-answers/5",
+          expectedItemResponse
+        );
       });
     });
   });
