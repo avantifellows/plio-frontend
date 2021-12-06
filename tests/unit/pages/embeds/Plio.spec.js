@@ -156,28 +156,45 @@ describe("Plio.vue", () => {
       expect(mockAxios.post).toHaveBeenCalledTimes(0);
     });
 
-    it("creates session if authenticated when plio request is resolved", async () => {
-      await authenticateUser();
-      await mountWrapper({ loadPlio: true });
-
-      // 1 `POST` request should have been made
-      expect(mockAxios.post).toHaveBeenCalledTimes(1);
-      expect(mockAxios.post).toHaveBeenCalledWith("/sessions/", {
-        plio: global.dummyPublishedPlio.data.id,
+    describe("authenticated user", () => {
+      beforeEach(async () => {
+        await authenticateUser();
       });
-    });
+      it("creates session when plio request is resolved", async () => {
+        await mountWrapper({ loadPlio: true });
 
-    it("does not create session with authenticated user if opened in preview mode", async () => {
-      await authenticateUser();
-      await mountWrapper();
-      await wrapper.setProps({
-        previewMode: true,
+        // 1 `POST` request should have been made
+        expect(mockAxios.post).toHaveBeenCalledTimes(1);
+        expect(mockAxios.post).toHaveBeenCalledWith("/sessions/", {
+          plio: global.dummyPublishedPlio.data.id,
+        });
       });
 
-      await loadPlio();
+      it("populates item responses when request to fetch sessions is resolved", async () => {
+        await mountWrapper({ loadPlio: true });
+        mockAxios.mockResponse(
+          clonedeep(global.dummySession),
+          mockAxios.queue()[0]
+        );
+        expect(wrapper.vm.itemResponses.length).toBe(
+          global.dummyItemResponses.length
+        );
+        expect(wrapper.vm.numCorrect).toBe(4);
+        expect(wrapper.vm.numWrong).toBe(1);
+        expect(wrapper.vm.numSkipped).toBe(0);
+      });
 
-      // 1 `POST` request should have been made
-      expect(mockAxios.post).toHaveBeenCalledTimes(0);
+      it("does not create session if opened in preview mode", async () => {
+        await mountWrapper();
+        await wrapper.setProps({
+          previewMode: true,
+        });
+
+        await loadPlio();
+
+        // 1 `POST` request should have been made
+        expect(mockAxios.post).toHaveBeenCalledTimes(0);
+      });
     });
   });
 

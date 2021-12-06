@@ -550,3 +550,14 @@ global.dummyItemResponses = [
     updated_at: "2021-09-14T13:25:44.663307Z",
   },
 ];
+
+global.dummySession = {
+  data: {
+    id: 1,
+    last_event: null,
+    is_first: false,
+    retention: "",
+    watch_time: 0,
+    session_answers: global.dummyItemResponses,
+  },
+};

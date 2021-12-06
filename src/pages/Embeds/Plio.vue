@@ -580,7 +580,11 @@ export default {
         userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
         // reduce numSkipped by 1 if numCorrect or numWrong increases
         this.numSkipped -= 1;
-      } else if (this.isItemCheckbox && userAnswer != null && userAnswer.length > 0) {
+      } else if (
+        this.isItemCheckbox(itemIndex) &&
+        userAnswer != null &&
+        userAnswer.length > 0
+      ) {
         // for checkbox questions, check if the answers match exactly
         const correctAnswer = this.itemDetails[itemIndex].correct_answer;
 
