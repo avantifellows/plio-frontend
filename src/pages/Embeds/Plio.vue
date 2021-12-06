@@ -941,12 +941,12 @@ export default {
      */
     showItemMarkersOnSlider() {
       this.items.forEach((item, index) => {
-        let existingMarker = document.getElementById(`marker-${index}`);
+        let existingMarker = document.getElementById(`plioModalMarker-${index}`);
         if (existingMarker != undefined) this.removeMarkerOnSlider(existingMarker);
 
         // Add marker to player seek bar
         var newMarker = document.createElement("SPAN");
-        newMarker.setAttribute("id", `marker-${index}`);
+        newMarker.setAttribute("id", `plioModalMarker-${index}`);
 
         // set marker style and position
         if (this.isItemResponseDone(index)) {
@@ -964,7 +964,7 @@ export default {
     showScorecardMarkerOnSlider() {
       // Add marker to player seek bar
       var newMarker = document.createElement("p");
-      newMarker.setAttribute("id", `marker-scorecard`);
+      newMarker.setAttribute("id", `plioScorecardMarker`);
 
       // what the marker should look like - trophy cup emoji
       newMarker.innerText = "🏆";
