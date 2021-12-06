@@ -963,63 +963,33 @@ describe("Editor.vue", () => {
 
     // 1 call to /items and /questions for each item and 1 call to /plio
     expect(mockAxios.queue().length).toBe(global.dummyItems.length * 2 + 1);
-    expect(updateItem).toHaveBeenCalledTimes(4);
+    expect(updateItem).toHaveBeenCalledTimes(global.dummyItems.length);
 
     // mock responses to requests for /items
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItems[0],
-      },
-      mockAxios.queue()[0]
-    );
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItems[1],
-      },
-      mockAxios.queue()[0]
-    );
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItems[2],
-      },
-      mockAxios.queue()[0]
-    );
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItems[3],
-      },
-      mockAxios.queue()[0]
-    );
+    global.dummyItems.forEach((item) => {
+      mockAxios.mockResponse(
+        {
+          data: item,
+        },
+        mockAxios.queue()[0]
+      );
+    });
 
     await flushPromises();
 
-    expect(updateQuestionDetails).toHaveBeenCalledTimes(4);
+    expect(updateQuestionDetails).toHaveBeenCalledTimes(
+      global.dummyItemDetails.length
+    );
 
     // mock responses to requests for /questions
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItemDetails[0],
-      },
-      mockAxios.queue()[0]
-    );
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItemDetails[1],
-      },
-      mockAxios.queue()[0]
-    );
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItemDetails[2],
-      },
-      mockAxios.queue()[0]
-    );
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItemDetails[3],
-      },
-      mockAxios.queue()[0]
-    );
+    global.dummyItemDetails.forEach((itemDetails) => {
+      mockAxios.mockResponse(
+        {
+          data: itemDetails,
+        },
+        mockAxios.queue()[0]
+      );
+    });
 
     await flushPromises();
 
