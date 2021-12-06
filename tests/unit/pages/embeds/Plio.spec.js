@@ -65,6 +65,8 @@ beforeEach(async () => {
 afterEach(async () => {
   // cleaning up the mess left behind by the previous test
   mockAxios.reset();
+  // unset user
+  await store.dispatch("auth/unsetAccessToken");
 });
 
 describe("Plio.vue", () => {
@@ -155,7 +157,7 @@ describe("Plio.vue", () => {
     });
 
     it("creates session if authenticated when plio request is resolved", async () => {
-      authenticateUser();
+      await authenticateUser();
       await mountWrapper({ loadPlio: true });
 
       // 1 `POST` request should have been made
@@ -166,7 +168,7 @@ describe("Plio.vue", () => {
     });
 
     it("does not create session with authenticated user if opened in preview mode", async () => {
-      authenticateUser();
+      await authenticateUser();
       await mountWrapper();
       await wrapper.setProps({
         previewMode: true,
@@ -267,7 +269,7 @@ describe("Plio.vue", () => {
           return;
         });
 
-      authenticateUser();
+      await authenticateUser();
 
       // simulating the case where a 'watching' event has already been created
       await mountWrapper({
@@ -275,7 +277,6 @@ describe("Plio.vue", () => {
         data: {
           watchingEventDBId: watchingEventDBId,
           sessionDBId: 1,
-          videoId: "_hJEyDOn6Ho",
         },
       });
 
@@ -318,6 +319,69 @@ describe("Plio.vue", () => {
           session: localThis.sessionDBId,
         }
       );
+    });
+  });
+  describe("submitting question", () => {
+    let createEvent;
+
+    const setupWrapper = async () => {
+      await mountWrapper({
+        loadPlio: true,
+        data: {
+          currentItemIndex: 0,
+          itemResponses: clonedeep(global.dummyItemResponses),
+        },
+      });
+    };
+
+    beforeEach(async () => {
+      createEvent = jest.spyOn(Plio.methods, "createEvent");
+      await setupWrapper();
+    });
+
+    it("does not make an API call if the user is not authenticated", async () => {
+      wrapper.vm.$refs.plioModal.$emit("submit-question");
+      expect(mockAxios.put).not.toHaveBeenCalled();
+      expect(createEvent).not.toHaveBeenCalled();
+    });
+
+    it("does not make an API call if in preview mode", async () => {
+      await wrapper.setProps({
+        previewMode: true,
+      });
+      wrapper.vm.$refs.plioModal.$emit("submit-question");
+      expect(mockAxios.put).not.toHaveBeenCalled();
+      expect(createEvent).not.toHaveBeenCalled();
+    });
+
+    describe("for authenticated user", () => {
+      beforeEach(async () => {
+        await authenticateUser();
+      });
+      it("does not make an API call if in preview mode", async () => {
+        await wrapper.setProps({
+          previewMode: true,
+        });
+        wrapper.vm.$refs.plioModal.$emit("submit-question");
+        expect(mockAxios.put).not.toHaveBeenCalled();
+        expect(createEvent).not.toHaveBeenCalled();
+      });
+      it("makes an API call in non-preview mode", async () => {
+        const showItemMarkersOnSlider = jest.spyOn(
+          Plio.methods,
+          "showItemMarkersOnSlider"
+        );
+        const calculateScorecardMetrics = jest.spyOn(
+          Plio.methods,
+          "calculateScorecardMetrics"
+        );
+        await setupWrapper();
+        wrapper.vm.$refs.plioModal.$emit("submit-question");
+        expect(mockAxios.put).toHaveBeenCalled();
+        expect(createEvent).toHaveBeenCalled();
+        expect(showItemMarkersOnSlider).toHaveBeenCalled();
+        expect(calculateScorecardMetrics).toHaveBeenCalled();
+      });
     });
   });
 });

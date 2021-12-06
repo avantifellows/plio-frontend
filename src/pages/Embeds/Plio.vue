@@ -58,6 +58,7 @@
           @option-selected="optionSelected"
           @toggle-minimize="minimizeModal"
           data-test="item-modal"
+          ref="plioModal"
         ></item-modal>
       </transition>
       <Scorecard
