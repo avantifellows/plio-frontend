@@ -1667,6 +1667,81 @@ describe("Editor.vue", () => {
 
     expect(markItemSelected).toHaveBeenCalled();
     expect(wrapper.vm.pending).toBeFalsy();
+
+    await wrapper.setData({
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
+      currentItemIndex: null,
+      videoId: "jdYJf_ybyVo",
+      currentTimestamp: 20,
+      plioDBId: 13,
+    });
+    await store.dispatch("sync/stopLoading");
+
+    // add an MCQ question
+    await wrapper.find('[data-test="addMCQItem"]').trigger("click");
+    expect(addNewItem).toHaveBeenCalled();
+
+    expect(mockAxios.post).toHaveBeenCalledWith("/items/", {
+      plio: 13,
+      type: "question",
+      time: 20,
+      meta: { source: { name: "default" } },
+    });
+    // using some pre-defined dummy data to return as a fake response
+    // from the fake API call
+    createdItemResponse = {
+      data: {
+        id: 212,
+        plio: 13,
+        type: "question",
+        time: 20,
+        meta: {
+          source: {
+            name: "default",
+          },
+        },
+        created_at: "2021-07-10T22:50:55.102379Z",
+        updated_at: "2021-07-10T22:50:55.102466Z",
+      },
+    };
+
+    // resolve the two `GET` requests waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(createdItemResponse, mockAxios.lastReqGet());
+    await flushPromises();
+    expect(getDetailsForNewQuestion).toHaveBeenCalled();
+
+    expect(mockAxios.post).toHaveBeenCalledWith("/questions/", {
+      correct_answer: 0,
+      text: "",
+      type: "mcq",
+      options: ["", ""],
+      max_char_limit: 100,
+      item: createdItemResponse.data.id,
+    });
+
+    createdQuestionResponse = {
+      data: {
+        id: 212,
+        item: 212,
+        text: "",
+        type: "mcq",
+        options: ["", ""],
+        correct_answer: 0,
+        image: null,
+        has_char_limit: false,
+        max_char_limit: 100,
+        created_at: "2021-07-10T22:50:55.280135Z",
+        updated_at: "2021-07-10T22:50:55.280210Z",
+      },
+    };
+
+    mockAxios.mockResponse(createdQuestionResponse, mockAxios.lastReqGet());
+    await flushPromises();
+
+    expect(markItemSelected).toHaveBeenCalled();
+    expect(wrapper.vm.pending).toBeFalsy();
   });
 
   it("delete item functionality works correctly", async () => {
