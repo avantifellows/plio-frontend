@@ -47,6 +47,16 @@ jobs:
           git clone https://github.com/avantifellows/plio-frontend/
           cd plio-frontend/
 
+          # check branch and switch to branch if exists
+          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
+          then
+            echo "Switching to branch ${{ github.head_ref }}."
+            git checkout ${{ github.head_ref }}
+            git pull origin ${{ github.head_ref }}
+          else
+            echo "Branch not found. Going with default branch."
+          fi
+
           # create the env file
           cp .env.example .env
 
@@ -64,6 +74,16 @@ jobs:
           mkdir -p projects/ && cd projects/
           git clone https://github.com/avantifellows/plio-backend
           cd plio-backend/
+
+          # check branch and switch to branch if exists
+          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
+          then
+            echo "Switching to branch ${{ github.head_ref }}."
+            git checkout ${{ github.head_ref }}
+            git pull origin ${{ github.head_ref }}
+          else
+            echo "Branch not found. Going with default branch."
+          fi
 
           # create the env file
           cp .env.example .env
@@ -85,6 +105,16 @@ jobs:
           mkdir -p projects/ && cd projects/
           git clone https://github.com/avantifellows/plio-analytics
           cd plio-analytics/
+
+          # check branch and switch to branch if exists
+          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
+          then
+            echo "Switching to branch ${{ github.head_ref }}."
+            git checkout ${{ github.head_ref }}
+            git pull origin ${{ github.head_ref }}
+          else
+            echo "Branch not found. Going with default branch."
+          fi
 
           # create the env file
           cp .env.example .env
