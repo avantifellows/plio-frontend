@@ -310,9 +310,11 @@ export default {
       if (this.maxCharLimit == "") this.maxCharLimit = 100;
     },
     isQuestionDropdownShown(value) {
+      const tooltip = document.getElementById("questionTypePickerContainer")._tippy;
+      if (tooltip == undefined) return;
       if (value) {
-        document.getElementById("questionTypePickerContainer")._tippy.hide();
-      } else document.getElementById("questionTypePickerContainer")._tippy.show();
+        tooltip.hide();
+      } else tooltip.show();
     },
   },
 

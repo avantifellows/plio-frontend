@@ -325,7 +325,31 @@ describe("ItemEditor.vue", () => {
       ]);
     });
 
-    it("clicking on option already part of correct answer removes it as an answer", async () => {
+    it("deselects option as answer if multiple options are selected as answers", async () => {
+      // select first option as an answer
+      const correctOptionIndex = 0;
+      await wrapper
+        .findAll('[data-test="option"]')
+        [correctOptionIndex].find('[data-test="startIcon"]')
+        .trigger("click");
+
+      await wrapper
+        .findAll('[data-test="option"]')[1]
+        .find('[data-test="startIcon"]')
+        .trigger("click");
+
+      // re-selecting first option should reset it
+      await wrapper
+        .findAll('[data-test="option"]')
+        [correctOptionIndex].find('[data-test="startIcon"]')
+        .trigger("click");
+
+      expect(wrapper.vm.localItemDetailList[0].correct_answer).toStrictEqual([
+        1,
+      ]);
+    });
+
+    it("does not deselect option as answer if only one option is selected as the answer", async () => {
       // select first option as an answer
       const correctOptionIndex = 0;
       await wrapper
@@ -339,9 +363,9 @@ describe("ItemEditor.vue", () => {
         [correctOptionIndex].find('[data-test="startIcon"]')
         .trigger("click");
 
-      expect(wrapper.vm.localItemDetailList[0].correct_answer).toStrictEqual(
-        []
-      );
+      expect(wrapper.vm.localItemDetailList[0].correct_answer).toStrictEqual([
+        0,
+      ]);
     });
 
     it("clicking add option adds a new option", async () => {
