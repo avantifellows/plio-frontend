@@ -8,7 +8,11 @@
     <div
       class="absolute rounded-md mt-4 ml-4 z-5"
       :class="questionTypeDropdownClass"
-      v-tooltip="questionTypePickerTooltip"
+      id="questionTypePickerContainer"
+      v-tooltip="{
+        content: questionTypePickerTooltip,
+        placement: 'bottom-start',
+      }"
     >
       <QuestionTypeDropdown
         class="w-full"
@@ -304,6 +308,11 @@ export default {
     maxCharLimit() {
       // if the user has not set the limit - reset it back to 100
       if (this.maxCharLimit == "") this.maxCharLimit = 100;
+    },
+    isQuestionDropdownShown(value) {
+      if (value) {
+        document.getElementById("questionTypePickerContainer")._tippy.hide();
+      } else document.getElementById("questionTypePickerContainer")._tippy.show();
     },
   },
 
