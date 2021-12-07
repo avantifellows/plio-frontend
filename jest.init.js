@@ -47,7 +47,7 @@ const $gAuth = {
 };
 
 config.global = {
-  plugins: [Toast, store, VueProgressBar, VueTooltip],
+  plugins: [Toast, store, VueProgressBar],
   mocks: {
     $mixpanel,
     $router,
