@@ -48,11 +48,11 @@ jobs:
           cd plio-frontend/
 
           # check branch and switch to branch if exists
-          if [ `git branch --list --remote origin/${{ github.ref_name }}` ]
+          if [ `git branch --list --remote origin/${{ github.ref }}` ]
           then
-            echo "Switching to branch ${{ github.ref_name }}."
-            git checkout ${{ github.ref_name }}
-            git pull origin ${{ github.ref_name }}
+            echo "Switching to branch ${{ github.ref }}."
+            git checkout ${{ github.ref }}
+            git pull origin ${{ github.ref }}
           else
             echo "Branch not found. Going with default branch."
           fi
@@ -76,11 +76,11 @@ jobs:
           cd plio-backend/
 
           # check branch and switch to branch if exists
-          if [ `git branch --list --remote origin/${{ github.ref_name }}` ]
+          if [ `git branch --list --remote origin/${{ github.ref }}` ]
           then
-            echo "Switching to branch ${{ github.ref_name }}."
-            git checkout ${{ github.ref_name }}
-            git pull origin ${{ github.ref_name }}
+            echo "Switching to branch ${{ github.ref }}."
+            git checkout ${{ github.ref }}
+            git pull origin ${{ github.ref }}
           else
             echo "Branch not found. Going with default branch."
           fi
@@ -107,11 +107,11 @@ jobs:
           cd plio-analytics/
 
           # check branch and switch to branch if exists
-          if [ `git branch --list --remote origin/${{ github.ref_name }}` ]
+          if [ `git branch --list --remote origin/${{ github.ref }}` ]
           then
-            echo "Switching to branch ${{ github.ref_name }}."
-            git checkout ${{ github.ref_name }}
-            git pull origin ${{ github.ref_name }}
+            echo "Switching to branch ${{ github.ref }}."
+            git checkout ${{ github.ref }}
+            git pull origin ${{ github.ref }}
           else
             echo "Branch not found. Going with default branch."
           fi
