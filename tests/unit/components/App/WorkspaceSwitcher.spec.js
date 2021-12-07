@@ -12,10 +12,26 @@ describe("WorkspaceSwitcher.vue", () => {
       WorkspaceSwitcher.methods,
       "updateActiveWorkspace"
     );
-    const wrapper = mount(WorkspaceSwitcher);
+    // mock router
+    const mockRouter = {
+      push: jest.fn(),
+    };
+    const wrapper = mount(WorkspaceSwitcher, {
+      global: {
+        mocks: {
+          $router: mockRouter,
+        },
+      },
+    });
 
     wrapper.find('[data-test="select"]').trigger("change");
 
     expect(updateActiveWorkspace).toHaveBeenCalled();
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: "Home",
+      params: {
+        org: "",
+      },
+    });
   });
 });

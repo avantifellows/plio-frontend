@@ -414,27 +414,6 @@ describe("PlioListItem.vue", () => {
       .get('[data-test="toggleButton"]')
       .trigger("click");
 
-    // there should be 6 buttons - edit, play, share, embed, duplicate, delete
-    expect(
-      wrapper
-        .get('[data-test="optionDropdown"]')
-        .find('[data-test="options"]')
-        .findAll("li").length
-    ).toBe(6);
-  });
-
-  it("analyze button should show up for touch device ", async () => {
-    // set `matches` as `True` for testing on touch screen devices
-    global.setMatchMedia(true);
-
-    wrapper = mount(PlioListItem);
-
-    // click the option dropdown
-    await wrapper
-      .get('[data-test="optionDropdown"]')
-      .get('[data-test="toggleButton"]')
-      .trigger("click");
-
     // there should be 7 buttons - edit, play, share, embed, duplicate, delete, analyse
     expect(
       wrapper
@@ -444,7 +423,7 @@ describe("PlioListItem.vue", () => {
     ).toBe(7);
   });
 
-  it("analyze disabled for draft plio ", async () => {
+  it("analyze disabled for draft plio", async () => {
     // set `matches` as `True` for testing on touch screen devices
     global.setMatchMedia(true);
 
@@ -474,7 +453,7 @@ describe("PlioListItem.vue", () => {
     ).toContain("cursor-not-allowed");
   });
 
-  it("clicking analyze routes to Dashboard ", async () => {
+  it("clicking analyze routes to Dashboard", async () => {
     // set `matches` as `True` for testing on touch screen devices
     global.setMatchMedia(true);
 

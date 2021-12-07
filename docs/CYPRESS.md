@@ -7,6 +7,11 @@ Run the following command to run the Cypress tests. Make sure the Plio Frontend,
 npx cypress open
 ```
 
+Run Cypress in headless mode:
+```sh
+npx cypress run
+```
+
 The default `baseUrl` for Cypress is `http://localhost:8080` defined it in `cypress.json`. If you want to use a separate baseUrl, simply modify your cypress command:
 ```sh
 CYPRESS_BASE_URL=https://staging.app.com npx cypress open
@@ -30,20 +35,58 @@ Plio uses `cypress.env.json` to set up environment variables for the Cypress app
 
 #### Cypress ENV variables
  Below are the details of all the environment variables.
-##### `google_auth.refresh_token`
+##### `auth_google_refresh_token`
 Google refresh token retrieved in the pre-requisites.
 
-##### `google_auth.client_id`
+##### `auth_google_client_id`
 Google client ID retrieved in the pre-requisites.
 
-##### `google_auth.client_secret`
+##### `auth_google_client_secret`
 Google client secret retrieved in the pre-requisites.
 
-##### `plio_backend.convert_social_auth_token_url`
+##### `backend_convert_social_auth_token_url`
 The convert token URL in the Plio backend repo that converts the Social Auth Token and returns a valid Django Auth Token. By default, the value is `http://0.0.0.0:8001/auth/convert-token`.
 
-##### `plio_backend.client_id`
+##### `backend_client_id`
 The client id for backend API application.
 
-##### `plio_backend.client_secret`
+##### `backend_client_secret`
 The client secret for backend API application.
+
+
+### Cypress Dashboard
+The Cypress Dashboard is a web interface that allows you to run and debug your Cypress tests. To integrate Cypress Dashboard with your local integration tests, follow the steps below:
+1.  Create an account in [Cypress Dashboard](https://dashboard.cypress.io/).
+2.  Create a project if not already exists.
+3.  Get the projectId from project settings page and replace the `projectId` in `cypress.json` with the projectId.
+4.  Get the Cypress Record Key from project settings page.
+5.  Run the following command. This will record the integration tests and upload the results to the Cypress Dashboard.
+    ```sh
+    npx cypress run --record --key your_cypress_key
+    ```
+
+### Continuous Integration
+The file [integration-testing.yml](../.github/workflows/integration-testing.yml) is used to run the integration tests in GitHub Actions.
+To set up CI, follow the steps below:
+1. Create a new GitHub Environment and name it `Integration Testing`.
+2. Add the following variables to the GitHub environment:
+   1. Cypress Dashboard - Refer [Cypress Dashboard section](#cypress-dashboard) above
+      1. `CYPRESS_RECORD_KEY`
+   2. Plio Analytics (CubeJS) - Refer [Plio Analytics ENV guide](https://github.com/avantifellows/plio-analytics/blob/master/docs/ENV.md)
+      1. `CUBEJS_API_SECRET`
+   3. Plio Frontend (Cypress) - Refer [Frontend Cypress ENV guide](#cypress-env-variables) above
+      1. `CYPRESS_AUTH_GOOGLE_CLIENT_ID`
+      2. `CYPRESS_AUTH_GOOGLE_CLIENT_SECRET`
+      3. `CYPRESS_AUTH_GOOGLE_REFRESH_TOKEN`
+      4. `CYPRESS_PLIO_BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL`
+   4. Plio Frontend (VueJS) - Refer [Plio Frontend ENV guide](../docs/ENV.md)
+      1. `VUE_APP_BACKEND_API_CLIENT_ID`
+      2. `VUE_APP_BACKEND_API_CLIENT_SECRET`
+      3. `VUE_APP_GOOGLE_CLIENT_ID`
+   5. Plio Backend (Django) - Refer [Plio Backend ENV guide](https://github.com/avantifellows/plio-backend/blob/master/docs/ENV.md)
+      1. `DJANGO_DEFAULT_OAUTH2_CLIENT_ID`
+      2. `DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET`
+      3. `DJANGO_DEFAULT_OAUTH2_CLIENT_SETUP`
+      4. `DJANGO_GOOGLE_OAUTH2_CLIENT_ID`
+      5. `DJANGO_GOOGLE_OAUTH2_CLIENT_SECRET`
+      6. `DJANGO_SECRET_KEY`
