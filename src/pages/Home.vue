@@ -96,7 +96,7 @@ export default {
       showTable: true, // whether to show the table or not
       confirmIcon: require("@/assets/images/check-circle-regular.svg"),
       noPliosIcon: require("@/assets/images/create.svg"),
-      toast: useToast(), // use the toast component
+      toast: useToast(),
       totalNumberOfPlios: 0, // total number of plios for the user
       numberOfPliosPerPage: 5, // number of plios to show on one page (default: 5)
       searchString: "", // the search string to filter the plios on

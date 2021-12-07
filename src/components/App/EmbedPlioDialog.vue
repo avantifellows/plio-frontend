@@ -132,7 +132,7 @@ export default {
         isCopied: false,
         useSSO: false,
       },
-      toast: useToast(), // use the toast component
+      toast: useToast(),
       // class for the heading of the embed code
       codeTitleClass: "text-sm",
       // class for the value of the embed code

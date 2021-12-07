@@ -82,6 +82,10 @@ export default {
         add_image: "चित्र",
         edit_image: "बदलें",
       },
+      correct_answer: {
+        unmark_last_selected_option_warning:
+          "कम से कम एक विकल्प को सही उत्तर चुना जाना चाहिए",
+      },
     },
     dialog: {
       delete_option: {

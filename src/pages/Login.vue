@@ -221,7 +221,7 @@ export default {
       requestedOtp: false, // whether the user has requested OTP once
       resentOtp: false, // whether the user has requested to resend OTP
       invalidOtp: false, // whether the OTP is invalid
-      toast: useToast(), // use the toast component
+      toast: useToast(),
       warningIcon: require("@/assets/images/exclamation-circle-solid.svg"),
       isGoogleAuthDisabled: true, // whether the google auth button is disabled
       isSubmitOTPInProgress: false, // whether the OTP has been submitted and is being verified

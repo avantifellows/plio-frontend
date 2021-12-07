@@ -81,6 +81,10 @@ export default {
         add_image: "Image",
         edit_image: "Edit",
       },
+      correct_answer: {
+        unmark_last_selected_option_warning:
+          "At least one option should be selected as the correct answer",
+      },
     },
     dialog: {
       delete_option: {

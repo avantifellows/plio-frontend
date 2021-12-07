@@ -694,7 +694,7 @@ export default {
       questionTypeHeadingClass:
         "font-bold text-center text-xs bp-420:text-sm lg:test-base",
       confettiHandler: confettiHandler,
-      toast: useToast(), // use the toast component
+      toast: useToast(),
     };
   },
   async created() {

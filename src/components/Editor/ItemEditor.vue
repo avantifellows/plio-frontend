@@ -209,6 +209,7 @@ import {
   convertSecondsToISOTime,
   convertISOTimeToSeconds,
 } from "@/services/Functional/Utilities.js";
+import { useToast } from "vue-toastification";
 
 export default {
   name: "ItemEditor",
@@ -295,6 +296,7 @@ export default {
       },
       // set containing the question types in which options are present
       questionTypesWithOptions: new Set(["mcq", "checkbox"]),
+      toast: useToast(),
     };
   },
 
@@ -466,14 +468,24 @@ export default {
          * as a correct option, unmark it. otherwise, mark it as a correct option
          */
         if (this.correctAnswer.has(selectedOptionIndex)) {
-          let currentOptionIndex = this.localItemDetailList[
-            this.localSelectedItemIndex
-          ].correct_answer.indexOf(selectedOptionIndex);
+          if (this.correctAnswer.size > 1) {
+            // remove the option from the list of correct answers if there
+            // are other options marked as correct answers too
+            let currentOptionIndex = this.localItemDetailList[
+              this.localSelectedItemIndex
+            ].correct_answer.indexOf(selectedOptionIndex);
 
-          this.localItemDetailList[this.localSelectedItemIndex].correct_answer.splice(
-            currentOptionIndex,
-            1
-          );
+            this.localItemDetailList[this.localSelectedItemIndex].correct_answer.splice(
+              currentOptionIndex,
+              1
+            );
+          } else {
+            this.toast.error(
+              this.$t(
+                "editor.item_editor.correct_answer.unmark_last_selected_option_warning"
+              )
+            );
+          }
         } else {
           this.localItemDetailList[this.localSelectedItemIndex].correct_answer.push(
             selectedOptionIndex

@@ -184,7 +184,7 @@ export default {
       sessionDBId: null, // id for this session in the plio DB table
       retention: [], // array to store video retention value
       lastTimestampRetention: null, // last recorded timestamp in the retention array
-      toast: useToast(), // use the toast component
+      toast: useToast(),
       isModalMinimized: false, // whether the item modal is minimized or not
       // styling class for the minimize button
       maximizeButtonClass:

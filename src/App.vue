@@ -215,7 +215,7 @@ export default {
   data() {
     return {
       showLanguagePickerDialog: false, // whether to show a language picker dialog box
-      toast: useToast(), // use the toast component
+      toast: useToast(),
       userClickedLogout: false, // if the user has clicked the logout button
       // class for the create button
       createButtonClass:

@@ -100,7 +100,7 @@ export default {
       // class for the close button
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
       plioLinkCopied: false, // whether the plio link has been copied or not
-      toast: useToast(), // use the toast component
+      toast: useToast(),
     };
   },
   computed: {

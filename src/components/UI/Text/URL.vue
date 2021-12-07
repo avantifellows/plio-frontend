@@ -27,7 +27,7 @@ import Utilities from "@/services/Functional/Utilities.js";
 export default {
   data() {
     return {
-      toast: useToast(), // use the toast component
+      toast: useToast(),
     };
   },
   props: {
