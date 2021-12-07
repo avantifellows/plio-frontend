@@ -118,14 +118,6 @@ export default {
           cancel: "प्राभ्यास",
         },
       },
-      publishing: {
-        published: {
-          title: "परिवर्तनों को प्रकाशित किया जा रहा है...",
-        },
-        draft: {
-          title: "प्लायो को प्रकाशित किया जा रहा है...",
-        },
-      },
       published: {
         buttons: {
           play_plio: "चलाएं",

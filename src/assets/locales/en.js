@@ -117,14 +117,6 @@ export default {
           cancel: "Preview",
         },
       },
-      publishing: {
-        published: {
-          title: "Publishing the changes...",
-        },
-        draft: {
-          title: "Publishing the plio...",
-        },
-      },
       published: {
         buttons: {
           play_plio: "Play",

@@ -28,27 +28,22 @@ describe("Editor.vue", () => {
     expect(wrapper).toBeTruthy();
   });
 
-  it("blurs the main screen when plio is being published", async () => {
+  it("shows spinner when plio is being published", async () => {
     wrapper = mount(Editor);
 
     // editor goes into pending = true state upon loading
     // this resets pending to false
     await store.dispatch("sync/stopLoading");
 
-    // blur classes should not be present initially
-    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
-      expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
-    );
+    // spinner should not be present initially
+    expect(wrapper.vm.isSpinnerShown).toBeFalsy();
     // setting `isBeingPublished` to true, that will blur the screen
     await wrapper.setData({ isBeingPublished: true });
-    // blur classes should be present now
-    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
-      expect.arrayContaining(["opacity-30", "pointer-events-none"])
-    );
+    // spinner should be present now
+    expect(wrapper.vm.isSpinnerShown).toBeTruthy();
   });
 
   it("dialog box buttons work correctly", async () => {
-    const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
     const showPublishConfirmationDialogBox = jest.spyOn(
       Editor.methods,
@@ -69,18 +64,6 @@ describe("Editor.vue", () => {
     await simulateConfirmClick();
     await flushPromises();
 
-    expect(store.state.dialog.action).toBe("");
-    expect(store.state.dialog.isShown).toBeTruthy();
-    expect(store.state.dialog.title).toBe("Publishing the plio...");
-
-    expect(store.state.dialog.confirmButtonConfig.enabled).toBeFalsy();
-    expect(store.state.dialog.confirmButtonConfig.text).toBe("");
-    expect(store.state.dialog.confirmButtonConfig.class).toBe("");
-    expect(store.state.dialog.cancelButtonConfig.enabled).toBeFalsy();
-    expect(store.state.dialog.cancelButtonConfig.text).toBe("");
-    expect(store.state.dialog.cancelButtonConfig.class).toBe("");
-
-    expect(confirmPublish).toHaveBeenCalled();
     expect(publishPlio).toHaveBeenCalled();
   });
 
@@ -261,11 +244,11 @@ describe("Editor.vue", () => {
     await store.dispatch("sync/stopLoading");
 
     // blur classes should not be present initially
-    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
+    expect(wrapper.get('[data-test="container"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
     );
     await wrapper.setData({ isImageUploaderDialogShown: true });
-    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
+    expect(wrapper.get('[data-test="container"]').classes()).toEqual(
       expect.arrayContaining(["opacity-30", "pointer-events-none"])
     );
   });
@@ -277,7 +260,7 @@ describe("Editor.vue", () => {
     await store.dispatch("sync/stopLoading");
 
     // blur classes should not be present initially
-    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
+    expect(wrapper.get('[data-test="container"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
     );
     // published dialog should not be shown initially
@@ -285,7 +268,7 @@ describe("Editor.vue", () => {
 
     await wrapper.setData({ isPublishedPlioDialogShown: true });
 
-    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
+    expect(wrapper.get('[data-test="container"]').classes()).toEqual(
       expect.arrayContaining(["opacity-30", "pointer-events-none"])
     );
     expect(wrapper.find('[data-test="publishedDialog"]').exists()).toBeTruthy();
@@ -872,7 +855,6 @@ describe("Editor.vue", () => {
       Editor.methods,
       "updateQuestionDetails"
     );
-    const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
     wrapper = mount(Editor, {
       data() {
@@ -943,7 +925,6 @@ describe("Editor.vue", () => {
     // simulate clicking the confirm button of the dialog box
     await simulateConfirmClick();
 
-    expect(confirmPublish).toHaveBeenCalled();
     expect(publishPlio).toHaveBeenCalled();
     expect(wrapper.vm.status).toBe("published");
     expect(saveChanges).toHaveBeenCalledWith("all");

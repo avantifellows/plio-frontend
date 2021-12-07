@@ -4,7 +4,7 @@
     <div
       class="flex flex-col w-full"
       :class="{ 'opacity-30 pointer-events-none': isBackgroundDisabled }"
-      data-test="blurDiv"
+      data-test="container"
     >
       <div class="w-full flex justify-between px-6" :class="{ hidden: !isVideoIdValid }">
         <!--- text to show updated time status -->
@@ -733,7 +733,7 @@ export default {
       if (value) {
         switch (this.dialogAction) {
           case "publish":
-            this.confirmPublish();
+            this.publishPlio();
             break;
           case "deleteItem":
             this.deleteSelectedItem();
@@ -849,7 +849,11 @@ export default {
      * whether the spinner needs to be shown
      */
     isSpinnerShown() {
-      return (this.isPlioPreviewShown && !this.isPlioPreviewLoaded) || this.pending;
+      return (
+        (this.isPlioPreviewShown && !this.isPlioPreviewLoaded) ||
+        this.pending ||
+        this.isBeingPublished
+      );
     },
     /**
      * classes for the container holding the buttons below the slider
@@ -1081,7 +1085,6 @@ export default {
      */
     isBackgroundDisabled() {
       return (
-        this.isBeingPublished ||
         this.isImageUploaderDialogShown ||
         this.isPublishedPlioDialogShown ||
         this.isEmbedPlioDialogShown ||
@@ -1254,16 +1257,6 @@ export default {
       return this.$t("editor.dialog.publish.draft.description");
     },
     /**
-     * title for the dialog box that appears when the
-     * publishing for a plio is in progress
-     */
-    publishInProgressDialogTitle() {
-      if (this.isPublished) {
-        return this.$t("editor.dialog.publishing.published.title");
-      }
-      return this.$t("editor.dialog.publishing.draft.title");
-    },
-    /**
      * whether adding item is disabled
      */
     addItemDisabled() {
@@ -1302,7 +1295,6 @@ export default {
     ]),
     ...mapActions("dialog", [
       "showDialogBox",
-      "hideDialogBox",
       "setDialogCloseButton",
       "setDialogTitle",
       "setDialogDescription",
@@ -1876,7 +1868,6 @@ export default {
       this.status = "published";
       await this.saveChanges("all");
       this.isBeingPublished = false;
-      this.hideDialogBox();
       this.isPublishedPlioDialogShown = true;
       throwConfetti(this.confettiHandler);
       this.hasUnpublishedChanges = false;
@@ -1943,17 +1934,6 @@ export default {
       this.setDialogAction("closeDialog");
       // show the dialog box
       this.showDialogBox();
-    },
-    /**
-     * hides the dialog box and invokes the method for publishing the plio
-     */
-    confirmPublish() {
-      this.showDialogBox();
-      this.unsetDialogAction();
-      this.setDialogTitle(this.publishInProgressDialogTitle);
-
-      // publish the plio or its changes
-      this.publishPlio();
     },
     /**
      * deletes the option marked to be deleted if the question contains
@@ -2123,7 +2103,6 @@ export default {
       ItemAPIService.deleteItem(itemToDelete[0].id);
       // set currentItemIndex to null to hide the item editor
       this.currentItemIndex = null;
-      this.hideDialogBox();
     },
     /**
      * deletes the option of the current item at the given index
