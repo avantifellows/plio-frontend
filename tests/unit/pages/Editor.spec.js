@@ -1497,6 +1497,65 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemDetails[0].options.length).toBe(2);
   });
 
+  it("deleting checkbox option which was one of the answers removes it from the answer", async () => {
+    const questionTypeIndex = 4;
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+          items: clonedeep(global.dummyItems),
+          itemDetails: clonedeep(global.dummyItemDetails),
+          currentItemIndex: questionTypeIndex,
+          videoDuration: 200,
+          status: "draft",
+          currentQuestionTypeIndex: 2,
+        };
+      },
+    });
+
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[4];
+
+    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+    // correct answer should be updated and the index of the options with index
+    // greater than the index of the deleted option should be decremented by 1
+    expect(
+      wrapper.vm.itemDetails[questionTypeIndex].correct_answer
+    ).toStrictEqual([1]);
+  });
+
+  it("deleting checkbox option which was the only correct answer resets the correct answer", async () => {
+    const questionTypeIndex = 4;
+    let updatedItemDetails = clonedeep(global.dummyItemDetails);
+    updatedItemDetails[questionTypeIndex].correct_answer = [1];
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+          items: clonedeep(global.dummyItems),
+          itemDetails: updatedItemDetails,
+          currentItemIndex: questionTypeIndex,
+          videoDuration: 200,
+          status: "draft",
+          currentQuestionTypeIndex: 2,
+        };
+      },
+    });
+
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[4];
+
+    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+    // correct answer should be reset to the first option
+    expect(
+      wrapper.vm.itemDetails[questionTypeIndex].correct_answer
+    ).toStrictEqual([0]);
+  });
+
   it("add new item functionality works correctly", async () => {
     const mockPlayer = {
       pause: jest.fn(),
