@@ -877,11 +877,25 @@ export default {
       return this.itemDetails[this.currentItemIndex].image.url;
     },
     /**
-     * whether the type of the question being created is subjective
+     * whether the type of the question being created is a subjective question
      */
     isQuestionTypeSubjective() {
       if (this.currentItemIndex == null) return false;
       return this.itemDetails[this.currentItemIndex].type == "subjective";
+    },
+    /**
+     * whether the type of the question being created is a checkbox question
+     */
+    isQuestionTypeCheckbox() {
+      if (this.currentItemIndex == null) return false;
+      return this.itemDetails[this.currentItemIndex].type == "checkbox";
+    },
+    /**
+     * whether the type of the question being created is a mcq
+     */
+    isQuestionTypeMCQ() {
+      if (this.currentItemIndex == null) return false;
+      return this.itemDetails[this.currentItemIndex].type == "mcq";
     },
     /**
      * class for the item picker
@@ -1047,9 +1061,9 @@ export default {
       return this.$refs.videoPlayer.player;
     },
     /**
-     * get the index of the correct answer from options list
+     * get the correct answer for the question
      */
-    correctOptionIndex() {
+    correctAnswer() {
       return this.itemDetails[this.currentItemIndex].correct_answer;
     },
     /**
@@ -1948,9 +1962,21 @@ export default {
     deleteSelectedOption() {
       // delete the option
       this.itemDetails[this.currentItemIndex].options.splice(this.optionIndexToDelete, 1);
-      // if the deleted option was the correct answer, reset the correct answer
-      if (this.optionIndexToDelete == this.correctOptionIndex) {
+      if (this.isQuestionTypeMCQ && this.optionIndexToDelete == this.correctAnswer) {
+        // if the deleted option was the correct answer, reset the correct answer
         this.itemDetails[this.currentItemIndex].correct_answer = 0;
+      } else if (
+        this.isQuestionTypeCheckbox &&
+        this.correctAnswer.indexOf(this.optionIndexToDelete) != -1
+      ) {
+        // remove the deleted option from the list of correct answers
+        this.itemDetails[this.currentItemIndex].correct_answer.splice(
+          this.correctAnswer.indexOf(this.optionIndexToDelete),
+          1
+        );
+        // reset the correct answer if the option deleted was marked as the sole correct answer
+        if (this.itemDetails[this.currentItemIndex].correct_answer.length == 0)
+          this.itemDetails[this.currentItemIndex].correct_answer = [0];
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
@@ -1981,9 +2007,9 @@ export default {
     getDetailsForNewQuestion(questionType) {
       let details = {};
 
-      if (questionType == "mcq") {
+      if (this.isQuestionTypeMCQ) {
         details["correct_answer"] = 0;
-      } else if (questionType == "checkbox") {
+      } else if (this.isQuestionTypeCheckbox) {
         details["correct_answer"] = [0];
       }
       details["text"] = "";
