@@ -66,27 +66,28 @@ The Cypress Dashboard is a web interface that allows you to run and debug your C
     ```
 
 ### Continuous Integration
-The file [integration-testing.yml](../.github/workflows/integration-testing.yml) is used to run the integration tests in GitHub Actions.
-To set up CI, follow the steps below:
-1. Create a new GitHub Environment and name it `Integration Testing`.
-2. Add the following variables to the GitHub environment:
-   1. Cypress Dashboard - Refer [Cypress Dashboard section](#cypress-dashboard) above
-      1. `CYPRESS_RECORD_KEY`
-   2. Plio Analytics (CubeJS) - Refer [Plio Analytics ENV guide](https://github.com/avantifellows/plio-analytics/blob/master/docs/ENV.md)
-      1. `CUBEJS_API_SECRET`
-   3. Plio Frontend (Cypress) - Refer [Frontend Cypress ENV guide](#cypress-env-variables) above
-      1. `CYPRESS_AUTH_GOOGLE_CLIENT_ID`
-      2. `CYPRESS_AUTH_GOOGLE_CLIENT_SECRET`
-      3. `CYPRESS_AUTH_GOOGLE_REFRESH_TOKEN`
-      4. `CYPRESS_PLIO_BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL`
-   4. Plio Frontend (VueJS) - Refer [Plio Frontend ENV guide](../docs/ENV.md)
-      1. `VUE_APP_BACKEND_API_CLIENT_ID`
-      2. `VUE_APP_BACKEND_API_CLIENT_SECRET`
-      3. `VUE_APP_GOOGLE_CLIENT_ID`
-   5. Plio Backend (Django) - Refer [Plio Backend ENV guide](https://github.com/avantifellows/plio-backend/blob/master/docs/ENV.md)
-      1. `DJANGO_DEFAULT_OAUTH2_CLIENT_ID`
-      2. `DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET`
-      3. `DJANGO_DEFAULT_OAUTH2_CLIENT_SETUP`
-      4. `DJANGO_GOOGLE_OAUTH2_CLIENT_ID`
-      5. `DJANGO_GOOGLE_OAUTH2_CLIENT_SECRET`
-      6. `DJANGO_SECRET_KEY`
+The file [integration-testing.yml](../.github/workflows/integration-testing.yml) is used to run the integration tests in GitHub Actions. Since Cypress runs in multiple Plio repositories, it's optimal to go with organization secrets. This saves time and effort to create env variables in every repository.
+
+Add the following organizational level secrets in your GitHub organization:
+1. Cypress Dashboard - Refer [Cypress Dashboard section](#cypress-dashboard) above
+   1. `CYPRESS_RECORD_KEY`
+2. Plio Analytics (CubeJS) - Refer [Plio Analytics ENV guide](https://github.com/avantifellows/plio-analytics/blob/master/docs/ENV.md)
+   1. `ANALYTICS_CUBEJS_API_SECRET`
+      - Alias for `CUBEJS_API_SECRET`
+3. Plio Frontend (Cypress) - Refer [Frontend Cypress ENV guide](#cypress-env-variables) above
+   1. `CYPRESS_AUTH_GOOGLE_REFRESH_TOKEN`
+   2. `CYPRESS_PLIO_BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL`
+4. Plio Backend (Django) - Refer [Plio Backend ENV guide](https://github.com/avantifellows/plio-backend/blob/master/docs/ENV.md)
+   1. `DJANGO_SECRET_KEY`
+   2. `DJANGO_DEFAULT_OAUTH2_CLIENT_SETUP`
+   3. `DJANGO_DEFAULT_OAUTH2_CLIENT_ID`
+      - Also used to set frontend env variable `VUE_APP_BACKEND_API_CLIENT_ID`
+   4. `DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET`
+      - Also used to set frontend env variable `VUE_APP_BACKEND_API_CLIENT_SECRET`
+   5. `GOOGLE_OAUTH2_CLIENT_ID`
+      - Alias for `DJANGO_GOOGLE_OAUTH2_CLIENT_ID`.
+      - Also used to set frontend env variable `VUE_APP_GOOGLE_CLIENT_ID`
+      - Also used to set frontend Cypress env variable `CYPRESS_AUTH_GOOGLE_CLIENT_ID`
+   6. `GOOGLE_OAUTH2_CLIENT_SECRET`
+      - Alias for `DJANGO_GOOGLE_OAUTH2_CLIENT_SECRET`
+      - Also used to set frontend Cypress env variable `CYPRESS_AUTH_GOOGLE_CLIENT_SECRET`
