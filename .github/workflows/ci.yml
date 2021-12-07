@@ -37,10 +37,6 @@ jobs:
     name: Integration tests
     runs-on: ubuntu-latest
 
-    # uses GitHub environment
-    environment:
-      name: Integration Testing
-
     steps:
       - uses: actions/checkout@v2
 
@@ -51,13 +47,23 @@ jobs:
           git clone https://github.com/avantifellows/plio-frontend/
           cd plio-frontend/
 
+          # check branch and switch to branch if exists
+          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
+          then
+            echo "Switching to branch ${{ github.head_ref }}."
+            git checkout ${{ github.head_ref }}
+            git pull origin ${{ github.head_ref }}
+          else
+            echo "Branch not found. Going with default branch."
+          fi
+
           # create the env file
           cp .env.example .env
 
           # add env secrets
-          echo 'VUE_APP_GOOGLE_CLIENT_ID=${{ secrets.VUE_APP_GOOGLE_CLIENT_ID }}' >> .env
-          echo 'VUE_APP_BACKEND_API_CLIENT_ID=${{ secrets.VUE_APP_BACKEND_API_CLIENT_ID }}' >> .env
-          echo 'VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.VUE_APP_BACKEND_API_CLIENT_SECRET }}' >> .env
+          echo 'VUE_APP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}' >> .env
+          echo 'VUE_APP_BACKEND_API_CLIENT_ID=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
+          echo 'VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
 
           # setup docker containers
           docker-compose up -d --build
@@ -69,6 +75,16 @@ jobs:
           git clone https://github.com/avantifellows/plio-backend
           cd plio-backend/
 
+          # check branch and switch to branch if exists
+          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
+          then
+            echo "Switching to branch ${{ github.head_ref }}."
+            git checkout ${{ github.head_ref }}
+            git pull origin ${{ github.head_ref }}
+          else
+            echo "Branch not found. Going with default branch."
+          fi
+
           # create the env file
           cp .env.example .env
 
@@ -77,8 +93,8 @@ jobs:
           echo 'DEFAULT_OAUTH2_CLIENT_SETUP=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SETUP }}' >> .env
           echo 'DEFAULT_OAUTH2_CLIENT_ID=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
           echo 'DEFAULT_OAUTH2_CLIENT_SECRET=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
-          echo 'GOOGLE_OAUTH2_CLIENT_ID=${{ secrets.DJANGO_GOOGLE_OAUTH2_CLIENT_ID }}' >> .env
-          echo 'GOOGLE_OAUTH2_CLIENT_SECRET=${{ secrets.DJANGO_GOOGLE_OAUTH2_CLIENT_SECRET }}' >> .env
+          echo 'GOOGLE_OAUTH2_CLIENT_ID=${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}' >> .env
+          echo 'GOOGLE_OAUTH2_CLIENT_SECRET=${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}' >> .env
 
           # setup docker containers
           docker-compose up -d --build
@@ -89,6 +105,16 @@ jobs:
           mkdir -p projects/ && cd projects/
           git clone https://github.com/avantifellows/plio-analytics
           cd plio-analytics/
+
+          # check branch and switch to branch if exists
+          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
+          then
+            echo "Switching to branch ${{ github.head_ref }}."
+            git checkout ${{ github.head_ref }}
+            git pull origin ${{ github.head_ref }}
+          else
+            echo "Branch not found. Going with default branch."
+          fi
 
           # create the env file
           cp .env.example .env
@@ -108,8 +134,8 @@ jobs:
           export cypress_backend_client_id=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}
           export cypress_backend_client_secret=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}
           export cypress_auth_google_refresh_token=${{ secrets.CYPRESS_AUTH_GOOGLE_REFRESH_TOKEN }}
-          export cypress_auth_google_client_id=${{ secrets.CYPRESS_AUTH_GOOGLE_CLIENT_ID }}
-          export cypress_auth_google_client_secret=${{ secrets.CYPRESS_AUTH_GOOGLE_CLIENT_SECRET }}
+          export cypress_auth_google_client_id=${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}
+          export cypress_auth_google_client_secret=${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
 
           # run cypress test cases
           npx cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
