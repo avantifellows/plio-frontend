@@ -1977,6 +1977,17 @@ export default {
         // reset the correct answer if the option deleted was marked as the sole correct answer
         if (this.itemDetails[this.currentItemIndex].correct_answer.length == 0)
           this.itemDetails[this.currentItemIndex].correct_answer = [0];
+        else {
+          // decrement the index of all options with index > the index of the option deleted
+          this.itemDetails[this.currentItemIndex].correct_answer.forEach(
+            (optionIndex, answerIndex) => {
+              if (optionIndex > this.optionIndexToDelete) {
+                this.itemDetails[this.currentItemIndex].correct_answer[answerIndex] -= 1;
+              }
+            },
+            this
+          );
+        }
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
