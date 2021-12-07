@@ -10,12 +10,22 @@ describe("ItemEditor.vue", () => {
       type: "question",
       time: 13.3,
     },
+    {
+      type: "question",
+      time: 20,
+    },
   ];
   let itemDetailList = [
     {
       text: "test",
       type: "mcq",
       options: ["", ""],
+    },
+    {
+      text: "test",
+      type: "checkbox",
+      options: ["", "", ""],
+      correct_answer: [0, 1],
     },
   ];
 
@@ -52,7 +62,7 @@ describe("ItemEditor.vue", () => {
         videoDuration: 200,
       });
 
-      const secondValue = 20;
+      const secondValue = 15;
       await wrapper
         .findAll('[data-test="time"]')[0]
         .find('[data-test="second"]')
@@ -543,7 +553,7 @@ describe("ItemEditor.vue", () => {
     expect(wrapper.vm.isQuestionDropdownShown).toBe(false);
   });
 
-  it("changes question type", async () => {
+  it("changes question type from mcq to subjective", async () => {
     // open the dropdown
     await wrapper
       .find('[data-test="questionTypeDropdown"]')
@@ -556,6 +566,31 @@ describe("ItemEditor.vue", () => {
       .find('[data-test="option-1"]')
       .trigger("click");
     expect(wrapper.emitted()["question-type-changed"][0][0]).toBe("subjective");
+  });
+
+  it("changing question type to checkbox converts correct answer to array", async () => {
+    await wrapper.setProps({
+      questionTypeIndex: 0,
+    });
+
+    const oldCorrectAnswer = wrapper.vm.localItemDetailList[0].correct_answer;
+
+    // open the dropdown
+    await wrapper
+      .find('[data-test="questionTypeDropdown"]')
+      .find('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // select mcq
+    await wrapper
+      .find('[data-test="questionTypeDropdown"]')
+      .find('[data-test="option-2"]')
+      .trigger("click");
+
+    expect(wrapper.vm.localItemDetailList[0].correct_answer).toStrictEqual([
+      oldCorrectAnswer,
+    ]);
+    expect(wrapper.emitted()["question-type-changed"][0][0]).toBe("checkbox");
   });
 
   it("updates question text", async () => {
