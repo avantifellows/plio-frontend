@@ -2007,9 +2007,9 @@ export default {
     getDetailsForNewQuestion(questionType) {
       let details = {};
 
-      if (this.isQuestionTypeMCQ) {
+      if (questionType == "mcq") {
         details["correct_answer"] = 0;
-      } else if (this.isQuestionTypeCheckbox) {
+      } else if (questionType == "checkbox") {
         details["correct_answer"] = [0];
       }
       details["text"] = "";

@@ -834,14 +834,14 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemType).toBe(global.dummyItems[0].type);
   });
 
-  it("computes correctOptionInex correctly", async () => {
+  it("computes correctAnswer correctly", async () => {
     wrapper = mount(Editor);
     await wrapper.setData({
       items: clonedeep(global.dummyItems),
       itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: 0,
     });
-    expect(wrapper.vm.correctOptionIndex).toBe(
+    expect(wrapper.vm.correctAnswer).toBe(
       global.dummyItemDetails[0].correct_answer
     );
   });
