@@ -527,6 +527,19 @@ export default {
         return this.questionTypeIndex;
       },
       set(localQuestionTypeIndex) {
+        // change the format of the correct answer if needed
+        if (this.questionTypes[localQuestionTypeIndex]["value"] == "checkbox") {
+          this.localItemDetailList[this.localSelectedItemIndex].correct_answer = [
+            this.localItemDetailList[this.localSelectedItemIndex].correct_answer,
+          ];
+        } else if (this.questionTypes[this.questionTypeIndex]["value"] == "checkbox") {
+          this.localItemDetailList[
+            this.localSelectedItemIndex
+          ].correct_answer = this.localItemDetailList[
+            this.localSelectedItemIndex
+          ].correct_answer[0];
+        }
+
         this.$emit("update:questionTypeIndex", localQuestionTypeIndex);
         this.$emit(
           "question-type-changed",
@@ -779,7 +792,6 @@ export default {
   },
 
   emits: [
-    "update:itemList",
     "update:selectedItemIndex",
     "delete-selected-item",
     "delete-option",
