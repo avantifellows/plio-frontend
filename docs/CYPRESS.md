@@ -66,7 +66,7 @@ The Cypress Dashboard is a web interface that allows you to run and debug your C
     ```
 
 ### Continuous Integration
-The file [integration-testing.yml](../.github/workflows/integration-testing.yml) is used to run the integration tests in GitHub Actions. Since Cypress runs in multiple Plio repositories, it's optimal to go with organization secrets. This saves time and effort to create env variables in every repository.
+The file [integration-testing.yml](../.github/workflows/integration-testing.yml) is used to run the integration tests in GitHub Actions. Since Cypress runs in multiple Plio repositories, it's optimal to go with organization secrets that can be shared across several repositories. This saves time and effort to create env variables in every repository.
 
 Add the following organizational level secrets in your GitHub organization:
 1. Cypress Dashboard - Refer [Cypress Dashboard section](#cypress-dashboard) above
