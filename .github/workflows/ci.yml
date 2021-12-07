@@ -1,9 +1,9 @@
 name: Plio CI
 
 on:
-  pull_request:
+  # pull_request:
   push:
-    branches: [master]
+    branches: [feature/cypress-ci-test]
 
 jobs:
   pre-commit:
