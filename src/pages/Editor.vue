@@ -1088,7 +1088,7 @@ export default {
         this.isImageUploaderDialogShown ||
         this.isPublishedPlioDialogShown ||
         this.isEmbedPlioDialogShown ||
-        this.isPlioPreviewShown
+        (this.isPlioPreviewShown && this.isPlioPreviewLoaded)
       );
     },
     /**
