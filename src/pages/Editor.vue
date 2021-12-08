@@ -1463,8 +1463,6 @@ export default {
       let root = document.documentElement;
       root.style.setProperty("--t-origin-x", positions.centerX + "px");
       root.style.setProperty("--t-origin-y", positions.centerY + "px");
-      root.style.setProperty("--maximize-btn-left", positions.leftX + "px");
-      root.style.setProperty("--maximize-btn-top", positions.leftY + "px");
 
       this.isModalMinimized = true;
     },
