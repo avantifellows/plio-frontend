@@ -114,7 +114,7 @@
                   :id="editorVideoPlayerElementId"
                   @update="videoTimestampUpdated"
                   @ready="playerReady"
-                  @play="playerPlayed"
+                  @play="markNoItemSelected"
                   ref="videoPlayer"
                   class="w-full z-0"
                   data-test="videoPlayer"
@@ -1667,10 +1667,6 @@ export default {
         return { valid: true, ID: matches[1] };
       }
       return { valid: false };
-    },
-    playerPlayed() {
-      // invoked when the player is played from a paused state
-      this.isItemSelected = false;
     },
     /**
      * fetches the details of the plio
