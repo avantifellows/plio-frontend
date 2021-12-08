@@ -5,12 +5,11 @@ import store from "./store";
 
 import i18n from "./services/Localisation/i18n.js";
 import InlineSvg from "vue-inline-svg";
-import PrimeVue from "primevue/config";
-import Tooltip from "primevue/tooltip";
 import Toast from "vue-toastification";
 import VueProgressBar from "@aacassandra/vue3-progressbar";
 import VueClickAway from "vue3-click-away";
 import mixpanel from "mixpanel-browser";
+import VueTooltip from "vue-tippy";
 import "offline-js";
 
 // sentry imports
@@ -20,11 +19,10 @@ import { Integrations } from "@sentry/tracing";
 // Google AOauth. Add CLIENT_ID in .env file
 import GAuth from "vue3-google-oauth2";
 
-import "primevue/resources/themes/saga-blue/theme.css";
-import "primevue/resources/primevue.min.css";
-import "primeicons/primeicons.css";
 import "./index.css";
 import "vue-toastification/dist/index.css";
+import "tippy.js/dist/tippy.css";
+import "tippy.js/animations/shift-toward.css";
 
 const gAuthOptions = {
   clientId: process.env.VUE_APP_GOOGLE_CLIENT_ID,
@@ -93,12 +91,19 @@ if (
 
 app.component("inline-svg", InlineSvg);
 app.use(i18n);
-app.use(PrimeVue, { ripple: true });
+app.use(VueTooltip, {
+  // https://vue-tippy.netlify.app/installation
+  directive: "tooltip", // => use as <button v-tooltip="your text"></button>
+  defaultProps: {
+    placement: "auto",
+    animation: "shift-toward",
+    maxWidth: 200,
+  },
+});
 app.use(GAuth, gAuthOptions);
 app.use(Toast, { filterBeforeCreate });
 app.use(VueProgressBar, vueProgressBarOptions);
 app.use(VueClickAway);
-app.directive("tooltip", Tooltip);
 
 // add mixpanel as an instance property
 mixpanel.init(process.env.VUE_APP_MIXPANEL_PROJECT_TOKEN);
