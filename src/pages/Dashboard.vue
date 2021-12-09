@@ -281,7 +281,6 @@
 <script>
 import PlioAPIService from "@/services/API/Plio.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
-import Utilities from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton";
 import { mapActions, mapState } from "vuex";
 
@@ -397,10 +396,6 @@ export default {
     downloadReportButtonClass() {
       // class for the download report button
       return "bg-primary hover:bg-primary-hover rounded-lg ring-primary px-2 w-full bp-420:w-60";
-    },
-    plioLink() {
-      // prepare the link for the plio from the plio ID
-      return Utilities.getPlioLink(this.plioId, this.org);
     },
     videoThumbnailURL() {
       // link to the thumbnail for the video linked to the plio
