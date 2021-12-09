@@ -416,15 +416,12 @@ export default {
       return this.$t("dashboard.updated") + ": " + this.lastUpdatedString;
     },
     plioTitleToDisplay() {
-      // plio title to be displayed
       return this.plioTitle || this.$t("generic.placeholders.empty_title_placeholder");
     },
     isPlioTitleEmpty() {
-      // whether the plio title empty
       return !this.plioTitle;
     },
     plioTitleClass() {
-      // class for the plio title
       return {
         "opacity-50": this.isPlioTitleEmpty,
       };
