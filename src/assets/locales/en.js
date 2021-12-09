@@ -64,7 +64,7 @@ export default {
         placeholder: "Enter Option",
       },
       buttons: {
-        add_option: "Add another option",
+        add_option: "Add option",
       },
       dropdown: {
         question: "Question",
@@ -525,6 +525,7 @@ export default {
     updated: "Last published on",
     buttons: {
       edit: "Edit Plio",
+      play: "Play Plio",
       download_report: "Download Report",
     },
     update_message: "This page is updated every hour",
