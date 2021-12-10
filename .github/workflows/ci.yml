@@ -47,13 +47,6 @@ jobs:
           git clone https://github.com/avantifellows/plio-frontend/
           cd plio-frontend/
 
-          echo 'running npm install with dev mode'
-          npm install
-          echo 'npm install finished'
-          echo 'install cypress code coverage'
-          npm install @cypress/code-coverage
-          echo 'finished installing cypress code coverage'
-
           # check branch and switch to branch if exists
           if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
           then
@@ -63,6 +56,13 @@ jobs:
           else
             echo "Branch not found. Going with default branch."
           fi
+
+          echo 'running npm install with dev mode'
+          npm install
+          echo 'npm install finished'
+          echo 'install cypress code coverage'
+          npm install @cypress/code-coverage
+          echo 'finished installing cypress code coverage'
 
           # create the env file
           cp .env.example .env
