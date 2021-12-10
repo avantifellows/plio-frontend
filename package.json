@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@aacassandra/vue3-progressbar": "^1.0.3",
-    "@cubejs-client/core": "^0.27.6",
+    "@cubejs-client/core": "^0.28.38",
     "@cypress/vue": "^3.0.5",
     "@cypress/webpack-dev-server": "^1.7.0",
     "@sentry/browser": "^6.7.2",
