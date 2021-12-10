@@ -10,7 +10,8 @@
     "deploy": "vue-cli-service build && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend --delete --acl public-read",
     "build-staging": "vue-cli-service build --mode staging",
     "deploy-staging": "vue-cli-service build --mode staging && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend-staging --delete --acl public-read",
-    "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\""
+    "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/locales/**/*.json\"",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "dependencies": {
     "@aacassandra/vue3-progressbar": "^1.0.3",
@@ -59,6 +60,7 @@
     "babel-eslint": "^10.1.0",
     "babel-plugin-istanbul": "^6.1.1",
     "babel-plugin-transform-remove-console": "^6.9.4",
+    "coveralls": "^3.1.1",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.0.0-0",
     "jest-canvas-mock": "^2.3.1",
