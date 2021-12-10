@@ -48,7 +48,7 @@ jobs:
           cd plio-frontend/
 
           echo 'running npm install with dev mode'
-          sudo NODE_ENV=development npm install
+          NODE_ENV=development npm install
           echo 'npm install finished'
 
           # check branch and switch to branch if exists
