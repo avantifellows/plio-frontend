@@ -566,7 +566,9 @@ export default {
      */
     isSubjectiveQuestionAnswered(itemIndex, userAnswer) {
       return (
-        this.isItemSubjective(itemIndex) && userAnswer != null && userAnswer.trim() != ""
+        this.isItemSubjectiveQuestion(itemIndex) &&
+        userAnswer != null &&
+        userAnswer.trim() != ""
       );
     },
     /**
@@ -581,7 +583,7 @@ export default {
         // reduce numSkipped by 1 if numCorrect or numWrong increases
         this.numSkipped -= 1;
       } else if (
-        this.isItemCheckbox(itemIndex) &&
+        this.isItemCheckboxQuestion(itemIndex) &&
         userAnswer != null &&
         userAnswer.length > 0
       ) {
@@ -608,7 +610,7 @@ export default {
       if (itemIndex == null) {
         this.itemResponses.forEach((itemResponse, itemIndex) => {
           // convert Set to Array if the item is a checkbox question
-          if (this.isItemCheckbox(itemIndex) && itemResponse.answer != null)
+          if (this.isItemCheckboxQuestion(itemIndex) && itemResponse.answer != null)
             itemResponse.answer = Array.from(itemResponse.answer);
           this.updateNumCorrectWrongSkipped(itemIndex, itemResponse.answer);
         }, this);
@@ -683,7 +685,7 @@ export default {
       let itemResponse = clonedeep(this.itemResponses[this.currentItemIndex]);
 
       // convert Set to Array as Set is invalid as a response
-      if (this.isItemCheckbox(this.currentItemIndex)) {
+      if (this.isItemCheckboxQuestion(this.currentItemIndex)) {
         itemResponse.answer = Array.from(itemResponse.answer).sort();
       }
       /**
@@ -990,34 +992,32 @@ export default {
       return false;
     },
     /**
-     * Whether the item at the given index is an MCQ question
      * @param {Number} itemIndex - index of an item in the items array
      */
     isItemMCQ(itemIndex) {
+      return this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == "mcq";
+    },
+    /**
+     * @param {Number} itemIndex - index of an item in the items array
+     */
+    isItemCheckboxQuestion(itemIndex) {
       return (
-        this.items[itemIndex].type == "question" &&
-        this.itemDetails[itemIndex].type == "mcq"
+        this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == "checkbox"
       );
     },
     /**
-     * Whether the item at the given index is an checkbox question
      * @param {Number} itemIndex - index of an item in the items array
      */
-    isItemCheckbox(itemIndex) {
+    isItemSubjectiveQuestion(itemIndex) {
       return (
-        this.items[itemIndex].type == "question" &&
-        this.itemDetails[itemIndex].type == "checkbox"
+        this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == "subjective"
       );
     },
     /**
-     * Whether the item at the given index is a subjective question
      * @param {Number} itemIndex - index of an item in the items array
      */
-    isItemSubjective(itemIndex) {
-      return (
-        this.items[itemIndex].type == "question" &&
-        this.itemDetails[itemIndex].type == "subjective"
-      );
+    isItemQuestion(itemIndex) {
+      return this.items[itemIndex].type == "question";
     },
     /**
      * invoked when the current time in the video is updated

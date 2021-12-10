@@ -4,7 +4,7 @@
     <div
       class="flex flex-col w-full"
       :class="{ 'opacity-30 pointer-events-none': isBackgroundDisabled }"
-      data-test="container"
+      data-test="blurDiv"
     >
       <div class="w-full flex justify-between px-6" :class="{ hidden: !isVideoIdValid }">
         <!--- text to show updated time status -->
@@ -1996,17 +1996,15 @@ export default {
      * @param {String} questionType - type of the question
      */
     getDetailsForNewQuestion(questionType) {
-      let details = {};
+      let details = {
+        text: "",
+        type: questionType,
+        options: ["", ""],
+        max_char_limit: 100,
+      };
 
-      if (questionType == "mcq") {
-        details["correct_answer"] = 0;
-      } else if (questionType == "checkbox") {
-        details["correct_answer"] = [0];
-      }
-      details["text"] = "";
-      details["type"] = questionType;
-      details["options"] = ["", ""];
-      details["max_char_limit"] = 100;
+      if (questionType == "mcq") details["correct_answer"] = 0;
+      else if (questionType == "checkbox") details["correct_answer"] = [0];
       return details;
     },
     /**

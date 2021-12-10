@@ -12,16 +12,7 @@ describe("ItemModal.vue", () => {
   });
 
   describe("basic checks", () => {
-    beforeEach(() => {
-      wrapper = mount(ItemModal, {
-        props: {
-          itemList: clonedeep(global.dummyItems),
-          itemDetailList: clonedeep(global.dummyItemDetails),
-        },
-      });
-    });
-
-    const remount = () => {
+    const mountWrapper = () => {
       wrapper = mount(ItemModal, {
         props: {
           itemList: clonedeep(global.dummyItems),
@@ -29,6 +20,8 @@ describe("ItemModal.vue", () => {
         },
       });
     };
+
+    beforeEach(() => mountWrapper());
 
     it("should prepare draft responses for each item", () => {
       expect(wrapper.vm.draftResponses.length).toBe(global.dummyItems.length);
@@ -39,7 +32,7 @@ describe("ItemModal.vue", () => {
         ItemModal.methods,
         "toggleMinimize"
       );
-      remount();
+      mountWrapper();
       await wrapper.setProps({
         videoPlayerElementId: "videoPlayer",
       });
@@ -54,7 +47,7 @@ describe("ItemModal.vue", () => {
 
     it("skips question", () => {
       const skipQuestionMock = jest.spyOn(ItemModal.methods, "skipQuestion");
-      remount();
+      mountWrapper();
       wrapper
         .find('[data-test="header"]')
         .find('[data-test="skip"]')
@@ -66,7 +59,7 @@ describe("ItemModal.vue", () => {
 
     it("revises question", () => {
       const reviseQuestionMock = jest.spyOn(ItemModal.methods, "emitRevise");
-      remount();
+      mountWrapper();
       wrapper
         .find('[data-test="footer"]')
         .find('[data-test="reviseButton"]')
@@ -197,13 +190,13 @@ describe("ItemModal.vue", () => {
     it("selecting option makes answer valid", async () => {
       mountWrapper();
       // initially answer should be invalid
-      expect(wrapper.vm.isAnswerValid).toBeFalsy();
+      expect(wrapper.vm.isAttemptValid).toBeFalsy();
 
       // select an option
       await wrapper.find('[data-test="option-0"]').trigger("click");
 
       // the answer should now be valid
-      expect(wrapper.vm.isAnswerValid).toBeTruthy();
+      expect(wrapper.vm.isAttemptValid).toBeTruthy();
     });
 
     it("submits question", async () => {
@@ -319,13 +312,13 @@ describe("ItemModal.vue", () => {
 
     it("selecting option makes answer valid", async () => {
       // initially answer should be invalid
-      expect(wrapper.vm.isAnswerValid).toBeFalsy();
+      expect(wrapper.vm.isAttemptValid).toBeFalsy();
 
       // select an option
       await wrapper.find('[data-test="option-0"]').trigger("click");
 
       // the answer should now be valid
-      expect(wrapper.vm.isAnswerValid).toBeTruthy();
+      expect(wrapper.vm.isAttemptValid).toBeTruthy();
     });
 
     it("unselecting all options makes the answer invalid", async () => {
@@ -337,12 +330,12 @@ describe("ItemModal.vue", () => {
       // unselect an option
       await wrapper.find('[data-test="option-0"]').trigger("click");
       // the answer should still be valid
-      expect(wrapper.vm.isAnswerValid).toBeTruthy();
+      expect(wrapper.vm.isAttemptValid).toBeTruthy();
 
       // unselect the other option
       await wrapper.find('[data-test="option-1"]').trigger("click");
       // the answer should now be invalid
-      expect(wrapper.vm.isAnswerValid).toBeFalsy();
+      expect(wrapper.vm.isAttemptValid).toBeFalsy();
     });
 
     it("submits question", async () => {

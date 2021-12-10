@@ -244,11 +244,11 @@ describe("Editor.vue", () => {
     await store.dispatch("sync/stopLoading");
 
     // blur classes should not be present initially
-    expect(wrapper.get('[data-test="container"]').classes()).toEqual(
+    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
     );
     await wrapper.setData({ isImageUploaderDialogShown: true });
-    expect(wrapper.get('[data-test="container"]').classes()).toEqual(
+    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.arrayContaining(["opacity-30", "pointer-events-none"])
     );
   });
@@ -260,7 +260,7 @@ describe("Editor.vue", () => {
     await store.dispatch("sync/stopLoading");
 
     // blur classes should not be present initially
-    expect(wrapper.get('[data-test="container"]').classes()).toEqual(
+    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
     );
     // published dialog should not be shown initially
@@ -268,7 +268,7 @@ describe("Editor.vue", () => {
 
     await wrapper.setData({ isPublishedPlioDialogShown: true });
 
-    expect(wrapper.get('[data-test="container"]').classes()).toEqual(
+    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
       expect.arrayContaining(["opacity-30", "pointer-events-none"])
     );
     expect(wrapper.find('[data-test="publishedDialog"]').exists()).toBeTruthy();
@@ -1368,7 +1368,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemDetails[0].image).toStrictEqual(mockImageResponse);
   });
 
-  it("deleting options is prevented with only 2 options", async () => {
+  it("delete option button is hidden with only 2 options", async () => {
     wrapper = mount(Editor, {
       data() {
         return {
