@@ -127,8 +127,10 @@ export default {
       isDialogCancelClicked: "isCancelClicked",
     }),
 
+    /** the list of action buttons */
     plioActionOptions() {
-      // the list of action buttons
+      // when adding a new option to this list, make sure to update the
+      // values in setOptionsOverflowMarginTop
       let options = [
         {
           value: "edit",
