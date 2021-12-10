@@ -7,7 +7,6 @@ RUN apk --no-cache --virtual tmp add python3 make g++ && npm install && apk del 
 
 # development stage
 FROM base-stage as development-stage
-# set node_env to development for this stage
 CMD npm run serve -- --port ${APP_PORT}
 
 # build stage

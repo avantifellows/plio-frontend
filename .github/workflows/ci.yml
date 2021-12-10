@@ -47,6 +47,10 @@ jobs:
           git clone https://github.com/avantifellows/plio-frontend/
           cd plio-frontend/
 
+          echo 'running npm install with dev mode'
+          sudo NODE_ENV=development npm install
+          echo 'npm install finished'
+
           # check branch and switch to branch if exists
           if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
           then
