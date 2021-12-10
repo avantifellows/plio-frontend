@@ -440,7 +440,7 @@ export default {
       // dismiss the internet restored toast if it exists
       this.toast.dismiss("internetRestoredToast");
       // show a internet lost toast
-      this.toast.error(this.$t("error.internet_lost"), {
+      this.toast.error(this.$t("toast.error.internet_lost"), {
         id: "internetLostToast",
         position: "bottom-center",
         timeout: false,
@@ -456,7 +456,7 @@ export default {
       // dismiss the internet lost toast if it exists
       this.toast.dismiss("internetLostToast");
       // show an internet restored toast
-      this.toast.success(this.$t("error.internet_restored"), {
+      this.toast.success(this.$t("toast.success.internet_restored"), {
         id: "internetRestoredToast",
         position: "bottom-center",
       });

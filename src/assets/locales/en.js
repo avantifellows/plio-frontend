@@ -339,8 +339,6 @@ export default {
       home: "Go to Home",
     },
     generic: "Something went wrong. Please try again!",
-    internet_lost: "Internet connection lost",
-    internet_restored: "Internet connection restored",
     auto_logout: "You have been logged out!",
   },
   generic: {
@@ -540,9 +538,11 @@ export default {
     error: {
       create_plio: "Could not create Plio. Please try again",
       copying: "Error while copying",
+      internet_lost: "Internet connection lost",
     },
     success: {
       copying: "Link Copied Successfully",
+      internet_restored: "Internet connection restored",
     },
     editor: {
       item_editor: {

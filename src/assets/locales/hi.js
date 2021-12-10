@@ -340,8 +340,6 @@ export default {
       home: "होम पर जाएं",
     },
     generic: "कुछ दिक्कत आ गयी कृपया दोबारा कोशिश करें",
-    internet_lost: "इंटरनेट कनेक्शन टूट गया है",
-    internet_restored: "इंटरनेट कनेक्शन वापस आ गया है",
     auto_logout: "आप लॉग आउट हो चुके हैं!",
   },
   generic: {
@@ -542,9 +540,11 @@ export default {
     error: {
       create_plio: "प्लायो बनाते हुए कुछ गड़बड़ हो गयी",
       copying: "कापी करते वक़्त दिक्कत हुई ",
+      internet_lost: "इंटरनेट कनेक्शन टूट गया है",
     },
     success: {
       copying: "लिंक सफलतापूर्वक कॉपी किया गया",
+      internet_restored: "इंटरनेट कनेक्शन वापस आ गया है",
     },
     editor: {
       item_editor: {
