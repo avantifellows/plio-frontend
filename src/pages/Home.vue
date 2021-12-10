@@ -2,7 +2,7 @@
   <div>
     <!-- table -->
     <Table
-      v-if="showTable"
+      v-if="isTableShown"
       :data="tableData"
       :columns="tableColumns"
       :tableTitle="tableTitle"
@@ -20,7 +20,7 @@
 
     <!-- pagination nav bar -->
     <Paginator
-      v-if="showTable"
+      v-if="isTableShown"
       :totalItems="totalNumberOfPlios"
       :pageSize="numberOfPliosPerPage"
       :initialPage="currentPageNumber"
@@ -30,7 +30,7 @@
 
     <!-- no plios exist warning -->
     <div
-      v-if="!showTable"
+      v-if="!isTableShown"
       class="flex flex-col bg-white w-full m-auto mt-32 px-8"
       data-test="noPlio"
     >
@@ -93,7 +93,7 @@ export default {
         name: { type: "component", value: "" },
         views: "-",
       }),
-      showTable: true, // whether to show the table or not
+      isTableShown: true, // whether to show the table or not
       confirmIcon: require("@/assets/images/check-circle-regular.svg"),
       noPliosIcon: require("@/assets/images/create.svg"),
       toast: useToast(),
@@ -184,10 +184,10 @@ export default {
           // to handle the case when the user lands on the homepage for the first time
           // if no plios exist, then hide the table else show it
           if (params == undefined) {
-            if (response.data.count <= 0) {
-              this.showTable = false;
+            if (response.data.raw_count == 0) {
+              this.isTableShown = false;
               this.stopLoading();
-            } else this.showTable = true;
+            } else this.isTableShown = true;
           }
           this.totalNumberOfPlios = response.data.count; // set total number of plios and show the paginator
           this.numberOfPliosPerPage = response.data.page_size; // set the page size
