@@ -405,14 +405,14 @@ export default {
         .then(() => {
           this.hideSpinner();
           // notify of success
-          this.toast.success(this.$t("home.table.plio_list_item.toast.delete.success"));
+          this.toast.success(this.$t("toast.home.table.plio_list_item.delete.success"));
           this.$emit("deleted");
         })
         .catch(() => {
           // restore background
           this.hideSpinner();
           // notify of error
-          this.toast.error(this.$t("home.table.plio_list_item.toast.delete.error"));
+          this.toast.error(this.$t("toast.home.table.plio_list_item.delete.error"));
         });
     },
     /**

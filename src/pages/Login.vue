@@ -444,7 +444,7 @@ export default {
           }
         );
       } catch (error) {
-        this.toast.warning(this.$t("login.google.error"));
+        this.toast.warning(this.$t("toast.login.google.error"));
         this.stopLoading();
         return null;
       }

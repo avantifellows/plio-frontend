@@ -493,7 +493,7 @@ export default {
           } else {
             this.toast.error(
               this.$t(
-                "editor.item_editor.correct_answer.unmark_last_selected_option_warning"
+                "toast.editor.item_editor.correct_answer.unmark_last_selected_option_warning"
               )
             );
           }

@@ -225,7 +225,7 @@ export default {
             });
           }
         })
-        .catch(() => this.toast.error(this.$t("error.create_plio")));
+        .catch(() => this.toast.error(this.$t("toast.error.create_plio")));
     },
 
     async prepareTableData(plioIdList) {

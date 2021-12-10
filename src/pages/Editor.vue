@@ -1313,8 +1313,8 @@ export default {
     copyPlioDraftLink() {
       let success = this.copyToClipboard(this.getPlioDraftLink(this.plioId, this.org));
 
-      if (success) this.toast.success(this.$t("success.copying"));
-      else this.toast.error(this.$t("error.copying"));
+      if (success) this.toast.success(this.$t("toast.success.copying"));
+      else this.toast.error(this.$t("toast.error.copying"));
     },
     /**
      * Iterates through all items, extracts the times and populates itemTimestamps array
