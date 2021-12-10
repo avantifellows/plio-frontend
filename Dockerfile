@@ -1,10 +1,9 @@
 # base stage
-FROM node:lts-alpine as base-stage
+FROM node@sha256:dc92f36e7cd917816fa2df041d4e9081453366381a00f40398d99e9392e78664 as base-stage
 WORKDIR /app
 COPY package*.json ./
 # install dependencies for npm run test:unit
-RUN apk --no-cache --virtual build-dependencies add python make g++
-RUN npm install
+RUN apk --no-cache --virtual tmp add python3 make g++ && npm install && apk del tmp
 
 # development stage
 FROM base-stage as development-stage
@@ -24,8 +23,6 @@ ARG VUE_APP_BACKEND_API_CLIENT_ID
 ARG VUE_APP_BACKEND_API_CLIENT_SECRET
 ARG VUE_APP_BACKEND_WEBSOCKET
 ARG VUE_APP_CUBEJS_API_URL
-ARG VUE_APP_GOOGLE_ANALYTICS_ID
-ARG VUE_APP_GOOGLE_ANALYTICS_APP_NAME
 ARG VUE_APP_MIXPANEL_PROJECT_TOKEN
 ARG VUE_APP_CHATWOOT_URL
 ARG VUE_APP_CHATWOOT_TOKEN
@@ -43,8 +40,6 @@ ENV VUE_APP_BACKEND_API_CLIENT_ID $VUE_APP_BACKEND_API_CLIENT_ID
 ENV VUE_APP_BACKEND_API_CLIENT_SECRET $VUE_APP_BACKEND_API_CLIENT_SECRET
 ENV VUE_APP_BACKEND_WEBSOCKET $VUE_APP_BACKEND_WEBSOCKET
 ENV VUE_APP_CUBEJS_API_URL $VUE_APP_CUBEJS_API_URL
-ENV VUE_APP_GOOGLE_ANALYTICS_ID $VUE_APP_GOOGLE_ANALYTICS_ID
-ENV VUE_APP_GOOGLE_ANALYTICS_APP_NAME $VUE_APP_GOOGLE_ANALYTICS_APP_NAME
 ENV VUE_APP_MIXPANEL_PROJECT_TOKEN $VUE_APP_MIXPANEL_PROJECT_TOKEN
 ENV VUE_APP_CHATWOOT_URL $VUE_APP_CHATWOOT_URL
 ENV VUE_APP_CHATWOOT_TOKEN $VUE_APP_CHATWOOT_TOKEN
@@ -55,7 +50,11 @@ RUN npm run build
 
 # production stage
 # multi-stage Dockerfile inspired from: https://vuejs.org/v2/cookbook/dockerize-vuejs-app.html
-FROM nginx:stable-alpine as production-stage
+FROM nginx:1.21.4-alpine as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
+# need to configure nginx for using history mode:
+# https://next.router.vuejs.org/guide/essentials/history-mode.html#html5-mode
+# https://stackoverflow.com/a/61753597/7870587
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

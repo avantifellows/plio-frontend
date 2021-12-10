@@ -1,0 +1,11 @@
+{
+  "baseUrl": "http://localhost:8080",
+  "fixturesFolder": "tests/integration/fixtures",
+  "integrationFolder": "tests/integration/integration",
+  "pluginsFile": "tests/integration/plugins/index.js",
+  "screenshotsFolder": "tests/integration/screenshots",
+  "videosFolder": "tests/integration/videos",
+  "downloadsFolder": "tests/integration/downloads",
+  "supportFile": "tests/integration/support/index.js",
+  "projectId": "cywmry"
+}

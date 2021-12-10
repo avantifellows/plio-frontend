@@ -2,337 +2,354 @@
   <!--- base grid -->
   <div class="flex relative justify-center md:mx-4 lg:mx-10 xl:mx-20">
     <div
-      class="grid grid-cols-1 md:grid-cols-2 items-stretch w-full"
+      class="flex flex-col w-full"
       :class="{ 'opacity-30 pointer-events-none': isBackgroundDisabled }"
       data-test="blurDiv"
     >
-      <!--- preview grid -->
-      <div
-        class="flex flex-col mx-6 z-0"
-        :class="{ 'mt-6': !isVideoIdValid }"
-        data-test="previewDiv"
-      >
-        <div
-          class="my-8 flex justify-center space-x-1 bp-360:space-x-2 sm:space-x-4"
-          v-if="isVideoIdValid"
-          data-test="upperButtons"
-        >
-          <!-- share plio -->
-          <icon-button
-            v-if="isPublished"
-            :titleConfig="sharePlioTitleClass"
-            :iconConfig="sharePlioIconConfig"
-            :buttonClass="sharePlioButtonClass"
-            @click="showSharePlioLinkDialog"
-            data-test="sharePlioButton"
-          ></icon-button>
-
-          <!-- play plio -->
-          <icon-button
-            v-if="isPublished"
-            :titleConfig="playPlioTitleClass"
-            :iconConfig="playPlioIconConfig"
-            :buttonClass="playPlioButtonClass"
-            @click="redirectToPlayer"
-            data-test="playPlioButton"
-          ></icon-button>
-
-          <!-- preview plio -->
-          <icon-button
-            v-if="!isPublished"
-            :titleConfig="plioPreviewTitleClass"
-            :iconConfig="playPlioIconConfig"
-            :buttonClass="playPlioButtonClass"
-            :isDisabled="uploading"
-            @click="togglePlioPreviewMode"
-            data-test="plioPreviewButton"
-          ></icon-button>
-
-          <!-- embed plio -->
-          <icon-button
-            v-if="isPublished"
-            :titleConfig="embedPlioTitleClass"
-            :iconConfig="embedPlioIconConfig"
-            :buttonClass="embedPlioButtonClass"
-            @click="showEmbedPlio"
-            data-test="embedPlioButton"
-          ></icon-button>
-        </div>
-
-        <div class="justify-center" data-test="video">
-          <!--- video preview -->
-          <div
-            v-if="!isVideoIdValid"
-            class="flex justify-center"
-            data-test="videoPreviewSkeleton"
-          >
-            <div class="flex relative justify-center items-center w-full">
-              <div
-                class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-96 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
-              ></div>
-              <div class="absolute flex flex-col items-center">
-                <img
-                  class="w-12 bp-420:w-16 bp-500:w-24 md:w-16 lg:w-24"
-                  src="@/assets/images/youtube.png"
-                />
-                <p class="text-sm bp-420:text-base">{{ $t("generic.preview") }}</p>
-              </div>
-            </div>
-          </div>
-          <div v-else data-test="videoPreview">
-            <div class="relative">
-              <!-- video player -->
-              <video-player
-                :videoId="videoId"
-                :plyrConfig="plyrConfig"
-                :id="editorVideoPlayerElementId"
-                @update="videoTimestampUpdated"
-                @ready="playerReady"
-                @play="playerPlayed"
-                ref="videoPlayer"
-                class="z-0"
-                data-test="videoPlayer"
-              ></video-player>
-              <!-- maximize button -->
-              <transition name="maximize-btn-transition" data-test="transitionMaximize">
-                <icon-button
-                  v-if="showItemModal && isModalMinimized"
-                  :titleConfig="maximizeButtonTitleClass"
-                  :buttonClass="maximizeButtonClass"
-                  @click="maximizeModal"
-                  class="absolute z-20"
-                  id="maximizeButton"
-                  data-test="maximizeButton"
-                ></icon-button>
-              </transition>
-              <!-- transition for minimizing/maximizing item modal -->
-              <transition enter-active-class="grow" leave-active-class="shrink">
-                <!-- item modal component -->
-                <item-modal
-                  v-if="!isModalMinimized"
-                  id="editorModal"
-                  class="absolute z-10 inset-0 border-2"
-                  :class="{ hidden: !showItemModal }"
-                  :selectedItemIndex="currentItemIndex"
-                  :itemList="items"
-                  :itemDetailList="itemDetails"
-                  :previewMode="true"
-                  :videoPlayerElementId="editorVideoPlayerElementId"
-                  @toggle-minimize="minimizeModal"
-                  data-test="itemModal"
-                ></item-modal>
-              </transition>
-            </div>
-            <!--- slider with question markers -->
-            <slider-with-markers
-              :end="videoDuration"
-              :step="sliderStep"
-              v-model:value="currentTimestamp"
-              v-model:markerPositions="itemTimestamps"
-              @marker-selected="itemSelected"
-              @marker-drag-end="itemMarkerTimestampDragEnd"
-              @update="sliderUpdated"
-              ref="slider"
-              :isDragDisabled="isPublished"
-            ></slider-with-markers>
-          </div>
-        </div>
-        <!-- info for subjective question -->
-        <div
-          v-if="isQuestionTypeSubjective"
-          class="mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
-        >
-          <!-- icon -->
-          <inline-svg
-            :src="getImageSource('exclamation-circle-solid.svg')"
-            class="w-10 h-10 text-yellow-600 fill-current"
-          ></inline-svg>
-          <!-- text -->
-          <p class="text-yellow-600 my-auto">
-            {{ $t("editor.headings.subjective_question_warning") }}
-          </p>
-        </div>
-
-        <!--- buttons below the preview -->
-        <div
-          class="flex justify-center space-x-1 bp-360:space-x-2"
-          :class="lowerButtonsContainerClass"
-          v-if="isVideoIdValid"
-          data-test="lowerButtons"
-        >
-          <!--- button to go back to home -->
-          <icon-button
-            :titleConfig="backButtonTitleConfig"
-            :iconConfig="homeIconConfig"
-            :buttonClass="backButtonClass"
-            @click="returnToHome"
-            data-test="homeButton"
-          ></icon-button>
-          <!--- publish button -->
-          <icon-button
-            :titleConfig="publishButtonTitleConfig"
-            :iconConfig="publishButtonIconConfig"
-            :class="publishButtonClass"
-            class="shadow-lg"
-            v-tooltip.right="publishButtonTooltip"
-            @click="showPublishConfirmationDialogBox"
-            data-test="publishButton"
-          ></icon-button>
-          <!-- analyze plio -->
-          <icon-button
-            v-if="isPublished"
-            :titleConfig="analyzePlioTitleConfig"
-            :iconConfig="analyzePlioIconConfig"
-            :buttonClass="analyzePlioButtonClass"
-            @click="redirectToDashboard"
-            data-test="analyseButton"
-          ></icon-button>
-        </div>
+      <div class="w-full flex justify-between px-6" :class="{ hidden: !isVideoIdValid }">
+        <!--- text to show updated time status -->
+        <p class="my-2 sm:my-4 text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
+          {{ syncStatusText }}
+        </p>
       </div>
 
-      <!--- input grid -->
-      <div class="flex flex-col m-5 justify-start" data-test="inputDiv">
-        <div class="grid gap-y-4" data-test="meta">
-          <!-- info about pasting youtube link -->
-          <div
-            class="flex items-center space-x-2 bg-primary rounded-lg p-4"
-            v-if="!isVideoIdValid && !pending"
-            data-test="videoLinkInfo"
-          >
-            <inline-svg
-              :src="getImageSource('publish.svg')"
-              class="w-12 h-12 text-white fill-current"
-            ></inline-svg>
-            <p class="text-white text-xs bp-500:text-base md:text-sm lg:text-base">
-              {{ $t("editor.video_input.info.1") }}
-              <a
-                href="https://youtube.com/upload"
-                target="_blank"
-                class="underline font-bold"
-                >{{ $t("editor.video_input.info.2") }}</a
-              >
-              {{ $t("editor.video_input.info.3") }}
-            </p>
-          </div>
-          <div class="flex w-full justify-between" v-else>
-            <!--- publish/draft badge -->
-            <simple-badge
-              :text="statusBadge"
-              :badgeClass="statusBadgeClass"
-              v-tooltip.top="statusBadgeTooltip"
-            ></simple-badge>
-            <!--- text to show updated time status -->
-            <p class="text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
-              {{ syncStatusText }}
-            </p>
-          </div>
-
-          <!--- video link -->
-          <input-text
-            :placeholder="videoInputPlaceholder"
-            :title="videoInputTitle"
-            :validation="videoInputValidation"
-            v-model:value="videoURL"
-            ref="videoLink"
-            :boxStyling="videoLinkInputStyling"
-            :isDisabled="isPublished"
-            v-tooltip.top="videoLinkTooltip"
-            data-test="videoLinkInput"
-          ></input-text>
-
-          <!--- plio title -->
-          <input-text
-            :placeholder="titleInputPlaceholder"
-            :title="titleInputTitle"
-            v-model:value="plioTitle"
-            ref="title"
-            :boxStyling="'pl-4'"
-            v-if="isVideoIdValid"
-            data-test="plioName"
-          ></input-text>
-        </div>
-
+      <div class="grid grid-cols-1 sm:grid-cols-2 items-stretch">
+        <!--- preview grid -->
         <div
-          class="flex justify-center py-2 mt-8 sm:mt-10 mb-16"
-          v-if="isVideoIdValid"
-          data-test="itemDiv"
+          class="flex flex-col mx-2 sm:mx-4 md:mx-6 z-0"
+          :class="{ 'mt-6': !isVideoIdValid }"
+          data-test="previewDiv"
         >
-          <!-- boxes for adding different types of items -->
           <div
-            class="bg-peach rounded-lg p-4 bp-360:p-8 w-full bp-500:w-3/4 md:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
-            :class="itemPickerClass"
-            v-if="currentItemIndex == null"
+            class="mt-4 mb-6 sm:mb-8 flex justify-center space-x-1 bp-360:space-x-2"
+            v-if="isVideoIdValid"
+            data-test="upperButtons"
           >
-            <div class="flex flex-col items-center">
-              <p class="text-yellow-900 text-xl font-bold">
-                {{ $t("editor.headings.add_question") }}
-              </p>
-              <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
-                <button
-                  :disabled="addItemDisabled"
-                  @click="addNewItem('mcq')"
-                  class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
-                  :class="questionTypeSelectorClass"
-                  v-tooltip.bottom="addMCQTooltip"
-                  data-test="addMCQItem"
-                >
+            <!-- share plio -->
+            <icon-button
+              v-if="isPublished"
+              :titleConfig="sharePlioTitleClass"
+              :iconConfig="sharePlioIconConfig"
+              :buttonClass="sharePlioButtonClass"
+              @click="showSharePlioLinkDialog"
+              data-test="sharePlioButton"
+              v-tooltip="{ content: $t('tooltip.editor.share_plio'), placement: 'top' }"
+            ></icon-button>
+
+            <!-- play plio -->
+            <icon-button
+              v-if="isPublished"
+              :titleConfig="playPlioTitleClass"
+              :iconConfig="playPlioIconConfig"
+              :buttonClass="playPlioButtonClass"
+              @click="redirectToPlayer"
+              data-test="playPlioButton"
+              v-tooltip="{ content: $t('tooltip.editor.play_plio'), placement: 'top' }"
+            ></icon-button>
+
+            <!-- preview plio -->
+            <icon-button
+              v-if="!isPublished"
+              :titleConfig="plioPreviewTitleClass"
+              :iconConfig="playPlioIconConfig"
+              :buttonClass="playPlioButtonClass"
+              :isDisabled="uploading"
+              @click="togglePlioPreviewMode"
+              data-test="plioPreviewButton"
+              v-tooltip="{ content: $t('tooltip.editor.preview'), placement: 'top' }"
+            ></icon-button>
+
+            <!-- copy draft link -->
+            <icon-button
+              v-if="!isPublished && !isPersonalWorkspace"
+              :titleConfig="copyDraftTitleClass"
+              :iconConfig="copyDraftIconConfig"
+              :buttonClass="copyDraftButtonClass"
+              @click="copyPlioDraftLink"
+              v-tooltip="{
+                content: $t('tooltip.editor.copy_draft_link'),
+                placement: 'top',
+              }"
+              data-test="copyDraftButton"
+            ></icon-button>
+
+            <!-- embed plio -->
+            <icon-button
+              v-if="isPublished"
+              :titleConfig="embedPlioTitleClass"
+              :iconConfig="embedPlioIconConfig"
+              :buttonClass="embedPlioButtonClass"
+              @click="showEmbedPlio"
+              data-test="embedPlioButton"
+              v-tooltip="{ content: $t('tooltip.editor.embed_plio'), placement: 'top' }"
+            ></icon-button>
+          </div>
+
+          <div class="justify-center" data-test="video">
+            <!--- video preview -->
+            <div
+              v-if="!isVideoIdValid"
+              class="flex justify-center"
+              data-test="videoPreviewSkeleton"
+            >
+              <div class="flex relative justify-center items-center w-full">
+                <div
+                  class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-80 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
+                ></div>
+                <div class="absolute flex flex-col items-center">
                   <inline-svg
-                    :src="getImageSource('radio-button.svg')"
-                    class="h-4 w-4 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                    :src="getImageSource('youtube.svg')"
+                    class="h-16 w-16 bp-420:w-24 bp-420:h-24 bp-500:w-32 bp-500:h-32 md:w-24 md:h-24 lg:w-32 lg:h-32"
                   ></inline-svg>
-                  <p class="font-bold text-center">{{ $t("generic.mcq") }}</p>
-                </button>
-                <button
-                  :disabled="addItemDisabled"
-                  @click="addNewItem('subjective')"
-                  class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
-                  :class="questionTypeSelectorClass"
-                  v-tooltip.bottom="addSubjectiveQuestionTooltip"
-                  data-test="addSubjectiveItem"
-                >
-                  <inline-svg
-                    :src="getImageSource('subjective-question.svg')"
-                    class="w-20 fill-current text-primary group-hover:text-white group-disabled:text-primary"
-                  ></inline-svg>
-                  <p class="font-bold text-center">{{ $t("generic.subjective") }}</p>
-                </button>
+                  <p class="text-sm bp-420:text-base">{{ $t("generic.preview") }}</p>
+                </div>
               </div>
             </div>
+            <div v-else data-test="videoPreview">
+              <div class="relative">
+                <!-- video player -->
+                <video-player
+                  :videoId="videoId"
+                  :plyrConfig="plyrConfig"
+                  :id="editorVideoPlayerElementId"
+                  @update="videoTimestampUpdated"
+                  @ready="playerReady"
+                  @play="playerPlayed"
+                  ref="videoPlayer"
+                  class="z-0"
+                  data-test="videoPlayer"
+                ></video-player>
+                <!-- maximize button -->
+                <transition name="maximize-btn-transition" data-test="transitionMaximize">
+                  <icon-button
+                    v-if="showItemModal && isModalMinimized"
+                    :titleConfig="maximizeButtonTitleClass"
+                    :buttonClass="maximizeButtonClass"
+                    @click="maximizeModal"
+                    class="absolute z-20"
+                    id="maximizeButton"
+                    data-test="maximizeButton"
+                  ></icon-button>
+                </transition>
+                <!-- transition for minimizing/maximizing item modal -->
+                <transition enter-active-class="grow" leave-active-class="shrink">
+                  <!-- item modal component -->
+                  <item-modal
+                    v-if="!isModalMinimized"
+                    id="editorModal"
+                    class="absolute z-10 inset-0 border-2"
+                    :class="{ hidden: !showItemModal }"
+                    :selectedItemIndex="currentItemIndex"
+                    :itemList="items"
+                    :itemDetailList="itemDetails"
+                    :previewMode="true"
+                    :videoPlayerElementId="editorVideoPlayerElementId"
+                    @toggle-minimize="minimizeModal"
+                    data-test="itemModal"
+                  ></item-modal>
+                </transition>
+              </div>
+              <!--- slider with question markers -->
+              <slider-with-markers
+                :end="videoDuration"
+                :step="sliderStep"
+                v-model:value="currentTimestamp"
+                v-model:markerPositions="itemTimestamps"
+                @marker-selected="itemSelected"
+                @marker-drag-end="itemMarkerTimestampDragEnd"
+                @update="sliderUpdated"
+                ref="slider"
+                :isDragDisabled="isPublished"
+              ></slider-with-markers>
+            </div>
           </div>
-          <!--- item editor  -->
-          <item-editor
-            v-if="hasAnyItems && currentItemIndex != null"
-            v-model:itemList="items"
-            v-model:itemDetailList="itemDetails"
-            v-model:selectedItemIndex="currentItemIndex"
-            :videoDuration="videoDuration"
-            :isInteractionDisabled="isPublished"
-            v-model:questionTypeIndex="currentQuestionTypeIndex"
-            @update:selectedItemIndex="navigateToItem"
-            @delete-selected-item="showDeleteItemDialogBox"
-            @delete-option="deleteOption"
-            @error-occurred="setErrorOccurred"
-            @error-resolved="setErrorResolved"
-            @question-type-changed="questionTypeChanged"
-            @show-image-uploader="toggleImageUploaderBox"
-            data-test="itemEditor"
-          ></item-editor>
+          <!-- info for subjective question -->
+          <div
+            v-if="isQuestionTypeSubjective"
+            class="mt-6 sm:mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
+          >
+            <!-- icon -->
+            <inline-svg
+              :src="getImageSource('exclamation-circle-solid.svg')"
+              class="w-10 h-10 text-yellow-600 fill-current"
+            ></inline-svg>
+            <!-- text -->
+            <p class="text-yellow-600 my-auto">
+              {{ $t("editor.headings.subjective_question_warning") }}
+            </p>
+          </div>
+
+          <!--- buttons below the preview -->
+          <div
+            class="flex justify-center space-x-1 bp-360:space-x-2"
+            :class="lowerButtonsContainerClass"
+            v-if="isVideoIdValid"
+            data-test="lowerButtons"
+          >
+            <!--- button to go back to home -->
+            <icon-button
+              :titleConfig="homeButtonTitleConfig"
+              :iconConfig="homeIconConfig"
+              :buttonClass="homeButtonClass"
+              v-tooltip="{ content: $t('tooltip.editor.home'), placement: 'bottom' }"
+              @click="returnToHome"
+              data-test="homeButton"
+            ></icon-button>
+            <!--- publish button -->
+            <span v-tooltip="{ content: publishButtonTooltip, placement: 'bottom' }">
+              <icon-button
+                :titleConfig="publishButtonTitleConfig"
+                :iconConfig="publishButtonIconConfig"
+                :class="publishButtonClass"
+                class="shadow-lg"
+                @click="showPublishConfirmationDialogBox"
+                data-test="publishButton"
+              ></icon-button>
+            </span>
+            <!-- analyze plio -->
+            <icon-button
+              v-if="isPublished"
+              :titleConfig="analyzePlioTitleConfig"
+              :iconConfig="analyzePlioIconConfig"
+              :buttonClass="analyzePlioButtonClass"
+              @click="redirectToDashboard"
+              data-test="analyseButton"
+              v-tooltip="{ content: $t('tooltip.editor.analyze'), placement: 'bottom' }"
+            ></icon-button>
+          </div>
+        </div>
+
+        <!--- input grid -->
+        <div
+          class="flex flex-col mx-2 sm:mx-4 md:mx-6 justify-start"
+          :class="{ 'mt-6': !isVideoIdValid }"
+          data-test="inputDiv"
+        >
+          <div class="grid gap-y-4" data-test="meta">
+            <!-- info about pasting youtube link -->
+            <div
+              class="flex items-center space-x-2 bg-primary rounded-lg p-4"
+              v-if="!isVideoIdValid && !pending"
+              data-test="videoLinkInfo"
+            >
+              <inline-svg
+                :src="getImageSource('publish.svg')"
+                class="w-12 h-12 text-white fill-current"
+              ></inline-svg>
+              <p class="text-white text-xs bp-500:text-base md:text-sm lg:text-base">
+                {{ $t("editor.video_input.info.1") }}
+                <a
+                  href="https://youtube.com/upload"
+                  target="_blank"
+                  class="underline font-bold"
+                  rel="noopener"
+                  >{{ $t("editor.video_input.info.2") }}</a
+                >
+                {{ $t("editor.video_input.info.3") }}
+              </p>
+            </div>
+
+            <!--- video link -->
+            <input-text
+              :placeholder="videoInputPlaceholder"
+              :title="videoInputTitle"
+              :validation="videoInputValidation"
+              v-model:value="videoURL"
+              ref="videoLink"
+              :boxStyling="videoLinkInputStyling"
+              :isDisabled="isPublished"
+              v-tooltip="videoLinkTooltip"
+              data-test="videoLinkInput"
+            ></input-text>
+
+            <!--- plio title -->
+            <input-text
+              :placeholder="titleInputPlaceholder"
+              :title="titleInputTitle"
+              v-model:value="plioTitle"
+              ref="title"
+              :boxStyling="'pl-4'"
+              v-if="isVideoIdValid"
+              data-test="plioName"
+            ></input-text>
+          </div>
+
+          <div
+            class="flex justify-center py-2 mt-8 sm:mt-10 mb-16"
+            v-if="isVideoIdValid"
+            data-test="itemDiv"
+          >
+            <!-- boxes for adding different types of items -->
+            <div
+              class="bg-peach rounded-lg p-4 bp-360:p-8 bp-500:p-4 sm:p-8 w-full bp-500:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
+              :class="itemPickerClass"
+              v-if="currentItemIndex == null"
+            >
+              <div class="flex flex-col items-center">
+                <p class="text-yellow-900 text-lg sm:text-xl font-bold">
+                  {{ $t("editor.headings.add_question") }}
+                </p>
+                <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
+                  <button
+                    :disabled="addItemDisabled"
+                    @click="addNewItem('mcq')"
+                    class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
+                    :class="questionTypeSelectorClass"
+                    v-tooltip="{
+                      content: $t('tooltip.editor.add_item.mcq'),
+                      placement: 'bottom',
+                    }"
+                    data-test="addMCQItem"
+                  >
+                    <inline-svg
+                      :src="getImageSource('radio-button.svg')"
+                      class="h-4 w-4 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                    ></inline-svg>
+                    <p class="font-bold text-center">{{ $t("generic.mcq") }}</p>
+                  </button>
+                  <button
+                    :disabled="addItemDisabled"
+                    @click="addNewItem('subjective')"
+                    class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
+                    :class="questionTypeSelectorClass"
+                    v-tooltip="{
+                      content: $t('tooltip.editor.add_item.subjective'),
+                      placement: 'bottom',
+                    }"
+                    data-test="addSubjectiveItem"
+                  >
+                    <inline-svg
+                      :src="getImageSource('subjective-question.svg')"
+                      class="w-20 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                    ></inline-svg>
+                    <p class="font-bold text-center">{{ $t("generic.subjective") }}</p>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!--- item editor  -->
+            <item-editor
+              v-if="hasAnyItems && currentItemIndex != null"
+              v-model:itemList="items"
+              v-model:itemDetailList="itemDetails"
+              v-model:selectedItemIndex="currentItemIndex"
+              :videoDuration="videoDuration"
+              :isInteractionDisabled="isPublished"
+              v-model:questionTypeIndex="currentQuestionTypeIndex"
+              @update:selectedItemIndex="navigateToItem"
+              @delete-selected-item="showDeleteItemDialogBox"
+              @delete-option="deleteOption"
+              @error-occurred="setErrorOccurred"
+              @error-resolved="setErrorResolved"
+              @question-type-changed="questionTypeChanged"
+              @show-image-uploader="toggleImageUploaderBox"
+              data-test="itemEditor"
+            ></item-editor>
+          </div>
         </div>
       </div>
     </div>
-    <!-- generic dialog box -->
-    <dialog-box
-      :class="dialogBoxClass"
-      class="fixed top-1/3"
-      v-if="isDialogBoxShown"
-      :title="dialogTitle"
-      :description="dialogDescription"
-      :confirmButtonConfig="dialogConfirmButtonConfig"
-      :cancelButtonConfig="dialogCancelButtonConfig"
-      @confirm="dialogConfirmed"
-      @cancel="dialogCancelled"
-      data-test="dialogBox"
-    ></dialog-box>
+
     <!-- image uploader dialog box -->
     <ImageUploaderDialog
       v-if="isImageUploaderDialogShown"
@@ -343,6 +360,14 @@
       data-test="imageUploaderDialog"
     ></ImageUploaderDialog>
 
+    <!--- publish/draft badge -->
+    <simple-badge
+      class="absolute -top-12 z-10"
+      :text="statusBadge"
+      :badgeClass="statusBadgeClass"
+      v-tooltip="statusBadgeTooltip"
+    ></simple-badge>
+
     <canvas
       id="sharePlioConfettiCanvas"
       class="fixed z-50"
@@ -351,7 +376,7 @@
 
     <!-- plio preview -->
     <div
-      class="fixed top-1/20 w-11/12 bp-420:w-10/12 shadow-xl"
+      class="fixed top-1/20 w-11/12 bp-420:w-10/12 shadow-xl z-20"
       :class="plioPreviewContainerClass"
       v-if="isPlioPreviewShown"
     >
@@ -377,13 +402,6 @@
         </div>
       </div>
     </div>
-
-    <!-- spinner -->
-    <inline-svg
-      v-if="isSpinnerShown"
-      :src="getImageSource('spinner.svg')"
-      class="fixed animate-spin h-10 top-1/4"
-    ></inline-svg>
 
     <!-- dialog to show after publishing -->
     <div
@@ -457,7 +475,6 @@ import VideoPlayer from "@/components/UI/Player/VideoPlayer.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
-import DialogBox from "@/components/UI/Alert/DialogBox";
 import ItemModal from "@/components/Player/ItemModal.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 
@@ -472,8 +489,9 @@ import Utilities, {
   throwConfetti,
   resetConfetti,
 } from "@/services/Functional/Utilities.js";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 import debounce from "debounce";
+import { useToast } from "vue-toastification";
 
 // importing the confetti.js module
 const confetti = require("canvas-confetti");
@@ -502,7 +520,6 @@ export default {
     ItemEditor,
     IconButton,
     SimpleBadge,
-    DialogBox,
     ItemModal,
     ImageUploaderDialog,
     Plio,
@@ -561,13 +578,6 @@ export default {
       lastUpdated: new Date(), // time when the last update to remote was made
       minUpdateInterval: 1000, // minimum time in milliseconds between updates
       isBeingPublished: false, // whether the current plio is in the process of being published
-      isDialogBoxShown: false, // whether to show dialog box
-      dialogTitle: "", // title for the dialog box
-      dialogDescription: "", // description for the dialog box
-      dialogConfirmButtonConfig: {}, // config for the confirm button of the dialog box
-      dialogCancelButtonConfig: {}, // config for the cancel button of the dialog box
-      dialogBoxClass: "", // classes for the dialog box
-      dialogAction: "",
       hasUnpublishedChanges: false,
       // whether there are changes which have not been published
       // once plio is published, we don't automatically save changes
@@ -604,6 +614,8 @@ export default {
       },
       // styling class for the play plio button
       playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
+      // styling class for the copy draft button
+      copyDraftButtonClass: "bg-yellow-300 hover:bg-yellow-400 p-2 px-4 rounded-md",
       // styling class for the embed plio button
       embedPlioButtonClass: "bg-brown hover:bg-dark-brown p-2 px-4 rounded-md",
       // styling class for the analyze plio button
@@ -615,6 +627,12 @@ export default {
         enabled: true,
         iconName: "play",
         iconClass: "text-white fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
+      },
+      copyDraftIconConfig: {
+        // config for the icon of the copy draft link button
+        enabled: true,
+        iconName: "link",
+        iconClass: "text-yellow-800 fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
       },
       embedPlioIconConfig: {
         // config for the icon of the embed plio button
@@ -648,6 +666,7 @@ export default {
       isPlioPreviewLoaded: false, // whether the plio preview has been loaded
       // class for the button to close the dialog that comes after publishing
       confettiHandler: confettiHandler,
+      toast: useToast(), // use the toast component
     };
   },
   async created() {
@@ -662,19 +681,88 @@ export default {
     clearInterval(this.savingInterval);
   },
   watch: {
+    /**
+     * Whenever itemTimestamps is updated, check if the current item timestamp is
+     * greater than the minimum allowed timestamp or not. If it's not, then adjust it.
+     */
     itemTimestamps() {
-      this.itemTimestamps.forEach((itemTimestamp, index) => {
-        this.items[index]["time"] = itemTimestamp;
-      });
-      // handle item sorting and marker positioning
-      // when time is changed from the time input boxes
-      // or when item is added using the add item button
-      this.checkAndFixItemOrder();
+      // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
       if (this.items != null && this.currentItemIndex != null) {
-        // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
         if (this.items[this.currentItemIndex].time < MINIMUM_QUESTION_TIMESTAMP)
           this.items[this.currentItemIndex].time = MINIMUM_QUESTION_TIMESTAMP;
         this.currentTimestamp = this.items[this.currentItemIndex].time;
+      }
+    },
+    isSpinnerShown(value) {
+      if (value) this.showSpinner();
+      else this.hideSpinner();
+    },
+    /**
+     * execute appropriate actions based on the dialog action value when the
+     * confirm button of the dialog box is clicked
+     */
+    isDialogConfirmClicked(value) {
+      if (value) {
+        switch (this.dialogAction) {
+          case "publish":
+            this.confirmPublish();
+            break;
+          case "deleteItem":
+            this.deleteSelectedItem();
+            break;
+          case "deleteOption":
+            this.deleteSelectedOption();
+            break;
+          case "closeDialog":
+            // the dialog would already be closed
+            // nothing else needs to be done
+            break;
+          default:
+            // this watch will be triggered whenever the confirm button
+            // of the shared dialog box will be clicked
+            // returning here so that it doesn't interfere with the
+            // confirmation step of a different dialogAction triggered
+            // by a different component
+            return;
+        }
+
+        this.unsetConfirmClicked();
+
+        // if any of the cases above creates a new dialog box
+        // with a new dialogAction, we do not want to unset it
+        if (!this.isDialogBoxShown) this.unsetDialogAction();
+      }
+    },
+    /**
+     * execute appropriate actions based on the dialog action value when the
+     * cancel button of the dialog box is clicked
+     */
+    isDialogCancelClicked(value) {
+      if (value) {
+        switch (this.dialogAction) {
+          case "deleteOption":
+            this.cancelDeleteOption();
+            break;
+          case "publish":
+            if (!this.isPublished) {
+              // show the plio preview
+              this.togglePlioPreviewMode();
+            }
+            break;
+          default:
+            // this watch will be triggered whenever the cancel button
+            // of the shared dialog box will be clicked
+            // returning here so that it doesn't interfere with the
+            // cancellation step of a different dialogAction triggered
+            // by a different component
+            return;
+        }
+
+        this.unsetCancelClicked();
+
+        // if any of the cases above creates a new dialog box
+        // with a new dialogAction, we do not want to unset it
+        if (!this.isDialogBoxShown) this.unsetDialogAction();
       }
     },
     /**
@@ -722,6 +810,13 @@ export default {
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
+    ...mapGetters("auth", ["isPersonalWorkspace"]),
+    ...mapState("dialog", {
+      isDialogBoxShown: "isShown",
+      dialogAction: "action",
+      isDialogConfirmClicked: "isConfirmClicked",
+      isDialogCancelClicked: "isCancelClicked",
+    }),
     /**
      * whether the spinner needs to be shown
      */
@@ -733,8 +828,8 @@ export default {
      */
     lowerButtonsContainerClass() {
       return {
-        "my-10": !this.isQuestionTypeSubjective,
-        "my-8": this.isQuestionTypeSubjective,
+        "my-6 sm:my-10": !this.isQuestionTypeSubjective,
+        "my-4 sm:my-8": this.isQuestionTypeSubjective,
       };
     },
     /**
@@ -820,6 +915,15 @@ export default {
       return {
         value: this.$t("editor.buttons.preview_plio"),
         class: "text-sm bp-420:text-base text-white",
+      };
+    },
+    /**
+     * styling class for the title of copy draft link button
+     */
+    copyDraftTitleClass() {
+      return {
+        value: this.$t("editor.buttons.share_draft"),
+        class: "text-sm bp-420:text-base text-yellow-800",
       };
     },
     /**
@@ -932,11 +1036,9 @@ export default {
     isBackgroundDisabled() {
       return (
         this.isBeingPublished ||
-        this.isDialogBoxShown ||
         this.isImageUploaderDialogShown ||
         this.isPublishedPlioDialogShown ||
         this.isEmbedPlioDialogShown ||
-        this.pending ||
         this.isPlioPreviewShown
       );
     },
@@ -944,14 +1046,13 @@ export default {
      * class for the status badge
      */
     statusBadgeClass() {
-      var badgeClass = {
-        "text-green-500 border-green-500": this.isPublished,
-        "border-black text-black": !this.isPublished,
-        "text-xs": true,
-        "lg:text-base": true,
-        "px-4 py-2": true,
-      };
-      return badgeClass;
+      return [
+        {
+          "text-green-700 border-green-700": this.isPublished,
+          "border-black text-black": !this.isPublished,
+        },
+        `text-base px-4 py-2`,
+      ];
     },
     /**
      * tooltip for the status badge
@@ -976,15 +1077,15 @@ export default {
       };
     },
     /**
-     * classes for the back button
+     * classes for the home button
      */
-    backButtonClass() {
+    homeButtonClass() {
       return "p-2 bp-420:px-4 bg-peach hover:bg-peach-hover rounded-md shadow-lg ring-primary";
     },
     /**
-     * config for text of back button
+     * config for text of the home button
      */
-    backButtonTitleConfig() {
+    homeButtonTitleConfig() {
       return {
         value: this.$t("editor.buttons.home"),
         class: "text-yellow-800 font-bold text-sm bp-420:text-base",
@@ -1015,7 +1116,7 @@ export default {
           "opacity-50 cursor-not-allowed pointer-events-none": !this
             .isPublishButtonEnabled,
         },
-        `rounded-md ring-green-500 bg-green-500 hover:bg-green-600 p-2 bp-420:px-4`,
+        `rounded-md ring-green-500 bg-green-500 hover:bg-green-600 p-2 bp-420:px-4 bp-500:px-2 sm:px-4`,
       ];
     },
     /**
@@ -1123,22 +1224,13 @@ export default {
       return this.isPublished || !this.isVideoIdValid;
     },
     /**
-     * tooltip for adding the mcq question
-     */
-    addMCQTooltip() {
-      return this.$t("tooltip.editor.add_item.mcq");
-    },
-    /**
-     * tooltip for the subjective question
-     */
-    addSubjectiveQuestionTooltip() {
-      return this.$t("tooltip.editor.add_item.subjective");
-    },
-    /**
      * styling classes for the video link input box
      */
     videoLinkInputStyling() {
-      return ["pl-4 disabled:opacity-50", { "cursor-not-allowed": this.isPublished }];
+      return [
+        "pl-4 disabled:opacity-50 text-sm bp-500:text-base",
+        { "cursor-not-allowed": this.isPublished },
+      ];
     },
     /**
      * tooltip for the video link input box
@@ -1156,8 +1248,36 @@ export default {
       "startLoading",
       "stopLoading",
     ]),
-    ...mapActions("generic", ["showSharePlioDialog", "showEmbedPlioDialog"]),
+    ...mapActions("generic", [
+      "showSharePlioDialog",
+      "showEmbedPlioDialog",
+      "showSpinner",
+      "hideSpinner",
+    ]),
+    ...mapActions("dialog", [
+      "showDialogBox",
+      "hideDialogBox",
+      "setDialogCloseButton",
+      "setDialogTitle",
+      "setDialogDescription",
+      "setConfirmButtonConfig",
+      "setCancelButtonConfig",
+      "setDialogBoxClass",
+      "setDialogAction",
+      "unsetDialogAction",
+      "unsetConfirmClicked",
+      "unsetCancelClicked",
+    ]),
     ...Utilities,
+    /**
+     * copies the plio draft link to the clipboard
+     */
+    copyPlioDraftLink() {
+      let success = this.copyToClipboard(this.getPlioDraftLink(this.plioId, this.org));
+
+      if (success) this.toast.success(this.$t("success.copying"));
+      else this.toast.error(this.$t("error.copying"));
+    },
     /**
      * Iterates through all items, extracts the times and populates itemTimestamps array
      */
@@ -1198,6 +1318,8 @@ export default {
         (item, prevItem) => {
           // return if there's no change
           if (isEqual(item, prevItem)) return;
+          // sort items/itemDetails
+          this.checkAndFixItemOrder();
           // update itemTimestamps array
           this.updateItemTimestamps();
           // push the changes for that item to the backend
@@ -1375,13 +1497,17 @@ export default {
      * and reset the currentItemIndex
      */
     checkAndFixItemOrder() {
-      // only proceed if an item is currently selected
-      if (this.currentItemIndex != null) {
-        var currentItem = this.items[this.currentItemIndex];
-        this.sortItems();
-        this.sortItemDetails();
+      // if an item has already been selected, persist the selection
+      // by storing the item in a temporary variable, and re-setting the
+      // currentItemIndex later on
+      let currentItem = undefined;
+      if (this.currentItemIndex != null) currentItem = this.items[this.currentItemIndex];
+
+      // sort the items and itemDetails arrays
+      this.sortItems();
+      this.sortItemDetails();
+      if (currentItem != undefined)
         this.currentItemIndex = this.items.indexOf(currentItem);
-      }
     },
     /**
      * sort items based on ascending time values
@@ -1428,10 +1554,9 @@ export default {
       } else {
         this.items[itemIndex]["time"] = itemTimestamp;
       }
-      // sort the items based on timestamp
-      this.sortItems();
+      // sort the items based on timestamp and
       // sort the itemDetails array based on the above sorted items
-      this.sortItemDetails();
+      this.checkAndFixItemOrder();
       // update itemTimestamps based on new sorted items
       this.updateItemTimestamps();
       // update everything else
@@ -1705,7 +1830,7 @@ export default {
       this.status = "published";
       await this.saveChanges("all");
       this.isBeingPublished = false;
-      this.isDialogBoxShown = false;
+      this.hideDialogBox();
       this.isPublishedPlioDialogShown = true;
       throwConfetti(this.confettiHandler);
       this.hasUnpublishedChanges = false;
@@ -1729,62 +1854,24 @@ export default {
      */
     showPublishConfirmationDialogBox() {
       // set dialog properties
-      this.dialogTitle = this.publishDialogTitle;
-      this.dialogDescription = this.publishDialogDescription;
-      this.dialogConfirmButtonConfig = {
+      this.setDialogTitle(this.publishDialogTitle);
+      this.setDialogDescription(this.publishDialogDescription);
+      this.setDialogCloseButton();
+      this.setConfirmButtonConfig({
         enabled: true,
         text: this.$t(`editor.dialog.publish.${this.status}.confirm`),
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
-      };
-      this.dialogCancelButtonConfig = {
+      });
+      this.setCancelButtonConfig({
         enabled: true,
         text: this.$t(`editor.dialog.publish.${this.status}.cancel`),
         class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
-      };
-      this.dialogBoxClass = "w-72";
+      });
+      this.setDialogBoxClass("w-72");
       // closing the dialog executes this action
-      this.dialogAction = "publish";
-      // show the dialogue
-      this.isDialogBoxShown = true;
-    },
-    /**
-     * invoked when the confirm button of the dialog box is clicked
-     * calls the appropriate method based on the dialogAction
-     */
-    dialogConfirmed() {
-      // reset the dialog box
-      this.resetDialogBox();
-
-      // call separate methods depening on the dialog action that
-      // was set
-      if (this.dialogAction == "publish") this.confirmPublish();
-      else if (this.dialogAction == "deleteItem") this.deleteSelectedItem();
-      else if (this.dialogAction == "deleteOption") this.confirmDeleteOption();
-      else if (this.dialogAction == "closeDialog") this.isDialogBoxShown = false;
-
-      // reset the dialog action value
-      this.dialogAction = "";
-    },
-    /**
-     * invoked when the cancel button of the dialog box is clicked;
-     * calls the appropriate method based on the dialogAction
-     */
-    dialogCancelled() {
-      // reset the dialog box
-      this.resetDialogBox();
-      if (this.dialogAction == "deleteOption") this.cancelDeleteOption();
-      if (this.dialogAction == "publish" && !this.isPublished) {
-        // show the plio preview
-        this.togglePlioPreviewMode();
-      }
-    },
-    /**
-     * resets the config of the dialog box
-     */
-    resetDialogBox() {
-      this.isDialogBoxShown = false;
-      this.dialogDescription = "";
-      this.dialogBoxClass = "";
+      this.setDialogAction("publish");
+      // show the dialog box
+      this.showDialogBox();
     },
     /**
      * cancels the deletion of the marked option
@@ -1798,23 +1885,18 @@ export default {
      */
     showCannotAddItemDialog() {
       // set up the dialog properties
-      this.dialogTitle = this.$t("editor.dialog.cannot_add_question.title");
-      this.dialogDescription = this.$t("editor.dialog.cannot_add_question.description");
-      this.dialogConfirmButtonConfig = {
+      this.setDialogTitle(this.$t("editor.dialog.cannot_add_question.title"));
+      this.setDialogDescription(this.$t("editor.dialog.cannot_add_question.description"));
+      this.setConfirmButtonConfig({
         enabled: true,
         text: this.$t("generic.got_it"),
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
-      };
-      this.dialogCancelButtonConfig = {
-        enabled: false,
-        text: "",
-        class: "",
-      };
+      });
 
       // carry out the closeDialog action when dialog is closed
-      this.dialogAction = "closeDialog";
-      // show the dialogue
-      this.isDialogBoxShown = true;
+      this.setDialogAction("closeDialog");
+      // show the dialog box
+      this.showDialogBox();
     },
     /**
      * shows a dialog box when the user tries to delete an option
@@ -1822,40 +1904,29 @@ export default {
      */
     showCannotDeleteOptionDialog() {
       // set up the dialog properties
-      this.dialogTitle = this.$t("editor.dialog.cannot_delete_option.title");
-      this.dialogDescription = this.$t("editor.dialog.cannot_delete_option.description");
-      this.dialogConfirmButtonConfig = {
+      this.setDialogTitle(this.$t("editor.dialog.cannot_delete_option.title"));
+      this.setDialogDescription(
+        this.$t("editor.dialog.cannot_delete_option.description")
+      );
+      this.setConfirmButtonConfig({
         enabled: true,
         text: this.$t("generic.got_it"),
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
-      };
-      this.dialogCancelButtonConfig = {
-        enabled: false,
-        text: "",
-        class: "",
-      };
+      });
 
       // carry out the closeDialog action when dialog is closed
-      this.dialogAction = "closeDialog";
-      // show the dialogue
-      this.isDialogBoxShown = true;
+      this.setDialogAction("closeDialog");
+      // show the dialog box
+      this.showDialogBox();
     },
     /**
      * hides the dialog box and invokes the method for publishing the plio
      */
     confirmPublish() {
-      this.isDialogBoxShown = true;
-      this.dialogTitle = this.publishInProgressDialogTitle;
-      this.dialogConfirmButtonConfig = {
-        enabled: false,
-        text: "",
-        class: "",
-      };
-      this.dialogCancelButtonConfig = {
-        enabled: false,
-        text: "",
-        class: "",
-      };
+      this.showDialogBox();
+      this.unsetDialogAction();
+      this.setDialogTitle(this.publishInProgressDialogTitle);
+
       // publish the plio or its changes
       this.publishPlio();
     },
@@ -1863,7 +1934,7 @@ export default {
      * deletes the option marked to be deleted if the question contains
      * more than 2 options
      */
-    confirmDeleteOption() {
+    deleteSelectedOption() {
       // there should always be at least 2 options, allow deletion only
       // if the number of options is >= 3
       if (this.itemDetails[this.currentItemIndex].options.length < 3) {
@@ -1958,6 +2029,8 @@ export default {
         this.items[this.items.length - 1],
         this.itemDetails[this.items.length - 1]
       );
+      // sort items/itemDetails
+      this.checkAndFixItemOrder();
       // update itemTimestamps and currentItemIndex, and select the item
       this.updateItemTimestamps();
       this.currentItemIndex = this.itemTimestamps.indexOf(currentTimestamp);
@@ -1969,24 +2042,24 @@ export default {
      */
     showDeleteItemDialogBox() {
       // set dialog properties
-      this.dialogTitle = this.$t(`editor.dialog.delete_item.${this.itemType}.title`);
-      this.dialogDescription = this.$t(
-        `editor.dialog.delete_item.${this.itemType}.description`
+      this.setDialogTitle(this.$t(`editor.dialog.delete_item.${this.itemType}.title`));
+      this.setDialogDescription(
+        this.$t(`editor.dialog.delete_item.${this.itemType}.description`)
       );
-      this.dialogConfirmButtonConfig = {
+      this.setConfirmButtonConfig({
         enabled: true,
         text: this.$t("generic.yes"),
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
-      };
-      this.dialogCancelButtonConfig = {
+      });
+      this.setCancelButtonConfig({
         enabled: true,
         text: this.$t("generic.no"),
         class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
-      };
+      });
       // set the action to be carried out
-      this.dialogAction = "deleteItem";
-      // show the dialogue
-      this.isDialogBoxShown = true;
+      this.setDialogAction("deleteItem");
+      // show the dialog box
+      this.showDialogBox();
     },
     /**
      * remove the current item from the item list, the corresponding
@@ -2004,7 +2077,7 @@ export default {
       ItemAPIService.deleteItem(itemToDelete[0].id);
       // set currentItemIndex to null to hide the item editor
       this.currentItemIndex = null;
-      this.isDialogBoxShown = false;
+      this.hideDialogBox();
     },
     /**
      * deletes the option of the current item at the given index
@@ -2013,23 +2086,22 @@ export default {
      */
     deleteOption(optionIndex) {
       // set dialog properties
-      this.dialogTitle = this.$t("editor.dialog.delete_option.title");
-      this.dialogDescription = "";
-      this.dialogConfirmButtonConfig = {
+      this.setDialogTitle(this.$t("editor.dialog.delete_option.title"));
+      this.setConfirmButtonConfig({
         enabled: true,
         text: this.$t("generic.yes"),
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
-      };
-      this.dialogCancelButtonConfig = {
+      });
+      this.setCancelButtonConfig({
         enabled: true,
         text: this.$t("generic.no"),
         class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
-      };
+      });
 
       // set the index to delete, set the dialog action, show the dialog
       this.optionIndexToDelete = optionIndex;
-      this.dialogAction = "deleteOption";
-      this.isDialogBoxShown = true;
+      this.setDialogAction("deleteOption");
+      this.showDialogBox();
     },
     /**
      * sets that some unresolved errors are present

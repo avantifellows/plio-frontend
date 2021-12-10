@@ -14,6 +14,7 @@
           :src="videoThumbnailURL"
           class="rounded-md h-48 bp-500:h-auto"
           data-test="thumbnail"
+          alt="Video thumbnail"
         />
       </div>
       <div
@@ -137,23 +138,15 @@
                 <p>
                   {{ $t("dashboard.summary.completion_rate.title") }}
                 </p>
-                <div class="flex relative">
+                <div
+                  class="flex relative"
+                  v-tooltip="$t('tooltip.dashboard.summary.completion_rate')"
+                >
                   <!-- info icon -->
                   <inline-svg
-                    :src="require('@/assets/images/info.svg')"
+                    :src="questionIcon"
                     class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
-                    @mouseover="showCompletedHelpText = true"
-                    @mouseout="showCompletedHelpText = false"
-                    @touchmove="showCompletedHelpText = true"
-                    @touchend="showCompletedHelpText = false"
                   ></inline-svg>
-                  <!-- info text -->
-                  <p
-                    class="bg-black text-white rounded-md p-2 absolute ml-4 w-28 z-10"
-                    v-if="showCompletedHelpText"
-                  >
-                    {{ $t("dashboard.summary.completion_rate.tooltip") }}
-                  </p>
                 </div>
               </div>
             </div>
@@ -178,23 +171,15 @@
                   <p>
                     {{ $t("dashboard.summary.one_minute_retention.title") }}
                   </p>
-                  <div class="flex relative">
+                  <div
+                    class="flex relative"
+                    v-tooltip="$t('tooltip.dashboard.summary.one_minute_retention')"
+                  >
                     <!-- info icon -->
                     <inline-svg
-                      :src="require('@/assets/images/info.svg')"
+                      :src="questionIcon"
                       class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
-                      @mouseover="showRetentionHelpText = true"
-                      @mouseout="showRetentionHelpText = false"
-                      @touchmove="showRetentionHelpText = true"
-                      @touchend="showRetentionHelpText = false"
                     ></inline-svg>
-                    <!-- info text -->
-                    <p
-                      class="bg-black text-white rounded-md p-2 absolute ml-4 w-28"
-                      v-if="showRetentionHelpText"
-                    >
-                      {{ $t("dashboard.summary.one_minute_retention.tooltip") }}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -221,23 +206,15 @@
                 <p>
                   {{ $t("dashboard.summary.accuracy.title") }}
                 </p>
-                <div class="flex relative">
+                <div
+                  class="flex relative"
+                  v-tooltip="$t('tooltip.dashboard.summary.accuracy')"
+                >
                   <!-- info icon -->
                   <inline-svg
-                    :src="require('@/assets/images/info.svg')"
+                    :src="questionIcon"
                     class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
-                    @mouseover="showAccuracyHelpText = true"
-                    @mouseout="showAccuracyHelpText = false"
-                    @touchmove="showAccuracyHelpText = true"
-                    @touchend="showAccuracyHelpText = false"
                   ></inline-svg>
-                  <!-- info text -->
-                  <p
-                    class="bg-black text-white rounded-md p-2 absolute mt-4 -ml-14 bp-500:-ml-8 lg:ml-4 lg:mt-0 w-32 bp-500:w-40 z-10"
-                    v-if="showAccuracyHelpText"
-                  >
-                    {{ $t("dashboard.summary.accuracy.tooltip") }}
-                  </p>
                 </div>
               </div>
             </div>
@@ -262,23 +239,15 @@
                   <p>
                     {{ $t("dashboard.summary.num_questions_answered.title") }}
                   </p>
-                  <div class="flex relative">
+                  <div
+                    class="flex relative"
+                    v-tooltip="$t('tooltip.dashboard.summary.num_questions_answered')"
+                  >
                     <!-- info icon -->
                     <inline-svg
-                      :src="require('@/assets/images/info.svg')"
+                      :src="questionIcon"
                       class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
-                      @mouseover="showQuestionsAnsweredHelpText = true"
-                      @mouseout="showQuestionsAnsweredHelpText = false"
-                      @touchmove="showQuestionsAnsweredHelpText = true"
-                      @touchend="showQuestionsAnsweredHelpText = false"
                     ></inline-svg>
-                    <!-- info text -->
-                    <p
-                      class="bg-black text-white rounded-md p-2 absolute ml-4 w-20 bp-420:w-28"
-                      v-if="showQuestionsAnsweredHelpText"
-                    >
-                      {{ $t("dashboard.summary.num_questions_answered.tooltip") }}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -302,6 +271,7 @@
       class="rounded-md shadow-lg bp-500:mb-8 sm:mb-20 md:mb-10 xl:mb-0"
       @click="downloadReport"
       data-test="download"
+      v-tooltip="$t('tooltip.dashboard.buttons.download_report')"
     ></icon-button>
   </div>
 </template>
@@ -356,10 +326,7 @@ export default {
       // styling class for the title of the second type of metric
       cardMetricTitleClass:
         "w-full text-center text-xs md:text-sm text-yellow-900 mt-2 flex justify-center flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center",
-      showAccuracyHelpText: false, // whether to show the help text for the accuracy metric
-      showCompletedHelpText: false, // whether to show the help text for the % completed metric
-      showRetentionHelpText: false, // whether to show the help text for the retention metric
-      showQuestionsAnsweredHelpText: false, // whether to show the help text for the questions answered metric
+      questionIcon: require("@/assets/images/question-circle-regular.svg"),
     };
   },
   async created() {

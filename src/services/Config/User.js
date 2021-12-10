@@ -5,7 +5,7 @@ import i18n from "@/services/Localisation/i18n.js";
 export default {
   async saveLocalUserConfig() {
     // fetch user config and save locally
-    var userId = store.state.auth.userId;
+    let userId = store.state.auth.userId;
     return UserAPIService.getUserConfig(userId).then((response) => {
       // save user config locally
       store.dispatch("auth/saveConfig", JSON.stringify(response.data));
@@ -14,8 +14,8 @@ export default {
 
   setLocaleFromUserConfig() {
     // set the system locale from the user config
-    var redirectId = setInterval(() => {
-      var userConfig = store.state.auth.config;
+    let redirectId = setInterval(() => {
+      let userConfig = store.state.auth.config;
       if (userConfig != null) {
         userConfig = JSON.parse(userConfig);
         i18n.global.locale =
@@ -27,7 +27,7 @@ export default {
 
   updateLocale() {
     // update the locale to the local and remote configs
-    var userConfig = JSON.parse(store.state.auth.config);
+    let userConfig = JSON.parse(store.state.auth.config);
     // update the locale in the user config if it exists
     // or create a new user config
     if (userConfig != null) userConfig["locale"] = i18n.global.locale;

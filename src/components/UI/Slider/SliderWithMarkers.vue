@@ -30,11 +30,21 @@
       @touchend="markerSliderUnselected"
       @click="updateValueFromMarker(markerIndex)"
       :data-test="`marker-${markerIndex}`"
+      :id="`marker-${markerIndex}`"
     />
+    <!-- tooltip for markers -->
+    <div
+      v-if="isMarkerTooltipVisible"
+      class="absolute z-10 inline-block bg-gray-900 font-semibold shadow-sm text-white py-2 px-3 text-sm rounded-lg mt-10"
+      :style="markerTooltipStyle"
+    >
+      {{ markerTooltipContent }}
+    </div>
   </div>
 </template>
 
 <script>
+import { convertSecondsToISOTime } from "@/services/Functional/Utilities.js";
 export default {
   data() {
     return {
@@ -44,6 +54,7 @@ export default {
       clickAfterDragEnded: false, // indicates whether a marker click was invoked right after it was dragged
       touched: false, // whether a touch event has been initiated
       touchPosition: null, // the current position where the touch event took place
+      markerTooltipContent: null, // the content that will be shown inside a marker tooltip
     };
   },
   created() {
@@ -76,13 +87,44 @@ export default {
       default: 1,
       type: Number,
     },
+    // whether to make the markers non-draggable
     isDragDisabled: {
-      // whether to make the markers non draggable or not
       default: false,
       type: Boolean,
     },
   },
   methods: {
+    /**
+     * Update the content and positioning of a marker tooltip
+     * @param {Number} markerIndex - The index of the marker
+     */
+    updateMarkerTooltip(markerIndex) {
+      if (markerIndex == null) {
+        // don't show anything
+        this.markerTooltipContent = null;
+      } else {
+        // convert the time in seconds to ISO time
+        let ISOTimeObject = convertSecondsToISOTime(
+          this.localMarkerPositions[markerIndex]
+        );
+        this.markerTooltipContent = `${ISOTimeObject.getAsString(
+          "minute"
+        )}:${ISOTimeObject.getAsString("second")}:${ISOTimeObject.getAsString(
+          "millisecond"
+        )}`;
+
+        // Only show the hour value if it's available
+        if (ISOTimeObject.hour != 0)
+          this.markerTooltipContent = `${ISOTimeObject.getAsString("hour")}:${
+            this.markerTooltipContent
+          }`;
+
+        // adjust the position of the tooltip's start to take into account the marker width
+        let markerTooltipPercentPosition =
+          this.markerRelativePositions[markerIndex] - this.markerWidthPercent / 2;
+        this.markerTooltipStyle = `left: ${markerTooltipPercentPosition}%`;
+      }
+    },
     handleScreenSizeChange() {
       // invoked when the screen size is changing
       this.setScreenProperties();
@@ -119,11 +161,13 @@ export default {
         this.localMarkerPositions[markerIndex] = this.touchPosition;
         this.touched = false;
       }
+      this.updateMarkerTooltip(markerIndex);
       this.$emit("marker-drag", markerIndex);
     },
     markerSliderSelected(markerIndex) {
       // invoked when a marker has been selected
       if (!this.isDragDisabled) this.activeMarkerIndex = markerIndex;
+      this.updateMarkerTooltip(markerIndex);
     },
     markerSliderTouched(markerIndex) {
       this.touched = true;
@@ -141,6 +185,7 @@ export default {
     markerSliderUnselected() {
       // invoked when a marker has been unselected
       this.activeMarkerIndex = null;
+      this.updateMarkerTooltip(null);
     },
     getMarkerSlideClass(markerIndex) {
       var markerActive = this.isMarkerActive(markerIndex);
@@ -174,6 +219,19 @@ export default {
     },
   },
   computed: {
+    /**
+     * What percent of the slider's width is the marker's width
+     */
+    markerWidthPercent() {
+      return (this.markerWidth * 100) / this.sliderWidth;
+    },
+    isMarkerTooltipVisible() {
+      // hide the tooltip if no marker is active or if there's no content to show
+      return (
+        (this.activeMarkerIndex != null || this.isDragDisabled) &&
+        this.markerTooltipContent != null
+      );
+    },
     markerArenaWidth() {
       // the width in pixels of the possible range where the left margin of each marker
       // could start from

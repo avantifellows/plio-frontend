@@ -37,19 +37,14 @@
         ></inline-svg>
 
         <!-- search button to perform the search when clicked -->
-        <button
-          :class="searchButtonClass"
+        <icon-button
+          :iconConfig="searchButtonIconConfig"
+          :buttonClass="searchButtonClass"
+          ariaLabel="search"
+          :isDisabled="!isSearchStringPresent"
           @click="search"
-          :disabled="!this.isSearchStringPresent"
           data-test="searchButton"
-        >
-          <span class="w-auto flex justify-end items-center">
-            <inline-svg
-              :src="require('@/assets/images/search-solid.svg')"
-              class="h-5 w-5"
-            ></inline-svg>
-          </span>
-        </button>
+        ></icon-button>
       </div>
     </div>
 
@@ -59,7 +54,7 @@
       <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
           <div
-            class="shadow overflow-hidden border-b border-gray-200 rounded-lg border-l border-r"
+            class="shadow overflow-hidden border-gray-200 rounded-lg border-b border-l border-r"
           >
             <table class="min-w-full divide-y divide-gray-200">
               <thead class="bg-gray-300">
@@ -70,9 +65,10 @@
                     @click="sortBy(columnName)"
                     :key="columnName"
                     scope="col"
-                    class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-gray-500 uppercase tracking-wider w-2/3"
+                    class="sm:py-3 py-1.5 text-left text-xs sm:text-md font-medium text-black uppercase tracking-wider w-4/5"
                     :class="getColumnHeaderStyleClass(columnIndex)"
                     data-test="tableHeader"
+                    v-tooltip="getTableHeaderTooltip(columnName)"
                   >
                     <div class="flex">
                       <div
@@ -83,7 +79,7 @@
                       <div class="p-1 my-auto cursor-pointer">
                         <inline-svg
                           :src="require('@/assets/images/chevron-down-solid.svg')"
-                          class="h-3 w-3 my-1 transition ease duration-800"
+                          class="h-3 w-3 my-1 transition duration-800"
                           :class="getSortIconStyleClass(columnName)"
                         ></inline-svg>
                       </div>
@@ -107,21 +103,6 @@
                     class="sm:py-3 py-1.5 whitespace-normal flex relative"
                     :class="getColumnHeaderStyleClass(columnIndex)"
                   >
-                    <div
-                      class="absolute w-full flex justify-center"
-                      :class="tableCellOverlayClass(rowIndex, columnIndex)"
-                    >
-                      <!-- analyse button -->
-                      <icon-button
-                        :titleConfig="analyseButtonTitleConfig"
-                        :buttonClass="analyseButtonClass"
-                        :isDisabled="!isPublished(rowIndex)"
-                        @click="analysePlio(rowIndex)"
-                        v-tooltip="analyseButtonTooltip(rowIndex)"
-                        v-if="!isTouchDevice"
-                        data-test="analyzeButton"
-                      ></icon-button>
-                    </div>
                     <!-- column content -->
                     <div class="flex w-full">
                       <div
@@ -164,7 +145,7 @@
 
     <!-- no search results warning -->
     <div
-      v-if="isSearchStringPresent && isTableEmpty & !pending"
+      v-if="isSearchStringPresent && isTableEmpty && !pending"
       data-test="noPliosWarning"
       class="flex flex-col justify-center items-center py-12 space-y-2"
     >
@@ -202,12 +183,11 @@ export default {
       type: String,
     },
     tableTitle: {
-      // title to be given to the table
       default: "",
       type: String,
     },
+    /** total number of plios for the user */
     numTotal: {
-      // total number of plios for the user
       default: 0,
       type: Number,
     },
@@ -223,9 +203,6 @@ export default {
       // with the user input in the search bar
       lastSearchString: "",
       selectedRowIndex: null, // index of the row currently in focus / being hovered on
-      // classes for the analyse button
-      analyseButtonClass:
-        "bg-red-500 hover:bg-red-700 rounded-md shadow-md h-10 md:h-12 ring-red-500 -mt-2",
       // classes for the table title
       tableTitleClass:
         "flex flex-row space-x-2 text-base sm:text-lg md:text-xl xl:text-2xl font-bold p-2 items-center",
@@ -234,10 +211,19 @@ export default {
         "bg-white rounded-md flex shadow-md border focus:outline-none border-grey-light w-full bp-360:w-2/3 sm:w-2/3 md:w-1/3 float-right mb-2 mt-2",
       // classes for search bar input box
       searchInputBoxClass:
-        "w-full rounded-md text-gray-700 leading-tight p-2 pl-4 focus:outline-none focus:ring-0 border-none",
+        "w-full rounded-md text-gray-700 leading-tight p-2 py-4 pl-4 focus:outline-none focus:ring-0 border-none",
       // sort order for the "number of viewers" column. 1 - ascending, -1 - descending
       numViewersSortOrder: 1,
       numPliosLoaded: 0, // number of plios which have completed loading
+      searchButtonIconConfig: {
+        // config for the icon of the search button
+        enabled: true,
+        iconName: "search-solid",
+        iconClass: "h-5 w-5",
+      },
+      // classes for search bar button
+      searchButtonClass:
+        "bg-grey-lightest border-grey border-l shadow hover:bg-primary p-4 text-primary hover:text-white",
     };
   },
 
@@ -272,20 +258,6 @@ export default {
       // if a string is present in the search bar
       return this.searchString != "";
     },
-    searchButtonClass() {
-      // classes for search bar button
-      return [
-        { "pointer-events-none": !this.isSearchStringPresent },
-        "bg-grey-lightest border-grey border-l shadow hover:bg-primary p-4 text-primary hover:text-white",
-      ];
-    },
-    analyseButtonTitleConfig() {
-      // title config for the analyse button
-      return {
-        value: this.$t("home.table.buttons.analyse"),
-        class: "pl-4 pr-4 text-white text-lg md:text-xl font-semibold",
-      };
-    },
     tableRowClass() {
       // class for each row of the table
       return [{ "hover:bg-gray-100": !this.isTouchDevice }, "hover:cursor-pointer"];
@@ -316,6 +288,14 @@ export default {
   methods: {
     ...Utilities,
     ...mapActions("sync", ["startLoading"]),
+    /**
+     * Get tooltip for table headers
+     * @param {String} columnName - The name of the column
+     */
+    getTableHeaderTooltip(columnName) {
+      if (columnName == "views") return this.$t("tooltip.home.table.header.views");
+      return undefined;
+    },
     searchIfEnter(event) {
       /**
        * detect if enter has been pressed after entering
@@ -334,23 +314,6 @@ export default {
       // resets the search string
       this.searchString = "";
     },
-    analysePlio(rowIndex) {
-      // redirects to the dashboard page for the selected plio
-      this.$router.push({
-        name: "Dashboard",
-        params: { plioId: this.localData[rowIndex]["name"]["value"], org: this.org },
-      });
-    },
-    analyseButtonTooltip(rowIndex) {
-      // tooltip for the analyse button
-      if (!this.isPublished(rowIndex))
-        return this.$t(`tooltip.home.table.buttons.analyse_plio.disabled`);
-      return this.$t(`tooltip.home.table.buttons.analyse_plio.enabled`);
-    },
-    isPublished(rowIndex) {
-      // whether the plio in the given row is published
-      return this.localData[rowIndex]["name"]["status"] == "published";
-    },
     tableRowHoverOn(rowIndex) {
       // triggered upon hovering over a row
       if (!this.pending) {
@@ -362,23 +325,6 @@ export default {
       // triggered when the hover over a row is exited
       // unset variables when hover is removed
       this.selectedRowIndex = null;
-    },
-    isRowSelected(rowIndex) {
-      // whether the given row index is selected
-      return this.selectedRowIndex == rowIndex;
-    },
-    tableCellOverlayClass(rowIndex, columnIndex) {
-      // class for each cell of the table
-      return {
-        hidden:
-          !this.isLastColumn(columnIndex) ||
-          !this.isRowSelected(rowIndex) ||
-          this.pending,
-      };
-    },
-    isLastColumn(columnIndex) {
-      // whether the given column index is the last column index
-      return columnIndex == this.columns.length - 1;
     },
     isFirstColumn(columnIndex) {
       // whether the given column index is the first column index
@@ -394,12 +340,12 @@ export default {
     },
     sortBy(columnName) {
       /**
-       * toggle the sort order for "number_of_viewers" column
+       * toggle the sort order for "views" column
        * and emit it to the parent
        */
       // do not perform any action if no rows are present
       if (!this.localData.length) return;
-      if (columnName == "number_of_viewers") {
+      if (columnName == "views") {
         this.numViewersSortOrder = this.numViewersSortOrder * -1;
         this.$emit(
           "sort-num-viewers",

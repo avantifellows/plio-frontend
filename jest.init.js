@@ -6,10 +6,12 @@
 
 import { config } from "@vue/test-utils";
 import Toast from "vue-toastification";
-import Tooltip from "primevue/tooltip";
+import VueTooltip from "vue-tippy";
 import VueClickAway from "vue3-click-away";
-
+import VueProgressBar from "@aacassandra/vue3-progressbar";
 import mixpanel from "mixpanel-browser";
+import "offline-js";
+
 mixpanel.init(process.env.VUE_APP_MIXPANEL_PROJECT_TOKEN);
 const $mixpanel = mixpanel;
 
@@ -45,7 +47,7 @@ const $gAuth = {
 };
 
 config.global = {
-  plugins: [Toast, store],
+  plugins: [Toast, store, VueProgressBar],
   mocks: {
     $mixpanel,
     $router,
@@ -56,7 +58,7 @@ config.global = {
     $gAuth,
   },
   directives: {
-    tooltip: Tooltip,
+    tooltip: VueTooltip,
     clickAway: VueClickAway,
   },
   stubs: {

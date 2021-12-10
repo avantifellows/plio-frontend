@@ -90,7 +90,7 @@ import ItemFunctionalService from "@/services/Functional/Item.js";
 import ItemModal from "@/components/Player/ItemModal.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 import { resetConfetti } from "@/services/Functional/Utilities.js";
 
 // difference in seconds between consecutive checks for item pop-up
@@ -102,7 +102,7 @@ var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 const PLYR_INTERVAL_TIME = 0.05;
 
 // upload data periodically - period in milliseconds
-const UPLOAD_INTERVAL = 10000;
+const UPLOAD_INTERVAL = 20000;
 var UPLOAD_INTERVAL_TIMEOUT = null;
 
 // screen width below which the volume bar won't be shown in the player controls
@@ -191,8 +191,7 @@ export default {
       isScorecardShown: false, // to show the scorecard or not
       plioTitle: "", // title of the plio
       isAspectRatioChecked: false, // whether the check for aspect ratio has been done
-      windowWidth: window.innerWidth, // width of the window
-      windowHeight: window.innerHeight, // height of the window
+      watchingEventDBId: null, // the DB id of the latest 'watching' event for a given session
     };
   },
   watch: {
@@ -260,7 +259,10 @@ export default {
           // reload the page and remove the auth query params
           // if the user is authenticated -- they will be able to see the plio
           // if the user is not -- they will be asked to log in and then see the plio
-          if (error.response.status === 400) {
+
+          // if for some reason the API call didn't go through and there's no response
+          // object, then redirect the user to a 404 page
+          if (error.response != undefined && error.response.status === 400) {
             this.$router.replace({
               name: "Player",
               params: {
@@ -269,7 +271,7 @@ export default {
               },
             });
             thirdPartyAuthPromiseResolve();
-          }
+          } else this.$router.replace({ name: "404" });
         });
     } else thirdPartyAuthPromiseResolve();
 
@@ -325,6 +327,7 @@ export default {
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
+    ...mapState("generic", ["windowInnerWidth", "windowInnerHeight"]),
     /**
      * whether player has the correct aspect ratio as desired
      */
@@ -340,7 +343,7 @@ export default {
      * the desired aspect ratio for the player
      */
     getDesiredPlayerAspectRatio() {
-      return (100 * this.windowHeight) / this.windowWidth;
+      return (100 * this.windowInnerHeight) / this.windowInnerWidth;
     },
     /**
      * id of the DOM element for the main container of the plio
@@ -499,8 +502,6 @@ export default {
      * sets various properties based on the screen size
      */
     setScreenProperties() {
-      this.windowHeight = window.innerHeight;
-      this.windowWidth = window.innerWidth;
       this.setPlayerAspectRatio();
       this.setPlayerVolumeVisibility();
     },
@@ -508,11 +509,13 @@ export default {
      * hides the volume control bar when the screen size is less than the threshold
      */
     setPlayerVolumeVisibility() {
-      var plyrInstance = document.getElementById(this.plioContainerId);
+      let plyrInstance = document.getElementById(this.plioContainerId);
+      let plyrVolumeElement = plyrInstance.getElementsByClassName("plyr__volume")[0];
+      if (plyrVolumeElement == undefined) return;
       if (plyrInstance.clientWidth < PLAYER_VOLUME_DISPLAY_WIDTH_THRESHOLD) {
-        plyrInstance.getElementsByClassName("plyr__volume")[0].style.display = "none";
+        plyrVolumeElement.style.display = "none";
       } else {
-        plyrInstance.getElementsByClassName("plyr__volume")[0].style.display = "flex";
+        plyrVolumeElement.style.display = "flex";
       }
     },
     /**
@@ -525,11 +528,11 @@ export default {
        * handles responsiveness: https://github.com/sampotts/plyr/issues/339#issuecomment-287603966
        * the solution below is just generalizing what he had done
        */
-      document
+      const plyrElement = document
         .getElementById(this.plioContainerId) // to ensure that only this plio instance is affected and not other plyr instances
-        .getElementsByClassName(
-          "plyr__video-embed"
-        )[0].style.paddingBottom = `${this.getDesiredPlayerAspectRatio}%`;
+        .getElementsByClassName("plyr__video-embed")[0];
+      if (plyrElement != undefined)
+        plyrElement.style.paddingBottom = `${this.getDesiredPlayerAspectRatio}%`;
     },
     /**
      * checks whether the correct aspect ratio has been set; if not,
@@ -724,8 +727,11 @@ export default {
       if (this.hasSessionStarted) {
         // update session data
         this.updateSession();
-        // create an event for the user watching the plio
-        this.createEvent("watching");
+        // if a 'watching' event exists for the current session, update that event
+        // else create a new event
+        if (this.watchingEventDBId == null) this.createEvent("watching");
+        else this.updateEvent("watching", this.watchingEventDBId);
+
         this.$mixpanel.people.increment(
           "Total Watch Time",
           this.watchTimeIncrement.toFixed(2)
@@ -917,12 +923,12 @@ export default {
      */
     showItemMarkersOnSlider() {
       this.items.forEach((item, index) => {
-        let existingMarker = document.getElementById(`marker-${index}`);
+        let existingMarker = document.getElementById(`plioModalMarker-${index}`);
         if (existingMarker != undefined) this.removeMarkerOnSlider(existingMarker);
 
         // Add marker to player seek bar
         var newMarker = document.createElement("SPAN");
-        newMarker.setAttribute("id", `marker-${index}`);
+        newMarker.setAttribute("id", `plioModalMarker-${index}`);
 
         // set marker style and position
         if (this.isItemResponseDone(index)) {
@@ -940,7 +946,7 @@ export default {
     showScorecardMarkerOnSlider() {
       // Add marker to player seek bar
       var newMarker = document.createElement("p");
-      newMarker.setAttribute("id", `marker-scorecard`);
+      newMarker.setAttribute("id", `plioScorecardMarker`);
 
       // what the marker should look like - trophy cup emoji
       newMarker.innerText = "🏆";
@@ -1048,21 +1054,37 @@ export default {
     },
     /**
      * creates a new event
+     * @param {String} eventType - The type of event that needs to be logged
+     * @param {Object} eventDetails - details of the event
      */
-    createEvent(eventType, eventDetails = {}) {
+    async createEvent(eventType, eventDetails = {}) {
       /**
        * do not create an event if the session has not started
        * or the user is not authenticated or if the plio is opened
        * in preview mode
        */
       if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode) return;
-      var eventData = {
+      let response = await EventAPIService.createEvent({
         type: eventType,
         details: eventDetails,
-        player_time: this.player.currentTime,
+        player_time: this.player.currentTime != null ? this.player.currentTime : 0,
         session: this.sessionDBId,
-      };
-      EventAPIService.createEvent(eventData);
+      });
+      if (eventType == "watching") this.watchingEventDBId = response.id;
+    },
+    /**
+     * Updates an event
+     * @param {String} eventType - The type of event that needs to be logged
+     * @param {Number} eventDBId - The id of the event instance which needs to be updated
+     * @param {Object} eventDetails - details of the event
+     */
+    updateEvent(eventType, eventDBId, eventDetails = {}) {
+      EventAPIService.updateEvent(eventDBId, {
+        type: eventType,
+        details: eventDetails,
+        player_time: this.player.currentTime != null ? this.player.currentTime : 0,
+        session: this.sessionDBId,
+      });
     },
     goFullscreen() {
       this.isFullscreen = true;

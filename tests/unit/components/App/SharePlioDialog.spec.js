@@ -33,31 +33,29 @@ describe("SharePlioDialog.vue", () => {
   });
 
   it("link formatted correctly", () => {
-    const plioLink = "app.plio.in/#/play/ABC";
+    const plioLink = "app.plio.in/play/ABC";
     const wrapper = mount(SharePlioDialog, {
       props: {
         plioLink: plioLink,
       },
     });
-    expect(wrapper.vm.socialSharingFormattedLink).toBe(
-      "app.plio.in/%23/play/ABC"
-    );
+    expect(wrapper.vm.socialSharingFormattedLink).toBe("app.plio.in/play/ABC");
   });
 
   it("creates social sharing text correctly", () => {
-    const plioLink = "app.plio.in/#/play/ABC";
+    const plioLink = "app.plio.in/play/ABC";
     const wrapper = mount(SharePlioDialog, {
       props: {
         plioLink: plioLink,
       },
     });
     expect(wrapper.vm.socialSharingText).toBe(
-      "Check out my new plio: app.plio.in/%23/play/ABC"
+      "Check out my new plio: app.plio.in/play/ABC"
     );
   });
 
   it("copies link correctly", () => {
-    const plioLink = "app.plio.in/#/play/ABC";
+    const plioLink = "app.plio.in/play/ABC";
     const wrapper = mount(SharePlioDialog, {
       props: {
         plioLink: plioLink,
@@ -69,7 +67,7 @@ describe("SharePlioDialog.vue", () => {
   });
 
   it("copy button text changes if plio link copied", () => {
-    const plioLink = "app.plio.in/#/play/ABC";
+    const plioLink = "app.plio.in/play/ABC";
     const wrapper = mount(SharePlioDialog, {
       props: {
         plioLink: plioLink,

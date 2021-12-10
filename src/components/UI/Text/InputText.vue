@@ -32,7 +32,7 @@
         class="absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center w-5 inset-y-1/4 left-1.5"
         @click="startIconSelected"
         :class="startIconClass"
-        v-tooltip.left="startIconTooltip"
+        v-tooltip="startIconTooltip"
         data-test="startIcon"
       >
         <inline-svg :src="startIconObj"></inline-svg>
@@ -60,7 +60,7 @@
         class="absolute rounded text-base place-content-center w-5 right-1.5 flex"
         @click="endIconSelected"
         :class="endIconClass"
-        v-tooltip.left="endIconTooltip"
+        v-tooltip="endIconTooltip"
         data-test="endIcon"
       >
         <inline-svg :src="endIconObj" class="place-self-center"></inline-svg>
@@ -80,9 +80,11 @@ export default {
       default: "",
       type: String,
     },
+    /**
+     * whether to show any validation for the input
+     * format: {enabled: boolean, isValid: boolean, validMessage: String, invalidMessage: String}
+     */
     validation: {
-      // whether to show any validation for the input
-      // format: {enabled: boolean, isValid: boolean, validMessage: String, invalidMessage: String}
       default: () => {
         return {
           enabled: false,
@@ -90,9 +92,10 @@ export default {
       },
       type: Object,
     },
+    /**
+     * whether the start icon is enabled and the icon name, if enabled
+     */
     startIcon: {
-      // whether the start icon is enabled or not
-      // and the icon name if enabled
       default: () => {
         return {
           enabled: false,
@@ -104,9 +107,10 @@ export default {
       },
       type: Object,
     },
+    /**
+     * whether the end icon is enabled and the icon name, if enabled
+     */
     endIcon: {
-      // whether the end icon is enabled or not
-      // and the icon name if enabled
       default: () => {
         return {
           enabled: false,
@@ -118,24 +122,23 @@ export default {
       },
       type: Object,
     },
+    /** the value of the input to the input box */
     value: {
-      // the value of the input of the input box
       default: "",
       type: [String, Number],
     },
+    /** classes for the input boxes */
     boxStyling: {
-      // pass any classes that need to be added to the input
-      // boxes
       default: () => {},
       type: [Object, String],
     },
+    /** maximum length for the input */
     maxLength: {
-      // maximum allowed character length of input
       default: null,
       type: Number,
     },
+    /** whether the input text is disabled */
     isDisabled: {
-      // whether the input text is disabled or not
       default: false,
       type: Boolean,
     },

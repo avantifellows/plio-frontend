@@ -1,10 +1,10 @@
 <template>
   <div
     v-if="showPaginator"
-    class="bg-white px-4 py-3 flex items-center justify-between sm:px- mx-2 bp-360:mx-4 sm:mx-6 md:mx-8 lg:mx-10 xl:mx-14"
+    class="bg-white px-4 py-3 flex items-center justify-between mx-2 bp-360:mx-4 sm:mx-6 md:mx-8 lg:mx-10 xl:mx-14"
   >
     <!-- paginator for smaller screens -->
-    <div class="flex-1 flex justify-between sm:hidden">
+    <div class="flex-1 flex justify-between lg:hidden">
       <!-- previous button -->
       <button
         @click="setAndRouteToPage(paginatorDetails.currentPage - 1)"
@@ -26,7 +26,7 @@
     </div>
 
     <!-- paginator for bigger screens -->
-    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+    <div class="hidden lg:flex-1 lg:flex lg:items-center lg:justify-between">
       <!-- skeleton details -->
       <div
         v-if="pending"
@@ -119,7 +119,7 @@ export default {
 
   props: {
     totalItems: {
-      // total items that need to be paginated
+      // total number of items that need to be paginated
       type: Number,
       required: true,
     },
@@ -254,11 +254,11 @@ export default {
         {
           "opacity-50 cursor-not-allowed hover:text-gray-700 hover:bg-white": this
             .isFirstPage,
-          "sm:animate-pulse sm:bg-gray-300 sm:text-opacity-0 sm:hover:bg-gray-300": this
+          "lg:animate-pulse lg:bg-gray-300 lg:text-opacity-0 lg:hover:bg-gray-300": this
             .pending,
           "hover:text-gray-500": !this.pending,
         },
-        `relative inline-flex items-center px-4 sm:px-2 py-2 border border-gray-300
+        `relative inline-flex items-center px-4 lg:px-2 py-2 border border-gray-300
           bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none
           active:bg-primary`,
       ];
@@ -269,11 +269,11 @@ export default {
         {
           "opacity-50 cursor-not-allowed hover:text-gray-700 hover:bg-white": this
             .isLastPage,
-          "sm:animate-pulse sm:bg-gray-300 sm:text-gray-300 sm:hover:bg-gray-300 active": this
+          "lg:animate-pulse lg:bg-gray-300 lg:text-gray-300 lg:hover:bg-gray-300 active": this
             .pending,
           "hover:text-gray-500": !this.pending,
         },
-        `relative inline-flex items-center px-4 sm:px-2 py-2 border border-gray-300
+        `relative inline-flex items-center px-4 lg:px-2 py-2 border border-gray-300
           bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none
           active:bg-primary`,
       ];

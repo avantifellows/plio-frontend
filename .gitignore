@@ -28,3 +28,6 @@ package-lock.json
 
 # testing
 /coverage
+
+# cypress
+cypress.env.json

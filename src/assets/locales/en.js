@@ -3,6 +3,9 @@ export default {
     home: "Home",
     login: "",
     logout: "Logout",
+    whats_new: "What's New",
+    product_guides: "Product Guides",
+    docs: "Documentation",
     editor: "Editor",
     dashboard: "Dashboard",
     abtesting: "",
@@ -18,7 +21,7 @@ export default {
         invalid: "Invalid Link",
       },
       info: {
-        1: "To get started, you need to paste the link of the YouTube video that you want to make interactive. If you don't have a link, you can ",
+        1: "To get started, you need to paste the link of the YouTube video that you want to convert into an interactive lesson. If you don't have a link, you can ",
         2: "upload the video to YouTube",
         3: " and get the link.",
       },
@@ -45,6 +48,7 @@ export default {
       preview_plio: "Preview",
       embed_plio: "Embed",
       analyze_plio: "Analyze",
+      share_draft: "Copy Draft Link",
     },
     updated: "Updated at",
     item_editor: {
@@ -115,7 +119,7 @@ export default {
       },
       publishing: {
         published: {
-          title: "Publishing the changes..",
+          title: "Publishing the changes...",
         },
         draft: {
           title: "Publishing the plio...",
@@ -183,19 +187,12 @@ export default {
   home: {
     create_button: "Create",
     create_button_empty: "Create a plio",
-    waitlist: {
-      1: "You have been added to the waitlist",
-      2: "You will hear from us soon",
-      3: "Please fill",
-      4: "this",
-      5: "form to get access quicker",
-    },
     all_plios: "All Plios",
     no_plios: "Go ahead and create a plio",
     table: {
       columns: {
         name: "name",
-        number_of_viewers: "Number of Viewers",
+        views: "Views",
       },
       plio_list_item: {
         buttons: {
@@ -249,10 +246,10 @@ export default {
     },
   },
   login: {
-    heading: "Make Videos Interactive",
+    heading: "Convert videos into interactive lessons",
     sub_headings: {
       interactive: {
-        title: "Interactive YouTube videos",
+        title: "Use Any YouTube video",
         description:
           "Convert any passive youtube video into an interactive lesson",
       },
@@ -267,7 +264,7 @@ export default {
           "Sharing interactive videos is as simple as sharing a link",
       },
       analytics: {
-        title: "Rich Analytics",
+        title: "Gather Rich Analytics",
         description:
           "Go beyond traditional YouTube metrics to understand your audience better",
       },
@@ -348,10 +345,23 @@ export default {
     },
   },
   error: {
-    404: "Page Not Found",
+    404: {
+      title: "Page Not Found",
+      description:
+        "We were unable to find what you are looking for. You can try going back to your home.",
+    },
+    403: {
+      title: "Access Denied",
+      description:
+        "You do not have the permission to access this page. Please make sure you're logged in with the correct account. If you are not a part of the organisational workspace, please contact the organisation's admin to get yourself added or you can go back to your home.",
+    },
+    buttons: {
+      home: "Go to Home",
+    },
     create_plio: "Could not create Plio. Please try again",
     generic: "Something went wrong. Please try again!",
-    internet: "Please check your internet connection",
+    internet_lost: "Internet connection lost",
+    internet_restored: "Internet connection restored",
     copying: "Error while copying",
     auto_logout: "You have been logged out!",
   },
@@ -385,11 +395,11 @@ export default {
     editor: {
       publish: {
         published: {
-          enabled: "Click to publish your changes",
+          enabled: "Click to publish the changes you've made",
           disabled: "No unpublished changes yet",
         },
         draft: {
-          enabled: "Click to publish the plio",
+          enabled: "Publish the plio to share it with your viewers",
           disabled: "Enter a valid video link first",
         },
       },
@@ -401,7 +411,7 @@ export default {
       video_input: {
         published: "You cannot edit the video link in a published plio",
         draft:
-          "Paste the link of the YouTube video you want to make interactive",
+          "Paste the link of the YouTube video you want to convert into an interactive lesson",
       },
       add_item: {
         published: "You cannot add new questions in a published plio",
@@ -419,6 +429,13 @@ export default {
               enabled: "Add a question",
             },
           },
+          delete_item: {
+            question: {
+              disabled:
+                "You cannot delete a question once the plio is published",
+              enabled: "Delete this question",
+            },
+          },
           add_option: {
             disabled: "You cannot add an option once the plio is published",
             enabled: "Add an option",
@@ -427,6 +444,19 @@ export default {
             disabled: "Cannot delete option once the plio is published",
             enabled: "Delete this option",
           },
+          add_image: {
+            enabled: "Add an image to your question",
+            disabled: "Cannot add an image in a published plio",
+          },
+          update_image: {
+            enabled: "Update or delete the image in this question",
+            disabled: "Cannot update the image in a published plio",
+          },
+          question_type_picker: {
+            disabled:
+              "Cannot change the question type once a plio is published",
+            enabled: "Click to change the type of this question",
+          },
         },
         correct_option: {
           marked:
@@ -434,6 +464,15 @@ export default {
           unmarked: "Mark this option as the correct option for this question",
         },
       },
+      home: "Go to the home page",
+      preview:
+        "Click to preview the plio and see how it will look like to your viewers",
+      copy_draft_link:
+        "Copy a link of this draft plio to share it with your collaborators",
+      analyze: "Analyse the data collected from the viewers of this plio",
+      share_plio: "Share this plio with your viewers",
+      play_plio: "Try out the created plio yourself",
+      embed_plio: "Embed this plio",
     },
     home: {
       table: {
@@ -457,6 +496,23 @@ export default {
             enabled: "Look at the data for the plio",
           },
         },
+        header: {
+          views: "Click to sort by the number of views",
+        },
+      },
+    },
+    dashboard: {
+      buttons: {
+        download_report: "Download a detailed report for this plio",
+      },
+      summary: {
+        completion_rate: "Percentage of viewers who answered all the questions",
+        one_minute_retention:
+          "Percentage of viewers who watched your video beyond 1 minute",
+        accuracy:
+          "Average accuracy for each viewer - accuracy is calculated only for the questions that have been answered by the viewer",
+        num_questions_answered:
+          "Average number of questions answered by each viewer",
       },
     },
   },
@@ -472,20 +528,15 @@ export default {
       avg_watch_time: "AVERAGE WATCH TIME",
       completion_rate: {
         title: "COMPLETED",
-        tooltip: "Percentage of viewers who answered all the questions",
       },
       one_minute_retention: {
         title: "RETENTION AT 1 MINUTE",
-        tooltip: "Percentage of viewers who watched your video beyond 1 minute",
       },
       accuracy: {
         title: "ACCURACY",
-        tooltip:
-          "Average accuracy for each viewer - accuracy is calculated only for the questions that have been answered by the viewer",
       },
       num_questions_answered: {
         title: "QUESTIONS ANSWERED",
-        tooltip: "Average number of questions answered by each viewer",
       },
     },
   },

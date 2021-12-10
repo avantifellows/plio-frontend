@@ -80,49 +80,43 @@ export default {
     window.removeEventListener("resize", this.checkScreenOrientation);
   },
   props: {
-    /**
-     * list of items
-     */
     itemList: {
       default: () => {
         return [];
       },
       type: Array,
     },
-    /**
-     * list of item details
-     */
     itemDetailList: {
       default: () => [],
       type: Array,
     },
+    /**
+     * list of submitted responses to the items
+     */
     responseList: {
-      // list of submitted responses to the items
       default: () => {},
       type: Array,
     },
     selectedItemIndex: {
-      // index of the selected item
       default: 0,
       type: Number,
     },
     isFullscreen: {
-      // whether the modal is in fullscreen
       default: false,
       type: Boolean,
     },
+    /** whether the item modal will be shown in editor's mini-preview mode */
     previewMode: {
-      // whether the item modal will be shown in editor preview mode
       default: false,
       type: Boolean,
     },
+    /** whether the item modal is minimized */
     isModalMinimized: {
-      // whether the item modal is minimized or not
       default: false,
       type: Boolean,
     },
+    /** id of the DOM element corresponding to video player */
     videoPlayerElementId: {
-      // id of the DOM element corresponding to video player
       default: null,
       type: String,
     },

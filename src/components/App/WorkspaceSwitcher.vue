@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="w-full">
     <select
       v-model="selectedWorkspace"
       @change="updateActiveWorkspace"
       data-test="select"
-      class="rounded-md border-gray-400 focus:outline-none focus:border-gray-400 focus:ring-0"
+      class="rounded-md border-gray-400 focus:outline-none focus:border-gray-400 focus:ring-0 w-full text-sm sm:text-base"
       :disabled="isDisabled"
     >
       <option value="">Personal Workspace</option>
@@ -31,8 +31,8 @@ export default {
     },
   },
   props: {
+    /** whether the switcher is disabled */
     isDisabled: {
-      // whether the switcher should be disabled
       type: Boolean,
       default: false,
     },

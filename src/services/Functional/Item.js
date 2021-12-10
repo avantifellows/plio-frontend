@@ -5,7 +5,7 @@ const ITEM_VICINITY_TIME = 2;
 export default {
   getItemTimestamps(items) {
     // returns the list of timestamps of the items
-    var timestamps = [];
+    let timestamps = [];
 
     items.forEach((item) => {
       timestamps.push(item.time);
@@ -19,7 +19,7 @@ export default {
     // check if an item should be popped
 
     // index of the item to be selected if any
-    var selectedItemIndex = null;
+    let selectedItemIndex = null;
 
     // checks if any item is to be marked selected for the given timestamp
     itemTimestamps.every((itemTimestamp, index) => {
@@ -50,7 +50,7 @@ export default {
       // don't check against the item itself
       if (itemIndex != null && index == itemIndex) continue;
 
-      var val = itemTimestamps[index];
+      let val = itemTimestamps[index];
 
       // timestamp value should not be in range
       // [(val + ITEM_VICINITY_TIME), (val - ITEM_VICINITY_TIME)]
