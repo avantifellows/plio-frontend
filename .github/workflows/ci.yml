@@ -57,13 +57,6 @@ jobs:
             echo "Branch not found. Going with default branch."
           fi
 
-          echo 'running npm install with dev mode'
-          npm install
-          echo 'npm install finished'
-          echo 'install cypress code coverage'
-          npm install @cypress/code-coverage
-          echo 'finished installing cypress code coverage'
-
           # create the env file
           cp .env.example .env
 
@@ -74,6 +67,13 @@ jobs:
 
           # setup docker containers
           docker-compose up -d --build
+
+          echo 'running npm install with dev mode'
+          npm install
+          echo 'npm install finished'
+          echo 'install cypress code coverage'
+          npm install @cypress/code-coverage
+          echo 'finished installing cypress code coverage'
 
       - name: Set up Plio Backend
         run: |
