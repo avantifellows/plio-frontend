@@ -68,12 +68,12 @@ jobs:
           # setup docker containers
           docker-compose up -d --build
 
-          echo 'running npm install with dev mode'
-          npm install
-          echo 'npm install finished'
-          echo 'install cypress code coverage'
-          npm install @cypress/code-coverage
-          echo 'finished installing cypress code coverage'
+          # echo 'running npm install with dev mode'
+          # npm install
+          # echo 'npm install finished'
+          # echo 'install cypress code coverage'
+          # npm install @cypress/code-coverage
+          # echo 'finished installing cypress code coverage'
 
       - name: Set up Plio Backend
         run: |
