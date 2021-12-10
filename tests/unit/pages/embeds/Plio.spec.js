@@ -152,7 +152,7 @@ describe("Plio.vue", () => {
 
       expect(createSession).toHaveBeenCalled();
 
-      // 1 `POST` request should have been made
+      // 0 `POST` request should have been made
       expect(mockAxios.post).toHaveBeenCalledTimes(0);
     });
 

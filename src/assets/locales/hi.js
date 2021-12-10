@@ -278,7 +278,6 @@ export default {
         invalid: "OTP 6 अंको का होना चाहिए",
       },
       submit: "OTP जमा करें",
-      incorrect: "OTP गलत दर्ज किया गया है कृपया दोबारा कोशिश करें",
       resend: "OTP दोबारा भेजो",
       resent: "OTP फिर भेजा गया है",
     },
@@ -544,6 +543,13 @@ export default {
       },
       num_questions_answered: {
         title: "उत्तर किये गए प्रश्न",
+      },
+    },
+  },
+  toast: {
+    login: {
+      otp: {
+        incorrect: "OTP गलत दर्ज किया गया है कृपया दोबारा कोशिश करें",
       },
     },
   },

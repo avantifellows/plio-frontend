@@ -14,7 +14,10 @@
           alt="Plio logo"
         />
 
-        <p class="mt-2 text-center text-md sm:text-xl font-bold text-primary" data-test="loginHeading">
+        <p
+          class="mt-2 text-center text-md sm:text-xl font-bold text-primary"
+          data-test="loginHeading"
+        >
           {{ $t("login.heading") }}
         </p>
       </div>
@@ -122,14 +125,15 @@
         data-test="phone"
       ></input-number>
       <!-- input box to enter OTP -->
-      <input-number
+      <input-text
         class="mt-2"
         v-model:value="otpInput"
         :validation="otpInputValidation"
         :maxLength="6"
+        inputType="number"
         v-if="requestedOtp"
         data-test="otp"
-      ></input-number>
+      ></input-text>
       <!-- button to request for OTP -->
       <icon-button
         class="mt-2"
@@ -181,6 +185,7 @@
 import UserAPIService from "@/services/API/User.js";
 import UserConfigService from "@/services/Config/User.js";
 import InputNumber from "@/components/UI/Text/InputNumber.vue";
+import InputText from "@/components/UI/Text/InputText.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { mapActions, mapState } from "vuex";
 import { useToast } from "vue-toastification";
@@ -204,6 +209,7 @@ export default {
   },
   components: {
     InputNumber,
+    InputText,
     IconButton,
   },
   watch: {
@@ -413,7 +419,7 @@ export default {
           if (error.response.status == 401) {
             // show wrong OTP warning and reset the OTP input text box
             this.invalidOtp = true;
-            this.toast.error(this.$t("login.otp.incorrect"));
+            this.toast.error(this.$t("toast.login.otp.incorrect"));
             this.otpInput = "";
             this.isSubmitOTPInProgress = false;
           }

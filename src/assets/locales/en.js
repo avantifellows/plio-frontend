@@ -276,7 +276,6 @@ export default {
         invalid: "OTP should be 6 digits long",
       },
       submit: "Submit OTP",
-      incorrect: "Incorrect OTP entered. Please try again!",
       resend: "Resend OTP",
       resent: "OTP has been sent again",
     },
@@ -542,6 +541,13 @@ export default {
       },
       num_questions_answered: {
         title: "QUESTIONS ANSWERED",
+      },
+    },
+  },
+  toast: {
+    login: {
+      otp: {
+        incorrect: "Incorrect OTP entered. Please try again!",
       },
     },
   },
