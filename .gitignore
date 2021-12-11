@@ -31,3 +31,4 @@ package-lock.json
 
 # cypress
 cypress.env.json
+tests/integration/videos/
