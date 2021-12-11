@@ -24,16 +24,20 @@
       ></video-player>
       <!-- minimize button -->
       <transition name="maximize-btn-transition">
-        <icon-button
+        <div
+          class="absolute z-20 px-6 md:px-8 xl:px-12 flex w-full justify-end p-1 mt-2"
           v-if="isModalMinimized && isItemModalShown"
-          class="absolute z-20"
-          id="maximizeButton"
-          :titleConfig="maximizeButtonTitleConfig"
-          :buttonClass="maximizeButtonClass"
-          @click="maximizeModal"
+          id="plioMaximizeButton"
         >
-        </icon-button>
+          <icon-button
+            :titleConfig="maximizeButtonTitleConfig"
+            :buttonClass="maximizeButtonClass"
+            @click="maximizeModal"
+          >
+          </icon-button>
+        </div>
       </transition>
+
       <!-- transition for minimizing/maximizing item modal -->
       <transition enter-active-class="grow" leave-active-class="shrink">
         <!-- item modal component -->
@@ -186,7 +190,7 @@ export default {
       lastTimestampRetention: null, // last recorded timestamp in the retention array
       toast: useToast(),
       isModalMinimized: false, // whether the item modal is minimized or not
-      // styling class for the minimize button
+      // styling class for the maximise button
       maximizeButtonClass:
         "px-3 sm:p-2 sm:px-6 lg:p-4 lg:px-8 bg-primary hover:bg-primary-hover p-1 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
       numCorrect: 0, // number of correctly answered questions
@@ -432,7 +436,7 @@ export default {
       return this.items[this.currentItemIndex].type;
     },
     /**
-     * styling class for the title of minimize button
+     * config for the title of the maximise button
      */
     maximizeButtonTitleConfig() {
       return {
@@ -638,20 +642,17 @@ export default {
     },
     minimizeModal(positions) {
       // invoked when minimize button is clicked
+      this.isModalMinimized = true;
 
       // set some CSS variables which tells the animation where the modal should shrink to
       // and where the maximize button should pop up. These variables are defined in `Editor.vue`
       let root = document.documentElement;
       root.style.setProperty("--t-origin-x", positions.centerX + "px");
       root.style.setProperty("--t-origin-y", positions.centerY + "px");
-      root.style.setProperty("--maximize-btn-left", positions.leftX + "px");
-      root.style.setProperty("--maximize-btn-top", positions.leftY + "px");
-
-      this.isModalMinimized = true;
 
       // insert the button inside the plyr instance so that it shows up in fullscreen mode
       this.$nextTick(() => {
-        var maximizeButton = document.getElementById("maximizeButton");
+        let maximizeButton = document.getElementById("plioMaximizeButton");
         if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
       });
     },
@@ -851,15 +852,11 @@ export default {
        */
       if (!this.isAuthenticated || this.previewMode) return;
 
-      var sessionDetails = {
+      return SessionAPIService.updateSession(this.sessionDBId, {
         plio: this.plioDBId,
         watch_time: this.watchTime,
         retention: this.retentionArrayToStr(this.retention),
-      };
-      return SessionAPIService.updateSession(
-        this.sessionDBId,
-        sessionDetails
-      ).catch((err) => console.log(err));
+      }).catch((err) => console.log(err));
     },
     retentionStrToArray(retentionStr) {
       // convert retention string to retention array
@@ -871,7 +868,7 @@ export default {
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL
-      var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(videoURL);
+      let linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(videoURL);
       return linkValidation["ID"];
     },
     playerPlayed() {
@@ -926,7 +923,7 @@ export default {
      * @param {Number} positionPercent - By what % from the left should the marker be placed
      */
     placeMarkerOnSlider(marker, classList, positionPercent) {
-      var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
+      let plyrProgressBar = document.querySelectorAll(".plyr__progress")[0];
       if (plyrProgressBar != undefined) {
         marker.classList.add(...classList);
         marker.style.setProperty("left", `${positionPercent}%`);
@@ -953,7 +950,7 @@ export default {
         if (existingMarker != undefined) this.removeMarkerOnSlider(existingMarker);
 
         // Add marker to player seek bar
-        var newMarker = document.createElement("SPAN");
+        let newMarker = document.createElement("SPAN");
         newMarker.setAttribute("id", `plioModalMarker-${index}`);
 
         // set marker style and position
@@ -961,7 +958,7 @@ export default {
           this.markerClass[0] = "bg-green-600";
         } else this.markerClass[0] = "bg-red-600";
 
-        var positionPercent = (100 * item.time) / this.player.duration;
+        let positionPercent = (100 * item.time) / this.player.duration;
 
         this.placeMarkerOnSlider(newMarker, this.markerClass, positionPercent);
       });
@@ -971,7 +968,7 @@ export default {
      */
     showScorecardMarkerOnSlider() {
       // Add marker to player seek bar
-      var newMarker = document.createElement("p");
+      let newMarker = document.createElement("p");
       newMarker.setAttribute("id", `plioScorecardMarker`);
 
       // what the marker should look like - trophy cup emoji
@@ -1030,7 +1027,7 @@ export default {
       this.watchTime += PLYR_INTERVAL_TIME;
       this.watchTimeIncrement += PLYR_INTERVAL_TIME;
       // update retention if the array is defined
-      var currentTime = Math.trunc(this.player.currentTime);
+      let currentTime = Math.trunc(this.player.currentTime);
       if (currentTime != this.lastTimestampRetention && this.retention.length) {
         this.retention[currentTime] += 1;
         this.lastTimestampRetention = currentTime;
@@ -1069,10 +1066,10 @@ export default {
       this.pausePlayer();
 
       // if the video is in fullscreen mode, show the modal on top of it
-      var modal = document.getElementById(this.plioModalElementId);
+      let modal = document.getElementById(this.plioModalElementId);
       if (modal != undefined) this.mountOnFullscreenPlyr(modal);
 
-      var maximizeButton = document.getElementById("maximizeButton");
+      let maximizeButton = document.getElementById("plioMaximizeButton");
       if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
     },
     enterPlayerFullscreen() {
@@ -1127,3 +1124,97 @@ export default {
   emits: ["initiated", "loaded", "item-toggle"],
 };
 </script>
+
+<style lang="scss">
+.maximize-btn-transition-leave {
+  animation: linear 0.1s;
+}
+
+@mixin modalScale($scaleFactor) {
+  transform: scale($scaleFactor);
+  transform-origin: var(--t-origin-x) var(--t-origin-y);
+}
+
+@keyframes shrink {
+  1% {
+    @include modalScale(0.9);
+  }
+  10% {
+    @include modalScale(0.8);
+  }
+  20% {
+    @include modalScale(0.7);
+  }
+  30% {
+    @include modalScale(0.6);
+  }
+  40% {
+    @include modalScale(0.5);
+  }
+  50% {
+    @include modalScale(0.4);
+  }
+  60% {
+    @include modalScale(0.3);
+  }
+  70% {
+    @include modalScale(0.2);
+  }
+  80% {
+    @include modalScale(0.1);
+  }
+  90% {
+    @include modalScale(0.07);
+  }
+  100% {
+    @include modalScale(0.03);
+  }
+}
+
+@keyframes grow {
+  0% {
+    @include modalScale(0);
+  }
+  1% {
+    @include modalScale(0.03);
+  }
+  10% {
+    @include modalScale(0.07);
+  }
+  20% {
+    @include modalScale(0.1);
+  }
+  30% {
+    @include modalScale(0.2);
+  }
+  40% {
+    @include modalScale(0.3);
+  }
+  50% {
+    @include modalScale(0.4);
+  }
+  60% {
+    @include modalScale(0.5);
+  }
+  70% {
+    @include modalScale(0.6);
+  }
+  80% {
+    @include modalScale(0.7);
+  }
+  90% {
+    @include modalScale(0.8);
+  }
+  100% {
+    @include modalScale(0.9);
+  }
+}
+
+.shrink {
+  animation: shrink 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.grow {
+  animation: grow 0.1s ease-in;
+}
+</style>
