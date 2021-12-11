@@ -20,7 +20,7 @@
     "@sentry/browser": "^6.7.2",
     "@sentry/tracing": "^6.7.2",
     "@tailwindcss/forms": "^0.3.3",
-    "axios": "^0.23.0",
+    "axios": "^0.24.0",
     "canvas-confetti": "^1.4.0",
     "core-js": "^3.6.5",
     "cypress": "^9.1.0",
