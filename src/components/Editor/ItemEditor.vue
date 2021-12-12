@@ -283,7 +283,7 @@ export default {
         {
           value: "checkbox",
           label: this.$t("generic.checkbox"),
-          icon: "checkbox.svg",
+          icon: "check-square-regular.svg",
         },
       ],
       isQuestionDropdownShown: false, // whether the question type dropdown is shown
@@ -422,10 +422,13 @@ export default {
       // config for the correct option icon
       return {
         enabled: true,
-        name: "check-circle-regular",
+        name: this.correctOptionIcon,
         class: [
-          { "text-green-500": this.isOptionMarkedCorrect(optionIndex) },
-          "cursor-pointer",
+          {
+            "text-green-500": this.isOptionMarkedCorrect(optionIndex),
+            "w-1 h-1": this.isQuestionTypeCheckbox,
+          },
+          "cursor-pointer ml-1",
         ],
         tooltip: this.getCorrectOptionTooltip(optionIndex),
       };
@@ -515,6 +518,13 @@ export default {
   },
 
   computed: {
+    correctOptionIcon() {
+      if (this.areOptionsVisible) {
+        if (this.isQuestionTypeMCQ) return "check-circle-regular";
+        return "check-square-regular";
+      }
+      return null;
+    },
     isQuestionTypeMCQ() {
       return this.questionType == "mcq";
     },

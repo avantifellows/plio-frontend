@@ -347,8 +347,8 @@
                     data-test="addCheckboxQuestionItem"
                   >
                     <inline-svg
-                      :src="getImageSource('checkbox.svg')"
-                      class="w-10 h-8 pb-2 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                      :src="getImageSource('check-square-regular.svg')"
+                      class="w-10 h-8 pb-2 xl:pb-1 xl:pt-1 fill-current text-primary group-hover:text-white group-disabled:text-primary"
                     ></inline-svg>
                     <p :class="questionTypeHeadingClass">{{ $t("generic.checkbox") }}</p>
                   </button>
@@ -404,7 +404,7 @@
 
     <!-- plio preview -->
     <div
-      class="fixed top-1/20 w-11/12 bp-420:w-10/12 shadow-xl z-20"
+      class="fixed top-1/12 w-11/12 bp-420:w-10/12 shadow-xl z-20"
       :class="plioPreviewContainerClass"
       v-if="isPlioPreviewShown"
     >

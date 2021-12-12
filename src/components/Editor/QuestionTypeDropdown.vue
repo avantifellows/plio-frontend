@@ -131,6 +131,7 @@ export default {
     },
     setOption(index) {
       // sets the given index as the selected option index
+      if (index == this.localSelectedIndex) return;
       this.localSelectedIndex = index;
       this.$emit("update:selectedIndex", index);
       this.toggleDropdownDisplay();

@@ -52,7 +52,7 @@
                 <input
                   :type="optionInputType"
                   :value="option"
-                  class="place-self-center"
+                  class="place-self-center text-primary focus:ring-0"
                   @click="selectOption(optionIndex)"
                   :checked="isOptionMarked(optionIndex)"
                   :disabled="isAnswerSubmitted || previewMode"
