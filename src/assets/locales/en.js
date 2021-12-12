@@ -81,10 +81,6 @@ export default {
         add_image: "Image",
         edit_image: "Edit",
       },
-      correct_answer: {
-        unmark_last_selected_option_warning:
-          "At least one option should be selected as the correct answer",
-      },
     },
     dialog: {
       delete_option: {
@@ -203,12 +199,6 @@ export default {
               "This will permananently delete this plio and all the data associated with it, including all the responses. Once deleted, the data cannot be recovered.",
           },
         },
-        toast: {
-          delete: {
-            success: "Plio deleted successfully",
-            error: "There was an error. Please try again!",
-          },
-        },
       },
       search: {
         placeholder: "Search",
@@ -276,14 +266,12 @@ export default {
         invalid: "OTP should be 6 digits long",
       },
       submit: "Submit OTP",
-      incorrect: "Incorrect OTP entered. Please try again!",
       resend: "Resend OTP",
       resent: "OTP has been sent again",
     },
     or: "OR",
     google: {
       button: "Sign in with Google",
-      error: "Something went wrong. Please try again!",
     },
     warning: {
       only_indian_numbers:
@@ -350,15 +338,8 @@ export default {
     buttons: {
       home: "Go to Home",
     },
-    create_plio: "Could not create Plio. Please try again",
     generic: "Something went wrong. Please try again!",
-    internet_lost: "Internet connection lost",
-    internet_restored: "Internet connection restored",
-    copying: "Error while copying",
     auto_logout: "You have been logged out!",
-  },
-  success: {
-    copying: "Link Copied Successfully",
   },
   generic: {
     status: {
@@ -543,6 +524,43 @@ export default {
       },
       num_questions_answered: {
         title: "QUESTIONS ANSWERED",
+      },
+    },
+  },
+  toast: {
+    login: {
+      otp: {
+        incorrect: "Incorrect OTP entered. Please try again!",
+      },
+      google: {
+        error: "Something went wrong. Please try again!",
+      },
+    },
+    error: {
+      create_plio: "Could not create Plio. Please try again",
+      copying: "Error while copying",
+      internet_lost: "Internet connection lost",
+    },
+    success: {
+      copying: "Link Copied Successfully",
+      internet_restored: "Internet connection restored",
+    },
+    editor: {
+      item_editor: {
+        correct_answer: {
+          unmark_last_selected_option_warning:
+            "At least one option should be selected as the correct answer",
+        },
+      },
+    },
+    home: {
+      table: {
+        plio_list_item: {
+          delete: {
+            success: "Plio deleted successfully",
+            error: "There was an error. Please try again!",
+          },
+        },
       },
     },
   },

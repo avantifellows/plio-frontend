@@ -54,7 +54,7 @@
                   :value="option"
                   class="place-self-center"
                   @click="selectOption(optionIndex)"
-                  :checked="isOptionChecked(optionIndex)"
+                  :checked="isOptionMarked(optionIndex)"
                   :disabled="isAnswerSubmitted || previewMode"
                   :data-test="`optionSelector-${optionIndex}`"
                 />
@@ -114,7 +114,7 @@ export default {
       subjectiveAnswer: "", // holds the answer to the subjective question
       subjectiveBoxHeightLimit: 250, // maximum allowed height of the subjective answer text box in px
       // set containing the question types in which options are present
-      questionTypesWithOptions: new Set(["mcq", "checkbox"]),
+      questionTypesSupportingOptions: new Set(["mcq", "checkbox"]),
       isImageLoading: false, // whether the image is loading
       correctOptionClass: "text-white bg-green-500",
       wrongOptionClass: "text-white bg-red-500",
@@ -242,8 +242,8 @@ export default {
         if (this.submittedAnswer.has(optionIndex)) return this.wrongOptionClass;
       }
     },
-    isOptionChecked(optionIndex) {
-      // whether the given option index should be checked
+    isOptionMarked(optionIndex) {
+      // whether the given option index should be marked selected
       if (this.isQuestionTypeMCQ) return this.draftAnswer == optionIndex;
       return this.draftAnswer != null && this.draftAnswer.has(optionIndex);
     },
@@ -252,7 +252,8 @@ export default {
     optionInputType() {
       if (!this.areOptionsVisible) return null;
       if (this.isQuestionTypeMCQ) return "radio";
-      return "checkbox";
+      if (this.isQuestionTypeCheckbox) return "checkbox";
+      return null;
     },
     /**
      * classes for the various containers corresponding to the possible types of answers
@@ -359,7 +360,7 @@ export default {
     },
     areOptionsVisible() {
       // whether options need to be shown
-      return this.questionTypesWithOptions.has(this.questionType);
+      return this.questionTypesSupportingOptions.has(this.questionType);
     },
     isQuestionTypeSubjective() {
       // whether the question type is subjective

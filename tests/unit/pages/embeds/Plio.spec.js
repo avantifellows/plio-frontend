@@ -152,7 +152,7 @@ describe("Plio.vue", () => {
 
       expect(createSession).toHaveBeenCalled();
 
-      // 1 `POST` request should have been made
+      // 0 `POST` request should have been made
       expect(mockAxios.post).toHaveBeenCalledTimes(0);
     });
 
@@ -192,7 +192,7 @@ describe("Plio.vue", () => {
 
         await loadPlio();
 
-        // 1 `POST` request should have been made
+        // 0 `POST` request should have been made
         expect(mockAxios.post).toHaveBeenCalledTimes(0);
       });
     });
@@ -206,7 +206,7 @@ describe("Plio.vue", () => {
       await mountWrapper();
       // no SSO in the beginning
       expect(wrapper.vm.isThirdPartyAuth).toBeFalsy();
-      // setting props for SS)
+      // setting props for SSO
       await wrapper.setProps({
         thirdPartyApiKey: apiKey,
         thirdPartyUniqueId: uniqueId,
@@ -247,9 +247,7 @@ describe("Plio.vue", () => {
       );
       await flushPromises();
       expect(setAccessToken).toHaveBeenCalled();
-      await flushPromises();
       expect(setActiveWorkspace).toHaveBeenCalled();
-      await flushPromises();
     });
   });
 

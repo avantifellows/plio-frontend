@@ -200,7 +200,7 @@ export default {
       if (success) {
         this.codeCopyConfig.isCopied = true;
         this.codeCopyConfig.useSSO = useSSO;
-      } else this.toast.error(this.$t("error.copying"));
+      } else this.toast.error(this.$t("toast.error.copying"));
     },
     /**
      * resets the config of the embed codes being copied

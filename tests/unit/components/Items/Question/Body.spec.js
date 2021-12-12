@@ -251,8 +251,8 @@ describe("Body.vue", () => {
         draftAnswer: draftAnswer,
       });
 
-      expect(wrapper.vm.isOptionChecked(draftAnswer)).toBeTruthy();
-      expect(wrapper.vm.isOptionChecked(1)).toBeFalsy();
+      expect(wrapper.vm.isOptionMarked(draftAnswer)).toBeTruthy();
+      expect(wrapper.vm.isOptionMarked(1)).toBeFalsy();
     });
 
     it("option text selected correctly", () => {
@@ -311,9 +311,9 @@ describe("Body.vue", () => {
         draftAnswer: draftAnswer,
       });
 
-      expect(wrapper.vm.isOptionChecked(0)).toBeFalsy();
-      expect(wrapper.vm.isOptionChecked(1)).toBeTruthy();
-      expect(wrapper.vm.isOptionChecked(2)).toBeTruthy();
+      expect(wrapper.vm.isOptionMarked(0)).toBeFalsy();
+      expect(wrapper.vm.isOptionMarked(1)).toBeTruthy();
+      expect(wrapper.vm.isOptionMarked(2)).toBeTruthy();
     });
 
     it("option text selected correctly", () => {

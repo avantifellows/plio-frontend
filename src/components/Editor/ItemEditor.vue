@@ -8,7 +8,7 @@
     <div
       class="absolute rounded-md mt-4 ml-4 z-5"
       :class="questionTypeDropdownClass"
-      id="questionTypePickerContainer"
+      id="questionTypePicker"
       v-tooltip="{
         content: questionTypePickerTooltip,
         placement: 'bottom-start',
@@ -39,7 +39,7 @@
         @click="updateSelectedItemIndex(localSelectedItemIndex - 1)"
         :buttonClass="previousItemButtonClass"
         :disabled="isFirstItem"
-        v-tooltip="previousItemTooltip"
+        v-tooltip="$t('tooltip.editor.item_editor.buttons.previous')"
         data-test="previousItem"
       ></icon-button>
 
@@ -50,7 +50,7 @@
         @click="updateSelectedItemIndex(localSelectedItemIndex + 1)"
         :buttonClass="nextItemButtonClass"
         :disabled="isLastItem"
-        v-tooltip="nextItemTooltip"
+        v-tooltip="$t('tooltip.editor.item_editor.buttons.next')"
         data-test="nextItem"
       ></icon-button>
 
@@ -88,8 +88,8 @@
       <div class="flex flex-row">
         <!-- question input box : expandable -->
         <Textarea
-          :placeholder="questionInputPlaceholder"
-          :title="questionInputTitle"
+          :placeholder="$t('editor.item_editor.question_input.placeholder')"
+          :title="$t('editor.item_editor.question_input.title')"
           v-model:value="questionText"
           ref="questionText"
           class="p-2 w-full"
@@ -117,12 +117,12 @@
 
       <!-- time input HH : MM : SS : mmm -->
       <time-input
-        :title="timeInputTitle"
+        :title="$t('editor.item_editor.time_input.title')"
         class="p-2"
         v-model:timeObject="timeObject"
         :errorStates="timeInputErrorStates"
         :isDisabled="isInteractionDisabled"
-        :disabledTooltip="timeDisabledTooltip"
+        :disabledTooltip="$t('tooltip.time_input')"
         @error-occurred="$emit('error-occurred')"
         @error-resolved="$emit('error-resolved')"
         data-test="time"
@@ -134,7 +134,7 @@
           v-for="(option, optionIndex) in options"
           class="p-2"
           v-model:value="options[optionIndex]"
-          :placeholder="optionInputPlaceholder"
+          :placeholder="$t('editor.item_editor.option_input.placeholder')"
           :title="getOptionInputTitle(optionIndex)"
           :key="optionIndex"
           :startIcon="getCorrectOptionIconConfig(optionIndex)"
@@ -297,8 +297,8 @@ export default {
         iconClass:
           "w-6 h-6 text-primary group-hover:text-white group-disabled:text-primary",
       },
-      // set containing the question types in which options are present
-      questionTypesWithOptions: new Set(["mcq", "checkbox"]),
+      // set containing the question types which support options
+      questionTypesSupportingOptions: new Set(["mcq", "checkbox"]),
       toast: useToast(),
     };
   },
@@ -309,11 +309,11 @@ export default {
       if (this.maxCharLimit == "") this.maxCharLimit = 100;
     },
     isQuestionDropdownShown(value) {
-      const tooltip = document.getElementById("questionTypePickerContainer")._tippy;
+      const tooltip = document.getElementById("questionTypePicker")._tippy;
       if (tooltip == undefined) return;
       if (value) {
-        tooltip.hide();
-      } else tooltip.show();
+        tooltip.disable();
+      } else tooltip.enable();
     },
   },
 
@@ -444,35 +444,40 @@ export default {
         `tooltip.editor.item_editor.correct_option.${this.questionType}.unmarked`
       );
     },
+    /** whether the given option index is marked as a correct option */
     isOptionMarkedCorrect(optionIndex) {
-      // whether the given option index is marked as a correct option
       if (this.isQuestionTypeMCQ) return optionIndex == this.correctAnswer;
       return this.correctAnswer.has(optionIndex);
     },
+    /** returns the styling for the option box for the given index */
     getOptionBoxStyling(optionIndex) {
-      // returns the styling for the option box for the given index
       return {
         "border-green-500": this.isOptionMarkedCorrect(optionIndex),
       };
     },
+    /** updates the current item selected */
     updateSelectedItemIndex(index) {
-      // updates the current item selected
       this.localSelectedItemIndex = index;
     },
+    /**
+     * emits a request to delete the selected item
+     */
     deleteSelectedItem() {
-      // emit a request to delete the selected item
-      // will be listened by Editor.vue
       this.$emit("delete-selected-item");
     },
+    /**
+     * updates the correct answer in the item list
+     */
     updateCorrectAnswer(selectedOptionIndex) {
-      // when some option is selected as correct, update it in the
-      // item list
       if (this.isQuestionTypeMCQ) {
         // for mcq, simply update the correct answer as the given index
         this.localItemDetailList[
           this.localSelectedItemIndex
         ].correct_answer = selectedOptionIndex;
-      } else if (this.isQuestionTypeCheckbox) {
+        return;
+      }
+
+      if (this.isQuestionTypeCheckbox) {
         /*
          * for checkbox question, if the selected index was previously marked
          * as a correct option, unmark it. otherwise, mark it as a correct option
@@ -489,30 +494,34 @@ export default {
               currentOptionIndex,
               1
             );
-          } else {
-            this.toast.error(
-              this.$t(
-                "editor.item_editor.correct_answer.unmark_last_selected_option_warning"
-              )
-            );
+
+            return;
           }
-        } else {
-          this.localItemDetailList[this.localSelectedItemIndex].correct_answer.push(
-            selectedOptionIndex
+
+          this.toast.error(
+            this.$t(
+              "toast.editor.item_editor.correct_answer.unmark_last_selected_option_warning"
+            )
           );
+          return;
         }
+
+        this.localItemDetailList[this.localSelectedItemIndex].correct_answer.push(
+          selectedOptionIndex
+        );
       }
     },
   },
 
   computed: {
     isQuestionTypeMCQ() {
-      // is the current item a mcq question
       return this.questionType == "mcq";
     },
     isQuestionTypeCheckbox() {
-      // is the current item a checkbox question
       return this.questionType == "checkbox";
+    },
+    isQuestionTypeSubjective() {
+      return this.questionType == "subjective";
     },
     questionTypePickerTooltip() {
       return this.isInteractionDisabled
@@ -580,65 +589,35 @@ export default {
         "w-1/3": !this.isQuestionDropdownShown,
       };
     },
+    /** type of the question being created */
     questionType() {
-      // type of the question being created
       return this.questionTypes[this.localQuestionTypeIndex]["value"];
     },
+    /** whether options need to be shown for the current question type */
     areOptionsVisible() {
-      // whether options need to be shown
-      return this.questionTypesWithOptions.has(this.questionType);
+      return this.questionTypesSupportingOptions.has(this.questionType);
     },
-    isQuestionTypeSubjective() {
-      // whether the type of the question being created is subjective
-      return this.questionType == "subjective";
-    },
-    timeDisabledTooltip() {
-      // tooltip for the time input box when it is disabled
-      return this.$t("tooltip.time_input");
-    },
-    previousItemTooltip() {
-      // tooltip for the previous item button
-      return this.$t("tooltip.editor.item_editor.buttons.previous");
-    },
-    nextItemTooltip() {
-      // tooltip for the next item button
-      return this.$t("tooltip.editor.item_editor.buttons.next");
-    },
-    optionInputPlaceholder() {
-      // placeholder for the option input
-      return this.$t("editor.item_editor.option_input.placeholder");
-    },
-    questionInputTitle() {
-      // title for the textarea for the question text
-      return this.$t("editor.item_editor.question_input.title");
-    },
-    questionInputPlaceholder() {
-      // placeholder for the textarea for the question text
-      return this.$t("editor.item_editor.question_input.placeholder");
-    },
-    timeInputTitle() {
-      // title for the timestamp input
-      return this.$t("editor.item_editor.time_input.title");
-    },
+    /** returns a list of timestamp values after extracting them from the items */
     localItemTimestamps() {
-      // returns a list of timestamp values after extracting them from the items
       return this.localItemList.map((value) => value.time);
     },
+    /**
+     * creates and passes an object containing info about error messages
+     * and if the various error messages are active or not
+     */
     timeInputErrorStates() {
-      // create and pass an object containing info about the error message
-      // and if that error message is active or not
-      var errorStates = {};
+      let errorStates = {};
       errorStates[this.timeExceedsWarning] = this.timeExceedsVideoDuration;
       errorStates[this.itemInVicinityWarning] = this.itemInVicinity;
       return errorStates;
     },
+    /** styling classes for delete item button */
     deleteItemButtonClass() {
-      // styling classes for delete item button
       if (this.isInteractionDisabled) return "disabled:opacity-40 cursor-not-allowed";
       return undefined;
     },
+    /** tooltip for add option button */
     addOptionTooltip() {
-      // tooltip for add option button
       if (this.isInteractionDisabled)
         return this.$t("tooltip.editor.item_editor.buttons.add_option.disabled");
       return this.$t("tooltip.editor.item_editor.buttons.add_option.enabled");
@@ -663,15 +642,15 @@ export default {
         );
       return this.$t(`tooltip.editor.item_editor.buttons.add_item.${itemType}.enabled`);
     },
+    /** title config for add option button */
     addOptionButtonTitleConfig() {
-      // title config for add option button
       return {
         value: this.$t("editor.item_editor.buttons.add_option"),
         class: "px-4 py-2 text-white rounded-md font-bold",
       };
     },
     /**
-     * whether options can be deleted
+     * whether options can be deleted;
      * not allowed if only 2 options are remaining
      */
     isDeleteOptionEnabled() {

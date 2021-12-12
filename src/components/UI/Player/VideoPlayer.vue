@@ -180,7 +180,7 @@ export default {
 .plyr__poster {
   z-index: -1 !important;
 }
-// hides the youtube video title and buttons like "watch later"
+// hides the youtube video title and buttons like "watch later" + the more videos section
 .plyr iframe[id^="youtube"] {
   top: -50%;
   height: 200%;

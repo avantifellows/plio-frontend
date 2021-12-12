@@ -63,8 +63,8 @@ export default {
       // copies the link to the clipboard
       var success = Utilities.copyToClipboard(this.link);
 
-      if (success) this.toast.success(this.$t("success.copying"));
-      else this.toast.error(this.$t("error.copying"));
+      if (success) this.toast.success(this.$t("toast.success.copying"));
+      else this.toast.error(this.$t("toast.error.copying"));
 
       this.$emit("copied", success);
     },

@@ -39,15 +39,9 @@ describe("ItemEditor.vue", () => {
     });
   };
 
-  beforeEach(() => {
-    mountWrapper();
-  });
+  beforeEach(() => mountWrapper());
 
   describe("time input", () => {
-    beforeEach(() => {
-      mountWrapper();
-    });
-
     it("should render time with milliseconds", () => {
       expect(
         wrapper
@@ -383,7 +377,7 @@ describe("ItemEditor.vue", () => {
       expect(wrapper.vm.localItemDetailList[0].options.length).toBe(4);
     });
 
-    it("clicking on delete option deletes option", async () => {
+    it("clicking delete option deletes the selected option", async () => {
       await wrapper
         .findAll('[data-test="option"]')[0]
         .find('[data-test="endIcon"]')
