@@ -1,7 +1,7 @@
 <template>
   <div class="overflow-y-auto flex flex-col">
     <!-- question text -->
-    <div class="px-4 md:px-6 xl:px-10">
+    <div class="px-4 md:px-6">
       <p :class="questionTextClass" data-test="questionText">
         {{ questionText }}
       </p>
@@ -121,12 +121,6 @@ export default {
     };
   },
   watch: {
-    draftAnswer(value) {
-      if (this.submittedAnswer == null) this.subjectiveAnswer = value;
-    },
-    submittedAnswer(value) {
-      this.subjectiveAnswer = value;
-    },
     subjectiveAnswer() {
       if (
         this.subjectiveAnswer != null &&
