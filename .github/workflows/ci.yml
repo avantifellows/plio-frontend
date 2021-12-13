@@ -153,7 +153,7 @@ jobs:
           export cypress_auth_google_client_secret=${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
 
           # run cypress test cases
-          npx cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          sudo npx cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
       - name: Stop the containers
         if: always()
