@@ -70,7 +70,7 @@ jobs:
 
 
           echo 'running npm install with dev mode'
-          npm install
+          sudo npm install
           # echo 'install cypress code coverage'
           # npm install @cypress/code-coverage
           echo 'finished installing cypress code coverage'
