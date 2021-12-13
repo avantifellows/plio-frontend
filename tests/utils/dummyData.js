@@ -432,6 +432,7 @@ global.dummyEmptyPlioList = {
     count: 0,
     page_size: 5,
     results: [],
+    raw_count: 0,
   },
 };
 

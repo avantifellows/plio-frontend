@@ -106,7 +106,7 @@
               </div>
             </div>
             <div v-else data-test="videoPreview">
-              <div class="relative">
+              <div class="flex relative">
                 <!-- video player -->
                 <video-player
                   :videoId="videoId"
@@ -114,23 +114,27 @@
                   :id="editorVideoPlayerElementId"
                   @update="videoTimestampUpdated"
                   @ready="playerReady"
-                  @play="playerPlayed"
+                  @play="markNoItemSelected"
                   ref="videoPlayer"
-                  class="z-0"
+                  class="w-full z-0"
                   data-test="videoPlayer"
                 ></video-player>
                 <!-- maximize button -->
                 <transition name="maximize-btn-transition" data-test="transitionMaximize">
-                  <icon-button
-                    v-if="showItemModal && isModalMinimized"
-                    :titleConfig="maximizeButtonTitleClass"
-                    :buttonClass="maximizeButtonClass"
-                    @click="maximizeModal"
-                    class="absolute z-20"
-                    id="maximizeButton"
-                    data-test="maximizeButton"
-                  ></icon-button>
+                  <div
+                    class="absolute z-20 px-4 flex w-full justify-end p-1 mt-2"
+                    v-if="isItemModalShown && isModalMinimized"
+                  >
+                    <icon-button
+                      :titleConfig="maximizeButtonTitleConfig"
+                      :buttonClass="maximizeButtonClass"
+                      @click="maximizeModal"
+                      data-test="maximizeButton"
+                    >
+                    </icon-button>
+                  </div>
                 </transition>
+
                 <!-- transition for minimizing/maximizing item modal -->
                 <transition enter-active-class="grow" leave-active-class="shrink">
                   <!-- item modal component -->
@@ -138,7 +142,7 @@
                     v-if="!isModalMinimized"
                     id="editorModal"
                     class="absolute z-10 inset-0 border-2"
-                    :class="{ hidden: !showItemModal }"
+                    :class="{ hidden: !isItemModalShown }"
                     :selectedItemIndex="currentItemIndex"
                     :itemList="items"
                     :itemDetailList="itemDetails"
@@ -601,7 +605,7 @@ export default {
         subjective: 1,
       },
       isModalMinimized: false, // whether the preview modal is minimized or not
-      // styling class for the minimize button
+      // styling class for the maximise button
       maximizeButtonClass:
         "bg-primary hover:bg-primary-hover p-1 lg:p-2 px-2 rounded-md shadow-xl",
       // styling class for the share plio button
@@ -870,13 +874,11 @@ export default {
       };
     },
     /**
-     * styling class for the title of minimize/maximize button
+     * config for the title of the maximise button
      */
-    maximizeButtonTitleClass() {
+    maximizeButtonTitleConfig() {
       return {
-        value: this.isModalMinimized
-          ? this.$t(`editor.buttons.show_${this.itemType}`)
-          : this.$t("editor.buttons.show_video"),
+        value: this.$t(`editor.buttons.show_${this.itemType}`),
         class: "text-white text-xs lg:text-sm tracking-tighter",
       };
     },
@@ -977,7 +979,7 @@ export default {
     /**
      * whether the item modal needs to be shown
      */
-    showItemModal() {
+    isItemModalShown() {
       return this.hasAnyItems && this.isAnyItemActive;
     },
     /**
@@ -1461,8 +1463,6 @@ export default {
       let root = document.documentElement;
       root.style.setProperty("--t-origin-x", positions.centerX + "px");
       root.style.setProperty("--t-origin-y", positions.centerY + "px");
-      root.style.setProperty("--maximize-btn-left", positions.leftX + "px");
-      root.style.setProperty("--maximize-btn-top", positions.leftY + "px");
 
       this.isModalMinimized = true;
     },
@@ -1665,10 +1665,6 @@ export default {
         return { valid: true, ID: matches[1] };
       }
       return { valid: false };
-    },
-    playerPlayed() {
-      // invoked when the player is played from a paused state
-      this.isItemSelected = false;
     },
     /**
      * fetches the details of the plio
@@ -2119,18 +2115,6 @@ export default {
 };
 </script>
 <style lang="scss">
-:root {
-  --t-origin-x: 98%;
-  --t-origin-y: 5%;
-  --maximize-btn-left: 72.5rem;
-  --maximize-btn-top: 0.5rem;
-}
-
-#maximizeButton {
-  left: var(--maximize-btn-left);
-  top: var(--maximize-btn-top);
-}
-
 .maximize-btn-transition-leave {
   animation: linear 0.1s;
 }
