@@ -355,7 +355,7 @@ describe("ItemModal.vue", () => {
         .trigger("click");
 
       expect(wrapper.vm.localResponseList[itemIndex]).toEqual({
-        answer: new Set([0, 1]),
+        answer: [0, 1],
       });
       expect(submitQuestion).toHaveBeenCalled();
       expect(wrapper.emitted()).toHaveProperty("submit-question");
@@ -364,7 +364,7 @@ describe("ItemModal.vue", () => {
     it("proceeds with question on answering", () => {
       const responseList = [
         { answer: 0 },
-        { answer: new Set([0, 1]) },
+        { answer: [0, 1] },
         { answer: "xyz" },
         { answer: "abc" },
       ];
