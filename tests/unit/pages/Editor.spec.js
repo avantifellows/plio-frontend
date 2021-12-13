@@ -1368,6 +1368,28 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemDetails[0].image).toStrictEqual(mockImageResponse);
   });
 
+  it("changes question type upon toggling from item editor", async () => {
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+          items: clonedeep(global.dummyItems),
+          itemDetails: clonedeep(global.dummyItemDetails),
+          currentItemIndex: 0,
+          videoDuration: 200,
+          status: "draft",
+          currentQuestionTypeIndex: 0,
+        };
+      },
+    });
+
+    const newQuestionType = "subjective";
+    wrapper.vm.$refs.itemEditor.$emit("question-type-changed", newQuestionType);
+
+    // the option index to delete must be set
+    expect(wrapper.vm.itemDetails[0].type).toBe(newQuestionType);
+  });
+
   it("delete option button is hidden with only 2 options", async () => {
     wrapper = mount(Editor, {
       data() {
@@ -1495,6 +1517,76 @@ describe("Editor.vue", () => {
     expect(deleteSelectedOption).toHaveBeenCalled();
     expect(wrapper.vm.optionIndexToDelete).toBe(-1);
     expect(wrapper.vm.itemDetails[0].options.length).toBe(2);
+  });
+
+  it("deleting correct answer option resets correct answer", async () => {
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+    let updatedDummyItemDetails = clonedeep(global.dummyItemDetails);
+    updatedDummyItemDetails[0].options.push("option 3");
+    updatedDummyItemDetails[0].correct_answer = 2;
+    await wrapper.setData({
+      items: clonedeep(global.dummyItems),
+      itemDetails: updatedDummyItemDetails,
+      currentItemIndex: 0,
+      videoDuration: 200,
+      status: "draft",
+      currentQuestionTypeIndex: 0,
+    });
+
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[5];
+
+    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+
+    // the option index to delete must be set
+    expect(wrapper.vm.optionIndexToDelete).toBe(2);
+
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+
+    // the correct answer must now be reset
+    expect(wrapper.vm.itemDetails[0].correct_answer).toBe(0);
+  });
+
+  it("deleting option with index lower than correct answer updates correct answer", async () => {
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+    let updatedDummyItemDetails = clonedeep(global.dummyItemDetails);
+    updatedDummyItemDetails[0].options.push("option 3");
+    updatedDummyItemDetails[0].correct_answer = 2;
+    await wrapper.setData({
+      items: clonedeep(global.dummyItems),
+      itemDetails: updatedDummyItemDetails,
+      currentItemIndex: 0,
+      videoDuration: 200,
+      status: "draft",
+      currentQuestionTypeIndex: 0,
+    });
+
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[4];
+
+    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+
+    // the option index to delete must be set
+    expect(wrapper.vm.optionIndexToDelete).toBe(1);
+
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+
+    // the correct answer must now be reset
+    expect(wrapper.vm.itemDetails[0].correct_answer).toBe(1);
   });
 
   it("deleting checkbox option which was one of the answers removes it from the answer", async () => {

@@ -372,6 +372,7 @@
               @question-type-changed="questionTypeChanged"
               @show-image-uploader="toggleImageUploaderBox"
               data-test="itemEditor"
+              ref="itemEditor"
             ></item-editor>
           </div>
         </div>
