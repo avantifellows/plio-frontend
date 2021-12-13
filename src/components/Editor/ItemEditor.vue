@@ -512,11 +512,8 @@ export default {
 
   computed: {
     correctOptionIcon() {
-      if (this.areOptionsVisible) {
-        if (this.isQuestionTypeMCQ) return "check-circle-regular";
-        return "check-square-regular";
-      }
-      return null;
+      if (this.isQuestionTypeMCQ) return "check-circle-regular";
+      return "check-square-regular";
     },
     isQuestionTypeMCQ() {
       return this.questionType == "mcq";
