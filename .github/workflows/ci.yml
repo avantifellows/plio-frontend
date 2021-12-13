@@ -68,6 +68,8 @@ jobs:
           # setup docker containers
           docker-compose up -d --build
 
+          ls -lh node_modules/@cypress/
+
           # echo 'running npm install with dev mode'
           # npm install
           # echo 'npm install finished'
