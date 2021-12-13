@@ -161,17 +161,17 @@ export default {
     },
     correctAnswer: {
       default: null,
-      type: [Number, Set],
+      type: [Number, Array],
     },
     /** answer for the question which has been submitted */
     submittedAnswer: {
       default: null,
-      type: [String, Number, Set],
+      type: [String, Number, Array],
     },
     /** answer for the question which has been entered but not submitted */
     draftAnswer: {
       default: null,
-      type: [String, Number, Set],
+      type: [String, Number, Array],
     },
     isAnswerSubmitted: {
       default: false,
@@ -238,14 +238,14 @@ export default {
         if (optionIndex == this.submittedAnswer) return this.wrongOptionClass;
       }
       if (this.isQuestionTypeCheckbox) {
-        if (this.correctAnswer.has(optionIndex)) return this.correctOptionClass;
-        if (this.submittedAnswer.has(optionIndex)) return this.wrongOptionClass;
+        if (this.correctAnswer.indexOf(optionIndex) != -1) return this.correctOptionClass;
+        if (this.submittedAnswer.indexOf(optionIndex) != -1) return this.wrongOptionClass;
       }
     },
     isOptionMarked(optionIndex) {
       // whether the given option index should be marked selected
       if (this.isQuestionTypeMCQ) return this.draftAnswer == optionIndex;
-      return this.draftAnswer != null && this.draftAnswer.has(optionIndex);
+      return this.draftAnswer != null && this.draftAnswer.indexOf(optionIndex) != -1;
     },
   },
   computed: {

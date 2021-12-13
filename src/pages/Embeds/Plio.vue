@@ -98,7 +98,6 @@ import { useToast } from "vue-toastification";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { resetConfetti } from "@/services/Functional/Utilities.js";
 
-let clonedeep = require("lodash.clonedeep");
 var isEqual = require("deep-eql");
 
 // difference in seconds between consecutive checks for item pop-up
@@ -613,9 +612,6 @@ export default {
     calculateScorecardMetrics(itemIndex = null, userAnswer = null) {
       if (itemIndex == null) {
         this.itemResponses.forEach((itemResponse, itemIndex) => {
-          // convert Set to Array if the item is a checkbox question
-          if (this.isItemCheckboxQuestion(itemIndex) && itemResponse.answer != null)
-            itemResponse.answer = Array.from(itemResponse.answer);
           this.updateNumCorrectWrongSkipped(itemIndex, itemResponse.answer);
         }, this);
       } else {
@@ -683,12 +679,8 @@ export default {
      * saves the answer to the question at the current index
      */
     submitQuestion() {
-      let itemResponse = clonedeep(this.itemResponses[this.currentItemIndex]);
+      let itemResponse = this.itemResponses[this.currentItemIndex];
 
-      // convert Set to Array as Set is invalid as a response
-      if (this.isItemCheckboxQuestion(this.currentItemIndex)) {
-        itemResponse.answer = Array.from(itemResponse.answer).sort();
-      }
       /**
        * update the session answer on server if the user is authenticated
        * and the plio is not opened in preview mode

@@ -451,7 +451,7 @@ export default {
     /** whether the given option index is marked as a correct option */
     isOptionMarkedCorrect(optionIndex) {
       if (this.isQuestionTypeMCQ) return optionIndex == this.correctAnswer;
-      return this.correctAnswer.has(optionIndex);
+      return this.correctAnswer.indexOf(optionIndex) != -1;
     },
     /** returns the styling for the option box for the given index */
     getOptionBoxStyling(optionIndex) {
@@ -486,8 +486,8 @@ export default {
          * for checkbox question, if the selected index was previously marked
          * as a correct option, unmark it. otherwise, mark it as a correct option
          */
-        if (this.correctAnswer.has(selectedOptionIndex)) {
-          if (this.correctAnswer.size > 1) {
+        if (this.isOptionMarkedCorrect(selectedOptionIndex)) {
+          if (this.correctAnswer.length > 1) {
             // remove the option from the list of correct answers if there
             // are other options marked as correct answers too
             let currentOptionIndex = this.localItemDetailList[
@@ -513,6 +513,7 @@ export default {
         this.localItemDetailList[this.localSelectedItemIndex].correct_answer.push(
           selectedOptionIndex
         );
+        this.localItemDetailList[this.localSelectedItemIndex].correct_answer.sort();
       }
     },
   },
@@ -791,10 +792,7 @@ export default {
       },
     },
     correctAnswer() {
-      let rawCorrectAnswer = this.localItemDetailList[this.localSelectedItemIndex]
-        .correct_answer;
-      if (this.isQuestionTypeCheckbox) return new Set(rawCorrectAnswer);
-      return rawCorrectAnswer;
+      return this.localItemDetailList[this.localSelectedItemIndex].correct_answer;
     },
     isAnyError() {
       // returns if any error is present after checking individual error
