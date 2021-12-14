@@ -157,6 +157,10 @@ jobs:
           # run cypress test cases
           npx cypress run --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
+          echo 'listing directory'
+          ls -lh
+          echo 'listing directory complete'
+
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
