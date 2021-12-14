@@ -15,7 +15,6 @@
   "dependencies": {
     "@aacassandra/vue3-progressbar": "^1.0.3",
     "@cubejs-client/core": "^0.28.38",
-    "@cypress/code-coverage": "^3.9.12",
     "@cypress/vue": "^3.0.5",
     "@cypress/webpack-dev-server": "^1.7.0",
     "@sentry/browser": "^6.7.2",
@@ -46,6 +45,7 @@
     "vuex-persistedstate": "^4.0.0-beta.3"
   },
   "devDependencies": {
+    "@cypress/code-coverage": "^3.9.12",
     "@tailwindcss/postcss7-compat": "^2.0.4",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
