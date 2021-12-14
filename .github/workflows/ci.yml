@@ -160,11 +160,15 @@ jobs:
           echo 'listing directory'
           ls -lh
           echo 'listing directory complete'
+          echo 'current directory'
+          pwd
+          echo 'current directory complete'
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./projects/plio-frontend/coverage/lcov.info
 
       - name: Stop the containers
         if: always()
