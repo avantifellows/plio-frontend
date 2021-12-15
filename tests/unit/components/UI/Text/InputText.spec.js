@@ -1,4 +1,4 @@
-import { mount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import InputText from "@/components/UI/Text/InputText";
 
 describe("InputText.vue", () => {
@@ -100,6 +100,34 @@ describe("InputText.vue", () => {
       key: "a",
     });
 
+    expect(wrapper.emitted()).toHaveProperty("keypress");
+  });
+
+  it("prevents non-number input for inputType = number", async () => {
+    const wrapper = mount(InputText, {
+      props: {
+        inputType: "number",
+      },
+    });
+
+    let inputElement = wrapper.find('[data-test="input"]');
+
+    // trigger non-numeric input
+    await inputElement.trigger("keypress", {
+      key: "a",
+      keyCode: 97,
+    });
+    await flushPromises();
+    // the trigger should not be created
+    expect(wrapper.emitted()).not.toHaveProperty("keypress");
+
+    // trigger numeric input
+    await inputElement.trigger("keypress", {
+      key: "1",
+      keyCode: 49,
+    });
+    await flushPromises();
+    // the trigger should be created
     expect(wrapper.emitted()).toHaveProperty("keypress");
   });
 

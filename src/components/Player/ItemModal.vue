@@ -175,9 +175,7 @@ export default {
     /** `answer` attribute for `currentItemResponse` */
     currentItemResponseAnswer() {
       if (this.currentItemResponse == null) return null;
-      let answer = this.currentItemResponse.answer;
-      if (this.isQuestionTypeCheckbox) answer = new Set(answer);
-      return answer;
+      return this.currentItemResponse.answer;
     },
     /** whether a valid answer has been selected/added */
     isAttemptValid() {
@@ -185,7 +183,7 @@ export default {
       if (currentResponse == null) return false;
       if (this.isQuestionTypeSubjective) return currentResponse != "";
       if (this.isQuestionTypeMCQ) return !isNaN(currentResponse);
-      if (this.isQuestionTypeCheckbox) return currentResponse.size > 0;
+      if (this.isQuestionTypeCheckbox) return currentResponse.length > 0;
       return false;
     },
     /** local copy of the responseList prop */
@@ -237,7 +235,7 @@ export default {
     isAnswerSubmitted() {
       if (this.currentItemResponseAnswer == null) return false;
       if (this.isQuestionTypeMCQ) return !isNaN(this.currentItemResponseAnswer);
-      if (this.isQuestionTypeCheckbox) return this.currentItemResponseAnswer.size > 0;
+      if (this.isQuestionTypeCheckbox) return this.currentItemResponseAnswer.length > 0;
       return true;
     },
     /** options for the question */
@@ -250,9 +248,7 @@ export default {
       if (this.currentItemDetails == undefined) return null;
       if (this.isQuestionTypeMCQ)
         return parseInt(this.currentItemDetails["correct_answer"]);
-      if (this.isQuestionTypeCheckbox)
-        return new Set(this.currentItemDetails["correct_answer"]);
-      return null;
+      return this.currentItemDetails["correct_answer"];
     },
     /** text for the question */
     questionText() {
@@ -324,12 +320,17 @@ export default {
       if (this.isQuestionTypeCheckbox) {
         // for checkbox, create a set for the response if the response is empty
         if (this.draftResponses[this.selectedItemIndex] == null)
-          this.draftResponses[this.selectedItemIndex] = new Set();
+          this.draftResponses[this.selectedItemIndex] = [];
         // if the selection option was already in the response
         // remove it from the response (uncheck it); otherwise add it (check it)
         let currentResponse = this.draftResponses[this.selectedItemIndex];
-        if (currentResponse.has(optionIndex)) currentResponse.delete(optionIndex);
-        else currentResponse.add(optionIndex);
+        let optionPositionInResponse = currentResponse.indexOf(optionIndex);
+        if (optionPositionInResponse != -1)
+          currentResponse.splice(optionPositionInResponse, 1);
+        else {
+          currentResponse.push(optionIndex);
+          currentResponse.sort();
+        }
       }
     },
     /** mark the current attempt as the submitted answer for the current item */

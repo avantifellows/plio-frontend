@@ -282,7 +282,7 @@ export default {
         {
           value: "checkbox",
           label: this.$t("generic.checkbox"),
-          icon: "checkbox.svg",
+          icon: "check-square-regular.svg",
         },
       ],
       isQuestionDropdownShown: false, // whether the question type dropdown is shown
@@ -415,16 +415,19 @@ export default {
     },
     addOption() {
       // adds an option to the current question
-      this.localItemDetailList[this.localSelectedItemIndex].options.push("");
+      this.selectedItemDetail.options.push("");
     },
     getCorrectOptionIconConfig(optionIndex) {
       // config for the correct option icon
       return {
         enabled: true,
-        name: "check-circle-regular",
+        name: this.correctOptionIcon,
         class: [
-          { "text-green-500": this.isOptionMarkedCorrect(optionIndex) },
-          "cursor-pointer",
+          {
+            "text-green-500": this.isOptionMarkedCorrect(optionIndex),
+            "w-1 h-1": this.isQuestionTypeCheckbox,
+          },
+          "cursor-pointer ml-1",
         ],
         tooltip: this.getCorrectOptionTooltip(optionIndex),
       };
@@ -447,7 +450,7 @@ export default {
     /** whether the given option index is marked as a correct option */
     isOptionMarkedCorrect(optionIndex) {
       if (this.isQuestionTypeMCQ) return optionIndex == this.correctAnswer;
-      return this.correctAnswer.has(optionIndex);
+      return this.correctAnswer.indexOf(optionIndex) != -1;
     },
     /** returns the styling for the option box for the given index */
     getOptionBoxStyling(optionIndex) {
@@ -478,22 +481,16 @@ export default {
       }
 
       if (this.isQuestionTypeCheckbox) {
+        let correctAnswer = this.selectedItemDetail.correct_answer;
         /*
          * for checkbox question, if the selected index was previously marked
          * as a correct option, unmark it. otherwise, mark it as a correct option
          */
-        if (this.correctAnswer.has(selectedOptionIndex)) {
-          if (this.correctAnswer.size > 1) {
+        if (this.isOptionMarkedCorrect(selectedOptionIndex)) {
+          if (this.correctAnswer.length > 1) {
             // remove the option from the list of correct answers if there
             // are other options marked as correct answers too
-            let currentOptionIndex = this.localItemDetailList[
-              this.localSelectedItemIndex
-            ].correct_answer.indexOf(selectedOptionIndex);
-
-            this.localItemDetailList[this.localSelectedItemIndex].correct_answer.splice(
-              currentOptionIndex,
-              1
-            );
+            correctAnswer.splice(correctAnswer.indexOf(selectedOptionIndex), 1);
 
             return;
           }
@@ -506,14 +503,17 @@ export default {
           return;
         }
 
-        this.localItemDetailList[this.localSelectedItemIndex].correct_answer.push(
-          selectedOptionIndex
-        );
+        correctAnswer.push(selectedOptionIndex);
+        correctAnswer.sort();
       }
     },
   },
 
   computed: {
+    correctOptionIcon() {
+      if (this.isQuestionTypeMCQ) return "check-circle-regular";
+      return "check-square-regular";
+    },
     isQuestionTypeMCQ() {
       return this.questionType == "mcq";
     },
@@ -550,32 +550,27 @@ export default {
     },
     isQuestionImagePresent() {
       // if the current selected item has an image present
-      return this.localItemDetailList[this.localSelectedItemIndex].image != null;
+      return this.selectedItemDetail.image != null;
     },
     localQuestionTypeIndex: {
       // local copy of the current question type index
       get() {
         return this.questionTypeIndex;
       },
-      set(localQuestionTypeIndex) {
+      set(newQuestionTypeIndex) {
+        let newQuestionType = this.questionTypes[newQuestionTypeIndex].value;
+        let oldQuestionType = this.questionTypes[this.questionTypeIndex].value;
         // change the format of the correct answer if needed
-        if (this.questionTypes[localQuestionTypeIndex]["value"] == "checkbox") {
-          this.localItemDetailList[this.localSelectedItemIndex].correct_answer = [
-            this.localItemDetailList[this.localSelectedItemIndex].correct_answer,
+        if (newQuestionType == "checkbox") {
+          this.selectedItemDetail.correct_answer = [
+            this.selectedItemDetail.correct_answer,
           ];
-        } else if (this.questionTypes[this.questionTypeIndex]["value"] == "checkbox") {
-          this.localItemDetailList[
-            this.localSelectedItemIndex
-          ].correct_answer = this.localItemDetailList[
-            this.localSelectedItemIndex
-          ].correct_answer[0];
+        } else if (oldQuestionType == "checkbox") {
+          this.selectedItemDetail.correct_answer = this.selectedItemDetail.correct_answer[0];
         }
 
-        this.$emit("update:questionTypeIndex", localQuestionTypeIndex);
-        this.$emit(
-          "question-type-changed",
-          this.questionTypes[localQuestionTypeIndex]["value"]
-        );
+        this.$emit("update:questionTypeIndex", newQuestionTypeIndex);
+        this.$emit("question-type-changed", newQuestionType);
       },
     },
     charLimitBoxClass() {
@@ -691,17 +686,19 @@ export default {
         this.$emit("update:selectedItemIndex", localSelectedItemIndex);
       },
     },
+    /**
+     * prepares the list of options to be passed to the dropdown for navigating between items;
+     * the dropdown implementation takes a list of labels to show,
+     * along with the index to actually let the component choose which
+     * label to show
+     */
     itemOptionsList() {
-      // preparing an options list to pass to the dropdown
-      // the dropdown implementation takes a list of labels to show,
-      // along with the index to actually let the component choose which
-      // label to show (using a v-model). This combination of "index", "label"
-      // can be used by some other parent component as well.
-      var optionsList = [];
+      let optionsList = [];
       this.localItemList.forEach((item, itemIndex) => {
-        var currentItem = {};
-        currentItem["value"] = itemIndex;
-        var itemType = this.$t(`editor.item_editor.dropdown.${item.type}`);
+        let currentItem = {
+          value: itemIndex,
+        };
+        let itemType = this.$t(`editor.item_editor.dropdown.${item.type}`);
         currentItem["label"] = `${itemType} ${itemIndex + 1}`;
         optionsList.push(currentItem);
       });
@@ -719,35 +716,33 @@ export default {
     questionText: {
       get() {
         // extract question text from item
-        return this.localItemDetailList[this.localSelectedItemIndex].text;
+        return this.selectedItemDetail.text;
       },
       set(value) {
         // set the updated question text back into the item
-        this.localItemDetailList[this.localSelectedItemIndex].text = value;
+        this.selectedItemDetail.text = value;
       },
     },
     maxCharLimit: {
       get() {
         // extract the character limit from the item
-        if (this.localItemDetailList[this.localSelectedItemIndex] == null) return null;
-        return (
-          this.localItemDetailList[this.localSelectedItemIndex].max_char_limit || 100
-        );
+        if (this.selectedItemDetail == null) return null;
+        return this.selectedItemDetail.max_char_limit || 100;
       },
       set(value) {
         // set the character limit in the item
-        this.localItemDetailList[this.localSelectedItemIndex].max_char_limit = value;
+        this.selectedItemDetail.max_char_limit = value;
       },
     },
     isMaxCharLimitSet: {
       get() {
         // extract whether character limit is set from the item
-        if (this.localItemDetailList[this.localSelectedItemIndex] == null) return false;
-        return this.localItemDetailList[this.localSelectedItemIndex].has_char_limit;
+        if (this.selectedItemDetail == null) return false;
+        return this.selectedItemDetail.has_char_limit;
       },
       set(value) {
         // set whether character limit exists in the item
-        this.localItemDetailList[this.localSelectedItemIndex].has_char_limit = value;
+        this.selectedItemDetail.has_char_limit = value;
       },
     },
     timeObject: {
@@ -776,19 +771,24 @@ export default {
     options: {
       // computed array of options
       get() {
-        return this.localItemDetailList[this.localSelectedItemIndex].options;
+        return this.selectedItemDetail.options;
       },
     },
     correctAnswer() {
-      let rawCorrectAnswer = this.localItemDetailList[this.localSelectedItemIndex]
-        .correct_answer;
-      if (this.isQuestionTypeCheckbox) return new Set(rawCorrectAnswer);
-      return rawCorrectAnswer;
+      return this.selectedItemDetail.correct_answer;
     },
+    /**
+     * whether any error is present after checking individual error
+     * states that are defined
+     */
     isAnyError() {
-      // returns if any error is present after checking individual error
-      // states that are defined
       return this.timeExceedsVideoDuration || this.itemInVicinity;
+    },
+    /**
+     * the details corresponding to the selected item
+     */
+    selectedItemDetail() {
+      return this.localItemDetailList[this.localSelectedItemIndex];
     },
   },
 

@@ -55,10 +55,11 @@ describe("Body.vue", () => {
   });
 
   describe("subjective questions", () => {
-    const mountWrapper = () => {
+    const mountWrapper = (params = { props: {} }) => {
       wrapper = mount(Body, {
         props: {
           questionType: "subjective",
+          ...params.props,
         },
       });
     };
@@ -146,8 +147,10 @@ describe("Body.vue", () => {
 
     it("displays the answer when default answer given", async () => {
       const draftAnswer = "abc";
-      await wrapper.setProps({
-        draftAnswer: draftAnswer,
+      await mountWrapper({
+        props: {
+          draftAnswer: draftAnswer,
+        },
       });
 
       expect(
@@ -159,8 +162,10 @@ describe("Body.vue", () => {
 
     it("displays the answer when submitted answer given", async () => {
       const submittedAnswer = "abc";
-      await wrapper.setProps({
-        submittedAnswer: submittedAnswer,
+      await mountWrapper({
+        props: {
+          submittedAnswer: submittedAnswer,
+        },
       });
 
       expect(
@@ -306,7 +311,7 @@ describe("Body.vue", () => {
     });
 
     it("set options selected based on draft answer", async () => {
-      const draftAnswer = new Set([1, 2]);
+      const draftAnswer = [1, 2];
       await wrapper.setProps({
         draftAnswer: draftAnswer,
       });
@@ -327,8 +332,8 @@ describe("Body.vue", () => {
     });
 
     it("highlights options based on correct/wrong answers", async () => {
-      const submittedAnswer = new Set([1, 2]);
-      const correctAnswer = new Set([0, 1]);
+      const submittedAnswer = [1, 2];
+      const correctAnswer = [0, 1];
       await wrapper.setProps({
         submittedAnswer: submittedAnswer,
         correctAnswer: correctAnswer,

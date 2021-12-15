@@ -347,8 +347,8 @@
                     data-test="addCheckboxQuestionItem"
                   >
                     <inline-svg
-                      :src="getImageSource('checkbox.svg')"
-                      class="w-10 h-8 pb-2 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                      :src="getImageSource('check-square-regular.svg')"
+                      class="w-10 h-8 pb-2 xl:pb-1 xl:pt-1 fill-current text-primary group-hover:text-white group-disabled:text-primary"
                     ></inline-svg>
                     <p :class="questionTypeHeadingClass">{{ $t("generic.checkbox") }}</p>
                   </button>
@@ -372,6 +372,7 @@
               @question-type-changed="questionTypeChanged"
               @show-image-uploader="toggleImageUploaderBox"
               data-test="itemEditor"
+              ref="itemEditor"
             ></item-editor>
           </div>
         </div>
@@ -404,7 +405,7 @@
 
     <!-- plio preview -->
     <div
-      class="fixed top-1/20 w-11/12 bp-420:w-10/12 shadow-xl z-20"
+      class="fixed top-1/12 w-11/12 bp-420:w-10/12 shadow-xl z-20"
       :class="plioPreviewContainerClass"
       v-if="isPlioPreviewShown"
     >
@@ -624,12 +625,8 @@ export default {
       anyErrorsPresent: false, // store if any errors are present or not
       isPublishedPlioDialogShown: false, // whether to show the dialog that comes after publishing plio
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
-      // mapping of questionType value to index in the list of question types
-      questionTypeToIndex: {
-        mcq: 0,
-        subjective: 1,
-        checkbox: 2,
-      },
+      // list of question types supported
+      questionTypes: ["mcq", "subjective", "checkbox"],
       isModalMinimized: false, // whether the preview modal is minimized or not
       // styling class for the maximise button
       maximizeButtonClass:
@@ -881,29 +878,35 @@ export default {
      */
     itemImage() {
       if (this.currentItemIndex == null) return null;
-      if (this.itemDetails[this.currentItemIndex].image == null) return null;
-      return this.itemDetails[this.currentItemIndex].image.url;
+      if (this.currentItemDetail.image == null) return null;
+      return this.currentItemDetail.image.url;
     },
     /**
      * whether the type of the question being created is a subjective question
      */
     isQuestionTypeSubjective() {
       if (this.currentItemIndex == null) return false;
-      return this.itemDetails[this.currentItemIndex].type == "subjective";
+      return this.currentItemDetail.type == "subjective";
     },
     /**
      * whether the type of the question being created is a checkbox question
      */
     isQuestionTypeCheckbox() {
       if (this.currentItemIndex == null) return false;
-      return this.itemDetails[this.currentItemIndex].type == "checkbox";
+      return this.currentItemDetail.type == "checkbox";
     },
     /**
      * whether the type of the question being created is a mcq
      */
     isQuestionTypeMCQ() {
       if (this.currentItemIndex == null) return false;
-      return this.itemDetails[this.currentItemIndex].type == "mcq";
+      return this.currentItemDetail.type == "mcq";
+    },
+    /**
+     * the details corresponding to the current item
+     */
+    currentItemDetail() {
+      return this.itemDetails[this.currentItemIndex];
     },
     /**
      * class for the item picker
@@ -1070,7 +1073,7 @@ export default {
      * get the correct answer for the question
      */
     correctAnswer() {
-      return this.itemDetails[this.currentItemIndex].correct_answer;
+      return this.currentItemDetail.correct_answer;
     },
     /**
      * whether the publish button is enabled
@@ -1457,9 +1460,9 @@ export default {
      * unlinks the image from the current question, and deletes it from S3
      */
     deleteLinkedImage() {
-      var imageIdToDelete = this.itemDetails[this.currentItemIndex].image.id;
+      var imageIdToDelete = this.currentItemDetail.image.id;
       ImageAPIService.deleteImage(imageIdToDelete);
-      this.itemDetails[this.currentItemIndex].image = null;
+      this.currentItemDetail.image = null;
     },
     /**
      * upload the image file to the server and update
@@ -1470,7 +1473,7 @@ export default {
     uploadImage(imageFile) {
       this.startLoading();
       ImageAPIService.uploadImage(imageFile).then((response) => {
-        this.itemDetails[this.currentItemIndex].image = response.data;
+        this.currentItemDetail.image = response.data;
         this.stopLoading();
       });
     },
@@ -1487,7 +1490,7 @@ export default {
      * @param {String} newQuestionType - the new type of the question
      */
     questionTypeChanged(newQuestionType) {
-      this.itemDetails[this.currentItemIndex].type = newQuestionType;
+      this.currentItemDetail.type = newQuestionType;
     },
     /**
      * minimizes the modal
@@ -1659,9 +1662,9 @@ export default {
         this.isItemSelected = true;
         this.player.pause();
         this.currentItemIndex = itemIndex;
-        this.currentQuestionTypeIndex = this.questionTypeToIndex[
+        this.currentQuestionTypeIndex = this.questionTypes.indexOf(
           this.itemDetails[itemIndex].type
-        ];
+        );
       }
     },
     /**
@@ -1937,32 +1940,31 @@ export default {
      */
     deleteSelectedOption() {
       // delete the option
-      this.itemDetails[this.currentItemIndex].options.splice(this.optionIndexToDelete, 1);
-      if (this.isQuestionTypeMCQ && this.optionIndexToDelete == this.correctAnswer) {
-        // if the deleted option was the correct answer, reset the correct answer
-        this.itemDetails[this.currentItemIndex].correct_answer = 0;
-      } else if (
-        this.isQuestionTypeCheckbox &&
-        this.correctAnswer.indexOf(this.optionIndexToDelete) != -1
-      ) {
-        // remove the deleted option from the list of correct answers
-        this.itemDetails[this.currentItemIndex].correct_answer.splice(
-          this.correctAnswer.indexOf(this.optionIndexToDelete),
-          1
-        );
+      this.currentItemDetail.options.splice(this.optionIndexToDelete, 1);
+      if (this.isQuestionTypeMCQ) {
+        if (this.optionIndexToDelete == this.correctAnswer) {
+          // if the deleted option was the correct answer, reset the correct answer
+          this.currentItemDetail.correct_answer = 0;
+        } else if (this.correctAnswer > this.optionIndexToDelete)
+          this.currentItemDetail.correct_answer -= 1;
+      } else if (this.isQuestionTypeCheckbox) {
+        if (this.correctAnswer.indexOf(this.optionIndexToDelete) != -1) {
+          // remove the deleted option from the list of correct answers
+          this.correctAnswer.splice(
+            this.correctAnswer.indexOf(this.optionIndexToDelete),
+            1
+          );
+        }
+
         // reset the correct answer if the option deleted was marked as the sole correct answer
-        if (this.itemDetails[this.currentItemIndex].correct_answer.length == 0)
-          this.itemDetails[this.currentItemIndex].correct_answer = [0];
+        if (this.correctAnswer.length == 0) this.currentItemDetail.correct_answer = [0];
         else {
           // decrement the index of all options with index > the index of the option deleted
-          this.itemDetails[this.currentItemIndex].correct_answer.forEach(
-            (optionIndex, answerIndex) => {
-              if (optionIndex > this.optionIndexToDelete) {
-                this.itemDetails[this.currentItemIndex].correct_answer[answerIndex] -= 1;
-              }
-            },
-            this
-          );
+          this.correctAnswer.forEach((optionIndex, answerIndex) => {
+            if (optionIndex > this.optionIndexToDelete) {
+              this.correctAnswer[answerIndex] -= 1;
+            }
+          }, this);
         }
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
@@ -1999,8 +2001,8 @@ export default {
         max_char_limit: 100,
       };
 
-      if (questionType == "mcq") details["correct_answer"] = 0;
-      else if (questionType == "checkbox") details["correct_answer"] = [0];
+      if (questionType == "checkbox") details["correct_answer"] = [0];
+      else details["correct_answer"] = 0;
       return details;
     },
     /**

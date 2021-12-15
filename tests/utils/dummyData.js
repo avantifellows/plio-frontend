@@ -546,7 +546,7 @@ global.dummyItemResponses = [
     deleted: null,
     session: 36,
     item: 202,
-    answer: new Set(["0, 1"]),
+    answer: [0, 1],
     created_at: "2021-09-14T13:25:44.663224Z",
     updated_at: "2021-09-14T13:25:44.663307Z",
   },
