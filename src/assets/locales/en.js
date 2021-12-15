@@ -86,10 +86,6 @@ export default {
       delete_option: {
         title: "Are you sure you want to delete this option?",
       },
-      cannot_delete_option: {
-        title: "Cannot delete the option",
-        description: "A question must have at least 2 options",
-      },
       cannot_add_question: {
         title: "Cannot add a new question here",
         description:
@@ -115,14 +111,6 @@ export default {
             "Once a plio is published, you will not be able to edit the following: the video, the number of questions, the number of options in each question and the time for each question. You can also preview the plio before publishing it.",
           confirm: "Publish",
           cancel: "Preview",
-        },
-      },
-      publishing: {
-        published: {
-          title: "Publishing the changes...",
-        },
-        draft: {
-          title: "Publishing the plio...",
         },
       },
       published: {
@@ -211,12 +199,6 @@ export default {
               "This will permananently delete this plio and all the data associated with it, including all the responses. Once deleted, the data cannot be recovered.",
           },
         },
-        toast: {
-          delete: {
-            success: "Plio deleted successfully",
-            error: "There was an error. Please try again!",
-          },
-        },
       },
       search: {
         placeholder: "Search",
@@ -284,14 +266,12 @@ export default {
         invalid: "OTP should be 6 digits long",
       },
       submit: "Submit OTP",
-      incorrect: "Incorrect OTP entered. Please try again!",
       resend: "Resend OTP",
       resent: "OTP has been sent again",
     },
     or: "OR",
     google: {
       button: "Sign in with Google",
-      error: "Something went wrong. Please try again!",
     },
     warning: {
       only_indian_numbers:
@@ -358,15 +338,8 @@ export default {
     buttons: {
       home: "Go to Home",
     },
-    create_plio: "Could not create Plio. Please try again",
     generic: "Something went wrong. Please try again!",
-    internet_lost: "Internet connection lost",
-    internet_restored: "Internet connection restored",
-    copying: "Error while copying",
     auto_logout: "You have been logged out!",
-  },
-  success: {
-    copying: "Link Copied Successfully",
   },
   generic: {
     status: {
@@ -382,6 +355,7 @@ export default {
     },
     mcq: "Multiple Choice",
     subjective: "Subjective",
+    checkbox: "Checkbox",
     submitted: "Submitted",
     dialogs: {
       share: {
@@ -415,8 +389,11 @@ export default {
       },
       add_item: {
         published: "You cannot add new questions in a published plio",
-        mcq: "Click here to add a multiple-choice question",
+        mcq:
+          "Click here to add a multiple-choice question with one correct answer",
         subjective: "Click here to add a subjective question",
+        checkbox:
+          "Click here to add a multiple-choice question with multiple correct answers",
       },
       item_editor: {
         buttons: {
@@ -459,9 +436,18 @@ export default {
           },
         },
         correct_option: {
-          marked:
-            "This option has been marked as the correct option for this question",
-          unmarked: "Mark this option as the correct option for this question",
+          checkbox: {
+            marked:
+              "This option has been marked as one of the correct options for this question",
+            unmarked:
+              "Mark this option as one of the correct options for this question",
+          },
+          mcq: {
+            marked:
+              "This option has been marked as the correct option for this question",
+            unmarked:
+              "Mark this option as the correct option for this question",
+          },
         },
       },
       home: "Go to the home page",
@@ -537,6 +523,43 @@ export default {
       },
       num_questions_answered: {
         title: "QUESTIONS ANSWERED",
+      },
+    },
+  },
+  toast: {
+    login: {
+      otp: {
+        incorrect: "Incorrect OTP entered. Please try again!",
+      },
+      google: {
+        error: "Something went wrong. Please try again!",
+      },
+    },
+    error: {
+      create_plio: "Could not create Plio. Please try again",
+      copying: "Error while copying",
+      internet_lost: "Internet connection lost",
+    },
+    success: {
+      copying: "Link Copied Successfully",
+      internet_restored: "Internet connection restored",
+    },
+    editor: {
+      item_editor: {
+        correct_answer: {
+          unmark_last_selected_option_warning:
+            "At least one option should be selected as the correct answer",
+        },
+      },
+    },
+    home: {
+      table: {
+        plio_list_item: {
+          delete: {
+            success: "Plio deleted successfully",
+            error: "There was an error. Please try again!",
+          },
+        },
       },
     },
   },

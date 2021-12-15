@@ -100,7 +100,7 @@ export default {
       // class for the close button
       closeDialogButtonClass: "bg-white w-10 h-10 p-2",
       plioLinkCopied: false, // whether the plio link has been copied or not
-      toast: useToast(), // use the toast component
+      toast: useToast(),
     };
   },
   computed: {
@@ -160,7 +160,7 @@ export default {
       var success = this.copyToClipboard(this.plioLink);
 
       if (success) this.plioLinkCopied = true;
-      else this.toast.error(this.$t("error.copying"));
+      else this.toast.error(this.$t("toast.error.copying"));
     },
   },
 };

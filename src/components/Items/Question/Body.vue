@@ -1,7 +1,7 @@
 <template>
   <div class="overflow-y-auto flex flex-col">
     <!-- question text -->
-    <div class="px-4 md:px-6 xl:px-10">
+    <div class="px-4 md:px-6" :class="{ 'xl:px-10': !previewMode }">
       <p :class="questionTextClass" data-test="questionText">
         {{ questionText }}
       </p>
@@ -31,7 +31,7 @@
       </div>
       <!-- option container -->
       <div
-        v-if="isQuestionTypeMCQ"
+        v-if="areOptionsVisible"
         class="flex"
         :class="answerContainerClass"
         data-test="optionContainer"
@@ -42,21 +42,21 @@
               v-for="(option, optionIndex) in options"
               :key="optionIndex"
               :class="[optionBackgroundClass(optionIndex), optionTextClass]"
+              :data-test="`optionContainer-${optionIndex}`"
             >
               <!-- each option is defined here -->
-              <!-- adding <label> so that touch input is just not limited to the radio button -->
+              <!-- adding <label> so that touch input is just not limited to the radio/checkbox button -->
               <label :class="labelClass(option)">
                 <!-- understand the meaning of the keys here:
                     https://www.w3schools.com/tags/att_input_type_radio.asp -->
                 <input
-                  type="radio"
-                  name="questionOptions"
+                  :type="optionInputType"
                   :value="option"
-                  class="place-self-center"
+                  class="place-self-center text-primary focus:ring-0"
                   @click="selectOption(optionIndex)"
-                  :checked="isOptionChecked(optionIndex)"
+                  :checked="isOptionMarked(optionIndex)"
                   :disabled="isAnswerSubmitted || previewMode"
-                  :data-test="`radio-${optionIndex}`"
+                  :data-test="`optionSelector-${optionIndex}`"
                 />
                 <div
                   v-html="option"
@@ -113,7 +113,11 @@ export default {
     return {
       subjectiveAnswer: "", // holds the answer to the subjective question
       subjectiveBoxHeightLimit: 250, // maximum allowed height of the subjective answer text box in px
+      // set containing the question types in which options are present
+      questionTypesSupportingOptions: new Set(["mcq", "checkbox"]),
       isImageLoading: false, // whether the image is loading
+      correctOptionClass: "text-white bg-green-500",
+      wrongOptionClass: "text-white bg-red-500",
     };
   },
   watch: {
@@ -151,17 +155,17 @@ export default {
     },
     correctAnswer: {
       default: null,
-      type: Number,
+      type: [Number, Array],
     },
     /** answer for the question which has been submitted */
     submittedAnswer: {
       default: null,
-      type: [String, Number],
+      type: [String, Number, Array],
     },
     /** answer for the question which has been entered but not submitted */
     draftAnswer: {
       default: null,
-      type: [String, Number],
+      type: [String, Number, Array],
     },
     isAnswerSubmitted: {
       default: false,
@@ -223,15 +227,28 @@ export default {
     optionBackgroundClass(optionIndex) {
       // returns the background class for the option
       if (!this.isAnswerSubmitted) return {};
-      if (optionIndex == this.correctAnswer) return "text-white bg-green-500";
-      if (optionIndex == this.submittedAnswer) return "text-white bg-red-500";
+      if (this.isQuestionTypeMCQ) {
+        if (optionIndex == this.correctAnswer) return this.correctOptionClass;
+        if (optionIndex == this.submittedAnswer) return this.wrongOptionClass;
+      }
+      if (this.isQuestionTypeCheckbox) {
+        if (this.correctAnswer.indexOf(optionIndex) != -1) return this.correctOptionClass;
+        if (this.submittedAnswer.indexOf(optionIndex) != -1) return this.wrongOptionClass;
+      }
     },
-    isOptionChecked(optionIndex) {
-      // whether the given option index should be checked
-      return this.draftAnswer == optionIndex;
+    isOptionMarked(optionIndex) {
+      // whether the given option index should be marked selected
+      if (this.isQuestionTypeMCQ) return this.draftAnswer == optionIndex;
+      return this.draftAnswer != null && this.draftAnswer.indexOf(optionIndex) != -1;
     },
   },
   computed: {
+    optionInputType() {
+      if (!this.areOptionsVisible) return null;
+      if (this.isQuestionTypeMCQ) return "radio";
+      if (this.isQuestionTypeCheckbox) return "checkbox";
+      return null;
+    },
     /**
      * classes for the various containers corresponding to the possible types of answers
      * to the various types of questions (options for MCQ, textarea for subjective)
@@ -335,13 +352,21 @@ export default {
       }
       return this.draftAnswer;
     },
+    areOptionsVisible() {
+      // whether options need to be shown
+      return this.questionTypesSupportingOptions.has(this.questionType);
+    },
+    isQuestionTypeSubjective() {
+      // whether the question type is subjective
+      return this.questionType == "subjective";
+    },
+    isQuestionTypeCheckbox() {
+      // whether the question type is checkbox
+      return this.questionType == "checkbox";
+    },
     isQuestionTypeMCQ() {
       // whether the question type is mcq
       return this.questionType == "mcq";
-    },
-    isQuestionTypeSubjective() {
-      // whether the question type is mcq
-      return this.questionType == "subjective";
     },
     subjectiveAnswerInputPlaceholder() {
       // placeholder for the subjective answer input area
