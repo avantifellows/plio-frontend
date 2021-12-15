@@ -5,4 +5,9 @@ module.exports = {
       plugins: ["transform-remove-console"],
     },
   },
+  env: {
+    development: {
+      plugins: ["istanbul"],
+    },
+  },
 };
