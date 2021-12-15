@@ -625,7 +625,7 @@ export default {
       anyErrorsPresent: false, // store if any errors are present or not
       isPublishedPlioDialogShown: false, // whether to show the dialog that comes after publishing plio
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
-      // mapping of questionType value to index in the list of question types
+      // list of question types supported
       questionTypes: ["mcq", "subjective", "checkbox"],
       isModalMinimized: false, // whether the preview modal is minimized or not
       // styling class for the maximise button
