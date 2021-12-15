@@ -65,7 +65,7 @@ export default {
         placeholder: "विकल्प यहाँ दर्ज करें",
       },
       buttons: {
-        add_option: "नया विकल्प जोड़ें",
+        add_option: "विकल्प जोड़ें",
       },
       dropdown: {
         question: "सवाल",
@@ -506,7 +506,8 @@ export default {
   dashboard: {
     updated: "सबसे हाल ही में प्रकाशित हुआ",
     buttons: {
-      edit: "प्लायो को संपादित करें",
+      edit: "प्लायो संपादित करें",
+      play: "प्लायो चलाएं",
       download_report: "रिपोर्ट डाउनलोड करें",
     },
     update_message: "यह पेज हर घंटे अपडेट होता है",

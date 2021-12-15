@@ -634,7 +634,7 @@ export default {
      */
     gridContainerClass() {
       return {
-        "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5":
+        "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 h-screen":
           this.isMenuShownInline || !this.isMenuShownOverlay,
         flex: this.isMenuShownOverlay,
       };

@@ -146,11 +146,10 @@
         ></input-text>
       </div>
       <!-- add option button -->
-      <div class="flex justify-end mr-2 mt-2" v-if="areOptionsVisible">
+      <div class="flex justify-end m-2" v-if="areOptionsVisible">
         <span v-tooltip="addOptionTooltip" tabindex="0">
           <icon-button
             :titleConfig="addOptionButtonTitleConfig"
-            class="float-right"
             @click="addOption"
             :buttonClass="addOptionButtonClass"
             :disabled="isInteractionDisabled"
@@ -251,7 +250,7 @@ export default {
       ],
       // styling classes for add option button
       addOptionButtonClass: [
-        `rounded-md font-bold p-5 h-2 w-auto bg-primary shadow-lg
+        `rounded-md font-bold h-full w-auto bg-primary shadow-lg
         hover:bg-primary-hover disabled:opacity-50 focus:ring-primary`,
         { "cursor-not-allowed": this.isInteractionDisabled },
       ],
@@ -642,7 +641,7 @@ export default {
     addOptionButtonTitleConfig() {
       return {
         value: this.$t("editor.item_editor.buttons.add_option"),
-        class: "p-4 text-white rounded-md font-bold",
+        class: "px-4 py-2 text-white rounded-md font-bold",
       };
     },
     /**
