@@ -4,8 +4,6 @@ module.exports = {
     production: {
       plugins: ["transform-remove-console"],
     },
-  },
-  env: {
     development: {
       plugins: ["istanbul"],
     },
