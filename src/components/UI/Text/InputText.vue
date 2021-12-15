@@ -142,6 +142,14 @@ export default {
       default: false,
       type: Boolean,
     },
+    /**
+     * type of input allowed;
+     * if inputType = number, only numbers are allowed as an input
+     */
+    inputType: {
+      default: "",
+      type: String,
+    },
   },
   computed: {
     isEndIconDisabled() {
@@ -261,20 +269,25 @@ export default {
     },
   },
   methods: {
+    /** invoked on input change */
     inputChange() {
-      // invoked on input change
       this.$emit("input", this.value);
     },
+    /** invoked when a key is pressed */
     keyPress(event) {
-      // invoked when a key is pressed
+      if (this.inputType == "number" && !(event.keyCode >= 48 && event.keyCode <= 57)) {
+        // prevent anything apart from a number from being entered
+        event.preventDefault();
+        return;
+      }
       this.$emit("keypress", event);
     },
+    /** invoked on start icon being selected */
     startIconSelected() {
-      // invoked on start icon being selected
       this.$emit("start-icon-selected", this.value);
     },
+    /** invoked on end icon being selected */
     endIconSelected() {
-      // invoked on end icon being selected
       this.$emit("end-icon-selected", this.value);
     },
   },
