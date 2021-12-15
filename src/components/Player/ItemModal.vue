@@ -318,7 +318,7 @@ export default {
       }
 
       if (this.isQuestionTypeCheckbox) {
-        // for checkbox, create a set for the response if the response is empty
+        // for checkbox, create an array for the response if the response is empty
         if (this.draftResponses[this.selectedItemIndex] == null)
           this.draftResponses[this.selectedItemIndex] = [];
         // if the selection option was already in the response
