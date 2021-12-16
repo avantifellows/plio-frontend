@@ -5,7 +5,14 @@ module.exports = {
       plugins: ["transform-remove-console"],
     },
     development: {
-      plugins: ["istanbul"],
+      plugins: [
+        [
+          "babel-plugin-istanbul",
+          {
+            extension: [".js", ".vue"],
+          },
+        ],
+      ],
     },
   },
 };

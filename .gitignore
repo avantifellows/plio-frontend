@@ -33,3 +33,4 @@ package-lock.json
 cypress.env.json
 .nyc_output/
 tests/integration/videos/
+tests/integration/screenshots/
