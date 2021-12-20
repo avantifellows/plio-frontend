@@ -36,6 +36,15 @@ jobs:
   integration-tests:
     name: Integration tests
     runs-on: ubuntu-latest
+    strategy:
+      # when one test fails, DO NOT cancel the other
+      # containers, because this will kill Cypress processes
+      # leaving the Dashboard hanging ...
+      # https://github.com/cypress-io/github-action/issues/48
+      fail-fast: false
+      matrix:
+        # run copies of the current job in parallel
+        containers: [1, 2, 3]
 
     steps:
       - uses: actions/checkout@v2
@@ -148,11 +157,13 @@ jobs:
 
           # run cypress test cases
           # testing on ubuntu:chrome
-          npx cypress run --group ubuntu/chrome --browser chrome --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          npx cypress run --group ubuntu/chrome --browser chrome --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+
           # # testing on ubuntu:firefox
-          # npx cypress run --group ubuntu/firefox --browser firefox --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # npx cypress run --group ubuntu/firefox --browser firefox --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+
           # # testing on ubuntu:electron
-          # npx cypress run --group ubuntu/electron --browser electron --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # npx cypress run --group ubuntu/electron --browser electron --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
