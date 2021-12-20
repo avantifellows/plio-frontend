@@ -284,14 +284,14 @@ jobs:
           export cypress_auth_google_client_secret=${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
 
           # run cypress test cases
-          # testing on ubuntu:chrome
-          npx cypress run --group ubuntu/chrome --browser chrome --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # testing on windows:chrome
+          npx cypress run --group windows/chrome --browser chrome --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
-          # # testing on ubuntu:firefox
-          # npx cypress run --group ubuntu/firefox --browser firefox --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # # testing on windows:firefox
+          # npx cypress run --group windows/firefox --browser firefox --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
-          # # testing on ubuntu:electron
-          # npx cypress run --group ubuntu/electron --browser electron --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # # testing on windows:electron
+          # npx cypress run --group windows/electron --browser electron --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
