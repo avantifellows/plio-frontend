@@ -148,13 +148,13 @@ jobs:
 
           # run cypress test cases
           # testing on ubuntu:chrome
-          npx cypress run --group ubuntu/chrome --browser chrome --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          npx cypress run --group ubuntu/chrome --browser chrome --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
-          # # testing on ubuntu:firefox
-          # npx cypress run --group ubuntu/firefox --browser firefox --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # testing on ubuntu:firefox
+          npx cypress run --group ubuntu/firefox --browser firefox --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
-          # # testing on ubuntu:electron
-          # npx cypress run --group ubuntu/electron --browser electron --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # testing on ubuntu:electron
+          npx cypress run --group ubuntu/electron --browser electron --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
@@ -185,7 +185,7 @@ jobs:
           cd plio-frontend/
 
           # check branch and switch to branch if exists
-          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
+          if ( `git branch --list --remote origin/${{ github.head_ref }}` )
           then
             echo "Switching to branch ${{ github.head_ref }}."
             git checkout ${{ github.head_ref }}
@@ -285,13 +285,13 @@ jobs:
 
           # run cypress test cases
           # testing on windows:chrome
-          npx cypress run --group windows/chrome --browser chrome --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          npx cypress run --group windows/chrome --browser chrome --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
           # # testing on windows:firefox
-          # npx cypress run --group windows/firefox --browser firefox --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # npx cypress run --group windows/firefox --browser firefox --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
           # # testing on windows:electron
-          # npx cypress run --group windows/electron --browser electron --parallel --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # npx cypress run --group windows/electron --browser electron --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
