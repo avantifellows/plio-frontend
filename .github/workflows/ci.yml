@@ -184,15 +184,14 @@ jobs:
           git clone https://github.com/avantifellows/plio-frontend/
           cd plio-frontend/
 
-          # check branch and switch to branch if exists
-          if ( `git branch --list --remote origin/${{ github.head_ref }}` )
-          then
+          # check branch and switch to branch if exists - windows powershell format
+          if ( `git branch --list --remote origin/${{ github.head_ref }}` ) {
             echo "Switching to branch ${{ github.head_ref }}."
             git checkout ${{ github.head_ref }}
             git pull origin ${{ github.head_ref }}
-          else
+          } else {
             echo "Branch not found. Going with default branch."
-          fi
+          }
 
           # create the env file
           cp .env.example .env
@@ -212,15 +211,14 @@ jobs:
           git clone https://github.com/avantifellows/plio-backend
           cd plio-backend/
 
-          # check branch and switch to branch if exists
-          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
-          then
+          # check branch and switch to branch if exists - windows powershell format
+          if ( `git branch --list --remote origin/${{ github.head_ref }}` ) {
             echo "Switching to branch ${{ github.head_ref }}."
             git checkout ${{ github.head_ref }}
             git pull origin ${{ github.head_ref }}
-          else
+          } else {
             echo "Branch not found. Going with default branch."
-          fi
+          }
 
           # create the env file
           cp .env.example .env
@@ -243,15 +241,14 @@ jobs:
           git clone https://github.com/avantifellows/plio-analytics
           cd plio-analytics/
 
-          # check branch and switch to branch if exists
-          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
-          then
+          # check branch and switch to branch if exists - windows powershell format
+          if ( `git branch --list --remote origin/${{ github.head_ref }}` ) {
             echo "Switching to branch ${{ github.head_ref }}."
             git checkout ${{ github.head_ref }}
             git pull origin ${{ github.head_ref }}
-          else
+          } else {
             echo "Branch not found. Going with default branch."
-          fi
+          }
 
           # create the env file
           cp .env.example .env
