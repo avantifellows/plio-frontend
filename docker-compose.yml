@@ -2,6 +2,7 @@ version: '3.7'
 
 services: # the different images that will be running as containers
   web: # service name
+    platform: windows/amd64
     build:
       context: . # build the image for the web service from the dockerfile in parent directory.
       target: development-stage # docker-compose is only run for the local setup
