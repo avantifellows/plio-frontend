@@ -170,9 +170,9 @@ jobs:
   #         cd ../plio-backend/ && docker-compose down
   #         cd ../plio-analytics/ && docker-compose down
 
-  integration-tests-windows:
-    name: Integration tests - Windows
-    runs-on: windows-latest
+  integration-tests-mac:
+    name: Integration tests - macOS
+    runs-on: mac-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -188,7 +188,7 @@ jobs:
           docker version
           echo 'show docker version'
 
-          # check branch and switch to branch if exists - windows powershell format
+          # check branch and switch to branch if exists
           if ( `git branch --list --remote origin/${{ github.head_ref }}` ) {
             echo "Switching to branch ${{ github.head_ref }}."
             git checkout ${{ github.head_ref }}
@@ -215,7 +215,7 @@ jobs:
           git clone https://github.com/avantifellows/plio-backend
           cd plio-backend/
 
-          # check branch and switch to branch if exists - windows powershell format
+          # check branch and switch to branch if exists
           if ( `git branch --list --remote origin/${{ github.head_ref }}` ) {
             echo "Switching to branch ${{ github.head_ref }}."
             git checkout ${{ github.head_ref }}
@@ -245,7 +245,7 @@ jobs:
           git clone https://github.com/avantifellows/plio-analytics
           cd plio-analytics/
 
-          # check branch and switch to branch if exists - windows powershell format
+          # check branch and switch to branch if exists
           if ( `git branch --list --remote origin/${{ github.head_ref }}` ) {
             echo "Switching to branch ${{ github.head_ref }}."
             git checkout ${{ github.head_ref }}
@@ -285,14 +285,14 @@ jobs:
           export cypress_auth_google_client_secret=${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
 
           # run cypress test cases
-          # testing on windows:chrome
-          npx cypress run --group windows/chrome --browser chrome --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # testing on mac:chrome
+          npx cypress run --group mac/chrome --browser chrome --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
-          # # testing on windows:firefox
-          # npx cypress run --group windows/firefox --browser firefox --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # # testing on mac:firefox
+          # npx cypress run --group mac/firefox --browser firefox --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
-          # # testing on windows:electron
-          # npx cypress run --group windows/electron --browser electron --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # # testing on mac:electron
+          # npx cypress run --group mac/electron --browser electron --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
