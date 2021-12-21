@@ -205,8 +205,12 @@ jobs:
           echo 'VUE_APP_BACKEND_API_CLIENT_ID=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
           echo 'VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
 
+          echo 'list files'
+          ls -lh
+          echo 'list files'
+
           # setup docker containers
-          docker-compose -f docker-compose.windows.yml up -d --build
+          docker-compose -f ./docker-compose.windows.yml up -d --build
 
       - name: Set up Plio Backend
         run: |
