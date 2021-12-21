@@ -170,9 +170,9 @@ jobs:
   #         cd ../plio-backend/ && docker-compose down
   #         cd ../plio-analytics/ && docker-compose down
 
-  integration-tests-mac:
+  integration-tests-macos:
     name: Integration tests - macOS
-    runs-on: mac-latest
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -285,14 +285,14 @@ jobs:
           export cypress_auth_google_client_secret=${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
 
           # run cypress test cases
-          # testing on mac:chrome
-          npx cypress run --group mac/chrome --browser chrome --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # testing on macos:chrome
+          npx cypress run --group macos/chrome --browser chrome --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
-          # # testing on mac:firefox
-          # npx cypress run --group mac/firefox --browser firefox --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # # testing on macos:firefox
+          # npx cypress run --group macos/firefox --browser firefox --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
-          # # testing on mac:electron
-          # npx cypress run --group mac/electron --browser electron --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
+          # # testing on macos:electron
+          # npx cypress run --group macos/electron --browser electron --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
