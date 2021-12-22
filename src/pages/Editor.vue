@@ -395,6 +395,7 @@
       :text="statusBadge"
       :badgeClass="statusBadgeClass"
       v-tooltip="statusBadgeTooltip"
+      data-test="plioStatusBadge"
     ></simple-badge>
 
     <canvas
@@ -408,6 +409,7 @@
       class="fixed top-1/12 w-11/12 bp-420:w-10/12 shadow-xl z-20"
       :class="plioPreviewContainerClass"
       v-if="isPlioPreviewShown"
+      data-test="plioPreview"
     >
       <div class="flex relative w-full">
         <Plio
