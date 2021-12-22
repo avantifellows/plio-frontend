@@ -185,14 +185,9 @@ export default {
     /**
      * A local version of the settings prop
      */
-    localSettings: {
-      get() {
-        if (this.settings == null) return null;
-        return clonedeep(this.settings);
-      },
-      set(value) {
-        this.localSettings = value;
-      },
+    localSettings() {
+      if (this.settings == null) return null;
+      return clonedeep(this.settings);
     },
   },
   methods: {
