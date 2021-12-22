@@ -856,6 +856,12 @@ describe("Editor.vue", () => {
       "updateQuestionDetails"
     );
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
+    const updatePlioSettings = jest
+      .spyOn(Editor.methods, "updatePlioSettings")
+      .mockImplementation(() => {
+        return;
+      });
+
     wrapper = mount(Editor, {
       data() {
         const confetti = require("canvas-confetti");
@@ -926,6 +932,7 @@ describe("Editor.vue", () => {
     await simulateConfirmClick();
 
     expect(publishPlio).toHaveBeenCalled();
+    expect(updatePlioSettings).toHaveBeenCalled();
     expect(wrapper.vm.status).toBe("published");
     expect(saveChanges).toHaveBeenCalledWith("all");
 

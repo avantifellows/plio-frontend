@@ -562,3 +562,16 @@ global.dummySession = {
     session_answers: global.dummyItemResponses,
   },
 };
+
+global.dummyGlobalSettings = {
+  player: {
+    configuration: {
+      skipEnabled: false,
+    },
+  },
+  app: {
+    appearance: {
+      darkMode: false,
+    },
+  },
+};

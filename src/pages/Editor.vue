@@ -1356,14 +1356,10 @@ export default {
         this.plioSettings = {
           player: {},
         };
-        if (this.userSettings == null) {
-          // pick global settings if a user's version doesn't exist
-          this.plioSettings.player = clonedeep(globalSettings.player);
-        } else {
-          // user the user defined settings and link them to this plio
-          this.plioSettings.player = clonedeep(this.userSettings.player);
-          this.updatePlioSettings();
-        }
+        // saving the value from user settings to the local settings variable.
+        // Why user settings? - the userSettings variable will contain user
+        // defined settings or global default settings, whichever is available.
+        this.plioSettings.player = clonedeep(this.userSettings.player);
       }
     },
     /**
