@@ -508,10 +508,10 @@ export default {
       buttons: {
         save: {
           hasUnsavedChanges: "अपने परिवर्तन सहेजें",
-          noUnsavedChanges: "सहेजने के लिए कुछ नहीं हैं"
+          noUnsavedChanges: "सहेजने के लिए कुछ नहीं हैं",
         },
         cancel: "",
-      }
+      },
     },
   },
   dashboard: {
@@ -546,25 +546,28 @@ export default {
     },
     menu: {
       title: {
-        skipEnabled: "प्लायो का प्रयास करते समय दर्शक प्रश्नों को छोड़ सकते हैं",
+        skipEnabled:
+          "प्लायो का प्रयास करते समय दर्शक प्रश्नों को छोड़ सकते हैं",
         darkMode: "Turn on Dark Mode",
       },
       subTitle: {
-        skipEnabled: "दर्शकों को एक प्रश्न छोड़ने और प्लायो के साथ आगे बढ़ने का विकल्प प्रदान करें",
+        skipEnabled:
+          "दर्शकों को एक प्रश्न छोड़ने और प्लायो के साथ आगे बढ़ने का विकल्प प्रदान करें",
         darkMode: "",
       },
-      info: "नई सेटिंग्स केवल भविष्य में बनाए गए प्लायो पर लागू होंगी, न कि पहले से बनाए गए प्लायो पर"
+      info:
+        "नई सेटिंग्स केवल भविष्य में बनाए गए प्लायो पर लागू होंगी, न कि पहले से बनाए गए प्लायो पर",
     },
     sidebar: {
       header: {
         player: "प्लेयर",
-        app: "App"
+        app: "App",
       },
       tab: {
         configuration: "विन्यास",
-        appearance: "Appearance"
-      }
-    }
+        appearance: "Appearance",
+      },
+    },
   },
   toast: {
     login: {

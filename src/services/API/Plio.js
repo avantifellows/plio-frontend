@@ -48,7 +48,7 @@ export default {
         plioDetails.plioDBId = plio.data.id;
         plioDetails.videoDBId = plio.data.video.id || null;
         plioDetails.videoDuration = plio.data.video.duration || 0;
-        plioDetails.config = plio.data.config
+        plioDetails.config = plio.data.config;
         return plioDetails;
       });
   },
@@ -86,10 +86,13 @@ export default {
    * Update a plio's settings
    * @param {String} plioId - uuid of a plio
    * @param {Object} payload - JSON object that needs to be updated
-   * @returns 
+   * @returns
    */
   updatePlioSettings(plioId, payload) {
-    return apiClient().put(pliosEndpoint + plioId + plioSettingsEndpoint, payload)
+    return apiClient().put(
+      pliosEndpoint + plioId + plioSettingsEndpoint,
+      payload
+    );
   },
 
   /**

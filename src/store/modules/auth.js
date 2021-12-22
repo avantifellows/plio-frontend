@@ -107,11 +107,14 @@ const actions = {
     commit("updateUserStatus", status);
   },
   async fetchAndUpdateUser({ dispatch, state }) {
-    let response = await UserAPIService.getUserByAccessToken(state.accessToken.access_token);
+    let response = await UserAPIService.getUserByAccessToken(
+      state.accessToken.access_token
+    );
     if (response != undefined) {
       // Use the pulled user settings if they exist otherwise use the global sttings
-      if ('settings' in response.data.config) await dispatch("setSettings", response.data.config.settings)
-      else await dispatch("setSettings", clonedeep(globalSettings))
+      if ("settings" in response.data.config)
+        await dispatch("setSettings", response.data.config.settings);
+      else await dispatch("setSettings", clonedeep(globalSettings));
 
       // set the user in the state
       await dispatch("setUser", response.data);
@@ -128,25 +131,25 @@ const actions = {
     dispatch("unsetAccessToken");
   },
   setSettings({ commit }, value) {
-    commit("setSettings", value)
+    commit("setSettings", value);
   },
   unsetSettings({ commit }) {
-    commit("unsetSettings")
+    commit("unsetSettings");
   },
   updateSettings({ commit }, settingObject) {
-    commit("updateSettings", settingObject)
-  }
+    commit("updateSettings", settingObject);
+  },
 };
 
 const mutations = {
   setSettings(state, value) {
-    state.settings = value
+    state.settings = value;
   },
   unsetSettings(state) {
-    state.settings = null
+    state.settings = null;
   },
   updateSettings(state, settingObject) {
-    state.settings = settingObject
+    state.settings = settingObject;
   },
   setAccessToken(state, accessToken) {
     state.accessToken = accessToken;

@@ -507,10 +507,10 @@ export default {
       buttons: {
         save: {
           hasUnsavedChanges: "Save your changes",
-          noUnsavedChanges: "Nothing to save"
+          noUnsavedChanges: "Nothing to save",
         },
         cancel: "",
-      }
+      },
     },
   },
   dashboard: {
@@ -549,21 +549,23 @@ export default {
         darkMode: "Turn on Dark Mode",
       },
       subTitle: {
-        skipEnabled: "Provide viewers the option to skip a question and move forward with the plio",
+        skipEnabled:
+          "Provide viewers the option to skip a question and move forward with the plio",
         darkMode: "",
       },
-      info: "The new settings will only apply to plios created in the future and not the already created plios"
+      info:
+        "The new settings will only apply to plios created in the future and not the already created plios",
     },
     sidebar: {
       header: {
         player: "Player",
-        app: "App"
+        app: "App",
       },
       tab: {
         configuration: "Configuration",
-        appearance: "Appearance"
-      }
-    }
+        appearance: "Appearance",
+      },
+    },
   },
   toast: {
     login: {

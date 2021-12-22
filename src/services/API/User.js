@@ -94,9 +94,12 @@ export default {
    * Update a user's settings
    * @param {Number} userId - id of an user
    * @param {Object} payload - the JSON settings object
-   * @returns 
+   * @returns
    */
   updateUserSettings(userId, payload) {
-    return apiClient().put(usersEndpoint + userId + userSettingsEndpoint, payload)
+    return apiClient().put(
+      usersEndpoint + userId + userSettingsEndpoint,
+      payload
+    );
   },
 };
