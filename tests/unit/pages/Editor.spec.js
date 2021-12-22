@@ -15,6 +15,17 @@ describe("Editor.vue", () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.clearAllMocks();
+
+    jest
+      .spyOn(Editor.methods, "handleSettingsInheritance")
+      .mockImplementation(() => {
+        return;
+      });
+    jest
+      .spyOn(Editor.methods, "constructSettingsMenu")
+      .mockImplementation(() => {
+        return;
+      });
   });
 
   afterEach(() => {
