@@ -47,6 +47,7 @@ Follow the steps below to set up the repo for development
 4. Update environment variables in your `.env` file based on your environment. For all available settings, see our [Environment variables guide](ENV.md).
 5. Build the docker image and run the containers using just one command:
     ```sh
+    npm install
     docker-compose up -d --build --renew-anon-volumes
     ```
 6. For **development** only, run the following command to install pre-commit

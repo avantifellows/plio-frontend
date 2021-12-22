@@ -63,6 +63,7 @@
           @option-selected="optionSelected"
           @toggle-minimize="minimizeModal"
           data-test="item-modal"
+          ref="plioModal"
         ></item-modal>
       </transition>
       <Scorecard
@@ -100,6 +101,8 @@ import { resetConfetti } from "@/services/Functional/Utilities.js";
 import globalSettings from "@/services/Config/GlobalSettings.js";
 
 var clonedeep = require("lodash.clonedeep");
+
+var isEqual = require("deep-eql");
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
@@ -188,7 +191,7 @@ export default {
       sessionDBId: null, // id for this session in the plio DB table
       retention: [], // array to store video retention value
       lastTimestampRetention: null, // last recorded timestamp in the retention array
-      toast: useToast(), // use the toast component
+      toast: useToast(),
       isModalMinimized: false, // whether the item modal is minimized or not
       // styling class for the maximise button
       maximizeButtonClass:
@@ -581,7 +584,9 @@ export default {
      */
     isSubjectiveQuestionAnswered(itemIndex, userAnswer) {
       return (
-        this.isItemSubjective(itemIndex) && userAnswer != null && userAnswer.trim() != ""
+        this.isItemSubjectiveQuestion(itemIndex) &&
+        userAnswer != null &&
+        userAnswer.trim() != ""
       );
     },
     /**
@@ -590,14 +595,26 @@ export default {
      * @param  {String, Number, Object} userAnswer - User's answer to that item
      */
     updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
-      if (this.isItemMCQ(itemIndex)) {
+      if (this.isItemMCQ(itemIndex) && !isNaN(userAnswer)) {
         const correctAnswer = this.itemDetails[itemIndex].correct_answer;
-        if (!isNaN(userAnswer)) {
-          userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
-          // reduce numSkipped by 1 if numCorrect or numWrong increases
-          this.numSkipped -= 1;
-        }
+        userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
+        // reduce numSkipped by 1 if numCorrect or numWrong increases
+        this.numSkipped -= 1;
+      } else if (
+        this.isItemCheckboxQuestion(itemIndex) &&
+        userAnswer != null &&
+        userAnswer.length > 0
+      ) {
+        // for checkbox questions, check if the answers match exactly
+        const correctAnswer = this.itemDetails[itemIndex].correct_answer;
+
+        isEqual(userAnswer, correctAnswer)
+          ? (this.numCorrect += 1)
+          : (this.numWrong += 1);
+        this.numSkipped -= 1;
       } else if (this.isSubjectiveQuestionAnswered(itemIndex, userAnswer)) {
+        // for subjective questions, as long as the viewer has given any answer
+        // their response is considered correct
         this.numCorrect += 1;
         this.numSkipped -= 1;
       }
@@ -605,15 +622,14 @@ export default {
     /**
      * Calculate the scorecard metrics
      * @param {Number} [itemIndex = null] - If null, iterate through all items else just consider the provided item
+     * @param {Number} [userAnswer = null] - the response given by the user corresponding to the item
      */
-    calculateScorecardMetrics(itemIndex = null) {
+    calculateScorecardMetrics(itemIndex = null, userAnswer = null) {
       if (itemIndex == null) {
         this.itemResponses.forEach((itemResponse, itemIndex) => {
-          const userAnswer = itemResponse.answer;
-          this.updateNumCorrectWrongSkipped(itemIndex, userAnswer);
-        });
+          this.updateNumCorrectWrongSkipped(itemIndex, itemResponse.answer);
+        }, this);
       } else {
-        const userAnswer = this.itemResponses[itemIndex].answer;
         this.updateNumCorrectWrongSkipped(itemIndex, userAnswer);
       }
     },
@@ -678,23 +694,25 @@ export default {
      * saves the answer to the question at the current index
      */
     submitQuestion() {
+      let itemResponse = this.itemResponses[this.currentItemIndex];
+
       /**
        * update the session answer on server if the user is authenticated
        * and the plio is not opened in preview mode
        */
       if (this.isAuthenticated && !this.previewMode) {
-        SessionAPIService.updateSessionAnswer(this.itemResponses[this.currentItemIndex]);
+        SessionAPIService.updateSessionAnswer(itemResponse);
         // create an event for the submit action
         this.createEvent("question_answered", {
           itemIndex: this.currentItemIndex,
-          answer: this.itemResponses[this.currentItemIndex].answer,
+          answer: itemResponse.answer,
         });
       }
       // update the marker colors on the player
       this.showItemMarkersOnSlider();
 
       // recalculate the scorecard metrics
-      this.calculateScorecardMetrics(this.currentItemIndex);
+      this.calculateScorecardMetrics(this.currentItemIndex, itemResponse.answer);
     },
     skipQuestion() {
       // invoked when the user skips the question
@@ -992,24 +1010,32 @@ export default {
       return false;
     },
     /**
-     * Whether the item at the given index is an MCQ question
      * @param {Number} itemIndex - index of an item in the items array
      */
     isItemMCQ(itemIndex) {
+      return this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == "mcq";
+    },
+    /**
+     * @param {Number} itemIndex - index of an item in the items array
+     */
+    isItemCheckboxQuestion(itemIndex) {
       return (
-        this.items[itemIndex].type == "question" &&
-        this.itemDetails[itemIndex].type == "mcq"
+        this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == "checkbox"
       );
     },
     /**
-     * Whether the item at the given index is a subjective question
      * @param {Number} itemIndex - index of an item in the items array
      */
-    isItemSubjective(itemIndex) {
+    isItemSubjectiveQuestion(itemIndex) {
       return (
-        this.items[itemIndex].type == "question" &&
-        this.itemDetails[itemIndex].type == "subjective"
+        this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == "subjective"
       );
+    },
+    /**
+     * @param {Number} itemIndex - index of an item in the items array
+     */
+    isItemQuestion(itemIndex) {
+      return this.items[itemIndex].type == "question";
     },
     /**
      * invoked when the current time in the video is updated

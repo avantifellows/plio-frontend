@@ -127,8 +127,10 @@ export default {
       isDialogCancelClicked: "isCancelClicked",
     }),
 
+    /** the list of action buttons */
     plioActionOptions() {
-      // the list of action buttons
+      // when adding a new option to this list, make sure to update the
+      // values in setOptionsOverflowMarginTop
       let options = [
         {
           value: "edit",
@@ -171,10 +173,6 @@ export default {
         },
       ];
       return options;
-    },
-    isTouchDevice() {
-      // detects if the user's device has a touch screen or not
-      return window.matchMedia("(any-pointer: coarse)").matches;
     },
     statusBadge() {
       // text for the status badge
@@ -309,10 +307,8 @@ export default {
      * 3. touch screen device with screen width >= 640
      */
     setOptionsOverflowMarginTop() {
-      if (this.isTouchDevice) {
-        if (this.isTabScreen) this.optionsOverflowMarginTop = -18;
-        else this.optionsOverflowMarginTop = -16;
-      } else this.optionsOverflowMarginTop = -14;
+      if (this.isTabScreen) this.optionsOverflowMarginTop = -18;
+      else this.optionsOverflowMarginTop = -16;
     },
     async runAction(_, action) {
       // invoked when one of the action buttons is clicked
@@ -405,14 +401,14 @@ export default {
         .then(() => {
           this.hideSpinner();
           // notify of success
-          this.toast.success(this.$t("home.table.plio_list_item.toast.delete.success"));
+          this.toast.success(this.$t("toast.home.table.plio_list_item.delete.success"));
           this.$emit("deleted");
         })
         .catch(() => {
           // restore background
           this.hideSpinner();
           // notify of error
-          this.toast.error(this.$t("home.table.plio_list_item.toast.delete.error"));
+          this.toast.error(this.$t("toast.home.table.plio_list_item.delete.error"));
         });
     },
     /**

@@ -249,7 +249,7 @@ export default {
   data() {
     return {
       showLanguagePickerDialog: false, // whether to show a language picker dialog box
-      toast: useToast(), // use the toast component
+      toast: useToast(),
       userClickedLogout: false, // if the user has clicked the logout button
       // class for the create button
       createButtonClass:
@@ -530,7 +530,7 @@ export default {
       // dismiss the internet restored toast if it exists
       this.toast.dismiss("internetRestoredToast");
       // show a internet lost toast
-      this.toast.error(this.$t("error.internet_lost"), {
+      this.toast.error(this.$t("toast.error.internet_lost"), {
         id: "internetLostToast",
         position: "bottom-center",
         timeout: false,
@@ -546,7 +546,7 @@ export default {
       // dismiss the internet lost toast if it exists
       this.toast.dismiss("internetLostToast");
       // show an internet restored toast
-      this.toast.success(this.$t("error.internet_restored"), {
+      this.toast.success(this.$t("toast.success.internet_restored"), {
         id: "internetRestoredToast",
         position: "bottom-center",
       });
@@ -605,7 +605,7 @@ export default {
             });
           }
         })
-        .catch(() => this.toast.error(this.$t("error.create_plio")));
+        .catch(() => this.toast.error(this.$t("toast.error.create_plio")));
     },
     /** logs out the user */
     logoutUser() {
@@ -727,7 +727,7 @@ export default {
      */
     gridContainerClass() {
       return {
-        "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5":
+        "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 h-screen":
           this.isMenuShownInline || !this.isMenuShownOverlay,
         flex: this.isMenuShownOverlay,
       };
@@ -911,7 +911,7 @@ export default {
      * whether to show workspace switcher
      */
     showWorkspaceSwitcher() {
-      return this.user.organizations.length > 0;
+      return this.user.organizations != null && this.user.organizations.length > 0;
     },
     /**
      * dynamic classes for the nav bar

@@ -132,7 +132,7 @@ export default {
         isCopied: false,
         useSSO: false,
       },
-      toast: useToast(), // use the toast component
+      toast: useToast(),
       // class for the heading of the embed code
       codeTitleClass: "text-sm",
       // class for the value of the embed code
@@ -200,7 +200,7 @@ export default {
       if (success) {
         this.codeCopyConfig.isCopied = true;
         this.codeCopyConfig.useSSO = useSSO;
-      } else this.toast.error(this.$t("error.copying"));
+      } else this.toast.error(this.$t("toast.error.copying"));
     },
     /**
      * resets the config of the embed codes being copied
