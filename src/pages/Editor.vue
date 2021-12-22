@@ -535,7 +535,7 @@ import Utilities, {
   throwConfetti,
   resetConfetti,
 } from "@/services/Functional/Utilities.js";
-import globalSettings, { settingsMetadata } from "@/services/Config/GlobalSettings.js";
+import { settingsMetadata } from "@/services/Config/GlobalSettings.js";
 
 import { mapActions, mapState, mapGetters } from "vuex";
 import debounce from "debounce";
