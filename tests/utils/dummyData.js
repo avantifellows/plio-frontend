@@ -109,6 +109,31 @@ global.dummyItemsWithItemDetails = [
     created_at: "2021-07-03T15:00:01.993437Z",
     updated_at: "2021-07-03T15:25:03.380337Z",
   },
+  {
+    id: 202,
+    plio: 113,
+    type: "question",
+    time: 200.5,
+    meta: {
+      source: {
+        name: "default",
+      },
+    },
+    details: {
+      id: 203,
+      item: 202,
+      text: "this is a checkbox question!",
+      type: "checkbox",
+      options: ["", "", ""],
+      correct_answer: [1, 2],
+      has_char_limit: false,
+      max_char_limit: 100,
+      created_at: "2021-07-03T15:00:04.244582Z",
+      updated_at: "2021-07-03T15:25:03.521730Z",
+    },
+    created_at: "2021-07-03T15:00:01.993437Z",
+    updated_at: "2021-07-03T15:25:03.380337Z",
+  },
 ];
 
 global.dummyItemDetails = [
@@ -170,6 +195,18 @@ global.dummyItemDetails = [
     created_at: "2021-07-03T15:00:04.244582Z",
     updated_at: "2021-07-03T15:25:03.521730Z",
   },
+  {
+    id: 203,
+    item: 202,
+    text: "this is a checkbox question!",
+    type: "checkbox",
+    options: ["", "", ""],
+    correct_answer: [1, 2],
+    has_char_limit: false,
+    max_char_limit: 100,
+    created_at: "2021-07-03T15:00:04.244582Z",
+    updated_at: "2021-07-03T15:25:03.521730Z",
+  },
 ];
 global.dummyItems = [
   {
@@ -216,6 +253,19 @@ global.dummyItems = [
     plio: 113,
     type: "question",
     time: 194.5,
+    meta: {
+      source: {
+        name: "default",
+      },
+    },
+    created_at: "2021-07-03T15:00:01.993437Z",
+    updated_at: "2021-07-03T15:25:03.380337Z",
+  },
+  {
+    id: 202,
+    plio: 113,
+    type: "question",
+    time: 200.5,
     meta: {
       source: {
         name: "default",
@@ -432,6 +482,7 @@ global.dummyEmptyPlioList = {
     count: 0,
     page_size: 5,
     results: [],
+    raw_count: 0,
   },
 };
 
@@ -490,4 +541,24 @@ global.dummyItemResponses = [
     created_at: "2021-09-14T13:25:44.663224Z",
     updated_at: "2021-09-14T13:25:44.663307Z",
   },
+  {
+    id: 5,
+    deleted: null,
+    session: 36,
+    item: 202,
+    answer: [0, 1],
+    created_at: "2021-09-14T13:25:44.663224Z",
+    updated_at: "2021-09-14T13:25:44.663307Z",
+  },
 ];
+
+global.dummySession = {
+  data: {
+    id: 1,
+    last_event: null,
+    is_first: false,
+    retention: "",
+    watch_time: 0,
+    session_answers: global.dummyItemResponses,
+  },
+};

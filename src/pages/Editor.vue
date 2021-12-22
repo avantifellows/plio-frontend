@@ -16,7 +16,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 items-stretch">
         <!--- preview grid -->
         <div
-          class="flex flex-col mx-2 sm:mx-4 md:mx-6 z-0"
+          class="flex flex-col mx-2 md:mx-6 z-0"
           :class="{ 'mt-6': !isVideoIdValid }"
           data-test="previewDiv"
         >
@@ -106,7 +106,7 @@
               </div>
             </div>
             <div v-else data-test="videoPreview">
-              <div class="relative">
+              <div class="flex relative">
                 <!-- video player -->
                 <video-player
                   :videoId="videoId"
@@ -114,23 +114,27 @@
                   :id="editorVideoPlayerElementId"
                   @update="videoTimestampUpdated"
                   @ready="playerReady"
-                  @play="playerPlayed"
+                  @play="markNoItemSelected"
                   ref="videoPlayer"
-                  class="z-0"
+                  class="w-full z-0"
                   data-test="videoPlayer"
                 ></video-player>
                 <!-- maximize button -->
                 <transition name="maximize-btn-transition" data-test="transitionMaximize">
-                  <icon-button
-                    v-if="showItemModal && isModalMinimized"
-                    :titleConfig="maximizeButtonTitleClass"
-                    :buttonClass="maximizeButtonClass"
-                    @click="maximizeModal"
-                    class="absolute z-20"
-                    id="maximizeButton"
-                    data-test="maximizeButton"
-                  ></icon-button>
+                  <div
+                    class="absolute z-20 px-4 flex w-full justify-end p-1 mt-2"
+                    v-if="isItemModalShown && isModalMinimized"
+                  >
+                    <icon-button
+                      :titleConfig="maximizeButtonTitleConfig"
+                      :buttonClass="maximizeButtonClass"
+                      @click="maximizeModal"
+                      data-test="maximizeButton"
+                    >
+                    </icon-button>
+                  </div>
                 </transition>
+
                 <!-- transition for minimizing/maximizing item modal -->
                 <transition enter-active-class="grow" leave-active-class="shrink">
                   <!-- item modal component -->
@@ -138,7 +142,7 @@
                     v-if="!isModalMinimized"
                     id="editorModal"
                     class="absolute z-10 inset-0 border-2"
-                    :class="{ hidden: !showItemModal }"
+                    :class="{ hidden: !isItemModalShown }"
                     :selectedItemIndex="currentItemIndex"
                     :itemList="items"
                     :itemDetailList="itemDetails"
@@ -221,7 +225,7 @@
 
         <!--- input grid -->
         <div
-          class="flex flex-col mx-2 sm:mx-4 md:mx-6 justify-start"
+          class="flex flex-col mx-2 md:mx-6 justify-start"
           :class="{ 'mt-6': !isVideoIdValid }"
           data-test="inputDiv"
         >
@@ -232,10 +236,12 @@
               v-if="!isVideoIdValid && !pending"
               data-test="videoLinkInfo"
             >
+              <!-- icon -->
               <inline-svg
                 :src="getImageSource('publish.svg')"
                 class="w-12 h-12 text-white fill-current"
               ></inline-svg>
+              <!-- info -->
               <p class="text-white text-xs bp-500:text-base md:text-sm lg:text-base">
                 {{ $t("editor.video_input.info.1") }}
                 <a
@@ -275,25 +281,26 @@
           </div>
 
           <div
-            class="flex justify-center py-2 mt-8 sm:mt-10 mb-16"
+            class="flex justify-center py-2 mt-8 md:mt-10 mb-16"
             v-if="isVideoIdValid"
             data-test="itemDiv"
           >
             <!-- boxes for adding different types of items -->
             <div
-              class="bg-peach rounded-lg p-4 bp-360:p-8 bp-500:p-4 sm:p-8 w-full bp-500:w-full lg:w-3/4 flex flex-col items-center shadow-lg"
+              class="bg-peach rounded-lg p-4 bp-360:p-6 sm:p-4 md:p-6 lg:p-8 w-full lg:w-5/6 flex flex-col items-center shadow-lg"
               :class="itemPickerClass"
               v-if="currentItemIndex == null"
             >
-              <div class="flex flex-col items-center">
-                <p class="text-yellow-900 text-lg sm:text-xl font-bold">
+              <div class="flex flex-col items-center w-full">
+                <!-- add new question text -->
+                <p class="text-yellow-900 test-base lg:text-xl font-bold">
                   {{ $t("editor.headings.add_question") }}
                 </p>
-                <div class="grid grid-cols-2 mt-6 w-full justify-items-center">
+                <div class="grid grid-cols-3 mt-6 w-full justify-items-center">
+                  <!-- choose mcq question -->
                   <button
                     :disabled="addItemDisabled"
                     @click="addNewItem('mcq')"
-                    class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                     :class="questionTypeSelectorClass"
                     v-tooltip="{
                       content: $t('tooltip.editor.add_item.mcq'),
@@ -303,26 +310,47 @@
                   >
                     <inline-svg
                       :src="getImageSource('radio-button.svg')"
-                      class="h-4 w-4 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                      class="w-4 h-8 fill-current text-primary group-hover:text-white group-disabled:text-primary"
                     ></inline-svg>
-                    <p class="font-bold text-center">{{ $t("generic.mcq") }}</p>
+                    <p :class="questionTypeHeadingClass">{{ $t("generic.mcq") }}</p>
                   </button>
+
+                  <!-- choose subjective question -->
                   <button
                     :disabled="addItemDisabled"
                     @click="addNewItem('subjective')"
-                    class="w-10/12 group flex flex-col space-y-2 focus:outline-none bg-white p-4 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed"
                     :class="questionTypeSelectorClass"
                     v-tooltip="{
                       content: $t('tooltip.editor.add_item.subjective'),
                       placement: 'bottom',
                     }"
-                    data-test="addSubjectiveItem"
+                    data-test="addSubjectiveQuestionItem"
                   >
                     <inline-svg
                       :src="getImageSource('subjective-question.svg')"
-                      class="w-20 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                      class="w-12 bp-420:w-16 h-8 pb-2 fill-current text-primary group-hover:text-white group-disabled:text-primary"
                     ></inline-svg>
-                    <p class="font-bold text-center">{{ $t("generic.subjective") }}</p>
+                    <p :class="questionTypeHeadingClass">
+                      {{ $t("generic.subjective") }}
+                    </p>
+                  </button>
+
+                  <!-- choose checkbox question -->
+                  <button
+                    :disabled="addItemDisabled"
+                    @click="addNewItem('checkbox')"
+                    :class="questionTypeSelectorClass"
+                    v-tooltip="{
+                      content: $t('tooltip.editor.add_item.checkbox'),
+                      placement: 'bottom',
+                    }"
+                    data-test="addCheckboxQuestionItem"
+                  >
+                    <inline-svg
+                      :src="getImageSource('check-square-regular.svg')"
+                      class="w-10 h-8 pb-2 xl:pb-1 xl:pt-1 fill-current text-primary group-hover:text-white group-disabled:text-primary"
+                    ></inline-svg>
+                    <p :class="questionTypeHeadingClass">{{ $t("generic.checkbox") }}</p>
                   </button>
                 </div>
               </div>
@@ -344,6 +372,7 @@
               @question-type-changed="questionTypeChanged"
               @show-image-uploader="toggleImageUploaderBox"
               data-test="itemEditor"
+              ref="itemEditor"
             ></item-editor>
           </div>
         </div>
@@ -376,7 +405,7 @@
 
     <!-- plio preview -->
     <div
-      class="fixed top-1/20 w-11/12 bp-420:w-10/12 shadow-xl z-20"
+      class="fixed top-1/12 w-11/12 bp-420:w-10/12 shadow-xl z-20"
       :class="plioPreviewContainerClass"
       v-if="isPlioPreviewShown"
     >
@@ -497,16 +526,17 @@ import { useToast } from "vue-toastification";
 const confetti = require("canvas-confetti");
 
 // used for deep cloning objects
-var clonedeep = require("lodash.clonedeep");
+let clonedeep = require("lodash.clonedeep");
 var isEqual = require("deep-eql");
 
 // difference in seconds between consecutive checks for item pop-up
-var POP_UP_CHECKING_FREQUENCY = 0.5;
-var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
+const POP_UP_CHECKING_FREQUENCY = 0.5;
+const POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 // offset from the POP_UP_CHECKING_FREQUENCY for the minimum question timestamp
-var MINIMUM_QUESTION_TIME_OFFSET = 0.1;
+const MINIMUM_QUESTION_TIME_OFFSET = 0.1;
 // minimum timestamp for each question
-var MINIMUM_QUESTION_TIMESTAMP = MINIMUM_QUESTION_TIME_OFFSET + POP_UP_CHECKING_FREQUENCY;
+const MINIMUM_QUESTION_TIMESTAMP =
+  MINIMUM_QUESTION_TIME_OFFSET + POP_UP_CHECKING_FREQUENCY;
 
 // debounce time - milliseconds
 const DEBOUNCE_DELAY_TIME = 500;
@@ -595,13 +625,10 @@ export default {
       anyErrorsPresent: false, // store if any errors are present or not
       isPublishedPlioDialogShown: false, // whether to show the dialog that comes after publishing plio
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
-      // mapping of questionType value to index in the list of question types
-      questionTypeToIndex: {
-        mcq: 0,
-        subjective: 1,
-      },
+      // list of question types supported
+      questionTypes: ["mcq", "subjective", "checkbox"],
       isModalMinimized: false, // whether the preview modal is minimized or not
-      // styling class for the minimize button
+      // styling class for the maximise button
       maximizeButtonClass:
         "bg-primary hover:bg-primary-hover p-1 lg:p-2 px-2 rounded-md shadow-xl",
       // styling class for the share plio button
@@ -664,9 +691,11 @@ export default {
       reRenderKey: 0, // key required to re-render the plio preview player
       editorVideoPlayerElementId: "editorVideoPlayer", // id of the video player in the editor
       isPlioPreviewLoaded: false, // whether the plio preview has been loaded
-      // class for the button to close the dialog that comes after publishing
+      // class for the heading of each question type
+      questionTypeHeadingClass:
+        "font-bold text-center text-xs bp-420:text-sm lg:test-base",
       confettiHandler: confettiHandler,
-      toast: useToast(), // use the toast component
+      toast: useToast(),
     };
   },
   async created() {
@@ -705,7 +734,7 @@ export default {
       if (value) {
         switch (this.dialogAction) {
           case "publish":
-            this.confirmPublish();
+            this.publishPlio();
             break;
           case "deleteItem":
             this.deleteSelectedItem();
@@ -821,7 +850,11 @@ export default {
      * whether the spinner needs to be shown
      */
     isSpinnerShown() {
-      return (this.isPlioPreviewShown && !this.isPlioPreviewLoaded) || this.pending;
+      return (
+        (this.isPlioPreviewShown && !this.isPlioPreviewLoaded) ||
+        this.pending ||
+        this.isBeingPublished
+      );
     },
     /**
      * classes for the container holding the buttons below the slider
@@ -845,15 +878,35 @@ export default {
      */
     itemImage() {
       if (this.currentItemIndex == null) return null;
-      if (this.itemDetails[this.currentItemIndex].image == null) return null;
-      return this.itemDetails[this.currentItemIndex].image.url;
+      if (this.currentItemDetail.image == null) return null;
+      return this.currentItemDetail.image.url;
     },
     /**
-     * whether the type of the question being created is subjective
+     * whether the type of the question being created is a subjective question
      */
     isQuestionTypeSubjective() {
       if (this.currentItemIndex == null) return false;
-      return this.itemDetails[this.currentItemIndex].type == "subjective";
+      return this.currentItemDetail.type == "subjective";
+    },
+    /**
+     * whether the type of the question being created is a checkbox question
+     */
+    isQuestionTypeCheckbox() {
+      if (this.currentItemIndex == null) return false;
+      return this.currentItemDetail.type == "checkbox";
+    },
+    /**
+     * whether the type of the question being created is a mcq
+     */
+    isQuestionTypeMCQ() {
+      if (this.currentItemIndex == null) return false;
+      return this.currentItemDetail.type == "mcq";
+    },
+    /**
+     * the details corresponding to the current item
+     */
+    currentItemDetail() {
+      return this.itemDetails[this.currentItemIndex];
     },
     /**
      * class for the item picker
@@ -865,18 +918,20 @@ export default {
      * class for the question type selectors
      */
     questionTypeSelectorClass() {
-      return {
-        "hover:bg-primary hover:text-white hover:border-primary": !this.addItemDisabled,
-      };
+      // class for the question type selectors
+      return [
+        {
+          "hover:bg-primary hover:text-white hover:border-primary": !this.addItemDisabled,
+        },
+        `w-11/12 group flex flex-col bp-420:space-y-2 focus:outline-none bg-white p-2 bp-420:p-4 sm:p-1 md:p-2 rounded-xl border-2 border-gray-400 items-center justify-center hover:cursor-pointer disabled:cursor-not-allowed`,
+      ];
     },
     /**
-     * styling class for the title of minimize/maximize button
+     * config for the title of the maximise button
      */
-    maximizeButtonTitleClass() {
+    maximizeButtonTitleConfig() {
       return {
-        value: this.isModalMinimized
-          ? this.$t(`editor.buttons.show_${this.itemType}`)
-          : this.$t("editor.buttons.show_video"),
+        value: this.$t(`editor.buttons.show_${this.itemType}`),
         class: "text-white text-xs lg:text-sm tracking-tighter",
       };
     },
@@ -977,7 +1032,7 @@ export default {
     /**
      * whether the item modal needs to be shown
      */
-    showItemModal() {
+    isItemModalShown() {
       return this.hasAnyItems && this.isAnyItemActive;
     },
     /**
@@ -1015,10 +1070,10 @@ export default {
       return this.$refs.videoPlayer.player;
     },
     /**
-     * get the index of the correct answer from options list
+     * get the correct answer for the question
      */
-    correctOptionIndex() {
-      return this.itemDetails[this.currentItemIndex].correct_answer;
+    correctAnswer() {
+      return this.currentItemDetail.correct_answer;
     },
     /**
      * whether the publish button is enabled
@@ -1035,11 +1090,10 @@ export default {
      */
     isBackgroundDisabled() {
       return (
-        this.isBeingPublished ||
         this.isImageUploaderDialogShown ||
         this.isPublishedPlioDialogShown ||
         this.isEmbedPlioDialogShown ||
-        this.isPlioPreviewShown
+        (this.isPlioPreviewShown && this.isPlioPreviewLoaded)
       );
     },
     /**
@@ -1208,16 +1262,6 @@ export default {
       return this.$t("editor.dialog.publish.draft.description");
     },
     /**
-     * title for the dialog box that appears when the
-     * publishing for a plio is in progress
-     */
-    publishInProgressDialogTitle() {
-      if (this.isPublished) {
-        return this.$t("editor.dialog.publishing.published.title");
-      }
-      return this.$t("editor.dialog.publishing.draft.title");
-    },
-    /**
      * whether adding item is disabled
      */
     addItemDisabled() {
@@ -1256,7 +1300,6 @@ export default {
     ]),
     ...mapActions("dialog", [
       "showDialogBox",
-      "hideDialogBox",
       "setDialogCloseButton",
       "setDialogTitle",
       "setDialogDescription",
@@ -1275,8 +1318,8 @@ export default {
     copyPlioDraftLink() {
       let success = this.copyToClipboard(this.getPlioDraftLink(this.plioId, this.org));
 
-      if (success) this.toast.success(this.$t("success.copying"));
-      else this.toast.error(this.$t("error.copying"));
+      if (success) this.toast.success(this.$t("toast.success.copying"));
+      else this.toast.error(this.$t("toast.error.copying"));
     },
     /**
      * Iterates through all items, extracts the times and populates itemTimestamps array
@@ -1417,9 +1460,9 @@ export default {
      * unlinks the image from the current question, and deletes it from S3
      */
     deleteLinkedImage() {
-      var imageIdToDelete = this.itemDetails[this.currentItemIndex].image.id;
+      var imageIdToDelete = this.currentItemDetail.image.id;
       ImageAPIService.deleteImage(imageIdToDelete);
-      this.itemDetails[this.currentItemIndex].image = null;
+      this.currentItemDetail.image = null;
     },
     /**
      * upload the image file to the server and update
@@ -1430,7 +1473,7 @@ export default {
     uploadImage(imageFile) {
       this.startLoading();
       ImageAPIService.uploadImage(imageFile).then((response) => {
-        this.itemDetails[this.currentItemIndex].image = response.data;
+        this.currentItemDetail.image = response.data;
         this.stopLoading();
       });
     },
@@ -1447,7 +1490,7 @@ export default {
      * @param {String} newQuestionType - the new type of the question
      */
     questionTypeChanged(newQuestionType) {
-      this.itemDetails[this.currentItemIndex].type = newQuestionType;
+      this.currentItemDetail.type = newQuestionType;
     },
     /**
      * minimizes the modal
@@ -1461,8 +1504,6 @@ export default {
       let root = document.documentElement;
       root.style.setProperty("--t-origin-x", positions.centerX + "px");
       root.style.setProperty("--t-origin-y", positions.centerY + "px");
-      root.style.setProperty("--maximize-btn-left", positions.leftX + "px");
-      root.style.setProperty("--maximize-btn-top", positions.leftY + "px");
 
       this.isModalMinimized = true;
     },
@@ -1621,9 +1662,9 @@ export default {
         this.isItemSelected = true;
         this.player.pause();
         this.currentItemIndex = itemIndex;
-        this.currentQuestionTypeIndex = this.questionTypeToIndex[
+        this.currentQuestionTypeIndex = this.questionTypes.indexOf(
           this.itemDetails[itemIndex].type
-        ];
+        );
       }
     },
     /**
@@ -1665,10 +1706,6 @@ export default {
         return { valid: true, ID: matches[1] };
       }
       return { valid: false };
-    },
-    playerPlayed() {
-      // invoked when the player is played from a paused state
-      this.isItemSelected = false;
     },
     /**
      * fetches the details of the plio
@@ -1830,7 +1867,6 @@ export default {
       this.status = "published";
       await this.saveChanges("all");
       this.isBeingPublished = false;
-      this.hideDialogBox();
       this.isPublishedPlioDialogShown = true;
       throwConfetti(this.confettiHandler);
       this.hasUnpublishedChanges = false;
@@ -1899,54 +1935,37 @@ export default {
       this.showDialogBox();
     },
     /**
-     * shows a dialog box when the user tries to delete an option
-     * for a question with only 2 options
-     */
-    showCannotDeleteOptionDialog() {
-      // set up the dialog properties
-      this.setDialogTitle(this.$t("editor.dialog.cannot_delete_option.title"));
-      this.setDialogDescription(
-        this.$t("editor.dialog.cannot_delete_option.description")
-      );
-      this.setConfirmButtonConfig({
-        enabled: true,
-        text: this.$t("generic.got_it"),
-        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
-      });
-
-      // carry out the closeDialog action when dialog is closed
-      this.setDialogAction("closeDialog");
-      // show the dialog box
-      this.showDialogBox();
-    },
-    /**
-     * hides the dialog box and invokes the method for publishing the plio
-     */
-    confirmPublish() {
-      this.showDialogBox();
-      this.unsetDialogAction();
-      this.setDialogTitle(this.publishInProgressDialogTitle);
-
-      // publish the plio or its changes
-      this.publishPlio();
-    },
-    /**
      * deletes the option marked to be deleted if the question contains
      * more than 2 options
      */
     deleteSelectedOption() {
-      // there should always be at least 2 options, allow deletion only
-      // if the number of options is >= 3
-      if (this.itemDetails[this.currentItemIndex].options.length < 3) {
-        this.showCannotDeleteOptionDialog();
-        return;
-      }
-
       // delete the option
-      this.itemDetails[this.currentItemIndex].options.splice(this.optionIndexToDelete, 1);
-      // if the deleted option was the correct answer, reset the correct answer
-      if (this.optionIndexToDelete == this.correctOptionIndex) {
-        this.itemDetails[this.currentItemIndex].correct_answer = 0;
+      this.currentItemDetail.options.splice(this.optionIndexToDelete, 1);
+      if (this.isQuestionTypeMCQ) {
+        if (this.optionIndexToDelete == this.correctAnswer) {
+          // if the deleted option was the correct answer, reset the correct answer
+          this.currentItemDetail.correct_answer = 0;
+        } else if (this.correctAnswer > this.optionIndexToDelete)
+          this.currentItemDetail.correct_answer -= 1;
+      } else if (this.isQuestionTypeCheckbox) {
+        if (this.correctAnswer.indexOf(this.optionIndexToDelete) != -1) {
+          // remove the deleted option from the list of correct answers
+          this.correctAnswer.splice(
+            this.correctAnswer.indexOf(this.optionIndexToDelete),
+            1
+          );
+        }
+
+        // reset the correct answer if the option deleted was marked as the sole correct answer
+        if (this.correctAnswer.length == 0) this.currentItemDetail.correct_answer = [0];
+        else {
+          // decrement the index of all options with index > the index of the option deleted
+          this.correctAnswer.forEach((optionIndex, answerIndex) => {
+            if (optionIndex > this.optionIndexToDelete) {
+              this.correctAnswer[answerIndex] -= 1;
+            }
+          }, this);
+        }
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
     },
@@ -1975,13 +1994,16 @@ export default {
      * @param {String} questionType - type of the question
      */
     getDetailsForNewQuestion(questionType) {
-      return {
-        correct_answer: 0,
+      let details = {
         text: "",
         type: questionType,
         options: ["", ""],
         max_char_limit: 100,
       };
+
+      if (questionType == "checkbox") details["correct_answer"] = [0];
+      else details["correct_answer"] = 0;
+      return details;
     },
     /**
      * creates a new item of the given question type and adds it to the item list
@@ -2077,7 +2099,6 @@ export default {
       ItemAPIService.deleteItem(itemToDelete[0].id);
       // set currentItemIndex to null to hide the item editor
       this.currentItemIndex = null;
-      this.hideDialogBox();
     },
     /**
      * deletes the option of the current item at the given index
@@ -2119,18 +2140,6 @@ export default {
 };
 </script>
 <style lang="scss">
-:root {
-  --t-origin-x: 98%;
-  --t-origin-y: 5%;
-  --maximize-btn-left: 72.5rem;
-  --maximize-btn-top: 0.5rem;
-}
-
-#maximizeButton {
-  left: var(--maximize-btn-left);
-  top: var(--maximize-btn-top);
-}
-
 .maximize-btn-transition-leave {
   animation: linear 0.1s;
 }
