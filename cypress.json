@@ -7,5 +7,10 @@
   "videosFolder": "tests/integration/videos",
   "downloadsFolder": "tests/integration/downloads",
   "supportFile": "tests/integration/support/index.js",
-  "projectId": "cywmry"
+  "projectId": "cywmry",
+  "testFiles": [
+    "login/*.spec.js",
+    "create/*.spec.js",
+    "*/*.spec.js"
+  ]
 }
