@@ -36,18 +36,6 @@ describe("Home", () => {
       cy.get("@plioRow").find('[data-test="simpleBadge"]').should("be.visible");
       cy.get("@plioRow").find('[data-test="plioViews"]').should("be.visible");
 
-      // There are two analyze buttons in the plioRow. The first one is visible only
-      // in mobile while the other one is visible in larger devices (sm & above).
-      cy.get("@plioRow")
-        .find('[data-test="analyzeButton"]')
-        .eq(1)
-        .as("analyzeButton");
-      cy.get("@analyzeButton").should("not.be.visible");
-      cy.get("@plioRow").trigger("mouseover");
-      cy.get("@analyzeButton")
-        .should("be.visible")
-        .and("have.text", "Analyse Plio");
-
       cy.get("@plioRow")
         .find('[data-test="optionDropdown"]')
         .should("be.visible");
@@ -72,6 +60,7 @@ describe("Home", () => {
         play: "Play",
         share: "Share",
         embed: "Embed",
+        analyse: "Analyse",
         duplicate: "Duplicate",
         delete: "Delete",
       };
