@@ -9,7 +9,7 @@
   "supportFile": "tests/integration/support/index.js",
   "projectId": "cywmry",
   "testFiles": [
-    "login/*.spec.js",
+    "auth/*.spec.js",
     "create/*.spec.js",
     "*/*.spec.js"
   ]

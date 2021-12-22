@@ -1,39 +1,36 @@
-describe("Login", () => {
+describe("Login - hi", () => {
   context("Desktop", () => {
     beforeEach(() => {
       cy.viewport("macbook-13"); // tailwind viewport `xl and above`
-      cy.visit("/").setLocale("en");
+      cy.visit("/").setLocale("hi");
     });
 
     it("sees the login page heading", () => {
       cy.get('[data-test="loginHeading"]').should(
         "have.text",
-        "Convert videos into interactive lessons"
+        "वीडियों को इंटरैक्टिव पाठों में बदलें"
       );
     });
 
     it("sees the google sign in option", () => {
       cy.get('[data-test="googleLogin"] p').should(
         "have.text",
-        "Sign in with Google"
+        "गूगल से साइन इन करें"
       );
     });
 
     it("sees the mobile sign in option", () => {
       cy.get('[data-test="phone"] input')
         .invoke("attr", "placeholder")
-        .should("contain", "Enter Mobile Number");
-    });
-
-    it("sees the language switcher dropdown", () => {
-      cy.get("#locale > select").should("be.visible");
+        .should("contain", "मोबाइल नंबर डालें");
     });
 
     it("logs into the system using google auth", () => {
       cy.loginByGoogleApi();
-      cy.get('[data-test="logout"]')
-        .should("be.visible")
-        .should("have.text", "Logout");
+      cy.wait(5000); // wait for some time for page to render
+      cy.get("@logout").should("be.visible").and("have.text", "लॉगआउट");
+      cy.get("@logout").click();
+      cy.url().should("eq", Cypress.config().baseUrl + "/login");
     });
   });
 });

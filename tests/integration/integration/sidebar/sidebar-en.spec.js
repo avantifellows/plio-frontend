@@ -1,4 +1,4 @@
-describe("Sidebar", () => {
+describe("Sidebar - en", () => {
   context("Desktop", () => {
     before(() => {
       cy.viewport("macbook-13"); // tailwind viewport `xl and above`
