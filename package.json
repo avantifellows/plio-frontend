@@ -33,7 +33,7 @@
     "plyr": "^3.6.3",
     "secure-ls": "^1.2.3",
     "tailwindcss-interaction-variants": "^5.0.0",
-    "vue": "^3.0.0",
+    "vue": "^3.2.23",
     "vue-i18n": "^9.0.0",
     "vue-inline-svg": "^3.0.0-beta.2",
     "vue-router": "^4.0.10",
@@ -45,6 +45,7 @@
     "vuex-persistedstate": "^4.0.0-beta.3"
   },
   "devDependencies": {
+    "@cypress/code-coverage": "^3.9.12",
     "@tailwindcss/postcss7-compat": "^2.0.4",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
@@ -56,6 +57,7 @@
     "@vue/test-utils": "^2.0.0-0",
     "autoprefixer": "^9.8.6",
     "babel-eslint": "^10.1.0",
+    "babel-plugin-istanbul": "^6.1.1",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.0.0-0",

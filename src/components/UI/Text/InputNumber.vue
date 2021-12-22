@@ -50,8 +50,6 @@
         name="placeholder"
         :placeholder="placeholder"
         v-model="localValue"
-        @input="inputChange"
-        @keypress="keyPress"
         :class="[inputAreaClass, boxStyling]"
         :min="min"
         :max="max"
@@ -59,6 +57,9 @@
         autocomplete="off"
         data-test="input"
         :disabled="isDisabled"
+        @input="inputChange"
+        @keypress="keyPress"
+        @wheel="preventScrolling"
       />
     </div>
   </div>
@@ -247,6 +248,9 @@ export default {
     },
   },
   methods: {
+    preventScrolling(event) {
+      event.preventDefault();
+    },
     inputChange() {
       // invoked on input change
       this.$emit("input", this.value);

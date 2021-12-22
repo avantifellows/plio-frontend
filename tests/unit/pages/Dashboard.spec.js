@@ -10,127 +10,27 @@ afterEach(() => {
   mockAxios.reset();
 });
 
-describe("Dashboard.vue", () => {
-  it("renders values for a published Plio", async () => {
-    const plioId = "abc";
+const plioId = "abc";
+let wrapper;
+let mockRouter;
+let getDashboardMetrics;
 
+describe("Dashboard.vue", () => {
+  const mountWrapper = (analyticsData = global.dummyPlioAnalytics) => {
+    // mock router
+    mockRouter = {
+      replace: jest.fn(),
+      push: jest.fn(),
+    };
     // mock method to fetch dashboard metrics from analytics client
-    const getDashboardMetrics = jest
+    getDashboardMetrics = jest
       .spyOn(PlioAPIService, "getDashboardMetrics")
       .mockImplementation(() => {
         return new Promise((resolve) => {
-          resolve(global.dummyPlioAnalytics);
+          resolve(analyticsData);
         });
       });
-    const wrapper = mount(Dashboard, {
-      props: {
-        plioId: plioId,
-      },
-    });
-    expect(wrapper).toBeTruthy();
-    // `getPlio` inside services/API/Plio.js should've been called
-    // 1 `GET` requests is made
-    expect(mockAxios.get).toHaveBeenCalledTimes(1);
-    expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
-
-    // resolve the `GET` request waiting in the queue
-    // using the fake response data
-    mockAxios.mockResponse(
-      clonedeep(global.dummyPublishedPlio),
-      mockAxios.queue()[0]
-    );
-
-    // wait until the DOM updates after promises resolve
-    await flushPromises();
-
-    let dummyVideoID = global.dummyPublishedPlio.data.video.url.split("=")[1];
-    expect(wrapper.vm.videoID).toBe(dummyVideoID);
-    expect(wrapper.find('[data-test="thumbnail"]').exists()).toBe(true);
-    expect(wrapper.vm.videoThumbnailURL).toBe(
-      `https://img.youtube.com/vi/${dummyVideoID}/sddefault.jpg`
-    );
-
-    expect(wrapper.find('[data-test="title"]').text()).toBe(
-      global.dummyPublishedPlio.data.name
-    );
-    expect(getDashboardMetrics).toHaveBeenCalled();
-
-    expect(wrapper.find('[data-test="numViewers"]').text()).toBe(
-      String(global.dummyPlioAnalytics["Session.uniqueUsers"])
-    );
-    expect(wrapper.find('[data-test="watchTime"]').text()).toBe(
-      "3 mins 22 secs"
-    );
-    expect(wrapper.find('[data-test="completion"]').text()).toBe(
-      String(
-        global.dummyPlioAnalytics[
-          "AggregateSessionMetrics.completionPercentage"
-        ]
-      ) + "%"
-    );
-    expect(wrapper.find('[data-test="questionAnswered"]').text()).toBe(
-      String(
-        global.dummyPlioAnalytics[
-          "AggregateSessionMetrics.numQuestionsAnswered"
-        ]
-      )
-    );
-    expect(wrapper.find('[data-test="accuracy"]').text()).toBe(
-      String(global.dummyPlioAnalytics["AggregateSessionMetrics.accuracy"]) +
-        "%"
-    );
-    expect(wrapper.find('[data-test="retention"]').text()).toBe(
-      String(
-        global.dummyPlioAnalytics[
-          "GroupedSessionRetention.averageOneMinuteRetention"
-        ]
-      ) + "%"
-    );
-  });
-
-  it("renders analytics values when none available", async () => {
-    const plioId = "abc";
-    jest.spyOn(PlioAPIService, "getDashboardMetrics").mockImplementation(() => {
-      return new Promise((resolve) => {
-        resolve({});
-      });
-    });
-    const wrapper = mount(Dashboard, {
-      props: {
-        plioId: plioId,
-      },
-    });
-
-    // resolve the `GET` request waiting in the queue
-    // using the fake response data
-    mockAxios.mockResponse(
-      clonedeep(global.dummyPublishedPlio),
-      mockAxios.queue()[0]
-    );
-
-    // wait until the DOM updates after promises resolve
-    await flushPromises();
-
-    expect(wrapper.find('[data-test="numViewers"]').text()).toBe("0");
-    expect(wrapper.find('[data-test="watchTime"]').text()).toBe("0 secs");
-    expect(wrapper.find('[data-test="completion"]').text()).toBe("0%");
-    expect(wrapper.find('[data-test="questionAnswered"]').text()).toBe("0");
-    expect(wrapper.find('[data-test="accuracy"]').text()).toBe("0%");
-    expect(wrapper.find('[data-test="retention"]').text()).toBe("0%");
-  });
-
-  it("routes to 404 for draft plio", async () => {
-    // mock router
-    const mockRouter = {
-      replace: jest.fn(),
-    };
-    const plioId = "abc";
-    jest.spyOn(PlioAPIService, "getDashboardMetrics").mockImplementation(() => {
-      return new Promise((resolve) => {
-        resolve({});
-      });
-    });
-    mount(Dashboard, {
+    wrapper = mount(Dashboard, {
       props: {
         plioId: plioId,
       },
@@ -140,7 +40,20 @@ describe("Dashboard.vue", () => {
         },
       },
     });
+  };
 
+  beforeEach(() => {
+    mountWrapper();
+  });
+
+  it("makes an API call for fetching plio details", () => {
+    // `getPlio` inside services/API/Plio.js should've been called
+    // 1 `GET` requests is made
+    expect(mockAxios.get).toHaveBeenCalledTimes(1);
+    expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
+  });
+
+  it("routes to 404 for draft plio", async () => {
     // resolve the `GET` request waiting in the queue
     // using the fake response data
     mockAxios.mockResponse(
@@ -156,77 +69,113 @@ describe("Dashboard.vue", () => {
     });
   });
 
-  it("routes to editor on clicking edit", async () => {
-    // mock router
-    const mockRouter = {
-      push: jest.fn(),
+  describe("published plio", () => {
+    const resolveAPICall = async () => {
+      // resolve the `GET` request waiting in the queue
+      // using the fake response data
+      mockAxios.mockResponse(
+        clonedeep(global.dummyPublishedPlio),
+        mockAxios.queue()[0]
+      );
+
+      // wait until the DOM updates after promises resolve
+      await flushPromises();
     };
-    const plioId = "abc";
-    // mock method to fetch dashboard metrics from analytics client
-    jest.spyOn(PlioAPIService, "getDashboardMetrics").mockImplementation(() => {
-      return new Promise((resolve) => {
-        resolve({});
+    beforeEach(async () => {
+      resolveAPICall();
+    });
+
+    it("renders values for a published Plio", () => {
+      let dummyVideoID = global.dummyPublishedPlio.data.video.url.split("=")[1];
+      expect(wrapper.vm.videoID).toBe(dummyVideoID);
+      expect(wrapper.find('[data-test="thumbnail"]').exists()).toBe(true);
+      expect(wrapper.vm.videoThumbnailURL).toBe(
+        `https://img.youtube.com/vi/${dummyVideoID}/sddefault.jpg`
+      );
+
+      expect(wrapper.find('[data-test="title"]').text()).toBe(
+        global.dummyPublishedPlio.data.name
+      );
+      expect(getDashboardMetrics).toHaveBeenCalled();
+
+      expect(wrapper.find('[data-test="numViewers"]').text()).toBe(
+        String(global.dummyPlioAnalytics["Session.uniqueUsers"])
+      );
+      expect(wrapper.find('[data-test="watchTime"]').text()).toBe(
+        "3 mins 22 secs"
+      );
+      expect(wrapper.find('[data-test="completion"]').text()).toBe(
+        String(
+          global.dummyPlioAnalytics[
+            "AggregateSessionMetrics.completionPercentage"
+          ]
+        ) + "%"
+      );
+      expect(wrapper.find('[data-test="questionAnswered"]').text()).toBe(
+        String(
+          global.dummyPlioAnalytics[
+            "AggregateSessionMetrics.numQuestionsAnswered"
+          ]
+        )
+      );
+      expect(wrapper.find('[data-test="accuracy"]').text()).toBe(
+        String(global.dummyPlioAnalytics["AggregateSessionMetrics.accuracy"]) +
+          "%"
+      );
+      expect(wrapper.find('[data-test="retention"]').text()).toBe(
+        String(
+          global.dummyPlioAnalytics[
+            "GroupedSessionRetention.averageOneMinuteRetention"
+          ]
+        ) + "%"
+      );
+    });
+
+    it("renders analytics values when none available", async () => {
+      await mountWrapper({});
+      await resolveAPICall();
+
+      expect(wrapper.find('[data-test="numViewers"]').text()).toBe("0");
+      expect(wrapper.find('[data-test="watchTime"]').text()).toBe("0 secs");
+      expect(wrapper.find('[data-test="completion"]').text()).toBe("0%");
+      expect(wrapper.find('[data-test="questionAnswered"]').text()).toBe("0");
+      expect(wrapper.find('[data-test="accuracy"]').text()).toBe("0%");
+      expect(wrapper.find('[data-test="retention"]').text()).toBe("0%");
+    });
+
+    describe("button clicks", () => {
+      it("routes to editor on clicking edit", async () => {
+        await wrapper.find('[data-test="edit"]').trigger("click");
+
+        expect(mockRouter.push).toHaveBeenCalledWith({
+          name: "Editor",
+          params: {
+            org: "",
+            plioId: plioId,
+          },
+        });
+      });
+
+      it("routes to player on clicking play", async () => {
+        await wrapper.find('[data-test="play"]').trigger("click");
+
+        expect(mockRouter.push).toHaveBeenCalledWith({
+          name: "Player",
+          params: {
+            org: "",
+            plioId: plioId,
+          },
+        });
+      });
+
+      it("downloads report", async () => {
+        const downloadReport = jest.spyOn(Dashboard.methods, "downloadReport");
+        await mountWrapper({});
+        await resolveAPICall();
+
+        await wrapper.find('[data-test="download"]').trigger("click");
+        expect(downloadReport).toHaveBeenCalled();
       });
     });
-    const wrapper = mount(Dashboard, {
-      props: {
-        plioId: plioId,
-      },
-      global: {
-        mocks: {
-          $router: mockRouter,
-        },
-      },
-    });
-
-    // resolve the `GET` request waiting in the queue
-    // using the fake response data
-    mockAxios.mockResponse(
-      clonedeep(global.dummyPublishedPlio),
-      mockAxios.queue()[0]
-    );
-
-    // wait until the DOM updates after promises resolve
-    await flushPromises();
-
-    await wrapper.find('[data-test="edit"]').trigger("click");
-
-    expect(mockRouter.push).toHaveBeenCalledWith({
-      name: "Editor",
-      params: {
-        org: "",
-        plioId: plioId,
-      },
-    });
-  });
-
-  it("downloads report", async () => {
-    const downloadReport = jest.spyOn(Dashboard.methods, "downloadReport");
-    const plioId = "abc";
-    // mock method to fetch dashboard metrics from analytics client
-    jest.spyOn(PlioAPIService, "getDashboardMetrics").mockImplementation(() => {
-      return new Promise((resolve) => {
-        resolve({});
-      });
-    });
-    const wrapper = mount(Dashboard, {
-      props: {
-        plioId: plioId,
-      },
-    });
-
-    // resolve the `GET` request waiting in the queue
-    // using the fake response data
-    mockAxios.mockResponse(
-      clonedeep(global.dummyPublishedPlio),
-      mockAxios.queue()[0]
-    );
-
-    // wait until the DOM updates after promises resolve
-    await flushPromises();
-
-    await wrapper.find('[data-test="download"]').trigger("click");
-
-    expect(downloadReport).toHaveBeenCalled();
   });
 });

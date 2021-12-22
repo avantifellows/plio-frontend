@@ -18,7 +18,7 @@
         />
       </div>
       <div
-        class="col-span-3 lg:col-span-4 flex flex-col justify-between mt-4 bp-500:mr-0 bp-500:ml-8 lg:ml-14"
+        class="col-span-3 lg:col-span-4 flex flex-col justify-between mt-4 bp-500:mr-0 bp-500:ml-8 lg:ml-14 space-y-2 sm:space-y-0 lg:space-y-2"
       >
         <div>
           <!-- publish date -->
@@ -27,26 +27,28 @@
           </p>
           <!-- title -->
           <p
-            class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl tracking-tight font-bold text-yellow-900"
+            class="text-lg sm:text-xl lg:text-2xl xl:text-3xl tracking-tight font-bold text-yellow-900 truncate"
             :class="plioTitleClass"
             data-test="title"
           >
-            {{ displayPlioTitle }}
+            {{ plioTitleToDisplay }}
           </p>
         </div>
-        <div class="flex flex-col bp-420:flex-row bp-500:flex-col sm:flex-row">
-          <!-- url -->
-          <URL
-            :link="plioLink"
-            :urlStyleClass="urlStyleClass"
-            :urlCopyButtonClass="urlCopyButtonClass"
-            :isUnderlined="true"
-          ></URL>
+        <div class="grid grid-cols-2 bp-500:flex bp-500:space-x-2">
+          <!-- play plio -->
+          <icon-button
+            :titleConfig="playButtonTextConfig"
+            :buttonClass="playButtonClass"
+            :class="plioActionButtonsClass"
+            @click="playPlio"
+            data-test="play"
+          ></icon-button>
+
           <!-- edit button -->
           <icon-button
             :titleConfig="editButtonTextConfig"
             :buttonClass="editButtonClass"
-            class="rounded-md shadow-lg bp-420:ml-4 bp-500:ml-0 sm:ml-4 mt-4 bp-420:mt-0 bp-500:mt-4 sm:mt-0"
+            :class="plioActionButtonsClass"
             @click="editPlio"
             data-test="edit"
           ></icon-button>
@@ -55,7 +57,7 @@
     </div>
     <!-- summary -->
     <div
-      class="flex flex-col sm:grid sm:grid-cols-8 bg-peach-light mt-4 sm:mt-8 lg:mt-10 mb-4 sm:mb-8 lg:mb-10 px-2 bp-420:px-4 py-8 sm:p-10 rounded-lg"
+      class="flex flex-col sm:grid sm:grid-cols-8 bg-peach-light mt-4 sm:mt-8 lg:mt-10 mb-4 sm:mb-8 lg:mb-10 px-2 bp-420:px-4 py-4 bp-500:py-8 sm:p-10 rounded-lg"
     >
       <div class="grid grid-cols-2 sm:flex sm:flex-col col-span-2">
         <div class="flex flex-col items-center sm:items-start">
@@ -279,8 +281,6 @@
 <script>
 import PlioAPIService from "@/services/API/Plio.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
-import Utilities from "@/services/Functional/Utilities.js";
-import URL from "@/components/UI/Text/URL";
 import IconButton from "@/components/UI/Buttons/IconButton";
 import { mapActions, mapState } from "vuex";
 
@@ -296,7 +296,6 @@ export default {
     },
   },
   components: {
-    URL,
     IconButton,
   },
   data() {
@@ -327,6 +326,7 @@ export default {
       cardMetricTitleClass:
         "w-full text-center text-xs md:text-sm text-yellow-900 mt-2 flex justify-center flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center",
       questionIcon: require("@/assets/images/question-circle-regular.svg"),
+      plioActionButtonsClass: "rounded-md shadow-lg mx-1 bp-500:mx-0",
     };
   },
   async created() {
@@ -368,15 +368,22 @@ export default {
         return Math.round(this.plioAnalytics["num-questions-answered"]);
       return "0";
     },
+    playButtonTextConfig() {
+      return {
+        value: this.$t("dashboard.buttons.play"),
+        class: "text-sm md:text-md lg:text-lg text-white p-2",
+      };
+    },
+    playButtonClass() {
+      return "bg-primary hover:bg-primary-hover rounded-lg ring-primary px-2";
+    },
     editButtonTextConfig() {
-      // config for the text of the edit plio button
       return {
         value: this.$t("dashboard.buttons.edit"),
         class: "text-sm md:text-md lg:text-lg text-black p-2",
       };
     },
     editButtonClass() {
-      // class for the edit plio button
       return "bg-yellow-400 hover:bg-yellow-500 rounded-lg ring-primary px-2";
     },
     downloadReportButtonTextConfig() {
@@ -389,10 +396,6 @@ export default {
     downloadReportButtonClass() {
       // class for the download report button
       return "bg-primary hover:bg-primary-hover rounded-lg ring-primary px-2 w-full bp-420:w-60";
-    },
-    plioLink() {
-      // prepare the link for the plio from the plio ID
-      return Utilities.getPlioLink(this.plioId, this.org);
     },
     videoThumbnailURL() {
       // link to the thumbnail for the video linked to the plio
@@ -407,16 +410,13 @@ export default {
       // text for showing last updated date
       return this.$t("dashboard.updated") + ": " + this.lastUpdatedString;
     },
-    displayPlioTitle() {
-      // plio title to be displayed
+    plioTitleToDisplay() {
       return this.plioTitle || this.$t("generic.placeholders.empty_title_placeholder");
     },
     isPlioTitleEmpty() {
-      // whether the plio title empty
       return !this.plioTitle;
     },
     plioTitleClass() {
-      // class for the plio title
       return {
         "opacity-50": this.isPlioTitleEmpty,
       };
@@ -485,9 +485,14 @@ export default {
       return linkValidation["ID"];
     },
     editPlio() {
-      // route to the editor
       this.$router.push({
         name: "Editor",
+        params: { plioId: this.plioId, org: this.org },
+      });
+    },
+    playPlio() {
+      this.$router.push({
+        name: "Player",
         params: { plioId: this.plioId, org: this.org },
       });
     },

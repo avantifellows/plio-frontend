@@ -39,7 +39,7 @@
         v-model:isFullscreen="localIsFullscreen"
         :isAnswerSubmitted="isAnswerSubmitted"
         :isAnswerCorrect="isAnswerCorrect"
-        :isSubmitEnabled="isAnswerValid"
+        :isSubmitEnabled="isAttemptValid"
         :answerFeedbackText="answerFeedbackText"
         :answerFeedbackTextClass="answerFeedbackTextClass"
         @proceed-question="proceedQuestion"
@@ -57,6 +57,8 @@ import ItemQuestionBody from "@/components/Items/Question/Body";
 import ItemQuestionFooter from "@/components/Items/Question/Footer";
 import { isScreenPortrait } from "@/services/Functional/Utilities.js";
 import globalSettings from "@/services/Config/GlobalSettings.js";
+
+var isEqual = require("deep-eql");
 
 export default {
   data() {
@@ -142,40 +144,42 @@ export default {
         return this.configuration.skipEnabled;
       return globalSettings.player.configuration.skipEnabled;
     },
+    /**
+     * URL of the image for an item;
+     * returns NULL if the image doesn't exist
+     */
     imageData() {
-      // URL of the image for an item
-      // returns NULL if the image doesn't exist
       if (this.currentItemImage == null) return null;
       return this.currentItemImage;
     },
+    /** details for the current item */
     currentItemDetails() {
-      // details for the current item
       return this.itemDetailList[this.selectedItemIndex];
     },
+    /** image data for the current item */
     currentItemImage() {
-      // image data for the current item
       return this.currentItemDetails.image;
     },
+    /** text to be used as feedback once answer is submitted */
     answerFeedbackText() {
-      // text to be used as feedback once answer is submitted
       if (this.isQuestionTypeSubjective) return this.$t("generic.submitted");
       return "";
     },
+    /** class for the text to be used as feedback once answer is submitted */
     answerFeedbackTextClass() {
-      // class for the text to be used as feedback once answer is submitted
       if (this.isQuestionTypeSubjective) return "text-green-600";
       return "";
     },
+    /** whether the question has a character limit if the item is a question */
     hasCharLimit() {
-      // whether the question has a character limit if the item is a question
       return this.currentItemDetails["has_char_limit"];
     },
+    /** the character limit for a question's answer */
     maxCharLimit() {
-      // the character limit for a question's answer
       return this.currentItemDetails["max_char_limit"];
     },
+    /** main styling class for this component's container */
     containerClass() {
-      // main styling class for this component's container
       return [
         {
           "justify-between": !this.previewMode,
@@ -184,21 +188,22 @@ export default {
         "h-full flex flex-col",
       ];
     },
+    /** `answer` attribute for `currentItemResponse` */
     currentItemResponseAnswer() {
-      // `answer` object for `currentItemResponse`
       if (this.currentItemResponse == null) return null;
       return this.currentItemResponse.answer;
     },
-    isAnswerValid() {
-      // whether an option has been selected
-      const currentResponse = this.draftResponses[this.selectedItemIndex];
+    /** whether a valid answer has been selected/added */
+    isAttemptValid() {
+      let currentResponse = this.draftResponses[this.selectedItemIndex];
       if (currentResponse == null) return false;
       if (this.isQuestionTypeSubjective) return currentResponse != "";
       if (this.isQuestionTypeMCQ) return !isNaN(currentResponse);
-      return true;
+      if (this.isQuestionTypeCheckbox) return currentResponse.length > 0;
+      return false;
     },
+    /** local copy of the responseList prop */
     localResponseList: {
-      // local copy of the responseList prop
       get() {
         return this.responseList;
       },
@@ -206,8 +211,8 @@ export default {
         this.$emit("update:responseList", localResponseList);
       },
     },
+    /** local copy of isFullscreen prop */
     localIsFullscreen: {
-      // local copy of isFullscreen prop
       get() {
         return this.isFullscreen;
       },
@@ -215,24 +220,24 @@ export default {
         this.$emit("update:isFullscreen", localIsFullscreen);
       },
     },
+    /** current item from the list of items */
     currentItem() {
-      // current item from the list of items
       return this.itemList[this.selectedItemIndex];
     },
+    /** response for the current item */
     currentItemResponse() {
-      // response for the current item
       if (this.responseList != undefined)
         return this.responseList[this.selectedItemIndex];
 
       return null;
     },
+    /** type of the current item */
     itemType() {
-      // type of the current item
       if (this.currentItem == undefined) return null;
       return this.currentItem["type"];
     },
+    /** whether the submitted answer is correct */
     isAnswerCorrect() {
-      // where the selected option index is current
       if (
         this.currentItem == undefined ||
         !this.isItemQuestion ||
@@ -240,50 +245,54 @@ export default {
       )
         return null;
       if (this.isQuestionTypeSubjective) return true;
-      return this.questionCorrectAnswer == this.currentItemResponseAnswer;
+      return isEqual(this.questionCorrectAnswer, this.currentItemResponseAnswer);
     },
+    /** has the answer for the current item submitted - if current item is a question */
     isAnswerSubmitted() {
-      // has the answer for the current item submitted - if current item is a question
       if (this.currentItemResponseAnswer == null) return false;
       if (this.isQuestionTypeMCQ) return !isNaN(this.currentItemResponseAnswer);
+      if (this.isQuestionTypeCheckbox) return this.currentItemResponseAnswer.length > 0;
       return true;
     },
+    /** options for the question */
     questionOptions() {
-      // options for the question
       if (this.currentItemDetails == undefined) return null;
       return this.currentItemDetails["options"];
     },
+    /** correct answer for the question */
     questionCorrectAnswer() {
-      // correct answer for the question
       if (this.currentItemDetails == undefined) return null;
-      return parseInt(this.currentItemDetails["correct_answer"]);
+      if (this.isQuestionTypeMCQ)
+        return parseInt(this.currentItemDetails["correct_answer"]);
+      return this.currentItemDetails["correct_answer"];
     },
+    /** text for the question */
     questionText() {
-      // text for the question
       if (this.currentItemDetails == undefined) return null;
       return this.currentItemDetails["text"];
     },
+    /** whether the item is a Question */
     isItemQuestion() {
-      // whether the item is a Question
       return this.itemType == "question";
     },
+    /** type of the question if the item is a question */
     questionType() {
-      // type of the question if the item is a question
       if (!this.isItemQuestion) return null;
       return this.currentItemDetails["type"];
     },
     isQuestionTypeMCQ() {
-      // whether the type of the question is MCQ if item is question
       return this.questionType == "mcq";
     },
+    isQuestionTypeCheckbox() {
+      return this.questionType == "checkbox";
+    },
     isQuestionTypeSubjective() {
-      // whether the type of the question is subjective if item is question
       return this.questionType == "subjective";
     },
   },
   methods: {
+    /** checks if the device is in portrait or landscape mode */
     checkScreenOrientation() {
-      // check if the device is in portrait or landscape mode
       if (this.previewMode) {
         // device is assumed to be always in landscape mode when the modal is in preview mode
         this.isPortrait = false;
@@ -292,32 +301,56 @@ export default {
       // set whether the screen is in portrait mode
       this.isPortrait = isScreenPortrait();
     },
+    /** update the attempt to the current question - valid for subjective questions */
     subjectiveAnswerUpdated(answer) {
-      // invoked when the answer to a subjective question is updated
       this.draftResponses[this.selectedItemIndex] = answer;
     },
+    /** toggles whether the modal is minimized or maximized */
     toggleMinimize(positions) {
       this.$emit("toggle-minimize", positions);
     },
+    /** emits that the question has been skipped */
     skipQuestion() {
-      // skip the question
       this.$emit("skip-question");
     },
+    /** emits that the proceed button has been clicked */
     proceedQuestion() {
-      // proceed from the question
       this.$emit("proceed-question");
     },
+    /** emits that the revise button has been clicked */
     emitRevise() {
-      // invoked when the revise button is clicked
       this.$emit("revise-question");
     },
+    /**
+     * triggered upon selecting an option
+     */
     optionSelected(optionIndex) {
-      // invoked when an option is selected
-      this.draftResponses[this.selectedItemIndex] = optionIndex;
       this.$emit("option-selected", optionIndex);
+
+      if (this.isQuestionTypeMCQ) {
+        // for MCQ, simply set the option as the current response
+        this.draftResponses[this.selectedItemIndex] = optionIndex;
+        return;
+      }
+
+      if (this.isQuestionTypeCheckbox) {
+        // for checkbox, create an array for the response if the response is empty
+        if (this.draftResponses[this.selectedItemIndex] == null)
+          this.draftResponses[this.selectedItemIndex] = [];
+        // if the selection option was already in the response
+        // remove it from the response (uncheck it); otherwise add it (check it)
+        let currentResponse = this.draftResponses[this.selectedItemIndex];
+        let optionPositionInResponse = currentResponse.indexOf(optionIndex);
+        if (optionPositionInResponse != -1)
+          currentResponse.splice(optionPositionInResponse, 1);
+        else {
+          currentResponse.push(optionIndex);
+          currentResponse.sort();
+        }
+      }
     },
+    /** mark the current attempt as the submitted answer for the current item */
     submitQuestion() {
-      // invoked when the response to the question has been submitted
       this.localResponseList[this.selectedItemIndex].answer = this.draftResponses[
         this.selectedItemIndex
       ];

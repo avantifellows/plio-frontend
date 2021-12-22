@@ -33,8 +33,6 @@ export default {
         let plioDetails = {};
         plioDetails.itemDetails = [];
         for (let item of plio.data.items) {
-          // convert str to int
-          item.details.correct_answer = parseInt(item.details.correct_answer);
           /**
            * add every item's details to an itemDetails array
            * and then, remove those details from the item object

@@ -28,27 +28,22 @@ describe("Editor.vue", () => {
     expect(wrapper).toBeTruthy();
   });
 
-  it("blurs the main screen when plio is being published", async () => {
+  it("shows spinner when plio is being published", async () => {
     wrapper = mount(Editor);
 
     // editor goes into pending = true state upon loading
     // this resets pending to false
     await store.dispatch("sync/stopLoading");
 
-    // blur classes should not be present initially
-    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
-      expect.not.arrayContaining(["opacity-30", "pointer-events-none"])
-    );
+    // spinner should not be present initially
+    expect(wrapper.vm.isSpinnerShown).toBeFalsy();
     // setting `isBeingPublished` to true, that will blur the screen
     await wrapper.setData({ isBeingPublished: true });
-    // blur classes should be present now
-    expect(wrapper.get('[data-test="blurDiv"]').classes()).toEqual(
-      expect.arrayContaining(["opacity-30", "pointer-events-none"])
-    );
+    // spinner should be present now
+    expect(wrapper.vm.isSpinnerShown).toBeTruthy();
   });
 
   it("dialog box buttons work correctly", async () => {
-    const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
     const showPublishConfirmationDialogBox = jest.spyOn(
       Editor.methods,
@@ -69,18 +64,6 @@ describe("Editor.vue", () => {
     await simulateConfirmClick();
     await flushPromises();
 
-    expect(store.state.dialog.action).toBe("");
-    expect(store.state.dialog.isShown).toBeTruthy();
-    expect(store.state.dialog.title).toBe("Publishing the plio...");
-
-    expect(store.state.dialog.confirmButtonConfig.enabled).toBeFalsy();
-    expect(store.state.dialog.confirmButtonConfig.text).toBe("");
-    expect(store.state.dialog.confirmButtonConfig.class).toBe("");
-    expect(store.state.dialog.cancelButtonConfig.enabled).toBeFalsy();
-    expect(store.state.dialog.cancelButtonConfig.text).toBe("");
-    expect(store.state.dialog.cancelButtonConfig.class).toBe("");
-
-    expect(confirmPublish).toHaveBeenCalled();
     expect(publishPlio).toHaveBeenCalled();
   });
 
@@ -834,14 +817,14 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemType).toBe(global.dummyItems[0].type);
   });
 
-  it("computes correctOptionInex correctly", async () => {
+  it("computes correctAnswer correctly", async () => {
     wrapper = mount(Editor);
     await wrapper.setData({
       items: clonedeep(global.dummyItems),
       itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: 0,
     });
-    expect(wrapper.vm.correctOptionIndex).toBe(
+    expect(wrapper.vm.correctAnswer).toBe(
       global.dummyItemDetails[0].correct_answer
     );
   });
@@ -872,7 +855,6 @@ describe("Editor.vue", () => {
       Editor.methods,
       "updateQuestionDetails"
     );
-    const confirmPublish = jest.spyOn(Editor.methods, "confirmPublish");
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
     wrapper = mount(Editor, {
       data() {
@@ -943,7 +925,6 @@ describe("Editor.vue", () => {
     // simulate clicking the confirm button of the dialog box
     await simulateConfirmClick();
 
-    expect(confirmPublish).toHaveBeenCalled();
     expect(publishPlio).toHaveBeenCalled();
     expect(wrapper.vm.status).toBe("published");
     expect(saveChanges).toHaveBeenCalledWith("all");
@@ -963,63 +944,33 @@ describe("Editor.vue", () => {
 
     // 1 call to /items and /questions for each item and 1 call to /plio
     expect(mockAxios.queue().length).toBe(global.dummyItems.length * 2 + 1);
-    expect(updateItem).toHaveBeenCalledTimes(4);
+    expect(updateItem).toHaveBeenCalledTimes(global.dummyItems.length);
 
     // mock responses to requests for /items
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItems[0],
-      },
-      mockAxios.queue()[0]
-    );
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItems[1],
-      },
-      mockAxios.queue()[0]
-    );
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItems[2],
-      },
-      mockAxios.queue()[0]
-    );
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItems[3],
-      },
-      mockAxios.queue()[0]
-    );
+    global.dummyItems.forEach((item) => {
+      mockAxios.mockResponse(
+        {
+          data: item,
+        },
+        mockAxios.queue()[0]
+      );
+    });
 
     await flushPromises();
 
-    expect(updateQuestionDetails).toHaveBeenCalledTimes(4);
+    expect(updateQuestionDetails).toHaveBeenCalledTimes(
+      global.dummyItemDetails.length
+    );
 
     // mock responses to requests for /questions
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItemDetails[0],
-      },
-      mockAxios.queue()[0]
-    );
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItemDetails[1],
-      },
-      mockAxios.queue()[0]
-    );
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItemDetails[2],
-      },
-      mockAxios.queue()[0]
-    );
-    mockAxios.mockResponse(
-      {
-        data: global.dummyItemDetails[3],
-      },
-      mockAxios.queue()[0]
-    );
+    global.dummyItemDetails.forEach((itemDetails) => {
+      mockAxios.mockResponse(
+        {
+          data: itemDetails,
+        },
+        mockAxios.queue()[0]
+      );
+    });
 
     await flushPromises();
 
@@ -1417,21 +1368,29 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemDetails[0].image).toStrictEqual(mockImageResponse);
   });
 
-  it("delete option does not work with only 2 options", async () => {
-    const endIconSelected = jest.spyOn(InputText.methods, "endIconSelected");
-    const itemEditorDeleteOption = jest.spyOn(
-      ItemEditor.methods,
-      "deleteOption"
-    );
-    const editorDeleteOption = jest.spyOn(Editor.methods, "deleteOption");
-    const deleteSelectedOption = jest.spyOn(
-      Editor.methods,
-      "deleteSelectedOption"
-    );
-    const showCannotDeleteOptionDialog = jest.spyOn(
-      Editor.methods,
-      "showCannotDeleteOptionDialog"
-    );
+  it("changes question type upon toggling from item editor", async () => {
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+          items: clonedeep(global.dummyItems),
+          itemDetails: clonedeep(global.dummyItemDetails),
+          currentItemIndex: 0,
+          videoDuration: 200,
+          status: "draft",
+          currentQuestionTypeIndex: 0,
+        };
+      },
+    });
+
+    const newQuestionType = "subjective";
+    wrapper.vm.$refs.itemEditor.$emit("question-type-changed", newQuestionType);
+
+    // the option index to delete must be set
+    expect(wrapper.vm.itemDetails[0].type).toBe(newQuestionType);
+  });
+
+  it("delete option button is hidden with only 2 options", async () => {
     wrapper = mount(Editor, {
       data() {
         return {
@@ -1453,65 +1412,7 @@ describe("Editor.vue", () => {
 
     // clear past values of dialog description
     await store.dispatch("dialog/unsetDialogDescription");
-
-    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
-
-    expect(endIconSelected).toHaveBeenCalled();
-    expect(inputTextWrapper.emitted()).toHaveProperty("end-icon-selected");
-
-    expect(itemEditorDeleteOption).toHaveBeenCalled();
-    expect(itemEditorWrapper.emitted()).toHaveProperty("delete-option");
-
-    expect(editorDeleteOption).toHaveBeenCalled();
-    await flushPromises();
-
-    expect(store.state.dialog.title).toBe(
-      "Are you sure you want to delete this option?"
-    );
-    expect(store.state.dialog.description).toBe("");
-    expect(store.state.dialog.confirmButtonConfig.enabled).toBeTruthy();
-    expect(store.state.dialog.confirmButtonConfig.text).toBe("Yes");
-    expect(store.state.dialog.confirmButtonConfig.class).toBe(
-      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
-    );
-    expect(store.state.dialog.cancelButtonConfig.enabled).toBeTruthy();
-    expect(store.state.dialog.cancelButtonConfig.text).toBe("No");
-    expect(store.state.dialog.cancelButtonConfig.class).toBe(
-      "bg-white hover:bg-gray-100 focus:outline-none text-primary"
-    );
-    expect(wrapper.vm.dialogAction).toBe("deleteOption");
-    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
-
-    expect(wrapper.vm.optionIndexToDelete).toBe(1);
-
-    // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
-
-    expect(deleteSelectedOption).toHaveBeenCalled();
-    expect(showCannotDeleteOptionDialog).toHaveBeenCalled();
-
-    expect(store.state.dialog.title).toBe("Cannot delete the option");
-    expect(store.state.dialog.description).toBe(
-      "A question must have at least 2 options"
-    );
-    expect(store.state.dialog.confirmButtonConfig.enabled).toBeTruthy();
-    expect(store.state.dialog.confirmButtonConfig.text).toBe("Got it");
-    expect(store.state.dialog.confirmButtonConfig.class).toBe(
-      "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0"
-    );
-    expect(store.state.dialog.cancelButtonConfig.enabled).toBeFalsy();
-    expect(store.state.dialog.cancelButtonConfig.text).toBe("");
-    expect(store.state.dialog.cancelButtonConfig.class).toBe("");
-
-    expect(wrapper.vm.isDialogBoxShown).toBeTruthy();
-    await store.dispatch("dialog/unsetDialogDescription");
-
-    // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
-
-    // dialogAction and dialog confirm click status should be reset
-    expect(wrapper.vm.dialogAction).toBeFalsy();
-    expect(wrapper.vm.isDialogConfirmClicked).toBeFalsy();
+    expect(inputTextWrapper.find('[data-test="endIcon"]').exists()).toBeFalsy();
   });
 
   it("cancelling delete option dialog resets option's index to delete", async () => {
@@ -1522,9 +1423,11 @@ describe("Editor.vue", () => {
         };
       },
     });
+    let updatedDummyItemDetails = clonedeep(global.dummyItemDetails);
+    updatedDummyItemDetails[0].options.push("option 3");
     await wrapper.setData({
       items: clonedeep(global.dummyItems),
-      itemDetails: clonedeep(global.dummyItemDetails),
+      itemDetails: updatedDummyItemDetails,
       currentItemIndex: 0,
       videoDuration: 200,
       status: "draft",
@@ -1616,6 +1519,135 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemDetails[0].options.length).toBe(2);
   });
 
+  it("deleting correct answer option resets correct answer", async () => {
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+    let updatedDummyItemDetails = clonedeep(global.dummyItemDetails);
+    updatedDummyItemDetails[0].options.push("option 3");
+    updatedDummyItemDetails[0].correct_answer = 2;
+    await wrapper.setData({
+      items: clonedeep(global.dummyItems),
+      itemDetails: updatedDummyItemDetails,
+      currentItemIndex: 0,
+      videoDuration: 200,
+      status: "draft",
+      currentQuestionTypeIndex: 0,
+    });
+
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[5];
+
+    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+
+    // the option index to delete must be set
+    expect(wrapper.vm.optionIndexToDelete).toBe(2);
+
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+
+    // the correct answer must now be reset
+    expect(wrapper.vm.itemDetails[0].correct_answer).toBe(0);
+  });
+
+  it("deleting option with index lower than correct answer updates correct answer", async () => {
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+        };
+      },
+    });
+    let updatedDummyItemDetails = clonedeep(global.dummyItemDetails);
+    updatedDummyItemDetails[0].options.push("option 3");
+    updatedDummyItemDetails[0].correct_answer = 2;
+    await wrapper.setData({
+      items: clonedeep(global.dummyItems),
+      itemDetails: updatedDummyItemDetails,
+      currentItemIndex: 0,
+      videoDuration: 200,
+      status: "draft",
+      currentQuestionTypeIndex: 0,
+    });
+
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[4];
+
+    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+
+    // the option index to delete must be set
+    expect(wrapper.vm.optionIndexToDelete).toBe(1);
+
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+
+    // the correct answer must now be reset
+    expect(wrapper.vm.itemDetails[0].correct_answer).toBe(1);
+  });
+
+  it("deleting checkbox option which was one of the answers removes it from the answer", async () => {
+    const questionTypeIndex = 4;
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+          items: clonedeep(global.dummyItems),
+          itemDetails: clonedeep(global.dummyItemDetails),
+          currentItemIndex: questionTypeIndex,
+          videoDuration: 200,
+          status: "draft",
+          currentQuestionTypeIndex: 2,
+        };
+      },
+    });
+
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[4];
+
+    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+    // correct answer should be updated and the index of the options with index
+    // greater than the index of the deleted option should be decremented by 1
+    expect(
+      wrapper.vm.itemDetails[questionTypeIndex].correct_answer
+    ).toStrictEqual([1]);
+  });
+
+  it("deleting checkbox option which was the only correct answer resets the correct answer", async () => {
+    const questionTypeIndex = 4;
+    let updatedItemDetails = clonedeep(global.dummyItemDetails);
+    updatedItemDetails[questionTypeIndex].correct_answer = [1];
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          videoId: "abcdefgh",
+          items: clonedeep(global.dummyItems),
+          itemDetails: updatedItemDetails,
+          currentItemIndex: questionTypeIndex,
+          videoDuration: 200,
+          status: "draft",
+          currentQuestionTypeIndex: 2,
+        };
+      },
+    });
+
+    const itemEditorWrapper = wrapper.findComponent(ItemEditor);
+    const inputTextWrapper = itemEditorWrapper.findAllComponents(InputText)[4];
+
+    await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
+    // simulate clicking the confirm button of the dialog box
+    await simulateConfirmClick();
+    // correct answer should be reset to the first option
+    expect(
+      wrapper.vm.itemDetails[questionTypeIndex].correct_answer
+    ).toStrictEqual([0]);
+  });
+
   it("add new item functionality works correctly", async () => {
     const mockPlayer = {
       pause: jest.fn(),
@@ -1672,7 +1704,9 @@ describe("Editor.vue", () => {
 
     // the item will be added now because the timestamp is not clashing
     // with the timestamp of another item
-    await wrapper.find('[data-test="addMCQItem"]').trigger("click");
+    await wrapper
+      .find('[data-test="addCheckboxQuestionItem"]')
+      .trigger("click");
     expect(addNewItem).toHaveBeenCalled();
 
     expect(mockAxios.post).toHaveBeenCalledWith("/items/", {
@@ -1706,9 +1740,9 @@ describe("Editor.vue", () => {
     expect(getDetailsForNewQuestion).toHaveBeenCalled();
 
     expect(mockAxios.post).toHaveBeenCalledWith("/questions/", {
-      correct_answer: 0,
+      correct_answer: [0],
       text: "",
-      type: "mcq",
+      type: "checkbox",
       options: ["", ""],
       max_char_limit: 100,
       item: createdItemResponse.data.id,
@@ -1719,9 +1753,84 @@ describe("Editor.vue", () => {
         id: 212,
         item: 212,
         text: "",
+        type: "checkbox",
+        options: ["", ""],
+        correct_answer: [0],
+        image: null,
+        has_char_limit: false,
+        max_char_limit: 100,
+        created_at: "2021-07-10T22:50:55.280135Z",
+        updated_at: "2021-07-10T22:50:55.280210Z",
+      },
+    };
+
+    mockAxios.mockResponse(createdQuestionResponse, mockAxios.lastReqGet());
+    await flushPromises();
+
+    expect(markItemSelected).toHaveBeenCalled();
+    expect(wrapper.vm.pending).toBeFalsy();
+
+    await wrapper.setData({
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
+      currentItemIndex: null,
+      videoId: "jdYJf_ybyVo",
+      currentTimestamp: 20,
+      plioDBId: 13,
+    });
+    await store.dispatch("sync/stopLoading");
+
+    // add an MCQ question
+    await wrapper.find('[data-test="addMCQItem"]').trigger("click");
+    expect(addNewItem).toHaveBeenCalled();
+
+    expect(mockAxios.post).toHaveBeenCalledWith("/items/", {
+      plio: 13,
+      type: "question",
+      time: 20,
+      meta: { source: { name: "default" } },
+    });
+    // using some pre-defined dummy data to return as a fake response
+    // from the fake API call
+    createdItemResponse = {
+      data: {
+        id: 212,
+        plio: 13,
+        type: "question",
+        time: 20,
+        meta: {
+          source: {
+            name: "default",
+          },
+        },
+        created_at: "2021-07-10T22:50:55.102379Z",
+        updated_at: "2021-07-10T22:50:55.102466Z",
+      },
+    };
+
+    // resolve the two `GET` requests waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(createdItemResponse, mockAxios.lastReqGet());
+    await flushPromises();
+    expect(getDetailsForNewQuestion).toHaveBeenCalled();
+
+    expect(mockAxios.post).toHaveBeenCalledWith("/questions/", {
+      correct_answer: 0,
+      text: "",
+      type: "mcq",
+      options: ["", ""],
+      max_char_limit: 100,
+      item: createdItemResponse.data.id,
+    });
+
+    createdQuestionResponse = {
+      data: {
+        id: 212,
+        item: 212,
+        text: "",
         type: "mcq",
         options: ["", ""],
-        correct_answer: "0",
+        correct_answer: 0,
         image: null,
         has_char_limit: false,
         max_char_limit: 100,
