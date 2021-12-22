@@ -55,6 +55,7 @@
           :videoPlayerElementId="plioVideoPlayerElementId"
           v-model:isFullscreen="isFullscreen"
           v-model:responseList="itemResponses"
+          :configuration="plioSettings.player.configuration"
           @skip-question="skipQuestion"
           @proceed-question="proceedQuestion"
           @revise-question="reviseQuestion"
@@ -96,6 +97,9 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { resetConfetti } from "@/services/Functional/Utilities.js";
+import globalSettings from "@/services/Config/GlobalSettings.js";
+
+var clonedeep = require("lodash.clonedeep");
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
@@ -196,6 +200,7 @@ export default {
       plioTitle: "", // title of the plio
       isAspectRatioChecked: false, // whether the check for aspect ratio has been done
       watchingEventDBId: null, // the DB id of the latest 'watching' event for a given session
+      plioSettings: null, // stores this plio's settings
     };
   },
   watch: {
@@ -503,6 +508,16 @@ export default {
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
     /**
+     * Handles inheritance for this plio's settings.
+     * If the settings pulled from the DB is null, use the global player settings
+     */
+    handleSettingsInheritance() {
+      if (this.plioSettings == null)
+        this.plioSettings = {
+          player: clonedeep(globalSettings.player),
+        };
+    },
+    /**
      * sets various properties based on the screen size
      */
     setScreenProperties() {
@@ -711,6 +726,20 @@ export default {
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
           this.plioTitle = plioDetails.plioTitle;
+
+          let config = plioDetails.config;
+          if (
+            config == null ||
+            !("settings" in config) ||
+            config.settings == null ||
+            !("player" in config.settings)
+          )
+            this.plioSettings = null;
+          else
+            this.plioSettings = {
+              player: config.settings.player,
+            };
+          this.handleSettingsInheritance();
         })
         .then(() => this.createSession())
         .then(() => this.logData());

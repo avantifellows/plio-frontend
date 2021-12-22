@@ -11,6 +11,7 @@
         :videoPlayerElementId="videoPlayerElementId"
         @toggle-minimize="toggleMinimize"
         @skip-question="skipQuestion"
+        :isSkipEnabled="isSkipItemButtonEnabled"
         data-test="header"
       ></item-question-header>
       <!-- main question body -->
@@ -55,6 +56,7 @@ import ItemQuestionHeader from "@/components/Items/Question/Header";
 import ItemQuestionBody from "@/components/Items/Question/Body";
 import ItemQuestionFooter from "@/components/Items/Question/Footer";
 import { isScreenPortrait } from "@/services/Functional/Utilities.js";
+import globalSettings from "@/services/Config/GlobalSettings.js";
 
 export default {
   data() {
@@ -120,6 +122,11 @@ export default {
       default: null,
       type: String,
     },
+    /** custom configuration options for the item modal */
+    configuration: {
+      default: null,
+      type: Object,
+    },
   },
   components: {
     ItemQuestionHeader,
@@ -127,6 +134,14 @@ export default {
     ItemQuestionBody,
   },
   computed: {
+    /** Whether the skip item button is enabled */
+    isSkipItemButtonEnabled() {
+      // if a custom configuration exists in the props, then use that otherwise
+      // use the global settings
+      if (this.configuration != null && "skipEnabled" in this.configuration)
+        return this.configuration.skipEnabled;
+      return globalSettings.player.configuration.skipEnabled;
+    },
     imageData() {
       // URL of the image for an item
       // returns NULL if the image doesn't exist

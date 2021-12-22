@@ -66,50 +66,68 @@
 
             <!-- home button -->
             <icon-button
-              class="place-self-start"
+              class="place-self-start w-full"
               :iconConfig="homeButtonIconConfig"
               :titleConfig="homeButtonTextConfig"
               :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
               @click="redirectToHome"
               :isDisabled="pending"
             ></icon-button>
 
+            <!-- settings button -->
+            <icon-button
+              v-if="onHomePage"
+              class="place-self-start w-full"
+              :iconConfig="settingsButtonIconConfig"
+              :titleConfig="settingsButtonTextConfig"
+              :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
+              @click="showSettingsMenu"
+              :isDisabled="pending"
+              data-test="settingsButton"
+            ></icon-button>
+
             <!-- product guides -->
             <icon-button
-              class="place-self-start"
+              class="place-self-start w-full"
               :iconConfig="productGuidesButtonIconConfig"
               :titleConfig="productGuidesButtonTextConfig"
               :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
               @click="redirectToProductGuides"
               :isDisabled="pending"
             ></icon-button>
 
             <!-- docs -->
             <icon-button
-              class="place-self-start"
+              class="place-self-start w-full"
               :iconConfig="docsButtonIconConfig"
               :titleConfig="docsButtonTextConfig"
               :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
               @click="redirectToDocs"
               :isDisabled="pending"
             ></icon-button>
 
             <!-- whats new -->
             <icon-button
-              class="place-self-start"
+              class="place-self-start w-full"
               :iconConfig="whatsNewButtonIconConfig"
               :titleConfig="whatsNewButtonTextConfig"
               :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
               @click="redirectToWhatsNew"
               :isDisabled="pending"
             ></icon-button>
 
             <!-- logout -->
             <icon-button
-              class="place-self-start"
+              class="place-self-start w-full"
               :iconConfig="logoutButtonIconConfig"
               :titleConfig="logoutButtonTextConfig"
               :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
               @click="logoutButtonClicked"
               :isDisabled="pending"
               data-test="logout"
@@ -188,6 +206,15 @@
     ></inline-svg>
   </div>
   <vue-progress-bar></vue-progress-bar>
+  <!-- settings menu popup component -->
+  <Settings
+    v-if="isSettingsMenuShown"
+    class="fixed z-20 justify-center mx-auto top-15/100 bp-500:top-25/100 xl:left-30/100 xl:right-10/100 lg:left-25/100 lg:right-0 lg:mr-8 lg:ml-8 sm:left-10/100 sm:right-10/100 left-2 right-2"
+    v-model:settings="settingsToRender"
+    :isInfoMessageVisible="true"
+    v-click-away="closeSettingsMenu"
+    @window-closed="closeSettingsMenu"
+  ></Settings>
 </template>
 
 <script>
@@ -198,10 +225,16 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
 import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
 import PlioAPIService from "@/services/API/Plio.js";
+import Settings from "@/components/Collections/Settings/Settings.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import Utilities from "@/services/Functional/Utilities.js";
+import UserAPIService from "@/services/API/User.js";
+import { settingsMetadata } from "@/services/Config/GlobalSettings.js";
+
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
+
+var clonedeep = require("lodash.clonedeep");
 
 export default {
   components: {
@@ -211,6 +244,7 @@ export default {
     WorkspaceSwitcher,
     IconButton,
     DialogBox,
+    Settings,
   },
   data() {
     return {
@@ -221,10 +255,15 @@ export default {
       createButtonClass:
         "bg-primary hover:bg-primary-hover rounded-md shadow-lg w-full ring-primary p-2 sm:py-4",
       isMenuButtonActive: false, // whether the menu button is active
-      menuButtonsClass: "rounded-lg ring-primary p-2 py-4", // common classes for the menu buttons
-      menuButtonsIconClass: "text-gray-500 fill-current h-4 md:h-6 w-4 md:w-6", // common classes for the icon of the menu buttons
-      menuButtonsTextClass: "text-sm md:text-base lg:text-lg ml-4 text-gray-500", // common classes for the text of the menu buttons
+      menuButtonsClass: "rounded-lg ring-primary p-2 py-4 hover:bg-gray-200", // common classes for the menu buttons
+      menuButtonsInnerContainerClass: "w-full flex justify-start", // common classes for the inner container of the menu buttons
+      menuButtonsIconClass:
+        "text-gray-500 group-hover:text-primary fill-current h-4 md:h-6 w-4 md:w-6", // common classes for the icon of the menu buttons
+      menuButtonsTextClass:
+        "text-sm md:text-base lg:text-lg ml-4 text-gray-500 group-hover:text-primary", // common classes for the text of the menu buttons
       menuSlideTransition: "", // transition name for menu sliding effect
+      isSettingsMenuShown: false,
+      settingsToRender: {}, // The settings object that will be rendered when settings menu is opened
     };
   },
   async created() {
@@ -241,6 +280,7 @@ export default {
     window.addEventListener("beforeunload", this.onClose);
     if (this.isAuthenticated) {
       await this.fetchAndUpdateUser();
+      this.constructSettingsMenu();
     }
     // ask user to pick the language if they are visiting for the first time
     if (this.locale == null && this.user != null) {
@@ -299,6 +339,7 @@ export default {
         // reset the value of `userClickedLogout`
         this.userClickedLogout = false;
         if (this.locale == null) this.showLanguagePickerDialog = true;
+        this.constructSettingsMenu();
       }
     },
     onHomePage(value) {
@@ -389,7 +430,56 @@ export default {
       "setCancelClicked",
       "unsetDialogCloseButton",
     ]),
+    ...mapActions("auth", {
+      updateUserStoreSettings: "updateSettings",
+    }),
     ...Utilities,
+    /**
+     * This method constructs the settings menu that needs to be rendered when settings menu is open.
+     * We iterate through the different levels of the user settings object that was retrieved from the DB.
+     * For each of the atomic settings, which are the last leaf of the object, we attach some metadata to it,
+     * and add a watcher which will trigger when the value for that setting has been changed.
+     */
+    constructSettingsMenu() {
+      // Keep a clone of the user settings in a local variable
+      this.settingsToRender = clonedeep(this.userSettings);
+
+      for (let [headerName, headerDetails] of Object.entries(this.settingsToRender)) {
+        for (let [tabName, tabDetails] of Object.entries(headerDetails)) {
+          for (let [settingName, settingValue] of Object.entries(tabDetails)) {
+            // iterating on all levels of the object, when we reach the end, we attach some
+            // metadata to those settings
+            this.settingsToRender[headerName][tabName][settingName] = {
+              ...settingsMetadata[settingName],
+              value: settingValue,
+            };
+            // Adding a watcher to the individual settings' value
+            this.$watch(
+              () =>
+                clonedeep(this.settingsToRender[headerName][tabName][settingName].value),
+              (value, prevValue) => {
+                // if the value hasn't changed, do nothing
+                if (value === prevValue) return;
+
+                // if the value has changed, update the settings
+                // in the Vuex store and on the DB as well
+                let newUserSettings = clonedeep(this.userSettings);
+                newUserSettings[headerName][tabName][settingName] = value;
+                this.updateUserStoreSettings(newUserSettings);
+                UserAPIService.updateUserSettings(this.userId, newUserSettings);
+              },
+              { deep: true }
+            );
+          }
+        }
+      }
+    },
+    closeSettingsMenu() {
+      this.isSettingsMenuShown = false;
+    },
+    showSettingsMenu() {
+      this.isSettingsMenuShown = true;
+    },
     /**
      * resets various state variables when the app is created
      */
@@ -573,7 +663,7 @@ export default {
   computed: {
     ...mapGetters("auth", ["isAuthenticated", "activeWorkspaceSchema", "locale"]),
     ...mapGetters("generic", ["isMobileScreen"]),
-    ...mapState("auth", ["config", "user", "activeWorkspace"]),
+    ...mapState("auth", ["config", "user", "activeWorkspace", "userId"]),
     ...mapState("generic", [
       "isSharePlioDialogShown",
       "isEmbedPlioDialogShown",
@@ -581,6 +671,9 @@ export default {
       "selectedPlioId",
       "isSpinnerShown",
     ]),
+    ...mapState("auth", {
+      userSettings: "settings",
+    }),
     ...mapState("sync", ["pending"]),
     ...mapState("dialog", {
       dialogTitle: "title",
@@ -724,6 +817,13 @@ export default {
         `fill-current h-8 w-8`,
       ];
     },
+    settingsButtonIconConfig() {
+      return {
+        enabled: true,
+        iconName: "settings",
+        iconClass: this.menuButtonsIconClass,
+      };
+    },
     /**
      * whether the menu has been shown
      */
@@ -788,6 +888,12 @@ export default {
       // config for the home button
       return {
         value: this.$t("nav.home"),
+        class: this.menuButtonsTextClass,
+      };
+    },
+    settingsButtonTextConfig() {
+      return {
+        value: this.$t("nav.settings"),
         class: this.menuButtonsTextClass,
       };
     },
@@ -872,7 +978,8 @@ export default {
         this.isSharePlioDialogShown ||
         this.isEmbedPlioDialogShown ||
         this.isDialogBoxShown ||
-        this.isSpinnerShown
+        this.isSpinnerShown ||
+        this.isSettingsMenuShown
       );
     },
     /**

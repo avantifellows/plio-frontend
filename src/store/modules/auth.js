@@ -1,5 +1,8 @@
 import UserAPIService from "@/services/API/User.js";
 import AnalyticsAPIService from "@/services/API/Analytics.js";
+import globalSettings from "@/services/Config/GlobalSettings.js";
+
+var clonedeep = require("lodash.clonedeep");
 
 // Reference: https://medium.com/front-end-weekly/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
 const state = {
@@ -14,10 +17,11 @@ const state = {
   analyticsAccessToken: null,
   analyticsAccessTokenFetchTime: null,
   analyticsAccessTokenExpiryTime: null,
+  settings: null,
 };
 
 const getters = {
-  isAuthenticated: (state) => !!state.accessToken,
+  isAuthenticated: (state) => !!state.userId,
   isRefreshTokenPresent: (state) => {
     return state.accessToken != null && state.accessToken.refresh_token != null;
   },
@@ -103,10 +107,15 @@ const actions = {
     commit("updateUserStatus", status);
   },
   async fetchAndUpdateUser({ dispatch, state }) {
-    let response = await UserAPIService.getUserByAccessToken(
-      state.accessToken.access_token
-    );
-    if (response != undefined) dispatch("setUser", response.data);
+    let response = await UserAPIService.getUserByAccessToken(state.accessToken.access_token);
+    if (response != undefined) {
+      // Use the pulled user settings if they exist otherwise use the global sttings
+      if ('settings' in response.data.config) await dispatch("setSettings", response.data.config.settings)
+      else await dispatch("setSettings", clonedeep(globalSettings))
+
+      // set the user in the state
+      await dispatch("setUser", response.data);
+    }
   },
   async getAnalyticsAccessToken({ commit }) {
     let response = await AnalyticsAPIService.getAnalyticsAccessToken();
@@ -118,9 +127,27 @@ const actions = {
   autoLogoutUser({ dispatch }) {
     dispatch("unsetAccessToken");
   },
+  setSettings({ commit }, value) {
+    commit("setSettings", value)
+  },
+  unsetSettings({ commit }) {
+    commit("unsetSettings")
+  },
+  updateSettings({ commit }, settingObject) {
+    commit("updateSettings", settingObject)
+  }
 };
 
 const mutations = {
+  setSettings(state, value) {
+    state.settings = value
+  },
+  unsetSettings(state) {
+    state.settings = null
+  },
+  updateSettings(state, settingObject) {
+    state.settings = settingObject
+  },
   setAccessToken(state, accessToken) {
     state.accessToken = accessToken;
   },

@@ -17,4 +17,6 @@ export const pliosEndpoint = "/plios/",
   refreshTokenEndpoint = "/token/",
   analyticsAccessTokenEndpoint = "/cubejs-token/",
   imagesEndpoint = "/images/",
-  externalAuthTokenEndpoint = "/generate-external-auth-access-token/";
+  externalAuthTokenEndpoint = "/generate-external-auth-access-token/",
+  plioSettingsEndpoint = "/setting",
+  userSettingsEndpoint = "/setting";

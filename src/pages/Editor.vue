@@ -11,6 +11,15 @@
         <p class="my-2 sm:my-4 text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
           {{ syncStatusText }}
         </p>
+
+        <!-- settings button -->
+        <icon-button
+          :iconConfig="settingsButtonIconConfig"
+          :buttonClass="settingsButtonClass"
+          @click="showSettingsMenu"
+          data-test="settingsButton"
+          v-tooltip="{ content: $t('tooltip.editor.settings'), placement: 'top' }"
+        ></icon-button>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 items-stretch">
@@ -468,6 +477,13 @@
         </div>
       </div>
     </div>
+    <Settings
+      class="fixed z-20 justify-center top-25/100 mx-auto 2xl:left-30/100 2xl:right-30/100 xl:left-25/100 xl:right:25/100 lg:left-20/100 lg:right-20/100 md:left-10/100 md:right-10/100 bp-420:left-5/100 bp-420:right-5/100 lg:mr-8 lg:ml-8 mr-2 ml-2"
+      @window-closed="closeSettingsMenu"
+      v-if="isSettingsMenuShown"
+      v-model:settings="settingsToRender"
+      v-click-away="closeSettingsMenu"
+    ></Settings>
   </div>
 </template>
 
@@ -481,6 +497,7 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import ItemModal from "@/components/Player/ItemModal.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
+import Settings from "@/components/Collections/Settings/Settings.vue";
 
 import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
@@ -493,6 +510,8 @@ import Utilities, {
   throwConfetti,
   resetConfetti,
 } from "@/services/Functional/Utilities.js";
+import globalSettings, { settingsMetadata } from "@/services/Config/GlobalSettings.js";
+
 import { mapActions, mapState, mapGetters } from "vuex";
 import debounce from "debounce";
 import { useToast } from "vue-toastification";
@@ -527,6 +546,7 @@ export default {
     ItemModal,
     ImageUploaderDialog,
     Plio,
+    Settings,
   },
   props: {
     plioId: {
@@ -616,6 +636,13 @@ export default {
         iconName: "share",
         iconClass: "text-yellow-800 fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
       },
+      settingsButtonIconConfig: {
+        enabled: true,
+        iconName: "settings",
+        iconClass:
+          "text-primary group-hover:text-white fill-current h-3 w-3 bp-360:h-6 bp-360:w-6",
+      },
+      settingsButtonClass: "bg-white hover:bg-primary p-2 px-4 rounded-md",
       // styling class for the play plio button
       playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
       // styling class for the copy draft button
@@ -671,6 +698,9 @@ export default {
       // class for the button to close the dialog that comes after publishing
       confettiHandler: confettiHandler,
       toast: useToast(), // use the toast component
+      isSettingsMenuShown: false,
+      plioSettings: null, // the settings for the opened plio
+      settingsToRender: {}, // the settings + metadata that needs to be rendered
     };
   },
   async created() {
@@ -815,6 +845,9 @@ export default {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
     ...mapGetters("auth", ["isPersonalWorkspace"]),
+    ...mapState("auth", {
+      userSettings: "settings",
+    }),
     ...mapState("dialog", {
       isDialogBoxShown: "isShown",
       dialogAction: "action",
@@ -1041,7 +1074,8 @@ export default {
         this.isImageUploaderDialogShown ||
         this.isPublishedPlioDialogShown ||
         this.isEmbedPlioDialogShown ||
-        this.isPlioPreviewShown
+        this.isPlioPreviewShown ||
+        this.isSettingsMenuShown
       );
     },
     /**
@@ -1271,6 +1305,75 @@ export default {
       "unsetCancelClicked",
     ]),
     ...Utilities,
+    /**
+     * Handles inheritance for this plio's settings.
+     * Whether the settings will be set from this plio's version, user's default version
+     * or the global version
+     */
+    handleSettingsInheritance() {
+      if (this.plioSettings == null) {
+        this.plioSettings = {
+          player: {},
+        };
+        if (this.userSettings == null) {
+          // pick global settings if a user's version doesn't exist
+          this.plioSettings.player = clonedeep(globalSettings.player);
+        } else {
+          // user the user defined settings and link them to this plio
+          this.plioSettings.player = clonedeep(this.userSettings.player);
+          this.updatePlioSettings();
+        }
+      }
+    },
+    /**
+     * This method constructs the settings menu that needs to be rendered when settings menu is open.
+     * We iterate through the different levels of the plio's settings object.
+     * For each of the atomic settings, which are the last leaf of the object, we attach some metadata to it,
+     * and add a watcher which will trigger when the value for that setting has been changed.
+     */
+    constructSettingsMenu() {
+      // Keep a clone of the plio settings in a local variable
+      this.settingsToRender = clonedeep(this.plioSettings);
+
+      for (let [headerName, headerDetails] of Object.entries(this.settingsToRender)) {
+        for (let [tabName, tabDetails] of Object.entries(headerDetails)) {
+          for (let [settingName, settingValue] of Object.entries(tabDetails)) {
+            // iterating on all levels of the object, when we reach the end, we attach some
+            // metadata to those settings
+            this.settingsToRender[headerName][tabName][settingName] = {
+              ...settingsMetadata[settingName],
+              value: settingValue,
+            };
+            // Adding a watcher to the individual settings' value
+            this.$watch(
+              () =>
+                clonedeep(this.settingsToRender[headerName][tabName][settingName].value),
+              (value, prevValue) => {
+                // if the value hasn't changed, do nothing
+                if (value === prevValue) return;
+
+                // if the value has changed, update the settings on the DB if the plio is not published.
+                // if it's published, the user will have to click publish to push the changes
+                this.plioSettings[headerName][tabName][settingName] = value;
+                if (!this.isPublished) this.updatePlioSettings();
+                else this.hasUnpublishedChanges = true;
+              },
+              { deep: true }
+            );
+          }
+        }
+      }
+    },
+    /** Update the plio settings object on the DB */
+    updatePlioSettings() {
+      PlioAPIService.updatePlioSettings(this.plioId, this.plioSettings);
+    },
+    closeSettingsMenu() {
+      this.isSettingsMenuShown = false;
+    },
+    showSettingsMenu() {
+      this.isSettingsMenuShown = true;
+    },
     /**
      * copies the plio draft link to the clipboard
      */
@@ -1650,7 +1753,7 @@ export default {
      * sets variables once the player instance is ready
      */
     playerReady() {
-      this.videoDuration = this.player.duration;
+      if (this.player != undefined) this.videoDuration = this.player.duration;
       if (!this.plioTitle) this.plioTitle = this.player.config.title;
       // re-render the plio preview component
       this.reRenderKey = !this.reRenderKey;
@@ -1686,6 +1789,18 @@ export default {
           this.hasUnpublishedChanges = false;
           this.videoDBId = plioDetails.videoDBId;
           this.plioDBId = plioDetails.plioDBId;
+
+          let config = this.loadedPlioDetails.config;
+          if (
+            config == null ||
+            !("settings" in config) ||
+            config.settings == null ||
+            !("player" in config.settings)
+          )
+            this.plioSettings = null;
+          else this.plioSettings = clonedeep(config.settings);
+          this.handleSettingsInheritance();
+          this.constructSettingsMenu();
           this.stopLoading();
         })
         .then(() => {
@@ -1824,6 +1939,7 @@ export default {
       // and update the changes only if already published
       this.isBeingPublished = true;
       this.status = "published";
+      this.updatePlioSettings();
       await this.saveChanges("all");
       this.isBeingPublished = false;
       this.hideDialogBox();

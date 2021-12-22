@@ -10,6 +10,7 @@ export default {
     dashboard: "Dashboard",
     abtesting: "",
     player: "",
+    settings: "Settings",
     404: "Error",
   },
   editor: {
@@ -473,6 +474,7 @@ export default {
       share_plio: "Share this plio with your viewers",
       play_plio: "Try out the created plio yourself",
       embed_plio: "Embed this plio",
+      settings: "Settings for this plio",
     },
     home: {
       table: {
@@ -515,6 +517,15 @@ export default {
           "Average number of questions answered by each viewer",
       },
     },
+    settings: {
+      buttons: {
+        save: {
+          hasUnsavedChanges: "Save your changes",
+          noUnsavedChanges: "Nothing to save"
+        },
+        cancel: "",
+      }
+    },
   },
   dashboard: {
     updated: "Last published on",
@@ -540,4 +551,31 @@ export default {
       },
     },
   },
+  settings: {
+    buttons: {
+      save: "Save",
+      cancel: "Cancel",
+    },
+    menu: {
+      title: {
+        skipEnabled: "Viewers can skip questions while attempting plios",
+        darkMode: "Turn on Dark Mode",
+      },
+      subTitle: {
+        skipEnabled: "Provide viewers the option to skip a question and move forward with the plio",
+        darkMode: "",
+      },
+      info: "The new settings will only apply to plios created in the future and not the already created plios"
+    },
+    sidebar: {
+      header: {
+        player: "Player",
+        app: "App"
+      },
+      tab: {
+        configuration: "Configuration",
+        appearance: "Appearance"
+      }
+    }
+  }
 };

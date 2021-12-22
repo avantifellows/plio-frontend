@@ -10,6 +10,7 @@ export default {
     dashboard: "डैशबोर्ड",
     abtesting: "",
     player: "",
+    settings: "सेटिंग्स",
     404: "एरर",
   },
   editor: {
@@ -477,6 +478,7 @@ export default {
       share_plio: "इस प्लायो को अपने दर्शकों के साथ बातें",
       play_plio: "इस प्लायो को खुद से आज़माएं",
       embed_plio: "इस प्लायो को एम्बेड करें",
+      settings: "इस प्लायो के लिए सेटिंग्स",
     },
     home: {
       table: {
@@ -519,6 +521,15 @@ export default {
           "प्रत्येक दर्शक द्वारा उत्तर दिए गए प्रश्नों की औसत संख्या",
       },
     },
+    settings: {
+      buttons: {
+        save: {
+          hasUnsavedChanges: "अपने परिवर्तन सहेजें",
+          noUnsavedChanges: "सहेजने के लिए कुछ नहीं हैं"
+        },
+        cancel: "",
+      }
+    },
   },
   dashboard: {
     updated: "सबसे हाल ही में प्रकाशित हुआ",
@@ -544,4 +555,31 @@ export default {
       },
     },
   },
+  settings: {
+    buttons: {
+      save: "सहेजें",
+      cancel: "रद्द करें",
+    },
+    menu: {
+      title: {
+        skipEnabled: "प्लायो का प्रयास करते समय दर्शक प्रश्नों को छोड़ सकते हैं",
+        darkMode: "Turn on Dark Mode",
+      },
+      subTitle: {
+        skipEnabled: "दर्शकों को एक प्रश्न छोड़ने और प्लायो के साथ आगे बढ़ने का विकल्प प्रदान करें",
+        darkMode: "",
+      },
+      info: "नई सेटिंग्स केवल भविष्य में बनाए गए प्लायो पर लागू होंगी, न कि पहले से बनाए गए प्लायो पर"
+    },
+    sidebar: {
+      header: {
+        player: "प्लेयर",
+        app: "App"
+      },
+      tab: {
+        configuration: "विन्यास",
+        appearance: "Appearance"
+      }
+    }
+  }
 };

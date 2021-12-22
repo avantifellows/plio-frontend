@@ -4,6 +4,7 @@ import {
   listPliosEndpoint,
   duplicateEndpoint,
   plioDataDumpEndpoint,
+  plioSettingsEndpoint,
 } from "@/services/API/Endpoints.js";
 import {
   dashboardSessionMetricsQuery,
@@ -49,6 +50,7 @@ export default {
         plioDetails.plioDBId = plio.data.id;
         plioDetails.videoDBId = plio.data.video.id || null;
         plioDetails.videoDuration = plio.data.video.duration || 0;
+        plioDetails.config = plio.data.config
         return plioDetails;
       });
   },
@@ -80,6 +82,16 @@ export default {
     if (sortBy != undefined) queryParams["ordering"] = sortBy;
 
     return apiClient().get(url, { params: queryParams });
+  },
+
+  /**
+   * Update a plio's settings
+   * @param {String} plioId - uuid of a plio
+   * @param {Object} payload - JSON object that needs to be updated
+   * @returns 
+   */
+  updatePlioSettings(plioId, payload) {
+    return apiClient().put(pliosEndpoint + plioId + plioSettingsEndpoint, payload)
   },
 
   /**

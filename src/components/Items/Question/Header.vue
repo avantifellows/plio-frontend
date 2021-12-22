@@ -2,6 +2,7 @@
   <div :class="containerClass">
     <!-- skip button -->
     <icon-button
+      v-if="isSkipEnabled"
       :titleConfig="skipButtonTitleConfig"
       @click="skipClicked"
       :class="{ hidden: isAnswerSubmitted || previewMode }"
@@ -94,6 +95,11 @@ export default {
     videoPlayerElementId: {
       default: null,
       type: String,
+    },
+    /** If the skip button should be visible */
+    isSkipEnabled: {
+      default: true,
+      type: Boolean,
     },
   },
   methods: {
