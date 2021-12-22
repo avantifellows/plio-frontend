@@ -1,4 +1,4 @@
-describe("Login - hi", () => {
+describe("Auth - hi", () => {
   context("Desktop", () => {
     beforeEach(() => {
       cy.viewport("macbook-13"); // tailwind viewport `xl and above`
@@ -28,6 +28,7 @@ describe("Login - hi", () => {
     it("logs into the system using google auth", () => {
       cy.loginByGoogleApi();
       cy.wait(5000); // wait for some time for page to render
+      cy.get('[data-test="logout"]').as("logout");
       cy.get("@logout").should("be.visible").and("have.text", "लॉगआउट");
       cy.get("@logout").click();
       cy.url().should("eq", Cypress.config().baseUrl + "/login");
