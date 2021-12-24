@@ -575,3 +575,16 @@ global.dummyGlobalSettings = {
     },
   },
 };
+
+global.dummySettingsToRender = {
+  player: {
+    configuration: {
+      skipEnabled: {
+        title: "settings.menu.title.skipEnabled",
+        subTitle: "settings.menu.subTitle.skipEnabled",
+        type: "checkbox",
+        value: false,
+      },
+    },
+  },
+};

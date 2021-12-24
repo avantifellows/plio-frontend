@@ -10,6 +10,7 @@
             <!-- header names -->
             <div
               class="uppercase font-mono font-bold tracking-tighter text-gray-500 whitespace-nowrap lg:text-md md:text-base sm:text-sm text-xsm"
+              :data-test="`header-${headerName}`"
             >
               {{ $t(`settings.sidebar.header.${headerName}`) + " " + $t("nav.settings") }}
             </div>
@@ -18,6 +19,7 @@
               <button
                 @click="selectTab(tabName, tabDetails)"
                 :class="getTabStyleClasses(tabName)"
+                :data-test="`tab-${tabName}`"
               >
                 {{ $t(`settings.sidebar.tab.${tabName}`) }}
               </button>
@@ -45,6 +47,7 @@
             style="box-shadow: none"
             :checked="settingDetails.value"
             @change="updateCheckboxSetting($event.target.checked, settingDetails)"
+            data-test="setting-input"
           />
         </div>
         <div class="w-full flex flex-col lg:px-8 md:px-4 px-1">
@@ -52,6 +55,7 @@
           <div
             class="mt-12 sm:mt-8 md:mt-8 w-full p-1 bp-500:p-2 rounded-md border border-yellow-400 flex space-x-4 mb-4"
             v-if="isInfoMessageVisible"
+            data-test="info-message"
           >
             <!-- icon -->
             <div class="w-1/10 h-full flex my-auto">
