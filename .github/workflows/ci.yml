@@ -133,21 +133,24 @@ jobs:
       #     # setup docker containers
       #     docker-compose up -d --build
 
-      - name: Set up testcafe
-        run: |
-          cd projects/plio-frontend/
+      # - name: Set up testcafe
+      #   run: |
+      #     echo 'installing testcafe-browser-provider-browserstack'
+      #     npm install -g testcafe-browser-provider-browserstack
+      #     echo 'finished installing testcafe-browser-provider-browserstack'
+      #     # cd projects/plio-frontend/
 
-          # delete the node_modules created by the docker
-          echo 'deleting node modules'
-          rm -rf node_modules/
+      #     # # delete the node_modules created by the docker
+      #     # echo 'deleting node modules'
+      #     # rm -rf node_modules/
 
-          # install dependencies from the current shell user
-          echo 'running npm'
-          npm install
-          echo 'finished npm install'
-          echo 'installing testcafe-browser-provider-browserstack'
-          npm install -g testcafe-browser-provider-browserstack
-          echo 'finished installing testcafe-browser-provider-browserstack'
+      #     # # install dependencies from the current shell user
+      #     # echo 'running npm'
+      #     # npm install
+      #     # echo 'finished npm install'
+
+      - name: Install TestCafe BrowserStack plugin
+        run: npm install testcafe-browser-provider-browserstack
 
       - name: Run Windows 10 Chrome@84.0 test
         uses: DevExpress/testcafe-action@latest
