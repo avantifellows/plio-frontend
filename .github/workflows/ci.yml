@@ -73,65 +73,65 @@ jobs:
           echo 'VUE_APP_BACKEND_API_CLIENT_ID=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
           echo 'VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
 
-          # setup docker containers
-          docker-compose up -d --build
+          # # setup docker containers
+          # docker-compose up -d --build
 
-      - name: Set up Plio Backend
-        run: |
-          # clone the project
-          mkdir -p projects/ && cd projects/
-          git clone https://github.com/avantifellows/plio-backend
-          cd plio-backend/
+      # - name: Set up Plio Backend
+      #   run: |
+      #     # clone the project
+      #     mkdir -p projects/ && cd projects/
+      #     git clone https://github.com/avantifellows/plio-backend
+      #     cd plio-backend/
 
-          # check branch and switch to branch if exists
-          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
-          then
-            echo "Switching to branch ${{ github.head_ref }}."
-            git checkout ${{ github.head_ref }}
-            git pull origin ${{ github.head_ref }}
-          else
-            echo "Branch not found. Going with default branch."
-          fi
+      #     # check branch and switch to branch if exists
+      #     if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
+      #     then
+      #       echo "Switching to branch ${{ github.head_ref }}."
+      #       git checkout ${{ github.head_ref }}
+      #       git pull origin ${{ github.head_ref }}
+      #     else
+      #       echo "Branch not found. Going with default branch."
+      #     fi
 
-          # create the env file
-          cp .env.example .env
+      #     # create the env file
+      #     cp .env.example .env
 
-          # add env secrets
-          echo 'SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}' >> .env
-          echo 'DEFAULT_OAUTH2_CLIENT_SETUP=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SETUP }}' >> .env
-          echo 'DEFAULT_OAUTH2_CLIENT_ID=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
-          echo 'DEFAULT_OAUTH2_CLIENT_SECRET=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
-          echo 'GOOGLE_OAUTH2_CLIENT_ID=${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}' >> .env
-          echo 'GOOGLE_OAUTH2_CLIENT_SECRET=${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}' >> .env
+      #     # add env secrets
+      #     echo 'SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}' >> .env
+      #     echo 'DEFAULT_OAUTH2_CLIENT_SETUP=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SETUP }}' >> .env
+      #     echo 'DEFAULT_OAUTH2_CLIENT_ID=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
+      #     echo 'DEFAULT_OAUTH2_CLIENT_SECRET=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
+      #     echo 'GOOGLE_OAUTH2_CLIENT_ID=${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}' >> .env
+      #     echo 'GOOGLE_OAUTH2_CLIENT_SECRET=${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}' >> .env
 
-          # setup docker containers
-          docker-compose up -d --build
+      #     # setup docker containers
+      #     docker-compose up -d --build
 
-      - name: Set up Plio Analytics
-        run: |
-          # clone the project
-          mkdir -p projects/ && cd projects/
-          git clone https://github.com/avantifellows/plio-analytics
-          cd plio-analytics/
+      # - name: Set up Plio Analytics
+      #   run: |
+      #     # clone the project
+      #     mkdir -p projects/ && cd projects/
+      #     git clone https://github.com/avantifellows/plio-analytics
+      #     cd plio-analytics/
 
-          # check branch and switch to branch if exists
-          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
-          then
-            echo "Switching to branch ${{ github.head_ref }}."
-            git checkout ${{ github.head_ref }}
-            git pull origin ${{ github.head_ref }}
-          else
-            echo "Branch not found. Going with default branch."
-          fi
+      #     # check branch and switch to branch if exists
+      #     if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
+      #     then
+      #       echo "Switching to branch ${{ github.head_ref }}."
+      #       git checkout ${{ github.head_ref }}
+      #       git pull origin ${{ github.head_ref }}
+      #     else
+      #       echo "Branch not found. Going with default branch."
+      #     fi
 
-          # create the env file
-          cp .env.example .env
+      #     # create the env file
+      #     cp .env.example .env
 
-          # add env secrets
-          echo 'CUBEJS_API_SECRET=${{ secrets.ANALYTICS_CUBEJS_API_SECRET }}' >> .env
+      #     # add env secrets
+      #     echo 'CUBEJS_API_SECRET=${{ secrets.ANALYTICS_CUBEJS_API_SECRET }}' >> .env
 
-          # setup docker containers
-          docker-compose up -d --build
+      #     # setup docker containers
+      #     docker-compose up -d --build
 
       - name: Set up testcafe
         run: |
