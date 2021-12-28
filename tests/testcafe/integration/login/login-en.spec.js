@@ -1,12 +1,12 @@
 import { Selector } from "testcafe";
 
-fixture`Login - English`.page`http://localhost:8080/login`.beforeEach(
-  async (t) => {
+fixture("Login - English")
+  .page(`${process.env.BROWSERSTACK_BASE_URL}/login`)
+  .beforeEach(async (t) => {
     const localeSelect = Selector("#locale > select");
     const localeOption = localeSelect.find('option[value="en"]');
     await t.click(localeSelect).click(localeOption);
-  }
-);
+  });
 
 test("sees the login page", async (t) => {
   const loginHeading = Selector('[data-test="loginHeading"]');
@@ -22,11 +22,15 @@ test("sees the login page", async (t) => {
 
   const languageSelect = Selector("#locale > select");
   await t.expect(languageSelect.visible).ok();
-});
 
-// it("logs into the system using google auth", () => {
-//   cy.loginByGoogleApi();
-//   cy.get('[data-test="logout"]')
-//     .should("be.visible")
-//     .should("have.text", "Logout");
-// });
+  // log into the system
+  await t
+    .click('[data-test="googleLogin"]')
+    .typeText('[type="email"]', process.env.GOOGLE_ACCOUNT_EMAIL)
+    .pressKey("enter")
+    .typeText('[type="password"]', process.env.GOOGLE_ACCOUNT_PASSWORD)
+    .pressKey("enter");
+  const logoutOption = Selector('[data-test="logout"]');
+  await t.expect(logoutOption.visible).ok();
+  await t.expect(logoutOption.innerText).contains("Logout");
+});
