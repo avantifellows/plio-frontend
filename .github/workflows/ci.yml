@@ -156,7 +156,7 @@ jobs:
         uses: DevExpress/testcafe-action@latest
         with:
           # args: "'browserstack:chrome@84.0:Windows 10' projects/plio-frontend/tests/testcafe"
-          args: "--list-browsers"
+          args: "--list-browsers browserstack"
 
       # - name: Run cypress
       #   run: |
