@@ -25,3 +25,4 @@ Visit our [deployment guideline](docs/DEPLOYMENT.md) for setting up this reposit
 - [Google OAuth2](docs/oauth/GOOGLE-OAUTH2.md)
 - [Error monitoring](docs/ERROR-MONITORING.md)
 - [Cypress](docs/CYPRESS.md)
+- [TestCafe](docs/TESTCAFE.md)
