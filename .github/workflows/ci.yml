@@ -145,13 +145,15 @@ jobs:
           echo 'running npm'
           npm install
           echo 'finished npm install'
+          echo 'installing testcafe-browser-provider-browserstack'
           npm install -g testcafe-browser-provider-browserstack
+          echo 'finished installing testcafe-browser-provider-browserstack'
 
       - name: Run Windows 10 Chrome@84.0 test
         uses: DevExpress/testcafe-action@latest
         with:
           # args: "'browserstack:chrome@84.0:Windows 10' projects/plio-frontend/tests/testcafe"
-          args: "--list-browsers browserstack"
+          args: "--list-browsers"
 
       # - name: Run cypress
       #   run: |
