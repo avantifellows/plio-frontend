@@ -11,6 +11,10 @@ fixture("Home - English")
   });
 
 test("sees the home page", async (t) => {
+  const noPlioSection = Selector('[data-test="noPlio"]');
+  await t.expect(noPlioSection.visible).ok();
+
+  // plio table should not exists as there are no plios
   const plioTable = Selector('[data-test="table"]');
-  await t.expect(plioTable.visible).ok();
+  await t.expect(plioTable.exists).notOk();
 });
