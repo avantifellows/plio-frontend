@@ -150,37 +150,6 @@ jobs:
         with:
           args: "'browserstack:chrome@96.0:OS X Big Sur','browserstack:firefox@95.0:OS X Big Sur','browserstack:safari@14.1:OS X Big Sur' projects/plio-frontend/tests/testcafe"
 
-      # - name: Run cypress
-      #   run: |
-      #     cd projects/plio-frontend/
-
-      #     # delete the node_modules created by the docker
-      #     echo 'deleting node modules'
-      #     rm -rf node_modules/
-
-      #     # install dependencies from the current shell user
-      #     echo 'running npm'
-      #     npm install
-      #     echo 'finished npm install'
-
-      #     # setup env secrets
-      #     export cypress_backend_convert_social_auth_token_url=${{ secrets.CYPRESS_PLIO_BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL }}
-      #     export cypress_backend_client_id=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}
-      #     export cypress_backend_client_secret=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}
-      #     export cypress_auth_google_refresh_token=${{ secrets.CYPRESS_AUTH_GOOGLE_REFRESH_TOKEN }}
-      #     export cypress_auth_google_client_id=${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}
-      #     export cypress_auth_google_client_secret=${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
-
-      #     # run cypress test cases
-      #     # testing on ubuntu:chrome
-      #     npx cypress run --group ubuntu/chrome --browser chrome --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
-
-      #     # testing on ubuntu:firefox
-      #     npx cypress run --group ubuntu/firefox --browser firefox --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
-
-      #     # testing on ubuntu:electron
-      #     npx cypress run --group ubuntu/electron --browser electron --record --key ${{ secrets.CYPRESS_RECORD_KEY }}
-
       # - name: Coveralls
       #   uses: coverallsapp/github-action@master
       #   with:
