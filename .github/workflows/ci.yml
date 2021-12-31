@@ -140,10 +140,10 @@ jobs:
       - name: Install TestCafe BrowserStack plugin
         run: npm install testcafe-browser-provider-browserstack
 
-      - name: Run Windows 10 Chrome@84.0 test
+      - name: Run Windows 10 tests
         uses: DevExpress/testcafe-action@latest
         with:
-          args: "'browserstack:chrome@84.0:Windows 10' projects/plio-frontend/tests/testcafe"
+          args: "'browserstack:chrome@96.0:Windows 10','browserstack:firefox@95.0:Windows 10','browserstack:edge@96.0:Windows 10' projects/plio-frontend/tests/testcafe"
 
       # - name: Run cypress
       #   run: |
