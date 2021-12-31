@@ -1,4 +1,5 @@
 import { Selector } from "testcafe";
+import { loginByGoogle } from "../../helpers/loginByGoogle";
 
 fixture("Login - Hindi")
   .page(`${process.env.BROWSERSTACK_BASE_URL}/login`)
@@ -23,13 +24,8 @@ test("sees the login page", async (t) => {
   const languageSelect = Selector("#locale > select");
   await t.expect(languageSelect.visible).ok();
 
-  // log into the system
-  await t
-    .click('[data-test="googleLogin"]')
-    .typeText('[type="email"]', process.env.GOOGLE_ACCOUNT_EMAIL)
-    .pressKey("enter")
-    .typeText('[type="password"]', process.env.GOOGLE_ACCOUNT_PASSWORD)
-    .pressKey("enter");
+  await loginByGoogle();
+
   const logoutOption = Selector('[data-test="logout"]');
   await t.expect(logoutOption.visible).ok();
   await t.expect(logoutOption.innerText).contains("लॉगआउट");
