@@ -2076,29 +2076,35 @@ describe("Editor.vue", () => {
    */
   describe("Handling of different plio configs", () => {
     let plioId = "mlungtvmyl";
-    let handleSettingsInheritance
-    let constructSettingsMenu
+    let handleSettingsInheritance;
+    let constructSettingsMenu;
 
     beforeEach(async () => {
       // before each test, restore the mocks to their original implementation
-      jest.restoreAllMocks();  
-      handleSettingsInheritance = jest.spyOn(Editor.methods, 'handleSettingsInheritance')
-      constructSettingsMenu = jest.spyOn(Editor.methods, 'constructSettingsMenu')
+      jest.restoreAllMocks();
+      handleSettingsInheritance = jest.spyOn(
+        Editor.methods,
+        "handleSettingsInheritance"
+      );
+      constructSettingsMenu = jest.spyOn(
+        Editor.methods,
+        "constructSettingsMenu"
+      );
 
       // mount the wrapper before each test
       wrapper = mount(Editor, {
         props: {
-          plioId: plioId
-        }
-      })
+          plioId: plioId,
+        },
+      });
       // set the userSettings as the global default settings
-      await store.dispatch("auth/setSettings", global.dummyGlobalSettings)
-    })
+      await store.dispatch("auth/setSettings", global.dummyGlobalSettings);
+    });
 
     afterEach(() => {
-      mockAxios.reset()
-      wrapper.unmount()      
-    })
+      mockAxios.reset();
+      wrapper.unmount();
+    });
 
     it("handles fetched plio config which is null", async () => {
       // GET request to retrieve plio details
@@ -2106,18 +2112,18 @@ describe("Editor.vue", () => {
       expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
 
       // simulating the plio's fetched config as being null
-      let dummyPlio = clonedeep(global.dummyDraftPlio)
-      dummyPlio.config = null
-      mockAxios.mockResponse(dummyPlio,mockAxios.queue()[0]);
+      let dummyPlio = clonedeep(global.dummyDraftPlio);
+      dummyPlio.config = null;
+      mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
       await flushPromises();
 
-      expect(handleSettingsInheritance).toHaveBeenCalled()
-      expect(constructSettingsMenu).toHaveBeenCalled()
+      expect(handleSettingsInheritance).toHaveBeenCalled();
+      expect(constructSettingsMenu).toHaveBeenCalled();
       // the userSettings for player are copied into the plio' settings
       expect(wrapper.vm.plioSettings).toStrictEqual({
-        player: wrapper.vm.userSettings.player
-      })
-    })
+        player: wrapper.vm.userSettings.player,
+      });
+    });
 
     it("handles fetched plio config where settings key is missing", async () => {
       // GET request to retrieve plio details
@@ -2125,21 +2131,21 @@ describe("Editor.vue", () => {
       expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
 
       // simulating the plio's fetched config as not containing 'settings' key
-      let dummyPlio = clonedeep(global.dummyDraftPlio)
+      let dummyPlio = clonedeep(global.dummyDraftPlio);
       dummyPlio.config = {
         // contains some random key other than 'settings'
-        key: "value"
-      }
-      mockAxios.mockResponse(dummyPlio,mockAxios.queue()[0]);
+        key: "value",
+      };
+      mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
       await flushPromises();
 
-      expect(handleSettingsInheritance).toHaveBeenCalled()
-      expect(constructSettingsMenu).toHaveBeenCalled()
+      expect(handleSettingsInheritance).toHaveBeenCalled();
+      expect(constructSettingsMenu).toHaveBeenCalled();
       // the userSettings for player are copied into the plio' settings
       expect(wrapper.vm.plioSettings).toStrictEqual({
-        player: wrapper.vm.userSettings.player
-      })
-    })
+        player: wrapper.vm.userSettings.player,
+      });
+    });
 
     it("handles fetched plio config where settings key is null", async () => {
       // GET request to retrieve plio details
@@ -2148,21 +2154,21 @@ describe("Editor.vue", () => {
 
       // simulating the plio's fetched config as containing the 'settings' key
       // but the value of that key is null
-      let dummyPlio = clonedeep(global.dummyDraftPlio)
+      let dummyPlio = clonedeep(global.dummyDraftPlio);
       dummyPlio.config = {
-        settings: null
-      }
+        settings: null,
+      };
 
-      mockAxios.mockResponse(dummyPlio,mockAxios.queue()[0]);
+      mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
       await flushPromises();
 
-      expect(handleSettingsInheritance).toHaveBeenCalled()
-      expect(constructSettingsMenu).toHaveBeenCalled()
+      expect(handleSettingsInheritance).toHaveBeenCalled();
+      expect(constructSettingsMenu).toHaveBeenCalled();
       // the userSettings for player are copied into the plio' settings
       expect(wrapper.vm.plioSettings).toStrictEqual({
-        player: wrapper.vm.userSettings.player
-      })
-    })
+        player: wrapper.vm.userSettings.player,
+      });
+    });
 
     it("handles fetched plio config where player key is missing inside settings key", async () => {
       // GET request to retrieve plio details
@@ -2171,24 +2177,24 @@ describe("Editor.vue", () => {
 
       // simulating the plio's fetched config as containing the 'settings' key
       // but no 'player' key exists inside
-      let dummyPlio = clonedeep(global.dummyDraftPlio)
+      let dummyPlio = clonedeep(global.dummyDraftPlio);
       dummyPlio.config = {
         settings: {
           // contains some random key other than 'player'
-          key: "value"
-        }
-      }
+          key: "value",
+        },
+      };
 
-      mockAxios.mockResponse(dummyPlio,mockAxios.queue()[0]);
+      mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
       await flushPromises();
 
-      expect(handleSettingsInheritance).toHaveBeenCalled()
-      expect(constructSettingsMenu).toHaveBeenCalled()
+      expect(handleSettingsInheritance).toHaveBeenCalled();
+      expect(constructSettingsMenu).toHaveBeenCalled();
       // the userSettings for player are copied into the plio' settings
       expect(wrapper.vm.plioSettings).toStrictEqual({
-        player: wrapper.vm.userSettings.player
-      })
-    })
+        player: wrapper.vm.userSettings.player,
+      });
+    });
 
     it("handles fetched plio config where all information is present", async () => {
       // GET request to retrieve plio details
@@ -2196,7 +2202,7 @@ describe("Editor.vue", () => {
       expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
 
       // the fetched plio's config contains all the required details
-      let dummyPlio = clonedeep(global.dummyDraftPlio)
+      let dummyPlio = clonedeep(global.dummyDraftPlio);
       dummyPlio.config = {
         settings: {
           player: {
@@ -2204,17 +2210,17 @@ describe("Editor.vue", () => {
               skipEnabled: false,
             },
           },
-        }
-      }
+        },
+      };
 
-      mockAxios.mockResponse(dummyPlio,mockAxios.queue()[0]);
+      mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
       await flushPromises();
 
-      expect(handleSettingsInheritance).toHaveBeenCalled()
-      expect(constructSettingsMenu).toHaveBeenCalled()
+      expect(handleSettingsInheritance).toHaveBeenCalled();
+      expect(constructSettingsMenu).toHaveBeenCalled();
       // the settings from the fetched plio's config are copied into the local
       // plioSettings variable
-      expect(wrapper.vm.plioSettings).toStrictEqual(dummyPlio.config.settings)
-    })
-  })
+      expect(wrapper.vm.plioSettings).toStrictEqual(dummyPlio.config.settings);
+    });
+  });
 });
