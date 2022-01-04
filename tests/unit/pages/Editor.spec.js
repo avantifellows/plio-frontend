@@ -6,6 +6,7 @@ import Plio from "@/pages/Embeds/Plio.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
+import Settings from "@/components/Collections/Settings/Settings.vue";
 import store from "@/store";
 
 let clonedeep = require("lodash.clonedeep");
@@ -2068,6 +2069,135 @@ describe("Editor.vue", () => {
 
     // reset dialog cancel clicked status
     await store.dispatch("dialog/unsetCancelClicked");
+  });
+
+  it("closes settings menu properly", () => {
+    let closeSettingsMenu = jest.spyOn(Editor.methods, "closeSettingsMenu");
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          isSettingsMenuShown: true,
+          settingsToRender: global.settingsToRender,
+        };
+      },
+    });
+    let settingsModal = wrapper.get('[data-test="settingsModal"]');
+    expect(settingsModal.exists()).toBeTruthy();
+    wrapper.vm.$refs.settingsModal.$emit("window-closed");
+    expect(closeSettingsMenu).toHaveBeenCalled();
+    expect(wrapper.vm.isSettingsMenuShown).toBeFalsy();
+  });
+
+  it("opens settings menu when settings icon is clicked", async () => {
+    let showSettingsMenu = jest.spyOn(Editor.methods, "showSettingsMenu");
+    wrapper = mount(Editor, {
+      data() {
+        return {
+          settingsToRender: global.settingsToRender,
+        };
+      },
+    });
+
+    expect(wrapper.vm.isSettingsMenuShown).toBeFalsy();
+    await wrapper.get('[data-test="settingsButton"]').trigger("click");
+    expect(showSettingsMenu).toHaveBeenCalled();
+    expect(wrapper.vm.isSettingsMenuShown).toBeTruthy();
+    expect(wrapper.get('[data-test="settingsModal"]').exists()).toBeTruthy();
+  });
+
+  describe("Watching and updation of settings", () => {
+    let updatePlioSettings;
+    let dummyPlio;
+
+    beforeEach(async () => {
+      // set global default settings as the user's settings
+      await store.dispatch("auth/setSettings", global.dummyGlobalSettings);
+
+      // restor all mocks to their original implementation
+      jest.restoreAllMocks();
+
+      // prepare a dummy plio with proper settings in it's config
+      dummyPlio = clonedeep(global.dummyDraftPlio);
+      dummyPlio.config = {
+        settings: {
+          player: {
+            configuration: {
+              skipEnabled: false,
+            },
+          },
+        },
+      };
+      updatePlioSettings = jest.spyOn(Editor.methods, "updatePlioSettings");
+      // mount the component
+      wrapper = mount(Editor, {
+        data() {
+          return {
+            isSettingsMenuShown: false,
+          };
+        },
+        props: {
+          plioId: "mlungtvmyl",
+        },
+      });
+
+      // resolve the loadPlio request with the dummy plio prepared above
+      mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
+      await flushPromises();
+    });
+
+    afterEach(() => {
+      mockAxios.reset();
+      wrapper.unmount();
+    });
+
+    it("watches and updates the settings in a draft plio", async () => {
+      // click the settings icon, the settings component should open up
+      await wrapper.get('[data-test="settingsButton"]').trigger("click");
+
+      // find the settings component, click one of the setting values and click save
+      let settingsComponent = wrapper.findComponent(Settings);
+      await settingsComponent
+        .find('[data-test="setting-input"]')
+        .trigger("click");
+      await settingsComponent.find('[data-test="saveButton"]').trigger("click");
+      // the settings component should emit the updated settings
+      expect(settingsComponent.emitted()).toHaveProperty("update:settings");
+      // the local value of plio settings should get updated by the action above
+      expect(
+        wrapper.vm.plioSettings.player.configuration.skipEnabled
+      ).toBeTruthy();
+      // the method to update the plio's settings to the DB should've been called
+      expect(updatePlioSettings).toHaveBeenCalled();
+    });
+
+    it("watches and updates the settings when plio is published in a published plio", async () => {
+      // turn the plio into a published plio
+      await wrapper.setData({
+        status: "published",
+      });
+      // click the settings icon, the settings component should open up
+      await wrapper.get('[data-test="settingsButton"]').trigger("click");
+      // find the settings component, click one of the setting values and click save
+      let settingsComponent = wrapper.findComponent(Settings);
+      await settingsComponent
+        .find('[data-test="setting-input"]')
+        .trigger("click");
+      await settingsComponent.find('[data-test="saveButton"]').trigger("click");
+      // the settings component should emit the updated settings
+      expect(settingsComponent.emitted()).toHaveProperty("update:settings");
+      // the local value of plio settings should get updated by the action above
+      expect(
+        wrapper.vm.plioSettings.player.configuration.skipEnabled
+      ).toBeTruthy();
+      // the method to update the plio's settings to the DB should NOT been called
+      // because the plio is published
+      expect(updatePlioSettings).not.toHaveBeenCalled();
+
+      // publish the plio
+      wrapper.vm.publishPlio.call(wrapper.vm);
+      // now the plio's settings should get updated to the backend
+      expect(updatePlioSettings).toHaveBeenCalled();
+    });
   });
 
   /**

@@ -508,6 +508,8 @@
       v-if="isSettingsMenuShown"
       v-model:settings="settingsToRender"
       v-click-away="closeSettingsMenu"
+      data-test="settingsModal"
+      ref="settingsModal"
     ></Settings>
   </div>
 </template>
