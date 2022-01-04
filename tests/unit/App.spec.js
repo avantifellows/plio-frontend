@@ -3,6 +3,7 @@ import UserAPIService from "@/services/API/User.js";
 import router from "@/router";
 import store from "@/store";
 import App from "@/App";
+import Settings from "@/components/Collections/Settings/Settings.vue";
 
 describe("App.vue for unauthenticated user", () => {
   let wrapper;
@@ -145,5 +146,36 @@ describe("App.vue for authenticated user", () => {
       expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeFalsy();
       expect(store.state.dialog.isConfirmClicked).toBeTruthy();
     });
+  });
+
+  it("watches and updates the user's settings", async () => {
+    jest.restoreAllMocks();
+    // set global default settings as user's settings
+    await store.dispatch("auth/setSettings", global.dummyGlobalSettings);
+    await store.dispatch("sync/stopLoading");
+    // show the settings menu
+    await wrapper.setData({
+      isSettingsMenuShown: true,
+    });
+
+    let updateUserSettingsAPI = jest.spyOn(
+      UserAPIService,
+      "updateUserSettings"
+    );
+
+    // before changing any setting, the value of a setting should match with what was set
+    expect(
+      wrapper.vm.settingsToRender.player.configuration.skipEnabled.value
+    ).toEqual(global.dummyGlobalSettings.player.configuration.skipEnabled);
+    // find the settings component, click one of the setting values and click save
+    let settingsComponent = wrapper.findComponent(Settings);
+    await settingsComponent
+      .find('[data-test="setting-input"]')
+      .trigger("click");
+    await settingsComponent.find('[data-test="saveButton"]').trigger("click");
+    // the settings component should emit the updated settings
+    expect(settingsComponent.emitted()).toHaveProperty("update:settings");
+    // the setting should be updated through an API call
+    expect(updateUserSettingsAPI).toHaveBeenCalled();
   });
 });
