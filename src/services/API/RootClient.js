@@ -5,6 +5,7 @@ import UserFunctionalService from "@/services/Functional/User.js";
 import {
   refreshTokenEndpoint,
   userFromTokenEndpoint,
+  otpVerifyEndpoint,
 } from "@/services/API/Endpoints.js";
 import cubejs from "@cubejs-client/core";
 
@@ -63,6 +64,9 @@ client.interceptors.response.use(
   async (error) => {
     // logging the error
     console.log(error);
+
+    if (error.config != undefined && error.config.url == otpVerifyEndpoint)
+      return Promise.reject(error);
 
     // error status
     const status = error.response ? error.response.status : null;

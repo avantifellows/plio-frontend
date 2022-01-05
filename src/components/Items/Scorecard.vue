@@ -195,7 +195,7 @@ export default {
         iconName: "whatsapp-greyscale",
         iconClass: "text-white fill-current h-4 w-4 bp-500:h-6 bp-500:w-6",
       },
-      toast: useToast(), // use the toast component
+      toast: useToast(),
       isPortrait: isScreenPortrait(), // whether the screen is in portrait mode
       isMobileLandscape: this.checkMobileLandscapeMode(), // whether the screen corresponds to a mobile screen in landscape mode
     };

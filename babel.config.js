@@ -4,5 +4,15 @@ module.exports = {
     production: {
       plugins: ["transform-remove-console"],
     },
+    development: {
+      plugins: [
+        [
+          "babel-plugin-istanbul",
+          {
+            extension: [".js", ".vue"],
+          },
+        ],
+      ],
+    },
   },
 };

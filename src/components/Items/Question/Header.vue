@@ -33,12 +33,12 @@ export default {
   },
   components: { IconButton },
   computed: {
+    /** whether the id of the video player element is valid */
     isVideoPlayerElementPresent() {
-      // whether the id of the video player element is valid
       return this.videoPlayerElementId != null;
     },
+    /** main styling class for this component */
     containerClass() {
-      // main styling class for this component
       return [
         {
           "px-6 md:px-8 xl:px-12": !this.previewMode,
@@ -47,8 +47,8 @@ export default {
         "flex w-full bg-white justify-end p-1 space-x-2 mt-2",
       ];
     },
+    /** styling class for the minimize button */
     minimizeButtonClass() {
-      // styling class for the minimize button
       return [
         {
           "sm:p-2 sm:px-10 lg:p-4 lg:px-10 px-4": !this.previewMode,
@@ -57,8 +57,8 @@ export default {
         "bg-primary hover:bg-primary-hover p-1 rounded-md h-full shadow-xl",
       ];
     },
+    /** config for the title of minimize button */
     minimizeButtonTitleConfig() {
-      // styling class for the title of minimize button
       return {
         value: this.$t("editor.buttons.show_video"),
         class: this.previewMode
@@ -66,8 +66,8 @@ export default {
           : "text-white text-md sm:text-base lg:text-xl font-bold",
       };
     },
+    /** config for the title of skip button */
     skipButtonTitleConfig() {
-      // styling class for the title of skip button
       return {
         value: this.$t("player.question.skip"),
         class: "text-white text-md sm:text-base lg:text-xl font-bold",
