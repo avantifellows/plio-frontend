@@ -33,7 +33,7 @@ jobs:
 
       - name: Set current date as env variable
         id: date
-        run: echo "::set-output name=today::$(date +'%Y-%m-%d')"
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%d-%H-%M-%S')"
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
@@ -41,7 +41,7 @@ jobs:
           NODE_ENV: staging
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: plio-frontend-staging
-          IMAGE_TAG: ${{ github.sha }}-${{ steps.date.outputs.today }}
+          IMAGE_TAG: ${{ github.sha }}-${{ steps.date.outputs.timestamp }}
           VUE_APP_BACKEND: ${{ secrets.VUE_APP_BACKEND }}
           VUE_APP_BACKEND_AUTH_URL: ${{ secrets.VUE_APP_BACKEND_AUTH_URL }}
           VUE_APP_FRONTEND: ${{ secrets.VUE_APP_FRONTEND }}
