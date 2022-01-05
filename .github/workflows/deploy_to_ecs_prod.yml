@@ -30,13 +30,17 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Set current timestamp for image tag
+        id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y-%m-%d-%H-%M-%S')"
+
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
           NODE_ENV: production
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: plio-frontend-production
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ github.sha }}-${{ steps.timestamp.outputs.timestamp }}
           VUE_APP_BACKEND: ${{ secrets.VUE_APP_BACKEND }}
           VUE_APP_BACKEND_AUTH_URL: ${{ secrets.VUE_APP_BACKEND_AUTH_URL }}
           VUE_APP_FRONTEND: ${{ secrets.VUE_APP_FRONTEND }}
