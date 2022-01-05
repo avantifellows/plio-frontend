@@ -32,7 +32,8 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Set current date as env variable
-        run: echo "NOW::$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+        id: date
+        run: echo "::set-output name=today::$(date +'%Y-%m-%d')"
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
@@ -40,7 +41,7 @@ jobs:
           NODE_ENV: staging
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: plio-frontend-staging
-          IMAGE_TAG: ${{ github.sha }}-${{ NOW }}
+          IMAGE_TAG: ${{ github.sha }}-${{ steps.date.outputs.today }}
           VUE_APP_BACKEND: ${{ secrets.VUE_APP_BACKEND }}
           VUE_APP_BACKEND_AUTH_URL: ${{ secrets.VUE_APP_BACKEND_AUTH_URL }}
           VUE_APP_FRONTEND: ${{ secrets.VUE_APP_FRONTEND }}
