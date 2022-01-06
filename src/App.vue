@@ -80,9 +80,10 @@
               :iconConfig="teamsButtonIconConfig"
               :titleConfig="teamsButtonTextConfig"
               :buttonClass="menuButtonsClass"
-              @click="redirectToTeamsPage"
               :isDisabled="pending"
+              @click="redirectToTeamsPage"
               v-if="isPersonalWorkspace"
+              data-test="teams"
             ></icon-button>
 
             <!-- product guides -->

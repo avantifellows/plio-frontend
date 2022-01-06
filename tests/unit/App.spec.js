@@ -4,6 +4,9 @@ import router from "@/router";
 import store from "@/store";
 import App from "@/App";
 
+import mockAxios from "jest-mock-axios";
+let clonedeep = require("lodash.clonedeep");
+
 describe("App.vue for unauthenticated user", () => {
   let wrapper;
 
@@ -59,6 +62,19 @@ describe("App.vue for authenticated user", () => {
 
     // After this line, router is ready
     await router.isReady();
+
+    // set user
+    await store.dispatch("auth/setUser", global.dummyUser);
+
+    // resolve the `GET` request waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(
+      clonedeep(global.dummyEmptyPlioList),
+      mockAxios.queue()[0]
+    );
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
   });
 
   it("should render", async () => {
@@ -144,6 +160,33 @@ describe("App.vue for authenticated user", () => {
       expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeFalsy();
       expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeFalsy();
       expect(store.state.dialog.isConfirmClicked).toBeTruthy();
+    });
+  });
+
+  describe("sidebar buttons", () => {
+    let mockWindowOpen;
+    beforeEach(() => {
+      mockWindowOpen = jest.fn().mockImplementation(() => ({
+        focus: jest.fn(),
+      }));
+      Object.defineProperty(window, "open", {
+        writable: true,
+        value: mockWindowOpen,
+      });
+    });
+
+    afterEach(() => {
+      // required otherwise the calls to window.open get stacked
+      mockWindowOpen.mockRestore();
+    });
+
+    it("clicking on plio for teams redirects to docs page", async () => {
+      await wrapper.find('[data-test="teams"]').trigger("click");
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        "https://docs.plio.in/plio-for-teams/",
+        "_blank",
+        "noopener"
+      );
     });
   });
 });
