@@ -191,12 +191,18 @@ export default {
           share: "Share",
           delete: "Delete",
           embed: "Embed",
+          move: "Move",
         },
         dialog: {
           delete: {
             title: "Are you sure you want to delete this plio?",
             description:
               "This will permananently delete this plio and all the data associated with it, including all the responses. Once deleted, the data cannot be recovered.",
+          },
+        },
+        selectors: {
+          workspace: {
+            title: "Choose a Workspace",
           },
         },
       },

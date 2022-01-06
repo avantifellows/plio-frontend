@@ -7,6 +7,7 @@ import auth from "./modules/auth";
 import generic from "./modules/generic";
 import sync from "./modules/sync";
 import dialog from "./modules/dialog";
+import selectors from "./modules/selectors";
 
 // encrypt and decrypt the localStorage
 // github.com/robinvdvleuten/vuex-persistedstate#encrypted-local-storage
@@ -35,5 +36,6 @@ export default createStore({
     generic,
     sync,
     dialog,
+    selectors,
   },
 });

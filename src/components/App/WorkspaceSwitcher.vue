@@ -30,6 +30,11 @@ export default {
       return this.user ? this.user.organizations : [];
     },
   },
+  watch: {
+    activeWorkspace(value) {
+      this.selectedWorkspace = value;
+    },
+  },
   props: {
     /** whether the switcher is disabled */
     isDisabled: {
