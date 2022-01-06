@@ -209,7 +209,7 @@
   <!-- settings menu popup component -->
   <Settings
     v-if="isSettingsMenuShown"
-    class="fixed z-20 justify-center mx-auto top-15/100 bp-500:top-25/100 xl:left-30/100 xl:right-10/100 lg:left-25/100 lg:right-0 lg:mr-8 lg:ml-8 sm:left-10/100 sm:right-10/100 left-2 right-2"
+    class="fixed z-20 justify-top mx-auto"
     v-model:settings="settingsToRender"
     :isInfoMessageVisible="true"
     v-click-away="closeSettingsMenu"
@@ -585,7 +585,7 @@ export default {
     /**
      * creates a new draft plio and redirects the user to the editor
      */
-    createNewPlio() {
+    async createNewPlio() {
       this.$Progress.start();
       this.$mixpanel.track("Click Create");
       this.$mixpanel.people.set_once({
@@ -595,17 +595,25 @@ export default {
         "Last Plio Created": new Date().toISOString(),
       });
       this.$mixpanel.people.increment("Total Plios Created");
-      PlioAPIService.createPlio()
-        .then((response) => {
-          this.$Progress.finish();
-          if (response.status == 201) {
-            this.$router.push({
-              name: "Editor",
-              params: { plioId: response.data.uuid, org: this.activeWorkspace },
-            });
+
+      let createPlioResponse = await PlioAPIService.createPlio();
+      this.$Progress.finish();
+      if (createPlioResponse.status == 201) {
+        // once the plio is created, update it's settings as well
+        let plioUuid = createPlioResponse.data.uuid;
+        let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
+          plioUuid,
+          {
+            player: this.userSettings.player,
           }
-        })
-        .catch(() => this.toast.error(this.$t("toast.error.create_plio")));
+        );
+        if (updatePlioSettingsResponse.status == 200) {
+          this.$router.push({
+            name: "Editor",
+            params: { plioId: plioUuid, org: this.activeWorkspace },
+          });
+        }
+      } else this.toast.error(this.$t("toast.error.create_plio"));
     },
     /** logs out the user */
     logoutUser() {

@@ -116,6 +116,9 @@ export default {
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
     ...mapState("sync", ["pending"]),
+    ...mapState("auth", {
+      userSettings: "settings",
+    }),
     createButtonTextConfig() {
       // config for the text of the create button shown when no plios have been created
       return {
@@ -203,7 +206,7 @@ export default {
         .then((plioIdList) => this.prepareTableData(plioIdList)); // prepare the data for the table
     },
 
-    createNewPlio() {
+    async createNewPlio() {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
       this.$Progress.start();
@@ -215,17 +218,25 @@ export default {
         "Last Plio Created": new Date().toISOString(),
       });
       this.$mixpanel.people.increment("Total Plios Created");
-      PlioAPIService.createPlio()
-        .then((response) => {
-          this.$Progress.finish();
-          if (response.status == 201) {
-            this.$router.push({
-              name: "Editor",
-              params: { plioId: response.data.uuid, org: this.activeWorkspace },
-            });
+
+      let createPlioResponse = await PlioAPIService.createPlio();
+      this.$Progress.finish();
+      if (createPlioResponse.status == 201) {
+        // once the plio is created, update it's settings as well
+        let plioUuid = createPlioResponse.data.uuid;
+        let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
+          plioUuid,
+          {
+            player: this.userSettings.player,
           }
-        })
-        .catch(() => this.toast.error(this.$t("toast.error.create_plio")));
+        );
+        if (updatePlioSettingsResponse.status == 200) {
+          this.$router.push({
+            name: "Editor",
+            params: { plioId: plioUuid, org: this.activeWorkspace },
+          });
+        }
+      } else this.toast.error(this.$t("toast.error.create_plio"));
     },
 
     async prepareTableData(plioIdList) {

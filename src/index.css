@@ -2,3 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 @import "https://cdn.plyr.io/3.6.4/plyr.css";
+
+@layer utilities {
+  @variants hover {
+    .border-r-outset {
+      border-right-width: initial;
+      border-right-style: outset;
+    }
+    .border-l-outset {
+      border-left-width: initial;
+      border-left-style: outset;
+    }
+    .border-t-outset {
+      border-top-width: initial;
+      border-top-style: outset;
+    }
+    .border-b-outset {
+      border-bottom-width: initial;
+      border-bottom-style: outset;
+    }
+  }
+}

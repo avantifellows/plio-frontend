@@ -503,8 +503,10 @@
       </div>
     </div>
     <Settings
-      class="fixed z-20 justify-center top-25/100 mx-auto 2xl:left-30/100 2xl:right-30/100 xl:left-25/100 xl:right:25/100 lg:left-20/100 lg:right-20/100 md:left-10/100 md:right-10/100 bp-420:left-5/100 bp-420:right-5/100 lg:mr-8 lg:ml-8 mr-2 ml-2"
+      class="fixed z-20 justify-center mx-auto"
       @window-closed="closeSettingsMenu"
+      :isSaveAndPublishEnabled="true"
+      @publish="publishPlio"
       v-if="isSettingsMenuShown"
       v-model:settings="settingsToRender"
       v-click-away="closeSettingsMenu"
@@ -537,7 +539,7 @@ import Utilities, {
   throwConfetti,
   resetConfetti,
 } from "@/services/Functional/Utilities.js";
-import { settingsMetadata } from "@/services/Config/GlobalSettings.js";
+import globalSettings, { settingsMetadata } from "@/services/Config/GlobalSettings.js";
 
 import { mapActions, mapState, mapGetters } from "vuex";
 import debounce from "debounce";
@@ -664,10 +666,10 @@ export default {
       settingsButtonIconConfig: {
         enabled: true,
         iconName: "settings",
-        iconClass:
-          "text-primary group-hover:text-white fill-current h-3 w-3 bp-360:h-6 bp-360:w-6",
+        iconClass: "text-primary group-hover:text-white fill-current h-6 w-6",
       },
-      settingsButtonClass: "bg-white hover:bg-primary p-2 px-4 rounded-md",
+      settingsButtonClass:
+        "bg-gray-100 hover:bg-primary p-2 px-4 rounded-md border-b-outset mt-2",
       // styling class for the play plio button
       playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
       // styling class for the copy draft button
@@ -1358,10 +1360,16 @@ export default {
         this.plioSettings = {
           player: {},
         };
-        // saving the value from user settings to the local settings variable.
-        // Why user settings? - the userSettings variable will contain user
-        // defined settings or global default settings, whichever is available.
-        this.plioSettings.player = clonedeep(this.userSettings.player);
+        // If the plio's fetched config is null, use the global default settings for that plio.
+        // Why? Two cases are possible:
+        // 1. The fetched plio is an older plio which was created before this settings feature was live
+        //    - All older plios will contain a null config. If a user's default setting changes, it doesn't
+        //      apply to these older plios. They will continue using the global defaults. This is what we're doing
+        //      in the line of code below
+        // 2. The fetched plio is a newer plio which was made after this settings feature was live
+        //    - All newer plios, when created, will contain a version of the users's / global default (whichever is available)
+        //      settings in the fetched config. So no need to handle them here.
+        this.plioSettings.player = clonedeep(globalSettings.player);
       }
     },
     /**

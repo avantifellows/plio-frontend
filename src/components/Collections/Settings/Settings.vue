@@ -1,15 +1,44 @@
 <template>
-  <div
-    class="border-2 border-gray-200 shadow-lg rounded-md p-2 bg-white w-46 m-auto px-4"
-  >
-    <div class="flex flex-row w-full divide-x-2 py-3">
+  <div class="" :class="mainContainerClass">
+    <!-- header -->
+    <div class="w-full h-12 border-b-2 flex space-x-4">
+      <!-- go back to sidebar menu button -->
+      <button @click="openSidebarRegion" v-if="isMobileView && !isSidebarRegionOpen">
+        <inline-svg
+          :src="getImageSource('chevron-left-solid.svg')"
+          class="w-6 h-6 text-yellow-600 fill-current my-auto ml-2"
+        ></inline-svg>
+      </button>
+      <!-- tab title in header -->
+      <p
+        v-if="isMobileView && !isSidebarRegionOpen"
+        class="my-auto font-bold text-gray-500"
+      >
+        {{ $t(`settings.sidebar.tab.${currentSelectedTabName}`) }}
+      </p>
+      <!-- close settings menu button -->
+      <button
+        @click="closeMenu"
+        v-if="isMobileView && isSidebarRegionOpen"
+        class="ml-auto mr-2"
+      >
+        <inline-svg
+          :src="getImageSource('times-solid.svg')"
+          class="w-6 h-6 text-yellow-600 fill-current my-auto"
+        ></inline-svg>
+      </button>
+    </div>
+    <div class="flex flex-row w-full divide-x-2 grow h-full">
       <!-- sidebar region -->
-      <div class="h-full flex flex-col justify-start w-1/4 space-y-10 pr-3">
+      <div
+        :class="sidebarRegionClass"
+        v-if="(isMobileView && isSidebarRegionOpen) || !isMobileView"
+      >
         <div v-for="(headerDetails, headerName) in localSettings" :key="headerName">
           <div class="flex flex-col justify-start">
             <!-- header names -->
             <div
-              class="uppercase font-mono font-bold tracking-tighter text-gray-500 whitespace-nowrap lg:text-md md:text-base sm:text-sm text-xsm"
+              class="font-bold text-gray-500 whitespace-nowrap lg:text-xl md:text-lg bp-500:text-base text-2xl tracking-tighter px-2 pl-5"
               :data-test="`header-${headerName}`"
             >
               {{ $t(`settings.sidebar.header.${headerName}`) + " " + $t("nav.settings") }}
@@ -28,7 +57,10 @@
         </div>
       </div>
       <!-- content region -->
-      <div class="h-full w-full flex flex-col">
+      <div
+        :class="contentRegionClass"
+        v-if="(isMobileView && !isSidebarRegionOpen) || !isMobileView"
+      >
         <div
           v-for="(settingDetails, settingName) in currentSelectedTabDetails"
           :key="settingName"
@@ -50,7 +82,7 @@
             data-test="setting-input"
           />
         </div>
-        <div class="w-full flex flex-col lg:px-8 md:px-4 px-1">
+        <div class="w-full flex flex-col mt-10 bp-500:mt-0">
           <!-- info for settings -->
           <div
             class="mt-12 sm:mt-8 md:mt-8 w-full p-1 bp-500:p-2 rounded-md border border-yellow-400 flex space-x-4 mb-4"
@@ -65,13 +97,17 @@
               ></inline-svg>
             </div>
             <!-- text -->
-            <p class="text-yellow-600 my-auto text-xsm md:text-sm tracking-tighter">
+            <p
+              class="text-yellow-600 my-auto text-xs md:text-sm lg:text-base tracking-tighter font-bold"
+            >
               {{ $t("settings.menu.info") }}
             </p>
           </div>
         </div>
         <!-- footer buttons - save/cancel -->
-        <div class="w-full flex flex-row justify-end space-x-2 pt-6">
+        <div
+          class="w-full flex flex-row bp-500:justify-end justify-around space-x-2 bp-500:mt-auto mt-2"
+        >
           <!-- save button -->
           <span v-tooltip="saveButtonTooltip" tabindex="0">
             <!-- unsaved changes ping -->
@@ -118,24 +154,31 @@ export default {
       },
       closeButtonClass: "lg:w-10 lg:h-10 bp-500:w-6 bp-500:h-6 h-4 w-4",
       cancelButtonClass:
-        "md:py-2 md:px-4 py-1 px-2 transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg bg-white",
+        "bp-500:px-7 bp-500:py-2 bp-360:px-16 px-10 py-2 transition ease-in duration-200 text-center text-base font-semibold shadow-lg rounded-lg bg-white border-b-outset",
+      saveButtonClass:
+        "bp-500:px-8 bp-500:py-2 bp-360:px-16 px-10 py-2 transition ease-in duration-200 text-center font-semibold shadow-lg rounded-lg bg-primary border-b-outset border-primary",
       saveButtonTitleConfig: {
-        value: this.$t("settings.buttons.save"),
-        class:
-          "text-white text-sm sm:text-base md:text-md lg:text-lg xl:text-xl font-bold",
+        value: this.isSaveAndPublishEnabled
+          ? this.$t("settings.buttons.saveAndPublish")
+          : this.$t("settings.buttons.save"),
+        class: "text-white lg:text-base md:text-sm bp-500:text-xs text-lg font-bold",
       },
       cancelButtonTitleConfig: {
         value: this.$t("settings.buttons.cancel"),
-        class:
-          "text-primary text-sm sm:text-base md:text-md lg:text-lg xl:text-xl font-bold",
+        class: "text-primary lg:text-base md:text-sm bp-500:text-xs text-lg font-bold",
       },
       settingTitleTextClass:
-        "text-xs bp-500:text-sm sm:text-base md:text-lg lg:text-xl font-semibold",
-      settingSubTitleTextClass: "text-xsm md:text-sm lg:text-base",
-      settingItemStyleClass:
-        "flex flex-row flex-1 w-full h-12 sm:h-16 md:h-18 lg:h-20 px-2 sm:px-4 md:px-6 lg:px-10 hover:bg-gray-100",
+        "text-xl bp-500:text-lg sm:text-xl md:text-xl lg:text-2xl font-semibold text-gray-500",
+      settingSubTitleTextClass:
+        "text-sm bp-500:text-xsm md:text-sm lg:text-base text-gray-400",
+      settingItemStyleClass: "flex flex-row hover:bg-gray-100 xl:p-4 lg:p-3 md:p-2 p-1",
+      contentRegionClass:
+        "h-full w-full flex flex-col 2xl:px-10 xl:px-8 lg:px-6 md:px-4 bp-500:px-3 px-6 2xl:pt-10 xl:pt-8 lg:pt-6 md:pt-4 bp-500:pt-2 pt-6 pb-5",
       currentSelectedTab: {}, // object containing details about the current selected tab
       hasUnsavedChanges: false, // if there are any unsaved setting changes
+      isSidebarRegionOpen: true, // if the sidebar region is visible
+      screenWidth: window.innerWidth, // initial screen width
+      isMobileView: window.innerWidth < 500 ? true : false, // if current screen size is classified as mobile view
     };
   },
   props: {
@@ -149,6 +192,11 @@ export default {
       type: Boolean,
       default: false,
     },
+    isSaveAndPublishEnabled: {
+      // If the save button will also act as the publish button
+      type: Boolean,
+      default: false,
+    },
   },
   watch: {
     settings: {
@@ -158,21 +206,44 @@ export default {
       },
       deep: true,
     },
+    screenWidth() {
+      // Update the `isMobileView` variable as screen width changes
+      this.isMobileView = this.screenWidth < 500 ? true : false;
+    },
   },
   created() {
     // Set a default selected tab
     this.setCurrentSelectedTab();
+
+    window.addEventListener("resize", this.handleScreenSizeChange);
+  },
+  unmounted() {
+    window.removeEventListener("resize", this.handleScreenSizeChange);
   },
   computed: {
+    sidebarRegionClass() {
+      return [
+        {
+          "w-35/100": !this.isMobileView,
+          "w-full": this.isMobileView,
+        },
+        "h-full flex flex-col justify-start space-y-10 pt-4",
+      ];
+    },
+    mainContainerClass() {
+      return [
+        {
+          "left-0 right-0 top-0 bottom-0": this.isMobileView,
+          "top-15/100 bottom-35/100 2xl:left-20/100 2xl:right-20/100 xl:left-15/100 xl:right-15/100 sm:left-10/100 sm:right-10/100 left-5/100 right-5/100": !this
+            .isMobileView,
+        },
+        "border-2 border-gray-200 shadow-lg rounded-lg bg-white m-auto flex flex-col",
+      ];
+    },
     saveButtonTooltip() {
       return this.hasUnsavedChanges
-        ? this.$t("tooltip.settings.buttons.save.hasUnsavedChanges")
+        ? ""
         : this.$t("tooltip.settings.buttons.save.noUnsavedChanges");
-    },
-    saveButtonClass() {
-      return [
-        "md:py-2 md:px-4 py-1 px-2 transition ease-in duration-200 text-center font-semibold shadow-md rounded-lg bg-primary",
-      ];
     },
     /**
      * Get the name of the current selected tab
@@ -197,15 +268,27 @@ export default {
   methods: {
     ...Utilities,
     /**
+     * Opens the side bar region - for mobile view
+     */
+    openSidebarRegion() {
+      this.isSidebarRegionOpen = true;
+      this.currentSelectedTab = {};
+    },
+    handleScreenSizeChange() {
+      this.screenWidth = window.innerWidth;
+    },
+    /**
      * Get style classes for how a tab looks on the sidebar region
      * @param {String} tabName - The name of the tab for which the style classes are required
      */
     getTabStyleClasses(tabName) {
       return [
         {
-          "text-primary bg-gray-100": this.currentSelectedTabName == tabName,
+          "text-primary bg-gray-100 border-r-outset border-yellow-500":
+            this.currentSelectedTabName == tabName && !this.isMobileView,
+          "text-gray-500": this.isMobileView,
         },
-        "capitalize font-semibold w-full text-center hover:bg-gray-100 rounded-lg leading-relaxed whitespace-nowrap lg:text-lg md:text-md sm:text-base bp-500:text-sm text-xs",
+        "font-medium w-full capitalize hover:bg-gray-100 leading-relaxed whitespace-nowrap lg:text-base md:text-sm bp-500:text-xs text-lg pl-6 text-left py-1",
       ];
     },
     /**
@@ -228,12 +311,15 @@ export default {
       let selectedTab = {};
       selectedTab[tabName] = tabDetails;
       this.currentSelectedTab = selectedTab;
+
+      if (this.isMobileView) this.isSidebarRegionOpen = false;
     },
     /**
      * Emit the changed settings and close the menu
      */
     saveChanges() {
       this.$emit("update:settings", this.localSettings);
+      if (this.isSaveAndPublishEnabled) this.$emit("publish");
       this.$emit("window-closed");
     },
     /**
@@ -249,7 +335,7 @@ export default {
     getInputElementClass(inputType) {
       let mapping = {
         checkbox:
-          "ml-auto rounded my-auto lg:h-14 lg:w-14 md:h-10 md:w-10 sm:h-8 sm:w-8 w-6 h-6 border-none bg-gray-200 text-primary",
+          "ml-auto rounded my-auto lg:h-10 lg:w-10 md:h-8 md:w-8 sm:h-6 sm:w-6 bp-500:w-6 bp-500:h-6 h-8 w-8 border-2 bg-gray-100 text-primary hover:cursor-pointer",
       };
       return inputType in mapping ? mapping[inputType] : "";
     },
@@ -263,6 +349,6 @@ export default {
       settingDetails.value = isChecked;
     },
   },
-  emits: ["window-closed", "update:settings"],
+  emits: ["window-closed", "update:settings", "publish"],
 };
 </script>

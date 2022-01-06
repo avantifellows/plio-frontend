@@ -541,7 +541,8 @@ export default {
   },
   settings: {
     buttons: {
-      save: "सहेजें",
+      save: "सेव करें",
+      saveAndPublish: "सेव करके प्रकाशित करें",
       cancel: "रद्द करें",
     },
     menu: {
@@ -551,8 +552,7 @@ export default {
         darkMode: "Turn on Dark Mode",
       },
       subTitle: {
-        skipEnabled:
-          "दर्शकों को एक प्रश्न छोड़ने और प्लायो के साथ आगे बढ़ने का विकल्प प्रदान करें",
+        skipEnabled: "दर्शकों को प्रश्न छोड़ने का विकल्प प्रदान करें",
         darkMode: "",
       },
       info:

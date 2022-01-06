@@ -541,6 +541,7 @@ export default {
   settings: {
     buttons: {
       save: "Save",
+      saveAndPublish: "Save and Publish",
       cancel: "Cancel",
     },
     menu: {
@@ -549,8 +550,7 @@ export default {
         darkMode: "Turn on Dark Mode",
       },
       subTitle: {
-        skipEnabled:
-          "Provide viewers the option to skip a question and move forward with the plio",
+        skipEnabled: "Provide viewers the option to skip a question",
         darkMode: "",
       },
       info:
