@@ -82,6 +82,7 @@
               :buttonClass="menuButtonsClass"
               @click="redirectToTeamsPage"
               :isDisabled="pending"
+              v-if="isPersonalWorkspace"
             ></icon-button>
 
             <!-- product guides -->
@@ -585,7 +586,12 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("auth", ["isAuthenticated", "activeWorkspaceSchema", "locale"]),
+    ...mapGetters("auth", [
+      "isAuthenticated",
+      "activeWorkspaceSchema",
+      "locale",
+      "isPersonalWorkspace",
+    ]),
     ...mapGetters("generic", ["isMobileScreen"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("generic", [
