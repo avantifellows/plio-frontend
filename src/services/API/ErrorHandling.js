@@ -1,4 +1,5 @@
 import router from "@/router";
+import store from "@/store";
 
 export default {
   handleAPIErrors(error) {
@@ -7,6 +8,7 @@ export default {
       "response" in error &&
       error.response != undefined
     ) {
+      store.dispatch("sync/stopLoading");
       if (error.response.status === 404) router.replace({ name: "404" });
       else if (error.response.status === 403) router.replace({ name: "403" });
     }
