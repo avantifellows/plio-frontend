@@ -94,6 +94,7 @@
               :buttonClass="menuButtonsClass"
               @click="redirectToProductGuides"
               :isDisabled="pending"
+              data-test="productGuides"
             ></icon-button>
 
             <!-- docs -->
@@ -104,6 +105,7 @@
               :buttonClass="menuButtonsClass"
               @click="redirectToDocs"
               :isDisabled="pending"
+              data-test="docs"
             ></icon-button>
 
             <!-- whats new -->
@@ -114,6 +116,7 @@
               :buttonClass="menuButtonsClass"
               @click="redirectToWhatsNew"
               :isDisabled="pending"
+              data-test="whatsNew"
             ></icon-button>
 
             <!-- logout -->

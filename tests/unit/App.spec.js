@@ -180,10 +180,37 @@ describe("App.vue for authenticated user", () => {
       mockWindowOpen.mockRestore();
     });
 
-    it("clicking on plio for teams redirects to docs page", async () => {
+    it("clicking on plio for teams redirects to teams page", async () => {
       await wrapper.find('[data-test="teams"]').trigger("click");
       expect(mockWindowOpen).toHaveBeenCalledWith(
         "https://docs.plio.in/plio-for-teams/",
+        "_blank",
+        "noopener"
+      );
+    });
+
+    it("clicking on documentation redirects to docs page", async () => {
+      await wrapper.find('[data-test="docs"]').trigger("click");
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        "https://docs.plio.in/",
+        "_blank",
+        "noopener"
+      );
+    });
+
+    it("clicking on whats new redirects to blog page", async () => {
+      await wrapper.find('[data-test="whatsNew"]').trigger("click");
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        "https://plio.substack.com/",
+        "_blank",
+        "noopener"
+      );
+    });
+
+    it("clicking on product guides redirects to youtube playlist", async () => {
+      await wrapper.find('[data-test="productGuides"]').trigger("click");
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        "https://www.youtube.com/playlist?list=PL3U0Jqw-piJgw2hSpuAZym4K1_Tb0RTRV",
         "_blank",
         "noopener"
       );
