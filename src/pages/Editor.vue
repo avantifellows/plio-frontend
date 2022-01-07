@@ -505,7 +505,7 @@
     <Settings
       class="fixed z-20 justify-center mx-auto"
       @window-closed="closeSettingsMenu"
-      :isSaveAndPublishEnabled="true"
+      :isSaveAndPublishEnabled="isPublished"
       @publish="publishPlio"
       v-if="isSettingsMenuShown"
       v-model:settings="settingsToRender"

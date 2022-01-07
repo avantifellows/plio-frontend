@@ -2,26 +2,8 @@
   <div class="" :class="mainContainerClass">
     <!-- header -->
     <div class="w-full h-12 border-b-2 flex space-x-4">
-      <!-- go back to sidebar menu button -->
-      <button @click="openSidebarRegion" v-if="isMobileView && !isSidebarRegionOpen">
-        <inline-svg
-          :src="getImageSource('chevron-left-solid.svg')"
-          class="w-6 h-6 text-yellow-600 fill-current my-auto ml-2"
-        ></inline-svg>
-      </button>
-      <!-- tab title in header -->
-      <p
-        v-if="isMobileView && !isSidebarRegionOpen"
-        class="my-auto font-bold text-gray-500"
-      >
-        {{ $t(`settings.sidebar.tab.${currentSelectedTabName}`) }}
-      </p>
-      <!-- close settings menu button -->
-      <button
-        @click="closeMenu"
-        v-if="isMobileView && isSidebarRegionOpen"
-        class="ml-auto mr-2"
-      >
+      <!-- close settings button -->
+      <button @click="closeMenu" class="ml-auto mr-2">
         <inline-svg
           :src="getImageSource('times-solid.svg')"
           class="w-6 h-6 text-yellow-600 fill-current my-auto"
@@ -30,37 +12,104 @@
     </div>
     <div class="flex flex-row w-full divide-x-2 grow h-full">
       <!-- sidebar region -->
-      <div
-        :class="sidebarRegionClass"
-        v-if="(isMobileView && isSidebarRegionOpen) || !isMobileView"
-      >
-        <div v-for="(headerDetails, headerName) in localSettings" :key="headerName">
+      <div :class="sidebarRegionClass">
+        <div
+          v-for="(headerDetails, headerName) in localSettings"
+          :key="headerName"
+          class="bp-500:my-0 my-4"
+        >
           <div class="flex flex-col justify-start">
             <!-- header names -->
             <div
-              class="font-bold text-gray-500 whitespace-nowrap lg:text-xl md:text-lg bp-500:text-base text-2xl tracking-tighter px-2 pl-5"
+              class="font-bold text-gray-500 whitespace-nowrap lg:text-xl md:text-lg bp-500:text-base text-4xl tracking-tighter px-2 pl-5 bp-500:py-0 py-4"
               :data-test="`header-${headerName}`"
             >
               {{ $t(`settings.sidebar.header.${headerName}`) + " " + $t("nav.settings") }}
             </div>
             <!-- tab names -->
-            <div v-for="(tabDetails, tabName) in headerDetails" :key="tabName">
-              <button
-                @click="selectTab(tabName, tabDetails)"
-                :class="getTabStyleClasses(tabName)"
-                :data-test="`tab-${tabName}`"
-              >
-                {{ $t(`settings.sidebar.tab.${tabName}`) }}
-              </button>
+            <div
+              v-for="(tabDetails, tabName) in headerDetails"
+              :key="tabName"
+              class="flex flex-col"
+            >
+              <div class="flex flex-row bp-500:ml-0 ml-4">
+                <inline-svg
+                  v-if="isMobileView"
+                  :src="getImageSource('caret-right-solid.svg')"
+                  :class="getTabToggleClass(tabName)"
+                ></inline-svg>
+                <button
+                  @click="selectTab(tabName, tabDetails)"
+                  :class="getTabStyleClasses(tabName)"
+                  :data-test="`tab-${tabName}`"
+                >
+                  {{ $t(`settings.sidebar.tab.${tabName}`) }}
+                </button>
+              </div>
+
+              <!-- content region in mobile view -->
+              <div v-if="isMobileView && currentSelectedTabName == tabName">
+                <div
+                  v-for="(settingDetails, settingName) in currentSelectedTabDetails"
+                  :key="settingName"
+                  :class="settingItemStyleClass"
+                >
+                  <div class="flex flex-col my-auto mr-4">
+                    <p :class="settingTitleTextClass">{{ $t(settingDetails.title) }}</p>
+                    <p
+                      :class="settingSubTitleTextClass"
+                      v-if="settingDetails.subTitle != null"
+                    >
+                      {{ $t(settingDetails.subTitle) || "" }}
+                    </p>
+                  </div>
+                  <input
+                    v-if="settingDetails.type == 'checkbox'"
+                    type="checkbox"
+                    :class="getInputElementClass(settingDetails.type)"
+                    style="box-shadow: none"
+                    :checked="settingDetails.value"
+                    @change="updateCheckboxSetting($event.target.checked, settingDetails)"
+                    data-test="setting-input"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- save / cancel buttons in mobile view -->
+        <div
+          v-if="isMobileView"
+          class="w-full flex justify-around space-x-2 mt-auto mb-10"
+        >
+          <!-- save button -->
+          <span v-tooltip="saveButtonTooltip" tabindex="0">
+            <!-- unsaved changes ping -->
+            <div
+              class="w-3 h-3 bg-primary animate-ping rounded-full absolute opacity-75"
+              v-if="hasUnsavedChanges"
+            ></div>
+            <icon-button
+              :buttonClass="saveButtonClass"
+              class="relative"
+              :titleConfig="saveButtonTitleConfig"
+              @click="saveChanges"
+              :isDisabled="!hasUnsavedChanges"
+              data-test="saveButton"
+            ></icon-button>
+          </span>
+          <!-- cancel button -->
+          <icon-button
+            :buttonClass="cancelButtonClass"
+            :titleConfig="cancelButtonTitleConfig"
+            @click="closeMenu"
+            data-test="cancelButton"
+          ></icon-button>
+        </div>
       </div>
       <!-- content region -->
-      <div
-        :class="contentRegionClass"
-        v-if="(isMobileView && !isSidebarRegionOpen) || !isMobileView"
-      >
+      <div :class="contentRegionClass" v-if="!isMobileView">
         <div
           v-for="(settingDetails, settingName) in currentSelectedTabDetails"
           :key="settingName"
@@ -171,7 +220,8 @@ export default {
         "text-xl bp-500:text-lg sm:text-xl md:text-xl lg:text-2xl font-semibold text-gray-500",
       settingSubTitleTextClass:
         "text-sm bp-500:text-xsm md:text-sm lg:text-base text-gray-400",
-      settingItemStyleClass: "flex flex-row hover:bg-gray-100 xl:p-4 lg:p-3 md:p-2 p-1",
+      settingItemStyleClass:
+        "flex flex-row hover:bg-gray-100 xl:p-4 lg:p-3 md:p-2 p-1 bp-500:mx-0 mx-8",
       contentRegionClass:
         "h-full w-full flex flex-col 2xl:px-10 xl:px-8 lg:px-6 md:px-4 bp-500:px-3 px-6 2xl:pt-10 xl:pt-8 lg:pt-6 md:pt-4 bp-500:pt-2 pt-6 pb-5",
       currentSelectedTab: {}, // object containing details about the current selected tab
@@ -212,8 +262,10 @@ export default {
     },
   },
   created() {
-    // Set a default selected tab
-    this.setCurrentSelectedTab();
+    if (!this.isMobileView) {
+      // Set a default selected tab if the screen is not in mobile view
+      this.setCurrentSelectedTab();
+    }
 
     window.addEventListener("resize", this.handleScreenSizeChange);
   },
@@ -224,10 +276,10 @@ export default {
     sidebarRegionClass() {
       return [
         {
-          "w-35/100": !this.isMobileView,
+          "w-35/100 space-y-10": !this.isMobileView,
           "w-full": this.isMobileView,
         },
-        "h-full flex flex-col justify-start space-y-10 pt-4",
+        "h-full flex flex-col justify-start pt-4",
       ];
     },
     mainContainerClass() {
@@ -268,11 +320,15 @@ export default {
   methods: {
     ...Utilities,
     /**
-     * Opens the side bar region - for mobile view
+     * Get the style classes for a particular toggable tab
      */
-    openSidebarRegion() {
-      this.isSidebarRegionOpen = true;
-      this.currentSelectedTab = {};
+    getTabToggleClass(tabName) {
+      return [
+        {
+          "transform rotate-90": tabName == this.currentSelectedTabName,
+        },
+        "w-6 h-6 text-yellow-600 fill-current my-auto transition duration-800",
+      ];
     },
     handleScreenSizeChange() {
       this.screenWidth = window.innerWidth;
@@ -284,11 +340,14 @@ export default {
     getTabStyleClasses(tabName) {
       return [
         {
-          "text-primary bg-gray-100 border-r-outset border-yellow-500":
+          "text-primary bg-gray-100 border-r-outset border-yellow-500 pl-6 hover:bg-gray-100":
             this.currentSelectedTabName == tabName && !this.isMobileView,
-          "text-gray-500": this.isMobileView,
+          "text-gray-500 ": this.currentSelectedTabName != tabName && this.isMobileView,
+          "text-primary": this.currentSelectedTabName == tabName && this.isMobileView,
+          "leading-snug": this.isMobileView,
+          "leading-relaxed pl-6": !this.isMobileView,
         },
-        "font-medium w-full capitalize hover:bg-gray-100 leading-relaxed whitespace-nowrap lg:text-base md:text-sm bp-500:text-xs text-lg pl-6 text-left py-1",
+        "font-medium w-full capitalize whitespace-nowrap lg:text-base md:text-sm bp-500:text-xs text-2xl text-left py-1",
       ];
     },
     /**
@@ -303,16 +362,22 @@ export default {
       }
     },
     /**
-     * Mark a tab as selected
+     * Mark a tab as selected/unselected
      * @param {String} tabName - The name of the tab that is to be marked selected
      * @param {Object} tabDetails - The details of the tab that is to be marked selected
      */
     selectTab(tabName, tabDetails) {
-      let selectedTab = {};
-      selectedTab[tabName] = tabDetails;
-      this.currentSelectedTab = selectedTab;
-
-      if (this.isMobileView) this.isSidebarRegionOpen = false;
+      if (this.isMobileView && tabName == this.currentSelectedTabName)
+        // In mobile view, the tabs are toggable
+        // If someone clicks on an already opened tab, close it and currentSelectedTab
+        // will be set to empty
+        this.currentSelectedTab = {};
+      else {
+        // Mark the clicked tab as the currentSelectedTab
+        let selectedTab = {};
+        selectedTab[tabName] = tabDetails;
+        this.currentSelectedTab = selectedTab;
+      }
     },
     /**
      * Emit the changed settings and close the menu
