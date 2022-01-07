@@ -180,8 +180,8 @@ export default {
       ];
       if (this.inPersonalWorkspaceWithOtherWorkspaces)
         options.push({
-          value: "move",
-          label: this.$t("home.table.plio_list_item.buttons.move"),
+          value: "copy",
+          label: this.$t("home.table.plio_list_item.buttons.copy"),
           icon: "move.svg",
         });
       return options;
@@ -368,7 +368,7 @@ export default {
           this.setDialogAction("deletePlio");
           await this.setSelectedPlioId(this.plioId);
           break;
-        case "move": {
+        case "copy": {
           let selectorOptions = [];
           this.workspaces.forEach((workspace) => {
             selectorOptions.push({
@@ -381,6 +381,7 @@ export default {
             type: "single",
             options: selectorOptions,
             title: this.$t("home.table.plio_list_item.selectors.workspace.title"),
+            info: this.$t("home.table.plio_list_item.selectors.workspace.info"),
           });
           break;
         }

@@ -187,6 +187,7 @@
         v-click-away="hideSelector"
         :options="selectorOptions"
         :title="selectorTitle"
+        :info="selectorInfo"
         @close="hideSelector"
         @select="selectOption"
       ></ListSingleSelector>
@@ -616,6 +617,7 @@ export default {
     ...mapState("selectors", {
       selectorOptions: "options",
       selectorTitle: "title",
+      selectorInfo: "info",
     }),
     ...mapGetters("selectors", ["isSingleSelectorShown"]),
     /**

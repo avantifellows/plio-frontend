@@ -191,7 +191,7 @@ export default {
           share: "Share",
           delete: "Delete",
           embed: "Embed",
-          move: "Move",
+          copy: "Copy To",
         },
         dialog: {
           delete: {
@@ -203,6 +203,8 @@ export default {
         selectors: {
           workspace: {
             title: "Choose a Workspace",
+            info:
+              "A copy of this plio will be created as a draft in the selected workspace",
           },
         },
       },

@@ -39,11 +39,29 @@
         </li>
       </ul>
     </div>
+
+    <!-- info on receiving data from embeds -->
+    <div class="px-6 p-2 mt-4" v-if="isInfoPresent">
+      <div
+        class="w-full p-4 sm:p-2 rounded-md border border-yellow-400 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
+      >
+        <!-- icon -->
+        <inline-svg
+          :src="getImageSource('exclamation-circle-solid.svg')"
+          class="w-6 h-6 text-yellow-600 fill-current place-self-center transform rotate-180"
+        ></inline-svg>
+        <!-- text -->
+        <p class="text-yellow-600 text-sm">
+          {{ info }}
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import Utilities from "@/services/Functional/Utilities.js";
 
 export default {
   name: "ListSingleSelector",
@@ -56,6 +74,10 @@ export default {
       required: true,
     },
     title: {
+      type: String,
+      default: "",
+    },
+    info: {
       type: String,
       default: "",
     },
@@ -73,6 +95,7 @@ export default {
     };
   },
   methods: {
+    ...Utilities,
     /** emits the details of the option selected */
     setOption(index) {
       this.$emit("select", this.options[index].value);
@@ -85,6 +108,9 @@ export default {
   computed: {
     isTitlePresent() {
       return this.title != undefined && this.title != null && this.title != "";
+    },
+    isInfoPresent() {
+      return this.info != undefined && this.info != null && this.title != "";
     },
   },
   emits: ["select", "close"],

@@ -193,7 +193,7 @@ export default {
           share: "बाटें",
           delete: "हटाएं",
           embed: "एम्बेड",
-          move: "खिसकाएं",
+          copy: "कॉपी करें",
         },
         dialog: {
           delete: {
@@ -205,6 +205,8 @@ export default {
         selectors: {
           workspace: {
             title: "एक कार्यक्षेत्र चुनें",
+            info:
+              "इस प्लियो का एक कॉपी चुने गए कार्यक्षेत्र में ड्राफ्ट के रूप में बना दिया जाएगा ",
           },
         },
       },

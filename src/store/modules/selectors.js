@@ -3,6 +3,7 @@ const state = {
   type: "single",
   options: [],
   title: "",
+  info: "",
 };
 
 const getters = {
@@ -27,11 +28,13 @@ const mutations = {
     state.options = params.options;
 
     if (params.title != undefined) state.title = params.title;
+    if (params.info != undefined) state.info = params.info;
   },
   hideSelector(state) {
     state.isShown = false;
     state.options = [];
     state.title = "";
+    state.info = "";
   },
 };
 
