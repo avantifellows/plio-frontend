@@ -1,9 +1,9 @@
 <template>
   <div
-    class="bg-white fixed w-2/3 bp-500:w-1/2 md:w-1/3 lg:w-1/4 z-10 bg-white shadow-lg rounded-md pb-4"
+    class="bg-white fixed w-3/4 bp-500:w-1/2 md:w-1/3 z-10 bg-white shadow-lg rounded-md pb-4"
     data-test="optionsContainer"
   >
-    <div class="w-full flex justify-end p-2">
+    <div class="w-full flex justify-end">
       <!-- close button -->
       <icon-button
         :iconConfig="closeDialogIconConfig"
@@ -13,7 +13,7 @@
       ></icon-button>
     </div>
 
-    <p v-if="isTitlePresent" class="p-2 px-4 text-lg">{{ title }}</p>
+    <p v-if="isTitlePresent" class="p-2 px-6 text-lg font-bold">{{ title }}</p>
 
     <hr />
 
@@ -28,7 +28,7 @@
           v-for="(option, optionIndex) in options"
           :key="optionIndex"
           role="option"
-          class="text-gray-900 select-none relative p-2 px-4 hover:bg-primary hover:cursor-pointer hover:text-white"
+          class="text-gray-900 select-none relative p-2 px-6 hover:bg-primary hover:cursor-pointer hover:text-white"
           @click="setOption(optionIndex)"
           :data-test="`option-${option.value}`"
         >
@@ -69,7 +69,7 @@ export default {
         iconClass: "text-primary fill-current h-8 w-8",
       },
       // class for the close button
-      closeDialogButtonClass: "bg-white w-10 h-10 p-2",
+      closeDialogButtonClass: "bg-white w-6 h-6 m-2",
     };
   },
   methods: {
