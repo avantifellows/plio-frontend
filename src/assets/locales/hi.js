@@ -8,6 +8,7 @@ export default {
     docs: "दस्तावेज़ीकरण",
     editor: "एडिटर",
     dashboard: "डैशबोर्ड",
+    teams: "टीमों के लिए प्लायो",
     abtesting: "",
     player: "",
     settings: "सेटिंग्स",
