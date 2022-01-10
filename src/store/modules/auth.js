@@ -26,16 +26,19 @@ const getters = {
     if (configValue != null) return configValue.locale;
     return null;
   },
-
+  /** whether the current workspace is the personal workspace */
   isPersonalWorkspace: (state) => {
-    // whether the current workspace is the personal workspace
     return state.activeWorkspace == "";
   },
-  activeOrganization: (state) => {
-    // gets the current active organization
+  /** all the workspaces that the user is a part of */
+  workspaces: (state) => {
+    return state.user.organizations;
+  },
+  /** the current active workspace */
+  activeWorkspaceDetails: (state, getters) => {
     if (state.activeWorkspace != "") {
-      return state.user.organizations.find((organization) => {
-        return organization.shortcode == state.activeWorkspace;
+      return getters.workspaces.find((workspace) => {
+        return workspace.shortcode == state.activeWorkspace;
       });
     }
     // returns some default values for personal workspace
@@ -44,13 +47,13 @@ const getters = {
       api_key: "",
     };
   },
+  /** schema of the current workspace */
   activeWorkspaceSchema: (_, getters) => {
-    // schema of the current workspace
-    return getters.activeOrganization.schema_name;
+    return getters.activeWorkspaceDetails.schema_name;
   },
+  /** api key of the current workspace */
   activeWorkspaceApiKey: (_, getters) => {
-    // api key of the current workspace
-    return getters.activeOrganization.api_key;
+    return getters.activeWorkspaceDetails.api_key;
   },
   isAnalyticsAccessTokenValid: (state) => {
     if (state.analyticsAccessToken === null) return false;
