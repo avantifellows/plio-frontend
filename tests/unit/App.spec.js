@@ -193,7 +193,7 @@ describe("App.vue for authenticated user", () => {
     expect(settingsComponent.emitted()).toHaveProperty("update:settings");
     // the setting should be updated through an API call
     expect(updateUserSettingsAPI).toHaveBeenCalled();
-  })
+  });
 
   describe("sidebar buttons", () => {
     let mockWindowOpen;

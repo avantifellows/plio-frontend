@@ -86,7 +86,7 @@
               @click="showSettingsMenu"
               :isDisabled="pending"
               data-test="settingsButton"
-              
+
             <!-- plio for teams -->
             <icon-button
               class="place-self-start"
