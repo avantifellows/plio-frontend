@@ -547,23 +547,19 @@ export default {
     menu: {
       title: {
         skipEnabled: "Viewers can skip questions while attempting plios",
-        darkMode: "Turn on Dark Mode",
       },
       subTitle: {
         skipEnabled: "Provide viewers the option to skip a question",
-        darkMode: "",
       },
       info:
-        "The new settings will only apply to plios created in the future and not the already created plios",
+        "The new settings will only apply to plios created in the future and not the existing plios",
     },
     sidebar: {
       header: {
         player: "Player",
-        app: "App",
       },
       tab: {
         configuration: "Configuration",
-        appearance: "Appearance",
       },
     },
   },

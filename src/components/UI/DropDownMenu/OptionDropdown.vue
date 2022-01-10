@@ -5,7 +5,7 @@
       <button
         type="button"
         @click="toggleDropdownDisplay"
-        class="sm:w-full group flex space-x-2 p-2 text-left cursor-default hover:cursor-pointer focus:outline-none sm:text-sm items-center bg-gray-200 hover:bg-primary rounded-md shadow-md"
+        class="sm:w-full group flex space-x-2 p-2 text-left cursor-default hover:cursor-pointer focus:outline-none sm:text-sm items-center bg-gray-200 hover:bg-primary rounded-md shadow-md border-b-outset"
         data-test="toggleButton"
         aria-label="toggle options visibility"
       >

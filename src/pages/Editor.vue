@@ -506,7 +506,6 @@
       class="fixed z-20 justify-center mx-auto"
       @window-closed="closeSettingsMenu"
       :isSaveAndPublishEnabled="isPublished"
-      @publish="publishPlio"
       v-if="isSettingsMenuShown"
       v-model:settings="settingsToRender"
       v-click-away="closeSettingsMenu"
@@ -1402,8 +1401,8 @@ export default {
                 // if the value has changed, update the settings on the DB if the plio is not published.
                 // if it's published, the user will have to click publish to push the changes
                 this.plioSettings[headerName][tabName][settingName] = value;
-                if (!this.isPublished) this.updatePlioSettings();
-                else this.hasUnpublishedChanges = true;
+                if (!this.published) this.updatePlioSettings();
+                else this.publishPlio();
               },
               { deep: true }
             );

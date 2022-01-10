@@ -4,7 +4,7 @@
       v-model="selectedWorkspace"
       @change="updateActiveWorkspace"
       data-test="select"
-      class="rounded-md border-gray-400 focus:outline-none focus:border-gray-400 focus:ring-0 w-full text-sm sm:text-base"
+      class="rounded-md border-gray-400 focus:outline-none focus:border-gray-400 focus:ring-0 w-full text-lg bp-500:text-base"
       :disabled="isDisabled"
     >
       <option value="">Personal Workspace</option>

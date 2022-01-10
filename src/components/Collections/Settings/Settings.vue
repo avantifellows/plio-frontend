@@ -1,5 +1,5 @@
 <template>
-  <div class="" :class="mainContainerClass">
+  <div :class="mainContainerClass">
     <!-- header -->
     <div class="w-full h-12 border-b-2 flex space-x-4">
       <!-- close settings button -->
@@ -10,7 +10,7 @@
         ></inline-svg>
       </button>
     </div>
-    <div class="flex flex-row w-full divide-x-2 grow h-full">
+    <div class="flex flex-row w-full divide-x-2 h-full">
       <!-- sidebar region -->
       <div :class="sidebarRegionClass">
         <div
@@ -21,7 +21,7 @@
           <div class="flex flex-col justify-start">
             <!-- header names -->
             <div
-              class="font-bold text-gray-500 whitespace-nowrap lg:text-xl md:text-lg bp-500:text-base text-4xl tracking-tighter px-2 pl-5 bp-500:py-0 py-4"
+              class="font-bold text-gray-500 whitespace-nowrap lg:text-xl md:text-lg bp-500:text-base text-3xl tracking-tighter px-2 pl-5 bp-500:py-0 py-4"
               :data-test="`header-${headerName}`"
             >
               {{ $t(`settings.sidebar.header.${headerName}`) + " " + $t("nav.settings") }}
@@ -35,6 +35,7 @@
               <div class="flex flex-row bp-500:ml-0 ml-4">
                 <inline-svg
                   v-if="isMobileView"
+                  @click="selectTab(tabName, tabDetails)"
                   :src="getImageSource('caret-right-solid.svg')"
                   :class="getTabToggleClass(tabName)"
                 ></inline-svg>
@@ -142,7 +143,7 @@
             <div class="w-1/10 h-full flex my-auto">
               <inline-svg
                 :src="getImageSource('exclamation-circle-solid.svg')"
-                class="lg:w-8 lg:h-8 bp-500:w-6 bp-500:h-6 h-4 w-4 text-yellow-600 fill-current my-auto"
+                class="lg:w-8 lg:h-8 bp-500:w-6 bp-500:h-6 h-4 w-4 text-yellow-600 fill-current my-auto transform rotate-180"
               ></inline-svg>
             </div>
             <!-- text -->
@@ -217,7 +218,7 @@ export default {
         class: "text-primary lg:text-base md:text-sm bp-500:text-xs text-lg font-bold",
       },
       settingTitleTextClass:
-        "text-xl bp-500:text-lg sm:text-xl md:text-xl lg:text-2xl font-semibold text-gray-500",
+        "text-base bp-500:text-base md:text-lg lg:text-2xl font-semibold text-gray-500",
       settingSubTitleTextClass:
         "text-sm bp-500:text-xsm md:text-sm lg:text-base text-gray-400",
       settingItemStyleClass:
@@ -347,7 +348,7 @@ export default {
           "leading-snug": this.isMobileView,
           "leading-relaxed pl-6": !this.isMobileView,
         },
-        "font-medium w-full capitalize whitespace-nowrap lg:text-base md:text-sm bp-500:text-xs text-2xl text-left py-1",
+        "font-medium w-full capitalize whitespace-nowrap lg:text-base md:text-sm bp-500:text-xs text-xl text-left py-1",
       ];
     },
     /**
@@ -384,7 +385,6 @@ export default {
      */
     saveChanges() {
       this.$emit("update:settings", this.localSettings);
-      if (this.isSaveAndPublishEnabled) this.$emit("publish");
       this.$emit("window-closed");
     },
     /**

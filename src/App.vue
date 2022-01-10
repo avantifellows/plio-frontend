@@ -58,7 +58,7 @@
             <icon-button
               :titleConfig="createButtonMenuTextConfig"
               :buttonClass="createButtonClass"
-              class="my-4"
+              class="my-4 border-b-outset border-primary"
               :class="{ 'hidden bp-500:inline': onHomePage }"
               @click="createNewPlio"
               :isDisabled="pending"
@@ -260,7 +260,7 @@ export default {
       menuButtonsIconClass:
         "text-gray-500 group-hover:text-primary fill-current h-4 md:h-6 w-4 md:w-6", // common classes for the icon of the menu buttons
       menuButtonsTextClass:
-        "text-sm md:text-base lg:text-lg ml-4 text-gray-500 group-hover:text-primary", // common classes for the text of the menu buttons
+        "text-xl bp-500:text-sm md:text-base lg:text-lg ml-4 text-gray-500 group-hover:text-primary", // common classes for the text of the menu buttons
       menuSlideTransition: "", // transition name for menu sliding effect
       isSettingsMenuShown: false,
       settingsToRender: {}, // The settings object that will be rendered when settings menu is opened
@@ -857,7 +857,7 @@ export default {
       // config for the text of the main create button
       return {
         value: this.$t("home.create_button"),
-        class: "text-md sm:text-lg md:text-xl lg:text-2xl text-white",
+        class: "text-xl bp-500:text-lg md:text-xl lg:text-2xl text-white",
       };
     },
     /**

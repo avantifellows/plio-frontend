@@ -1,6 +1,5 @@
 /** Default values of the settings */
 let skipEnabled = true;
-let darkModeEnabled = false;
 
 /**
  * This object contains a mapping of SETTING_NAME and SETTING_METADATA
@@ -17,12 +16,6 @@ export let settingsMetadata = {
     subTitle: "settings.menu.subTitle.skipEnabled",
     type: "checkbox",
   },
-
-  darkMode: {
-    title: "settings.menu.title.darkMode",
-    subTitle: null,
-    type: "checkbox",
-  },
 };
 
 /**
@@ -33,11 +26,6 @@ export default {
   player: {
     configuration: {
       skipEnabled: skipEnabled,
-    },
-  },
-  app: {
-    appearance: {
-      darkMode: darkModeEnabled,
     },
   },
 };
