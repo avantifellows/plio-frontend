@@ -211,6 +211,7 @@ import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
 import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
 import ListSingleSelector from "@/components/UI/Selectors/ListSingleSelector.vue";
 import PlioAPIService from "@/services/API/Plio.js";
+import VideoAPIService from "@/services/API/Video.js";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import Utilities from "@/services/Functional/Utilities.js";
 import { mapActions, mapState, mapGetters } from "vuex";
@@ -586,10 +587,22 @@ export default {
       // prevent keyboard buttons from working if the background is disabled
       if (this.isBackgroundDisabled) event.preventDefault();
     },
+    async copyPlio(workspace) {
+      let newVideo = await VideoAPIService.copy(this.selectedPlioDetails.videoDBId, {
+        workspace: workspace,
+      });
+      let newPlio = await PlioAPIService.copy(this.selectedPlioId, {
+        workspace: workspace,
+        video: newVideo.id,
+      });
+      console.log(newPlio);
+    },
     /** takes action based on the option selected in the list selector */
     selectOption(workspace) {
       this.hideSelector();
-      this.$router.push({ name: "Home", params: { org: workspace } });
+      this.copyPlio(workspace).then(() =>
+        this.$router.push({ name: "Home", params: { org: workspace } })
+      );
     },
   },
   computed: {
@@ -601,6 +614,7 @@ export default {
       "isEmbedPlioDialogShown",
       "plioLinkToShare",
       "selectedPlioId",
+      "selectedPlioDetails",
       "isSpinnerShown",
     ]),
     ...mapState("sync", ["pending"]),

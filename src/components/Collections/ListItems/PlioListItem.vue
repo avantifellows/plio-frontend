@@ -289,6 +289,7 @@ export default {
       "showSpinner",
       "hideSpinner",
       "setSelectedPlioId",
+      "setSelectedPlioDetails",
     ]),
     ...mapActions("dialog", [
       "showDialogBox",
@@ -377,6 +378,7 @@ export default {
             });
           });
           await this.setSelectedPlioId(this.plioId);
+          await this.setSelectedPlioDetails(this.plioDetails);
           this.showSelector({
             type: "single",
             options: selectorOptions,
@@ -455,11 +457,11 @@ export default {
         "Plio UUID": this.plioId,
         "Plio Status": this.status,
       });
-      var newPlio = await PlioAPIService.duplicatePlio(this.plioId);
+      let newPlio = await PlioAPIService.duplicatePlio(this.plioId);
       await Promise.all(
         this.plioDetails.items.map(async (item, index) => {
           // duplicate item and link it to the newly created plio
-          var newItem = await ItemAPIService.duplicateItem(item.id, newPlio.data.id);
+          let newItem = await ItemAPIService.duplicateItem(item.id, newPlio.data.id);
           // duplicate question and link it to the newly created item
           await QuestionAPIService.duplicateQuestion(
             this.plioDetails.itemDetails[index].id,
