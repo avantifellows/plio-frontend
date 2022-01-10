@@ -593,7 +593,7 @@ export default {
       });
       let newPlio = await PlioAPIService.copy(this.selectedPlioId, {
         workspace: workspace,
-        video: newVideo.id,
+        video: newVideo.data.id,
       });
       console.log(newPlio);
     },
