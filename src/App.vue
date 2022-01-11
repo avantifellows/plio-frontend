@@ -212,6 +212,8 @@ import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
 import ListSingleSelector from "@/components/UI/Selectors/ListSingleSelector.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import VideoAPIService from "@/services/API/Video.js";
+import ItemAPIService from "@/services/API/Item.js";
+import QuestionAPIService from "@/services/API/Question.js";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import Utilities from "@/services/Functional/Utilities.js";
 import { mapActions, mapState, mapGetters } from "vuex";
@@ -595,7 +597,16 @@ export default {
         workspace: workspace,
         video: newVideo.data.id,
       });
-      console.log(newPlio);
+      await ItemAPIService.copy({
+        workspace: workspace,
+        source_plio_id: this.selectedPlioDetails.plioDBId,
+        destination_plio_id: newPlio.data.id,
+      });
+      await QuestionAPIService.copy({
+        workspace: workspace,
+        source_plio_id: this.selectedPlioDetails.plioDBId,
+        destination_plio_id: newPlio.data.id,
+      });
     },
     /** takes action based on the option selected in the list selector */
     selectOption(workspace) {

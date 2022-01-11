@@ -1,5 +1,9 @@
 import { apiClient } from "@/services/API/RootClient.js";
-import { questionsEndpoint } from "@/services/API/Endpoints.js";
+import {
+  questionsEndpoint,
+  duplicateEndpoint,
+  copyEndpoint,
+} from "@/services/API/Endpoints.js";
 
 export default {
   /**
@@ -31,8 +35,19 @@ export default {
    * @returns
    */
   duplicateQuestion(questionId, itemId) {
-    return apiClient().post(questionsEndpoint + questionId + "/duplicate/", {
-      itemId: itemId,
-    });
+    return apiClient().post(
+      questionsEndpoint + questionId + duplicateEndpoint,
+      {
+        itemId: itemId,
+      }
+    );
+  },
+
+  /**
+   * Copy a list of questions to another workspace
+   * @param {Object} payload - params required for copying the required questions
+   */
+  copy(payload) {
+    return apiClient().post(questionsEndpoint + copyEndpoint, payload);
   },
 };
