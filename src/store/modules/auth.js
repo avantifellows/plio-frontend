@@ -51,12 +51,12 @@ const getters = {
       api_key: "",
     };
   },
+  /** schema of the current workspace */
   activeWorkspaceSchema: (_, getters) => {
-    // schema of the current workspace
     return getters.activeWorkspaceDetails.schema_name;
   },
+  /** api key of the current workspace */
   activeWorkspaceApiKey: (_, getters) => {
-    // api key of the current workspace
     return getters.activeWorkspaceDetails.api_key;
   },
   isAnalyticsAccessTokenValid: (state) => {
