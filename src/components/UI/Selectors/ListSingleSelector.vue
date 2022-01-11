@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white fixed w-3/4 bp-500:w-1/2 md:w-1/3 z-10 bg-white shadow-lg rounded-md pb-4"
+    class="bg-white fixed w-3/4 bp-500:w-1/2 lg:w-1/3 z-10 shadow-lg rounded-md pb-4"
     data-test="optionsContainer"
   >
     <div class="w-full flex justify-end">
@@ -21,7 +21,7 @@
       <ul
         tabindex="-1"
         role="listbox"
-        class="text-base overflow-auto focus:outline-none sm:text-sm"
+        class="text-base overflow-auto focus:outline-none sm:text-sm max-h-48"
         data-test="options"
       >
         <li
@@ -42,16 +42,14 @@
 
     <!-- info on receiving data from embeds -->
     <div class="px-6 p-2 mt-4" v-if="isInfoPresent">
-      <div
-        class="w-full p-4 sm:p-2 rounded-md border border-yellow-400 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
-      >
+      <div class="w-full p-2 rounded-md border border-yellow-400 flex flex-row space-x-4">
         <!-- icon -->
         <inline-svg
           :src="getImageSource('exclamation-circle-solid.svg')"
-          class="w-6 h-6 text-yellow-600 fill-current place-self-center transform rotate-180"
+          class="w-8 h-8 sm:w-6 sm:h-6 text-yellow-600 fill-current place-self-center transform rotate-180"
         ></inline-svg>
         <!-- text -->
-        <p class="text-yellow-600 text-sm">
+        <p class="text-xs sm:text-sm text-yellow-600">
           {{ info }}
         </p>
       </div>

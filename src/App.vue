@@ -181,7 +181,7 @@
       ></EmbedPlioDialog>
     </div>
     <!-- list of options that can be selected -->
-    <div class="fixed top-1/3 w-full flex justify-center">
+    <div class="fixed top-1/6 w-full flex justify-center">
       <ListSingleSelector
         v-if="isSingleSelectorShown"
         v-click-away="hideSelector"
