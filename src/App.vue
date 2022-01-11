@@ -394,6 +394,8 @@ export default {
       "hideSpinner",
       "setWindowInnerWidth",
       "setWindowInnerHeight",
+      "showSpinner",
+      "hideSpinner",
     ]),
     ...mapActions("sync", ["stopLoading"]),
     ...mapActions("dialog", [
@@ -611,9 +613,11 @@ export default {
     /** takes action based on the option selected in the list selector */
     selectOption(workspace) {
       this.hideSelector();
-      this.copyPlio(workspace).then(() =>
-        this.$router.push({ name: "Home", params: { org: workspace } })
-      );
+      this.showSpinner();
+      this.copyPlio(workspace).then(() => {
+        this.hideSpinner();
+        this.$router.push({ name: "Home", params: { org: workspace } });
+      });
     },
   },
   computed: {
