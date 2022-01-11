@@ -105,10 +105,10 @@ export default {
   },
   computed: {
     isTitlePresent() {
-      return this.title != undefined && this.title != null && this.title != "";
+      return this.title != undefined && this.title != "";
     },
     isInfoPresent() {
-      return this.info != undefined && this.info != null && this.title != "";
+      return this.info != undefined && this.title != "";
     },
   },
   emits: ["select", "close"],
