@@ -1401,7 +1401,7 @@ export default {
                 // if the value has changed, update the settings on the DB if the plio is not published.
                 // if it's published, the user will have to click publish to push the changes
                 this.plioSettings[headerName][tabName][settingName] = value;
-                if (!this.published) this.updatePlioSettings();
+                if (!this.isPublished) this.updatePlioSettings();
                 else this.publishPlio();
               },
               { deep: true }
