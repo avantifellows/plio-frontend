@@ -42,7 +42,7 @@
       </ul>
     </div>
 
-    <!-- info on receiving data from embeds -->
+    <!-- any optional info regarding the list -->
     <div class="px-6 p-2 mt-4" v-if="isInfoPresent" data-test="info">
       <div class="w-full p-2 rounded-md border border-yellow-400 flex flex-row space-x-4">
         <!-- icon -->
