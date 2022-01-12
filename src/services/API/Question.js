@@ -48,6 +48,10 @@ export default {
    * @param {Object} payload - params required for copying the required questions
    */
   copy(payload) {
-    return apiClient().post(questionsEndpoint + copyEndpoint, payload);
+    // slice is done to avoid /items//copy
+    return apiClient().post(
+      questionsEndpoint.slice(0, -1) + copyEndpoint,
+      payload
+    );
   },
 };

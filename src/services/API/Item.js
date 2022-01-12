@@ -55,6 +55,7 @@ export default {
    * @param {Object} payload - params required for copying the required items
    */
   copy(payload) {
-    return apiClient().post(itemsEndpoint + copyEndpoint, payload);
+    // slice is done to avoid /items//copy
+    return apiClient().post(itemsEndpoint.slice(0, -1) + copyEndpoint, payload);
   },
 };

@@ -205,6 +205,7 @@
         :info="selectorInfo"
         @close="hideSelector"
         @select="selectOption"
+        ref="listSingleSelector"
       ></ListSingleSelector>
     </div>
     <!-- spinner -->
