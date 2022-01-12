@@ -22,12 +22,4 @@ export default {
     // API to soft delete an image entry in the DB. Also deletes the image on S3
     return apiClient().delete(imagesEndpoint + imageId);
   },
-
-  /**
-   * Copy a list of images to another workspace
-   * @param {Object} payload - params required for copying the required images
-   */
-  copy(payload) {
-    return apiClient().post(imagesEndpoint + copyEndpoint, payload);
-  },
 };
