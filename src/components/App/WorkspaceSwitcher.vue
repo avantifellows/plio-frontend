@@ -20,15 +20,13 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 
 export default {
   name: "WorkspaceSwitcher",
   computed: {
     ...mapState("auth", ["activeWorkspace", "user"]),
-    workspaces() {
-      return this.user ? this.user.organizations : [];
-    },
+    ...mapGetters("auth", ["workspaces"]),
   },
   watch: {
     activeWorkspace(value) {

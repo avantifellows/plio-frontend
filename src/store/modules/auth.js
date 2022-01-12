@@ -32,7 +32,8 @@ const getters = {
   },
   /** list of all workspaces that the user is a part of */
   workspaces: (state) => {
-    return state.user.organizations;
+    if (state.user != undefined) return state.user.organizations;
+    return [];
   },
   /** whether the current user has workspaces beyond the personal workspace */
   hasWorkspaces: (_, getters) => {
