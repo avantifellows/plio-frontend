@@ -13,7 +13,9 @@
       ></icon-button>
     </div>
 
-    <p v-if="isTitlePresent" class="p-2 px-6 text-lg font-bold">{{ title }}</p>
+    <p v-if="isTitlePresent" class="p-2 px-6 text-lg font-bold" data-test="title">
+      {{ title }}
+    </p>
 
     <hr />
 
@@ -30,7 +32,7 @@
           role="option"
           class="text-gray-900 select-none relative p-2 px-6 hover:bg-primary hover:cursor-pointer hover:text-white"
           @click="setOption(optionIndex)"
-          :data-test="`option-${option.value}`"
+          :data-test="`option-${optionIndex}`"
         >
           <div class="flex space-x-4 items-center">
             <!-- option text -->
@@ -41,7 +43,7 @@
     </div>
 
     <!-- info on receiving data from embeds -->
-    <div class="px-6 p-2 mt-4" v-if="isInfoPresent">
+    <div class="px-6 p-2 mt-4" v-if="isInfoPresent" data-test="info">
       <div class="w-full p-2 rounded-md border border-yellow-400 flex flex-row space-x-4">
         <!-- icon -->
         <inline-svg
@@ -49,7 +51,7 @@
           class="w-8 h-8 sm:w-6 sm:h-6 text-yellow-600 fill-current place-self-center transform rotate-180"
         ></inline-svg>
         <!-- text -->
-        <p class="text-xs sm:text-sm text-yellow-600">
+        <p class="text-xs sm:text-sm text-yellow-600" data-test="infoText">
           {{ info }}
         </p>
       </div>
