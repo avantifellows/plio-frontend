@@ -9,9 +9,10 @@
     >
       <option value="">Personal Workspace</option>
       <option
-        v-for="workspace in workspaces"
+        v-for="(workspace, index) in workspaces"
         :key="workspace.id"
         :value="workspace.shortcode"
+        :data-test="`workspace-${index + 1}`"
       >
         {{ workspace.name }}
       </option>
