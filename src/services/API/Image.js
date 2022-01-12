@@ -1,5 +1,5 @@
 import { apiClient } from "@/services/API/RootClient.js";
-import { imagesEndpoint, copyEndpoint } from "@/services/API/Endpoints.js";
+import { imagesEndpoint } from "@/services/API/Endpoints.js";
 
 export default {
   async uploadImage(imageFile) {
