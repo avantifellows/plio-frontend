@@ -24,6 +24,7 @@
     "canvas-confetti": "^1.4.0",
     "core-js": "^3.6.5",
     "cypress": "^9.1.0",
+    "dayjs": "^1.10.7",
     "debounce": "^1.2.1",
     "deep-eql": "^4.0.0",
     "dom-to-image": "^2.6.0",

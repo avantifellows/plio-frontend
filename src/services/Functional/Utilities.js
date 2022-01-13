@@ -1,3 +1,8 @@
+import axios from "axios";
+import dayjs from "dayjs";
+var duration = require("dayjs/plugin/duration");
+dayjs.extend(duration);
+
 export default {
   /**
    * Returns the link to the Player for a plio
@@ -227,4 +232,24 @@ export function convertISOTimeToSeconds(timeInISO) {
   let second = parseInt(timeInISO.second) || 0;
   let millisecond = parseInt(timeInISO.millisecond) || 0;
   return hour * 3600 + minute * 60 + second + millisecond / 1000;
+}
+
+/**
+ * Get duration of a YouTube video in seconds
+ * @param {String} videoId - the unique id of the video on youtube
+ */
+export async function getVideoDuration(videoId) {
+  let response = await axios.get(
+    "https://www.googleapis.com/youtube/v3/videos",
+    {
+      params: {
+        id: videoId,
+        part: "contentDetails",
+        key: process.env.VUE_APP_GOOGLE_API_KEY,
+      },
+    }
+  );
+  let items = response.data["items"];
+  if (items.length === 0) throw new Error("video does not exist");
+  return dayjs.duration(items[0]["contentDetails"]["duration"]).asSeconds();
 }

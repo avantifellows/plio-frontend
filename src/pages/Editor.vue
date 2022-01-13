@@ -517,6 +517,7 @@ import ItemFunctionalService from "@/services/Functional/Item.js";
 import Utilities, {
   throwConfetti,
   resetConfetti,
+  getVideoDuration,
 } from "@/services/Functional/Utilities.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import debounce from "debounce";
@@ -605,6 +606,8 @@ export default {
       sliderStep: 0.1, // timestep for the slider
       itemTimestamps: [], // stores the list of the timestamps of all items
       videoURL: "", // full video url
+      isVideoValidationEnabled: false,
+      isVideoIdValid: false,
       lastUpdated: new Date(), // time when the last update to remote was made
       minUpdateInterval: 1000, // minimum time in milliseconds between updates
       isBeingPublished: false, // whether the current plio is in the process of being published
@@ -799,20 +802,39 @@ export default {
      * and push the updated video object to the backend
      * @param {String} newVideoURL - The new video URL that the user has entered
      */
-    videoURL(newVideoURL) {
+    async videoURL(newVideoURL) {
       // invoked when the video link is updated
-      var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
-      if (!linkValidation["valid"]) return;
+      let linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
+      if (!linkValidation["valid"]) {
+        this.isVideoIdValid = false
+        if (!this.isVideoValidationEnabled) this.isVideoValidationEnabled = true;
+        return;
+      }
 
-      if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
+      let videoDuration;
+      await (async () => {
+        try {
+          videoDuration = await getVideoDuration(linkValidation["ID"]);
+          console.log(videoDuration);
+        } catch (error) {
+          console.log(error);
+          this.toast.error("Invalid video link");
+        }
+      })();
+
+      // video link was invalid
+      if (videoDuration == undefined) return;
+
+      if (this.videoId != "" && linkValidation["ID"] != this.videoId) {
         this.player.destroy();
       }
       this.videoId = linkValidation["ID"];
+      this.isVideoIdValid = true
 
       if (this.loadedPlioDetails.videoURL == newVideoURL) return;
       this.checkAndSaveChanges("video", this.videoDBId, {
         url: newVideoURL,
-        duration: this.videoDuration,
+        duration: videoDuration,
       });
     },
     /**
@@ -1057,7 +1079,7 @@ export default {
      */
     videoInputValidation() {
       return {
-        enabled: this.videoURL,
+        enabled: this.isVideoValidationEnabled,
         isValid: this.isVideoIdValid,
         validMessage: this.$t("editor.video_input.validation.valid"),
         invalidMessage: this.$t("editor.video_input.validation.invalid"),
@@ -1067,7 +1089,8 @@ export default {
      * returns the player instance
      */
     player() {
-      return this.$refs.videoPlayer.player;
+      if (this.$refs.videoPlayer != null) return this.$refs.videoPlayer.player;
+      return null;
     },
     /**
      * get the correct answer for the question
@@ -1234,12 +1257,6 @@ export default {
      */
     plioLink() {
       return this.getPlioLink(this.plioId, this.org);
-    },
-    /**
-     * whether the video Id is valid
-     */
-    isVideoIdValid() {
-      return this.videoId != "";
     },
     /**
      * title for the dialog box that appears when publishing a
