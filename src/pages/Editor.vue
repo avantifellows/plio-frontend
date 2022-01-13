@@ -749,6 +749,14 @@ export default {
             // the dialog would already be closed
             // nothing else needs to be done
             break;
+          case "updateVideoPlayer":
+            this.player.destroy();
+            this.updateVideoPlayer(
+              this.newVideoDetails.videoId,
+              this.newVideoDetails.videoURL,
+              this.newVideoDetails.videoDuration
+            );
+            break;
           default:
             // this watch will be triggered whenever the confirm button
             // of the shared dialog box will be clicked
@@ -781,6 +789,10 @@ export default {
               this.togglePlioPreviewMode();
             }
             break;
+          case "updateVideoPlayer":
+            this.videoURL = this.newVideoDetails.fallbackVideoURL;
+            this.unsetNewVideoDetails();
+            break;
           default:
             // this watch will be triggered whenever the cancel button
             // of the shared dialog box will be clicked
@@ -802,11 +814,11 @@ export default {
      * and push the updated video object to the backend
      * @param {String} newVideoURL - The new video URL that the user has entered
      */
-    async videoURL(newVideoURL) {
+    async videoURL(newVideoURL, oldVideoURL) {
       // invoked when the video link is updated
       let linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
       if (!linkValidation["valid"]) {
-        this.isVideoIdValid = false
+        this.isVideoIdValid = false;
         if (!this.isVideoValidationEnabled) this.isVideoValidationEnabled = true;
         return;
       }
@@ -815,9 +827,7 @@ export default {
       await (async () => {
         try {
           videoDuration = await getVideoDuration(linkValidation["ID"]);
-          console.log(videoDuration);
-        } catch (error) {
-          console.log(error);
+        } catch (_) {
           this.toast.error("Invalid video link");
         }
       })();
@@ -826,16 +836,19 @@ export default {
       if (videoDuration == undefined) return;
 
       if (this.videoId != "" && linkValidation["ID"] != this.videoId) {
+        if (this.hasAnyItems && this.items.at(-1).time > videoDuration) {
+          this.setNewVideoDetails({
+            videoId: linkValidation["ID"],
+            videoURL: newVideoURL,
+            videoDuration: videoDuration,
+            fallbackVideoURL: oldVideoURL,
+          });
+          this.showVideoUpdateConfirmationDialogBox();
+          return;
+        }
         this.player.destroy();
       }
-      this.videoId = linkValidation["ID"];
-      this.isVideoIdValid = true
-
-      if (this.loadedPlioDetails.videoURL == newVideoURL) return;
-      this.checkAndSaveChanges("video", this.videoDBId, {
-        url: newVideoURL,
-        duration: videoDuration,
-      });
+      this.updateVideoPlayer(linkValidation["ID"], newVideoURL, videoDuration);
     },
     /**
      * When plio's title is updated, check if it's different than the loaded plio's title
@@ -860,7 +873,7 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
-    ...mapState("generic", ["isEmbedPlioDialogShown"]),
+    ...mapState("generic", ["isEmbedPlioDialogShown", "newVideoDetails"]),
     ...mapGetters("auth", ["isPersonalWorkspace"]),
     ...mapState("dialog", {
       isDialogBoxShown: "isShown",
@@ -1314,6 +1327,8 @@ export default {
       "showEmbedPlioDialog",
       "showSpinner",
       "hideSpinner",
+      "setNewVideoDetails",
+      "unsetNewVideoDetails",
     ]),
     ...mapActions("dialog", [
       "showDialogBox",
@@ -1329,6 +1344,42 @@ export default {
       "unsetCancelClicked",
     ]),
     ...Utilities,
+    /**
+     * shows the dialog box for confirming whether to update the video link
+     */
+    showVideoUpdateConfirmationDialogBox() {
+      // set dialog properties
+      this.setDialogTitle("Are you sure you want to update the video link?");
+      this.setDialogDescription(
+        "Some of your questions that are present at timestamps greater than the duration of the video will be deleted"
+      );
+      this.setDialogCloseButton();
+      this.setConfirmButtonConfig({
+        enabled: true,
+        text: this.$t(`generic.yes`),
+        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
+      });
+      this.setCancelButtonConfig({
+        enabled: true,
+        text: this.$t(`generic.no`),
+        class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
+      });
+      this.setDialogBoxClass("w-72");
+      // closing the dialog executes this action
+      this.setDialogAction("updateVideoPlayer");
+      // show the dialog box
+      this.showDialogBox();
+    },
+    updateVideoPlayer(videoId, videoURL, videoDuration) {
+      this.videoId = videoId;
+      this.isVideoIdValid = true;
+
+      if (this.loadedPlioDetails.videoURL == videoURL) return;
+      this.checkAndSaveChanges("video", this.videoDBId, {
+        url: videoURL,
+        duration: videoDuration,
+      });
+    },
     /**
      * copies the plio draft link to the clipboard
      */

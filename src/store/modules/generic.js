@@ -4,6 +4,7 @@ const state = {
   plioLinkToShare: null,
   selectedPlioId: null, // uuid of the plio selected
   selectedPlioDetails: null,
+  newVideoDetails: null,
   windowInnerWidth: null,
   windowInnerHeight: null,
   isSpinnerShown: false,
@@ -39,6 +40,12 @@ const actions = {
   setSelectedPlioDetails({ commit }, plioDetails) {
     commit("setSelectedPlioDetails", plioDetails);
   },
+  setNewVideoDetails({ commit }, plioId) {
+    commit("setNewVideoDetails", plioId);
+  },
+  unsetNewVideoDetails({ commit }) {
+    commit("unsetNewVideoDetails");
+  },
   setWindowInnerWidth({ commit }, windowInnerWidth) {
     commit("setWindowInnerWidth", windowInnerWidth);
   },
@@ -72,8 +79,14 @@ const mutations = {
   setSelectedPlioId(state, plioId) {
     state.selectedPlioId = plioId;
   },
-  setSelectedPlioDetails(state, plioDetails) {
-    state.selectedPlioDetails = plioDetails;
+  setSelectedPlioDetails(state, details) {
+    state.selectedPlioDetails = details;
+  },
+  setNewVideoDetails(state, details) {
+    state.newVideoDetails = details;
+  },
+  unsetNewVideoDetails(state) {
+    state.newVideoDetails = null;
   },
   setWindowInnerWidth(state, windowInnerWidth) {
     state.windowInnerWidth = windowInnerWidth;

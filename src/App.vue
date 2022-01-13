@@ -423,6 +423,8 @@ export default {
       "unsetCancelButtonConfig",
       "setConfirmClicked",
       "setCancelClicked",
+      "unsetConfirmClicked",
+      "unsetCancelClicked",
       "unsetDialogCloseButton",
     ]),
     ...mapActions("selectors", ["hideSelector"]),
@@ -459,6 +461,8 @@ export default {
       this.unsetDialogDescription();
       this.unsetConfirmButtonConfig();
       this.unsetCancelButtonConfig();
+      this.unsetConfirmClicked();
+      this.unsetCancelClicked();
       this.unsetDialogBoxClass();
       this.unsetDialogCloseButton();
     },
