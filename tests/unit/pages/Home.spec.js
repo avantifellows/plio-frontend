@@ -92,9 +92,10 @@ describe("Home.vue", () => {
 
     // set user
     await store.dispatch("auth/setUser", global.dummyUser);
+    await store.dispatch("auth/setUserSettings", global.dummyGlobalSettings);
 
-    // changing the user to approved makes another API call to list UUIDs
-    // this resets it
+    // changing the user to approved makes another API call to list UUIDs.
+    // The below line resets it.
     mockAxios.reset();
 
     const wrapper = mount(Home, {
@@ -129,6 +130,20 @@ describe("Home.vue", () => {
       { status: 201, data: { uuid: testPlioId } },
       mockAxios.queue()[0]
     );
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // after plio creation, a call to update plio's settings
+    // should've been made
+    expect(mockAxios.put).toHaveBeenCalledTimes(1);
+    expect(mockAxios.put).toHaveBeenCalledWith(
+      `/plios/${testPlioId}/setting`,
+      global.dummyGlobalSettings
+    );
+
+    // resolve the `PUT` request waiting in the queue using fake response data
+    mockAxios.mockResponse({ status: 200 }, mockAxios.queue()[0]);
 
     // wait until the DOM updates after promises resolve
     await flushPromises();

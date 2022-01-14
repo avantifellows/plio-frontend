@@ -14,7 +14,7 @@
 
         <!-- settings button -->
         <icon-button
-          v-if="!hasAnySettingsToRender"
+          v-if="hasAnySettingsToRender"
           :iconConfig="settingsButtonIconConfig"
           :buttonClass="settingsButtonClass"
           @click="showSettingsMenu"
@@ -877,9 +877,7 @@ export default {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
     ...mapGetters("auth", ["isPersonalWorkspace", "userRoleInActiveWorkspace"]),
-    ...mapState("auth", {
-      userSettings: "settings",
-    }),
+    ...mapState("auth", ["userSettings"]),
     ...mapState("dialog", {
       isDialogBoxShown: "isShown",
       dialogAction: "action",

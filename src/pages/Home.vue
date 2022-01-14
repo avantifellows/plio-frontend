@@ -58,7 +58,7 @@ import Table from "@/components/Collections/Table/Table.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import Paginator from "@/components/UI/Navigation/Paginator.vue";
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 
 export default {
@@ -114,11 +114,9 @@ export default {
     this.$mixpanel.track("Visit Home");
   },
   computed: {
-    ...mapState("auth", ["activeWorkspace"]),
+    ...mapState("auth", ["activeWorkspace", "userSettings"]),
     ...mapState("sync", ["pending"]),
-    ...mapState("auth", {
-      userSettings: "settings",
-    }),
+    ...mapGetters("auth", ["isPersonalWorkspace", "activeWorkspaceSettings"]),
     createButtonTextConfig() {
       // config for the text of the create button shown when no plios have been created
       return {
@@ -227,7 +225,9 @@ export default {
         let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
           plioUuid,
           {
-            player: this.userSettings.player,
+            player: this.isPersonalWorkspace
+              ? this.userSettings.player
+              : this.activeWorkspaceSettings.player,
           }
         );
         if (updatePlioSettingsResponse.status == 200) {

@@ -2077,7 +2077,7 @@ describe("Editor.vue", () => {
       data() {
         return {
           isSettingsMenuShown: true,
-          settingsToRender: global.settingsToRender,
+          settingsToRender: global.dummySettingsToRender,
         };
       },
     });
@@ -2093,12 +2093,13 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          settingsToRender: global.settingsToRender,
+          settingsToRender: global.dummySettingsToRender,
         };
       },
     });
 
     expect(wrapper.vm.isSettingsMenuShown).toBeFalsy();
+    expect(wrapper.vm.hasAnySettingsToRender).toBeTruthy();
     await wrapper.get('[data-test="settingsButton"]').trigger("click");
     expect(showSettingsMenu).toHaveBeenCalled();
     expect(wrapper.vm.isSettingsMenuShown).toBeTruthy();
@@ -2111,18 +2112,27 @@ describe("Editor.vue", () => {
 
     beforeEach(async () => {
       // set global default settings as the user's settings
-      await store.dispatch("auth/setSettings", global.dummyGlobalSettings);
+      await store.dispatch("auth/setUserSettings", global.dummyGlobalSettings);
 
       // restor all mocks to their original implementation
       jest.restoreAllMocks();
 
       // prepare a dummy plio with proper settings in it's config
       dummyPlio = clonedeep(global.dummyDraftPlio);
-      dummyPlio.config = {
+      dummyPlio.data.config = {
         settings: {
           player: {
-            configuration: {
-              skipEnabled: false,
+            scope: [],
+            children: {
+              configuration: {
+                scope: [],
+                children: {
+                  skipEnabled: {
+                    scope: [],
+                    value: false,
+                  },
+                },
+              },
             },
           },
         },
@@ -2164,7 +2174,8 @@ describe("Editor.vue", () => {
       expect(settingsComponent.emitted()).toHaveProperty("update:settings");
       // the local value of plio settings should get updated by the action above
       expect(
-        wrapper.vm.plioSettings.player.configuration.skipEnabled
+        wrapper.vm.plioSettings.player.children.configuration.children
+          .skipEnabled.value
       ).toBeTruthy();
       // the method to update the plio's settings to the DB should've been called
       expect(updatePlioSettings).toHaveBeenCalled();
@@ -2187,15 +2198,11 @@ describe("Editor.vue", () => {
       expect(settingsComponent.emitted()).toHaveProperty("update:settings");
       // the local value of plio settings should get updated by the action above
       expect(
-        wrapper.vm.plioSettings.player.configuration.skipEnabled
+        wrapper.vm.plioSettings.player.children.configuration.children
+          .skipEnabled.value
       ).toBeTruthy();
-      // the method to update the plio's settings to the DB should NOT been called
-      // because the plio is published
-      expect(updatePlioSettings).not.toHaveBeenCalled();
-
-      // publish the plio
-      wrapper.vm.publishPlio.call(wrapper.vm);
-      // now the plio's settings should get updated to the backend
+      // the method to update the plio's settings to the DB should have been called
+      // because the plio gets published when save is clicked
       expect(updatePlioSettings).toHaveBeenCalled();
     });
   });
@@ -2221,14 +2228,16 @@ describe("Editor.vue", () => {
         "constructSettingsMenu"
       );
 
+      // set workspace to personal workspace
+      await store.dispatch("auth/setActiveWorkspace", "");
+      // set the user
+      await store.dispatch("auth/setUser", global.dummyUser);
       // mount the wrapper before each test
       wrapper = mount(Editor, {
         props: {
           plioId: plioId,
         },
       });
-      // set the userSettings as the global default settings
-      await store.dispatch("auth/setSettings", global.dummyGlobalSettings);
     });
 
     afterEach(() => {
@@ -2243,7 +2252,7 @@ describe("Editor.vue", () => {
 
       // simulating the plio's fetched config as being null
       let dummyPlio = clonedeep(global.dummyDraftPlio);
-      dummyPlio.config = null;
+      dummyPlio.data.config = null;
       mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
       await flushPromises();
 
@@ -2262,7 +2271,7 @@ describe("Editor.vue", () => {
 
       // simulating the plio's fetched config as not containing 'settings' key
       let dummyPlio = clonedeep(global.dummyDraftPlio);
-      dummyPlio.config = {
+      dummyPlio.data.config = {
         // contains some random key other than 'settings'
         key: "value",
       };
@@ -2271,7 +2280,7 @@ describe("Editor.vue", () => {
 
       expect(handleSettingsInheritance).toHaveBeenCalled();
       expect(constructSettingsMenu).toHaveBeenCalled();
-      // the userSettings for player are copied into the plio' settings
+      // the userSettings for player are copied into the plio's settings
       expect(wrapper.vm.plioSettings).toStrictEqual({
         player: wrapper.vm.userSettings.player,
       });
@@ -2285,7 +2294,7 @@ describe("Editor.vue", () => {
       // simulating the plio's fetched config as containing the 'settings' key
       // but the value of that key is null
       let dummyPlio = clonedeep(global.dummyDraftPlio);
-      dummyPlio.config = {
+      dummyPlio.data.config = {
         settings: null,
       };
 
@@ -2308,7 +2317,7 @@ describe("Editor.vue", () => {
       // simulating the plio's fetched config as containing the 'settings' key
       // but no 'player' key exists inside
       let dummyPlio = clonedeep(global.dummyDraftPlio);
-      dummyPlio.config = {
+      dummyPlio.data.config = {
         settings: {
           // contains some random key other than 'player'
           key: "value",
@@ -2333,11 +2342,20 @@ describe("Editor.vue", () => {
 
       // the fetched plio's config contains all the required details
       let dummyPlio = clonedeep(global.dummyDraftPlio);
-      dummyPlio.config = {
+      dummyPlio.data.config = {
         settings: {
           player: {
-            configuration: {
-              skipEnabled: false,
+            scope: [],
+            children: {
+              configuration: {
+                scope: [],
+                children: {
+                  skipEnabled: {
+                    scope: [],
+                    value: false,
+                  },
+                },
+              },
             },
           },
         },
@@ -2350,7 +2368,9 @@ describe("Editor.vue", () => {
       expect(constructSettingsMenu).toHaveBeenCalled();
       // the settings from the fetched plio's config are copied into the local
       // plioSettings variable
-      expect(wrapper.vm.plioSettings).toStrictEqual(dummyPlio.config.settings);
+      expect(wrapper.vm.plioSettings).toStrictEqual(
+        dummyPlio.data.config.settings
+      );
     });
   });
 });

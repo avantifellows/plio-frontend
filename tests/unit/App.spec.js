@@ -167,7 +167,7 @@ describe("App.vue for authenticated user", () => {
   it("watches and updates the user's settings", async () => {
     jest.restoreAllMocks();
     // set global default settings as user's settings
-    await store.dispatch("auth/setSettings", global.dummyGlobalSettings);
+    await store.dispatch("auth/setUserSettings", global.dummyGlobalSettings);
     await store.dispatch("sync/stopLoading");
     // show the settings menu
     await wrapper.setData({
@@ -182,7 +182,10 @@ describe("App.vue for authenticated user", () => {
     // before changing any setting, the value of a setting should match with what was set
     expect(
       wrapper.vm.settingsToRender.player.configuration.skipEnabled.value
-    ).toEqual(global.dummyGlobalSettings.player.configuration.skipEnabled);
+    ).toEqual(
+      global.dummyGlobalSettings.player.children.configuration.children
+        .skipEnabled.value
+    );
     // find the settings component, click one of the setting values and click save
     let settingsComponent = wrapper.findComponent(Settings);
     await settingsComponent
@@ -197,7 +200,7 @@ describe("App.vue for authenticated user", () => {
 
   describe("sidebar buttons", () => {
     let mockWindowOpen;
-    beforeEach(() => {
+    beforeEach(async () => {
       mockWindowOpen = jest.fn().mockImplementation(() => ({
         focus: jest.fn(),
       }));
@@ -205,6 +208,7 @@ describe("App.vue for authenticated user", () => {
         writable: true,
         value: mockWindowOpen,
       });
+      await store.dispatch("sync/stopLoading");
     });
 
     afterEach(() => {
