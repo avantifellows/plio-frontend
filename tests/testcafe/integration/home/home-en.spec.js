@@ -1,5 +1,5 @@
 import { Selector } from "testcafe";
-import { loginByGoogle } from "../../helpers/loginByGoogle";
+import { googleAuthUser } from "../../helpers/loginByGoogle";
 
 fixture("Home - English")
   .page(`${process.env.BROWSERSTACK_BASE_URL}/login`)
@@ -7,7 +7,8 @@ fixture("Home - English")
     const localeSelect = Selector("#locale > select");
     const localeOption = localeSelect.find('option[value="en"]');
     await t.click(localeSelect).click(localeOption);
-    await loginByGoogle();
+    t.useRole(googleAuthUser);
+    await t.navigateTo(`${process.env.BROWSERSTACK_BASE_URL}/home`);
   });
 
 test("sees the home page", async (t) => {
