@@ -1,5 +1,5 @@
 import { apiClient } from "@/services/API/RootClient.js";
-import { videosEndpoint, copyEndpoint } from "@/services/API/Endpoints.js";
+import { videosEndpoint } from "@/services/API/Endpoints.js";
 
 export default {
   /**
@@ -19,14 +19,5 @@ export default {
    */
   updateVideo(videoDBId, payload) {
     return apiClient().patch(videosEndpoint + videoDBId, payload);
-  },
-
-  /**
-   * Copy a given video to another workspace
-   * @param {Number} videoDBId - database id of the video
-   * @param {Object} payload - params required for copying the video
-   */
-  copy(videoDBId, payload) {
-    return apiClient().post(videosEndpoint + videoDBId + copyEndpoint, payload);
   },
 };

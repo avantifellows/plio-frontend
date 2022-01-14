@@ -1,9 +1,5 @@
 import { apiClient } from "@/services/API/RootClient.js";
-import {
-  itemsEndpoint,
-  duplicateEndpoint,
-  copyEndpoint,
-} from "@/services/API/Endpoints.js";
+import { itemsEndpoint, duplicateEndpoint } from "@/services/API/Endpoints.js";
 
 export default {
   /**
@@ -48,14 +44,5 @@ export default {
     return apiClient().post(itemsEndpoint + itemId + duplicateEndpoint, {
       plioId: plioDBId,
     });
-  },
-
-  /**
-   * Copy a list of items to another workspace
-   * @param {Object} payload - params required for copying the required items
-   */
-  copy(payload) {
-    // slice is done to avoid /items//copy
-    return apiClient().post(itemsEndpoint.slice(0, -1) + copyEndpoint, payload);
   },
 };

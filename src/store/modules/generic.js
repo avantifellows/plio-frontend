@@ -3,7 +3,6 @@ const state = {
   isEmbedPlioDialogShown: false, // whether to show the dialog with info on embedding plio
   plioLinkToShare: null,
   selectedPlioId: null, // uuid of the plio selected
-  selectedPlioDetails: null,
   windowInnerWidth: null,
   windowInnerHeight: null,
   isSpinnerShown: false,
@@ -35,9 +34,6 @@ const actions = {
   },
   setSelectedPlioId({ commit }, plioId) {
     commit("setSelectedPlioId", plioId);
-  },
-  setSelectedPlioDetails({ commit }, plioDetails) {
-    commit("setSelectedPlioDetails", plioDetails);
   },
   setWindowInnerWidth({ commit }, windowInnerWidth) {
     commit("setWindowInnerWidth", windowInnerWidth);
@@ -71,9 +67,6 @@ const mutations = {
   },
   setSelectedPlioId(state, plioId) {
     state.selectedPlioId = plioId;
-  },
-  setSelectedPlioDetails(state, plioDetails) {
-    state.selectedPlioDetails = plioDetails;
   },
   setWindowInnerWidth(state, windowInnerWidth) {
     state.windowInnerWidth = windowInnerWidth;

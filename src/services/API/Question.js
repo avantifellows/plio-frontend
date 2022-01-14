@@ -2,7 +2,6 @@ import { apiClient } from "@/services/API/RootClient.js";
 import {
   questionsEndpoint,
   duplicateEndpoint,
-  copyEndpoint,
 } from "@/services/API/Endpoints.js";
 
 export default {
@@ -40,18 +39,6 @@ export default {
       {
         itemId: itemId,
       }
-    );
-  },
-
-  /**
-   * Copy a list of questions to another workspace
-   * @param {Object} payload - params required for copying the required questions
-   */
-  copy(payload) {
-    // slice is done to avoid /questions//copy
-    return apiClient().post(
-      questionsEndpoint.slice(0, -1) + copyEndpoint,
-      payload
     );
   },
 };
