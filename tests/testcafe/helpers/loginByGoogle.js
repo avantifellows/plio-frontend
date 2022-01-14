@@ -37,8 +37,6 @@ export const googleAuthUser = Role(
           .then(
             async (data) => {
               await setWindowAccessToken(data);
-              // await t.navigateTo(`${process.env.BROWSERSTACK_BASE_URL}/home`);
-              // await t.wait(5000); // let page render
             },
             () => {}
           );

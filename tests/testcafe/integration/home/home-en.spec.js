@@ -7,8 +7,9 @@ fixture("Home - English")
     const localeSelect = Selector("#locale > select");
     const localeOption = localeSelect.find('option[value="en"]');
     await t.click(localeSelect).click(localeOption);
-    t.useRole(googleAuthUser);
-    await t.navigateTo(`${process.env.BROWSERSTACK_BASE_URL}/home`);
+    await t
+      .useRole(googleAuthUser)
+      .navigateTo(`${process.env.BROWSERSTACK_BASE_URL}/home`);
   });
 
 test("sees the home page", async (t) => {
