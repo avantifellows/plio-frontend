@@ -30,9 +30,9 @@ export let settingsMetadata = {
  * - Headers: (eg- player, app etc...)
  * - Tabs: (eg- configuration, appearance etc...)
  * - Settings: (eg- skipEnabled, darkMode etc...)
- * 
+ *
  * Every level has two properties. "scope" and "children".
- * "scope" 
+ * "scope"
  *    - contains an array of user roles. A key is accessible to only those roles
  *    - if the array is empty, that means a particular key is not an org level setting
  * "children"
@@ -48,10 +48,10 @@ export default {
           skipEnabled: {
             scope: ["org-admin", "super-admin"],
             value: skipEnabled,
-          }
-        }
-      }, 
-    }
+          },
+        },
+      },
+    },
   },
   app: {
     scope: [],
@@ -62,9 +62,9 @@ export default {
           darkMode: {
             scope: [],
             value: false,
-          }
-        }
-      }, 
-    }
+          },
+        },
+      },
+    },
   },
 };
