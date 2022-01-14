@@ -2,6 +2,7 @@ import { mount, flushPromises } from "@vue/test-utils";
 import PlioAPIService from "@/services/API/Plio.js";
 import Home from "@/pages/Home.vue";
 import store from "@/store";
+import globalDefaultSettings from "../../../src/services/Config/GlobalDefaultSettings";
 
 import mockAxios from "jest-mock-axios";
 
@@ -133,14 +134,12 @@ describe("Home.vue", () => {
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
-
     // after plio creation, a call to update plio's settings
     // should've been made
     expect(mockAxios.put).toHaveBeenCalledTimes(1);
-    expect(mockAxios.put).toHaveBeenCalledWith(
-      `/plios/${testPlioId}/setting`,
-      global.dummyGlobalSettings
-    );
+    expect(mockAxios.put).toHaveBeenCalledWith(`/plios/${testPlioId}/setting`, {
+      player: global.dummyGlobalSettings.player,
+    });
 
     // resolve the `PUT` request waiting in the queue using fake response data
     mockAxios.mockResponse({ status: 200 }, mockAxios.queue()[0]);

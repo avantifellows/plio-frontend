@@ -362,6 +362,7 @@ global.dummyUser = {
       name: "Organization 1",
       shortcode: "o1",
       role: "org-admin",
+      config: null,
       created_at: "2021-04-26T09:46:38.972422Z",
       updated_at: "2021-04-26T09:46:38.972433Z",
     },
@@ -371,6 +372,7 @@ global.dummyUser = {
       name: "Organization 2",
       shortcode: "o2",
       role: "org-view",
+      config: null,
       created_at: "2021-04-21T10:12:51.751152Z",
       updated_at: "2021-06-30T08:41:41.652160Z",
     },
@@ -580,6 +582,37 @@ global.dummyGlobalSettings = {
       },
     },
   },
+  app: {
+    scope: [],
+    children: {
+      appearance: {
+        scope: [],
+        children: {
+          darkMode: {
+            scope: [],
+            value: false,
+          },
+        },
+      },
+    },
+  },
+};
+
+global.dummyGlobalSettingsFilteredForOrgs = {
+  player: {
+    scope: ["org-admin", "super-admin"],
+    children: {
+      configuration: {
+        scope: ["org-admin", "super-admin"],
+        children: {
+          skipEnabled: {
+            scope: ["org-admin", "super-admin"],
+            value: true,
+          },
+        },
+      },
+    },
+  },
 };
 
 global.dummySettingsToRender = {
@@ -588,6 +621,17 @@ global.dummySettingsToRender = {
       skipEnabled: {
         title: "settings.menu.title.skipEnabled",
         subTitle: "settings.menu.subTitle.skipEnabled",
+        type: "checkbox",
+        value: false,
+        isOrgSetting: false,
+      },
+    },
+  },
+  app: {
+    appearance: {
+      darkMode: {
+        title: "settings.menu.title.darkMode",
+        subTitle: "settings.menu.subTitle.darkMode",
         type: "checkbox",
         value: false,
         isOrgSetting: false,

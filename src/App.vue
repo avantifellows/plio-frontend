@@ -518,7 +518,7 @@ export default {
           set(
             mergedSettings,
             `${path}.${tabName}.scope`,
-            get(orgSettings, path + `${path}.${tabName}.scope`)
+            get(orgSettings, `${path}.${tabName}.scope`)
           );
 
           for (let settingName of Object.keys(tabDetails.children)) {
