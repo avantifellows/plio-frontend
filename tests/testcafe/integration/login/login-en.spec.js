@@ -1,5 +1,5 @@
 import { Selector } from "testcafe";
-import { loginByGoogle } from "../../helpers/loginByGoogle";
+import { googleAuthUser } from "../../helpers/loginByGoogle";
 
 fixture("Login - English")
   .page(`${process.env.BROWSERSTACK_BASE_URL}/login`)
@@ -24,7 +24,9 @@ test("sees the login page", async (t) => {
   const languageSelect = Selector("#locale > select");
   await t.expect(languageSelect.visible).ok();
 
-  await loginByGoogle();
+  await t
+    .useRole(googleAuthUser)
+    .navigateTo(`${process.env.BROWSERSTACK_BASE_URL}/home`);
 
   const logoutOption = Selector('[data-test="logout"]');
   await t.expect(logoutOption.visible).ok();
