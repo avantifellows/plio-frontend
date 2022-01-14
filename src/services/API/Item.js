@@ -3,6 +3,7 @@ import {
   itemsEndpoint,
   duplicateEndpoint,
   copyEndpoint,
+  bulkDeleteEndpoint,
 } from "@/services/API/Endpoints.js";
 
 export default {
@@ -55,7 +56,18 @@ export default {
    * @param {Object} payload - params required for copying the required items
    */
   copy(payload) {
-    // slice is done to avoid /items//copy
+    // slice is done to avoid // in the endpoint
     return apiClient().post(itemsEndpoint.slice(0, -1) + copyEndpoint, payload);
+  },
+
+  /**
+   * Delete a list of items
+   * @param {Object} payload - params required for deleting the required items
+   */
+  bulkDelete(payload) {
+    // slice is done to avoid // in the endpoint
+    return apiClient().delete(itemsEndpoint.slice(0, -1) + bulkDeleteEndpoint, {
+      data: payload,
+    });
   },
 };

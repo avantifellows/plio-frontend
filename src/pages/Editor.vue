@@ -1232,7 +1232,10 @@ export default {
      * whether there are any items
      */
     hasAnyItems() {
-      return this.items.length != 0;
+      return this.numItems != 0;
+    },
+    numItems() {
+      return this.items.length;
     },
     /**
      * whether the plio has been pubished
@@ -1344,6 +1347,15 @@ export default {
       "unsetCancelClicked",
     ]),
     ...Utilities,
+    removeItem(index) {
+      this.itemDetails.splice(index, 1);
+      let itemToDelete = this.items.splice(index, 1);
+      this.updateItemTimestamps();
+      return itemToDelete;
+    },
+    isItemQuestion(index) {
+      return this.items[index].type == "question";
+    },
     /**
      * shows the dialog box for confirming whether to update the video link
      */
@@ -1374,11 +1386,32 @@ export default {
       this.videoId = videoId;
       this.isVideoIdValid = true;
 
-      if (this.loadedPlioDetails.videoURL == videoURL) return;
       this.checkAndSaveChanges("video", this.videoDBId, {
         url: videoURL,
         duration: videoDuration,
       });
+
+      // delete items with timestamp larger than the updated video duration
+      (() => {
+        let deleteStartIndex;
+        for (let index = this.numItems - 1; index >= 0; index--) {
+          if (this.items[index].time >= videoDuration) deleteStartIndex = index;
+          else break;
+        }
+        // no items to be deleted
+        if (deleteStartIndex == undefined) return;
+        let itemIdsToDelete = [];
+        for (let index = deleteStartIndex; index < this.numItems; index++) {
+          itemIdsToDelete.push(this.items[index].id);
+
+          // update local variables
+          if (this.currentItemIndex == index) this.markNoItemSelected();
+          this.removeItem(index);
+        }
+        ItemAPIService.bulkDelete({
+          id: itemIdsToDelete,
+        });
+      })();
     },
     /**
      * copies the plio draft link to the clipboard
@@ -1858,7 +1891,7 @@ export default {
 
           // update all the item details
           this.itemDetails.forEach(async (itemDetail, index) => {
-            if (this.items[index].type == "question") {
+            if (this.isItemQuestion(index)) {
               await this.updateQuestionDetails(itemDetail.id, itemDetail);
             }
           });
@@ -2161,9 +2194,7 @@ export default {
       this.clearItemAndItemDetailWatcher(currentItem.id);
 
       // remove the item and itemDetails locally and remotely
-      this.itemDetails.splice(this.currentItemIndex, 1);
-      var itemToDelete = this.items.splice(this.currentItemIndex, 1);
-      this.updateItemTimestamps();
+      let itemToDelete = this.removeItem(this.currentItemIndex);
       ItemAPIService.deleteItem(itemToDelete[0].id);
       // set currentItemIndex to null to hide the item editor
       this.currentItemIndex = null;
