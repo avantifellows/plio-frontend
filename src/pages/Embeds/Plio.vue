@@ -55,7 +55,7 @@
           :videoPlayerElementId="plioVideoPlayerElementId"
           v-model:isFullscreen="isFullscreen"
           v-model:responseList="itemResponses"
-          :configuration="plioSettings.player.configuration"
+          :configuration="plioSettings.player.children.configuration"
           @skip-question="skipQuestion"
           @proceed-question="proceedQuestion"
           @revise-question="reviseQuestion"
@@ -98,7 +98,7 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { resetConfetti } from "@/services/Functional/Utilities.js";
-import globalSettings from "@/services/Config/GlobalSettings.js";
+import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 
 var clonedeep = require("lodash.clonedeep");
 
@@ -517,7 +517,7 @@ export default {
     handleSettingsInheritance() {
       if (this.plioSettings == null)
         this.plioSettings = {
-          player: clonedeep(globalSettings.player),
+          player: clonedeep(globalDefaultSettings.player),
         };
     },
     /**

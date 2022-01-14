@@ -1,6 +1,6 @@
 import UserAPIService from "@/services/API/User.js";
 import AnalyticsAPIService from "@/services/API/Analytics.js";
-import globalSettings from "@/services/Config/GlobalSettings.js";
+import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 
 var clonedeep = require("lodash.clonedeep");
 
@@ -17,7 +17,8 @@ const state = {
   analyticsAccessToken: null,
   analyticsAccessTokenFetchTime: null,
   analyticsAccessTokenExpiryTime: null,
-  settings: null,
+  userSettings: null,
+  workspaceSettings: null,
 };
 
 const getters = {
@@ -40,7 +41,7 @@ const getters = {
   },
   /** the current active workspace */
   activeWorkspaceDetails: (state, getters) => {
-    if (state.activeWorkspace != "") {
+    if (!getters.isPersonalWorkspace) {
       return getters.workspaces.find((workspace) => {
         return workspace.shortcode == state.activeWorkspace;
       });
@@ -58,6 +59,21 @@ const getters = {
   /** api key of the current workspace */
   activeWorkspaceApiKey: (_, getters) => {
     return getters.activeWorkspaceDetails.api_key;
+  },
+  /** settings for the active workspace */
+  activeWorkspaceSettings: (state, getters) => {
+    if (getters.isPersonalWorkspace) return null;
+    return state.workspaceSettings[state.activeWorkspace];
+  },
+  /** User's role in the current active workspace */
+  userRoleInActiveWorkspace: (_, getters) => {
+    if (getters.isPersonalWorkspace) return null;
+    return getters.activeWorkspaceDetails.role;
+  },
+  /** Id of the active workspace */
+  activeWorkspaceId: (_, getters) => {
+    if (getters.isPersonalWorkspace) return null;
+    return getters.activeWorkspaceDetails.id;
   },
   isAnalyticsAccessTokenValid: (state) => {
     if (state.analyticsAccessToken === null) return false;
@@ -114,10 +130,15 @@ const actions = {
       state.accessToken.access_token
     );
     if (response != undefined) {
-      // Use the pulled user settings if they exist otherwise use the global sttings
+      // Use the pulled user settings if they exist otherwise use the global defaults
       if ("settings" in response.data.config)
-        await dispatch("setSettings", response.data.config.settings);
-      else await dispatch("setSettings", clonedeep(globalSettings));
+        await dispatch("setUserSettings", response.data.config.settings);
+      else await dispatch("setUserSettings", clonedeep(globalDefaultSettings));
+
+      // Use the pulled organisation's config if it exists otherwise use the global defaults
+      if (response.data.organizations.length > 0)
+        await dispatch("setWorkspaceSettings", response.data.organizations);
+      else await dispatch("unsetWorkspaceSettings");
 
       // set the user in the state
       await dispatch("setUser", response.data);
@@ -133,26 +154,48 @@ const actions = {
   autoLogoutUser({ dispatch }) {
     dispatch("unsetAccessToken");
   },
-  setSettings({ commit }, value) {
-    commit("setSettings", value);
+  setUserSettings({ commit }, value) {
+    commit("setUserSettings", value);
   },
-  unsetSettings({ commit }) {
-    commit("unsetSettings");
+  unsetUserSettings({ commit }) {
+    commit("unsetUserSettings");
   },
-  updateSettings({ commit }, settingObject) {
-    commit("updateSettings", settingObject);
+  updateUserSettings({ commit }, settingObject) {
+    commit("updateUserSettings", settingObject);
+  },
+  setWorkspaceSettings({ commit }, organizations) {
+    let workspaceSettings = {};
+    organizations.forEach((org) => {
+      workspaceSettings[org.shortcode] = filterNonOrgSettings(org);
+    });
+    commit("setWorkspaceSettings", workspaceSettings);
+  },
+  unsetWorkspaceSettings({ commit }) {
+    commit("unsetWorkspaceSettings");
+  },
+  updateWorkspaceSettings({ commit }, settingObject) {
+    commit("updateWorkspaceSettings", settingObject);
   },
 };
 
 const mutations = {
-  setSettings(state, value) {
-    state.settings = value;
+  setUserSettings(state, value) {
+    state.userSettings = value;
   },
-  unsetSettings(state) {
-    state.settings = null;
+  unsetUserSettings(state) {
+    state.userSettings = null;
   },
-  updateSettings(state, settingObject) {
-    state.settings = settingObject;
+  updateUserSettings(state, settingObject) {
+    state.userSettings = settingObject;
+  },
+  setWorkspaceSettings(state, value) {
+    state.workspaceSettings = value;
+  },
+  unsetWorkspaceSettings(state) {
+    state.workspaceSettings = null;
+  },
+  updateWorkspaceSettings(state, settingObject) {
+    state.workspaceSettings[state.activeWorkspace] = settingObject;
   },
   setAccessToken(state, accessToken) {
     state.accessToken = accessToken;
@@ -208,3 +251,44 @@ export default {
   actions,
   mutations,
 };
+
+/**
+ * This method iterates through the global default settings object
+ * and filters out all the keys/settings that are not org level settings
+ * @param {Object} orgDetails - Details of an organization as fetched from DB
+ * @returns A filtered version of the settings for an org
+ */
+function filterNonOrgSettings(orgDetails) {
+  if (
+    !("config" in orgDetails) ||
+    orgDetails.config == null ||
+    !("settings" in orgDetails.config) ||
+    orgDetails.config.settings == null
+  ) {
+    let workspaceSettings = clonedeep(globalDefaultSettings);
+    for (let [headerName, headerDetails] of Object.entries(workspaceSettings)) {
+      if (headerDetails.scope.length == 0) {
+        delete workspaceSettings[headerName];
+        continue;
+      }
+      for (let [tabName, tabDetails] of Object.entries(
+        headerDetails.children
+      )) {
+        if (tabDetails.scope.length == 0) {
+          delete headerDetails.children[tabName];
+          continue;
+        }
+        for (let [settingName, settingDetails] of Object.entries(
+          tabDetails.children
+        )) {
+          if (settingDetails.scope.length == 0) {
+            delete tabDetails.children[settingName];
+            continue;
+          }
+        }
+      }
+    }
+    return workspaceSettings;
+  }
+  return orgDetails.config.settings;
+}

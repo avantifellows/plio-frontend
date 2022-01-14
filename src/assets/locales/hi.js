@@ -550,9 +550,11 @@ export default {
       title: {
         skipEnabled:
           "प्लायो का प्रयास करते समय दर्शक प्रश्नों को छोड़ सकते हैं",
+        darkMode: "dark mode", // temporary. Will remove after review+testing
       },
       subTitle: {
         skipEnabled: "दर्शकों को प्रश्न छोड़ने का विकल्प प्रदान करें",
+        darkMode: "dark mode", // temporary. Will remove after review+testing
       },
       info:
         "नई सेटिंग्स केवल भविष्य में बनाए जाने वाले प्लायो पर लागू होंगी, न कि पहले से बनाए गए प्लायो पर",
@@ -560,9 +562,11 @@ export default {
     sidebar: {
       header: {
         player: "प्लेयर",
+        app: "app", // temporary. Will remove after review+testing
       },
       tab: {
         configuration: "विन्यास",
+        appearance: "appearance", // temporary. Will remove after review+testing
       },
     },
   },

@@ -14,6 +14,7 @@
 
         <!-- settings button -->
         <icon-button
+          v-if="!hasAnySettingsToRender"
           :iconConfig="settingsButtonIconConfig"
           :buttonClass="settingsButtonClass"
           @click="showSettingsMenu"
@@ -538,7 +539,9 @@ import Utilities, {
   throwConfetti,
   resetConfetti,
 } from "@/services/Functional/Utilities.js";
-import globalSettings, { settingsMetadata } from "@/services/Config/GlobalSettings.js";
+import globalDefaultSettings, {
+  settingsMetadata,
+} from "@/services/Config/GlobalDefaultSettings.js";
 
 import { mapActions, mapState, mapGetters } from "vuex";
 import debounce from "debounce";
@@ -549,6 +552,7 @@ const confetti = require("canvas-confetti");
 
 // used for deep cloning objects
 let clonedeep = require("lodash.clonedeep");
+var set = require("lodash.set");
 var isEqual = require("deep-eql");
 
 // difference in seconds between consecutive checks for item pop-up
@@ -872,7 +876,7 @@ export default {
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
-    ...mapGetters("auth", ["isPersonalWorkspace"]),
+    ...mapGetters("auth", ["isPersonalWorkspace", "userRoleInActiveWorkspace"]),
     ...mapState("auth", {
       userSettings: "settings",
     }),
@@ -882,6 +886,9 @@ export default {
       isDialogConfirmClicked: "isConfirmClicked",
       isDialogCancelClicked: "isCancelClicked",
     }),
+    hasAnySettingsToRender() {
+      return !Utilities.isObjectEmpty(this.settingsToRender);
+    },
     /**
      * whether the spinner needs to be shown
      */
@@ -1368,7 +1375,7 @@ export default {
         // 2. The fetched plio is a newer plio which was made after this settings feature was live
         //    - All newer plios, when created, will contain a version of the users's / global default (whichever is available)
         //      settings in the fetched config. So no need to handle them here.
-        this.plioSettings.player = clonedeep(globalSettings.player);
+        this.plioSettings.player = clonedeep(globalDefaultSettings.player);
       }
     },
     /**
@@ -1382,25 +1389,75 @@ export default {
       this.settingsToRender = clonedeep(this.plioSettings);
 
       for (let [headerName, headerDetails] of Object.entries(this.settingsToRender)) {
-        for (let [tabName, tabDetails] of Object.entries(headerDetails)) {
-          for (let [settingName, settingValue] of Object.entries(tabDetails)) {
+        if (
+          !this.isPersonalWorkspace &&
+          headerDetails.scope.length > 0 &&
+          !headerDetails.scope.includes(this.userRoleInActiveWorkspace)
+        ) {
+          // In case of an org workspace, we also need to check for scope. If the current user does not
+          // have rights for a particular setting, we remove that key from settingsToRender
+          delete this.settingsToRender[headerName];
+          continue;
+        }
+        this.settingsToRender[headerName] = clonedeep(headerDetails.children);
+        for (let [tabName, tabDetails] of Object.entries(
+          this.settingsToRender[headerName]
+        )) {
+          if (
+            !this.isPersonalWorkspace &&
+            tabDetails.scope.length > 0 &&
+            !tabDetails.scope.includes(this.userRoleInActiveWorkspace)
+          ) {
+            // In case of an org workspace, we also need to check for scope. If the current user does not
+            // have rights for a particular setting, we remove that key from settingsToRender
+            delete this.settingsToRender[headerName][tabName];
+            continue;
+          }
+          this.settingsToRender[headerName][tabName] = clonedeep(tabDetails.children);
+          for (let [settingName, settingDetails] of Object.entries(
+            this.settingsToRender[headerName][tabName]
+          )) {
+            if (
+              !this.isPersonalWorkspace &&
+              settingDetails.scope.length > 0 &&
+              !settingDetails.scope.includes(this.userRoleInActiveWorkspace)
+            ) {
+              // In case of an org workspace, we also need to check for scope. If the current user does not
+              // have rights for a particular setting, we remove that key from settingsToRender
+              delete this.settingsToRender[headerName][tabName][settingName];
+              continue;
+            }
             // iterating on all levels of the object, when we reach the end, we attach some
-            // metadata to those settings
+            // metadata to those settings.
+            // These are the things added
+            // - metadata     - contains the information on the title/subtitle/type of the setting
+            // - value        - value of that setting
+            // - isOrgSetting - whether this is an org level setting or not
             this.settingsToRender[headerName][tabName][settingName] = {
               ...settingsMetadata[settingName],
-              value: settingValue,
+              value: settingDetails.value,
+              isOrgSetting:
+                !this.isPersonalWorkspace && settingDetails.scope.length > 0
+                  ? true
+                  : false,
             };
             // Adding a watcher to the individual settings' value
             this.$watch(
               () =>
-                clonedeep(this.settingsToRender[headerName][tabName][settingName].value),
+                clonedeep(
+                  this.settingsToRender[headerName][tabName][settingName]["value"]
+                ),
               (value, prevValue) => {
                 // if the value hasn't changed, do nothing
                 if (value === prevValue) return;
 
-                // if the value has changed, update the settings on the DB if the plio is not published.
-                // if it's published, the user will have to click publish to push the changes
-                this.plioSettings[headerName][tabName][settingName] = value;
+                // if the value has changed
+                // - update the plioSettings object
+                // - update the settings on the DB if the plio is not published.
+                // - if it's published, the user will have to click publish to push the changes
+                let path = `${headerName}.children.${tabName}.children.${settingName}.value`;
+                set(this.plioSettings, path, value);
+
                 if (!this.isPublished) this.updatePlioSettings();
                 else this.publishPlio();
               },
@@ -1799,8 +1856,10 @@ export default {
      * sets variables once the player instance is ready
      */
     playerReady() {
-      if (this.player != undefined) this.videoDuration = this.player.duration;
-      if (!this.plioTitle) this.plioTitle = this.player.config.title;
+      if (this.player != undefined) {
+        this.videoDuration = this.player.duration;
+        if (!this.plioTitle) this.plioTitle = this.player.config.title;
+      }
       // re-render the plio preview component
       this.reRenderKey = !this.reRenderKey;
     },
@@ -1808,8 +1867,8 @@ export default {
      * checks if the video link is valid
      */
     isVideoLinkValid(link) {
-      var pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
-      var matches = link.match(pattern);
+      let pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+      let matches = link.match(pattern);
       if (matches) {
         return { valid: true, ID: matches[1] };
       }

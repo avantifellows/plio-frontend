@@ -63,6 +63,12 @@
                     >
                       {{ $t(settingDetails.subTitle) || "" }}
                     </p>
+                    <!-- badge to notify an admin setting -->
+                    <simple-badge
+                      v-if="settingDetails.isOrgSetting"
+                      text="admin"
+                      :badgeClass="adminBadgeClass"
+                    ></simple-badge>
                   </div>
                   <input
                     v-if="settingDetails.type == 'checkbox'"
@@ -121,6 +127,12 @@
             <p :class="settingSubTitleTextClass" v-if="settingDetails.subTitle != null">
               {{ $t(settingDetails.subTitle) || "" }}
             </p>
+            <!-- badge to notify an admin setting -->
+            <simple-badge
+              v-if="settingDetails.isOrgSetting"
+              text="admin"
+              :badgeClass="adminBadgeClass"
+            ></simple-badge>
           </div>
           <input
             v-if="settingDetails.type == 'checkbox'"
@@ -191,9 +203,11 @@
 var clonedeep = require("lodash.clonedeep");
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import Utilities from "@/services/Functional/Utilities.js";
+import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 export default {
   components: {
     IconButton,
+    SimpleBadge,
   },
   data() {
     return {
@@ -230,6 +244,8 @@ export default {
       isSidebarRegionOpen: true, // if the sidebar region is visible
       screenWidth: window.innerWidth, // initial screen width
       isMobileView: window.innerWidth < 500 ? true : false, // if current screen size is classified as mobile view
+      adminBadgeClass:
+        "rounded-md border text-black text-xs px-2 border-gray-500 bg-gray-200",
     };
   },
   props: {

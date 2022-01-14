@@ -77,7 +77,7 @@
 
             <!-- settings button -->
             <icon-button
-              v-if="onHomePage"
+              v-if="onHomePage && hasAnySettingsToRender"
               class="place-self-start w-full"
               :iconConfig="settingsButtonIconConfig"
               :titleConfig="settingsButtonTextConfig"
@@ -90,10 +90,11 @@
 
             <!-- plio for teams -->
             <icon-button
-              class="place-self-start"
+              class="place-self-start w-full"
               :iconConfig="teamsButtonIconConfig"
               :titleConfig="teamsButtonTextConfig"
               :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
               :isDisabled="pending"
               @click="redirectToTeamsPage"
               v-if="isPersonalWorkspace"
@@ -244,12 +245,17 @@ import Settings from "@/components/Collections/Settings/Settings.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import Utilities from "@/services/Functional/Utilities.js";
 import UserAPIService from "@/services/API/User.js";
-import { settingsMetadata } from "@/services/Config/GlobalSettings.js";
+import OrganizationAPIService from "@/services/API/Organization.js";
+import globalDefaultSettings, {
+  settingsMetadata,
+} from "@/services/Config/GlobalDefaultSettings.js";
 
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 
 var clonedeep = require("lodash.clonedeep");
+var set = require("lodash.set"); // https://lodash.com/docs/4.17.15#set
+var get = require("lodash.get"); // https://lodash.com/docs/4.17.15#get
 
 export default {
   components: {
@@ -279,6 +285,7 @@ export default {
       menuSlideTransition: "", // transition name for menu sliding effect
       isSettingsMenuShown: false,
       settingsToRender: {}, // The settings object that will be rendered when settings menu is opened
+      settingsWatchers: [], // The unwatch callbacks to the watchers attached to individual settings
     };
   },
   async created() {
@@ -336,6 +343,10 @@ export default {
     UserConfigService.setLocaleFromUserConfig();
   },
   watch: {
+    activeWorkspace() {
+      // Re construct the settings menu whenever the workspace changes
+      this.constructSettingsMenu();
+    },
     currentRoute() {
       // when the page is being changed, reset the state variables
       this.resetState();
@@ -413,6 +424,8 @@ export default {
           "User Status": this.user.status,
           "Current Workspace": this.activeWorkspace,
         });
+        // Re construct the settings menu whenever the user gets updated
+        this.constructSettingsMenu();
       },
       deep: true,
     },
@@ -426,6 +439,12 @@ export default {
       "unsetActiveWorkspace",
       "setReAuthenticationState",
     ]),
+    ...mapActions("auth", {
+      /** Update the user settings stored in vuex */
+      updateUserStoreSettings: "updateUserSettings",
+      /** Update the workspace settings stored in vuex */
+      updateWorkspaceStoreSettings: "updateWorkspaceSettings",
+    }),
     ...mapActions("generic", [
       "unsetSharePlioDialog",
       "unsetEmbedPlioDialog",
@@ -445,46 +464,187 @@ export default {
       "setCancelClicked",
       "unsetDialogCloseButton",
     ]),
-    ...mapActions("auth", {
-      updateUserStoreSettings: "updateSettings",
-    }),
     ...Utilities,
     /**
+     * NOTE - In this method, "org" will be used in place of "workspace"
+     * to keep variable names short and readable.
+     *
+     * This method merges the user's and org's settings.
+     * This is needed to show both org level and user level settings in one settings menu.
+     * The global default settings object is used as a structure of the keys to iterate on.
+     * While iterating on the keys of the global default settings object, these rules are followed to merge
+     * - If a key is not present in org's settings, use the key from user's settings and skip to next key
+     * - If a key is present in org's settings, use the scope for that key and move to it's children
+     * - The above process is done for headers, tabs and atomic settings.
+     * - For the lowest level keys (atomic settings), use org's setting value if available otherwise use user's setting value
+     *
+     * @param {Object} userSettings - User's version of settings
+     * @param {Object} orgSettings - Org's version of settings
+     * @returns {Object} An object with user's and org's settings merged (with org's settings taking priority)
+     */
+    mergeSettings(userSettings, orgSettings) {
+      // Making a deep clone of global default settings.
+      // The keys/values will be removed/updated according to user/org settings as we iterate
+      let mergedSettings = clonedeep(globalDefaultSettings);
+
+      for (let [headerName, headerDetails] of Object.entries(mergedSettings)) {
+        // iterating on headers
+        let path = headerName;
+        let headersInOrgSettings = Object.keys(orgSettings);
+        if (!headersInOrgSettings.includes(headerName)) {
+          // If the current header name is not present in org settings,
+          // pick the details from user's settings and put it into merged settings object
+          set(mergedSettings, path, get(userSettings, path));
+          continue;
+        }
+        // If the current header name IS present in org settings, use it's scope information
+        set(mergedSettings, `${path}.scope`, get(orgSettings, `${path}.scope`));
+
+        for (let [tabName, tabDetails] of Object.entries(headerDetails.children)) {
+          // iterating on tabs inside headerName
+          path = `${headerName}.children`;
+          let tabsInOrgSettings = Object.keys(get(orgSettings, path));
+          if (!tabsInOrgSettings.includes(tabName)) {
+            // If the current tab name is not present in org settings,
+            // pick the details from user's settings and put it into merged settings object
+            set(
+              mergedSettings,
+              `${path}.${tabName}`,
+              get(userSettings, `${path}.${tabName}`)
+            );
+            continue;
+          }
+          // If the current tab name IS present in org settings, use it's scope information
+          set(
+            mergedSettings,
+            `${path}.${tabName}.scope`,
+            get(orgSettings, path + `${path}.${tabName}.scope`)
+          );
+
+          for (let settingName of Object.keys(tabDetails.children)) {
+            // iterating on settings inside tabName
+            path = `${headerName}.children.${tabName}.children`;
+            let settingsInOrgSettings = Object.keys(get(orgSettings, path));
+            // If the current setting name is not present in org settings,
+            // pick the details from user's settings else pick it up from
+            // org's settings and put it into merged settings object
+            set(
+              mergedSettings,
+              `${path}.${settingName}`,
+              !settingsInOrgSettings.includes(settingName)
+                ? get(userSettings, `${path}.${settingName}`)
+                : get(orgSettings, `${path}.${settingName}`)
+            );
+          }
+        }
+      }
+      return mergedSettings;
+    },
+    /**
      * This method constructs the settings menu that needs to be rendered when settings menu is open.
-     * We iterate through the different levels of the user settings object that was retrieved from the DB.
+     * We iterate through the different levels of a settings object.
+     * This settings object is the user's settings or the merger of users/workspace's settings depending on the active workspace.
      * For each of the atomic settings, which are the last leaf of the object, we attach some metadata to it,
      * and add a watcher which will trigger when the value for that setting has been changed.
      */
     constructSettingsMenu() {
-      // Keep a clone of the user settings in a local variable
-      this.settingsToRender = clonedeep(this.userSettings);
+      // Unwatch any attached watchers
+      this.settingsWatchers.forEach((unwatch) => unwatch());
+
+      if (this.isPersonalWorkspace) this.settingsToRender = clonedeep(this.userSettings);
+      else
+        this.settingsToRender = this.mergeSettings(
+          clonedeep(this.userSettings),
+          clonedeep(this.activeWorkspaceSettings)
+        );
 
       for (let [headerName, headerDetails] of Object.entries(this.settingsToRender)) {
-        for (let [tabName, tabDetails] of Object.entries(headerDetails)) {
-          for (let [settingName, settingValue] of Object.entries(tabDetails)) {
-            // iterating on all levels of the object, when we reach the end, we attach some
-            // metadata to those settings
+        if (
+          !this.isPersonalWorkspace &&
+          headerDetails.scope.length > 0 &&
+          !headerDetails.scope.includes(this.userRoleInActiveWorkspace)
+        ) {
+          // In case of an org workspace, we also need to check for scope. If the current user does not
+          // have rights for a particular setting, we remove that key from settingsToRender
+          delete this.settingsToRender[headerName];
+          continue;
+        }
+        this.settingsToRender[headerName] = clonedeep(headerDetails.children);
+        for (let [tabName, tabDetails] of Object.entries(
+          this.settingsToRender[headerName]
+        )) {
+          if (
+            !this.isPersonalWorkspace &&
+            tabDetails.scope.length > 0 &&
+            !tabDetails.scope.includes(this.userRoleInActiveWorkspace)
+          ) {
+            // In case of an org workspace, we also need to check for scope. If the current user does not
+            // have rights for a particular setting, we remove that key from settingsToRender
+            delete this.settingsToRender[headerName][tabName];
+            continue;
+          }
+          this.settingsToRender[headerName][tabName] = clonedeep(tabDetails.children);
+          for (let [settingName, settingDetails] of Object.entries(
+            this.settingsToRender[headerName][tabName]
+          )) {
+            if (
+              !this.isPersonalWorkspace &&
+              settingDetails.scope.length > 0 &&
+              !settingDetails.scope.includes(this.userRoleInActiveWorkspace)
+            ) {
+              // In case of an org workspace, we also need to check for scope. If the current user does not
+              // have rights for a particular setting, we remove that key from settingsToRender
+              delete this.settingsToRender[headerName][tabName][settingName];
+              continue;
+            }
+            // After reaching the leaf node, we add some extra data to the setting meant for rendering
+            // These are the things added
+            // - metadata     - contains the information on the title/subtitle/type of the setting
+            // - value        - value of that setting
+            // - isOrgSetting - whether this is an org level setting or not
             this.settingsToRender[headerName][tabName][settingName] = {
               ...settingsMetadata[settingName],
-              value: settingValue,
+              value: settingDetails.value,
+              isOrgSetting:
+                !this.isPersonalWorkspace && settingDetails.scope.length > 0
+                  ? true
+                  : false,
             };
-            // Adding a watcher to the individual settings' value
-            this.$watch(
+            // adding a watcher to the current setting
+            let settingWatcher = this.$watch(
               () =>
-                clonedeep(this.settingsToRender[headerName][tabName][settingName].value),
+                clonedeep(
+                  this.settingsToRender[headerName][tabName][settingName]["value"]
+                ),
               (value, prevValue) => {
                 // if the value hasn't changed, do nothing
                 if (value === prevValue) return;
 
                 // if the value has changed, update the settings
                 // in the Vuex store and on the DB as well
-                let newUserSettings = clonedeep(this.userSettings);
-                newUserSettings[headerName][tabName][settingName] = value;
-                this.updateUserStoreSettings(newUserSettings);
-                UserAPIService.updateUserSettings(this.userId, newUserSettings);
+                let path = `${headerName}.children.${tabName}.children.${settingName}.value`;
+                let isOrgSetting = this.settingsToRender[headerName][tabName][
+                  settingName
+                ]["isOrgSetting"];
+                if (isOrgSetting) {
+                  let newOrgSettings = clonedeep(this.activeWorkspaceSettings);
+                  set(newOrgSettings, path, value);
+                  this.updateWorkspaceStoreSettings(newOrgSettings);
+                  OrganizationAPIService.updateWorkspaceSettings(
+                    this.activeWorkspaceId,
+                    newOrgSettings
+                  );
+                } else {
+                  let newUserSettings = clonedeep(this.userSettings);
+                  set(newUserSettings, path, value);
+                  this.updateUserStoreSettings(newUserSettings);
+                  UserAPIService.updateUserSettings(this.userId, newUserSettings);
+                }
               },
               { deep: true }
             );
+            // add the unwatch callback to an array for later use
+            this.settingsWatchers.push(settingWatcher);
           }
         }
       }
@@ -623,7 +783,9 @@ export default {
         let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
           plioUuid,
           {
-            player: this.userSettings.player,
+            player: this.isPersonalWorkspace
+              ? this.userSettings.player
+              : this.activeWorkspaceSettings.player,
           }
         );
         if (updatePlioSettingsResponse.status == 200) {
@@ -693,9 +855,12 @@ export default {
       "activeWorkspaceSchema",
       "locale",
       "isPersonalWorkspace",
+      "activeWorkspaceSettings",
+      "userRoleInActiveWorkspace",
+      "activeWorkspaceId",
     ]),
     ...mapGetters("generic", ["isMobileScreen"]),
-    ...mapState("auth", ["config", "user", "activeWorkspace", "userId"]),
+    ...mapState("auth", ["config", "user", "activeWorkspace", "userId", "userSettings"]),
     ...mapState("generic", [
       "isSharePlioDialogShown",
       "isEmbedPlioDialogShown",
@@ -703,9 +868,6 @@ export default {
       "selectedPlioId",
       "isSpinnerShown",
     ]),
-    ...mapState("auth", {
-      userSettings: "settings",
-    }),
     ...mapState("sync", ["pending"]),
     ...mapState("dialog", {
       dialogTitle: "title",
@@ -717,6 +879,9 @@ export default {
       dialogBoxClass: "boxClass",
       dialogAction: "action",
     }),
+    hasAnySettingsToRender() {
+      return !Utilities.isObjectEmpty(this.settingsToRender);
+    },
     /**
      * whether the router view is shown
      */

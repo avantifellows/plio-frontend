@@ -56,7 +56,7 @@ import ItemQuestionHeader from "@/components/Items/Question/Header";
 import ItemQuestionBody from "@/components/Items/Question/Body";
 import ItemQuestionFooter from "@/components/Items/Question/Footer";
 import { isScreenPortrait } from "@/services/Functional/Utilities.js";
-import globalSettings from "@/services/Config/GlobalSettings.js";
+import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 
 var isEqual = require("deep-eql");
 
@@ -140,9 +140,15 @@ export default {
     isSkipItemButtonEnabled() {
       // if a custom configuration exists in the props, then use that otherwise
       // use the global settings
-      if (this.configuration != null && "skipEnabled" in this.configuration)
-        return this.configuration.skipEnabled;
-      return globalSettings.player.configuration.skipEnabled;
+      if (
+        this.configuration != null &&
+        "children" in this.configuration &&
+        this.configuration.children != null &&
+        "skipEnabled" in this.configuration.children
+      )
+        return this.configuration.children.skipEnabled.value;
+      return globalDefaultSettings.player.children.configuration.children.skipEnabled
+        .value;
     },
     /**
      * URL of the image for an item;
