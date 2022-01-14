@@ -378,7 +378,6 @@ export default {
             });
           });
           await this.setSelectedPlioId(this.plioId);
-          await this.setSelectedPlioDetails(this.plioDetails);
           this.showSelector({
             type: "single",
             options: selectorOptions,

@@ -796,10 +796,6 @@ describe("PlioListItem.vue", () => {
   });
 
   it("clicking copy shows list of workspaces to select ", async () => {
-    const plioDetails = {
-      updatedAt: new Date(2018, 12, 31),
-      status: "published",
-    };
     const plioId = "123";
     const testWorkspaces = [
       {
@@ -812,11 +808,6 @@ describe("PlioListItem.vue", () => {
     wrapper = mount(PlioListItem, {
       props: {
         plioId: plioId,
-      },
-      data() {
-        return {
-          plioDetails: plioDetails,
-        };
       },
     });
     // passing in plioId triggers startLoading which keeps the component in pending state
@@ -843,7 +834,6 @@ describe("PlioListItem.vue", () => {
     await flushPromises();
 
     expect(store.state.generic.selectedPlioId).toBe(plioId);
-    expect(store.state.generic.selectedPlioDetails).toEqual(plioDetails);
     expect(store.state.selectors.isShown).toBeTruthy();
     expect(store.state.selectors.type).toBe("single");
 

@@ -227,9 +227,6 @@ import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
 import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
 import ListSingleSelector from "@/components/UI/Selectors/ListSingleSelector.vue";
 import PlioAPIService from "@/services/API/Plio.js";
-import VideoAPIService from "@/services/API/Video.js";
-import ItemAPIService from "@/services/API/Item.js";
-import QuestionAPIService from "@/services/API/Question.js";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import Utilities from "@/services/Functional/Utilities.js";
 import { mapActions, mapState, mapGetters } from "vuex";
@@ -615,30 +612,13 @@ export default {
       // prevent keyboard buttons from working if the background is disabled
       if (this.isBackgroundDisabled) event.preventDefault();
     },
-    async copyPlio(workspace) {
-      let newVideo = await VideoAPIService.copy(this.selectedPlioDetails.videoDBId, {
-        workspace: workspace,
-      });
-      let newPlio = await PlioAPIService.copy(this.selectedPlioId, {
-        workspace: workspace,
-        video: newVideo.data.id,
-      });
-      await ItemAPIService.copy({
-        workspace: workspace,
-        source_plio_id: this.selectedPlioDetails.plioDBId,
-        destination_plio_id: newPlio.data.id,
-      });
-      await QuestionAPIService.copy({
-        workspace: workspace,
-        source_plio_id: this.selectedPlioDetails.plioDBId,
-        destination_plio_id: newPlio.data.id,
-      });
-    },
     /** takes action based on the option selected in the list selector */
     selectOption(workspace) {
       this.hideSelector();
       this.showSpinner();
-      this.copyPlio(workspace).then(() => {
+      PlioAPIService.copy(this.selectedPlioId, {
+        workspace: workspace,
+      }).then(() => {
         this.hideSpinner();
         this.$router.push({ name: "Home", params: { org: workspace } });
       });
@@ -658,7 +638,6 @@ export default {
       "isEmbedPlioDialogShown",
       "plioLinkToShare",
       "selectedPlioId",
-      "selectedPlioDetails",
       "isSpinnerShown",
     ]),
     ...mapState("sync", ["pending"]),

@@ -231,10 +231,6 @@ describe("App.vue for authenticated user", () => {
     const selectedOptionIndex = 0;
     let selectorOptions = [];
     let selectedPlioId = 123;
-    let selectedPlioDetails = {
-      videoDBId: 1,
-      plioDBId: 1,
-    };
 
     const setSelectorParams = () => {
       // set the list of options in the list selector and display it
@@ -247,7 +243,6 @@ describe("App.vue for authenticated user", () => {
 
       // set selected plio details
       store.dispatch("generic/setSelectedPlioId", selectedPlioId);
-      store.dispatch("generic/setSelectedPlioDetails", selectedPlioDetails);
     };
 
     beforeEach(() => {
@@ -282,7 +277,6 @@ describe("App.vue for authenticated user", () => {
     });
 
     it("copies plio to another workspace when a workspace is selected", async () => {
-      const copyPlio = jest.spyOn(App.methods, "copyPlio");
       const hideSelector = jest.spyOn(App.methods, "hideSelector");
       const mockRouter = {
         push: jest.fn(),
@@ -301,53 +295,15 @@ describe("App.vue for authenticated user", () => {
         selectorOptions[selectedOptionIndex].value
       );
       await flushPromises();
-      expect(copyPlio).toHaveBeenCalled();
-
-      expect(mockAxios.post).toHaveBeenCalledWith(
-        `/videos/${selectedPlioDetails.videoDBId}/copy/`,
-        {
-          workspace: selectorOptions[selectedOptionIndex].value,
-        }
-      );
-
-      mockAxios.mockResponse(
-        {
-          data: global.dummyVideo,
-        },
-        mockAxios.queue()[0]
-      );
-
-      await flushPromises();
 
       expect(mockAxios.post).toHaveBeenCalledWith(
         `/plios/${selectedPlioId}/copy/`,
         {
           workspace: selectorOptions[selectedOptionIndex].value,
-          video: global.dummyVideo.id,
         }
       );
 
       mockAxios.mockResponse(global.dummyDraftPlio, mockAxios.queue()[0]);
-
-      await flushPromises();
-
-      expect(mockAxios.post).toHaveBeenCalledWith(`/items/copy/`, {
-        workspace: selectorOptions[selectedOptionIndex].value,
-        source_plio_id: selectedPlioDetails.plioDBId,
-        destination_plio_id: global.dummyDraftPlio.data.id,
-      });
-
-      mockAxios.mockResponse([0, 1, 2], mockAxios.queue()[0]);
-
-      await flushPromises();
-
-      expect(mockAxios.post).toHaveBeenCalledWith(`/questions/copy/`, {
-        workspace: selectorOptions[selectedOptionIndex].value,
-        source_plio_id: selectedPlioDetails.plioDBId,
-        destination_plio_id: global.dummyDraftPlio.data.id,
-      });
-
-      mockAxios.mockResponse([0, 1, 2], mockAxios.queue()[0]);
 
       await flushPromises();
 

@@ -3,7 +3,6 @@ const state = {
   isEmbedPlioDialogShown: false, // whether to show the dialog with info on embedding plio
   plioLinkToShare: null,
   selectedPlioId: null, // uuid of the plio selected
-  selectedPlioDetails: null,
   newVideoDetails: null,
   windowInnerWidth: null,
   windowInnerHeight: null,
@@ -36,9 +35,6 @@ const actions = {
   },
   setSelectedPlioId({ commit }, plioId) {
     commit("setSelectedPlioId", plioId);
-  },
-  setSelectedPlioDetails({ commit }, plioDetails) {
-    commit("setSelectedPlioDetails", plioDetails);
   },
   setNewVideoDetails({ commit }, plioId) {
     commit("setNewVideoDetails", plioId);
@@ -78,9 +74,6 @@ const mutations = {
   },
   setSelectedPlioId(state, plioId) {
     state.selectedPlioId = plioId;
-  },
-  setSelectedPlioDetails(state, details) {
-    state.selectedPlioDetails = details;
   },
   setNewVideoDetails(state, details) {
     state.newVideoDetails = details;
