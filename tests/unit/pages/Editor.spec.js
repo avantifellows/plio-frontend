@@ -2071,65 +2071,72 @@ describe("Editor.vue", () => {
     await store.dispatch("dialog/unsetCancelClicked");
   });
 
-  it("closes settings menu properly", () => {
-    let closeSettingsMenu = jest.spyOn(Editor.methods, "closeSettingsMenu");
-    wrapper = mount(Editor, {
-      data() {
-        return {
-          isSettingsMenuShown: true,
-          settingsToRender: global.dummySettingsToRender,
-        };
-      },
-    });
-    let settingsModal = wrapper.get('[data-test="settingsModal"]');
-    expect(settingsModal.exists()).toBeTruthy();
-    wrapper.vm.$refs.settingsModal.$emit("window-closed");
-    expect(closeSettingsMenu).toHaveBeenCalled();
-    expect(wrapper.vm.isSettingsMenuShown).toBeFalsy();
-  });
-
-  it("opens settings menu when settings icon is clicked", async () => {
-    let showSettingsMenu = jest.spyOn(Editor.methods, "showSettingsMenu");
-    wrapper = mount(Editor, {
-      data() {
-        return {
-          settingsToRender: global.dummySettingsToRender,
-        };
-      },
-    });
-
-    expect(wrapper.vm.isSettingsMenuShown).toBeFalsy();
-    expect(wrapper.vm.hasAnySettingsToRender).toBeTruthy();
-    await wrapper.get('[data-test="settingsButton"]').trigger("click");
-    expect(showSettingsMenu).toHaveBeenCalled();
-    expect(wrapper.vm.isSettingsMenuShown).toBeTruthy();
-    expect(wrapper.get('[data-test="settingsModal"]').exists()).toBeTruthy();
-  });
-
-  describe("Watching and updation of settings", () => {
-    let updatePlioSettings;
-    let dummyPlio;
-
+  describe("settings", () => {
     beforeEach(async () => {
-      // set global default settings as the user's settings
-      await store.dispatch("auth/setUserSettings", global.dummyGlobalSettings);
-
-      // restor all mocks to their original implementation
       jest.restoreAllMocks();
+      await store.dispatch("auth/setActiveWorkspace", "");
+    });
 
-      // prepare a dummy plio with proper settings in it's config
-      dummyPlio = clonedeep(global.dummyDraftPlio);
+    afterEach(async () => {
+      if (wrapper != undefined) wrapper.unmount();
+      await store.dispatch("auth/setActiveWorkspace", "");
+      await store.dispatch("auth/unsetUser");
+    });
+
+    it("closes settings menu properly", () => {
+      let closeSettingsMenu = jest.spyOn(Editor.methods, "closeSettingsMenu");
+      wrapper = mount(Editor, {
+        data() {
+          return {
+            isSettingsMenuShown: true,
+            settingsToRender: global.dummySettingsToRender,
+          };
+        },
+      });
+      let settingsModal = wrapper.get('[data-test="settingsModal"]');
+      expect(settingsModal.exists()).toBeTruthy();
+      wrapper.vm.$refs.settingsModal.$emit("window-closed");
+      expect(closeSettingsMenu).toHaveBeenCalled();
+      expect(wrapper.vm.isSettingsMenuShown).toBeFalsy();
+    });
+
+    it("opens settings menu when settings icon is clicked", async () => {
+      let showSettingsMenu = jest.spyOn(Editor.methods, "showSettingsMenu");
+      wrapper = mount(Editor, {
+        data() {
+          return {
+            settingsToRender: global.dummySettingsToRender,
+          };
+        },
+      });
+
+      expect(wrapper.vm.isSettingsMenuShown).toBeFalsy();
+      expect(wrapper.vm.hasAnySettingsToRender).toBeTruthy();
+      await wrapper.get('[data-test="settingsButton"]').trigger("click");
+      expect(showSettingsMenu).toHaveBeenCalled();
+      expect(wrapper.vm.isSettingsMenuShown).toBeTruthy();
+      expect(wrapper.get('[data-test="settingsModal"]').exists()).toBeTruthy();
+    });
+
+    it("hides org settings from the menu if user does not have access to a setting", async () => {
+      let dummySkipEnabledValue = false;
+      let dummyTempSettingValue = true;
+      let dummyPlio = clonedeep(global.dummyDraftPlio);
       dummyPlio.data.config = {
         settings: {
           player: {
-            scope: [],
+            scope: ["org-admin"],
             children: {
               configuration: {
-                scope: [],
+                scope: ["org-admin"],
                 children: {
                   skipEnabled: {
-                    scope: [],
-                    value: false,
+                    scope: ["org-admin"],
+                    value: dummySkipEnabledValue,
+                  },
+                  tempSetting: {
+                    scope: ["org-view"],
+                    value: dummyTempSettingValue,
                   },
                 },
               },
@@ -2137,7 +2144,9 @@ describe("Editor.vue", () => {
           },
         },
       };
-      updatePlioSettings = jest.spyOn(Editor.methods, "updatePlioSettings");
+
+      await store.dispatch("auth/setUser", clonedeep(global.dummyUser));
+
       // mount the component
       wrapper = mount(Editor, {
         data() {
@@ -2153,224 +2162,315 @@ describe("Editor.vue", () => {
       // resolve the loadPlio request with the dummy plio prepared above
       mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
       await flushPromises();
-    });
 
-    afterEach(() => {
-      mockAxios.reset();
-      wrapper.unmount();
-    });
-
-    it("watches and updates the settings in a draft plio", async () => {
-      // click the settings icon, the settings component should open up
-      await wrapper.get('[data-test="settingsButton"]').trigger("click");
-
-      // find the settings component, click one of the setting values and click save
-      let settingsComponent = wrapper.findComponent(Settings);
-      await settingsComponent
-        .find('[data-test="setting-input"]')
-        .trigger("click");
-      await settingsComponent.find('[data-test="saveButton"]').trigger("click");
-      // the settings component should emit the updated settings
-      expect(settingsComponent.emitted()).toHaveProperty("update:settings");
-      // the local value of plio settings should get updated by the action above
-      expect(
-        wrapper.vm.plioSettings.player.children.configuration.children
-          .skipEnabled.value
-      ).toBeTruthy();
-      // the method to update the plio's settings to the DB should've been called
-      expect(updatePlioSettings).toHaveBeenCalled();
-    });
-
-    it("watches and updates the settings when plio is published in a published plio", async () => {
-      // turn the plio into a published plio
-      await wrapper.setData({
-        status: "published",
-      });
-      // click the settings icon, the settings component should open up
-      await wrapper.get('[data-test="settingsButton"]').trigger("click");
-      // find the settings component, click one of the setting values and click save
-      let settingsComponent = wrapper.findComponent(Settings);
-      await settingsComponent
-        .find('[data-test="setting-input"]')
-        .trigger("click");
-      await settingsComponent.find('[data-test="saveButton"]').trigger("click");
-      // the settings component should emit the updated settings
-      expect(settingsComponent.emitted()).toHaveProperty("update:settings");
-      // the local value of plio settings should get updated by the action above
-      expect(
-        wrapper.vm.plioSettings.player.children.configuration.children
-          .skipEnabled.value
-      ).toBeTruthy();
-      // the method to update the plio's settings to the DB should have been called
-      // because the plio gets published when save is clicked
-      expect(updatePlioSettings).toHaveBeenCalled();
-    });
-  });
-
-  /**
-   * Tests for handling different variations of plio config that is fetched
-   * from the DB
-   */
-  describe("Handling of different plio configs", () => {
-    let plioId = "mlungtvmyl";
-    let handleSettingsInheritance;
-    let constructSettingsMenu;
-
-    beforeEach(async () => {
-      // before each test, restore the mocks to their original implementation
-      jest.restoreAllMocks();
-      handleSettingsInheritance = jest.spyOn(
-        Editor.methods,
-        "handleSettingsInheritance"
-      );
-      constructSettingsMenu = jest.spyOn(
-        Editor.methods,
-        "constructSettingsMenu"
-      );
-
-      // set workspace to personal workspace
+      // switching to personal workspace
       await store.dispatch("auth/setActiveWorkspace", "");
-      // set the user
-      await store.dispatch("auth/setUser", global.dummyUser);
-      // mount the wrapper before each test
-      wrapper = mount(Editor, {
-        props: {
-          plioId: plioId,
-        },
-      });
-    });
-
-    afterEach(() => {
-      mockAxios.reset();
-      wrapper.unmount();
-    });
-
-    it("handles fetched plio config which is null", async () => {
-      // GET request to retrieve plio details
-      expect(mockAxios.get).toHaveBeenCalledTimes(1);
-      expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
-
-      // simulating the plio's fetched config as being null
-      let dummyPlio = clonedeep(global.dummyDraftPlio);
-      dummyPlio.data.config = null;
-      mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
       await flushPromises();
 
-      expect(handleSettingsInheritance).toHaveBeenCalled();
-      expect(constructSettingsMenu).toHaveBeenCalled();
-      // the userSettings for player are copied into the plio' settings
-      expect(wrapper.vm.plioSettings).toStrictEqual({
-        player: wrapper.vm.userSettings.player,
-      });
-    });
+      // in personal workspace, the user should be able to see plio's all settings
+      expect(
+        wrapper.vm.settingsToRender.player?.configuration?.skipEnabled?.value
+      ).toBe(dummySkipEnabledValue);
+      expect(
+        wrapper.vm.settingsToRender.player?.configuration?.tempSetting?.value
+      ).toBe(dummyTempSettingValue);
 
-    it("handles fetched plio config where settings key is missing", async () => {
-      // GET request to retrieve plio details
-      expect(mockAxios.get).toHaveBeenCalledTimes(1);
-      expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
-
-      // simulating the plio's fetched config as not containing 'settings' key
-      let dummyPlio = clonedeep(global.dummyDraftPlio);
-      dummyPlio.data.config = {
-        // contains some random key other than 'settings'
-        key: "value",
-      };
-      mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
+      // switching to o1 workspace
+      await store.dispatch("auth/setActiveWorkspace", "o1");
       await flushPromises();
 
-      expect(handleSettingsInheritance).toHaveBeenCalled();
-      expect(constructSettingsMenu).toHaveBeenCalled();
-      // the userSettings for player are copied into the plio's settings
-      expect(wrapper.vm.plioSettings).toStrictEqual({
-        player: wrapper.vm.userSettings.player,
-      });
-    });
+      // in o1 workspace, the user has a role of org-admin.
+      // All the settings that do not have "org-admin" as their scope will not be visible to the user.
+      expect(
+        wrapper.vm.settingsToRender.player?.configuration?.tempSetting
+      ).toBe(undefined);
+      // All settings that have "org-admin" scope will be visible to the user
+      expect(
+        wrapper.vm.settingsToRender.player?.configuration?.skipEnabled
+      ).not.toBe(undefined);
 
-    it("handles fetched plio config where settings key is null", async () => {
-      // GET request to retrieve plio details
-      expect(mockAxios.get).toHaveBeenCalledTimes(1);
-      expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
-
-      // simulating the plio's fetched config as containing the 'settings' key
-      // but the value of that key is null
-      let dummyPlio = clonedeep(global.dummyDraftPlio);
-      dummyPlio.data.config = {
-        settings: null,
-      };
-
-      mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
+      // switching to o2 workspace
+      await store.dispatch("auth/setActiveWorkspace", "o2");
       await flushPromises();
 
-      expect(handleSettingsInheritance).toHaveBeenCalled();
-      expect(constructSettingsMenu).toHaveBeenCalled();
-      // the userSettings for player are copied into the plio' settings
-      expect(wrapper.vm.plioSettings).toStrictEqual({
-        player: wrapper.vm.userSettings.player,
-      });
+      // in o2 workspace, the user has a role of org-view
+      // All the settings that dont have "org-view" as their scope will not be visible to the user
+      expect(wrapper.vm.settingsToRender.player).toBe(undefined);
     });
 
-    it("handles fetched plio config where player key is missing inside settings key", async () => {
-      // GET request to retrieve plio details
-      expect(mockAxios.get).toHaveBeenCalledTimes(1);
-      expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
+    describe("Watching and updation of settings", () => {
+      let updatePlioSettings;
+      let dummyPlio;
 
-      // simulating the plio's fetched config as containing the 'settings' key
-      // but no 'player' key exists inside
-      let dummyPlio = clonedeep(global.dummyDraftPlio);
-      dummyPlio.data.config = {
-        settings: {
-          // contains some random key other than 'player'
-          key: "value",
-        },
-      };
+      beforeEach(async () => {
+        // set global default settings as the user's settings
+        await store.dispatch(
+          "auth/setUserSettings",
+          global.dummyGlobalSettings
+        );
 
-      mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
-      await flushPromises();
+        // restor all mocks to their original implementation
+        jest.restoreAllMocks();
 
-      expect(handleSettingsInheritance).toHaveBeenCalled();
-      expect(constructSettingsMenu).toHaveBeenCalled();
-      // the userSettings for player are copied into the plio' settings
-      expect(wrapper.vm.plioSettings).toStrictEqual({
-        player: wrapper.vm.userSettings.player,
-      });
-    });
-
-    it("handles fetched plio config where all information is present", async () => {
-      // GET request to retrieve plio details
-      expect(mockAxios.get).toHaveBeenCalledTimes(1);
-      expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
-
-      // the fetched plio's config contains all the required details
-      let dummyPlio = clonedeep(global.dummyDraftPlio);
-      dummyPlio.data.config = {
-        settings: {
-          player: {
-            scope: [],
-            children: {
-              configuration: {
-                scope: [],
-                children: {
-                  skipEnabled: {
-                    scope: [],
-                    value: false,
+        // prepare a dummy plio with proper settings in it's config
+        dummyPlio = clonedeep(global.dummyDraftPlio);
+        dummyPlio.data.config = {
+          settings: {
+            player: {
+              scope: [],
+              children: {
+                configuration: {
+                  scope: [],
+                  children: {
+                    skipEnabled: {
+                      scope: [],
+                      value: false,
+                    },
                   },
                 },
               },
             },
           },
-        },
-      };
+        };
+        updatePlioSettings = jest.spyOn(Editor.methods, "updatePlioSettings");
+        // mount the component
+        wrapper = mount(Editor, {
+          data() {
+            return {
+              isSettingsMenuShown: false,
+            };
+          },
+          props: {
+            plioId: "mlungtvmyl",
+          },
+        });
 
-      mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
-      await flushPromises();
+        // resolve the loadPlio request with the dummy plio prepared above
+        mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
+        await flushPromises();
+      });
 
-      expect(handleSettingsInheritance).toHaveBeenCalled();
-      expect(constructSettingsMenu).toHaveBeenCalled();
-      // the settings from the fetched plio's config are copied into the local
-      // plioSettings variable
-      expect(wrapper.vm.plioSettings).toStrictEqual(
-        dummyPlio.data.config.settings
-      );
+      afterEach(() => {
+        mockAxios.reset();
+        wrapper.unmount();
+      });
+
+      it("watches and updates the settings in a draft plio", async () => {
+        // click the settings icon, the settings component should open up
+        await wrapper.get('[data-test="settingsButton"]').trigger("click");
+
+        // find the settings component, click one of the setting values and click save
+        let settingsComponent = wrapper.findComponent(Settings);
+        await settingsComponent
+          .find('[data-test="setting-input"]')
+          .trigger("click");
+        await settingsComponent
+          .find('[data-test="saveButton"]')
+          .trigger("click");
+        // the settings component should emit the updated settings
+        expect(settingsComponent.emitted()).toHaveProperty("update:settings");
+        // the local value of plio settings should get updated by the action above
+        expect(
+          wrapper.vm.plioSettings.player.children.configuration.children
+            .skipEnabled.value
+        ).toBeTruthy();
+        // the method to update the plio's settings to the DB should've been called
+        expect(updatePlioSettings).toHaveBeenCalled();
+      });
+
+      it("watches and updates the settings when plio is published in a published plio", async () => {
+        // turn the plio into a published plio
+        await wrapper.setData({
+          status: "published",
+        });
+        // click the settings icon, the settings component should open up
+        await wrapper.get('[data-test="settingsButton"]').trigger("click");
+        // find the settings component, click one of the setting values and click save
+        let settingsComponent = wrapper.findComponent(Settings);
+        await settingsComponent
+          .find('[data-test="setting-input"]')
+          .trigger("click");
+        await settingsComponent
+          .find('[data-test="saveButton"]')
+          .trigger("click");
+        // the settings component should emit the updated settings
+        expect(settingsComponent.emitted()).toHaveProperty("update:settings");
+        // the local value of plio settings should get updated by the action above
+        expect(
+          wrapper.vm.plioSettings.player.children.configuration.children
+            .skipEnabled.value
+        ).toBeTruthy();
+        // the method to update the plio's settings to the DB should have been called
+        // because the plio gets published when save is clicked
+        expect(updatePlioSettings).toHaveBeenCalled();
+      });
+    });
+
+    /**
+     * Tests for handling different variations of plio config that is fetched
+     * from the DB
+     */
+    describe("Handling of different plio configs", () => {
+      let plioId = "mlungtvmyl";
+      let handleSettingsInheritance;
+      let constructSettingsMenu;
+
+      beforeEach(async () => {
+        // before each test, restore the mocks to their original implementation
+        jest.restoreAllMocks();
+        handleSettingsInheritance = jest.spyOn(
+          Editor.methods,
+          "handleSettingsInheritance"
+        );
+        constructSettingsMenu = jest.spyOn(
+          Editor.methods,
+          "constructSettingsMenu"
+        );
+
+        // set workspace to personal workspace
+        await store.dispatch("auth/setActiveWorkspace", "");
+        // set the user
+        await store.dispatch("auth/setUser", global.dummyUser);
+        // mount the wrapper before each test
+        wrapper = mount(Editor, {
+          props: {
+            plioId: plioId,
+          },
+        });
+      });
+
+      afterEach(() => {
+        mockAxios.reset();
+        wrapper.unmount();
+      });
+
+      it("handles fetched plio config which is null", async () => {
+        // GET request to retrieve plio details
+        expect(mockAxios.get).toHaveBeenCalledTimes(1);
+        expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
+
+        // simulating the plio's fetched config as being null
+        let dummyPlio = clonedeep(global.dummyDraftPlio);
+        dummyPlio.data.config = null;
+        mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
+        await flushPromises();
+
+        expect(handleSettingsInheritance).toHaveBeenCalled();
+        expect(constructSettingsMenu).toHaveBeenCalled();
+        // the userSettings for player are copied into the plio' settings
+        expect(wrapper.vm.plioSettings).toStrictEqual({
+          player: wrapper.vm.userSettings.player,
+        });
+      });
+
+      it("handles fetched plio config where settings key is missing", async () => {
+        // GET request to retrieve plio details
+        expect(mockAxios.get).toHaveBeenCalledTimes(1);
+        expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
+
+        // simulating the plio's fetched config as not containing 'settings' key
+        let dummyPlio = clonedeep(global.dummyDraftPlio);
+        dummyPlio.data.config = {
+          // contains some random key other than 'settings'
+          key: "value",
+        };
+        mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
+        await flushPromises();
+
+        expect(handleSettingsInheritance).toHaveBeenCalled();
+        expect(constructSettingsMenu).toHaveBeenCalled();
+        // the userSettings for player are copied into the plio's settings
+        expect(wrapper.vm.plioSettings).toStrictEqual({
+          player: wrapper.vm.userSettings.player,
+        });
+      });
+
+      it("handles fetched plio config where settings key is null", async () => {
+        // GET request to retrieve plio details
+        expect(mockAxios.get).toHaveBeenCalledTimes(1);
+        expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
+
+        // simulating the plio's fetched config as containing the 'settings' key
+        // but the value of that key is null
+        let dummyPlio = clonedeep(global.dummyDraftPlio);
+        dummyPlio.data.config = {
+          settings: null,
+        };
+
+        mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
+        await flushPromises();
+
+        expect(handleSettingsInheritance).toHaveBeenCalled();
+        expect(constructSettingsMenu).toHaveBeenCalled();
+        // the userSettings for player are copied into the plio' settings
+        expect(wrapper.vm.plioSettings).toStrictEqual({
+          player: wrapper.vm.userSettings.player,
+        });
+      });
+
+      it("handles fetched plio config where player key is missing inside settings key", async () => {
+        // GET request to retrieve plio details
+        expect(mockAxios.get).toHaveBeenCalledTimes(1);
+        expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
+
+        // simulating the plio's fetched config as containing the 'settings' key
+        // but no 'player' key exists inside
+        let dummyPlio = clonedeep(global.dummyDraftPlio);
+        dummyPlio.data.config = {
+          settings: {
+            // contains some random key other than 'player'
+            key: "value",
+          },
+        };
+
+        mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
+        await flushPromises();
+
+        expect(handleSettingsInheritance).toHaveBeenCalled();
+        expect(constructSettingsMenu).toHaveBeenCalled();
+        // the userSettings for player are copied into the plio' settings
+        expect(wrapper.vm.plioSettings).toStrictEqual({
+          player: wrapper.vm.userSettings.player,
+        });
+      });
+
+      it("handles fetched plio config where all information is present", async () => {
+        // GET request to retrieve plio details
+        expect(mockAxios.get).toHaveBeenCalledTimes(1);
+        expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
+
+        // the fetched plio's config contains all the required details
+        let dummyPlio = clonedeep(global.dummyDraftPlio);
+        dummyPlio.data.config = {
+          settings: {
+            player: {
+              scope: [],
+              children: {
+                configuration: {
+                  scope: [],
+                  children: {
+                    skipEnabled: {
+                      scope: [],
+                      value: false,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        };
+
+        mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
+        await flushPromises();
+
+        expect(handleSettingsInheritance).toHaveBeenCalled();
+        expect(constructSettingsMenu).toHaveBeenCalled();
+        // the settings from the fetched plio's config are copied into the local
+        // plioSettings variable
+        expect(wrapper.vm.plioSettings).toStrictEqual(
+          dummyPlio.data.config.settings
+        );
+      });
     });
   });
 });

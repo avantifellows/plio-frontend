@@ -347,7 +347,7 @@ describe("App.vue for authenticated user", () => {
       expect(detailsInSettingsToRender).toStrictEqual(detailsInGlobalSettings);
     });
 
-    it("shows all settings, even org settings, if in personal workspace", async () => {
+    it("shows all settings, even org level settings, if in personal workspace", async () => {
       // create a dummy user with some org and non-org settings
       let dummyUserNew = clonedeep(global.dummyUser);
       dummyUserNew.config.settings = {};

@@ -733,6 +733,7 @@ export default {
       isSettingsMenuShown: false,
       plioSettings: null, // the settings for the opened plio
       settingsToRender: {}, // the settings + metadata that needs to be rendered
+      settingsWatchers: [], // The unwatch callbacks to the watchers attached to individual settings
     };
   },
   async created() {
@@ -747,6 +748,9 @@ export default {
     clearInterval(this.savingInterval);
   },
   watch: {
+    activeWorkspace() {
+      this.constructSettingsMenu();
+    },
     /**
      * Whenever itemTimestamps is updated, check if the current item timestamp is
      * greater than the minimum allowed timestamp or not. If it's not, then adjust it.
@@ -877,7 +881,7 @@ export default {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
     ...mapGetters("auth", ["isPersonalWorkspace", "userRoleInActiveWorkspace"]),
-    ...mapState("auth", ["userSettings"]),
+    ...mapState("auth", ["userSettings", "activeWorkspace"]),
     ...mapState("dialog", {
       isDialogBoxShown: "isShown",
       dialogAction: "action",
@@ -1383,6 +1387,9 @@ export default {
      * and add a watcher which will trigger when the value for that setting has been changed.
      */
     constructSettingsMenu() {
+      // Unwatch any attached watchers
+      this.settingsWatchers.forEach((unwatch) => unwatch());
+
       // Keep a clone of the plio settings in a local variable
       this.settingsToRender = clonedeep(this.plioSettings);
 
@@ -1440,11 +1447,12 @@ export default {
                   : false,
             };
             // Adding a watcher to the individual settings' value
-            this.$watch(
-              () =>
-                clonedeep(
+            let settingWatcher = this.$watch(
+              () => {
+                return clonedeep(
                   this.settingsToRender[headerName][tabName][settingName]["value"]
-                ),
+                );
+              },
               (value, prevValue) => {
                 // if the value hasn't changed, do nothing
                 if (value === prevValue) return;
@@ -1461,6 +1469,8 @@ export default {
               },
               { deep: true }
             );
+            // add the unwatch callback to an array for later use
+            this.settingsWatchers.push(settingWatcher);
           }
         }
       }
