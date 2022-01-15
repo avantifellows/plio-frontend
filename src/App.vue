@@ -253,9 +253,9 @@ import globalDefaultSettings, {
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 
-var clonedeep = require("lodash.clonedeep");
-var set = require("lodash.set"); // https://lodash.com/docs/4.17.15#set
-var get = require("lodash.get"); // https://lodash.com/docs/4.17.15#get
+import clonedeep from "lodash/cloneDeep";
+import set from "lodash/set"; // https://lodash.com/docs/4.17.15#set
+import get from "lodash/get"; // https://lodash.com/docs/4.17.15#get
 
 export default {
   components: {

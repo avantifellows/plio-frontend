@@ -551,8 +551,8 @@ import { useToast } from "vue-toastification";
 const confetti = require("canvas-confetti");
 
 // used for deep cloning objects
-let clonedeep = require("lodash.clonedeep");
-var set = require("lodash.set");
+import clonedeep from "lodash/cloneDeep";
+import set from "lodash/set";
 var isEqual = require("deep-eql");
 
 // difference in seconds between consecutive checks for item pop-up

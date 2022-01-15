@@ -100,7 +100,7 @@ import { mapActions, mapState, mapGetters } from "vuex";
 import { resetConfetti } from "@/services/Functional/Utilities.js";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 
-var clonedeep = require("lodash.clonedeep");
+import clonedeep from "lodash/cloneDeep";
 
 var isEqual = require("deep-eql");
 

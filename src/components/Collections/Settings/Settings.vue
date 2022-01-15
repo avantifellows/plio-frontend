@@ -200,7 +200,7 @@
 </template>
 
 <script>
-var clonedeep = require("lodash.clonedeep");
+import clonedeep from "lodash/cloneDeep";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import Utilities from "@/services/Functional/Utilities.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";

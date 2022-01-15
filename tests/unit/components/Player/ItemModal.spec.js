@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import ItemModal from "@/components/Player/ItemModal";
 
-let clonedeep = require("lodash.clonedeep");
+import clonedeep from "lodash/cloneDeep";
 
 describe("ItemModal.vue", () => {
   let wrapper;

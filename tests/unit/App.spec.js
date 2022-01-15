@@ -7,7 +7,7 @@ import Settings from "@/components/Collections/Settings/Settings.vue";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 
 import mockAxios from "jest-mock-axios";
-let clonedeep = require("lodash.clonedeep");
+import clonedeep from "lodash/cloneDeep";
 
 describe("App.vue for unauthenticated user", () => {
   let wrapper;

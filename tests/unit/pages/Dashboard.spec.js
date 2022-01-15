@@ -3,7 +3,7 @@ import PlioAPIService from "@/services/API/Plio.js";
 import mockAxios from "jest-mock-axios";
 
 import Dashboard from "@/pages/Dashboard.vue";
-let clonedeep = require("lodash.clonedeep");
+import clonedeep from "lodash/cloneDeep";
 
 afterEach(() => {
   // cleaning up the mess left behind by the previous test

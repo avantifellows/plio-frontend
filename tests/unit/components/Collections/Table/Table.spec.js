@@ -2,7 +2,7 @@ import { mount, flushPromises } from "@vue/test-utils";
 import Table from "@/components/Collections/Table/Table";
 import store from "@/store";
 import mockAxios from "jest-mock-axios";
-let clonedeep = require("lodash.clonedeep");
+import clonedeep from "lodash/cloneDeep";
 
 let dummyTableData = [
   {

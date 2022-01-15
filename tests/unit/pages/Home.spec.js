@@ -6,7 +6,7 @@ import globalDefaultSettings from "../../../src/services/Config/GlobalDefaultSet
 
 import mockAxios from "jest-mock-axios";
 
-let clonedeep = require("lodash.clonedeep");
+import clonedeep from "lodash/cloneDeep";
 
 afterEach(async () => {
   // cleaning up the mess left behind by the previous test

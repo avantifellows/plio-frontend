@@ -9,7 +9,7 @@ import InputText from "@/components/UI/Text/InputText.vue";
 import Settings from "@/components/Collections/Settings/Settings.vue";
 import store from "@/store";
 
-let clonedeep = require("lodash.clonedeep");
+import clonedeep from "lodash/cloneDeep";
 
 describe("Editor.vue", () => {
   let wrapper;

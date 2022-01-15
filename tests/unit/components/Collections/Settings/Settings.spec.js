@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import Settings from "@/components/Collections/Settings/Settings.vue";
 
-let clonedeep = require("lodash.clonedeep");
+import clonedeep from "lodash/cloneDeep";
 
 describe("PlioListItem.vue", () => {
   let wrapper;
