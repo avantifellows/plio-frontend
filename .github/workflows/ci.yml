@@ -140,10 +140,10 @@ jobs:
       - name: Install TestCafe BrowserStack plugin
         run: npm install testcafe-browser-provider-browserstack
 
-      # - name: Run Windows 10 tests
-      #   uses: DevExpress/testcafe-action@latest
-      #   with:
-      #     args: "'browserstack:chrome@96.0:Windows 10','browserstack:firefox@95.0:Windows 10','browserstack:edge@96.0:Windows 10' projects/plio-frontend/tests/testcafe --test-scheduling"
+      - name: Run Windows 10 tests
+        uses: DevExpress/testcafe-action@latest
+        with:
+          args: "'browserstack:chrome@96.0:Windows 10','browserstack:firefox@95.0:Windows 10','browserstack:edge@96.0:Windows 10' projects/plio-frontend/tests/testcafe --skip-js-errors --test-scheduling"
 
       - name: Run OS X Big Sur tests
         uses: DevExpress/testcafe-action@latest
