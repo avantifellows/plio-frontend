@@ -1,12 +1,14 @@
 import { Selector } from "testcafe";
 import { googleAuthUser } from "../../helpers/loginByGoogle";
+import {
+  selectLocale,
+  selectLocaleFromDialog,
+} from "../../helpers/selectLocale";
 
 fixture("Login - Hindi")
   .page(`${process.env.BROWSERSTACK_BASE_URL}/login`)
   .beforeEach(async (t) => {
-    const localeSelect = Selector("#locale > select");
-    const localeOption = localeSelect.find('option[value="hi"]');
-    await t.click(localeSelect).click(localeOption);
+    await selectLocale("hi");
   });
 
 test("sees the login page", async (t) => {
@@ -27,6 +29,9 @@ test("sees the login page", async (t) => {
   await t
     .useRole(googleAuthUser)
     .navigateTo(`${process.env.BROWSERSTACK_BASE_URL}/home`);
+
+  // have to set the locale again as the login page is loaded in a different language
+  await selectLocaleFromDialog("hi");
 
   const logoutOption = Selector('[data-test="logout"]');
   await t.expect(logoutOption.visible).ok();
