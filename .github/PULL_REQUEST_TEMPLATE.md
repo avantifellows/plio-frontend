@@ -37,6 +37,7 @@ Fixes #{issue id}
    - [ ] If adding any new environment variable:
        - [ ] update `docs/ENV.md`
        - [ ] update Github Workflow files
+       - [ ] update DockerFile
        - [ ] update the secrets for staging and production
 - [ ] Testing
    - [ ] Wrote tests
