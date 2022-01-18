@@ -34,6 +34,10 @@ Fixes #{issue id}
    - [ ] Comments have been added appropriately
    - [ ] Check for bundle size [here](https://bundlephobia.com/) if adding a package
    - [ ] Added relevant details like Labels/Projects/Milestones etc.
+   - [ ] If adding any new environment variable:
+         - [ ] update `docs/ENV.md`
+         - [ ] update Github Workflow files
+         - [ ] update the secrets for staging and production
 - [ ] Testing
    - [ ] Wrote tests
    - [ ] Tested locally
