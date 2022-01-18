@@ -39,9 +39,12 @@ Default localization language.
 #### `VUE_APP_I18N_FALLBACK_LOCALE`
 Fallback localization language in case any localization config is not found.
 
-### Google OAuth2 credentials
+### Google
 #### `VUE_APP_GOOGLE_CLIENT_ID`
 OAuth2 client id from Google. Required for Google Sign in functionality.
+
+### `VUE_APP_GOOGLE_API_KEY`
+API Key for your Google Cloud project. Required for using the YouTube Data API.
 
 ### Web server
 #### `APP_PORT`
