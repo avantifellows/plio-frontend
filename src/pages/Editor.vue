@@ -833,7 +833,7 @@ export default {
         try {
           videoDuration = await getVideoDuration(linkValidation["ID"]);
         } catch (_) {
-          this.toast.error("Invalid video link");
+          this.toast.error(this.$t("toast.editor.video_input.error.invalid_video"));
         }
       })();
 
@@ -1374,10 +1374,8 @@ export default {
      */
     showVideoUpdateConfirmationDialogBox() {
       // set dialog properties
-      this.setDialogTitle("Are you sure you want to update the video link?");
-      this.setDialogDescription(
-        "Some of your questions that are present at timestamps greater than the duration of the video will be deleted"
-      );
+      this.setDialogTitle(this.$t("editor.dialog.video_update.title"));
+      this.setDialogDescription(this.$t("editor.dialog.video_update.description"));
       this.setDialogCloseButton();
       this.setConfirmButtonConfig({
         enabled: true,

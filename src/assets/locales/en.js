@@ -123,6 +123,11 @@ export default {
         },
         title: "Hooray! Your Plio is ready 🥳",
       },
+      video_update: {
+        title: "Are you sure you want to update the video link?",
+        description:
+          "Some of your questions that are present at timestamps greater than the duration of the video will be deleted",
+      },
       share_plio: {
         title: "Share this Plio",
         buttons: {
@@ -559,6 +564,11 @@ export default {
         correct_answer: {
           unmark_last_selected_option_warning:
             "At least one option should be selected as the correct answer",
+        },
+      },
+      video_input: {
+        error: {
+          invalid_video: "Invalid video link",
         },
       },
     },
