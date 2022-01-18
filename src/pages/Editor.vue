@@ -1347,9 +1347,9 @@ export default {
       "unsetCancelClicked",
     ]),
     ...Utilities,
-    removeItem(index) {
-      this.itemDetails.splice(index, 1);
-      let itemToDelete = this.items.splice(index, 1);
+    removeItems(startIndex, numItemsToremove = 1) {
+      this.itemDetails.splice(startIndex, numItemsToremove);
+      let itemToDelete = this.items.splice(startIndex, numItemsToremove);
       this.updateItemTimestamps();
       return itemToDelete;
     },
@@ -1401,16 +1401,18 @@ export default {
         // no items to be deleted
         if (deleteStartIndex == undefined) return;
         let itemIdsToDelete = [];
+        let numItemsToRemove = 0;
         for (let index = deleteStartIndex; index < this.numItems; index++) {
           itemIdsToDelete.push(this.items[index].id);
 
-          // update local variables
+          // if an item to be removed is currently active, unselect it
           if (this.currentItemIndex == index) this.markNoItemSelected();
-          this.removeItem(index);
+          numItemsToRemove += 1;
         }
         ItemAPIService.bulkDelete({
           id: itemIdsToDelete,
         });
+        this.removeItems(deleteStartIndex, numItemsToRemove);
       })();
     },
     /**
@@ -2194,7 +2196,7 @@ export default {
       this.clearItemAndItemDetailWatcher(currentItem.id);
 
       // remove the item and itemDetails locally and remotely
-      let itemToDelete = this.removeItem(this.currentItemIndex);
+      let itemToDelete = this.removeItems(this.currentItemIndex);
       ItemAPIService.deleteItem(itemToDelete[0].id);
       // set currentItemIndex to null to hide the item editor
       this.currentItemIndex = null;
