@@ -4,6 +4,9 @@ import router from "@/router";
 import store from "@/store";
 import App from "@/App";
 
+import mockAxios from "jest-mock-axios";
+let clonedeep = require("lodash.clonedeep");
+
 describe("App.vue for unauthenticated user", () => {
   let wrapper;
 
@@ -59,6 +62,19 @@ describe("App.vue for authenticated user", () => {
 
     // After this line, router is ready
     await router.isReady();
+
+    // set user
+    await store.dispatch("auth/setUser", global.dummyUser);
+
+    // resolve the `GET` request waiting in the queue
+    // using the fake response data
+    mockAxios.mockResponse(
+      clonedeep(global.dummyEmptyPlioList),
+      mockAxios.queue()[0]
+    );
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
   });
 
   it("should render", async () => {
@@ -144,6 +160,60 @@ describe("App.vue for authenticated user", () => {
       expect(wrapper.vm.dialogConfirmButtonConfig.enabled).toBeFalsy();
       expect(wrapper.vm.dialogCancelButtonConfig.enabled).toBeFalsy();
       expect(store.state.dialog.isConfirmClicked).toBeTruthy();
+    });
+  });
+
+  describe("sidebar buttons", () => {
+    let mockWindowOpen;
+    beforeEach(() => {
+      mockWindowOpen = jest.fn().mockImplementation(() => ({
+        focus: jest.fn(),
+      }));
+      Object.defineProperty(window, "open", {
+        writable: true,
+        value: mockWindowOpen,
+      });
+    });
+
+    afterEach(() => {
+      // required otherwise the calls to window.open get stacked
+      mockWindowOpen.mockRestore();
+    });
+
+    it("clicking on plio for teams redirects to teams page", async () => {
+      await wrapper.find('[data-test="teams"]').trigger("click");
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        "https://docs.plio.in/plio-for-teams/",
+        "_blank",
+        "noopener"
+      );
+    });
+
+    it("clicking on documentation redirects to docs page", async () => {
+      await wrapper.find('[data-test="docs"]').trigger("click");
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        "https://docs.plio.in/",
+        "_blank",
+        "noopener"
+      );
+    });
+
+    it("clicking on whats new redirects to blog page", async () => {
+      await wrapper.find('[data-test="whatsNew"]').trigger("click");
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        "https://plio.substack.com/",
+        "_blank",
+        "noopener"
+      );
+    });
+
+    it("clicking on product guides redirects to youtube playlist", async () => {
+      await wrapper.find('[data-test="productGuides"]').trigger("click");
+      expect(mockWindowOpen).toHaveBeenCalledWith(
+        "https://www.youtube.com/playlist?list=PL3U0Jqw-piJgw2hSpuAZym4K1_Tb0RTRV",
+        "_blank",
+        "noopener"
+      );
     });
   });
 });

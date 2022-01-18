@@ -74,6 +74,18 @@
               :isDisabled="pending"
             ></icon-button>
 
+            <!-- plio for teams -->
+            <icon-button
+              class="place-self-start"
+              :iconConfig="teamsButtonIconConfig"
+              :titleConfig="teamsButtonTextConfig"
+              :buttonClass="menuButtonsClass"
+              :isDisabled="pending"
+              @click="redirectToTeamsPage"
+              v-if="isPersonalWorkspace"
+              data-test="teams"
+            ></icon-button>
+
             <!-- product guides -->
             <icon-button
               class="place-self-start"
@@ -82,6 +94,7 @@
               :buttonClass="menuButtonsClass"
               @click="redirectToProductGuides"
               :isDisabled="pending"
+              data-test="productGuides"
             ></icon-button>
 
             <!-- docs -->
@@ -92,6 +105,7 @@
               :buttonClass="menuButtonsClass"
               @click="redirectToDocs"
               :isDisabled="pending"
+              data-test="docs"
             ></icon-button>
 
             <!-- whats new -->
@@ -102,6 +116,7 @@
               :buttonClass="menuButtonsClass"
               @click="redirectToWhatsNew"
               :isDisabled="pending"
+              data-test="whatsNew"
             ></icon-button>
 
             <!-- logout -->
@@ -480,6 +495,10 @@ export default {
     redirectToDocs() {
       window.open("https://docs.plio.in/", "_blank", "noopener");
     },
+    /** redirects to the Plio for Teams page */
+    redirectToTeamsPage() {
+      window.open("https://docs.plio.in/plio-for-teams/", "_blank", "noopener");
+    },
     /** redirects to the playlist for the Product Guides */
     redirectToProductGuides() {
       window.open(
@@ -571,7 +590,12 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("auth", ["isAuthenticated", "activeWorkspaceSchema", "locale"]),
+    ...mapGetters("auth", [
+      "isAuthenticated",
+      "activeWorkspaceSchema",
+      "locale",
+      "isPersonalWorkspace",
+    ]),
     ...mapGetters("generic", ["isMobileScreen"]),
     ...mapState("auth", ["config", "user", "activeWorkspace"]),
     ...mapState("generic", [
@@ -656,6 +680,16 @@ export default {
       return {
         enabled: true,
         iconName: "docs",
+        iconClass: this.menuButtonsIconClass,
+      };
+    },
+    /**
+     * config of the icon for the plio for teams button
+     */
+    teamsButtonIconConfig() {
+      return {
+        enabled: true,
+        iconName: "teams",
         iconClass: this.menuButtonsIconClass,
       };
     },
@@ -746,7 +780,6 @@ export default {
      * config for the text of the create button
      */
     createButtonMenuTextConfig() {
-      // config for the text of the main create button
       return {
         value: this.$t("home.create_button"),
         class: "text-md sm:text-lg md:text-xl lg:text-2xl text-white",
@@ -756,7 +789,6 @@ export default {
      * config for the text of the logout button
      */
     logoutButtonTextConfig() {
-      // config for the logout button
       return {
         value: this.$t("nav.logout"),
         class: this.menuButtonsTextClass,
@@ -766,7 +798,6 @@ export default {
      * config for the text of the what's new button
      */
     whatsNewButtonTextConfig() {
-      // config for the whats new button
       return {
         value: this.$t("nav.whats_new"),
         class: this.menuButtonsTextClass,
@@ -785,7 +816,6 @@ export default {
      * config for the text of the home button
      */
     homeButtonTextConfig() {
-      // config for the home button
       return {
         value: this.$t("nav.home"),
         class: this.menuButtonsTextClass,
@@ -795,9 +825,17 @@ export default {
      * config for the text of the docs button
      */
     docsButtonTextConfig() {
-      // config for the plio docs button
       return {
         value: this.$t("nav.docs"),
+        class: this.menuButtonsTextClass,
+      };
+    },
+    /**
+     * config for the text of the teams button
+     */
+    teamsButtonTextConfig() {
+      return {
+        value: this.$t("nav.teams"),
         class: this.menuButtonsTextClass,
       };
     },

@@ -8,6 +8,7 @@ export default {
     docs: "Documentation",
     editor: "Editor",
     dashboard: "Dashboard",
+    teams: "Plio for Teams",
     abtesting: "",
     player: "",
     404: "Error",
