@@ -790,6 +790,9 @@ export default {
             }
             break;
           case "updateVideoPlayer":
+            // if the user chooses to not update the video,
+            // we have to revert the video link in the input field
+            // to the url of the existing video
             this.videoURL = this.newVideoDetails.fallbackVideoURL;
             this.unsetNewVideoDetails();
             break;
@@ -824,6 +827,8 @@ export default {
       }
 
       let videoDuration;
+      // error handling with async/await
+      // reference: https://itnext.io/error-handling-with-async-await-in-js-26c3f20bc06a
       await (async () => {
         try {
           videoDuration = await getVideoDuration(linkValidation["ID"]);
@@ -836,6 +841,8 @@ export default {
       if (videoDuration == undefined) return;
 
       if (this.videoId != "" && linkValidation["ID"] != this.videoId) {
+        // warn users when there are items at timestamps greater
+        // than the duration of the new video
         if (this.hasAnyItems && this.items.at(-1).time > videoDuration) {
           this.setNewVideoDetails({
             videoId: linkValidation["ID"],
@@ -1347,6 +1354,12 @@ export default {
       "unsetCancelClicked",
     ]),
     ...Utilities,
+    /**
+     * remove a sequence of items
+     *
+     * @param {Number} startIndex - index of the first item to be deleted
+     * @param {Number} numItemsToRemove - number of items to remove starting from the item at startIndex
+     */
     removeItems(startIndex, numItemsToremove = 1) {
       this.itemDetails.splice(startIndex, numItemsToremove);
       let itemToDelete = this.items.splice(startIndex, numItemsToremove);
@@ -1382,6 +1395,13 @@ export default {
       // show the dialog box
       this.showDialogBox();
     },
+    /**
+     * update the video player with a new video
+     *
+     * @param {Number} videoId - youtube id of the new video
+     * @param {String} videoURL - link of the new video
+     * @param {Number} videoDuration - duration of the new video
+     */
     updateVideoPlayer(videoId, videoURL, videoDuration) {
       this.videoId = videoId;
       this.isVideoIdValid = true;
@@ -1393,15 +1413,17 @@ export default {
 
       // delete items with timestamp larger than the updated video duration
       (() => {
-        let deleteStartIndex;
+        let deleteStartIndex; // the index of the first item to be deleted
         for (let index = this.numItems - 1; index >= 0; index--) {
           if (this.items[index].time >= videoDuration) deleteStartIndex = index;
           else break;
         }
         // no items to be deleted
         if (deleteStartIndex == undefined) return;
-        let itemIdsToDelete = [];
+
+        let itemIdsToDelete = []; // database ids of the items to be removed
         let numItemsToRemove = 0;
+
         for (let index = deleteStartIndex; index < this.numItems; index++) {
           itemIdsToDelete.push(this.items[index].id);
 
@@ -1412,6 +1434,7 @@ export default {
         ItemAPIService.bulkDelete({
           id: itemIdsToDelete,
         });
+        // remove the required items from the video player
         this.removeItems(deleteStartIndex, numItemsToRemove);
       })();
     },

@@ -3,7 +3,7 @@ const state = {
   isEmbedPlioDialogShown: false, // whether to show the dialog with info on embedding plio
   plioLinkToShare: null,
   selectedPlioId: null, // uuid of the plio selected
-  newVideoDetails: null,
+  newVideoDetails: null, // details for a video being considered for updating the video inside a plio
   windowInnerWidth: null,
   windowInnerHeight: null,
   isSpinnerShown: false,
