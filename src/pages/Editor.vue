@@ -829,6 +829,7 @@ export default {
       let videoDuration;
       // error handling with async/await
       // reference: https://itnext.io/error-handling-with-async-await-in-js-26c3f20bc06a
+      // TODO: use Promise.reject instead of throw new Error
       await (async () => {
         try {
           videoDuration = await getVideoDuration(linkValidation["ID"]);
@@ -1834,9 +1835,9 @@ export default {
     /**
      * fetches the details of the plio
      */
-    async loadPlio() {
+    loadPlio() {
       this.startLoading();
-      await PlioAPIService.getPlio(this.plioId)
+      PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
           this.loadedPlioDetails = clonedeep(plioDetails);
           this.items = plioDetails.items || [];

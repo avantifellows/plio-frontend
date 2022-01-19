@@ -621,7 +621,8 @@ export default {
       }).then(() => {
         this.hideSpinner();
         this.$router.push({ name: "Home", params: { org: workspace } });
-      });
+      })
+      .error(() => this.hideSpinner())
     },
   },
   computed: {
