@@ -8,7 +8,6 @@ export default {
   /**
    * Creates a new question with the given details
    * @param {Object} payload - data required for creating the question
-   * @returns {Promise}
    */
   createQuestion(payload) {
     return apiClient()
@@ -31,7 +30,6 @@ export default {
    * creates a clone of the question corresponding to questionId and links it to the provided itemId
    * @param {Number} questionId - id of the question to be duplicated
    * @param {Number} itemId - id of the item to which the duplicated question should be linked
-   * @returns
    */
   duplicateQuestion(questionId, itemId) {
     return apiClient().post(

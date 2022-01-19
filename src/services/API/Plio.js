@@ -118,10 +118,10 @@ export default {
 
   /**
    * Copy a given plio to another workspace
-   * @param {Number} plioId - uuid id of the plio
+   * @param {Number} plioId - uuid of the plio
    * @param {Object} payload - params required for copying the plio
    */
-  copy(plioId, payload) {
+  copyToWorkspace(plioId, payload) {
     return apiClient().post(pliosEndpoint + plioId + copyEndpoint, payload);
   },
 

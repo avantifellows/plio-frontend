@@ -608,15 +608,18 @@ export default {
       // prevent keyboard buttons from working if the background is disabled
       if (this.isBackgroundDisabled) event.preventDefault();
     },
-    /** takes action based on the option selected in the list selector */
-    selectOption(workspace) {
+    /**
+     * takes action based on the option selected in the list selector
+     * @param {String} selectedOptionValue - the value of the option selected
+     */
+    selectOption(selectedOptionValue) {
       this.hideSelector();
       this.showSpinner();
-      PlioAPIService.copy(this.selectedPlioId, {
-        workspace: workspace,
+      PlioAPIService.copyToWorkspace(this.selectedPlioId, {
+        workspace: selectedOptionValue,
       }).then(() => {
         this.hideSpinner();
-        this.$router.push({ name: "Home", params: { org: workspace } });
+        this.$router.push({ name: "Home", params: { org: selectedOptionValue } });
       });
     },
   },

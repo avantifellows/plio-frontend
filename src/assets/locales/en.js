@@ -202,7 +202,7 @@ export default {
           },
         },
         selectors: {
-          workspace: {
+          copy_to_workspace: {
             title: "Choose a Workspace",
             info:
               "A copy of this plio will be created as a draft in the selected workspace",
