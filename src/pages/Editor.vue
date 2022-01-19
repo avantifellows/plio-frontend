@@ -703,7 +703,7 @@ export default {
   },
   async created() {
     // fetch plio details
-    await this.loadPlio();
+    this.loadPlio();
 
     // debounce checkAndSaveChanges method
     this.checkAndSaveChanges = debounce(this.checkAndSaveChanges, DEBOUNCE_DELAY_TIME);

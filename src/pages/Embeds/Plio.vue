@@ -286,7 +286,7 @@ export default {
     await thirdPartyAuthPromise;
 
     // load plio details
-    await this.fetchPlioCreateSession();
+    this.fetchPlioCreateSession();
 
     // add listener for screen size being changed
     window.addEventListener("resize", this.setScreenProperties);
