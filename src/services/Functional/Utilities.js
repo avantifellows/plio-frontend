@@ -250,6 +250,6 @@ export async function getVideoDuration(videoId) {
     }
   );
   let items = response.data["items"];
-  if (items.length === 0) throw new Error("video does not exist");
+  if (items.length === 0) throw new Error(404);
   return dayjs.duration(items[0]["contentDetails"]["duration"]).asSeconds();
 }

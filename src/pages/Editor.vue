@@ -829,7 +829,7 @@ export default {
       let videoDuration;
       // error handling with async/await
       // reference: https://itnext.io/error-handling-with-async-await-in-js-26c3f20bc06a
-      // TODO: use Promise.reject instead of throw new Error
+      // rejected promise goes into the catch: https://stackoverflow.com/a/42453705/7870587
       await (async () => {
         try {
           videoDuration = await getVideoDuration(linkValidation["ID"]);
