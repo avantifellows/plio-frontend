@@ -625,7 +625,7 @@ export default {
         this.hideSpinner();
         this.$router.push({ name: "Home", params: { org: selectedOptionValue } });
       })
-      .error(() => {
+      .catch(() => {
         this.hideSpinner()
         this.toast.error(this.$t('toast.error.generic'))
       })
