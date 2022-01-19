@@ -381,8 +381,8 @@ export default {
           this.showSelector({
             type: "single",
             options: selectorOptions,
-            title: this.$t("home.table.plio_list_item.selectors.workspace.title"),
-            info: this.$t("home.table.plio_list_item.selectors.workspace.info"),
+            title: this.$t("home.table.plio_list_item.selectors.copy_to_workspace.title"),
+            info: this.$t("home.table.plio_list_item.selectors.copy_to_workspace.info"),
           });
           break;
         }

@@ -255,14 +255,14 @@ describe("App.vue for authenticated user", () => {
       setSelectorParams();
     });
 
-    it("values are correctly set", () => {
+    it("sets the values correctly", () => {
       expect(wrapper.vm.selectorTitle).toBe(selectorTitle);
       expect(wrapper.vm.selectorInfo).toBe(selectorInfo);
-      expect(wrapper.vm.selectorOptions).toEqual(selectorOptions);
+      expect(wrapper.vm.selectorOptions).toStrictEqual(selectorOptions);
       expect(wrapper.vm.isSingleSelectorShown).toBeTruthy();
     });
 
-    it("when the close button is clicked, closes the dialog", async () => {
+    it("closes the dialog when the close button is clicked", async () => {
       const hideSelector = jest.spyOn(App.methods, "hideSelector");
       await mountWrapper();
       setSelectorParams();

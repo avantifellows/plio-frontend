@@ -91,7 +91,7 @@ export default {
         iconClass: "text-primary fill-current h-8 w-8",
       },
       // class for the close button
-      closeDialogButtonClass: "bg-white w-6 h-6 m-2",
+      closeDialogButtonClass: "bg-white w-4 h-4 lg:w-6 lg:h-6 m-1 lg:m-2",
     };
   },
   methods: {

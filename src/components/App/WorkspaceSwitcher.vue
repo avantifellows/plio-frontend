@@ -12,7 +12,7 @@
         v-for="(workspace, index) in workspaces"
         :key="workspace.id"
         :value="workspace.shortcode"
-        :data-test="`workspace-${index + 1}`"
+        :data-test="`workspace-${index}`"
       >
         {{ workspace.name }}
       </option>

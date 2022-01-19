@@ -33,7 +33,7 @@ describe("WorkspaceSwitcher.vue", () => {
     });
     it("displays workspaces apart from personal", () => {
       expect(
-        wrapper.find(`[data-test="workspace-${testWorkspaceIndex + 1}"]`).text()
+        wrapper.find(`[data-test="workspace-${testWorkspaceIndex}"]`).text()
       ).toBe(testWorkspaces[testWorkspaceIndex].name);
     });
 

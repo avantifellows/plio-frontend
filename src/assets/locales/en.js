@@ -207,7 +207,7 @@ export default {
           },
         },
         selectors: {
-          workspace: {
+          copy_to_workspace: {
             title: "Choose a Workspace",
             info:
               "A copy of this plio will be created as a draft in the selected workspace",
@@ -554,6 +554,7 @@ export default {
       create_plio: "Could not create Plio. Please try again",
       copying: "Error while copying",
       internet_lost: "Internet connection lost",
+      generic: "Something went wrong. Please try again!",
     },
     success: {
       copying: "Link Copied Successfully",
