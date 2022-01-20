@@ -7,8 +7,10 @@ import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
 import store from "@/store";
+import { set } from "lodash";
 
 let clonedeep = require("lodash.clonedeep");
+const videoDuration = 695;
 
 describe("Editor.vue", () => {
   let wrapper;
@@ -463,15 +465,7 @@ describe("Editor.vue", () => {
     // mock the response from youtube api for fetching video details
     mockAxios.mockResponse(
       {
-        data: {
-          items: [
-            {
-              contentDetails: {
-                duration: "PT11M35S",
-              },
-            },
-          ],
-        },
+        data: global.dummyYouTubeResponse,
       },
       mockAxios.queue()[0]
     );
@@ -490,7 +484,7 @@ describe("Editor.vue", () => {
     expect(mockAxios.post).toHaveBeenCalledTimes(1);
     expect(mockAxios.post).toHaveBeenCalledWith(`/videos/`, {
       url: videoURL,
-      duration: 695,
+      duration: videoDuration,
     });
 
     mockAxios.mockResponse(
@@ -508,57 +502,211 @@ describe("Editor.vue", () => {
     });
   });
 
-  // it("updates video when a new valid URL is updated", async () => {
-  //   const checkAndSaveChanges = jest.spyOn(
-  //     Editor.methods,
-  //     "checkAndSaveChanges"
-  //   );
-  //   const initialVideoId = "jdYJf_ybyVo";
-  //   wrapper = mount(Editor, {
-  //     data() {
-  //       return {
-  //         videoId: initialVideoId,
-  //         videoDBId: global.dummyVideo.id,
-  //       };
-  //     },
-  //   });
+  describe("updating a video", () => {
+    const initialVideoId = "jdYJf_ybyVo";
+    const initialVideoURL = `https://www.youtube.com/watch?v=${initialVideoId}`;
+    const newVideoId = "abcdefghijk";
+    const newVideoURL = `https://www.youtube.com/watch?v=${newVideoId}`;
 
-  //   // reset the getPlio request made by Editor
-  //   mockAxios.reset();
+    const mountWrapper = async () => {
+      wrapper = mount(Editor, {
+        data() {
+          return {
+            videoId: initialVideoId,
+            videoURL: initialVideoURL,
+            isVideoIdValid: true,
+            videoDBId: global.dummyVideo.id,
+          };
+        },
+      });
+      await flushPromises();
+      // this is required - DO NOT REMOVE THIS
+      console.log(wrapper.vm.player);
 
-  //   await wrapper
-  //     .find('[data-test="videoLinkInput"]')
-  //     .find('[data-test="input"]')
-  //     .setValue("invalid video url");
+      mockAxios.mockResponse(
+        clonedeep(global.dummyDraftPlio),
+        mockAxios.queue()[0]
+      );
+    };
 
-  //   // since an invalid url was given, the video Id should remain the same
-  //   expect(wrapper.vm.videoId).toBe(initialVideoId);
+    it("updates video when a new valid URL is updated when no item with time > duration is present", async () => {
+      const checkAndSaveChanges = jest.spyOn(
+        Editor.methods,
+        "checkAndSaveChanges"
+      );
 
-  //   const newVideoURL = "https://www.youtube.com/watch?v=abcdefghijk";
-  //   await wrapper
-  //     .find('[data-test="videoLinkInput"]')
-  //     .find('[data-test="input"]')
-  //     .setValue(newVideoURL);
+      await mountWrapper();
 
-  //   expect(wrapper.vm.videoId).toBe("abcdefghijk");
-  //   expect(checkAndSaveChanges).toHaveBeenCalledWith(
-  //     "video",
-  //     global.dummyVideo.id,
-  //     {
-  //       duration: 0,
-  //       url: newVideoURL,
-  //     }
-  //   );
+      await wrapper
+        .find('[data-test="videoLinkInput"]')
+        .find('[data-test="input"]')
+        .setValue("invalid video url");
 
-  //   expect(mockAxios.patch).toHaveBeenCalledTimes(1);
-  //   expect(mockAxios.patch).toHaveBeenCalledWith(
-  //     `/videos/${global.dummyVideo.id}`,
-  //     {
-  //       url: newVideoURL,
-  //       duration: 0,
-  //     }
-  //   );
-  // });
+      // since an invalid url was given, the video Id should remain the same
+      expect(wrapper.vm.videoId).toBe(initialVideoId);
+
+      await wrapper
+        .find('[data-test="videoLinkInput"]')
+        .find('[data-test="input"]')
+        .setValue(newVideoURL);
+
+      // mock the response from youtube api for fetching video details
+      mockAxios.mockResponse(
+        {
+          data: global.dummyYouTubeResponse,
+        },
+        mockAxios.queue()[0]
+      );
+
+      // wait until the DOM updates after promises resolve
+      await flushPromises();
+
+      expect(wrapper.vm.videoId).toBe("abcdefghijk");
+      expect(checkAndSaveChanges).toHaveBeenCalledWith(
+        "video",
+        global.dummyVideo.id,
+        {
+          duration: videoDuration,
+          url: newVideoURL,
+        }
+      );
+
+      expect(mockAxios.patch).toHaveBeenCalledTimes(1);
+      expect(mockAxios.patch).toHaveBeenCalledWith(
+        `/videos/${global.dummyVideo.id}`,
+        {
+          url: newVideoURL,
+          duration: videoDuration,
+        }
+      );
+    });
+
+    it("does not update video id when a new valid but non-existing video link is added", async () => {
+      await mountWrapper();
+
+      await wrapper
+        .find('[data-test="videoLinkInput"]')
+        .find('[data-test="input"]')
+        .setValue(newVideoURL);
+
+      // mock the response from youtube api for non-existing video
+      mockAxios.mockResponse(
+        {
+          data: global.dummyEmptyYouTubeResponse,
+        },
+        mockAxios.queue()[0]
+      );
+
+      // wait until the DOM updates after promises resolve
+      await flushPromises();
+
+      expect(wrapper.vm.videoId).toBe(initialVideoId);
+    });
+
+    describe("dialog for confirming video updation when video duration < timestamp of some items", () => {
+      const newVideoDuration = 100;
+      let removeItems;
+
+      beforeEach(async () => {
+        removeItems = jest.spyOn(Editor.methods, "removeItems");
+        await mountWrapper();
+
+        await wrapper
+          .find('[data-test="videoLinkInput"]')
+          .find('[data-test="input"]')
+          .setValue(newVideoURL);
+
+        // mock the response from youtube api for video with duration
+        // less than the timestamp of some items
+        let dummyYoutubeResponse = clonedeep(global.dummyYouTubeResponse);
+        dummyYoutubeResponse.items[0].contentDetails.duration = "PT1M40S";
+        mockAxios.mockResponse(
+          {
+            data: dummyYoutubeResponse,
+          },
+          mockAxios.queue()[0]
+        );
+
+        // wait until the DOM updates after promises resolve
+        await flushPromises();
+      });
+
+      it("shows a dialog box to confirm video updation", async () => {
+        // video details should be set
+        expect(store.state.generic.newVideoDetails.videoId).toBe(newVideoId);
+        expect(store.state.generic.newVideoDetails.videoURL).toBe(newVideoURL);
+        expect(store.state.generic.newVideoDetails.videoDuration).toBe(
+          newVideoDuration
+        );
+        expect(store.state.generic.newVideoDetails.fallbackVideoURL).toBe(
+          initialVideoURL
+        );
+
+        // dialog should be shown
+        expect(store.state.dialog.isShown).toBeTruthy();
+      });
+
+      it("reverts video url to old video url upon dialog cancellation", async () => {
+        expect(wrapper.vm.videoURL).toBe(newVideoURL);
+
+        // trigger dialog cancellation
+        store.dispatch("dialog/setCancelClicked");
+
+        await flushPromises();
+
+        expect(wrapper.vm.videoURL).toBe(initialVideoURL);
+      });
+
+      it("updates video upon dialog confirmation", async () => {
+        // trigger dialog confirmation
+        store.dispatch("dialog/setConfirmClicked");
+
+        await flushPromises();
+
+        expect(wrapper.vm.videoId).toBe(newVideoId);
+        expect(mockAxios.patch).toHaveBeenCalledWith(
+          `/videos/${global.dummyVideo.id}`,
+          {
+            url: newVideoURL,
+            duration: newVideoDuration,
+          }
+        );
+      });
+
+      it("deletes items upon dialog confirmation", async () => {
+        // trigger dialog confirmation
+        store.dispatch("dialog/setConfirmClicked");
+
+        await flushPromises();
+
+        const expectedItemDeleteStartIndex = 2;
+        const expectedNumItemsToRemove = 3;
+        const expectedItemIdsToDelete = [];
+        for (
+          let index = expectedItemDeleteStartIndex;
+          index < global.dummyItemsWithItemDetails.length;
+          index++
+        ) {
+          expectedItemIdsToDelete.push(
+            global.dummyItemsWithItemDetails[index].id
+          );
+        }
+
+        expect(mockAxios.delete).toHaveBeenCalledWith(`/items/bulk_delete/`, {
+          data: {
+            id: expectedItemIdsToDelete,
+          },
+        });
+        expect(removeItems).toHaveBeenCalledWith(
+          expectedItemDeleteStartIndex,
+          expectedNumItemsToRemove
+        );
+        expect(wrapper.vm.items.length).toBe(
+          global.dummyItemsWithItemDetails.length - expectedNumItemsToRemove
+        );
+      });
+    });
+  });
 
   it("share plio button works correctly", async () => {
     const showSharePlioLinkDialog = jest.spyOn(
@@ -670,15 +818,7 @@ describe("Editor.vue", () => {
     // mock the response from youtube api for fetching video details
     mockAxios.mockResponse(
       {
-        data: {
-          items: [
-            {
-              contentDetails: {
-                duration: "PT11M35S",
-              },
-            },
-          ],
-        },
+        data: global.dummyYouTubeResponse,
       },
       mockAxios.queue()[0]
     );
@@ -744,15 +884,7 @@ describe("Editor.vue", () => {
     // mock the response from youtube api for fetching video details
     mockAxios.mockResponse(
       {
-        data: {
-          items: [
-            {
-              contentDetails: {
-                duration: "PT11M35S",
-              },
-            },
-          ],
-        },
+        data: global.dummyYouTubeResponse,
       },
       mockAxios.queue()[0]
     );
