@@ -11,6 +11,4 @@ export BROWSERSTACK_LOCAL_IDENTIFIER="TestCafe"
 export BROWSERSTACK_USE_AUTOMATE="1"
 export BROWSERSTACK_PROJECT_NAME="plio"
 export BROWSERSTACK_BUILD_ID="plio"
-export GOOGLE_ACCOUNT_EMAIL="" # Your Google account email
-export GOOGLE_ACCOUNT_PASSWORD="" # Your Google account password
 ```
