@@ -11,12 +11,26 @@ The pre-commit hook in this repository uses various plugins to run different kin
 
 2. [Prettier mirror](https://github.com/pre-commit/mirrors-prettier): Checks for code formatting issues within Javascript files and fixes if errors found, like indentation, extra lines and spaces, invalid syntax, etc .
 
-#Installation
-Install pre-commit package manager.
+### Installation
+1. Install pre-commit
+    Use `pip` to install pre-commit
+    ```sh
     pip install pre-commit
+    ```
 
-You can install it in your codespace using this: https://github.com/avantifellows/plio-frontend/blob/master/docs/PRE-COMMIT.md.
+    Or using homebrew on macOS
+    ```sh
+    brew install pre-commit
+    ```
 
-#Usage
-Run command:
+    For more installation alternatives, check out [Pre-commit official documentation](https://pre-commit.com/#install).
+2. Verify pre-commit installation
+    ```sh
+    pre-commit --version
+    ```
+
+### Usage
+1. Run command
+    ```sh
     pre-commit .
+    ```
