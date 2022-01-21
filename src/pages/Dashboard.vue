@@ -348,25 +348,25 @@ export default {
       // average accuracy on the plio
       if (this.plioAnalytics["accuracy"] != null)
         return Math.trunc(this.plioAnalytics["accuracy"]) + "%";
-      return "0%";
+      return "-";
     },
     completionRate() {
       // what % of users completed the plio
-      if (this.plioAnalytics["percent_complete"] != null)
-        return Math.trunc(this.plioAnalytics["percent_complete"]) + "%";
-      return "0%";
+      if (this.plioAnalytics["percent_completed"] != null)
+        return Math.trunc(this.plioAnalytics["percent_completed"]) + "%";
+      return "-";
     },
     oneMinuteRetention() {
       // what % of users were retained after the 1 minute mark
       if (this.plioAnalytics["percent_one_minute_retention"] != null)
         return Math.trunc(this.plioAnalytics["percent_one_minute_retention"]) + "%";
-      return "0%";
+      return "-";
     },
     numQuestionsAnswered() {
       // number of questions answered on average by a user
       if (this.plioAnalytics["average_num_answered"] != null)
         return Math.round(this.plioAnalytics["average_num_answered"]);
-      return "0";
+      return "-";
     },
     playButtonTextConfig() {
       return {
