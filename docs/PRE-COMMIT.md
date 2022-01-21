@@ -10,3 +10,28 @@ The pre-commit hook in this repository uses various plugins to run different kin
 1. [Pre-commit-hooks](https://github.com/pre-commit/pre-commit-hooks): Checks and fixes basic linting issues. All available hooks for pre-commit can be found [here](https://github.com/pre-commit/pre-commit-hooks#hooks-available).
 
 2. [Prettier mirror](https://github.com/pre-commit/mirrors-prettier): Checks for code formatting issues within Javascript files and fixes if errors found, like indentation, extra lines and spaces, invalid syntax, etc .
+
+### Installation
+1. Install pre-commit
+
+    Use `pip` to install pre-commit
+    ```sh
+    pip install pre-commit
+    ```
+
+    Or using homebrew on macOS
+    ```sh
+    brew install pre-commit
+    ```
+
+    For more installation alternatives, check out [Pre-commit official documentation](https://pre-commit.com/#install).
+2. Verify pre-commit installation
+    ```sh
+    pre-commit --version
+    ```
+
+### Usage
+1. Run command
+    ```sh
+    pre-commit .
+    ```
