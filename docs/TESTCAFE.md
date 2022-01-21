@@ -21,6 +21,18 @@ This guide aims to share how TestCafe is being used in Plio for performing E2E a
     # or
     source ~/.zshrc
     ```
+4. To run a test case locally, execute the following command from the project root folder:
+    ```sh
+    # chrome
+    testcafe browser ./path/to/test.spec.js
+
+    # example
+    testcafe chrome ./tests/integration/integration/login/login-hi.spec.js
+    ```
+5. To list all the browsers available, run the following command:
+    ```sh
+    testcafe --list-browsers
+    ```
 
 
 ### Environment variables
