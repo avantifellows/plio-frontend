@@ -832,10 +832,12 @@ export default {
       // rejected promise goes into the catch: https://stackoverflow.com/a/42453705/7870587
       await (async () => {
         try {
+          this.showSpinner();
           videoDuration = await getVideoDuration(linkValidation["ID"]);
         } catch (_) {
           this.toast.error(this.$t("toast.editor.video_input.error.invalid_video"));
         }
+        this.hideSpinner();
       })();
 
       // video link was invalid

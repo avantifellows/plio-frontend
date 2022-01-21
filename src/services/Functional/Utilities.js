@@ -1,5 +1,7 @@
 import axios from "axios";
 import dayjs from "dayjs";
+import ErrorHandling from "@/services/API/ErrorHandling.js";
+
 var duration = require("dayjs/plugin/duration");
 dayjs.extend(duration);
 
@@ -239,17 +241,22 @@ export function convertISOTimeToSeconds(timeInISO) {
  * @param {String} videoId - the unique id of the video on youtube
  */
 export async function getVideoDuration(videoId) {
-  let response = await axios.get(
-    "https://www.googleapis.com/youtube/v3/videos",
-    {
-      params: {
-        id: videoId,
-        part: "contentDetails",
-        key: process.env.VUE_APP_GOOGLE_API_KEY,
-      },
-    }
-  );
-  let items = response.data["items"];
-  if (items.length === 0) throw new Error(404);
-  return dayjs.duration(items[0]["contentDetails"]["duration"]).asSeconds();
+  try {
+    let response = await axios.get(
+      "https://www.googleapis.com/youtube/v3/videos",
+      {
+        params: {
+          id: videoId,
+          part: "contentDetails",
+          key: process.env.VUE_APP_GOOGLE_API_KEY,
+        },
+      }
+    );
+
+    let items = response.data["items"];
+    if (items.length === 0) throw new Error(404);
+    return dayjs.duration(items[0]["contentDetails"]["duration"]).asSeconds();
+  } catch (error) {
+    ErrorHandling.handleAPIErrors(error);
+  }
 }

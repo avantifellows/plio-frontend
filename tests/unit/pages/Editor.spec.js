@@ -7,7 +7,6 @@ import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
 import store from "@/store";
-import { set } from "lodash";
 
 let clonedeep = require("lodash.clonedeep");
 const videoDuration = 695;
@@ -416,6 +415,33 @@ describe("Editor.vue", () => {
       global.dummyItemDetails[0].id,
       updatedItemDetails[0]
     );
+  });
+
+  it("resets spinner if any error occured upon entering valid video link", async () => {
+    const hideSpinner = jest.spyOn(Editor.methods, "hideSpinner");
+    const plioId = "1234";
+    wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+    });
+
+    // reset the getPlio request made by Editor
+    mockAxios.reset();
+
+    const videoURL = "https://www.youtube.com/watch?v=jdYJf_ybyVo";
+    await wrapper
+      .find('[data-test="videoLinkInput"]')
+      .find('[data-test="input"]')
+      .setValue(videoURL);
+
+    expect(wrapper.vm.isSpinnerShown).toBeTruthy();
+
+    mockAxios.mockError();
+
+    await flushPromises();
+
+    expect(hideSpinner).toHaveBeenCalled();
   });
 
   it("creates video and links to plio when a valid video link is entered", async () => {
