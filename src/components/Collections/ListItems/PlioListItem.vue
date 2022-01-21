@@ -63,9 +63,9 @@ import { useToast } from "vue-toastification";
 export default {
   name: "PlioThumbnail",
   props: {
-    plioId: {
-      default: "",
-      type: String,
+    plioDetails: {
+      default: () => {},
+      type: Object,
     },
   },
   components: {
@@ -77,29 +77,27 @@ export default {
   data() {
     return {
       // button, icon config and styling classes
-      plioDetails: {},
       actionButtonClass:
         "bg-gray-100 hover:bg-gray-200 rounded-md shadow-md h-10 ring-primary",
       urlCopyButtonClass: "text-yellow-600",
       scrollY: window.scrollY, // the number of pixels scrolled vertically
       toast: useToast(), // toast component
       optionsOverflowMarginTop: -14, // margin to be set from the top when the options would overflow from the screen
+      itemDetails: [],
     };
   },
   async created() {
-    // load the plio only if the plio id is not empty
-    if (this.isPlioIdValid) await this.loadPlio();
-
-    this.$nextTick(() => {
-      // wait for the DOM to be updated
-      if (this.plioDetails.updatedAt != undefined) {
-        // only consider the plio loaded if the data is valid
-        this.$emit("fetched", {
-          status: this.status,
-          title: this.title,
-        });
+    if ("items" in this.plioDetails) {
+      // create itemDetails and update items to remove details
+      for (let item of this.plioDetails.items) {
+        /**
+         * add every item's details to an itemDetails array
+         * and then, remove those details from the item object
+         */
+        this.itemDetails.push(item.details);
+        delete item.details;
       }
-    });
+    }
 
     // add listener for resize
     window.addEventListener("resize", this.handleResize);
@@ -127,6 +125,11 @@ export default {
       isDialogConfirmClicked: "isConfirmClicked",
       isDialogCancelClicked: "isCancelClicked",
     }),
+
+    plioId() {
+      if ("uuid" in this.plioDetails) return this.plioDetails["uuid"];
+      return "";
+    },
 
     /** whether the user is in the personal workspace while having other workspaces as well */
     inPersonalWorkspaceWithOtherWorkspaces() {
@@ -187,55 +190,54 @@ export default {
       return options;
     },
     statusBadge() {
-      // text for the status badge
       if (this.status == undefined) return null;
       return this.$t(`generic.status.${this.status}`);
     },
     isPublished() {
-      // whether the plio was published
       return this.status == "published";
     },
     statusBadgeTooltip() {
-      // tooltip for the status badge
       if (!this.isPublished) return this.$t("tooltip.editor.status.draft");
       return this.$t("tooltip.editor.status.published");
     },
     statusBadgeClass() {
-      // class for the status badge
-      var badgeClass = {
+      return {
         "text-green-700 border-green-700": this.isPublished,
         "border-black text-black": !this.isPublished,
         "text-xs": true,
         "px-2 py-1": true,
       };
-      return badgeClass;
     },
+    /**
+     * human readable date string
+     * format: month (3-letter) day year
+     */
     updatedAt() {
-      // human readable date string
-      // format: month (3-letter) day year
-      return new Date(this.plioDetails.updatedAt).toDateString().slice(4);
+      if ("updated_at" in this.plioDetails)
+        return new Date(this.plioDetails.updated_at).toDateString().slice(4);
+      return "";
     },
     status() {
-      // status of the plio - draft or published
-      return this.plioDetails.status;
+      return this.plioDetails.status || "";
     },
+    /**
+     * title of the plio. "Untitled" if no title is present
+     */
     title() {
-      // title of the plio. "Untitled" if no title is present
       return (
-        this.plioDetails.plioTitle ||
-        this.$t("generic.placeholders.empty_title_placeholder")
+        this.plioDetails.name || this.$t("generic.placeholders.empty_title_placeholder")
       );
     },
+    /**
+     * link to the player for a plio
+     */
     plioLink() {
-      // prepare the link for the plio from the plio ID
-      return this.getPlioLink(this.plioId, this.activeWorkspace);
+      if (this.plioId != "") return this.getPlioLink(this.plioId, this.activeWorkspace);
+      return "";
     },
+    /** whether the plio does not have a title */
     isUntitled() {
-      // if the plio is untitled or not
-      return !this.plioDetails.plioTitle;
-    },
-    isPlioIdValid() {
-      return this.plioId != "";
+      return !this.plioDetails.name || false;
     },
   },
 
@@ -392,12 +394,6 @@ export default {
       // handles all scrolling events
       this.scrollY = window.scrollY;
     },
-    async loadPlio() {
-      // fetch the details of the plio if they don't exist in the store
-      if (!(this.plioId in this.allPlioDetails)) await this.fetchPlio(this.plioId);
-
-      this.plioDetails = this.allPlioDetails[this.plioId];
-    },
     sharePlio() {
       // show the dialog containing the plio link to be shared
       this.showSharePlioDialog(this.plioLink);
@@ -463,7 +459,7 @@ export default {
           let newItem = await ItemAPIService.duplicateItem(item.id, newPlio.data.id);
           // duplicate question and link it to the newly created item
           await QuestionAPIService.duplicateQuestion(
-            this.plioDetails.itemDetails[index].id,
+            this.itemDetails[index].id,
             newItem.data.id
           );
         })
@@ -490,6 +486,6 @@ export default {
       });
     },
   },
-  emits: ["fetched", "deleted"],
+  emits: ["deleted"],
 };
 </script>

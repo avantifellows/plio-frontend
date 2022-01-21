@@ -8,11 +8,10 @@
       :tableTitle="tableTitle"
       :numTotal="totalNumberOfPlios"
       :org="org"
-      @search-plios="fetchPlioIds($event)"
+      @search-plios="fetchPlios($event)"
       @reset-search-string="resetSearchString"
       @sort-num-viewers="sortPlios"
       @delete-plio="plioDeleted"
-      @loaded="stopLoading"
       data-test="table"
       ref="table"
     >
@@ -24,7 +23,7 @@
       :totalItems="totalNumberOfPlios"
       :pageSize="numberOfPliosPerPage"
       :initialPage="currentPageNumber"
-      @page-selected="fetchPlioIds($event)"
+      @page-selected="fetchPlios($event)"
     >
     </Paginator>
 
@@ -80,17 +79,16 @@ export default {
       this.currentPageNumber = 1;
       // reset search string
       this.resetSearchString();
-      await this.fetchPlioIds();
+      await this.fetchPlios();
     },
   },
   data() {
     return {
       tableColumns: ["name", "views"], // columns for the table
       tableData: [],
-      countUniqueUsersList: [], // holds the number of unique users for all the plios fetched
       // dummy table data - to show skeletons when data is being loaded
       dummyTableData: Array(5).fill({
-        name: { type: "component", value: "" },
+        name: { type: "component", value: {} },
         views: "-",
       }),
       isTableShown: true, // whether to show the table or not
@@ -110,7 +108,7 @@ export default {
   async created() {
     // feed the dummy data to show skeletons before loading the actual data
     this.tableData = this.dummyTableData;
-    await this.fetchPlioIds();
+    await this.fetchPlios();
     this.$mixpanel.track("Visit Home");
   },
   computed: {
@@ -139,32 +137,31 @@ export default {
       if (this.tableData.length == 1 && this.currentPageNumber != 1) {
         this.currentPageNumber -= 1;
       }
-      this.fetchPlioIds();
+      this.fetchPlios();
     },
     async sortPlios(sortByField) {
       // invoked when the user clicks the sort icon next to a column
       this.sortByField = sortByField;
-      await this.fetchPlioIds();
+      await this.fetchPlios();
     },
     async resetSearchString() {
       // reset the search string to ""
       // fetch all the plios again
       if (this.searchString != "") {
         this.searchString = "";
-        await this.fetchPlioIds();
+        await this.fetchPlios();
       }
     },
 
-    async fetchPlioIds(params = undefined) {
+    async fetchPlios(params = undefined) {
       if (!this.pending) this.startLoading();
-      var uuidOnly = true;
 
-      //if params contain a searchString or pageNumber, save it into a variable,
-      //else save the variable as undefined
-      var searchString =
+      // if params contain a searchString or pageNumber, save it into a variable,
+      // else save the variable as undefined
+      let searchString =
         params != undefined && "searchString" in params ? params.searchString : undefined;
 
-      var pageNumber =
+      let pageNumber =
         params != undefined && "pageNumber" in params ? params.pageNumber : undefined;
 
       // if the params contain a valid searchString, update the local searchString variable
@@ -175,32 +172,22 @@ export default {
       if (pageNumber != undefined) this.currentPageNumber = pageNumber;
 
       await PlioAPIService.getAllPlios(
-        uuidOnly,
         this.currentPageNumber,
         this.searchString,
         this.sortByField
-      )
-        .then((response) => {
-          // to handle the case when the user lands on the homepage for the first time
-          // if no plios exist, then hide the table else show it
-          if (params == undefined) {
-            if (response.data.raw_count == 0) {
-              this.isTableShown = false;
-              this.stopLoading();
-            } else this.isTableShown = true;
-          }
-          this.totalNumberOfPlios = response.data.count; // set total number of plios and show the paginator
-          this.numberOfPliosPerPage = response.data.page_size; // set the page size
-          return Promise.resolve(response.data.results);
-        })
-        .then(async (plioIdList) => {
-          // fetch the list of unique users for each plio
-          await PlioAPIService.getUniqueUsersCountList(plioIdList).then((response) => {
-            this.countUniqueUsersList = response;
-          });
-          return Promise.resolve(plioIdList);
-        })
-        .then((plioIdList) => this.prepareTableData(plioIdList)); // prepare the data for the table
+      ).then((response) => {
+        // to handle the case when the user lands on the homepage for the first time
+        // if no plios exist, then hide the table else show it
+        if (params == undefined) {
+          if (response.data.raw_count == 0) {
+            this.isTableShown = false;
+            this.stopLoading();
+          } else this.isTableShown = true;
+        }
+        this.totalNumberOfPlios = response.data.count; // set total number of plios and show the paginator
+        this.numberOfPliosPerPage = response.data.page_size; // set the page size
+        this.prepareTableData(response.data.results); // prepare the data for the table
+      });
     },
 
     createNewPlio() {
@@ -228,37 +215,36 @@ export default {
         .catch(() => this.toast.error(this.$t("toast.error.create_plio")));
     },
 
-    async prepareTableData(plioIdList) {
+    async prepareTableData(plioList) {
       /**
        * prepares the data for the plios to be fed into the table
        */
 
-      if (!plioIdList.length) {
+      if (!plioList.length) {
         // no plios found
         this.stopLoading();
         this.tableData = [];
       }
 
       // holds the data to be fed to the table
-      var tableData = [];
+      let tableData = [];
 
       // fill in the data for each plio
-      for (let plioIndex = 0; plioIndex < plioIdList.length; plioIndex++) {
-        const plioId = plioIdList[plioIndex];
-        var tableRow = {};
+      for (let plioIndex = 0; plioIndex < plioList.length; plioIndex++) {
+        let tableRow = {};
 
-        for (let colIndex = 0; colIndex < this.tableColumns.length; colIndex++) {
-          const column = this.tableColumns[colIndex];
+        for (let columnIndex = 0; columnIndex < this.tableColumns.length; columnIndex++) {
+          const column = this.tableColumns[columnIndex];
           switch (column) {
             case "name":
               tableRow[column] = {
                 type: "component",
-                value: plioId,
+                value: plioList[plioIndex],
               };
               break;
 
             case "views":
-              tableRow[column] = this.countUniqueUsersList[plioIndex];
+              tableRow[column] = plioList[plioIndex].num_views;
               break;
           }
         }
@@ -268,6 +254,7 @@ export default {
 
       // update the table's data
       this.tableData = tableData;
+      this.stopLoading();
     },
   },
 

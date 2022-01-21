@@ -1,5 +1,4 @@
 export const pliosEndpoint = "/plios/",
-  listPliosEndpoint = "list_uuid/",
   duplicateEndpoint = "/duplicate/",
   copyEndpoint = "/copy/",
   plioDataDumpEndpoint = "/download_data/",

@@ -1,7 +1,6 @@
 import { apiClient, analyticsAPIClient } from "@/services/API/RootClient.js";
 import {
   pliosEndpoint,
-  listPliosEndpoint,
   duplicateEndpoint,
   plioDataDumpEndpoint,
   copyEndpoint,
@@ -10,7 +9,6 @@ import {
   dashboardSessionMetricsQuery,
   oneMinuteRetentionQuery,
   dashboardSessionAnswerMetricsQuery,
-  uniqueUsersListQuery,
 } from "@/services/API/Queries/Plio.js";
 
 export default {
@@ -60,14 +58,7 @@ export default {
    * @param {String} sortBy - if provided, sorts the list of plios based on the ordering given
    * @returns
    */
-  getAllPlios(
-    uuidOnly = false,
-    pageNumber = undefined,
-    searchString = "",
-    sortBy = undefined
-  ) {
-    let url = uuidOnly ? pliosEndpoint + listPliosEndpoint : pliosEndpoint;
-
+  getAllPlios(pageNumber = undefined, searchString = "", sortBy = undefined) {
     let queryParams = {};
     // add page number query param
     if (pageNumber != undefined && pageNumber >= 1)
@@ -78,7 +69,7 @@ export default {
     // add sort by query param
     if (sortBy != undefined) queryParams["ordering"] = sortBy;
 
-    return apiClient().get(url, { params: queryParams });
+    return apiClient().get(pliosEndpoint, { params: queryParams });
   },
 
   /**
@@ -134,37 +125,6 @@ export default {
     return apiClient().get(pliosEndpoint + plioId + plioDataDumpEndpoint, {
       responseType: "blob",
     });
-  },
-
-  /**
-   * fetches the number of unique users who have watched each plio given a list of plio ids
-   * @param {Array} plioIds - list of plio uuids for whom the count needs to be fetched
-   * @returns {Array}
-   */
-  async getUniqueUsersCountList(plioIds) {
-    if (plioIds.length == 0) return [];
-
-    let resultSet = await analyticsAPIClient().load(
-      uniqueUsersListQuery(plioIds)
-    );
-
-    // holds the mapping of plio ID to count
-    let resultsMap = {};
-    if (resultSet.series()[0] != undefined)
-      resultSet.series()[0].series.forEach((seriesItem) => {
-        resultsMap[seriesItem.x] = seriesItem.value;
-      });
-
-    // holds the final list of values to be returned
-    let results = [];
-    plioIds.forEach((plioId) => {
-      // plios which do not have any sessions do not show up in
-      // the resultMap - use a default value for those plios
-      if (!(plioId in resultsMap)) results.push(0);
-      else results.push(resultsMap[plioId]);
-    });
-
-    return results;
   },
 
   /**
