@@ -202,7 +202,7 @@
 
 <script>
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
-import SelectDropdown from "@/components/UI/DropDownMenu/SelectDropdown.vue";
+import SelectDropdown from "@/components/UI/Selectors/SelectDropdown.vue";
 import QuestionTypeDropdown from "@/components/Editor/QuestionTypeDropdown.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";

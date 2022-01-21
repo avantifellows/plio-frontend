@@ -4,6 +4,7 @@ import {
   listPliosEndpoint,
   duplicateEndpoint,
   plioDataDumpEndpoint,
+  copyEndpoint,
 } from "@/services/API/Endpoints.js";
 import {
   dashboardSessionMetricsQuery,
@@ -113,6 +114,15 @@ export default {
    */
   deletePlio(plioId) {
     return apiClient().delete(pliosEndpoint + plioId);
+  },
+
+  /**
+   * Copy a given plio to another workspace
+   * @param {Number} plioId - uuid of the plio
+   * @param {Object} payload - params required for copying the plio
+   */
+  copyToWorkspace(plioId, payload) {
+    return apiClient().post(pliosEndpoint + plioId + copyEndpoint, payload);
   },
 
   /**
