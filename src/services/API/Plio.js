@@ -1,15 +1,11 @@
-import { apiClient, analyticsAPIClient } from "@/services/API/RootClient.js";
+import { apiClient } from "@/services/API/RootClient.js";
 import {
   pliosEndpoint,
   duplicateEndpoint,
   plioDataDumpEndpoint,
+  plioMetricsEndpoint,
   copyEndpoint,
 } from "@/services/API/Endpoints.js";
-import {
-  dashboardSessionMetricsQuery,
-  oneMinuteRetentionQuery,
-  dashboardSessionAnswerMetricsQuery,
-} from "@/services/API/Queries/Plio.js";
 
 export default {
   /**
@@ -132,43 +128,7 @@ export default {
    * @param {Number} plioId - uuid of the plio for which the metrics need to be fetched
    * @returns {Object} key-value pairs of metrics
    */
-  async getDashboardMetrics(plioId) {
-    let metrics = {};
-
-    // get session level metrics (except 1-minute retention)
-    let resultSet = await analyticsAPIClient().load(
-      dashboardSessionMetricsQuery(plioId)
-    );
-    let resultKeys = resultSet.seriesNames().map((x) => x.key);
-    let resultChartPivot = resultSet.chartPivot()[0];
-    resultKeys.forEach((key) => {
-      metrics[key] = resultChartPivot[key];
-    });
-
-    /**
-     * get 1-minute retention separately as this value becomes NaN
-     * for some users and while calculating the average, those rows are
-     * omitted; this affects the calculation of the total number of unique
-     * viewers;
-     */
-    resultSet = await analyticsAPIClient().load(
-      oneMinuteRetentionQuery(plioId)
-    );
-    resultKeys = resultSet.seriesNames().map((x) => x.key);
-    resultChartPivot = resultSet.chartPivot()[0];
-    resultKeys.forEach((key) => {
-      metrics[key] = resultChartPivot[key];
-    });
-
-    // get session answer level metrics
-    resultSet = await analyticsAPIClient().load(
-      dashboardSessionAnswerMetricsQuery(plioId)
-    );
-    resultKeys = resultSet.seriesNames().map((x) => x.key);
-    resultChartPivot = resultSet.chartPivot()[0];
-    resultKeys.forEach((key) => {
-      metrics[key] = resultChartPivot[key];
-    });
-    return metrics;
+  async getMetrics(plioId) {
+    return apiClient().get(pliosEndpoint + plioId + plioMetricsEndpoint);
   },
 };

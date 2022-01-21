@@ -342,7 +342,7 @@ export default {
     },
     averageWatchTime() {
       // for how long did the users watch the plio on average
-      return this.formatTime(Math.round(this.plioAnalytics["average-watch-time"] || 0));
+      return this.formatTime(Math.round(this.plioAnalytics["average_watch_time"] || 0));
     },
     accuracy() {
       // average accuracy on the plio
@@ -352,20 +352,20 @@ export default {
     },
     completionRate() {
       // what % of users completed the plio
-      if (this.plioAnalytics["percent-complete"] != null)
-        return Math.trunc(this.plioAnalytics["percent-complete"]) + "%";
+      if (this.plioAnalytics["percent_complete"] != null)
+        return Math.trunc(this.plioAnalytics["percent_complete"]) + "%";
       return "0%";
     },
     oneMinuteRetention() {
       // what % of users were retained after the 1 minute mark
-      if (this.plioAnalytics["1-min-retention"] != null)
-        return Math.trunc(this.plioAnalytics["1-min-retention"]) + "%";
+      if (this.plioAnalytics["percent_one_minute_retention"] != null)
+        return Math.trunc(this.plioAnalytics["percent_one_minute_retention"]) + "%";
       return "0%";
     },
     numQuestionsAnswered() {
       // number of questions answered on average by a user
-      if (this.plioAnalytics["num-questions-answered"] != null)
-        return Math.round(this.plioAnalytics["num-questions-answered"]);
+      if (this.plioAnalytics["average_num_answered"] != null)
+        return Math.round(this.plioAnalytics["average_num_answered"]);
       return "0";
     },
     playButtonTextConfig() {
@@ -452,31 +452,20 @@ export default {
       });
     },
     async loadAnalytics() {
-      await PlioAPIService.getDashboardMetrics(this.plioId)
-        .then((metrics) => {
-          this.plioAnalytics["viewers"] = metrics["Session.uniqueUsers"];
-          this.plioAnalytics["average-watch-time"] =
-            metrics["GroupedSession.averageWatchTime"];
-          this.plioAnalytics["num-questions-answered"] =
-            metrics["AggregateSessionMetrics.numQuestionsAnswered"];
-          this.plioAnalytics["percent-complete"] =
-            metrics["AggregateSessionMetrics.completionPercentage"];
-          this.plioAnalytics["accuracy"] = metrics["AggregateSessionMetrics.accuracy"];
-          this.plioAnalytics["1-min-retention"] =
-            metrics["GroupedSessionRetention.averageOneMinuteRetention"];
-        })
-        .then(() => {
-          this.$mixpanel.track("Visit Dashboard", {
-            "Plio UUID": this.plioId,
-            "Plio Average Watch Time": this.plioAnalytics["average-watch-time"] || 0,
-            "Plio Number of Viewers": this.plioAnalytics["viewers"] || 0,
-            "Plio Retention At 1 Minute": this.plioAnalytics["1-min-retention"] || 0,
-            "Plio Accuracy": this.plioAnalytics["accuracy"] || 0,
-            "Plio Completion Rate": this.plioAnalytics["percent-complete"] || 0,
-            "Plio Num Questions Answered":
-              this.plioAnalytics["num-questions-answered"] || 0,
-          });
-        });
+      let response = await PlioAPIService.getMetrics(this.plioId);
+      this.plioAnalytics = response.data;
+      console.log(this.plioAnalytics);
+      this.$mixpanel.track("Visit Dashboard", {
+        "Plio UUID": this.plioId,
+        "Plio Average Watch Time": this.plioAnalytics["average_watch_time"] || 0,
+        "Plio Number of Viewers": this.plioAnalytics["num_views"] || 0,
+        "Plio Retention At 1 Minute":
+          this.plioAnalytics["percent_one_minute_retention"] || 0,
+        "Plio Accuracy": this.plioAnalytics["accuracy"] || 0,
+        "Plio Completion Rate": this.plioAnalytics["percent_completed"] || 0,
+        "Plio Num Questions Answered": this.plioAnalytics["average_num_answered"] || 0,
+      });
+
       this.stopLoading();
     },
     getVideoIDfromURL(videoURL) {
