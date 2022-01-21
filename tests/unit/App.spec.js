@@ -39,7 +39,7 @@ describe("App.vue for authenticated user", () => {
     class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
   };
 
-  beforeEach(async () => {
+  const mountWrapper = async (params = {}) => {
     // mock user service
     jest
       .spyOn(UserAPIService, "getUserByAccessToken")
@@ -75,6 +75,14 @@ describe("App.vue for authenticated user", () => {
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
+  };
+
+  beforeEach(async () => {
+    await mountWrapper();
+  });
+
+  afterEach(() => {
+    mockAxios.reset();
   });
 
   it("should render", async () => {
@@ -214,6 +222,93 @@ describe("App.vue for authenticated user", () => {
         "_blank",
         "noopener"
       );
+    });
+  });
+
+  describe("list selector", () => {
+    const selectorTitle = "testTitle";
+    const selectorInfo = "testInfo";
+    const selectedOptionIndex = 0;
+    let selectorOptions = [];
+    let selectedPlioId = 123;
+
+    const setSelectorParams = () => {
+      // set the list of options in the list selector and display it
+      store.dispatch("selectors/showSelector", {
+        type: "single",
+        options: selectorOptions,
+        title: selectorTitle,
+        info: selectorInfo,
+      });
+
+      // set selected plio details
+      store.dispatch("generic/setSelectedPlioId", selectedPlioId);
+    };
+
+    beforeEach(() => {
+      store.getters["auth/workspaces"].forEach((workspace) => {
+        selectorOptions.push({
+          value: workspace.shortcode,
+          label: workspace.name,
+        });
+      });
+      setSelectorParams();
+    });
+
+    it("sets the values correctly", () => {
+      expect(wrapper.vm.selectorTitle).toBe(selectorTitle);
+      expect(wrapper.vm.selectorInfo).toBe(selectorInfo);
+      expect(wrapper.vm.selectorOptions).toStrictEqual(selectorOptions);
+      expect(wrapper.vm.isSingleSelectorShown).toBeTruthy();
+    });
+
+    it("closes the dialog when the close button is clicked", async () => {
+      const hideSelector = jest.spyOn(App.methods, "hideSelector");
+      await mountWrapper();
+      setSelectorParams();
+      await flushPromises();
+      wrapper.vm.$refs.listSingleSelector.$emit("close");
+      await flushPromises();
+      expect(hideSelector).toHaveBeenCalled();
+      expect(wrapper.vm.selectorTitle).toBeFalsy();
+      expect(wrapper.vm.selectorInfo).toBeFalsy();
+      expect(wrapper.vm.selectorOptions).toEqual([]);
+      expect(wrapper.vm.isSingleSelectorShown).toBeFalsy();
+    });
+
+    it("copies plio to another workspace when a workspace is selected", async () => {
+      const hideSelector = jest.spyOn(App.methods, "hideSelector");
+      const mockRouter = {
+        push: jest.fn(),
+      };
+      await mountWrapper({
+        global: {
+          mocks: {
+            $router: mockRouter,
+          },
+        },
+      });
+      setSelectorParams();
+      await flushPromises();
+      wrapper.vm.$refs.listSingleSelector.$emit(
+        "select",
+        selectorOptions[selectedOptionIndex].value
+      );
+      await flushPromises();
+
+      expect(mockAxios.post).toHaveBeenCalledWith(
+        `/plios/${selectedPlioId}/copy/`,
+        {
+          workspace: selectorOptions[selectedOptionIndex].value,
+        }
+      );
+
+      mockAxios.mockResponse(global.dummyDraftPlio, mockAxios.queue()[0]);
+
+      await flushPromises();
+
+      // the selector is closed once all requests are resolved
+      expect(hideSelector).toHaveBeenCalled();
     });
   });
 });

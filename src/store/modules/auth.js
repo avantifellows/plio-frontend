@@ -30,9 +30,14 @@ const getters = {
   isPersonalWorkspace: (state) => {
     return state.activeWorkspace == "";
   },
-  /** all the workspaces that the user is a part of */
+  /** list of all workspaces that the user is a part of */
   workspaces: (state) => {
-    return state.user.organizations;
+    if (state.user != undefined) return state.user.organizations;
+    return [];
+  },
+  /** whether the current user has workspaces beyond the personal workspace */
+  hasWorkspaces: (_, getters) => {
+    return getters.workspaces.length > 0;
   },
   /** the current active workspace */
   activeWorkspaceDetails: (state, getters) => {
