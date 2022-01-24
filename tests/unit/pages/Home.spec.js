@@ -31,7 +31,7 @@ describe("Home.vue", () => {
 
     // `getAllPlios` inside services/API/Plio.js should've been called
     expect(mockAxios.get).toHaveBeenCalledTimes(1);
-    expect(mockAxios.get).toHaveBeenCalledWith(`/plios/list_uuid/`, {
+    expect(mockAxios.get).toHaveBeenCalledWith(`/plios/`, {
       params: {
         page: 1,
       },
@@ -59,14 +59,6 @@ describe("Home.vue", () => {
     // changing the user to approved makes another API call to list UUIDs
     // this resets it
     mockAxios.reset();
-
-    const getUniqueUsersCountList = jest
-      .spyOn(PlioAPIService, "getUniqueUsersCountList")
-      .mockImplementation(() => {
-        return new Promise((resolve) => {
-          resolve(clonedeep(global.dummyUniqueUserCountList));
-        });
-      });
     const wrapper = mount(Home);
 
     // resolve the `GET` request waiting in the queue
@@ -79,7 +71,6 @@ describe("Home.vue", () => {
     // wait until the DOM updates after promises resolve
     await flushPromises();
 
-    expect(getUniqueUsersCountList).toHaveBeenCalled();
     expect(wrapper.find('[data-test="table"]').exists()).toBe(true);
     expect(wrapper.find('[data-test="noPlio"]').exists()).toBe(false);
   });
