@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import SelectDropdown from "@/components/UI/DropDownMenu/SelectDropdown";
+import SelectDropdown from "@/components/UI/Selectors/SelectDropdown";
 
 const optionsList = [
   {

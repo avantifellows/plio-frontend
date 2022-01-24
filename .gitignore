@@ -28,3 +28,6 @@ package-lock.json
 
 # testing
 /coverage
+
+# codespaces
+workspace.code-workspace
