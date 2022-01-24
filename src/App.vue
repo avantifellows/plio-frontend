@@ -195,6 +195,19 @@
         :plioId="selectedPlioId"
       ></EmbedPlioDialog>
     </div>
+    <!-- list of options that can be selected -->
+    <div class="fixed top-1/6 w-full flex justify-center">
+      <ListSingleSelector
+        v-if="isSingleSelectorShown"
+        v-click-away="hideSelector"
+        :options="selectorOptions"
+        :title="selectorTitle"
+        :info="selectorInfo"
+        @close="hideSelector"
+        @select="selectOption"
+        ref="listSingleSelector"
+      ></ListSingleSelector>
+    </div>
     <!-- spinner -->
     <inline-svg
       v-if="isSpinnerShown"
@@ -212,6 +225,7 @@ import UserConfigService from "@/services/Config/User.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
 import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
+import ListSingleSelector from "@/components/UI/Selectors/ListSingleSelector.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import Utilities from "@/services/Functional/Utilities.js";
@@ -226,6 +240,7 @@ export default {
     WorkspaceSwitcher,
     IconButton,
     DialogBox,
+    ListSingleSelector,
   },
   data() {
     return {
@@ -382,6 +397,7 @@ export default {
     ...mapActions("auth", [
       "unsetAccessToken",
       "fetchAndUpdateUser",
+      "setActiveWorkspace",
       "unsetActiveWorkspace",
       "setReAuthenticationState",
     ]),
@@ -391,6 +407,8 @@ export default {
       "hideSpinner",
       "setWindowInnerWidth",
       "setWindowInnerHeight",
+      "showSpinner",
+      "hideSpinner",
     ]),
     ...mapActions("sync", ["stopLoading"]),
     ...mapActions("dialog", [
@@ -404,6 +422,7 @@ export default {
       "setCancelClicked",
       "unsetDialogCloseButton",
     ]),
+    ...mapActions("selectors", ["hideSelector"]),
     ...Utilities,
     /**
      * resets various state variables when the app is created
@@ -412,6 +431,7 @@ export default {
       if (this.pending) this.stopLoading();
       if (this.isSpinnerShown) this.hideSpinner();
       if (this.isDialogBoxShown) this.resetDialogBox();
+      if (this.isSingleSelectorShown) this.hideSelector();
     },
     /**
      * invoked when the confirm button of the dialog box is clicked
@@ -588,6 +608,20 @@ export default {
       // prevent keyboard buttons from working if the background is disabled
       if (this.isBackgroundDisabled) event.preventDefault();
     },
+    /**
+     * takes action based on the option selected in the list selector
+     * @param {String} selectedOptionValue - the value of the option selected
+     */
+    selectOption(selectedOptionValue) {
+      this.hideSelector();
+      this.showSpinner();
+      PlioAPIService.copyToWorkspace(this.selectedPlioId, {
+        workspace: selectedOptionValue,
+      }).then(() => {
+        this.hideSpinner();
+        this.$router.push({ name: "Home", params: { org: selectedOptionValue } });
+      });
+    },
   },
   computed: {
     ...mapGetters("auth", [
@@ -616,6 +650,12 @@ export default {
       dialogBoxClass: "boxClass",
       dialogAction: "action",
     }),
+    ...mapState("selectors", {
+      selectorOptions: "options",
+      selectorTitle: "title",
+      selectorInfo: "info",
+    }),
+    ...mapGetters("selectors", ["isSingleSelectorShown"]),
     /**
      * whether the router view is shown
      */
@@ -910,7 +950,8 @@ export default {
         this.isSharePlioDialogShown ||
         this.isEmbedPlioDialogShown ||
         this.isDialogBoxShown ||
-        this.isSpinnerShown
+        this.isSpinnerShown ||
+        this.isSingleSelectorShown
       );
     },
     /**

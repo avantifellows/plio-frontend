@@ -55,7 +55,7 @@ import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
 import Utilities from "@/services/Functional/Utilities.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
-import OptionDropdown from "@/components/UI/DropDownMenu/OptionDropdown.vue";
+import OptionDropdown from "@/components/UI/Selectors/OptionDropdown.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
 import { mapState, mapGetters, mapActions } from "vuex";
 import { useToast } from "vue-toastification";
@@ -116,6 +116,7 @@ export default {
   },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
+    ...mapGetters("auth", ["isPersonalWorkspace", "hasWorkspaces", "workspaces"]),
     ...mapState("sync", ["pending"]),
     ...mapState("generic", ["selectedPlioId"]),
     ...mapState("plioItems", ["allPlioDetails"]),
@@ -126,6 +127,11 @@ export default {
       isDialogConfirmClicked: "isConfirmClicked",
       isDialogCancelClicked: "isCancelClicked",
     }),
+
+    /** whether the user is in the personal workspace while having other workspaces as well */
+    inPersonalWorkspaceWithOtherWorkspaces() {
+      return this.isPersonalWorkspace && this.hasWorkspaces;
+    },
 
     /** the list of action buttons */
     plioActionOptions() {
@@ -172,6 +178,12 @@ export default {
           icon: "delete2.svg",
         },
       ];
+      if (this.inPersonalWorkspaceWithOtherWorkspaces)
+        options.push({
+          value: "copy",
+          label: this.$t("home.table.plio_list_item.buttons.copy"),
+          icon: "move.svg",
+        });
       return options;
     },
     statusBadge() {
@@ -277,6 +289,7 @@ export default {
       "showSpinner",
       "hideSpinner",
       "setSelectedPlioId",
+      "setSelectedPlioDetails",
     ]),
     ...mapActions("dialog", [
       "showDialogBox",
@@ -289,6 +302,7 @@ export default {
       "unsetConfirmClicked",
       "unsetCancelClicked",
     ]),
+    ...mapActions("selectors", ["showSelector"]),
     ...Utilities,
     /**
      * sets various attributes based on the screen size
@@ -309,6 +323,8 @@ export default {
     setOptionsOverflowMarginTop() {
       if (this.isTabScreen) this.optionsOverflowMarginTop = -18;
       else this.optionsOverflowMarginTop = -16;
+
+      if (this.inPersonalWorkspaceWithOtherWorkspaces) this.optionsOverflowMarginTop -= 2;
     },
     async runAction(_, action) {
       // invoked when one of the action buttons is clicked
@@ -353,6 +369,23 @@ export default {
           this.setDialogAction("deletePlio");
           await this.setSelectedPlioId(this.plioId);
           break;
+        case "copy": {
+          let selectorOptions = [];
+          this.workspaces.forEach((workspace) => {
+            selectorOptions.push({
+              value: workspace.shortcode,
+              label: workspace.name,
+            });
+          });
+          await this.setSelectedPlioId(this.plioId);
+          this.showSelector({
+            type: "single",
+            options: selectorOptions,
+            title: this.$t("home.table.plio_list_item.selectors.copy_to_workspace.title"),
+            info: this.$t("home.table.plio_list_item.selectors.copy_to_workspace.info"),
+          });
+          break;
+        }
       }
     },
     handleScroll() {
@@ -423,11 +456,11 @@ export default {
         "Plio UUID": this.plioId,
         "Plio Status": this.status,
       });
-      var newPlio = await PlioAPIService.duplicatePlio(this.plioId);
+      let newPlio = await PlioAPIService.duplicatePlio(this.plioId);
       await Promise.all(
         this.plioDetails.items.map(async (item, index) => {
           // duplicate item and link it to the newly created plio
-          var newItem = await ItemAPIService.duplicateItem(item.id, newPlio.data.id);
+          let newItem = await ItemAPIService.duplicateItem(item.id, newPlio.data.id);
           // duplicate question and link it to the newly created item
           await QuestionAPIService.duplicateQuestion(
             this.plioDetails.itemDetails[index].id,

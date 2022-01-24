@@ -192,12 +192,20 @@ export default {
           share: "Share",
           delete: "Delete",
           embed: "Embed",
+          copy: "Copy To",
         },
         dialog: {
           delete: {
             title: "Are you sure you want to delete this plio?",
             description:
               "This will permananently delete this plio and all the data associated with it, including all the responses. Once deleted, the data cannot be recovered.",
+          },
+        },
+        selectors: {
+          copy_to_workspace: {
+            title: "Choose a Workspace",
+            info:
+              "A copy of this plio will be created as a draft in the selected workspace",
           },
         },
       },
