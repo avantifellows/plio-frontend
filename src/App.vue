@@ -359,6 +359,9 @@ export default {
   },
   watch: {
     activeWorkspace() {
+      // close the side menu if in mobile mode and the workspace changes
+      if (this.isMobileScreen) this.resetMenuState();
+
       // Re construct the settings menu whenever the workspace changes
       this.constructSettingsMenu();
     },
@@ -669,6 +672,7 @@ export default {
       }
     },
     closeSettingsMenu() {
+      if (this.isMobileScreen) this.resetMenuState();
       this.isSettingsMenuShown = false;
     },
     showSettingsMenu() {

@@ -1,5 +1,5 @@
 {
-  
+
   "postCreateCommand": "export GITHUB_TOKEN = $PAT",
   "forwardPorts": [
     8080
@@ -12,5 +12,5 @@
   },
   "postAttachCommand": "export GITHUB_TOKEN = $PAT",
   "postStartCommand": "export GITHUB_TOKEN = $PAT"
-  
+
 }

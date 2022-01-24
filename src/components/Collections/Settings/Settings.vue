@@ -106,13 +106,6 @@
               data-test="saveButton"
             ></icon-button>
           </span>
-          <!-- cancel button -->
-          <icon-button
-            :buttonClass="cancelButtonClass"
-            :titleConfig="cancelButtonTitleConfig"
-            @click="closeMenu"
-            data-test="cancelButton"
-          ></icon-button>
         </div>
       </div>
       <!-- content region -->
@@ -130,7 +123,7 @@
             <!-- badge to notify an admin setting -->
             <simple-badge
               v-if="settingDetails.isOrgSetting"
-              text="admin"
+              :text="$t('settings.badge.admin')"
               :badgeClass="adminBadgeClass"
             ></simple-badge>
           </div>

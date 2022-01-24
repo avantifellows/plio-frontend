@@ -575,6 +575,9 @@ export default {
         appearance: "appearance", // temporary. Will remove after review+testing
       },
     },
+    badge: {
+      admin: "Admin",
+    },
   },
   toast: {
     login: {

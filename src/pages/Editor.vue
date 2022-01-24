@@ -19,6 +19,7 @@
           :buttonClass="settingsButtonClass"
           @click="showSettingsMenu"
           data-test="settingsButton"
+          id="settingsButton"
           v-tooltip="{ content: $t('tooltip.editor.settings'), placement: 'top' }"
         ></icon-button>
       </div>
@@ -669,10 +670,11 @@ export default {
       settingsButtonIconConfig: {
         enabled: true,
         iconName: "settings",
-        iconClass: "text-primary group-hover:text-white fill-current h-6 w-6",
+        iconClass:
+          "text-primary group-hover:text-white fill-current h-4 w-4 bp-500:h-6 bp-500:w-6",
       },
       settingsButtonClass:
-        "bg-gray-100 hover:bg-primary p-2 px-4 rounded-md border-b-outset mt-2",
+        "bg-gray-100 hover:bg-primary bp-500:p-2 p-1 bp-500:px-4 px-2 rounded-md border-b-outset mt-2",
       // styling class for the play plio button
       playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
       // styling class for the copy draft button
@@ -732,7 +734,7 @@ export default {
       toast: useToast(),
       isSettingsMenuShown: false,
       plioSettings: null, // the settings for the opened plio
-      settingsToRender: {}, // the settings + metadata that needs to be rendered
+      settingsToRender: new Map(), // the settings + metadata that needs to be rendered
       settingsWatchers: [], // The unwatch callbacks to the watchers attached to individual settings
     };
   },
@@ -748,6 +750,12 @@ export default {
     clearInterval(this.savingInterval);
   },
   watch: {
+    isSettingsMenuShown(value) {
+      // Don't show the settings tooltip if the settings menu is open
+      const tooltip = document.getElementById("settingsButton")._tippy;
+      if (tooltip == undefined) return;
+      value ? tooltip.disable() : tooltip.enable();
+    },
     activeWorkspace() {
       this.constructSettingsMenu();
     },
