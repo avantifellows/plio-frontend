@@ -794,4 +794,56 @@ describe("PlioListItem.vue", () => {
     expect(wrapper.vm.isDialogCancelClicked).toBeTruthy();
     expect(wrapper.vm.dialogAction).toBe(newDialogAction);
   });
+
+  it("clicking copy shows list of workspaces to select ", async () => {
+    const plioId = "123";
+    const testWorkspaces = [
+      {
+        id: 1,
+        shortcode: "test",
+        name: "TestWorkspace",
+      },
+    ];
+
+    wrapper = mount(PlioListItem, {
+      props: {
+        plioId: plioId,
+      },
+    });
+    // passing in plioId triggers startLoading which keeps the component in pending state
+    await store.dispatch("sync/stopLoading");
+
+    // add workspaces for the user
+    store.dispatch("auth/setUser", {
+      id: 1,
+      organizations: testWorkspaces,
+    });
+
+    // click the option dropdown
+    await wrapper
+      .get('[data-test="optionDropdown"]')
+      .get('[data-test="toggleButton"]')
+      .trigger("click");
+
+    // click the copy button
+    wrapper
+      .get('[data-test="optionDropdown"]')
+      .find('[data-test="option-copy"]')
+      .trigger("click");
+
+    await flushPromises();
+
+    expect(store.state.generic.selectedPlioId).toBe(plioId);
+    expect(store.state.selectors.isShown).toBeTruthy();
+    expect(store.state.selectors.type).toBe("single");
+
+    const expectedOptions = [];
+    testWorkspaces.forEach((workspace) => {
+      expectedOptions.push({
+        value: workspace.shortcode,
+        label: workspace.name,
+      });
+    });
+    expect(store.state.selectors.options).toEqual(expectedOptions);
+  });
 });

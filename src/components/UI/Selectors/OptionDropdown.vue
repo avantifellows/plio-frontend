@@ -49,7 +49,7 @@
               class="w-4 h-4 fill-current"
               data-test="icon"
             ></inline-svg>
-            <!-- option icon -->
+            <!-- option text -->
             <p class="block font-normal w-full" data-test="label">{{ option.label }}</p>
           </div>
         </li>

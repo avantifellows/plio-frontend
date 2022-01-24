@@ -9,9 +9,10 @@
     >
       <option value="">Personal Workspace</option>
       <option
-        v-for="workspace in workspaces"
+        v-for="(workspace, index) in workspaces"
         :key="workspace.id"
         :value="workspace.shortcode"
+        :data-test="`workspace-${index}`"
       >
         {{ workspace.name }}
       </option>
@@ -20,14 +21,17 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 
 export default {
   name: "WorkspaceSwitcher",
   computed: {
     ...mapState("auth", ["activeWorkspace", "user"]),
-    workspaces() {
-      return this.user ? this.user.organizations : [];
+    ...mapGetters("auth", ["workspaces"]),
+  },
+  watch: {
+    activeWorkspace(value) {
+      this.selectedWorkspace = value;
     },
   },
   props: {
