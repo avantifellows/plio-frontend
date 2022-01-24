@@ -1,0 +1,3 @@
+{
+  "postCreateCommand": "export GITHUB_TOKEN = $PAT"
+}
