@@ -114,6 +114,7 @@
                           :plioDetails="entry[columnName].value"
                           @deleted="deletePlio"
                           :key="entry[columnName].value"
+                          ref="plio"
                         >
                         </PlioListItem>
                       </div>
@@ -377,11 +378,6 @@ export default {
     },
   },
 
-  emits: [
-    "search-plios",
-    "reset-search-string",
-    "sort-num-viewers",
-    "delete-plio",
-  ],
+  emits: ["search-plios", "reset-search-string", "sort-num-viewers", "delete-plio"],
 };
 </script>
