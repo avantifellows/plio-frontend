@@ -37,7 +37,7 @@ This guide aims to share how TestCafe is being used in Plio for performing E2E a
 
 ### Environment variables
 #### `BROWSERSTACK_BASE_URL`
-The base url of the application to be registered with BrowserStack. Should be the frontend application URL.
+The base url of the application registered with BrowserStack. Should be the frontend application URL.
 
 #### `BROWSERSTACK_USERNAME`
 Required to connect to your BrowserStack account. Get this information from your BrowserStack account settings.

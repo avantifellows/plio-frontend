@@ -18,7 +18,7 @@ export const googleAuthUser = Role(
       }),
       headers: { "Content-Type": "application/json" },
     })
-      .then((res) => res.json())
+      .then((response) => response.json())
       .then(async (data) => {
         const { access_token: socialAuthToken } = data;
 
@@ -33,7 +33,7 @@ export const googleAuthUser = Role(
           }),
           headers: { "Content-Type": "application/json" },
         })
-          .then((res) => res.json())
+          .then((response) => response.json())
           .then(
             async (data) => {
               await setWindowAccessToken(data);
