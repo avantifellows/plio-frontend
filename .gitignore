@@ -34,3 +34,6 @@ cypress.env.json
 .nyc_output/
 tests/integration/videos/
 tests/integration/screenshots/
+
+# codespaces
+workspace.code-workspace
