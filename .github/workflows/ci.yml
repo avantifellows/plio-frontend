@@ -45,8 +45,8 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
 
-  integration-tests-ubuntu:
-    name: Integration tests - Ubuntu
+  integration-tests:
+    name: Integration tests
     runs-on: ubuntu-latest
 
     steps:
@@ -140,12 +140,12 @@ jobs:
       - name: Install TestCafe BrowserStack plugin
         run: npm install testcafe-browser-provider-browserstack
 
-      - name: Run Windows 10 tests
+      - name: Run Windows 10 tests (chrome@96, firefox@95, edge@96)
         uses: DevExpress/testcafe-action@latest
         with:
           args: "'browserstack:chrome@96.0:Windows 10','browserstack:firefox@95.0:Windows 10','browserstack:edge@96.0:Windows 10' projects/plio-frontend/tests/integration --skip-js-errors --test-scheduling"
 
-      - name: Run OS X Big Sur tests
+      - name: Run OS X Big Sur tests (chrome@96, firefox@95, safari@14.1)
         uses: DevExpress/testcafe-action@latest
         with:
           args: "'browserstack:chrome@96.0:OS X Big Sur','browserstack:firefox@95.0:OS X Big Sur','browserstack:safari@14.1:OS X Big Sur' projects/plio-frontend/tests/integration --skip-js-errors --test-scheduling"

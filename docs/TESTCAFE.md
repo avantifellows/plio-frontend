@@ -2,7 +2,7 @@
 This guide aims to share how TestCafe is being used in Plio for performing E2E and integration tests.
 
 ### Pre-requisites
-1. Run TestCafe for BrowserStack globally:
+1. Install TestCafe for BrowserStack globally:
     ```sh
     npm i -g testcafe testcafe-browser-provider-browserstack
     ```

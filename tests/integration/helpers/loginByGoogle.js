@@ -20,7 +20,7 @@ export const googleAuthUser = Role(
     })
       .then((response) => response.json())
       .then(async (data) => {
-        const { access_token: socialAuthToken } = data;
+        const socialAuthToken = data.access_token;
 
         await fetch(process.env.DJANGO_CONVERT_SOCIAL_AUTH_TOKEN_URL, {
           method: "POST",
@@ -34,12 +34,9 @@ export const googleAuthUser = Role(
           headers: { "Content-Type": "application/json" },
         })
           .then((response) => response.json())
-          .then(
-            async (data) => {
-              await setWindowAccessToken(data);
-            },
-            () => {}
-          );
+          .then(async (data) => {
+            await setWindowAccessToken(data);
+          });
       });
   }
 );
