@@ -124,9 +124,9 @@ export default {
   },
 
   /**
-   * fetches the dashboard metrics for the given plio
+   * fetches the metrics for a given plio
    * @param {Number} plioId - uuid of the plio for which the metrics need to be fetched
-   * @returns {Object} key-value pairs of metrics
+   * @returns {Promise}
    */
   async getMetrics(plioId) {
     return apiClient().get(pliosEndpoint + plioId + plioMetricsEndpoint);

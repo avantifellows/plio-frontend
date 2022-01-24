@@ -87,7 +87,7 @@ export default {
     };
   },
   async created() {
-    if ("items" in this.plioDetails) {
+    if (this.plioDetails != undefined && "items" in this.plioDetails) {
       // create itemDetails and update items to remove details
       for (let item of this.plioDetails.items) {
         /**
@@ -127,7 +127,8 @@ export default {
     }),
 
     plioId() {
-      if ("uuid" in this.plioDetails) return this.plioDetails["uuid"];
+      if (this.plioDetails != undefined && "uuid" in this.plioDetails)
+        return this.plioDetails["uuid"];
       return "";
     },
 
@@ -213,20 +214,23 @@ export default {
      * format: month (3-letter) day year
      */
     updatedAt() {
-      if ("updated_at" in this.plioDetails)
+      if (this.plioDetails != undefined && "updated_at" in this.plioDetails)
         return new Date(this.plioDetails.updated_at).toDateString().slice(4);
       return "";
     },
     status() {
-      return this.plioDetails.status || "";
+      if (this.plioDetails != undefined) return this.plioDetails.status;
+      return "";
     },
     /**
      * title of the plio. "Untitled" if no title is present
      */
     title() {
-      return (
-        this.plioDetails.name || this.$t("generic.placeholders.empty_title_placeholder")
-      );
+      if (this.plioDetails != undefined)
+        return (
+          this.plioDetails.name || this.$t("generic.placeholders.empty_title_placeholder")
+        );
+      return "";
     },
     /**
      * link to the player for a plio
@@ -237,7 +241,7 @@ export default {
     },
     /** whether the plio does not have a title */
     isUntitled() {
-      return !this.plioDetails.name || false;
+      return this.title == this.$t("generic.placeholders.empty_title_placeholder");
     },
   },
 
