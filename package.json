@@ -61,7 +61,6 @@
     "jest-canvas-mock": "^2.3.1",
     "jest-mock-axios": "^4.4.0",
     "jest-transform-stub": "^2.0.0",
-    "node-fetch": "^2.6.6",
     "postcss": "^7.0.35",
     "sass": "^1.26.11",
     "sass-loader": "^10.0.2",

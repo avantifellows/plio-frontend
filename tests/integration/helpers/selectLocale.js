@@ -7,5 +7,5 @@ export const selectLocale = async (locale) => {
 };
 
 export const selectLocaleFromDialog = async (locale) => {
-  await testcafe.click(`[data-test="setLocaleDialog-${locale}"]`);
+  await testcafe.click(`[data-test="languagePicker-${locale}"]`);
 };
