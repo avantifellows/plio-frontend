@@ -1,4 +1,4 @@
-## Cypress
+## TestCafe
 This guide aims to share how TestCafe is being used in Plio for performing E2E and integration tests.
 
 ### Pre-requisites

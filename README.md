@@ -5,7 +5,6 @@
 ![Staging Build](https://img.shields.io/github/workflow/status/avantifellows/plio-frontend/Deploy%20to%20ECS%20-%20staging?label=Staging%20Build&style=flat-square)
 ![Production Build](https://img.shields.io/github/workflow/status/avantifellows/plio-frontend/Deploy%20to%20ECS%20-%20production?label=Production%20Build&style=flat-square)
 [![codecov](https://codecov.io/gh/avantifellows/plio-frontend/branch/master/graph/badge.svg)](https://codecov.io/gh/avantifellows/plio-frontend)
-[![Cypress](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/cywmry/master&style=flat-square&logo=cypress)](https://dashboard.cypress.io/projects/cywmry/runs)
 [![Discord](https://img.shields.io/discord/717975833226248303.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2&style=flat-square)](https://discord.gg/29qYD7fZtZ)
 
 Plio enables educators to teach better through videos. Educators can overlay questions on top of any video to make learning interactive, gather detailed insights on the engagement of learners and receive feedback on their content itself.
@@ -24,5 +23,4 @@ Visit our [deployment guideline](docs/DEPLOYMENT.md) for setting up this reposit
 - [GitHub Workflows](docs/GITHUB-WORKFLOWS.md)
 - [Google OAuth2](docs/oauth/GOOGLE-OAUTH2.md)
 - [Error monitoring](docs/ERROR-MONITORING.md)
-- [Cypress](docs/CYPRESS.md)
 - [TestCafe](docs/TESTCAFE.md)
