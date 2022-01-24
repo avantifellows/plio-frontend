@@ -4,8 +4,8 @@ import { selectLocaleFromDialog } from "../../helpers/selectLocale";
 
 fixture("Home - English")
   .page(`${process.env.BROWSERSTACK_BASE_URL}/login`)
-  .beforeEach(async (t) => {
-    await t
+  .beforeEach(async (testcafe) => {
+    await testcafe
       .useRole(googleAuthUser)
       .navigateTo(`${process.env.BROWSERSTACK_BASE_URL}/home`);
 
@@ -13,11 +13,11 @@ fixture("Home - English")
     await selectLocaleFromDialog("en");
   });
 
-test("sees the home page", async (t) => {
+test("sees the home page", async (testcafe) => {
   const noPlioSection = Selector('[data-test="noPlio"]');
-  await t.expect(noPlioSection.visible).ok();
+  await testcafe.expect(noPlioSection.visible).ok();
 
   // plio table should not exists as there are no plios
   const plioTable = Selector('[data-test="table"]');
-  await t.expect(plioTable.exists).notOk();
+  await testcafe.expect(plioTable.exists).notOk();
 });

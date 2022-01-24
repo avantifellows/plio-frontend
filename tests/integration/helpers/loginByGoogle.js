@@ -7,7 +7,7 @@ const setWindowAccessToken = ClientFunction((data) =>
 
 export const googleAuthUser = Role(
   `${process.env.BROWSERSTACK_BASE_URL}/login`,
-  async (t) => {
+  async (testcafe) => {
     await fetch("https://www.googleapis.com/oauth2/v4/token", {
       method: "POST",
       body: JSON.stringify({

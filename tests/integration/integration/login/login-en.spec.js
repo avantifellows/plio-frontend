@@ -7,26 +7,26 @@ import {
 
 fixture("Login - English")
   .page(`${process.env.BROWSERSTACK_BASE_URL}/login`)
-  .beforeEach(async (t) => {
+  .beforeEach(async (testcafe) => {
     await selectLocale("en");
   });
 
-test("sees the login page", async (t) => {
+test("sees the login page", async (testcafe) => {
   const loginHeading = Selector('[data-test="loginHeading"]');
-  await t
+  await testcafe
     .expect(loginHeading.innerText)
     .eql("Convert videos into interactive lessons");
 
   const googleLoginButton = Selector('[data-test="googleLogin"] p');
-  await t.expect(googleLoginButton.innerText).eql("Sign in with Google");
+  await testcafe.expect(googleLoginButton.innerText).eql("Sign in with Google");
 
   const phoneInput = Selector('[data-test="phone"] input');
-  await t.expect(phoneInput.visible).ok();
+  await testcafe.expect(phoneInput.visible).ok();
 
   const languageSelect = Selector("#locale > select");
-  await t.expect(languageSelect.visible).ok();
+  await testcafe.expect(languageSelect.visible).ok();
 
-  await t
+  await testcafe
     .useRole(googleAuthUser)
     .navigateTo(`${process.env.BROWSERSTACK_BASE_URL}/home`);
 
@@ -34,6 +34,6 @@ test("sees the login page", async (t) => {
   await selectLocaleFromDialog("en");
 
   const logoutOption = Selector('[data-test="logout"]');
-  await t.expect(logoutOption.visible).ok();
-  await t.expect(logoutOption.innerText).contains("Logout");
+  await testcafe.expect(logoutOption.visible).ok();
+  await testcafe.expect(logoutOption.innerText).contains("Logout");
 });
