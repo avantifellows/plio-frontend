@@ -489,12 +489,12 @@ global.dummyEmptyPlioList = {
 };
 
 global.getDummyPlioList = () => {
-  let plio1 = clonedeep(global.dummyDraftPlio.data);
-  plio1.num_views = 0;
+  let plio = clonedeep(global.dummyDraftPlio.data);
+  plio.num_views = 0;
   return {
     count: 1,
     page_size: 5,
-    results: [plio1],
+    results: [plio],
     raw_count: 1,
   };
 };

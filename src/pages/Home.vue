@@ -133,13 +133,8 @@ export default {
 
       // handle the case when there is only one plio on the current page
       // and the current page is not the first page
-      console.log(this.tableData.length);
-      console.log(this.currentPageNumber);
       if (this.tableData.length == 1 && this.currentPageNumber != 1) {
-        console.log("abcd");
-        console.log(this.currentPageNumber);
         this.currentPageNumber -= 1;
-        console.log(this.currentPageNumber);
       }
       this.fetchPlios();
     },
