@@ -1,5 +1,4 @@
 import UserAPIService from "@/services/API/User.js";
-import AnalyticsAPIService from "@/services/API/Analytics.js";
 
 // Reference: https://medium.com/front-end-weekly/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
 const state = {
