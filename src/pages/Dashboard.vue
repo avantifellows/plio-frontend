@@ -307,7 +307,7 @@ export default {
       urlStyleClass:
         "sm:tracking-normal text-xs bp-500:text-sm md:text-md lg:text-lg font-bold text-yellow-600",
       urlCopyButtonClass: "text-yellow-600", // style for the copy button of the url component
-      plioAnalytics: {}, // holds all the analytics data for the plio
+      plioMetrics: {}, // holds all the metrics for the plio
       downloadReportButtonIconConfig: {
         // config for the loading icon on the download report button
         enabled: false,
@@ -338,34 +338,34 @@ export default {
     ...mapState("sync", ["pending"]),
     numberOfViewers() {
       // total number of unique viewers
-      return this.plioAnalytics["viewers"] || 0;
+      return this.plioMetrics["num_views"] || 0;
     },
     averageWatchTime() {
       // for how long did the users watch the plio on average
-      return this.formatTime(Math.round(this.plioAnalytics["average_watch_time"] || 0));
+      return this.formatTime(Math.round(this.plioMetrics["average_watch_time"] || 0));
     },
     accuracy() {
       // average accuracy on the plio
-      if (this.plioAnalytics["accuracy"] != null)
-        return Math.trunc(this.plioAnalytics["accuracy"]) + "%";
+      if (this.plioMetrics["accuracy"] != null)
+        return Math.trunc(this.plioMetrics["accuracy"]) + "%";
       return "-";
     },
     completionRate() {
       // what % of users completed the plio
-      if (this.plioAnalytics["percent_completed"] != null)
-        return Math.trunc(this.plioAnalytics["percent_completed"]) + "%";
+      if (this.plioMetrics["percent_completed"] != null)
+        return Math.trunc(this.plioMetrics["percent_completed"]) + "%";
       return "-";
     },
     oneMinuteRetention() {
       // what % of users were retained after the 1 minute mark
-      if (this.plioAnalytics["percent_one_minute_retention"] != null)
-        return Math.trunc(this.plioAnalytics["percent_one_minute_retention"]) + "%";
+      if (this.plioMetrics["percent_one_minute_retention"] != null)
+        return Math.trunc(this.plioMetrics["percent_one_minute_retention"]) + "%";
       return "-";
     },
     numQuestionsAnswered() {
       // number of questions answered on average by a user
-      if (this.plioAnalytics["average_num_answered"] != null)
-        return Math.round(this.plioAnalytics["average_num_answered"]);
+      if (this.plioMetrics["average_num_answered"] != null)
+        return Math.round(this.plioMetrics["average_num_answered"]);
       return "-";
     },
     playButtonTextConfig() {
@@ -427,7 +427,7 @@ export default {
     async fetchData() {
       // load the plio and then it's analytics data
       this.loadPlio();
-      this.loadAnalytics();
+      this.loadMetrics();
     },
     formatTime(timeInSeconds) {
       // convert time from seconds to a human readable format
@@ -451,19 +451,18 @@ export default {
         this.lastUpdated = new Date(plioDetails.updatedAt);
       });
     },
-    async loadAnalytics() {
+    async loadMetrics() {
       let response = await PlioAPIService.getMetrics(this.plioId);
-      this.plioAnalytics = response.data;
-      console.log(this.plioAnalytics);
+      this.plioMetrics = response.data;
       this.$mixpanel.track("Visit Dashboard", {
         "Plio UUID": this.plioId,
-        "Plio Average Watch Time": this.plioAnalytics["average_watch_time"] || 0,
-        "Plio Number of Viewers": this.plioAnalytics["num_views"] || 0,
+        "Plio Average Watch Time": this.plioMetrics["average_watch_time"] || 0,
+        "Plio Number of Viewers": this.plioMetrics["num_views"] || 0,
         "Plio Retention At 1 Minute":
-          this.plioAnalytics["percent_one_minute_retention"] || 0,
-        "Plio Accuracy": this.plioAnalytics["accuracy"] || 0,
-        "Plio Completion Rate": this.plioAnalytics["percent_completed"] || 0,
-        "Plio Num Questions Answered": this.plioAnalytics["average_num_answered"] || 0,
+          this.plioMetrics["percent_one_minute_retention"] || 0,
+        "Plio Accuracy": this.plioMetrics["accuracy"] || 0,
+        "Plio Completion Rate": this.plioMetrics["percent_completed"] || 0,
+        "Plio Num Questions Answered": this.plioMetrics["average_num_answered"] || 0,
       });
 
       this.stopLoading();

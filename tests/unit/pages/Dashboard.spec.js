@@ -5,31 +5,18 @@ import mockAxios from "jest-mock-axios";
 import Dashboard from "@/pages/Dashboard.vue";
 let clonedeep = require("lodash.clonedeep");
 
-afterEach(() => {
-  // cleaning up the mess left behind by the previous test
-  mockAxios.reset();
-});
-
 const plioId = "abc";
 let wrapper;
 let mockRouter;
-let getDashboardMetrics;
 
 describe("Dashboard.vue", () => {
-  const mountWrapper = (analyticsData = global.dummyPlioAnalytics) => {
+  const mountWrapper = () => {
     // mock router
     mockRouter = {
       replace: jest.fn(),
       push: jest.fn(),
     };
-    // mock method to fetch dashboard metrics from analytics client
-    getDashboardMetrics = jest
-      .spyOn(PlioAPIService, "getDashboardMetrics")
-      .mockImplementation(() => {
-        return new Promise((resolve) => {
-          resolve(analyticsData);
-        });
-      });
+
     wrapper = mount(Dashboard, {
       props: {
         plioId: plioId,
@@ -46,11 +33,16 @@ describe("Dashboard.vue", () => {
     mountWrapper();
   });
 
+  afterEach(() => {
+    // cleaning up the mess left behind by the previous test
+    mockAxios.reset();
+  });
+
   it("makes an API call for fetching plio details", () => {
-    // `getPlio` inside services/API/Plio.js should've been called
+    // `getPlio` and `getMetrics` inside services/API/Plio.js should've been called
     // 1 `GET` requests is made
-    expect(mockAxios.get).toHaveBeenCalledTimes(1);
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
+    expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}/metrics/`);
   });
 
   it("routes to 404 for draft plio", async () => {
@@ -70,11 +62,22 @@ describe("Dashboard.vue", () => {
   });
 
   describe("published plio", () => {
-    const resolveAPICall = async () => {
-      // resolve the `GET` request waiting in the queue
+    const resolveAPICall = async (
+      metrics = clonedeep(global.dummyPlioMetrics)
+    ) => {
+      // resolve the getPlio request waiting in the queue
       // using the fake response data
       mockAxios.mockResponse(
         clonedeep(global.dummyPublishedPlio),
+        mockAxios.queue()[0]
+      );
+
+      // resolve the getMetrics request waiting in the queue
+      // using the fake response data
+      mockAxios.mockResponse(
+        {
+          data: metrics,
+        },
         mockAxios.queue()[0]
       );
 
@@ -85,7 +88,7 @@ describe("Dashboard.vue", () => {
       resolveAPICall();
     });
 
-    it("renders values for a published Plio", () => {
+    it("renders values for a published Plio", async () => {
       let dummyVideoID = global.dummyPublishedPlio.data.video.url.split("=")[1];
       expect(wrapper.vm.videoID).toBe(dummyVideoID);
       expect(wrapper.find('[data-test="thumbnail"]').exists()).toBe(true);
@@ -96,51 +99,37 @@ describe("Dashboard.vue", () => {
       expect(wrapper.find('[data-test="title"]').text()).toBe(
         global.dummyPublishedPlio.data.name
       );
-      expect(getDashboardMetrics).toHaveBeenCalled();
 
       expect(wrapper.find('[data-test="numViewers"]').text()).toBe(
-        String(global.dummyPlioAnalytics["Session.uniqueUsers"])
+        String(global.dummyPlioMetrics["num_views"])
       );
       expect(wrapper.find('[data-test="watchTime"]').text()).toBe(
         "3 mins 22 secs"
       );
       expect(wrapper.find('[data-test="completion"]').text()).toBe(
-        String(
-          global.dummyPlioAnalytics[
-            "AggregateSessionMetrics.completionPercentage"
-          ]
-        ) + "%"
+        String(global.dummyPlioMetrics["percent_completed"]) + "%"
       );
       expect(wrapper.find('[data-test="questionAnswered"]').text()).toBe(
-        String(
-          global.dummyPlioAnalytics[
-            "AggregateSessionMetrics.numQuestionsAnswered"
-          ]
-        )
+        String(global.dummyPlioMetrics["average_num_answered"])
       );
       expect(wrapper.find('[data-test="accuracy"]').text()).toBe(
-        String(global.dummyPlioAnalytics["AggregateSessionMetrics.accuracy"]) +
-          "%"
+        String(global.dummyPlioMetrics["accuracy"]) + "%"
       );
       expect(wrapper.find('[data-test="retention"]').text()).toBe(
-        String(
-          global.dummyPlioAnalytics[
-            "GroupedSessionRetention.averageOneMinuteRetention"
-          ]
-        ) + "%"
+        String(global.dummyPlioMetrics["percent_one_minute_retention"]) + "%"
       );
     });
 
     it("renders analytics values when none available", async () => {
-      await mountWrapper({});
-      await resolveAPICall();
+      await mountWrapper();
+      await resolveAPICall({});
 
       expect(wrapper.find('[data-test="numViewers"]').text()).toBe("0");
       expect(wrapper.find('[data-test="watchTime"]').text()).toBe("0 secs");
-      expect(wrapper.find('[data-test="completion"]').text()).toBe("0%");
-      expect(wrapper.find('[data-test="questionAnswered"]').text()).toBe("0");
-      expect(wrapper.find('[data-test="accuracy"]').text()).toBe("0%");
-      expect(wrapper.find('[data-test="retention"]').text()).toBe("0%");
+      expect(wrapper.find('[data-test="completion"]').text()).toBe("-");
+      expect(wrapper.find('[data-test="questionAnswered"]').text()).toBe("-");
+      expect(wrapper.find('[data-test="accuracy"]').text()).toBe("-");
+      expect(wrapper.find('[data-test="retention"]').text()).toBe("-");
     });
 
     describe("button clicks", () => {

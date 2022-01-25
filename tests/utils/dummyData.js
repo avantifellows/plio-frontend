@@ -451,13 +451,13 @@ global.dummyVideo = {
   updated_at: "2021-07-03T15:25:04.527931Z",
 };
 
-global.dummyPlioAnalytics = {
-  "Session.uniqueUsers": 2,
-  "GroupedSession.averageWatchTime": 202,
-  "AggregateSessionMetrics.numQuestionsAnswered": 5,
-  "AggregateSessionMetrics.completionPercentage": 40,
-  "AggregateSessionMetrics.accuracy": 30,
-  "GroupedSessionRetention.averageOneMinuteRetention": 50,
+global.dummyPlioMetrics = {
+  num_views: 2,
+  average_watch_time: 202,
+  average_num_answered: 5,
+  percent_completed: 40,
+  accuracy: 30,
+  percent_one_minute_retention: 50,
 };
 
 global.imageData = {
