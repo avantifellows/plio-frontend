@@ -1,3 +1,5 @@
+let clonedeep = require("lodash.clonedeep");
+
 global.dummyItemsWithItemDetails = [
   {
     id: 211,
@@ -486,12 +488,15 @@ global.dummyEmptyPlioList = {
   },
 };
 
-global.dummyPlioList = {
-  data: {
-    count: 5,
+global.getDummyPlioList = () => {
+  let plio1 = clonedeep(global.dummyDraftPlio.data);
+  plio1.num_views = 0;
+  return {
+    count: 1,
     page_size: 5,
-    results: ["abc", "def", "ghi", "jkl", "mno"],
-  },
+    results: [plio1],
+    raw_count: 1,
+  };
 };
 
 global.dummyUniqueUserCountList = [1, 2, 3, 4, 5];

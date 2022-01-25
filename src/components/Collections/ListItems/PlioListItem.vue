@@ -117,7 +117,6 @@ export default {
     ...mapGetters("auth", ["isPersonalWorkspace", "hasWorkspaces", "workspaces"]),
     ...mapState("sync", ["pending"]),
     ...mapState("generic", ["selectedPlioId"]),
-    ...mapState("plioItems", ["allPlioDetails"]),
     ...mapGetters("generic", ["isTabScreen"]),
     ...mapState("dialog", {
       isDialogBoxShown: "isShown",
@@ -288,7 +287,6 @@ export default {
   },
 
   methods: {
-    ...mapActions("plioItems", ["fetchPlio"]),
     ...mapActions("generic", [
       "showSharePlioDialog",
       "showEmbedPlioDialog",

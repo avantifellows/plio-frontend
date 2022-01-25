@@ -127,15 +127,19 @@ export default {
     },
   },
   methods: {
-    ...mapActions("plioItems", ["purgeAllPlios"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     plioDeleted() {
       // invoked when a plio is deleted
 
       // handle the case when there is only one plio on the current page
       // and the current page is not the first page
+      console.log(this.tableData.length);
+      console.log(this.currentPageNumber);
       if (this.tableData.length == 1 && this.currentPageNumber != 1) {
+        console.log("abcd");
+        console.log(this.currentPageNumber);
         this.currentPageNumber -= 1;
+        console.log(this.currentPageNumber);
       }
       this.fetchPlios();
     },
@@ -256,12 +260,6 @@ export default {
       this.tableData = tableData;
       this.stopLoading();
     },
-  },
-
-  unmounted() {
-    // remove all plio details from the store
-    // when user navigates away from the home page
-    this.purgeAllPlios();
   },
 };
 </script>
