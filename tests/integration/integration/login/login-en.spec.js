@@ -22,7 +22,9 @@ test("sees the login page", async (testcafe) => {
 
   const languageSelect = Selector("#locale > select");
   await testcafe.expect(languageSelect.visible).ok();
+});
 
+test("logs in to the application using Google OAuth", async (testcafe) => {
   await loginGoogleUserAndSetLocale();
 
   const logoutOption = Selector('[data-test="logout"]');
