@@ -105,19 +105,6 @@
             </p>
           </div>
         </div>
-
-        <div
-          class="hidden sm:flex sm:flex-col sm:h-full sm:justify-end sm:items-start sm:mt-10"
-          v-if="!pending"
-        >
-          <div>
-            <p
-              class="text-yellow-600 text-center sm:text-left hidden sm:block text-xs lg:text-sm xl:text-md font-bold"
-            >
-              {{ $t("dashboard.update_message") }}
-            </p>
-          </div>
-        </div>
       </div>
       <div class="col-span-6 grid grid-cols-2 mt-4 bp-420:mt-6 sm:mt-0">
         <div class="flex flex-col mx-2 bp-500:mx-4">
@@ -256,13 +243,6 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="mt-4">
-        <p
-          class="mx-2 bp-500:mx-4 px-2 text-yellow-600 sm:hidden text-xs lg:text-sm xl:text-md font-bold"
-        >
-          {{ $t("dashboard.update_message") }}
-        </p>
       </div>
     </div>
     <!-- download report button -->
