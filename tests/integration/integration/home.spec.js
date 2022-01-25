@@ -1,5 +1,5 @@
 import { Selector } from "testcafe";
-import { loginGoogleUserAndSetLocale } from "../../helpers/loginByGoogle";
+import { loginGoogleUserAndSetLocale } from "../helpers/loginByGoogle";
 
 fixture("Home - English")
   .page(`${process.env.BROWSERSTACK_BASE_URL}/login`)
