@@ -1,16 +1,10 @@
 import { Selector } from "testcafe";
-import { googleAuthUser } from "../../helpers/loginByGoogle";
-import { selectLocaleFromDialog } from "../../helpers/selectLocale";
+import { loginGoogleUserAndSetLocale } from "../../helpers/loginByGoogle";
 
 fixture("Home - English")
   .page(`${process.env.BROWSERSTACK_BASE_URL}/login`)
   .beforeEach(async (testcafe) => {
-    await testcafe
-      .useRole(googleAuthUser)
-      .navigateTo(`${process.env.BROWSERSTACK_BASE_URL}/home`);
-
-    // have to set the locale again as the login page is loaded in a different language
-    await selectLocaleFromDialog("en");
+    await loginGoogleUserAndSetLocale();
   });
 
 test("sees the home page", async (testcafe) => {

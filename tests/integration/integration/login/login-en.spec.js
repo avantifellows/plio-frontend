@@ -1,9 +1,6 @@
 import { Selector } from "testcafe";
-import { googleAuthUser } from "../../helpers/loginByGoogle";
-import {
-  selectLocale,
-  selectLocaleFromDialog,
-} from "../../helpers/selectLocale";
+import { loginGoogleUserAndSetLocale } from "../../helpers/loginByGoogle";
+import { selectLocale } from "../../helpers/selectLocale";
 
 fixture("Login - English")
   .page(`${process.env.BROWSERSTACK_BASE_URL}/login`)
@@ -26,12 +23,7 @@ test("sees the login page", async (testcafe) => {
   const languageSelect = Selector("#locale > select");
   await testcafe.expect(languageSelect.visible).ok();
 
-  await testcafe
-    .useRole(googleAuthUser)
-    .navigateTo(`${process.env.BROWSERSTACK_BASE_URL}/home`);
-
-  // have to set the locale again as the login page is loaded in a different language
-  await selectLocaleFromDialog("en");
+  await loginGoogleUserAndSetLocale();
 
   const logoutOption = Selector('[data-test="logout"]');
   await testcafe.expect(logoutOption.visible).ok();

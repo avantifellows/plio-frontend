@@ -1,4 +1,6 @@
-import { ClientFunction, Role } from "testcafe";
+import { t as testcafe, ClientFunction, Role } from "testcafe";
+import { selectLocaleFromDialog } from "./selectLocale";
+
 const axios = require("axios");
 
 const setWindowAccessToken = ClientFunction((data) =>
@@ -41,3 +43,12 @@ export const googleAuthUser = Role(
       });
   }
 );
+
+export const loginGoogleUserAndSetLocale = async (locale = "en") => {
+  await testcafe
+    .useRole(googleAuthUser)
+    .navigateTo(`${process.env.BROWSERSTACK_BASE_URL}/home`);
+
+  // have to set the locale again as the login page is loaded in a different language
+  await selectLocaleFromDialog(locale);
+};
