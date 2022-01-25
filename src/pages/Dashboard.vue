@@ -425,7 +425,6 @@ export default {
   methods: {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     async fetchData() {
-      // load the plio and then it's analytics data
       this.loadPlio();
       this.loadMetrics();
     },

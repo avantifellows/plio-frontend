@@ -11,9 +11,6 @@ const state = {
   reAuthenticationState: "not-started",
   reAuthenticationPromise: null,
   reAuthenticationPromiseResolver: null,
-  analyticsAccessToken: null,
-  analyticsAccessTokenFetchTime: null,
-  analyticsAccessTokenExpiryTime: null,
 };
 
 const getters = {
@@ -60,17 +57,6 @@ const getters = {
   activeWorkspaceApiKey: (_, getters) => {
     return getters.activeWorkspaceDetails.api_key;
   },
-  isAnalyticsAccessTokenValid: (state) => {
-    if (state.analyticsAccessToken === null) return false;
-    let currentTimeString = new Date().toString();
-    const timeDifference =
-      (Date.parse(currentTimeString) -
-        Date.parse(state.analyticsAccessTokenFetchTime)) /
-      1000;
-    // return false if the token has expired
-    if (timeDifference > state.analyticsAccessTokenExpiryTime) return false;
-    return true;
-  },
 };
 
 const actions = {
@@ -81,7 +67,6 @@ const actions = {
   unsetAccessToken({ commit, dispatch }) {
     commit("unsetAccessToken");
     dispatch("unsetUser");
-    dispatch("unsetAnalyticsAccessToken");
   },
   setUser({ commit }, user) {
     commit("setUser", user);
@@ -115,13 +100,6 @@ const actions = {
       state.accessToken.access_token
     );
     if (response != undefined) dispatch("setUser", response.data);
-  },
-  async getAnalyticsAccessToken({ commit }) {
-    let response = await AnalyticsAPIService.getAnalyticsAccessToken();
-    if (response != undefined) commit("setAnalyticsAccessToken", response.data);
-  },
-  unsetAnalyticsAccessToken({ commit }) {
-    commit("unsetAnalyticsAccessToken");
   },
   autoLogoutUser({ dispatch }) {
     dispatch("unsetAccessToken");
@@ -163,16 +141,6 @@ const mutations = {
   },
   updateUserStatus(state, status) {
     state.user.status = status;
-  },
-  setAnalyticsAccessToken(state, accessToken) {
-    state.analyticsAccessToken = accessToken.access_token;
-    state.analyticsAccessTokenFetchTime = new Date();
-    state.analyticsAccessTokenExpiryTime = accessToken.expires_in;
-  },
-  unsetAnalyticsAccessToken(state) {
-    state.analyticsAccessToken = null;
-    state.analyticsAccessTokenFetchTime = null;
-    state.analyticsAccessTokenExpiryTime = null;
   },
 };
 

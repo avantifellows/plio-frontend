@@ -120,7 +120,7 @@ describe("Dashboard.vue", () => {
       );
     });
 
-    it("renders analytics values when none available", async () => {
+    it("renders default metric values when none available", async () => {
       await mountWrapper();
       await resolveAPICall({});
 
