@@ -25,11 +25,11 @@ export const googleAuthUser = Role(
 
         await axios
           .post(
-            process.env.DJANGO_CONVERT_SOCIAL_AUTH_TOKEN_URL,
+            process.env.BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL,
             JSON.stringify({
               grant_type: "convert_token",
-              client_id: process.env.DJANGO_DEFAULT_OAUTH2_CLIENT_ID,
-              client_secret: process.env.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET,
+              client_id: process.env.BACKEND_DEFAULT_OAUTH2_CLIENT_ID,
+              client_secret: process.env.BACKEND_DEFAULT_OAUTH2_CLIENT_SECRET,
               backend: "google-oauth2",
               token: socialAuthToken,
             }),

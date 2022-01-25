@@ -13,9 +13,9 @@ env:
   GOOGLE_OAUTH2_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}
   GOOGLE_OAUTH2_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
   GOOGLE_OAUTH2_REFRESH_TOKEN: ${{ secrets.GOOGLE_OAUTH2_REFRESH_TOKEN }}
-  DJANGO_CONVERT_SOCIAL_AUTH_TOKEN_URL: ${{ secrets.DJANGO_CONVERT_SOCIAL_AUTH_TOKEN_URL }}
-  DJANGO_DEFAULT_OAUTH2_CLIENT_ID: ${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}
-  DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET: ${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}
+  BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL: ${{ secrets.BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL }}
+  BACKEND_DEFAULT_OAUTH2_CLIENT_ID: ${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_ID }}
+  BACKEND_DEFAULT_OAUTH2_CLIENT_SECRET: ${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_SECRET }}
 
 jobs:
   pre-commit:
@@ -74,8 +74,8 @@ jobs:
 
           # add env secrets
           echo 'VUE_APP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}' >> .env
-          echo 'VUE_APP_BACKEND_API_CLIENT_ID=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
-          echo 'VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
+          echo 'VUE_APP_BACKEND_API_CLIENT_ID=${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
+          echo 'VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
 
           # setup docker containers
           docker-compose up -d --build
@@ -101,10 +101,10 @@ jobs:
           cp .env.example .env
 
           # add env secrets
-          echo 'SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}' >> .env
-          echo 'DEFAULT_OAUTH2_CLIENT_SETUP=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SETUP }}' >> .env
-          echo 'DEFAULT_OAUTH2_CLIENT_ID=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
-          echo 'DEFAULT_OAUTH2_CLIENT_SECRET=${{ secrets.DJANGO_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
+          echo 'SECRET_KEY=${{ secrets.BACKEND_SECRET_KEY }}' >> .env
+          echo 'DEFAULT_OAUTH2_CLIENT_SETUP=${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_SETUP }}' >> .env
+          echo 'DEFAULT_OAUTH2_CLIENT_ID=${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
+          echo 'DEFAULT_OAUTH2_CLIENT_SECRET=${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
           echo 'GOOGLE_OAUTH2_CLIENT_ID=${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}' >> .env
           echo 'GOOGLE_OAUTH2_CLIENT_SECRET=${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}' >> .env
 
