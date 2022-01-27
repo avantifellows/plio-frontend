@@ -147,6 +147,7 @@ export default {
       default: false,
       type: Boolean,
     },
+
   },
   computed: {
     localValue: {
@@ -257,7 +258,7 @@ export default {
     },
     keyPress(event) {
       // invoked when a key is pressed
-      if (this.maxLength != null && this.localValue.length == this.maxLength) {
+      if (this.maxLength != null && this.localValue.toString().length == this.maxLength) {
         event.preventDefault();
         return;
       }
