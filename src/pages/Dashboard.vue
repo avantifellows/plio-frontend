@@ -105,19 +105,6 @@
             </p>
           </div>
         </div>
-
-        <div
-          class="hidden sm:flex sm:flex-col sm:h-full sm:justify-end sm:items-start sm:mt-10"
-          v-if="!pending"
-        >
-          <div>
-            <p
-              class="text-yellow-600 text-center sm:text-left hidden sm:block text-xs lg:text-sm xl:text-md font-bold"
-            >
-              {{ $t("dashboard.update_message") }}
-            </p>
-          </div>
-        </div>
       </div>
       <div class="col-span-6 grid grid-cols-2 mt-4 bp-420:mt-6 sm:mt-0">
         <div class="flex flex-col mx-2 bp-500:mx-4">
@@ -132,7 +119,7 @@
             </div>
             <div v-else>
               <!-- value -->
-              <p :class="cardMetricValueClass" data-test="completion">
+              <p :class="getCardMetricValueClass(completionRate)" data-test="completion">
                 {{ completionRate }}
               </p>
               <div :class="cardMetricTitleClass">
@@ -165,7 +152,10 @@
               </div>
               <div v-else>
                 <!-- value -->
-                <p :class="cardMetricValueClass" data-test="retention">
+                <p
+                  :class="getCardMetricValueClass(oneMinuteRetention)"
+                  data-test="retention"
+                >
                   {{ oneMinuteRetention }}
                 </p>
                 <div :class="cardMetricTitleClass">
@@ -200,7 +190,7 @@
             </div>
             <div v-else>
               <!-- value -->
-              <p :class="cardMetricValueClass" data-test="accuracy">
+              <p :class="getCardMetricValueClass(accuracy)" data-test="accuracy">
                 {{ accuracy }}
               </p>
               <div :class="cardMetricTitleClass">
@@ -233,7 +223,10 @@
               </div>
               <div v-else>
                 <!-- value -->
-                <p :class="cardMetricValueClass" data-test="questionAnswered">
+                <p
+                  :class="getCardMetricValueClass(numQuestionsAnswered)"
+                  data-test="questionAnswered"
+                >
                   {{ numQuestionsAnswered }}
                 </p>
                 <div :class="cardMetricTitleClass">
@@ -256,13 +249,6 @@
             </div>
           </div>
         </div>
-      </div>
-      <div class="mt-4">
-        <p
-          class="mx-2 bp-500:mx-4 px-2 text-yellow-600 sm:hidden text-xs lg:text-sm xl:text-md font-bold"
-        >
-          {{ $t("dashboard.update_message") }}
-        </p>
       </div>
     </div>
     <!-- download report button -->
@@ -307,26 +293,24 @@ export default {
       urlStyleClass:
         "sm:tracking-normal text-xs bp-500:text-sm md:text-md lg:text-lg font-bold text-yellow-600",
       urlCopyButtonClass: "text-yellow-600", // style for the copy button of the url component
-      plioAnalytics: {}, // holds all the analytics data for the plio
+      plioMetrics: {}, // holds all the metrics for the plio
       downloadReportButtonIconConfig: {
         // config for the loading icon on the download report button
         enabled: false,
         iconName: "spinner-solid",
         iconClass: "animate-spin h-4 object-scale-down text-white",
       },
-      // styling class for the first type of metric
-      textMetricValueClass:
-        "text-yellow-900 text-center sm:text-left text-xl lg:text-2xl xl:text-3xl font-bold",
       // styling class for the title of the first type of metric
       textMetricTitleClass: "text-yellow-900 text-xsm bp-420:text-xs bp-500:text-sm",
-      // styling class for the second type of metric
-      cardMetricValueClass:
-        "w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900",
+      // styling class for the value of the first type of metric
+      textMetricValueClass:
+        "text-yellow-900 text-center sm:text-left text-xl lg:text-2xl xl:text-3xl font-bold",
       // styling class for the title of the second type of metric
       cardMetricTitleClass:
         "w-full text-center text-xs md:text-sm text-yellow-900 mt-2 flex justify-center flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center",
       questionIcon: require("@/assets/images/question-circle-regular.svg"),
       plioActionButtonsClass: "rounded-md shadow-lg mx-1 bp-500:mx-0",
+      invalidValuePlaceholder: "N/A",
     };
   },
   async created() {
@@ -336,37 +320,38 @@ export default {
   },
   computed: {
     ...mapState("sync", ["pending"]),
+    // styling class for the first type of metric
     numberOfViewers() {
       // total number of unique viewers
-      return this.plioAnalytics["viewers"] || 0;
+      return this.plioMetrics["unique_viewers"] || 0;
     },
     averageWatchTime() {
       // for how long did the users watch the plio on average
-      return this.formatTime(Math.round(this.plioAnalytics["average-watch-time"] || 0));
+      return this.formatTime(Math.round(this.plioMetrics["average_watch_time"] || 0));
     },
     accuracy() {
       // average accuracy on the plio
-      if (this.plioAnalytics["accuracy"] != null)
-        return Math.trunc(this.plioAnalytics["accuracy"]) + "%";
-      return "0%";
+      if (this.plioMetrics["accuracy"] != null)
+        return Math.trunc(this.plioMetrics["accuracy"]) + "%";
+      return this.invalidValuePlaceholder;
     },
     completionRate() {
       // what % of users completed the plio
-      if (this.plioAnalytics["percent-complete"] != null)
-        return Math.trunc(this.plioAnalytics["percent-complete"]) + "%";
-      return "0%";
+      if (this.plioMetrics["percent_completed"] != null)
+        return Math.trunc(this.plioMetrics["percent_completed"]) + "%";
+      return this.invalidValuePlaceholder;
     },
     oneMinuteRetention() {
       // what % of users were retained after the 1 minute mark
-      if (this.plioAnalytics["1-min-retention"] != null)
-        return Math.trunc(this.plioAnalytics["1-min-retention"]) + "%";
-      return "0%";
+      if (this.plioMetrics["percent_one_minute_retention"] != null)
+        return Math.trunc(this.plioMetrics["percent_one_minute_retention"]) + "%";
+      return this.invalidValuePlaceholder;
     },
     numQuestionsAnswered() {
       // number of questions answered on average by a user
-      if (this.plioAnalytics["num-questions-answered"] != null)
-        return Math.round(this.plioAnalytics["num-questions-answered"]);
-      return "0";
+      if (this.plioMetrics["average_num_answered"] != null)
+        return Math.round(this.plioMetrics["average_num_answered"]);
+      return this.invalidValuePlaceholder;
     },
     playButtonTextConfig() {
       return {
@@ -425,9 +410,25 @@ export default {
   methods: {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     async fetchData() {
-      // load the plio and then it's analytics data
       this.loadPlio();
-      this.loadAnalytics();
+      this.loadMetrics();
+    },
+    // styling class for the second type of metric
+    getCardMetricValueClass(metricValue) {
+      return [
+        {
+          "text-2xl bp-500:text-4xl xl:text-6xl": !this.isCardMetricValueInvalid(
+            metricValue
+          ),
+          "text-xl bp-500:text-2xl xl:text-3xl my-1 bp-500:my-2 xl:my-4": this.isCardMetricValueInvalid(
+            metricValue
+          ),
+        },
+        `w-full text-center font-bold text-yellow-900`,
+      ];
+    },
+    isCardMetricValueInvalid(metricValue) {
+      return metricValue == this.invalidValuePlaceholder;
     },
     formatTime(timeInSeconds) {
       // convert time from seconds to a human readable format
@@ -451,32 +452,19 @@ export default {
         this.lastUpdated = new Date(plioDetails.updatedAt);
       });
     },
-    async loadAnalytics() {
-      await PlioAPIService.getDashboardMetrics(this.plioId)
-        .then((metrics) => {
-          this.plioAnalytics["viewers"] = metrics["Session.uniqueUsers"];
-          this.plioAnalytics["average-watch-time"] =
-            metrics["GroupedSession.averageWatchTime"];
-          this.plioAnalytics["num-questions-answered"] =
-            metrics["AggregateSessionMetrics.numQuestionsAnswered"];
-          this.plioAnalytics["percent-complete"] =
-            metrics["AggregateSessionMetrics.completionPercentage"];
-          this.plioAnalytics["accuracy"] = metrics["AggregateSessionMetrics.accuracy"];
-          this.plioAnalytics["1-min-retention"] =
-            metrics["GroupedSessionRetention.averageOneMinuteRetention"];
-        })
-        .then(() => {
-          this.$mixpanel.track("Visit Dashboard", {
-            "Plio UUID": this.plioId,
-            "Plio Average Watch Time": this.plioAnalytics["average-watch-time"] || 0,
-            "Plio Number of Viewers": this.plioAnalytics["viewers"] || 0,
-            "Plio Retention At 1 Minute": this.plioAnalytics["1-min-retention"] || 0,
-            "Plio Accuracy": this.plioAnalytics["accuracy"] || 0,
-            "Plio Completion Rate": this.plioAnalytics["percent-complete"] || 0,
-            "Plio Num Questions Answered":
-              this.plioAnalytics["num-questions-answered"] || 0,
-          });
-        });
+    async loadMetrics() {
+      let response = await PlioAPIService.getMetrics(this.plioId);
+      this.plioMetrics = response.data;
+      this.$mixpanel.track("Visit Dashboard", {
+        "Plio UUID": this.plioId,
+        "Plio Average Watch Time": this.averageWatchTime,
+        "Plio Number of Viewers": this.numberOfViewers,
+        "Plio Retention At 1 Minute": this.oneMinuteRetention,
+        "Plio Accuracy": this.accuracy,
+        "Plio Completion Rate": this.completionRate,
+        "Plio Num Questions Answered": this.numQuestionsAnswered,
+      });
+
       this.stopLoading();
     },
     getVideoIDfromURL(videoURL) {

@@ -1,18 +1,12 @@
-import { apiClient, analyticsAPIClient } from "@/services/API/RootClient.js";
+import { apiClient } from "@/services/API/RootClient.js";
 import {
   pliosEndpoint,
-  listPliosEndpoint,
   duplicateEndpoint,
   plioDataDumpEndpoint,
   plioSettingsEndpoint,
+  plioMetricsEndpoint,
   copyEndpoint,
 } from "@/services/API/Endpoints.js";
-import {
-  dashboardSessionMetricsQuery,
-  oneMinuteRetentionQuery,
-  dashboardSessionAnswerMetricsQuery,
-  uniqueUsersListQuery,
-} from "@/services/API/Queries/Plio.js";
 
 export default {
   /**
@@ -56,20 +50,12 @@ export default {
 
   /**
    * returns a list of plios that the user has created
-   * @param {Boolean} uuidOnly - whether to return only UUIDs instead of the details for each plio
    * @param {Number} pageNumber - if provided, it returns only the plios present at the given page number
    * @param {String} searchString - if provided, returns only the plios matching the search string
    * @param {String} sortBy - if provided, sorts the list of plios based on the ordering given
    * @returns
    */
-  getAllPlios(
-    uuidOnly = false,
-    pageNumber = undefined,
-    searchString = "",
-    sortBy = undefined
-  ) {
-    let url = uuidOnly ? pliosEndpoint + listPliosEndpoint : pliosEndpoint;
-
+  getAllPlios(pageNumber = undefined, searchString = "", sortBy = undefined) {
     let queryParams = {};
     // add page number query param
     if (pageNumber != undefined && pageNumber >= 1)
@@ -80,7 +66,7 @@ export default {
     // add sort by query param
     if (sortBy != undefined) queryParams["ordering"] = sortBy;
 
-    return apiClient().get(url, { params: queryParams });
+    return apiClient().get(pliosEndpoint, { params: queryParams });
   },
 
   /**
@@ -152,78 +138,11 @@ export default {
   },
 
   /**
-   * fetches the number of unique users who have watched each plio given a list of plio ids
-   * @param {Array} plioIds - list of plio uuids for whom the count needs to be fetched
-   * @returns {Array}
-   */
-  async getUniqueUsersCountList(plioIds) {
-    if (plioIds.length == 0) return [];
-
-    let resultSet = await analyticsAPIClient().load(
-      uniqueUsersListQuery(plioIds)
-    );
-
-    // holds the mapping of plio ID to count
-    let resultsMap = {};
-    if (resultSet.series()[0] != undefined)
-      resultSet.series()[0].series.forEach((seriesItem) => {
-        resultsMap[seriesItem.x] = seriesItem.value;
-      });
-
-    // holds the final list of values to be returned
-    let results = [];
-    plioIds.forEach((plioId) => {
-      // plios which do not have any sessions do not show up in
-      // the resultMap - use a default value for those plios
-      if (!(plioId in resultsMap)) results.push(0);
-      else results.push(resultsMap[plioId]);
-    });
-
-    return results;
-  },
-
-  /**
-   * fetches the dashboard metrics for the given plio
+   * fetches the metrics for a given plio
    * @param {Number} plioId - uuid of the plio for which the metrics need to be fetched
-   * @returns {Object} key-value pairs of metrics
+   * @returns {Promise}
    */
-  async getDashboardMetrics(plioId) {
-    let metrics = {};
-
-    // get session level metrics (except 1-minute retention)
-    let resultSet = await analyticsAPIClient().load(
-      dashboardSessionMetricsQuery(plioId)
-    );
-    let resultKeys = resultSet.seriesNames().map((x) => x.key);
-    let resultChartPivot = resultSet.chartPivot()[0];
-    resultKeys.forEach((key) => {
-      metrics[key] = resultChartPivot[key];
-    });
-
-    /**
-     * get 1-minute retention separately as this value becomes NaN
-     * for some users and while calculating the average, those rows are
-     * omitted; this affects the calculation of the total number of unique
-     * viewers;
-     */
-    resultSet = await analyticsAPIClient().load(
-      oneMinuteRetentionQuery(plioId)
-    );
-    resultKeys = resultSet.seriesNames().map((x) => x.key);
-    resultChartPivot = resultSet.chartPivot()[0];
-    resultKeys.forEach((key) => {
-      metrics[key] = resultChartPivot[key];
-    });
-
-    // get session answer level metrics
-    resultSet = await analyticsAPIClient().load(
-      dashboardSessionAnswerMetricsQuery(plioId)
-    );
-    resultKeys = resultSet.seriesNames().map((x) => x.key);
-    resultChartPivot = resultSet.chartPivot()[0];
-    resultKeys.forEach((key) => {
-      metrics[key] = resultChartPivot[key];
-    });
-    return metrics;
+  async getMetrics(plioId) {
+    return apiClient().get(pliosEndpoint + plioId + plioMetricsEndpoint);
   },
 };

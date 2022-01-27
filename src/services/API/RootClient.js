@@ -7,7 +7,6 @@ import {
   userFromTokenEndpoint,
   otpVerifyEndpoint,
 } from "@/services/API/Endpoints.js";
-import cubejs from "@cubejs-client/core";
 
 let headers = {
   Accept: "application/json",
@@ -147,21 +146,4 @@ client.interceptors.response.use(
 
 export function apiClient() {
   return client;
-}
-
-export function analyticsAPIClient() {
-  return cubejs(
-    async () => {
-      if (!store.getters["auth/isAnalyticsAccessTokenValid"]) {
-        await store.dispatch("auth/getAnalyticsAccessToken");
-      }
-      return store.state.auth.analyticsAccessToken;
-    },
-    {
-      apiUrl: process.env.VUE_APP_CUBEJS_API_URL,
-      headers: {
-        organization: store.getters["auth/activeWorkspaceSchema"],
-      },
-    }
-  );
 }
