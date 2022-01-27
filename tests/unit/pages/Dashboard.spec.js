@@ -126,10 +126,10 @@ describe("Dashboard.vue", () => {
 
       expect(wrapper.find('[data-test="numViewers"]').text()).toBe("0");
       expect(wrapper.find('[data-test="watchTime"]').text()).toBe("0 secs");
-      expect(wrapper.find('[data-test="completion"]').text()).toBe("-");
-      expect(wrapper.find('[data-test="questionAnswered"]').text()).toBe("-");
-      expect(wrapper.find('[data-test="accuracy"]').text()).toBe("-");
-      expect(wrapper.find('[data-test="retention"]').text()).toBe("-");
+      expect(wrapper.find('[data-test="completion"]').text()).toBe("N/A");
+      expect(wrapper.find('[data-test="questionAnswered"]').text()).toBe("N/A");
+      expect(wrapper.find('[data-test="accuracy"]').text()).toBe("N/A");
+      expect(wrapper.find('[data-test="retention"]').text()).toBe("N/A");
     });
 
     describe("button clicks", () => {
