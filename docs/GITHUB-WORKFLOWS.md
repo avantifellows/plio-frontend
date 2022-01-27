@@ -23,12 +23,12 @@ The `test-cases` job inside the [CI GitHub Action](../.github/workflows/ci.yml) 
 ### End-to-End testing
 Plio uses TestCafe + BrowserStack to run end-to-end tests. Full details about how it works has been documented in [End-to-End Testing guide](./END-TO-END-TESTING.md).
 
-End-to-End testing requires the Plio apps to be running and available at their respective localhost URLs. To set up Plio applications (Frontend, Backend and Analytics), we do the following:
+End-to-End testing requires the frontend and backend to be running and available at their respective localhost URLs. To set them up, we do the following:
 1. Clone the Plio Frontend and switch to the branch that triggered the workflow
 2. Configure environment variables using GitHub secrets
-3. Run `docker-compose` command
-4. Repeat steps 1-3 for the Plio Backend and Plio Analytics
+3. Install it using `docker-compose`
+4. Repeat steps 1-3 for the Plio Backend
 
-After the docker containers are up & running, the TestCafe BrowserStack plugin is installed and then run the end-to-end tests.
+After the docker containers are up & running, the TestCafe BrowserStack plugin is installed, and then the end-to-end tests are run.
 
-For more details, see [ci.yml](../.github/workflows/ci.yml) `End-to-End Tests` job.
+For more details, see the job `End-to-End Tests` in [ci.yml](../.github/workflows/ci.yml).
