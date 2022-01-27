@@ -6,11 +6,19 @@ let clonedeep = require("lodash.clonedeep");
 
 let dummyTableData = [
   {
-    name: { type: "component", value: "123", status: "draft" },
+    name: {
+      type: "component",
+      value: global.dummyPublishedPlio.data,
+      status: "draft",
+    },
     views: "0",
   },
   {
-    name: { type: "component", value: "234", status: "published" },
+    name: {
+      type: "component",
+      value: global.dummyPublishedPlio.data,
+      status: "published",
+    },
     views: "10",
   },
 ];
@@ -37,265 +45,158 @@ describe("Table.vue", () => {
     expect(wrapper.vm.isTableEmpty).toBe(true);
   });
 
-  it("renders the right number of rows ", async () => {
-    wrapper = mount(Table, {
-      props: {
-        data: dummyTableData,
-        columns: tableColumns,
-        numTotal: totalNumberOfPlios,
-      },
-    });
-    expect(wrapper.findAll("th").length).toBe(dummyTableData.length);
-    expect(wrapper.vm.totalItemsInTable).toBe(dummyTableData.length);
-    expect(wrapper.vm.isTableEmpty).toBe(false);
-  });
+  describe("props are passed", () => {
+    const mountWrapper = (
+      params = {
+        props: {
+          data: dummyTableData,
+          columns: tableColumns,
+          numTotal: totalNumberOfPlios,
+        },
+      }
+    ) => {
+      wrapper = mount(Table, params);
+    };
 
-  it("clearing search string resets search", async () => {
-    wrapper = mount(Table, {
-      props: {
-        data: dummyTableData,
-        columns: tableColumns,
-        numTotal: totalNumberOfPlios,
-      },
+    beforeEach(() => {
+      mountWrapper();
     });
 
-    await wrapper.find('[data-test="searchBar"]').setValue("test");
-    await wrapper.find('[data-test="searchBar"]').setValue("");
-
-    expect(wrapper.emitted()).toHaveProperty("reset-search-string");
-  });
-
-  it("resets search string on button click", async () => {
-    const resetSearchString = jest.spyOn(Table.methods, "resetSearchString");
-    wrapper = mount(Table, {
-      props: {
-        data: dummyTableData,
-        columns: tableColumns,
-        numTotal: totalNumberOfPlios,
-      },
+    it("renders the right number of rows", async () => {
+      expect(wrapper.findAll("th").length).toBe(dummyTableData.length);
+      expect(wrapper.vm.totalItemsInTable).toBe(dummyTableData.length);
+      expect(wrapper.vm.isTableEmpty).toBe(false);
     });
 
-    await wrapper.find('[data-test="searchBar"]').setValue("test");
+    it("clearing search string resets search", async () => {
+      await wrapper.find('[data-test="searchBar"]').setValue("test");
+      await wrapper.find('[data-test="searchBar"]').setValue("");
 
-    wrapper.find('[data-test="resetSearch"]').trigger("click");
-    expect(resetSearchString).toHaveBeenCalled();
-    expect(wrapper.vm.searchString).toBeFalsy();
-  });
-
-  it("does not trigger search on button click when search string empty", async () => {
-    const search = jest.spyOn(Table.methods, "search");
-    wrapper = mount(Table, {
-      props: {
-        data: dummyTableData,
-        columns: tableColumns,
-        numTotal: totalNumberOfPlios,
-      },
+      expect(wrapper.emitted()).toHaveProperty("reset-search-string");
     });
 
-    await wrapper.find('[data-test="searchButton"]').trigger("click");
+    it("resets search string on button click", async () => {
+      const resetSearchString = jest.spyOn(Table.methods, "resetSearchString");
+      mountWrapper();
 
-    expect(search).not.toHaveBeenCalled();
-  });
+      await wrapper.find('[data-test="searchBar"]').setValue("test");
 
-  it("triggers search on button click when search string non-empty", async () => {
-    const search = jest.spyOn(Table.methods, "search");
-    wrapper = mount(Table, {
-      props: {
-        data: dummyTableData,
-        columns: tableColumns,
-        numTotal: totalNumberOfPlios,
-      },
+      wrapper.find('[data-test="resetSearch"]').trigger("click");
+      expect(resetSearchString).toHaveBeenCalled();
+      expect(wrapper.vm.searchString).toBeFalsy();
     });
 
-    await wrapper.find('[data-test="searchBar"]').setValue("test");
-    await wrapper.find('[data-test="searchButton"]').trigger("click");
+    it("does not trigger search on button click when search string empty", async () => {
+      const search = jest.spyOn(Table.methods, "search");
+      mountWrapper();
 
-    expect(search).toHaveBeenCalled();
-    expect(wrapper.emitted()).toHaveProperty("search-plios");
-  });
+      await wrapper.find('[data-test="searchButton"]').trigger("click");
 
-  it("triggers search on pressing enter when search string non-empty", async () => {
-    const search = jest.spyOn(Table.methods, "search");
-    wrapper = mount(Table, {
-      props: {
-        data: dummyTableData,
-        columns: tableColumns,
-        numTotal: totalNumberOfPlios,
-      },
+      expect(search).not.toHaveBeenCalled();
     });
 
-    // enter some search string
-    await wrapper.find('[data-test="searchBar"]').setValue("test");
+    it("triggers search on button click when search string non-empty", async () => {
+      const search = jest.spyOn(Table.methods, "search");
+      mountWrapper();
 
-    // trigger the enter key press
-    await wrapper.find('[data-test="searchBar"]').trigger("keypress", {
-      key: "Enter",
+      await wrapper.find('[data-test="searchBar"]').setValue("test");
+      await wrapper.find('[data-test="searchButton"]').trigger("click");
+
+      expect(search).toHaveBeenCalled();
+      expect(wrapper.emitted()).toHaveProperty("search-plios");
     });
 
-    expect(search).toHaveBeenCalled();
-    expect(wrapper.emitted()).toHaveProperty("search-plios");
-  });
+    it("triggers search on pressing enter when search string non-empty", async () => {
+      const search = jest.spyOn(Table.methods, "search");
+      mountWrapper();
 
-  it("does not trigger search on pressing enter when search string empty", async () => {
-    const search = jest.spyOn(Table.methods, "search");
-    wrapper = mount(Table, {
-      props: {
-        data: dummyTableData,
-        columns: tableColumns,
-        numTotal: totalNumberOfPlios,
-      },
+      // enter some search string
+      await wrapper.find('[data-test="searchBar"]').setValue("test");
+
+      // trigger the enter key press
+      await wrapper.find('[data-test="searchBar"]').trigger("keypress", {
+        key: "Enter",
+      });
+
+      expect(search).toHaveBeenCalled();
+      expect(wrapper.emitted()).toHaveProperty("search-plios");
     });
 
-    // trigger the enter key press
-    await wrapper.find('[data-test="searchBar"]').trigger("keypress", {
-      key: "Enter",
+    it("does not trigger search on pressing enter when search string empty", async () => {
+      const search = jest.spyOn(Table.methods, "search");
+      mountWrapper();
+
+      // trigger the enter key press
+      await wrapper.find('[data-test="searchBar"]').trigger("keypress", {
+        key: "Enter",
+      });
+
+      /**
+       * since we did not set any value for the search string, it would be
+       * empty and hence, the search function should not be called
+       */
+      expect(search).not.toHaveBeenCalled();
     });
 
-    /**
-     * since we did not set any value for the search string, it would be
-     * empty and hence, the search function should not be called
-     */
-    expect(search).not.toHaveBeenCalled();
-  });
+    it("shows warning on search when there are no plios matching the search string", async () => {
+      mountWrapper({
+        props: {
+          data: [],
+          columns: tableColumns,
+          numTotal: totalNumberOfPlios,
+        },
+      });
+      await store.dispatch("sync/stopLoading");
 
-  it("shows warning on search when there are no plios matching the search string", async () => {
-    wrapper = mount(Table, {
-      props: {
-        data: [],
-        columns: tableColumns,
-        numTotal: totalNumberOfPlios,
-      },
-    });
-    await store.dispatch("sync/stopLoading");
+      // no plios warning should not be shown at first
+      expect(wrapper.find('[data-test="noPliosWarning"]').exists()).toBeFalsy();
 
-    // no plios warning should not be shown at first
-    expect(wrapper.find('[data-test="noPliosWarning"]').exists()).toBeFalsy();
+      // enter some search string that would not match any of the plios
+      await wrapper
+        .find('[data-test="searchBar"]')
+        .setValue("someRandomString");
+      await wrapper.find('[data-test="searchButton"]').trigger("click");
 
-    // enter some search string that would not match any of the plios
-    await wrapper.find('[data-test="searchBar"]').setValue("test");
-    await wrapper.find('[data-test="searchButton"]').trigger("click");
-
-    // no plios warning should now be shown
-    expect(wrapper.find('[data-test="noPliosWarning"]').exists()).toBeTruthy();
-  });
-
-  it("selects row on hover", async () => {
-    const tableRowHoverOn = jest.spyOn(Table.methods, "tableRowHoverOn");
-    wrapper = mount(Table, {
-      props: {
-        data: dummyTableData,
-        columns: tableColumns,
-        numTotal: totalNumberOfPlios,
-      },
-    });
-    // the table would be in pending state
-    await store.dispatch("sync/stopLoading");
-    await wrapper.findAll('[data-test="row"]')[0].trigger("mouseover");
-
-    expect(tableRowHoverOn).toHaveBeenCalled();
-    expect(wrapper.vm.selectedRowIndex).toBe(0);
-  });
-
-  it("deselects row on removing hover", async () => {
-    const tableRowHoverOff = jest.spyOn(Table.methods, "tableRowHoverOff");
-    wrapper = mount(Table, {
-      props: {
-        data: dummyTableData,
-        columns: tableColumns,
-        numTotal: totalNumberOfPlios,
-      },
-      data() {
-        return {
-          selectedRowIndex: 0,
-        };
-      },
-    });
-    await wrapper.findAll('[data-test="row"]')[0].trigger("mouseout");
-
-    expect(tableRowHoverOff).toHaveBeenCalled();
-    expect(wrapper.vm.selectedRowIndex).toBe(null);
-  });
-
-  it("sorts on arrow click by num viewers", async () => {
-    wrapper = mount(Table, {
-      props: {
-        data: dummyTableData,
-        columns: tableColumns,
-        numTotal: totalNumberOfPlios,
-      },
-    });
-    await wrapper.findAll('[data-test="tableHeader"]')[1].trigger("click");
-    expect(wrapper.emitted()).toHaveProperty("sort-num-viewers");
-  });
-
-  it("emits after all plios have been loaded", async () => {
-    wrapper = mount(Table, {
-      props: {
-        data: dummyTableData,
-        columns: tableColumns,
-        numTotal: totalNumberOfPlios,
-      },
+      // no plios warning should now be shown
+      expect(
+        wrapper.find('[data-test="noPliosWarning"]').exists()
+      ).toBeTruthy();
     });
 
-    // resolve the two `GET` requests (for each plio) waiting in the queue
-    // using the fake response data
-    mockAxios.mockResponse(
-      clonedeep(global.dummyPublishedPlio),
-      mockAxios.queue()[0]
-    );
-    mockAxios.mockResponse(
-      clonedeep(global.dummyPublishedPlio),
-      mockAxios.queue()[1]
-    );
+    it("selects row on hover", async () => {
+      const tableRowHoverOn = jest.spyOn(Table.methods, "tableRowHoverOn");
+      mountWrapper();
 
-    // wait until the DOM updates after promises resolve
-    await flushPromises();
+      // the table would be in pending state
+      await store.dispatch("sync/stopLoading");
+      await wrapper.findAll('[data-test="row"]')[0].trigger("mouseover");
 
-    expect(wrapper.emitted()).toHaveProperty("loaded");
-    expect(wrapper.vm.numPliosLoaded).toBe(2);
-  });
-
-  it("emits on deleting plio", async () => {
-    wrapper = mount(Table, {
-      props: {
-        data: dummyTableData,
-        columns: tableColumns,
-        numTotal: totalNumberOfPlios,
-      },
+      expect(tableRowHoverOn).toHaveBeenCalled();
+      expect(wrapper.vm.selectedRowIndex).toBe(0);
     });
 
-    // the table would be in pending state
-    await store.dispatch("sync/stopLoading");
+    it("deselects row on removing hover", async () => {
+      const tableRowHoverOff = jest.spyOn(Table.methods, "tableRowHoverOff");
+      mountWrapper();
+      await wrapper.setData({
+        selectedRowIndex: 0,
+      });
+      await wrapper.findAll('[data-test="row"]')[0].trigger("mouseout");
 
-    // cleanup past requests
-    mockAxios.reset();
+      expect(tableRowHoverOff).toHaveBeenCalled();
+      expect(wrapper.vm.selectedRowIndex).toBe(null);
+    });
 
-    // find the first plio list item
-    const plioListItem = wrapper.findAll('[data-test="plioListItem"]')[0];
+    it("sorts on arrow click by num viewers", async () => {
+      await wrapper.findAll('[data-test="tableHeader"]')[1].trigger("click");
+      expect(wrapper.emitted()).toHaveProperty("sort-num-viewers");
+    });
 
-    // click the options dropdown
-    await plioListItem.find('[data-test="toggleButton"]').trigger("click");
+    it("emits on deleting plio", async () => {
+      wrapper.vm.$refs.plio[0].$emit("deleted");
 
-    // click on delete
-    await plioListItem
-      .get('[data-test="optionDropdown"]')
-      .find('[data-test="option-delete"]')
-      .trigger("click");
-
-    // simulate clicking the confirm button of the dialog box
-    await global.simulateConfirmClick();
-
-    // mock the response to the request
-    mockAxios.mockResponse(
-      {
-        status: 204,
-      },
-      mockAxios.queue()[0]
-    );
-
-    await flushPromises();
-
-    // check emit
-    expect(wrapper.emitted()).toHaveProperty("delete-plio");
+      // check emit
+      expect(wrapper.emitted()).toHaveProperty("delete-plio");
+    });
   });
 });
