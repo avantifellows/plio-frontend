@@ -118,10 +118,11 @@
         v-model:value="phoneInput"
         containerStyling="border-black border h-12 lg:h-16"
         :validation="phoneInputValidation"
-        :maxLength="10"
+        :maxLength="11"
         :staticText="phoneInputStaticText"
         :startIcon="phoneInputIconConfig"
         :placeholder="phoneInputPlaceholder"
+        :justify="center"
         data-test="phone"
       ></input-number>
       <!-- input box to enter OTP -->
