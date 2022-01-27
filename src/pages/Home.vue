@@ -170,23 +170,24 @@ export default {
       // if the params contain a valid pageNumber, update the local currentPageNumber variable
       if (pageNumber != undefined) this.currentPageNumber = pageNumber;
 
-      await PlioAPIService.getAllPlios(
+      let response = await PlioAPIService.getAllPlios(
         this.currentPageNumber,
         this.searchString,
         this.sortByField
-      ).then((response) => {
-        // to handle the case when the user lands on the homepage for the first time
-        // if no plios exist, then hide the table else show it
-        if (params == undefined) {
-          if (response.data.raw_count == 0) {
-            this.isTableShown = false;
-            this.stopLoading();
-          } else this.isTableShown = true;
-        }
-        this.totalNumberOfPlios = response.data.count; // set total number of plios and show the paginator
-        this.numberOfPliosPerPage = response.data.page_size; // set the page size
-        this.prepareTableData(response.data.results); // prepare the data for the table
-      });
+      );
+
+      if (params == undefined) {
+        // to distinguish the case when no plios have been created (hide the table)
+        // with the case when plios have been created but there are no plios matching the
+        // criteria specified by the params (based on search, for example)
+        if (response.data.raw_count == 0) {
+          this.isTableShown = false;
+          this.stopLoading();
+        } else this.isTableShown = true;
+      }
+      this.totalNumberOfPlios = response.data.count; // set total number of plios and show the paginator
+      this.numberOfPliosPerPage = response.data.page_size; // set the page size
+      this.prepareTableData(response.data.results); // prepare the data for the table
     },
 
     createNewPlio() {
