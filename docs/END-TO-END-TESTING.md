@@ -55,7 +55,11 @@ Follow the links below one-by-one to retrieve required information from Google:
     ```
 2. To list all the browsers available, run the following command:
     ```sh
+    # command to see local browsers
     testcafe --list-browsers
+
+    # command to see BrowserStack browsers
+    testcafe -b browserstack
     ```
 
 
