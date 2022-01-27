@@ -2,7 +2,7 @@
 This guide aims to share how Cypress is being used in Plio for performing E2E and integration tests.
 
 ### Running the tests locally
-Run the following command to run the Cypress tests. Make sure the Plio Frontend, Plio Backend and Plio Analytics applications are running on your local Docker.
+Run the following command to run the Cypress tests. Make sure the Plio Frontend and Plio Backend applications are running on your local Docker.
 ```sh
 npx cypress open
 ```
@@ -29,7 +29,7 @@ Follow the links below one-by-one to retrieve required information from Google:
 
 ### Setup
 Plio uses `cypress.env.json` to set up environment variables for the Cypress app. To configure your local setup for Cypress, only the following steps are needed:
-1. Set up the Plio Frontend, Plio Backend and Plio Analytics applications on your local Docker.
+1. Set up the Plio Frontend and Plio Backend applications on your local Docker.
 2. Copy `cypress.env.example.json` and rename it as `cypress.env.json`
 3. Update the JSON object in `cypress.env.json` by setting the correct configurations - see below.
 
@@ -71,13 +71,10 @@ The job `integration-tests` inside the GitHub workflow file [ci.yml](../.github/
 Add the following organizational level secrets in your GitHub organization:
 1. Cypress Dashboard - Refer [Cypress Dashboard section](#cypress-dashboard) above
    1. `CYPRESS_RECORD_KEY`
-2. Plio Analytics (CubeJS) - Refer [Plio Analytics ENV guide](https://github.com/avantifellows/plio-analytics/blob/master/docs/ENV.md)
-   1. `ANALYTICS_CUBEJS_API_SECRET`
-      - Alias for `CUBEJS_API_SECRET`
-3. Plio Frontend (Cypress) - Refer [Frontend Cypress ENV guide](#cypress-env-variables) above
+2. Plio Frontend (Cypress) - Refer [Frontend Cypress ENV guide](#cypress-env-variables) above
    1. `CYPRESS_AUTH_GOOGLE_REFRESH_TOKEN`
    2. `CYPRESS_PLIO_BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL`
-4. Plio Backend (Django) - Refer [Plio Backend ENV guide](https://github.com/avantifellows/plio-backend/blob/master/docs/ENV.md)
+3. Plio Backend (Django) - Refer [Plio Backend ENV guide](https://github.com/avantifellows/plio-backend/blob/master/docs/ENV.md)
    1. `DJANGO_SECRET_KEY`
    2. `DJANGO_DEFAULT_OAUTH2_CLIENT_SETUP`
    3. `DJANGO_DEFAULT_OAUTH2_CLIENT_ID`
