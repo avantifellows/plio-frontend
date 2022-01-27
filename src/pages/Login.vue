@@ -122,7 +122,6 @@
         :staticText="phoneInputStaticText"
         :startIcon="phoneInputIconConfig"
         :placeholder="phoneInputPlaceholder"
-        :justify="center"
         data-test="phone"
       ></input-number>
       <!-- input box to enter OTP -->
