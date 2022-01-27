@@ -417,15 +417,17 @@ export default {
     getCardMetricValueClass(metricValue) {
       return [
         {
-          "text-2xl bp-500:text-4xl xl:text-6xl": !this.isValueInvalid(metricValue),
-          "text-xl bp-500:text-2xl xl:text-3xl my-1 bp-500:my-2 xl:my-4": this.isValueInvalid(
+          "text-2xl bp-500:text-4xl xl:text-6xl": !this.isCardMetricValueInvalid(
+            metricValue
+          ),
+          "text-xl bp-500:text-2xl xl:text-3xl my-1 bp-500:my-2 xl:my-4": this.isCardMetricValueInvalid(
             metricValue
           ),
         },
         `w-full text-center font-bold text-yellow-900`,
       ];
     },
-    isValueInvalid(metricValue) {
+    isCardMetricValueInvalid(metricValue) {
       return metricValue == this.invalidValuePlaceholder;
     },
     formatTime(timeInSeconds) {

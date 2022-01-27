@@ -107,7 +107,6 @@ export default {
 
     this.setOptionsOverflowMarginTop();
 
-    // this.$nextTick(() => this.$emit("loaded"));
     this.$nextTick(() => {
       // wait for the DOM to be updated
       if (this.updatedAt != "") {
