@@ -106,6 +106,15 @@ export default {
     window.addEventListener("scroll", this.handleScroll);
 
     this.setOptionsOverflowMarginTop();
+
+    // this.$nextTick(() => this.$emit("loaded"));
+    this.$nextTick(() => {
+      // wait for the DOM to be updated
+      if (this.updatedAt != "") {
+        // only consider the plio loaded if the data is valid
+        this.$emit("loaded");
+      }
+    });
   },
   unmounted() {
     // remove listeners
@@ -484,6 +493,6 @@ export default {
       });
     },
   },
-  emits: ["deleted"],
+  emits: ["deleted", "loaded"],
 };
 </script>

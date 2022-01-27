@@ -452,7 +452,7 @@ global.dummyVideo = {
 };
 
 global.dummyPlioMetrics = {
-  num_views: 2,
+  unique_viewers: 2,
   average_watch_time: 202,
   average_num_answered: 5,
   percent_completed: 40,
@@ -490,7 +490,7 @@ global.dummyEmptyPlioList = {
 
 global.getDummyPlioList = () => {
   let plio = clonedeep(global.dummyDraftPlio.data);
-  plio.num_views = 0;
+  plio.unique_viewers = 0;
   return {
     count: 1,
     page_size: 5,

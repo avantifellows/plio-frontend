@@ -101,7 +101,7 @@ describe("Dashboard.vue", () => {
       );
 
       expect(wrapper.find('[data-test="numViewers"]').text()).toBe(
-        String(global.dummyPlioMetrics["num_views"])
+        String(global.dummyPlioMetrics["unique_viewers"])
       );
       expect(wrapper.find('[data-test="watchTime"]').text()).toBe(
         "3 mins 22 secs"

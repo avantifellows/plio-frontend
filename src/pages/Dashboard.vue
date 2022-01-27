@@ -323,7 +323,7 @@ export default {
     // styling class for the first type of metric
     numberOfViewers() {
       // total number of unique viewers
-      return this.plioMetrics["num_views"] || 0;
+      return this.plioMetrics["unique_viewers"] || 0;
     },
     averageWatchTime() {
       // for how long did the users watch the plio on average

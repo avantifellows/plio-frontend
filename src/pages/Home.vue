@@ -12,6 +12,7 @@
       @reset-search-string="resetSearchString"
       @sort-num-viewers="sortPlios"
       @delete-plio="plioDeleted"
+      @loaded="stopLoading"
       data-test="table"
       ref="table"
     >
@@ -244,7 +245,7 @@ export default {
               break;
 
             case "views":
-              tableRow[column] = plioList[plioIndex].num_views;
+              tableRow[column] = plioList[plioIndex].unique_viewers;
               break;
           }
         }
@@ -254,7 +255,6 @@ export default {
 
       // update the table's data
       this.tableData = tableData;
-      this.stopLoading();
     },
   },
 };
