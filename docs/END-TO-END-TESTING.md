@@ -94,10 +94,10 @@ Google client secret retrieved in the pre-requisites.
 The convert token URL in the Plio backend repo that converts the Social Auth Token and returns a valid Auth Token. By default, the value is http://0.0.0.0:8001/auth/convert-token.
 
 #### `BACKEND_DEFAULT_OAUTH2_CLIENT_ID`
-The client id for Plio backend application.
+The client id for Plio backend application. More details in [Plio Backend ENV.md](https://github.com/avantifellows/plio-backend/blob/master/docs/ENV.md#default_oauth2_client_id).
 
 #### `BACKEND_DEFAULT_OAUTH2_CLIENT_SECRET`
-The client secret for Plio backend application.
+The client secret for Plio backend application. More details in [Plio Backend ENV.md](https://github.com/avantifellows/plio-backend/blob/master/docs/ENV.md#default_oauth2_client_secret).
 
 #### `BACKEND_SECRET_KEY`
-The secret key for the backend application.
+The secret key for the backend application. More details in [Plio Backend ENV.md](https://github.com/avantifellows/plio-backend/blob/master/docs/ENV.md#secret_key).
