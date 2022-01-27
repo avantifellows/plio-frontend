@@ -62,7 +62,7 @@ describe("Table.vue", () => {
       mountWrapper();
     });
 
-    it("renders the right number of rows ", async () => {
+    it("renders the right number of rows", async () => {
       expect(wrapper.findAll("th").length).toBe(dummyTableData.length);
       expect(wrapper.vm.totalItemsInTable).toBe(dummyTableData.length);
       expect(wrapper.vm.isTableEmpty).toBe(false);

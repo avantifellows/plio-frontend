@@ -221,9 +221,7 @@ export default {
       if (this.plioDetails != undefined) return this.plioDetails.status;
       return "";
     },
-    /**
-     * title of the plio. "Untitled" if no title is present
-     */
+    /** title of the plio. "Untitled" if no title is present */
     title() {
       if (this.plioDetails != undefined)
         return (
@@ -231,9 +229,7 @@ export default {
         );
       return "";
     },
-    /**
-     * link to the player for a plio
-     */
+    /** link to the player for a plio */
     plioLink() {
       if (this.plioId != "") return this.getPlioLink(this.plioId, this.activeWorkspace);
       return "";

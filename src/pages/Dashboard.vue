@@ -119,7 +119,7 @@
             </div>
             <div v-else>
               <!-- value -->
-              <p :class="cardMetricValueClass" data-test="completion">
+              <p :class="getCardMetricValueClass(completionRate)" data-test="completion">
                 {{ completionRate }}
               </p>
               <div :class="cardMetricTitleClass">
@@ -152,7 +152,10 @@
               </div>
               <div v-else>
                 <!-- value -->
-                <p :class="cardMetricValueClass" data-test="retention">
+                <p
+                  :class="getCardMetricValueClass(oneMinuteRetention)"
+                  data-test="retention"
+                >
                   {{ oneMinuteRetention }}
                 </p>
                 <div :class="cardMetricTitleClass">
@@ -187,7 +190,7 @@
             </div>
             <div v-else>
               <!-- value -->
-              <p :class="cardMetricValueClass" data-test="accuracy">
+              <p :class="getCardMetricValueClass(accuracy)" data-test="accuracy">
                 {{ accuracy }}
               </p>
               <div :class="cardMetricTitleClass">
@@ -220,7 +223,10 @@
               </div>
               <div v-else>
                 <!-- value -->
-                <p :class="cardMetricValueClass" data-test="questionAnswered">
+                <p
+                  :class="getCardMetricValueClass(numQuestionsAnswered)"
+                  data-test="questionAnswered"
+                >
                   {{ numQuestionsAnswered }}
                 </p>
                 <div :class="cardMetricTitleClass">
@@ -294,19 +300,17 @@ export default {
         iconName: "spinner-solid",
         iconClass: "animate-spin h-4 object-scale-down text-white",
       },
-      // styling class for the first type of metric
-      textMetricValueClass:
-        "text-yellow-900 text-center sm:text-left text-xl lg:text-2xl xl:text-3xl font-bold",
       // styling class for the title of the first type of metric
       textMetricTitleClass: "text-yellow-900 text-xsm bp-420:text-xs bp-500:text-sm",
-      // styling class for the second type of metric
-      cardMetricValueClass:
-        "w-full text-center text-2xl bp-500:text-4xl xl:text-6xl font-bold text-yellow-900",
+      // styling class for the value of the first type of metric
+      textMetricValueClass:
+        "text-yellow-900 text-center sm:text-left text-xl lg:text-2xl xl:text-3xl font-bold",
       // styling class for the title of the second type of metric
       cardMetricTitleClass:
         "w-full text-center text-xs md:text-sm text-yellow-900 mt-2 flex justify-center flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 items-center",
       questionIcon: require("@/assets/images/question-circle-regular.svg"),
       plioActionButtonsClass: "rounded-md shadow-lg mx-1 bp-500:mx-0",
+      invalidValuePlaceholder: "N/A",
     };
   },
   async created() {
@@ -316,6 +320,7 @@ export default {
   },
   computed: {
     ...mapState("sync", ["pending"]),
+    // styling class for the first type of metric
     numberOfViewers() {
       // total number of unique viewers
       return this.plioMetrics["num_views"] || 0;
@@ -328,25 +333,25 @@ export default {
       // average accuracy on the plio
       if (this.plioMetrics["accuracy"] != null)
         return Math.trunc(this.plioMetrics["accuracy"]) + "%";
-      return "-";
+      return this.invalidValuePlaceholder;
     },
     completionRate() {
       // what % of users completed the plio
       if (this.plioMetrics["percent_completed"] != null)
         return Math.trunc(this.plioMetrics["percent_completed"]) + "%";
-      return "-";
+      return this.invalidValuePlaceholder;
     },
     oneMinuteRetention() {
       // what % of users were retained after the 1 minute mark
       if (this.plioMetrics["percent_one_minute_retention"] != null)
         return Math.trunc(this.plioMetrics["percent_one_minute_retention"]) + "%";
-      return "-";
+      return this.invalidValuePlaceholder;
     },
     numQuestionsAnswered() {
       // number of questions answered on average by a user
       if (this.plioMetrics["average_num_answered"] != null)
         return Math.round(this.plioMetrics["average_num_answered"]);
-      return "-";
+      return this.invalidValuePlaceholder;
     },
     playButtonTextConfig() {
       return {
@@ -408,6 +413,21 @@ export default {
       this.loadPlio();
       this.loadMetrics();
     },
+    // styling class for the second type of metric
+    getCardMetricValueClass(metricValue) {
+      return [
+        {
+          "text-2xl bp-500:text-4xl xl:text-6xl": !this.isValueInvalid(metricValue),
+          "text-xl bp-500:text-2xl xl:text-3xl my-1 bp-500:my-2 xl:my-4": this.isValueInvalid(
+            metricValue
+          ),
+        },
+        `w-full text-center font-bold text-yellow-900`,
+      ];
+    },
+    isValueInvalid(metricValue) {
+      return metricValue == this.invalidValuePlaceholder;
+    },
     formatTime(timeInSeconds) {
       // convert time from seconds to a human readable format
       if (timeInSeconds == null || isNaN(timeInSeconds)) return null;
@@ -435,13 +455,12 @@ export default {
       this.plioMetrics = response.data;
       this.$mixpanel.track("Visit Dashboard", {
         "Plio UUID": this.plioId,
-        "Plio Average Watch Time": this.plioMetrics["average_watch_time"] || 0,
-        "Plio Number of Viewers": this.plioMetrics["num_views"] || 0,
-        "Plio Retention At 1 Minute":
-          this.plioMetrics["percent_one_minute_retention"] || 0,
-        "Plio Accuracy": this.plioMetrics["accuracy"] || 0,
-        "Plio Completion Rate": this.plioMetrics["percent_completed"] || 0,
-        "Plio Num Questions Answered": this.plioMetrics["average_num_answered"] || 0,
+        "Plio Average Watch Time": this.averageWatchTime,
+        "Plio Number of Viewers": this.numberOfViewers,
+        "Plio Retention At 1 Minute": this.oneMinuteRetention,
+        "Plio Accuracy": this.accuracy,
+        "Plio Completion Rate": this.completionRate,
+        "Plio Num Questions Answered": this.numQuestionsAnswered,
       });
 
       this.stopLoading();

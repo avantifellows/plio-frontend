@@ -48,7 +48,6 @@ export default {
 
   /**
    * returns a list of plios that the user has created
-   * @param {Boolean} uuidOnly - whether to return only UUIDs instead of the details for each plio
    * @param {Number} pageNumber - if provided, it returns only the plios present at the given page number
    * @param {String} searchString - if provided, returns only the plios matching the search string
    * @param {String} sortBy - if provided, sorts the list of plios based on the ordering given

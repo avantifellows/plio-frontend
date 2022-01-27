@@ -28,7 +28,7 @@ export default {
       },
     },
     plio_title: {
-      placeholder: "प्लायो का नाम यहाँ लिखें ",
+      placeholder: "प्लायो का नाम यहाँ लिखें",
       title: "प्लायो का नाम",
     },
     headings: {
@@ -305,7 +305,7 @@ export default {
     },
     fullscreen: {
       enter: "पूर्ण स्क्रीन में प्रवेश करें",
-      exit: "पूर्ण स्क्रीन से निकास लें ",
+      exit: "पूर्ण स्क्रीन से निकास लें",
     },
     scorecard: {
       greeting: "प्लायो पूरा करने के लिए आपको बधाई!",
@@ -547,7 +547,7 @@ export default {
     },
     error: {
       create_plio: "प्लायो बनाते हुए कुछ गड़बड़ हो गयी",
-      copying: "कापी करते वक़्त दिक्कत हुई ",
+      copying: "कापी करते वक़्त दिक्कत हुई",
       internet_lost: "इंटरनेट कनेक्शन टूट गया है",
     },
     success: {

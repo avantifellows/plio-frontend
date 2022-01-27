@@ -134,7 +134,7 @@ describe("PlioListItem.vue", () => {
         ).toBe(7);
       });
 
-      it("disables play for draft plio ", async () => {
+      it("disables play for draft plio", async () => {
         expect(
           wrapper
             .get('[data-test="optionDropdown"]')
@@ -143,7 +143,7 @@ describe("PlioListItem.vue", () => {
         ).toContain("cursor-not-allowed");
       });
 
-      it("disables share for draft plio ", async () => {
+      it("disables share for draft plio", async () => {
         expect(
           wrapper
             .get('[data-test="optionDropdown"]')
@@ -161,7 +161,7 @@ describe("PlioListItem.vue", () => {
         ).toContain("cursor-not-allowed");
       });
 
-      it("clicking edit redirects to editor for the plio ", async () => {
+      it("clicking edit redirects to editor for the plio", async () => {
         // click the edit button
         wrapper
           .get('[data-test="optionDropdown"]')
@@ -177,7 +177,7 @@ describe("PlioListItem.vue", () => {
         });
       });
 
-      it("clicking duplicate triggers duplicate function ", async () => {
+      it("clicking duplicate triggers duplicate function", async () => {
         const duplicatePlio = jest.spyOn(PlioListItem.methods, "duplicatePlio");
         const duplicateThenRoute = jest.spyOn(
           PlioListItem.methods,
@@ -360,7 +360,7 @@ describe("PlioListItem.vue", () => {
           await makePlioPublished();
         });
 
-        it("clicking play redirects to player for published plio ", async () => {
+        it("clicking play redirects to player for published plio", async () => {
           // click the play button
           wrapper
             .get('[data-test="optionDropdown"]')
@@ -391,7 +391,7 @@ describe("PlioListItem.vue", () => {
           expect(sharePlio).toHaveBeenCalled();
         });
 
-        it("clicking embed shows the embed dialog ", async () => {
+        it("clicking embed shows the embed dialog", async () => {
           const embedPlio = jest.spyOn(PlioListItem.methods, "embedPlio");
 
           await prepareWrapper();
