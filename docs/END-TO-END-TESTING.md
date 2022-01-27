@@ -47,7 +47,7 @@ Follow the links below one-by-one to retrieve required information from Google:
 ### Getting started
 1. To run a test case locally, execute the following command from the project root folder:
     ```sh
-    # chrome
+    # syntax
     testcafe browser ./path/to/test.spec.js
 
     # example
@@ -60,6 +60,8 @@ Follow the links below one-by-one to retrieve required information from Google:
 
 
 ### Environment variables
+Setup the following environment variables in your `~/.bash_profile` or `~/.zshrc` file if you're trying to run testcafe locally with BrowserStack. Also, set them up on Continuous Integration environment using GitHub secrets.
+
 #### `BROWSERSTACK_BASE_URL`
 The base url of the application registered with BrowserStack. Should be the frontend application URL.
 
@@ -71,6 +73,10 @@ Required to connect to your BrowserStack account. Get this information from your
 
 #### `BROWSERSTACK_PROJECT_NAME`
 Name of the BrowserStack project. Set to `plio`. It allows to name the build, which is useful for keeping track of test runs on the BrowserStack dashboard.
+
+### Environment variables (only for Continuous Integration)
+The following environment variables are only required for Continuous Integration environment. These are used to install and build the Frontend and Backend application. Set these up using GitHub secrets.
+These are not needed locally as these are already set up in respective `.env` files for the Frontend and Backend projects.
 
 #### `GOOGLE_OAUTH2_CLIENT_ID`
 Google refresh token retrieved in the pre-requisites.
@@ -89,3 +95,6 @@ The client id for Plio backend application.
 
 #### `BACKEND_DEFAULT_OAUTH2_CLIENT_SECRET`
 The client secret for Plio backend application.
+
+#### `BACKEND_SECRET_KEY`
+This variable sets the secret key for the backend application so that it can be installed properly.

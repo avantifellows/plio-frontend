@@ -49,6 +49,5 @@ export const loginGoogleUserAndSetLocale = async (locale = "en") => {
     .useRole(googleAuthUser)
     .navigateTo(`${process.env.BROWSERSTACK_BASE_URL}/home`);
 
-  // have to set the locale again as the login page is loaded in a different language
   await selectLocaleFromDialog(locale);
 };

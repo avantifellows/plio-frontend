@@ -23,4 +23,4 @@ Visit our [deployment guideline](docs/DEPLOYMENT.md) for setting up this reposit
 - [GitHub Workflows](docs/GITHUB-WORKFLOWS.md)
 - [Google OAuth2](docs/oauth/GOOGLE-OAUTH2.md)
 - [Error monitoring](docs/ERROR-MONITORING.md)
-- [TestCafe](docs/TESTCAFE.md)
+- [End-to-End testing](docs/END-TO-END-TESTING.md)
