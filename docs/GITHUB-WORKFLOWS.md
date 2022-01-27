@@ -30,3 +30,5 @@ End-to-End testing requires the Plio apps to be running and available at their r
 4. Repeat steps 1-3 for the Plio Backend and Plio Analytics
 
 After the docker containers are up & running, the TestCafe BrowserStack plugin is installed and then run the end-to-end tests.
+
+For more details, see [ci.yml](../.github/workflows/ci.yml) `End-to-End Tests` job.
