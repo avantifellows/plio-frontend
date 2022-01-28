@@ -659,14 +659,10 @@ describe("Editor.vue", () => {
 
       it("shows a dialog box to confirm video updation", async () => {
         // video details should be set
-        expect(store.state.generic.newVideoDetails.videoId).toBe(newVideoId);
-        expect(store.state.generic.newVideoDetails.videoURL).toBe(newVideoURL);
-        expect(store.state.generic.newVideoDetails.videoDuration).toBe(
-          newVideoDuration
-        );
-        expect(store.state.generic.newVideoDetails.oldVideoURL).toBe(
-          initialVideoURL
-        );
+        expect(wrapper.vm.newVideoDetails.videoId).toBe(newVideoId);
+        expect(wrapper.vm.newVideoDetails.videoURL).toBe(newVideoURL);
+        expect(wrapper.vm.newVideoDetails.videoDuration).toBe(newVideoDuration);
+        expect(wrapper.vm.newVideoDetails.oldVideoURL).toBe(initialVideoURL);
 
         // dialog should be shown
         expect(store.state.dialog.isShown).toBeTruthy();
@@ -709,9 +705,9 @@ describe("Editor.vue", () => {
         const expectedNumItemsToRemove = 3;
         const expectedItemIdsToDelete = [];
         for (
-          let index = expectedItemDeleteStartIndex;
-          index < global.dummyItemsWithItemDetails.length;
-          index++
+          let index = global.dummyItemsWithItemDetails.length - 1;
+          index >= expectedItemDeleteStartIndex;
+          index--
         ) {
           expectedItemIdsToDelete.push(
             global.dummyItemsWithItemDetails[index].id
