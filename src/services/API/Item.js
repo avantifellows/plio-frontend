@@ -55,8 +55,7 @@ export default {
    * @param {Object} payload - params required for deleting the required items
    */
   bulkDelete(payload) {
-    // slice is done to avoid // in the endpoint
-    return apiClient().delete(itemsEndpoint.slice(0, -1) + bulkDeleteEndpoint, {
+    return apiClient().delete(itemsEndpoint + bulkDeleteEndpoint, {
       data: payload,
     });
   },

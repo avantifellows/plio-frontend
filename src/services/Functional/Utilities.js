@@ -241,6 +241,7 @@ export function convertISOTimeToSeconds(timeInISO) {
  * @param {String} videoId - the unique id of the video on youtube
  */
 export async function getVideoDuration(videoId) {
+  let nonExistingVideoError = "video does not exist";
   try {
     let response = await axios.get(
       "https://www.googleapis.com/youtube/v3/videos",
@@ -254,9 +255,11 @@ export async function getVideoDuration(videoId) {
     );
 
     let items = response.data["items"];
-    if (items.length === 0) throw new Error(404);
+    if (items.length === 0) throw new Error(nonExistingVideoError);
     return dayjs.duration(items[0]["contentDetails"]["duration"]).asSeconds();
   } catch (error) {
+    if (error.message == nonExistingVideoError)
+      throw new Error(nonExistingVideoError);
     ErrorHandling.handleAPIErrors(error);
   }
 }

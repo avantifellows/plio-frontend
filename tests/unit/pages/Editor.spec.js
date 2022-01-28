@@ -664,7 +664,7 @@ describe("Editor.vue", () => {
         expect(store.state.generic.newVideoDetails.videoDuration).toBe(
           newVideoDuration
         );
-        expect(store.state.generic.newVideoDetails.fallbackVideoURL).toBe(
+        expect(store.state.generic.newVideoDetails.oldVideoURL).toBe(
           initialVideoURL
         );
 

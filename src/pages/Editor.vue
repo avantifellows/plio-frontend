@@ -701,7 +701,7 @@ export default {
       toast: useToast(),
     };
   },
-  async created() {
+  created() {
     // fetch plio details
     this.loadPlio();
 
@@ -793,7 +793,7 @@ export default {
             // if the user chooses to not update the video,
             // we have to revert the video link in the input field
             // to the url of the existing video
-            this.videoURL = this.newVideoDetails.fallbackVideoURL;
+            this.videoURL = this.newVideoDetails.oldVideoURL;
             this.unsetNewVideoDetails();
             break;
           default:
@@ -816,6 +816,7 @@ export default {
      * When video url is updated, check its validity; if valid, update the player with the new URL
      * and push the updated video object to the backend
      * @param {String} newVideoURL - The new video URL that the user has entered
+     * @param {String} newVideoURL - The old video URL that has been changed
      */
     async videoURL(newVideoURL, oldVideoURL) {
       // invoked when the video link is updated
@@ -850,8 +851,8 @@ export default {
           this.setNewVideoDetails({
             videoId: linkValidation["ID"],
             videoURL: newVideoURL,
-            videoDuration: videoDuration,
-            fallbackVideoURL: oldVideoURL,
+            videoDuration,
+            oldVideoURL,
           });
           this.showVideoUpdateConfirmationDialogBox();
           return;
@@ -1363,11 +1364,11 @@ export default {
      * @param {Number} startIndex - index of the first item to be deleted
      * @param {Number} numItemsToRemove - number of items to remove starting from the item at startIndex
      */
-    removeItems(startIndex, numItemsToremove = 1) {
-      this.itemDetails.splice(startIndex, numItemsToremove);
-      let itemToDelete = this.items.splice(startIndex, numItemsToremove);
+    removeItems(startIndex, numItemsToRemove = 1) {
+      this.itemDetails.splice(startIndex, numItemsToRemove);
+      let itemsToDelete = this.items.splice(startIndex, numItemsToRemove);
       this.updateItemTimestamps();
-      return itemToDelete;
+      return itemsToDelete;
     },
     isItemQuestion(index) {
       return this.items[index].type == "question";
@@ -1413,31 +1414,25 @@ export default {
       });
 
       // delete items with timestamp larger than the updated video duration
-      (() => {
-        let deleteStartIndex; // the index of the first item to be deleted
-        for (let index = this.numItems - 1; index >= 0; index--) {
-          if (this.items[index].time >= videoDuration) deleteStartIndex = index;
-          else break;
-        }
-        // no items to be deleted
-        if (deleteStartIndex == undefined) return;
-
-        let itemIdsToDelete = []; // database ids of the items to be removed
-        let numItemsToRemove = 0;
-
-        for (let index = deleteStartIndex; index < this.numItems; index++) {
+      let itemIdsToDelete = []; // database ids of the items to be removed
+      let deleteStartIndex; // the index of the first item to be deleted
+      for (let index = this.numItems - 1; index >= 0; index--) {
+        if (this.items[index].time >= videoDuration) {
+          deleteStartIndex = index;
           itemIdsToDelete.push(this.items[index].id);
 
           // if an item to be removed is currently active, unselect it
           if (this.currentItemIndex == index) this.markNoItemSelected();
-          numItemsToRemove += 1;
-        }
-        ItemAPIService.bulkDelete({
-          id: itemIdsToDelete,
-        });
-        // remove the required items from the video player
-        this.removeItems(deleteStartIndex, numItemsToRemove);
-      })();
+        } else break;
+      }
+      // no items to be deleted
+      if (deleteStartIndex == undefined) return;
+
+      ItemAPIService.bulkDelete({
+        id: itemIdsToDelete,
+      });
+      // remove the required items from the video player
+      this.removeItems(deleteStartIndex, itemIdsToDelete.length);
     },
     /**
      * copies the plio draft link to the clipboard
@@ -2220,8 +2215,8 @@ export default {
       this.clearItemAndItemDetailWatcher(currentItem.id);
 
       // remove the item and itemDetails locally and remotely
-      let itemToDelete = this.removeItems(this.currentItemIndex);
-      ItemAPIService.deleteItem(itemToDelete[0].id);
+      let itemToDelete = this.removeItems(this.currentItemIndex)[0];
+      ItemAPIService.deleteItem(itemToDelete.id);
       // set currentItemIndex to null to hide the item editor
       this.currentItemIndex = null;
     },
