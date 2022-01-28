@@ -822,13 +822,16 @@ export default {
     async videoURL(newVideoURL, oldVideoURL) {
       // invoked when the video link is updated
       let linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
-      if (!linkValidation["valid"]) {
-        // without this, everytime the editor is loaded, even though a valid video
-        // has been added, momentarily it would show that the video link is invalid
-        // this is because the it takes some time for video ID to be changed from "" to the value
-        // that is stored for the plio
-        this.isVideoIdValid = false;
-        if (!this.isVideoValidationEnabled) this.isVideoValidationEnabled = true;
+      // return if the link was invalid or was reset to the previous valid url
+      if (!linkValidation["valid"] || linkValidation["ID"] == this.videoId) {
+        if (this.videoId == "") {
+          // without this, everytime the editor is loaded, even though a valid video
+          // has been added, momentarily it would show that the video link is invalid
+          // this is because the it takes some time for video ID to be changed from "" to the value
+          // that is stored for the plio
+          this.isVideoIdValid = false;
+          if (!this.isVideoValidationEnabled) this.isVideoValidationEnabled = true;
+        }
         return;
       }
 
@@ -849,7 +852,7 @@ export default {
       // video link was invalid
       if (videoDuration == undefined) return;
 
-      if (this.videoId != "" && linkValidation["ID"] != this.videoId) {
+      if (this.videoId != "") {
         // warn users when there are items at timestamps greater
         // than the duration of the new video
         if (this.hasAnyItems && this.items.at(-1).time > videoDuration) {
