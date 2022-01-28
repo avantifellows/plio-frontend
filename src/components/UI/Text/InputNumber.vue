@@ -173,7 +173,13 @@ export default {
     },
     isValidationEnabled() {
       // whether input validation is on
-      return this.validation["enabled"] && this.validationMessage != "";
+      if(this.localValue.toString() == "0")
+      {
+        return this.validationMessage != "";
+      }
+      else{
+        return this.validation["enabled"] && this.validationMessage != "";
+      }
     },
     isValid() {
       // whether the input is valid
