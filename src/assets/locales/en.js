@@ -510,7 +510,7 @@ export default {
         one_minute_retention:
           "Percentage of viewers who watched your video beyond 1 minute",
         accuracy:
-          "Average accuracy for each viewer - accuracy is calculated only for the questions that have been answered by the viewer",
+          "Average accuracy for each viewer - accuracy is calculated only for the questions that have been answered",
         num_questions_answered:
           "Average number of questions answered by each viewer",
       },
@@ -523,7 +523,6 @@ export default {
       play: "Play Plio",
       download_report: "Download Report",
     },
-    update_message: "This page is updated every hour",
     summary: {
       number_of_viewers: "VIEWERS",
       avg_watch_time: "AVERAGE WATCH TIME",

@@ -1,0 +1,16 @@
+{
+
+  "postCreateCommand": "export GITHUB_TOKEN = $PAT",
+  "forwardPorts": [
+    8080
+  ],
+  "portsAttributes": {
+    "8080": {
+      "label": "frontend",
+      "onAutoForward": "notify"
+    }
+  },
+  "postAttachCommand": "export GITHUB_TOKEN = $PAT",
+  "postStartCommand": "export GITHUB_TOKEN = $PAT"
+
+}

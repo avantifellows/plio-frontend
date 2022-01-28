@@ -111,10 +111,11 @@
                         data-test="plioListItem"
                       >
                         <PlioListItem
-                          :plioId="entry[columnName].value"
-                          @fetched="savePlioDetails(rowIndex, $event)"
+                          :plioDetails="entry[columnName].value"
+                          @loaded="incrementLoadedPlioCount"
                           @deleted="deletePlio"
                           :key="entry[columnName].value"
+                          ref="plio"
                         >
                         </PlioListItem>
                       </div>
@@ -288,6 +289,14 @@ export default {
   methods: {
     ...Utilities,
     ...mapActions("sync", ["startLoading"]),
+    /** increment the number of plios which have been loaded */
+    incrementLoadedPlioCount() {
+      this.numPliosLoaded += 1;
+      // if all the plios in the table have been loaded, emit
+      if (this.numPliosLoaded == this.localData.length) {
+        this.$emit("loaded");
+      }
+    },
     /**
      * Get tooltip for table headers
      * @param {String} columnName - The name of the column
@@ -356,26 +365,6 @@ export default {
     deletePlio() {
       // invoked when a plio is deleted
       this.$emit("delete-plio");
-    },
-    savePlioDetails(rowIndex, plioDetails) {
-      // save the plio's status after they are fetched from the PlioListItem
-
-      // Each plio's status is being stored in the localData object and that too,
-      // inside the "name" key as that key contains the details of plios
-      if (this.localData != undefined && this.localData[rowIndex] != undefined) {
-        this.localData[rowIndex]["name"] = {
-          ...this.localData[rowIndex]["name"],
-          ...plioDetails,
-        };
-      }
-
-      // increment the number of plios which have been loaded
-      this.numPliosLoaded += 1;
-
-      // if all the plios in the table have been loaded, emit
-      if (this.numPliosLoaded == this.localData.length) {
-        this.$emit("loaded");
-      }
     },
     getColumnHeaderStyleClass(columnIndex) {
       return {

@@ -1,3 +1,5 @@
+let clonedeep = require("lodash.clonedeep");
+
 global.dummyItemsWithItemDetails = [
   {
     id: 211,
@@ -463,13 +465,13 @@ global.dummyEmptyYouTubeResponse = {
   items: [],
 };
 
-global.dummyPlioAnalytics = {
-  "Session.uniqueUsers": 2,
-  "GroupedSession.averageWatchTime": 202,
-  "AggregateSessionMetrics.numQuestionsAnswered": 5,
-  "AggregateSessionMetrics.completionPercentage": 40,
-  "AggregateSessionMetrics.accuracy": 30,
-  "GroupedSessionRetention.averageOneMinuteRetention": 50,
+global.dummyPlioMetrics = {
+  unique_viewers: 2,
+  average_watch_time: 202,
+  average_num_answered: 5,
+  percent_completed: 40,
+  accuracy: 30,
+  percent_one_minute_retention: 50,
 };
 
 global.imageData = {
@@ -500,12 +502,15 @@ global.dummyEmptyPlioList = {
   },
 };
 
-global.dummyPlioList = {
-  data: {
-    count: 5,
+global.getDummyPlioList = () => {
+  let plio = clonedeep(global.dummyDraftPlio.data);
+  plio.unique_viewers = 0;
+  return {
+    count: 1,
     page_size: 5,
-    results: ["abc", "def", "ghi", "jkl", "mno"],
-  },
+    results: [plio],
+    raw_count: 1,
+  };
 };
 
 global.dummyUniqueUserCountList = [1, 2, 3, 4, 5];
