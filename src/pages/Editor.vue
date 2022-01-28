@@ -699,6 +699,7 @@ export default {
         "font-bold text-center text-xs bp-420:text-sm lg:test-base",
       confettiHandler: confettiHandler,
       toast: useToast(),
+      newVideoDetails: null, // details for a video being considered for updating the video inside a plio
     };
   },
   created() {
@@ -794,7 +795,7 @@ export default {
             // we have to revert the video link in the input field
             // to the url of the existing video
             this.videoURL = this.newVideoDetails.oldVideoURL;
-            this.unsetNewVideoDetails();
+            this.newVideoDetails = null;
             break;
           default:
             // this watch will be triggered whenever the cancel button
@@ -852,12 +853,12 @@ export default {
         // warn users when there are items at timestamps greater
         // than the duration of the new video
         if (this.hasAnyItems && this.items.at(-1).time > videoDuration) {
-          this.setNewVideoDetails({
+          this.newVideoDetails = {
             videoId: linkValidation["ID"],
             videoURL: newVideoURL,
             videoDuration,
             oldVideoURL,
-          });
+          };
           this.showVideoUpdateConfirmationDialogBox();
           return;
         }
@@ -888,7 +889,7 @@ export default {
   },
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
-    ...mapState("generic", ["isEmbedPlioDialogShown", "newVideoDetails"]),
+    ...mapState("generic", ["isEmbedPlioDialogShown"]),
     ...mapGetters("auth", ["isPersonalWorkspace"]),
     ...mapState("dialog", {
       isDialogBoxShown: "isShown",
@@ -1345,8 +1346,6 @@ export default {
       "showEmbedPlioDialog",
       "showSpinner",
       "hideSpinner",
-      "setNewVideoDetails",
-      "unsetNewVideoDetails",
     ]),
     ...mapActions("dialog", [
       "showDialogBox",
@@ -1409,6 +1408,7 @@ export default {
      * @param {Number} videoDuration - duration of the new video
      */
     updateVideoPlayer(videoId, videoURL, videoDuration) {
+      // update the video
       this.videoId = videoId;
       this.isVideoIdValid = true;
 
@@ -1426,9 +1426,13 @@ export default {
           itemIdsToDelete.push(this.items[index].id);
 
           // if an item to be removed is currently active, unselect it
-          if (this.currentItemIndex == index) this.markNoItemSelected();
+          if (this.currentItemIndex == index) {
+            this.currentTimestamp = 0;
+            this.markNoItemSelected();
+          }
         } else break;
       }
+
       // no items to be deleted
       if (deleteStartIndex == undefined) return;
 
@@ -1653,7 +1657,7 @@ export default {
     navigateToItem(itemIndex) {
       if (itemIndex == null) return;
 
-      var selectedTimestamp = this.items[itemIndex].time;
+      let selectedTimestamp = this.items[itemIndex].time;
       if (selectedTimestamp != null) {
         this.currentTimestamp = selectedTimestamp;
         this.itemSelected(itemIndex);

@@ -3,7 +3,6 @@ const state = {
   isEmbedPlioDialogShown: false, // whether to show the dialog with info on embedding plio
   plioLinkToShare: null,
   selectedPlioId: null, // uuid of the plio selected
-  newVideoDetails: null, // details for a video being considered for updating the video inside a plio
   windowInnerWidth: null,
   windowInnerHeight: null,
   isSpinnerShown: false,
@@ -35,12 +34,6 @@ const actions = {
   },
   setSelectedPlioId({ commit }, plioId) {
     commit("setSelectedPlioId", plioId);
-  },
-  setNewVideoDetails({ commit }, plioId) {
-    commit("setNewVideoDetails", plioId);
-  },
-  unsetNewVideoDetails({ commit }) {
-    commit("unsetNewVideoDetails");
   },
   setWindowInnerWidth({ commit }, windowInnerWidth) {
     commit("setWindowInnerWidth", windowInnerWidth);
@@ -74,12 +67,6 @@ const mutations = {
   },
   setSelectedPlioId(state, plioId) {
     state.selectedPlioId = plioId;
-  },
-  setNewVideoDetails(state, details) {
-    state.newVideoDetails = details;
-  },
-  unsetNewVideoDetails(state) {
-    state.newVideoDetails = null;
   },
   setWindowInnerWidth(state, windowInnerWidth) {
     state.windowInnerWidth = windowInnerWidth;
