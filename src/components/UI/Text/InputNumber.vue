@@ -147,13 +147,12 @@ export default {
       default: false,
       type: Boolean,
     },
-
   },
   computed: {
     localValue: {
       // local copy of the value prop
       get() {
-        return this.value;
+        return this.value.toString();
       },
       set(localValue) {
         this.$emit("update:value", localValue);
@@ -258,7 +257,7 @@ export default {
     },
     keyPress(event) {
       // invoked when a key is pressed
-      if (this.maxLength != null && this.localValue.toString().length == this.maxLength) {
+      if (this.maxLength != null && this.localValue.length == this.maxLength) {
         event.preventDefault();
         return;
       }
