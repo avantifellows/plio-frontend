@@ -12,7 +12,7 @@ export default {
    * @returns
    */
   updateWorkspaceSettings(orgId, payload) {
-    return apiClient().put(
+    return apiClient().patch(
       organizationsEndpoint + orgId + organizationSettingsEndpoint,
       payload
     );

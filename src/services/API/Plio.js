@@ -76,7 +76,7 @@ export default {
    * @returns
    */
   updatePlioSettings(plioId, payload) {
-    return apiClient().put(
+    return apiClient().patch(
       pliosEndpoint + plioId + plioSettingsEndpoint,
       payload
     );

@@ -97,7 +97,7 @@ export default {
    * @returns
    */
   updateUserSettings(userId, payload) {
-    return apiClient().put(
+    return apiClient().patch(
       usersEndpoint + userId + userSettingsEndpoint,
       payload
     );
