@@ -262,11 +262,13 @@ export default {
     },
     keyPress(event) {
       // invoked when a key is pressed
+      // character key not accepted
       event = event || window.event;
       var charCode = (typeof event.which == "undefined") ? event.keyCode : event.which;
       var charStr = String.fromCharCode(charCode);
-      if (!charStr.match(/^[0-9]+$/))
-      event.preventDefault();
+      if (!charStr.match(/^[0-9]+$/)){
+        event.preventDefault();
+      }
       if (this.maxLength != null && this.localValue.toString().length == this.maxLength) {
         event.preventDefault();
         return;
