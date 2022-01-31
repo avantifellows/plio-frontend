@@ -817,7 +817,7 @@ export default {
      * When video url is updated, check its validity; if valid, update the player with the new URL
      * and push the updated video object to the backend
      * @param {String} newVideoURL - The new video URL that the user has entered
-     * @param {String} newVideoURL - The old video URL that has been changed
+     * @param {String} oldVideoURL - The old video URL that has been changed
      */
     async videoURL(newVideoURL, oldVideoURL) {
       // invoked when the video link is updated
