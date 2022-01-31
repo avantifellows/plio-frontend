@@ -106,6 +106,11 @@ export default {
       default: "",
       type: [String, Number],
     },
+    /** the type of the input in the input box */
+    type: { 
+      default: 'tel' ,
+      type: String, 
+    },
     /** minimum value acceptable in a number textbox */
     min: {
       default: 0,
