@@ -103,7 +103,7 @@ export default {
       currentPageNumber: 1, // holds the current page number
       // class for the create button
       createButtonClass:
-        "bg-primary hover:bg-primary-hover rounded-lg h-14 w-40 sm:h-20 sm:w-60 ring-primary px-2",
+        "bg-primary hover:bg-primary-hover rounded-lg h-14 w-40 sm:h-20 sm:w-60 ring-primary px-2 border-b-outset border-primary",
     };
   },
   async created() {
