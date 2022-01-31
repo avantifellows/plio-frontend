@@ -50,8 +50,11 @@ Follow the links below one-by-one to retrieve required information from Google:
     # syntax
     testcafe browser ./path/to/test.spec.js
 
-    # example
+    # example - run tests on a specific browser
     testcafe chrome ./tests/integration/pages/login.spec.js
+
+    # example - run tests on multiple browsers
+    testcafe 'browserstack:chrome@96.0:OS X Big Sur','browserstack:firefox@95.0:OS X Big Sur','browserstack:safari@14.1:OS X Big Sur' ./tests/integration --skip-js-errors
     ```
 2. To list all the browsers available, run the following command:
     ```sh
