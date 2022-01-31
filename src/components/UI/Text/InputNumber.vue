@@ -53,7 +53,7 @@
         :class="[inputAreaClass, boxStyling]"
         :min="min"
         :max="max"
-        type="type"
+        :type="type"
         autocomplete="off"
         data-test="input"
         :disabled="isDisabled"
@@ -107,9 +107,9 @@ export default {
       type: [String, Number],
     },
     /** the type of the input in the input box */
-    type: { 
-      default: 'tel' ,
-      type: String, 
+    type: {
+      default: "tel",
+      type: String,
     },
     /** minimum value acceptable in a number textbox */
     min: {
@@ -160,7 +160,7 @@ export default {
         return this.value;
       },
       set(localValue) {
-       this.$emit("update:value", localValue);
+        this.$emit("update:value", localValue);
       },
     },
     isTitlePresent() {
@@ -263,9 +263,8 @@ export default {
     keyPress(event) {
       // invoked when a key is pressed
       // character key not accepted
-      event = event || window.event;
-      var charCode = (typeof event.which == "undefined") ? event.keyCode : event.which;
-      var charStr = String.fromCharCode(charCode);
+      let charCode = event.keyCode;
+      let charStr = String.fromCharCode(charCode);
       if (!charStr.match(/^[0-9]+$/)){
         event.preventDefault();
       }
