@@ -422,6 +422,8 @@ export default {
       "unsetCancelButtonConfig",
       "setConfirmClicked",
       "setCancelClicked",
+      "unsetConfirmClicked",
+      "unsetCancelClicked",
       "unsetDialogCloseButton",
     ]),
     ...mapActions("selectors", ["hideSelector"]),
@@ -458,6 +460,8 @@ export default {
       this.unsetDialogDescription();
       this.unsetConfirmButtonConfig();
       this.unsetCancelButtonConfig();
+      this.unsetConfirmClicked();
+      this.unsetCancelClicked();
       this.unsetDialogBoxClass();
       this.unsetDialogCloseButton();
     },
@@ -622,7 +626,11 @@ export default {
       }).then(() => {
         this.hideSpinner();
         this.$router.push({ name: "Home", params: { org: selectedOptionValue } });
-      });
+      })
+      .catch(() => {
+        this.hideSpinner()
+        this.toast.error(this.$t('toast.error.generic'))
+      })
     },
   },
   computed: {

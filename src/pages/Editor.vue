@@ -517,6 +517,7 @@ import ItemFunctionalService from "@/services/Functional/Item.js";
 import Utilities, {
   throwConfetti,
   resetConfetti,
+  getVideoDuration,
 } from "@/services/Functional/Utilities.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import debounce from "debounce";
@@ -605,6 +606,8 @@ export default {
       sliderStep: 0.1, // timestep for the slider
       itemTimestamps: [], // stores the list of the timestamps of all items
       videoURL: "", // full video url
+      isVideoValidationEnabled: false,
+      isVideoIdValid: false,
       lastUpdated: new Date(), // time when the last update to remote was made
       minUpdateInterval: 1000, // minimum time in milliseconds between updates
       isBeingPublished: false, // whether the current plio is in the process of being published
@@ -696,11 +699,12 @@ export default {
         "font-bold text-center text-xs bp-420:text-sm lg:test-base",
       confettiHandler: confettiHandler,
       toast: useToast(),
+      newVideoDetails: null, // details for a video being considered for updating the video inside a plio
     };
   },
-  async created() {
+  created() {
     // fetch plio details
-    await this.loadPlio();
+    this.loadPlio();
 
     // debounce checkAndSaveChanges method
     this.checkAndSaveChanges = debounce(this.checkAndSaveChanges, DEBOUNCE_DELAY_TIME);
@@ -746,6 +750,14 @@ export default {
             // the dialog would already be closed
             // nothing else needs to be done
             break;
+          case "updateVideoPlayer":
+            this.player.destroy();
+            this.updateVideoPlayer(
+              this.newVideoDetails.videoId,
+              this.newVideoDetails.videoURL,
+              this.newVideoDetails.videoDuration
+            );
+            break;
           default:
             // this watch will be triggered whenever the confirm button
             // of the shared dialog box will be clicked
@@ -778,6 +790,13 @@ export default {
               this.togglePlioPreviewMode();
             }
             break;
+          case "updateVideoPlayer":
+            // if the user chooses to not update the video,
+            // we have to revert the video link in the input field
+            // to the url of the existing video
+            this.videoURL = this.newVideoDetails.oldVideoURL;
+            this.newVideoDetails = null;
+            break;
           default:
             // this watch will be triggered whenever the cancel button
             // of the shared dialog box will be clicked
@@ -798,22 +817,57 @@ export default {
      * When video url is updated, check its validity; if valid, update the player with the new URL
      * and push the updated video object to the backend
      * @param {String} newVideoURL - The new video URL that the user has entered
+     * @param {String} oldVideoURL - The old video URL that has been changed
      */
-    videoURL(newVideoURL) {
+    async videoURL(newVideoURL, oldVideoURL) {
       // invoked when the video link is updated
-      var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
-      if (!linkValidation["valid"]) return;
+      let linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
+      // return if the link was invalid or was reset to the previous valid url
+      if (!linkValidation["valid"] || linkValidation["ID"] == this.videoId) {
+        if (this.videoId == "") {
+          // without this, everytime the editor is loaded, even though a valid video
+          // has been added, momentarily it would show that the video link is invalid
+          // this is because the it takes some time for video ID to be changed from "" to the value
+          // that is stored for the plio
+          this.isVideoIdValid = false;
+          if (!this.isVideoValidationEnabled) this.isVideoValidationEnabled = true;
+        }
+        return;
+      }
 
-      if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
+      let videoDuration;
+      // error handling with async/await
+      // reference: https://itnext.io/error-handling-with-async-await-in-js-26c3f20bc06a
+      // rejected promise goes into the catch: https://stackoverflow.com/a/42453705/7870587
+      await (async () => {
+        try {
+          this.showSpinner();
+          videoDuration = await getVideoDuration(linkValidation["ID"]);
+        } catch (_) {
+          this.toast.error(this.$t("toast.editor.video_input.error.invalid_video"));
+        }
+        this.hideSpinner();
+      })();
+
+      // video link was invalid
+      if (videoDuration == undefined) return;
+
+      if (this.videoId != "") {
+        // warn users when there are items at timestamps greater
+        // than the duration of the new video
+        if (this.hasAnyItems && this.items.at(-1).time > videoDuration) {
+          this.newVideoDetails = {
+            videoId: linkValidation["ID"],
+            videoURL: newVideoURL,
+            videoDuration,
+            oldVideoURL,
+          };
+          this.showVideoUpdateConfirmationDialogBox();
+          return;
+        }
         this.player.destroy();
       }
-      this.videoId = linkValidation["ID"];
-
-      if (this.loadedPlioDetails.videoURL == newVideoURL) return;
-      this.checkAndSaveChanges("video", this.videoDBId, {
-        url: newVideoURL,
-        duration: this.videoDuration,
-      });
+      this.updateVideoPlayer(linkValidation["ID"], newVideoURL, videoDuration);
     },
     /**
      * When plio's title is updated, check if it's different than the loaded plio's title
@@ -1057,7 +1111,7 @@ export default {
      */
     videoInputValidation() {
       return {
-        enabled: this.videoURL,
+        enabled: this.isVideoValidationEnabled,
         isValid: this.isVideoIdValid,
         validMessage: this.$t("editor.video_input.validation.valid"),
         invalidMessage: this.$t("editor.video_input.validation.invalid"),
@@ -1067,7 +1121,8 @@ export default {
      * returns the player instance
      */
     player() {
-      return this.$refs.videoPlayer.player;
+      if (this.$refs.videoPlayer != null) return this.$refs.videoPlayer.player;
+      return null;
     },
     /**
      * get the correct answer for the question
@@ -1196,7 +1251,10 @@ export default {
      * whether there are any items
      */
     hasAnyItems() {
-      return this.items.length != 0;
+      return this.numItems != 0;
+    },
+    numItems() {
+      return this.items.length;
     },
     /**
      * whether the plio has been pubished
@@ -1234,12 +1292,6 @@ export default {
      */
     plioLink() {
       return this.getPlioLink(this.plioId, this.org);
-    },
-    /**
-     * whether the video Id is valid
-     */
-    isVideoIdValid() {
-      return this.videoId != "";
     },
     /**
      * title for the dialog box that appears when publishing a
@@ -1312,6 +1364,87 @@ export default {
       "unsetCancelClicked",
     ]),
     ...Utilities,
+    /**
+     * remove a sequence of items
+     *
+     * @param {Number} startIndex - index of the first item to be deleted
+     * @param {Number} numItemsToRemove - number of items to remove starting from the item at startIndex
+     */
+    removeItems(startIndex, numItemsToRemove = 1) {
+      this.itemDetails.splice(startIndex, numItemsToRemove);
+      let itemsToDelete = this.items.splice(startIndex, numItemsToRemove);
+      this.updateItemTimestamps();
+      return itemsToDelete;
+    },
+    isItemQuestion(index) {
+      return this.items[index].type == "question";
+    },
+    /**
+     * shows the dialog box for confirming whether to update the video link
+     */
+    showVideoUpdateConfirmationDialogBox() {
+      // set dialog properties
+      this.setDialogTitle(this.$t("editor.dialog.video_update.title"));
+      this.setDialogDescription(this.$t("editor.dialog.video_update.description"));
+      this.setDialogCloseButton();
+      this.setConfirmButtonConfig({
+        enabled: true,
+        text: this.$t(`generic.yes`),
+        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
+      });
+      this.setCancelButtonConfig({
+        enabled: true,
+        text: this.$t(`generic.no`),
+        class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
+      });
+      this.setDialogBoxClass("w-72");
+      // closing the dialog executes this action
+      this.setDialogAction("updateVideoPlayer");
+      // show the dialog box
+      this.showDialogBox();
+    },
+    /**
+     * update the video player with a new video
+     *
+     * @param {Number} videoId - youtube id of the new video
+     * @param {String} videoURL - link of the new video
+     * @param {Number} videoDuration - duration of the new video
+     */
+    updateVideoPlayer(videoId, videoURL, videoDuration) {
+      // update the video
+      this.videoId = videoId;
+      this.isVideoIdValid = true;
+
+      this.checkAndSaveChanges("video", this.videoDBId, {
+        url: videoURL,
+        duration: videoDuration,
+      });
+
+      // delete items with timestamp larger than the updated video duration
+      let itemIdsToDelete = []; // database ids of the items to be removed
+      let deleteStartIndex; // the index of the first item to be deleted
+      for (let index = this.numItems - 1; index >= 0; index--) {
+        if (this.items[index].time >= videoDuration) {
+          deleteStartIndex = index;
+          itemIdsToDelete.push(this.items[index].id);
+
+          // if an item to be removed is currently active, unselect it
+          if (this.currentItemIndex == index) {
+            this.currentTimestamp = 0;
+            this.markNoItemSelected();
+          }
+        } else break;
+      }
+
+      // no items to be deleted
+      if (deleteStartIndex == undefined) return;
+
+      ItemAPIService.bulkDelete({
+        id: itemIdsToDelete,
+      });
+      // remove the required items from the video player
+      this.removeItems(deleteStartIndex, itemIdsToDelete.length);
+    },
     /**
      * copies the plio draft link to the clipboard
      */
@@ -1527,7 +1660,7 @@ export default {
     navigateToItem(itemIndex) {
       if (itemIndex == null) return;
 
-      var selectedTimestamp = this.items[itemIndex].time;
+      let selectedTimestamp = this.items[itemIndex].time;
       if (selectedTimestamp != null) {
         this.currentTimestamp = selectedTimestamp;
         this.itemSelected(itemIndex);
@@ -1710,9 +1843,9 @@ export default {
     /**
      * fetches the details of the plio
      */
-    async loadPlio() {
+    loadPlio() {
       this.startLoading();
-      await PlioAPIService.getPlio(this.plioId)
+      PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
           this.loadedPlioDetails = clonedeep(plioDetails);
           this.items = plioDetails.items || [];
@@ -1790,7 +1923,7 @@ export default {
 
           // update all the item details
           this.itemDetails.forEach(async (itemDetail, index) => {
-            if (this.items[index].type == "question") {
+            if (this.isItemQuestion(index)) {
               await this.updateQuestionDetails(itemDetail.id, itemDetail);
             }
           });
@@ -2093,10 +2226,8 @@ export default {
       this.clearItemAndItemDetailWatcher(currentItem.id);
 
       // remove the item and itemDetails locally and remotely
-      this.itemDetails.splice(this.currentItemIndex, 1);
-      var itemToDelete = this.items.splice(this.currentItemIndex, 1);
-      this.updateItemTimestamps();
-      ItemAPIService.deleteItem(itemToDelete[0].id);
+      let itemToDelete = this.removeItems(this.currentItemIndex)[0];
+      ItemAPIService.deleteItem(itemToDelete.id);
       // set currentItemIndex to null to hide the item editor
       this.currentItemIndex = null;
     },
