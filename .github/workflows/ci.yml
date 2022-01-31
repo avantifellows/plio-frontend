@@ -122,7 +122,7 @@ jobs:
       - name: Run OS X Big Sur tests (chrome@96, firefox@95, safari@14.1)
         uses: DevExpress/testcafe-action@latest
         with:
-          args: "'browserstack:firefox@95.0:OS X Big Sur','browserstack:safari@14.1:OS X Big Sur' projects/plio-frontend/tests/integration --skip-js-errors"
+          args: "'browserstack:chrome@96.0:OS X Big Sur','browserstack:firefox@95.0:OS X Big Sur','browserstack:safari@14.1:OS X Big Sur' projects/plio-frontend/tests/integration --skip-js-errors"
 
       - name: Run OS X Catalina tests (chrome@96, firefox@95, safari@13.1)
         uses: DevExpress/testcafe-action@latest
