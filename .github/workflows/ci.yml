@@ -111,32 +111,6 @@ jobs:
           # setup docker containers
           docker-compose up -d --build
 
-      - name: Set up Plio Analytics
-        run: |
-          # clone the project
-          mkdir -p projects/ && cd projects/
-          git clone https://github.com/avantifellows/plio-analytics
-          cd plio-analytics/
-
-          # check branch and switch to branch if exists
-          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
-          then
-            echo "Switching to branch ${{ github.head_ref }}."
-            git checkout ${{ github.head_ref }}
-            git pull origin ${{ github.head_ref }}
-          else
-            echo "Branch not found. Going with default branch."
-          fi
-
-          # create the env file
-          cp .env.example .env
-
-          # add env secrets
-          echo 'CUBEJS_API_SECRET=${{ secrets.ANALYTICS_CUBEJS_API_SECRET }}' >> .env
-
-          # setup docker containers
-          docker-compose up -d --build
-
       - name: Install TestCafe BrowserStack plugin
         run: npm install testcafe-browser-provider-browserstack
 
@@ -161,4 +135,3 @@ jobs:
           cd projects/
           cd plio-frontend/ && docker-compose down
           cd ../plio-backend/ && docker-compose down
-          cd ../plio-analytics/ && docker-compose down
