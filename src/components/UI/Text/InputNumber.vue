@@ -53,7 +53,7 @@
         :class="[inputAreaClass, boxStyling]"
         :min="min"
         :max="max"
-        type="number"
+        type="type"
         autocomplete="off"
         data-test="input"
         :disabled="isDisabled"
@@ -173,13 +173,7 @@ export default {
     },
     isValidationEnabled() {
       // whether input validation is on
-      if(this.localValue.toString() == "0")
-      {
-        return this.validationMessage != "";
-      }
-      else{
-        return this.validation["enabled"] && this.validationMessage != "";
-      }
+      return this.validation["enabled"] && this.validationMessage != "";
     },
     isValid() {
       // whether the input is valid
@@ -263,7 +257,7 @@ export default {
     },
     keyPress(event) {
       // invoked when a key is pressed
-      if (this.maxLength != null && this.localValue.toString().length == this.maxLength) {
+      if (this.maxLength != null && this.localValue.length == this.maxLength) {
         event.preventDefault();
         return;
       }
