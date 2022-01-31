@@ -451,6 +451,20 @@ global.dummyVideo = {
   updated_at: "2021-07-03T15:25:04.527931Z",
 };
 
+global.dummyYouTubeResponse = {
+  items: [
+    {
+      contentDetails: {
+        duration: "PT11M35S",
+      },
+    },
+  ],
+};
+
+global.dummyEmptyYouTubeResponse = {
+  items: [],
+};
+
 global.dummyPlioMetrics = {
   unique_viewers: 2,
   average_watch_time: 202,
