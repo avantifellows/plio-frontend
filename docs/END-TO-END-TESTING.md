@@ -51,7 +51,7 @@ Follow the links below one-by-one to retrieve required information from Google:
     testcafe browser ./path/to/test.spec.js
 
     # example
-    testcafe chrome ./tests/integration/integration/login/login-hi.spec.js
+    testcafe chrome ./tests/integration/pages/login.spec.js
     ```
 2. To list all the browsers available, run the following command:
     ```sh
