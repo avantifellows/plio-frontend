@@ -139,7 +139,7 @@ export default {
       var markerRelativePosition = this.markerRelativePositions[markerIndex];
       return (
         markerRelativePosition >= 0 &&
-        markerRelativePosition <= (100 * this.markerArenaWidth) / this.sliderWidth
+        markerRelativePosition <= ((100 * this.markerArenaWidth) / this.sliderWidth).toFixed(2)
       );
     },
     valueUpdated() {
