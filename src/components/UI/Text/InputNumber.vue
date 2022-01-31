@@ -263,9 +263,7 @@ export default {
     keyPress(event) {
       // invoked when a key is pressed
       // character key not accepted
-      let charCode = event.keyCode;
-      let charStr = String.fromCharCode(charCode);
-      if (!charStr.match(/^[0-9]+$/)){
+      if (!/^[0-9]+$/.test(event.key)){
         event.preventDefault();
       }
       if (this.maxLength != null && this.localValue.toString().length == this.maxLength) {
