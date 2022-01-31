@@ -78,9 +78,6 @@ Required to connect to your BrowserStack account. Get this information from your
 #### `BROWSERSTACK_PROJECT_NAME`
 Name of the BrowserStack project. Set to `plio`. It allows to name the build, which is useful for keeping track of test runs on the BrowserStack dashboard.
 
-### Environment variables (only for Continuous Integration)
-The following environment variables are only required for the Continuous Integration environment. These are used to install and build the frontend and backend application. Set these up using GitHub secrets only and not in the `.env` files.
-
 #### `GOOGLE_OAUTH2_CLIENT_ID`
 Google refresh token retrieved in the pre-requisites.
 
