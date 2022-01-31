@@ -53,9 +53,7 @@
         :class="[inputAreaClass, boxStyling]"
         :min="min"
         :max="max"
-        type="tel"
-        inputmode="numeric"
-        pattern="[0-9]*"
+        type="type"
         autocomplete="off"
         data-test="input"
         :disabled="isDisabled"
@@ -107,6 +105,11 @@ export default {
     value: {
       default: "",
       type: [String, Number],
+    },
+    /** the type of the input in the input box */
+    type: { 
+      default: 'tel' ,
+      type: String, 
     },
     /** minimum value acceptable in a number textbox */
     min: {
