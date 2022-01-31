@@ -27,7 +27,7 @@ End-to-End testing requires the frontend and backend to be running and available
 1. Clone the Plio Frontend and switch to the branch that triggered the workflow
 2. Configure environment variables using GitHub secrets
 3. Install it using `docker-compose`
-4. Repeat steps 1-3 for the Plio Backend
+4. Repeat steps 1-3 for Plio Backend
 
 After the docker containers are up & running, the TestCafe BrowserStack plugin is installed, and then the end-to-end tests are run.
 
