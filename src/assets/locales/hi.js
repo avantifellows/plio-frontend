@@ -278,7 +278,8 @@ export default {
       },
       submit: "OTP जमा करें",
       resend: "OTP दोबारा भेजो",
-      resent: "OTP फिर भेजा गया है",
+      timer: "OTP वापस भेजें",
+      secs: "सेकंड में",
     },
     or: "या फिर",
     google: {

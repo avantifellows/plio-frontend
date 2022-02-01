@@ -162,12 +162,12 @@
         :buttonClass="resendOTPButtonClass"
         class="mt-2"
         :isDisabled="submitOTPIconConfig.enabled"
-        v-if="requestedOtp && !resentOtp"
+        v-if="requestedOtp && !counting"
         data-test="resendOTP"
       ></icon-button>
-      <!-- text to show when OTP has been resent -->
-      <p v-if="resentOtp" class="text-center mt-2">
-        {{ $t("login.otp.resent") }}
+      <!-- text to show when OTP will be resent -->
+      <p v-if="counting" class="text-center mt-2">
+          {{$t("login.otp.timer")}} {{ counter }} {{$t("login.otp.secs")}}
       </p>
 
       <!-- terms and service declaration message -->
@@ -224,6 +224,8 @@ export default {
     return {
       phoneInput: "", // phone input text
       otpInput: "", // otp input text
+      counting: false, // whether counter is enabled for resend OTP
+      counter: "", // the count of the counter
       requestedOtp: false, // whether the user has requested OTP once
       resentOtp: false, // whether the user has requested to resend OTP
       invalidOtp: false, // whether the OTP is invalid
@@ -395,16 +397,32 @@ export default {
       // whether the phone number entered by the user is valid
       return this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g) != null;
     },
+    startCountdown(seconds) {
+      // counts seconds before enabling resend OTP button
+      this.counter = seconds;
+      const interval = setInterval(() => {
+          this.counter--;
+          if(this.counter == 0)
+          {
+            this.counting= false;
+            clearInterval(interval);
+          }
+      }, 1000);
+    },
     requestOtp() {
       // requests OTP for the first time
       UserAPIService.requestOtp(this.formattedPhoneInput);
       this.requestedOtp = true;
+      this.counting = true;
+      this.startCountdown(60);
       this.invalidOtp = false;
     },
     resendOtp() {
       // resends OTP on user request
       UserAPIService.requestOtp(this.formattedPhoneInput);
       this.resentOtp = true;
+      this.counting = true;
+      this.startCountdown(60);
       this.invalidOtp = false;
     },
     phoneLogin() {

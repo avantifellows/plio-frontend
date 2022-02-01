@@ -276,7 +276,8 @@ export default {
       },
       submit: "Submit OTP",
       resend: "Resend OTP",
-      resent: "OTP has been sent again",
+      timer: "Resend OTP in",
+      secs: "secs",
     },
     or: "OR",
     google: {
