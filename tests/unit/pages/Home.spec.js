@@ -4,7 +4,7 @@ import store from "@/store";
 
 import mockAxios from "jest-mock-axios";
 
-import clonedeep from "lodash/cloneDeep";
+let clonedeep = require("lodash.clonedeep");
 
 afterEach(async () => {
   // cleaning up the mess left behind by the previous test
@@ -117,15 +117,15 @@ describe("Home.vue", () => {
       await flushPromises();
       // after plio creation, a call to update plio's settings
       // should've been made
-      expect(mockAxios.put).toHaveBeenCalledTimes(1);
-      expect(mockAxios.put).toHaveBeenCalledWith(
+      expect(mockAxios.patch).toHaveBeenCalledTimes(1);
+      expect(mockAxios.patch).toHaveBeenCalledWith(
         `/plios/${testPlioId}/setting`,
         {
           player: global.dummyGlobalSettings.player,
         }
       );
 
-      // resolve the `PUT` request waiting in the queue using fake response data
+      // resolve the request waiting in the queue using fake response data
       mockAxios.mockResponse({ status: 200 }, mockAxios.queue()[0]);
 
       // wait until the DOM updates after promises resolve
@@ -222,15 +222,15 @@ describe("Home.vue", () => {
       await flushPromises();
       // after plio creation, a call to update plio's settings
       // should've been made
-      expect(mockAxios.put).toHaveBeenCalledTimes(1);
-      expect(mockAxios.put).toHaveBeenCalledWith(
+      expect(mockAxios.patch).toHaveBeenCalledTimes(1);
+      expect(mockAxios.patch).toHaveBeenCalledWith(
         `/plios/${testPlioId}/setting`,
         {
           player: dummyUserNew.organizations[0].config.settings.player,
         }
       );
 
-      // resolve the `PUT` request waiting in the queue using fake response data
+      // resolve the request waiting in the queue using fake response data
       mockAxios.mockResponse({ status: 200 }, mockAxios.queue()[0]);
 
       // wait until the DOM updates after promises resolve

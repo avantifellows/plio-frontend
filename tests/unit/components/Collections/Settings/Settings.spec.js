@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import Settings from "@/components/Collections/Settings/Settings.vue";
 
-import clonedeep from "lodash/cloneDeep";
+let clonedeep = require("lodash.clonedeep");
 
 describe("PlioListItem.vue", () => {
   let wrapper;
@@ -23,13 +23,19 @@ describe("PlioListItem.vue", () => {
     });
     expect(setCurrentSelectedTab).toHaveBeenCalled();
     expect(wrapper.vm.localSettings).toEqual(global.dummySettingsToRender);
-    expect(wrapper.vm.currentSelectedTab).toEqual({
-      configuration: global.dummySettingsToRender.player.configuration,
-    });
+    expect(wrapper.vm.currentSelectedTab).toEqual(
+      new Map(
+        Object.entries({
+          configuration: global.dummySettingsToRender
+            .get("player")
+            .get("configuration"),
+        })
+      )
+    );
     expect(wrapper.vm.hasUnsavedChanges).toBeFalsy();
     expect(wrapper.vm.currentSelectedTabName).toBe("configuration");
     expect(wrapper.vm.currentSelectedTabDetails).toStrictEqual(
-      global.dummySettingsToRender.player.configuration
+      global.dummySettingsToRender.get("player").get("configuration")
     );
     expect(wrapper.find('[data-test="header-player"]').exists()).toBeTruthy();
     expect(
@@ -39,32 +45,41 @@ describe("PlioListItem.vue", () => {
   });
 
   it("sets the clicked tab as selected", async () => {
+    let tempSettingsToRender = new Map(
+      Object.entries({
+        player: global.dummySettingsToRender.get("player"),
+        app: new Map(
+          Object.entries({
+            appearance: new Map(
+              Object.entries({
+                darkMode: {
+                  title: "",
+                  subTitle: null,
+                  type: "checkbox",
+                  value: false,
+                  isOrgSetting: false,
+                },
+              })
+            ),
+          })
+        ),
+      })
+    );
     const selectTab = jest.spyOn(Settings.methods, "selectTab");
     wrapper = mount(Settings, {
       props: {
-        settings: {
-          ...clonedeep(global.dummySettingsToRender),
-          app: {
-            appearance: {
-              darkMode: {
-                title: "",
-                subTitle: null,
-                type: "checkbox",
-              },
-            },
-          },
-        },
+        settings: tempSettingsToRender,
       },
     });
 
     await wrapper.get('[data-test="tab-appearance"]').trigger("click");
     expect(selectTab).toHaveBeenCalledWith(
       "appearance",
-      wrapper.vm.settings.app.appearance
+      wrapper.vm.settings.get("app").get("appearance")
     );
-    expect(wrapper.vm.currentSelectedTab).toStrictEqual({
-      appearance: wrapper.vm.settings.app.appearance,
-    });
+    expect(wrapper.vm.currentSelectedTab.get("appearance")).toStrictEqual(
+      wrapper.vm.settings.get("app").get("appearance")
+    );
   });
 
   it("emits any changes made when save is clicked", async () => {

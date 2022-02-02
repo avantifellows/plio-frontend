@@ -572,75 +572,101 @@ global.dummySession = {
   },
 };
 
-global.dummyGlobalSettings = {
-  player: {
-    scope: ["org-admin", "super-admin"],
-    children: {
-      configuration: {
-        scope: ["org-admin", "super-admin"],
-        children: {
-          skipEnabled: {
+global.dummyGlobalSettings = new Map(
+  Object.entries({
+    player: {
+      scope: ["org-admin", "super-admin"],
+      children: new Map(
+        Object.entries({
+          configuration: {
             scope: ["org-admin", "super-admin"],
-            value: true,
+            children: new Map(
+              Object.entries({
+                skipEnabled: {
+                  scope: ["org-admin", "super-admin"],
+                  value: true,
+                },
+              })
+            ),
           },
-        },
-      },
+        })
+      ),
     },
-  },
-  app: {
-    scope: [],
-    children: {
-      appearance: {
-        scope: [],
-        children: {
-          darkMode: {
+    app: {
+      scope: [],
+      children: new Map(
+        Object.entries({
+          appearance: {
             scope: [],
-            value: false,
+            children: new Map(
+              Object.entries({
+                darkMode: {
+                  scope: [],
+                  value: false,
+                },
+              })
+            ),
           },
-        },
-      },
+        })
+      ),
     },
-  },
-};
+  })
+);
 
-global.dummyGlobalSettingsFilteredForOrgs = {
-  player: {
-    scope: ["org-admin", "super-admin"],
-    children: {
-      configuration: {
-        scope: ["org-admin", "super-admin"],
-        children: {
-          skipEnabled: {
+global.dummyGlobalSettingsFilteredForOrgs = new Map(
+  Object.entries({
+    player: {
+      scope: ["org-admin", "super-admin"],
+      children: new Map(
+        Object.entries({
+          configuration: {
             scope: ["org-admin", "super-admin"],
-            value: true,
+            children: new Map(
+              Object.entries({
+                skipEnabled: {
+                  scope: ["org-admin", "super-admin"],
+                  value: true,
+                },
+              })
+            ),
           },
-        },
-      },
+        })
+      ),
     },
-  },
-};
+  })
+);
 
-global.dummySettingsToRender = {
-  player: {
-    configuration: {
-      skipEnabled: {
-        title: "settings.menu.title.skipEnabled",
-        subTitle: "settings.menu.subTitle.skipEnabled",
-        type: "checkbox",
-        value: false,
-        isOrgSetting: false,
-      },
-    },
-  },
-  app: {
-    appearance: {
-      darkMode: {
-        title: "settings.menu.title.darkMode",
-        subTitle: "settings.menu.subTitle.darkMode",
-        type: "checkbox",
-        value: false,
-        isOrgSetting: false,
-      },
-    },
-  },
-};
+global.dummySettingsToRender = new Map(
+  Object.entries({
+    player: new Map(
+      Object.entries({
+        configuration: new Map(
+          Object.entries({
+            skipEnabled: {
+              title: "settings.menu.title.skipEnabled",
+              subTitle: "settings.menu.subTitle.skipEnabled",
+              type: "checkbox",
+              value: false,
+              isOrgSetting: false,
+            },
+          })
+        ),
+      })
+    ),
+    app: new Map(
+      Object.entries({
+        appearance: new Map(
+          Object.entries({
+            darkMode: {
+              title: "settings.menu.title.darkMode",
+              subTitle: "settings.menu.subTitle.darkMode",
+              type: "checkbox",
+              value: false,
+              isOrgSetting: false,
+            },
+          })
+        ),
+      })
+    ),
+  })
+);

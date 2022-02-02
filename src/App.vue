@@ -267,9 +267,7 @@ import globalDefaultSettings, {
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 
-import clonedeep from "lodash/cloneDeep";
-import set from "lodash/set"; // https://lodash.com/docs/4.17.15#set
-import get from "lodash/get"; // https://lodash.com/docs/4.17.15#get
+let clonedeep = require("lodash.clonedeep");
 
 export default {
   components: {
@@ -508,55 +506,50 @@ export default {
       // Making a deep clone of global default settings.
       // The keys/values will be removed/updated according to user/org settings as we iterate
       let mergedSettings = clonedeep(globalDefaultSettings);
-
-      for (let [headerName, headerDetails] of Object.entries(mergedSettings)) {
+      for (let [headerName, headerDetails] of mergedSettings) {
         // iterating on headers
-        let path = headerName;
-        let headersInOrgSettings = Object.keys(orgSettings);
+        let headersInOrgSettings = [...orgSettings.keys()];
         if (!headersInOrgSettings.includes(headerName)) {
           // If the current header name is not present in org settings,
           // pick the details from user's settings and put it into merged settings object
-          set(mergedSettings, path, get(userSettings, path));
+          mergedSettings.set(headerName, userSettings.get(headerName));
           continue;
         }
         // If the current header name IS present in org settings, use it's scope information
-        set(mergedSettings, `${path}.scope`, get(orgSettings, `${path}.scope`));
+        mergedSettings.get(headerName).scope = orgSettings.get(headerName).scope;
 
-        for (let [tabName, tabDetails] of Object.entries(headerDetails.children)) {
+        for (let [tabName, tabDetails] of headerDetails.children) {
           // iterating on tabs inside headerName
-          path = `${headerName}.children`;
-          let tabsInOrgSettings = Object.keys(get(orgSettings, path));
+          let tabsInOrgSettings = [...orgSettings.get(headerName).children.keys()];
           if (!tabsInOrgSettings.includes(tabName)) {
             // If the current tab name is not present in org settings,
             // pick the details from user's settings and put it into merged settings object
-            set(
-              mergedSettings,
-              `${path}.${tabName}`,
-              get(userSettings, `${path}.${tabName}`)
-            );
+            mergedSettings
+              .get(headerName)
+              .children.set(tabName, userSettings.get(headerName).children.get(tabName));
             continue;
           }
           // If the current tab name IS present in org settings, use it's scope information
-          set(
-            mergedSettings,
-            `${path}.${tabName}.scope`,
-            get(orgSettings, `${path}.${tabName}.scope`)
-          );
+          mergedSettings.get(headerName).children.get(tabName).scope = orgSettings
+            .get(headerName)
+            .children.get(tabName).scope;
 
-          for (let settingName of Object.keys(tabDetails.children)) {
-            // iterating on settings inside tabName
-            path = `${headerName}.children.${tabName}.children`;
-            let settingsInOrgSettings = Object.keys(get(orgSettings, path));
-            // If the current setting name is not present in org settings,
+          for (let [leafName] of tabDetails.children) {
+            // iterating on leaf nodes inside tabName
+            let leafsInOrgSettings = [
+              ...orgSettings.get(headerName).children.get(tabName).children.keys(),
+            ];
+            // If the current leaf name is not present in org settings,
             // pick the details from user's settings else pick it up from
             // org's settings and put it into merged settings object
-            set(
-              mergedSettings,
-              `${path}.${settingName}`,
-              !settingsInOrgSettings.includes(settingName)
-                ? get(userSettings, `${path}.${settingName}`)
-                : get(orgSettings, `${path}.${settingName}`)
-            );
+            let validLeafDetails = leafsInOrgSettings.includes(leafName)
+              ? orgSettings.get(headerName).children.get(tabName).children.get(leafName)
+              : userSettings.get(headerName).children.get(tabName).children.get(leafName);
+
+            mergedSettings
+              .get(headerName)
+              .children.get(tabName)
+              .children.set(leafName, validLeafDetails);
           }
         }
       }
@@ -580,7 +573,7 @@ export default {
           clonedeep(this.activeWorkspaceSettings)
         );
 
-      for (let [headerName, headerDetails] of Object.entries(this.settingsToRender)) {
+      for (let [headerName, headerDetails] of this.settingsToRender) {
         if (
           !this.isPersonalWorkspace &&
           headerDetails.scope.length > 0 &&
@@ -588,13 +581,11 @@ export default {
         ) {
           // In case of an org workspace, we also need to check for scope. If the current user does not
           // have rights for a particular setting, we remove that key from settingsToRender
-          delete this.settingsToRender[headerName];
+          this.settingsToRender.delete(headerName);
           continue;
         }
-        this.settingsToRender[headerName] = clonedeep(headerDetails.children);
-        for (let [tabName, tabDetails] of Object.entries(
-          this.settingsToRender[headerName]
-        )) {
+        this.settingsToRender.set(headerName, clonedeep(headerDetails.children));
+        for (let [tabName, tabDetails] of this.settingsToRender.get(headerName)) {
           if (
             !this.isPersonalWorkspace &&
             tabDetails.scope.length > 0 &&
@@ -602,21 +593,27 @@ export default {
           ) {
             // In case of an org workspace, we also need to check for scope. If the current user does not
             // have rights for a particular setting, we remove that key from settingsToRender
-            delete this.settingsToRender[headerName][tabName];
+            this.settingsToRender.get(headerName).delete(tabName);
+            if (this.settingsToRender.get(headerName).size == 0)
+              this.settingsToRender.delete(headerName);
             continue;
           }
-          this.settingsToRender[headerName][tabName] = clonedeep(tabDetails.children);
-          for (let [settingName, settingDetails] of Object.entries(
-            this.settingsToRender[headerName][tabName]
-          )) {
+          this.settingsToRender
+            .get(headerName)
+            .set(tabName, clonedeep(tabDetails.children));
+          for (let [leafName, leafDetails] of this.settingsToRender
+            .get(headerName)
+            .get(tabName)) {
             if (
               !this.isPersonalWorkspace &&
-              settingDetails.scope.length > 0 &&
-              !settingDetails.scope.includes(this.userRoleInActiveWorkspace)
+              leafDetails.scope.length > 0 &&
+              !leafDetails.scope.includes(this.userRoleInActiveWorkspace)
             ) {
               // In case of an org workspace, we also need to check for scope. If the current user does not
               // have rights for a particular setting, we remove that key from settingsToRender
-              delete this.settingsToRender[headerName][tabName][settingName];
+              this.settingsToRender.get(headerName).get(tabName).delete(leafName);
+              if (this.settingsToRender.get(headerName).get(tabName).size == 0)
+                this.settingsToRender.get(headerName).delete(tabName);
               continue;
             }
             // After reaching the leaf node, we add some extra data to the setting meant for rendering
@@ -624,19 +621,22 @@ export default {
             // - metadata     - contains the information on the title/subtitle/type of the setting
             // - value        - value of that setting
             // - isOrgSetting - whether this is an org level setting or not
-            this.settingsToRender[headerName][tabName][settingName] = {
-              ...settingsMetadata[settingName],
-              value: settingDetails.value,
-              isOrgSetting:
-                !this.isPersonalWorkspace && settingDetails.scope.length > 0
-                  ? true
-                  : false,
-            };
+            this.settingsToRender
+              .get(headerName)
+              .get(tabName)
+              .set(leafName, {
+                ...settingsMetadata[leafName],
+                value: leafDetails.value,
+                isOrgSetting:
+                  !this.isPersonalWorkspace && leafDetails.scope.length > 0
+                    ? true
+                    : false,
+              });
             // adding a watcher to the current setting
             let settingWatcher = this.$watch(
               () =>
                 clonedeep(
-                  this.settingsToRender[headerName][tabName][settingName]["value"]
+                  this.settingsToRender.get(headerName).get(tabName).get(leafName).value
                 ),
               (value, prevValue) => {
                 // if the value hasn't changed, do nothing
@@ -644,13 +644,17 @@ export default {
 
                 // if the value has changed, update the settings
                 // in the Vuex store and on the DB as well
-                let path = `${headerName}.children.${tabName}.children.${settingName}.value`;
-                let isOrgSetting = this.settingsToRender[headerName][tabName][
-                  settingName
-                ]["isOrgSetting"];
-                if (isOrgSetting) {
+                let currentLeafNode = this.settingsToRender
+                  .get(headerName)
+                  .get(tabName)
+                  .get(leafName);
+
+                if (currentLeafNode.isOrgSetting) {
                   let newOrgSettings = clonedeep(this.activeWorkspaceSettings);
-                  set(newOrgSettings, path, value);
+                  newOrgSettings
+                    .get(headerName)
+                    .children.get(tabName)
+                    .children.get(leafName).value = value;
                   this.updateWorkspaceStoreSettings(newOrgSettings);
                   OrganizationAPIService.updateWorkspaceSettings(
                     this.activeWorkspaceId,
@@ -658,7 +662,11 @@ export default {
                   );
                 } else {
                   let newUserSettings = clonedeep(this.userSettings);
-                  set(newUserSettings, path, value);
+                  newUserSettings
+                    .get(headerName)
+                    .children.get(tabName)
+                    .children.get(leafName).value = value;
+
                   this.updateUserStoreSettings(newUserSettings);
                   UserAPIService.updateUserSettings(this.userId, newUserSettings);
                 }
@@ -804,13 +812,16 @@ export default {
       if (createPlioResponse.status == 201) {
         // once the plio is created, update it's settings as well
         let plioUuid = createPlioResponse.data.uuid;
+        let settingsToUpdate = this.isPersonalWorkspace
+          ? this.userSettings.get("player")
+          : this.activeWorkspaceSettings.get("player");
         let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
           plioUuid,
-          {
-            player: this.isPersonalWorkspace
-              ? this.userSettings.player
-              : this.activeWorkspaceSettings.player,
-          }
+          new Map(
+            Object.entries({
+              player: settingsToUpdate,
+            })
+          )
         );
         if (updatePlioSettingsResponse.status == 200) {
           this.$router.push({

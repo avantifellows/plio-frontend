@@ -8,8 +8,10 @@ import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
 import Settings from "@/components/Collections/Settings/Settings.vue";
 import store from "@/store";
+import Utilities from "@/services/Functional/Utilities.js";
+import UserAPIService from "@/services/API/User.js";
 
-import clonedeep from "lodash/cloneDeep";
+let clonedeep = require("lodash.clonedeep");
 
 describe("Editor.vue", () => {
   let wrapper;
@@ -34,7 +36,7 @@ describe("Editor.vue", () => {
   afterEach(() => {
     // cleaning up the mess left behind by the previous test
     mockAxios.reset();
-    wrapper.unmount();
+    if (wrapper != undefined) wrapper.unmount();
   });
 
   it("renders properly with default values", () => {
@@ -160,6 +162,7 @@ describe("Editor.vue", () => {
     expect(wrapper.find('[data-test="homeButton"]').exists()).toBeTruthy();
     expect(wrapper.find('[data-test="publishButton"]').exists()).toBeTruthy();
     expect(wrapper.find('[data-test="copyDraftButton"]').exists()).toBeTruthy();
+    await store.dispatch("auth/setActiveWorkspace", "");
   });
 
   it("clicking on copy draft link button copies draft link in org workspace", async () => {
@@ -196,6 +199,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.getPlioDraftLink(wrapper.vm.plioId, wrapper.vm.org)).toBe(
       draftLink
     );
+    await store.dispatch("auth/setActiveWorkspace", "");
   });
 
   it("share + play + embed buttons appear on publishing", async () => {
@@ -678,6 +682,7 @@ describe("Editor.vue", () => {
   });
 
   it("clicking on the close button of preview closes the preview", async () => {
+    jest.restoreAllMocks();
     const plioId = "123";
     jest
       .spyOn(Plio.methods, "setPlayerAspectRatio")
@@ -750,6 +755,7 @@ describe("Editor.vue", () => {
   });
 
   it("checks that no question time is smaller than minimum question timestamp", async () => {
+    jest.restoreAllMocks();
     wrapper = mount(Editor, { shallow: true });
     // defined in Editor.vue, cannot access the variable from there,
     // hence harcoding here
@@ -2089,7 +2095,7 @@ describe("Editor.vue", () => {
         data() {
           return {
             isSettingsMenuShown: true,
-            settingsToRender: global.dummySettingsToRender,
+            settingsToRender: clonedeep(global.dummySettingsToRender),
           };
         },
       });
@@ -2105,7 +2111,7 @@ describe("Editor.vue", () => {
       wrapper = mount(Editor, {
         data() {
           return {
-            settingsToRender: global.dummySettingsToRender,
+            settingsToRender: clonedeep(global.dummySettingsToRender),
           };
         },
       });
@@ -2123,26 +2129,34 @@ describe("Editor.vue", () => {
       let dummyTempSettingValue = true;
       let dummyPlio = clonedeep(global.dummyDraftPlio);
       dummyPlio.data.config = {
-        settings: {
-          player: {
-            scope: ["org-admin"],
-            children: {
-              configuration: {
+        settings: Utilities.encodeMapToPayload(
+          new Map(
+            Object.entries({
+              player: {
                 scope: ["org-admin"],
-                children: {
-                  skipEnabled: {
-                    scope: ["org-admin"],
-                    value: dummySkipEnabledValue,
-                  },
-                  tempSetting: {
-                    scope: ["org-view"],
-                    value: dummyTempSettingValue,
-                  },
-                },
+                children: new Map(
+                  Object.entries({
+                    configuration: {
+                      scope: ["org-admin"],
+                      children: new Map(
+                        Object.entries({
+                          skipEnabled: {
+                            scope: ["org-admin"],
+                            value: dummySkipEnabledValue,
+                          },
+                          tempSetting: {
+                            scope: ["org-view"],
+                            value: dummyTempSettingValue,
+                          },
+                        })
+                      ),
+                    },
+                  })
+                ),
               },
-            },
-          },
-        },
+            })
+          )
+        ),
       };
 
       await store.dispatch("auth/setUser", clonedeep(global.dummyUser));
@@ -2169,10 +2183,16 @@ describe("Editor.vue", () => {
 
       // in personal workspace, the user should be able to see plio's all settings
       expect(
-        wrapper.vm.settingsToRender.player?.configuration?.skipEnabled?.value
+        wrapper.vm.settingsToRender
+          .get("player")
+          .get("configuration")
+          .get("skipEnabled").value
       ).toBe(dummySkipEnabledValue);
       expect(
-        wrapper.vm.settingsToRender.player?.configuration?.tempSetting?.value
+        wrapper.vm.settingsToRender
+          .get("player")
+          .get("configuration")
+          .get("tempSetting").value
       ).toBe(dummyTempSettingValue);
 
       // switching to o1 workspace
@@ -2182,11 +2202,17 @@ describe("Editor.vue", () => {
       // in o1 workspace, the user has a role of org-admin.
       // All the settings that do not have "org-admin" as their scope will not be visible to the user.
       expect(
-        wrapper.vm.settingsToRender.player?.configuration?.tempSetting
+        wrapper.vm.settingsToRender
+          .get("player")
+          .get("configuration")
+          .get("tempSetting")
       ).toBe(undefined);
       // All settings that have "org-admin" scope will be visible to the user
       expect(
-        wrapper.vm.settingsToRender.player?.configuration?.skipEnabled
+        wrapper.vm.settingsToRender
+          .get("player")
+          .get("configuration")
+          .get("skipEnabled")
       ).not.toBe(undefined);
 
       // switching to o2 workspace
@@ -2195,7 +2221,7 @@ describe("Editor.vue", () => {
 
       // in o2 workspace, the user has a role of org-view
       // All the settings that dont have "org-view" as their scope will not be visible to the user
-      expect(wrapper.vm.settingsToRender.player).toBe(undefined);
+      expect(wrapper.vm.settingsToRender.get("player")).toBe(undefined);
     });
 
     describe("Watching and updation of settings", () => {
@@ -2215,22 +2241,30 @@ describe("Editor.vue", () => {
         // prepare a dummy plio with proper settings in it's config
         dummyPlio = clonedeep(global.dummyDraftPlio);
         dummyPlio.data.config = {
-          settings: {
-            player: {
-              scope: [],
-              children: {
-                configuration: {
+          settings: Utilities.encodeMapToPayload(
+            new Map(
+              Object.entries({
+                player: {
                   scope: [],
-                  children: {
-                    skipEnabled: {
-                      scope: [],
-                      value: false,
-                    },
-                  },
+                  children: new Map(
+                    Object.entries({
+                      configuration: {
+                        scope: [],
+                        children: new Map(
+                          Object.entries({
+                            skipEnabled: {
+                              scope: [],
+                              value: false,
+                            },
+                          })
+                        ),
+                      },
+                    })
+                  ),
                 },
-              },
-            },
-          },
+              })
+            )
+          ),
         };
         updatePlioSettings = jest.spyOn(Editor.methods, "updatePlioSettings");
         // mount the component
@@ -2271,8 +2305,10 @@ describe("Editor.vue", () => {
         expect(settingsComponent.emitted()).toHaveProperty("update:settings");
         // the local value of plio settings should get updated by the action above
         expect(
-          wrapper.vm.plioSettings.player.children.configuration.children
-            .skipEnabled.value
+          wrapper.vm.plioSettings
+            .get("player")
+            .children.get("configuration")
+            .children.get("skipEnabled").value
         ).toBeTruthy();
         // the method to update the plio's settings to the DB should've been called
         expect(updatePlioSettings).toHaveBeenCalled();
@@ -2297,8 +2333,10 @@ describe("Editor.vue", () => {
         expect(settingsComponent.emitted()).toHaveProperty("update:settings");
         // the local value of plio settings should get updated by the action above
         expect(
-          wrapper.vm.plioSettings.player.children.configuration.children
-            .skipEnabled.value
+          wrapper.vm.plioSettings
+            .get("player")
+            .children.get("configuration")
+            .children.get("skipEnabled").value
         ).toBeTruthy();
         // the method to update the plio's settings to the DB should have been called
         // because the plio gets published when save is clicked
@@ -2314,6 +2352,22 @@ describe("Editor.vue", () => {
       let plioId = "mlungtvmyl";
       let handleSettingsInheritance;
       let constructSettingsMenu;
+
+      let loginNewUser = async (user) => {
+        jest.restoreAllMocks();
+        // mock the API call to get the user and provide our created user as fake data
+        jest
+          .spyOn(UserAPIService, "getUserByAccessToken")
+          .mockImplementation(() => {
+            return new Promise((resolve) => {
+              resolve({ data: user });
+            });
+          });
+        // destroy the wrapper
+        if (wrapper != undefined) wrapper.unmount();
+        // set the new user
+        await store.dispatch("auth/setAccessToken", global.dummyAccessToken);
+      };
 
       beforeEach(async () => {
         // before each test, restore the mocks to their original implementation
@@ -2345,6 +2399,7 @@ describe("Editor.vue", () => {
       });
 
       it("handles fetched plio config which is null", async () => {
+        await loginNewUser(global.dummyUser);
         // GET request to retrieve plio details
         expect(mockAxios.get).toHaveBeenCalledTimes(1);
         expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
@@ -2358,12 +2413,13 @@ describe("Editor.vue", () => {
         expect(handleSettingsInheritance).toHaveBeenCalled();
         expect(constructSettingsMenu).toHaveBeenCalled();
         // the userSettings for player are copied into the plio' settings
-        expect(wrapper.vm.plioSettings).toStrictEqual({
-          player: wrapper.vm.userSettings.player,
-        });
+        expect(wrapper.vm.plioSettings.get("player")).toStrictEqual(
+          wrapper.vm.userSettings.get("player")
+        );
       });
 
       it("handles fetched plio config where settings key is missing", async () => {
+        await loginNewUser(global.dummyUser);
         // GET request to retrieve plio details
         expect(mockAxios.get).toHaveBeenCalledTimes(1);
         expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
@@ -2380,12 +2436,13 @@ describe("Editor.vue", () => {
         expect(handleSettingsInheritance).toHaveBeenCalled();
         expect(constructSettingsMenu).toHaveBeenCalled();
         // the userSettings for player are copied into the plio's settings
-        expect(wrapper.vm.plioSettings).toStrictEqual({
-          player: wrapper.vm.userSettings.player,
-        });
+        expect(wrapper.vm.plioSettings.get("player")).toStrictEqual(
+          wrapper.vm.userSettings.get("player")
+        );
       });
 
       it("handles fetched plio config where settings key is null", async () => {
+        await loginNewUser(global.dummyUser);
         // GET request to retrieve plio details
         expect(mockAxios.get).toHaveBeenCalledTimes(1);
         expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
@@ -2403,12 +2460,13 @@ describe("Editor.vue", () => {
         expect(handleSettingsInheritance).toHaveBeenCalled();
         expect(constructSettingsMenu).toHaveBeenCalled();
         // the userSettings for player are copied into the plio' settings
-        expect(wrapper.vm.plioSettings).toStrictEqual({
-          player: wrapper.vm.userSettings.player,
-        });
+        expect(wrapper.vm.plioSettings.get("player")).toStrictEqual(
+          wrapper.vm.userSettings.get("player")
+        );
       });
 
       it("handles fetched plio config where player key is missing inside settings key", async () => {
+        await loginNewUser(global.dummyUser);
         // GET request to retrieve plio details
         expect(mockAxios.get).toHaveBeenCalledTimes(1);
         expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
@@ -2417,10 +2475,14 @@ describe("Editor.vue", () => {
         // but no 'player' key exists inside
         let dummyPlio = clonedeep(global.dummyDraftPlio);
         dummyPlio.data.config = {
-          settings: {
-            // contains some random key other than 'player'
-            key: "value",
-          },
+          settings: Utilities.encodeMapToPayload(
+            new Map(
+              Object.entries({
+                // contains some random key other than 'player'
+                key: "value",
+              })
+            )
+          ),
         };
 
         mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
@@ -2429,12 +2491,13 @@ describe("Editor.vue", () => {
         expect(handleSettingsInheritance).toHaveBeenCalled();
         expect(constructSettingsMenu).toHaveBeenCalled();
         // the userSettings for player are copied into the plio' settings
-        expect(wrapper.vm.plioSettings).toStrictEqual({
-          player: wrapper.vm.userSettings.player,
-        });
+        expect(wrapper.vm.plioSettings.get("player")).toStrictEqual(
+          wrapper.vm.userSettings.get("player")
+        );
       });
 
       it("handles fetched plio config where all information is present", async () => {
+        await loginNewUser(global.dummyUser);
         // GET request to retrieve plio details
         expect(mockAxios.get).toHaveBeenCalledTimes(1);
         expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
@@ -2442,22 +2505,30 @@ describe("Editor.vue", () => {
         // the fetched plio's config contains all the required details
         let dummyPlio = clonedeep(global.dummyDraftPlio);
         dummyPlio.data.config = {
-          settings: {
-            player: {
-              scope: [],
-              children: {
-                configuration: {
+          settings: Utilities.encodeMapToPayload(
+            new Map(
+              Object.entries({
+                player: {
                   scope: [],
-                  children: {
-                    skipEnabled: {
-                      scope: [],
-                      value: false,
-                    },
-                  },
+                  children: new Map(
+                    Object.entries({
+                      configuration: {
+                        scope: [],
+                        children: new Map(
+                          Object.entries({
+                            skipEnabled: {
+                              scope: [],
+                              value: false,
+                            },
+                          })
+                        ),
+                      },
+                    })
+                  ),
                 },
-              },
-            },
-          },
+              })
+            )
+          ),
         };
 
         mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
@@ -2468,7 +2539,7 @@ describe("Editor.vue", () => {
         // the settings from the fetched plio's config are copied into the local
         // plioSettings variable
         expect(wrapper.vm.plioSettings).toStrictEqual(
-          dummyPlio.data.config.settings
+          Utilities.decodeMapFromPayload(dummyPlio.data.config.settings)
         );
       });
     });

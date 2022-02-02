@@ -55,7 +55,9 @@
           :videoPlayerElementId="plioVideoPlayerElementId"
           v-model:isFullscreen="isFullscreen"
           v-model:responseList="itemResponses"
-          :configuration="plioSettings.player.children.configuration"
+          :configuration="
+            plioSettings.get('player').children.get('configuration').children
+          "
           @skip-question="skipQuestion"
           @proceed-question="proceedQuestion"
           @revise-question="reviseQuestion"
@@ -99,8 +101,9 @@ import { useToast } from "vue-toastification";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { resetConfetti } from "@/services/Functional/Utilities.js";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
+import Utilities from "@/services/Functional/Utilities.js";
 
-import clonedeep from "lodash/cloneDeep";
+let clonedeep = require("lodash.clonedeep");
 
 var isEqual = require("deep-eql");
 
@@ -515,10 +518,10 @@ export default {
      * If the settings pulled from the DB is null, use the global player settings
      */
     handleSettingsInheritance() {
-      if (this.plioSettings == null)
-        this.plioSettings = {
-          player: clonedeep(globalDefaultSettings.player),
-        };
+      if (this.plioSettings == null) {
+        this.plioSettings = new Map();
+        this.plioSettings.set("player", globalDefaultSettings.get("player"));
+      }
     },
     /**
      * sets various properties based on the screen size
@@ -746,17 +749,15 @@ export default {
           this.plioTitle = plioDetails.plioTitle;
 
           let config = plioDetails.config;
-          if (
-            config == null ||
-            !("settings" in config) ||
-            config.settings == null ||
-            !("player" in config.settings)
-          )
+          if (config == null || !("settings" in config) || config.settings == null)
             this.plioSettings = null;
-          else
-            this.plioSettings = {
-              player: config.settings.player,
-            };
+          else {
+            this.plioSettings = new Map();
+            this.plioSettings.set(
+              "player",
+              Utilities.decodeMapFromPayload(clonedeep(config.settings)).get("player")
+            );
+          }
           this.handleSettingsInheritance();
         })
         .then(() => this.createSession())

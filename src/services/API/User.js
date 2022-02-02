@@ -10,6 +10,7 @@ import {
   externalAuthTokenEndpoint,
   userSettingsEndpoint,
 } from "@/services/API/Endpoints.js";
+import Utilities from "@/services/Functional/Utilities.js";
 import store from "@/store";
 
 export default {
@@ -97,6 +98,7 @@ export default {
    * @returns
    */
   updateUserSettings(userId, payload) {
+    payload = Utilities.encodeMapToPayload(payload);
     return apiClient().patch(
       usersEndpoint + userId + userSettingsEndpoint,
       payload

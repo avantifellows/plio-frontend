@@ -1,7 +1,8 @@
 import UserAPIService from "@/services/API/User.js";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
+import Utilities from "@/services/Functional/Utilities.js";
 
-import clonedeep from "lodash/cloneDeep";
+let clonedeep = require("lodash.clonedeep");
 
 // Reference: https://medium.com/front-end-weekly/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
 const state = {
@@ -121,7 +122,10 @@ const actions = {
     if (response != undefined) {
       // Use the pulled user settings if they exist otherwise use the global defaults
       if ("settings" in response.data.config)
-        await dispatch("setUserSettings", response.data.config.settings);
+        await dispatch(
+          "setUserSettings",
+          Utilities.decodeMapFromPayload(response.data.config.settings)
+        );
       else await dispatch("setUserSettings", clonedeep(globalDefaultSettings));
 
       // Use the pulled organisation's config if it exists otherwise use the global defaults
@@ -238,23 +242,19 @@ function filterNonOrgSettings(orgDetails) {
     orgDetails.config.settings == null
   ) {
     let workspaceSettings = clonedeep(globalDefaultSettings);
-    for (let [headerName, headerDetails] of Object.entries(workspaceSettings)) {
+    for (let [headerName, headerDetails] of workspaceSettings) {
       if (headerDetails.scope.length == 0) {
-        delete workspaceSettings[headerName];
+        workspaceSettings.delete(headerName);
         continue;
       }
-      for (let [tabName, tabDetails] of Object.entries(
-        headerDetails.children
-      )) {
+      for (let [tabName, tabDetails] of headerDetails.children) {
         if (tabDetails.scope.length == 0) {
-          delete headerDetails.children[tabName];
+          headerDetails.children.delete(tabName);
           continue;
         }
-        for (let [settingName, settingDetails] of Object.entries(
-          tabDetails.children
-        )) {
-          if (settingDetails.scope.length == 0) {
-            delete tabDetails.children[settingName];
+        for (let [leafName, leafDetails] of tabDetails.children) {
+          if (leafDetails.scope.length == 0) {
+            tabDetails.children.delete(leafName);
             continue;
           }
         }
@@ -262,5 +262,5 @@ function filterNonOrgSettings(orgDetails) {
     }
     return workspaceSettings;
   }
-  return orgDetails.config.settings;
+  return Utilities.decodeMapFromPayload(orgDetails.config.settings);
 }

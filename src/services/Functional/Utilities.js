@@ -113,6 +113,31 @@ export default {
     document.body.removeChild(hiddenElement);
     return success;
   },
+
+  /**
+   * Converts a map datatype object to an encoded plain JS object but one that enforces ordeing.
+   * @param {Map} data - incoming Map datatype
+   * @returns - Object datatype with map information encoded
+   */
+  encodeMapToPayload(data) {
+    // refer - https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map/56150320#56150320
+    if (data == null) return data;
+    let dataAsString = JSON.stringify(data, mapReplacer);
+    let encodedJSON = JSON.parse(dataAsString);
+    return encodedJSON;
+  },
+  /**
+   * Converts a plain JS object datatype that contains ordering information to a JS Map object.
+   * @param {Object} data - incoming Object datatype but containing ordering information of map(s)
+   * @returns - Map datatype
+   */
+  decodeMapFromPayload(data) {
+    // refer - https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map/56150320#56150320
+    if (data == null) return data;
+    let dataAsString = JSON.stringify(data);
+    let decodedJSON = JSON.parse(dataAsString, mapReviver);
+    return decodedJSON;
+  },
 };
 
 /**
@@ -227,4 +252,36 @@ export function convertISOTimeToSeconds(timeInISO) {
   let second = parseInt(timeInISO.second) || 0;
   let millisecond = parseInt(timeInISO.millisecond) || 0;
   return hour * 3600 + minute * 60 + second + millisecond / 1000;
+}
+
+/**
+ * Helper function for stringifying a nested Map JS object
+ * @param {Map} value - A Map object that needs to be stringified
+ * @returns
+ */
+function mapReplacer(_, value) {
+  // refer - https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map/56150320#56150320
+  if (value instanceof Map) {
+    return {
+      dataType: "Map",
+      value: Array.from(value.entries()), // or with spread: value: [...value]
+    };
+  } else {
+    return value;
+  }
+}
+
+/**
+ * Helper function for parsing a string into a JS object that contains information abobut JS Map datatype
+ * @param {String} value - A string that needs to be parsed
+ * @returns
+ */
+function mapReviver(_, value) {
+  // refer - https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map/56150320#56150320
+  if (typeof value === "object" && value !== null) {
+    if (value.dataType === "Map") {
+      return new Map(value.value);
+    }
+  }
+  return value;
 }

@@ -14,7 +14,7 @@
       <!-- sidebar region -->
       <div :class="sidebarRegionClass">
         <div
-          v-for="(headerDetails, headerName) in localSettings"
+          v-for="[headerName, headerDetails] in localSettings"
           :key="headerName"
           class="bp-500:my-0 my-4"
         >
@@ -28,7 +28,7 @@
             </div>
             <!-- tab names -->
             <div
-              v-for="(tabDetails, tabName) in headerDetails"
+              v-for="[tabName, tabDetails] in headerDetails"
               :key="tabName"
               class="flex flex-col"
             >
@@ -51,32 +51,32 @@
               <!-- content region in mobile view -->
               <div v-if="isMobileView && currentSelectedTabName == tabName">
                 <div
-                  v-for="(settingDetails, settingName) in currentSelectedTabDetails"
-                  :key="settingName"
+                  v-for="[leafName, leafDetails] in currentSelectedTabDetails"
+                  :key="leafName"
                   :class="settingItemStyleClass"
                 >
                   <div class="flex flex-col my-auto mr-4">
-                    <p :class="settingTitleTextClass">{{ $t(settingDetails.title) }}</p>
+                    <p :class="settingTitleTextClass">{{ $t(leafDetails.title) }}</p>
                     <p
                       :class="settingSubTitleTextClass"
-                      v-if="settingDetails.subTitle != null"
+                      v-if="leafDetails.subTitle != null"
                     >
-                      {{ $t(settingDetails.subTitle) || "" }}
+                      {{ $t(leafDetails.subTitle) || "" }}
                     </p>
                     <!-- badge to notify an admin setting -->
                     <simple-badge
-                      v-if="settingDetails.isOrgSetting"
+                      v-if="leafDetails.isOrgSetting"
                       text="admin"
                       :badgeClass="adminBadgeClass"
                     ></simple-badge>
                   </div>
                   <input
-                    v-if="settingDetails.type == 'checkbox'"
+                    v-if="leafDetails.type == 'checkbox'"
                     type="checkbox"
-                    :class="getInputElementClass(settingDetails.type)"
+                    :class="getInputElementClass(leafDetails.type)"
                     style="box-shadow: none"
-                    :checked="settingDetails.value"
-                    @change="updateCheckboxSetting($event.target.checked, settingDetails)"
+                    :checked="leafDetails.value"
+                    @change="updateCheckboxSetting($event.target.checked, leafDetails)"
                     data-test="setting-input"
                   />
                 </div>
@@ -111,29 +111,29 @@
       <!-- content region -->
       <div :class="contentRegionClass" v-if="!isMobileView">
         <div
-          v-for="(settingDetails, settingName) in currentSelectedTabDetails"
-          :key="settingName"
+          v-for="[leafName, leafDetails] in currentSelectedTabDetails"
+          :key="leafName"
           :class="settingItemStyleClass"
         >
           <div class="flex flex-col my-auto mr-4">
-            <p :class="settingTitleTextClass">{{ $t(settingDetails.title) }}</p>
-            <p :class="settingSubTitleTextClass" v-if="settingDetails.subTitle != null">
-              {{ $t(settingDetails.subTitle) || "" }}
+            <p :class="settingTitleTextClass">{{ $t(leafDetails.title) }}</p>
+            <p :class="settingSubTitleTextClass" v-if="leafDetails.subTitle != null">
+              {{ $t(leafDetails.subTitle) || "" }}
             </p>
             <!-- badge to notify an admin setting -->
             <simple-badge
-              v-if="settingDetails.isOrgSetting"
+              v-if="leafDetails.isOrgSetting"
               :text="$t('settings.badge.admin')"
               :badgeClass="adminBadgeClass"
             ></simple-badge>
           </div>
           <input
-            v-if="settingDetails.type == 'checkbox'"
+            v-if="leafDetails.type == 'checkbox'"
             type="checkbox"
-            :class="getInputElementClass(settingDetails.type)"
+            :class="getInputElementClass(leafDetails.type)"
             style="box-shadow: none"
-            :checked="settingDetails.value"
-            @change="updateCheckboxSetting($event.target.checked, settingDetails)"
+            :checked="leafDetails.value"
+            @change="updateCheckboxSetting($event.target.checked, leafDetails)"
             data-test="setting-input"
           />
         </div>
@@ -193,10 +193,12 @@
 </template>
 
 <script>
-import clonedeep from "lodash/cloneDeep";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import Utilities from "@/services/Functional/Utilities.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
+
+let clonedeep = require("lodash.clonedeep");
+
 export default {
   components: {
     IconButton,
@@ -232,7 +234,7 @@ export default {
         "flex flex-row hover:bg-gray-100 xl:p-4 lg:p-3 md:p-2 p-1 bp-500:mx-0 mx-8",
       contentRegionClass:
         "h-full w-full flex flex-col 2xl:px-10 xl:px-8 lg:px-6 md:px-4 bp-500:px-3 px-6 2xl:pt-10 xl:pt-8 lg:pt-6 md:pt-4 bp-500:pt-2 pt-6 pb-5",
-      currentSelectedTab: {}, // object containing details about the current selected tab
+      currentSelectedTab: new Map(), // map containing details about the current selected tab
       hasUnsavedChanges: false, // if there are any unsaved setting changes
       isSidebarRegionOpen: true, // if the sidebar region is visible
       screenWidth: window.innerWidth, // initial screen width
@@ -311,13 +313,13 @@ export default {
      * Get the name of the current selected tab
      */
     currentSelectedTabName() {
-      return Object.keys(this.currentSelectedTab)[0];
+      return [...this.currentSelectedTab.keys()][0];
     },
     /**
      * Get the details of the current selected tab
      */
     currentSelectedTabDetails() {
-      return Object.values(this.currentSelectedTab)[0];
+      return this.currentSelectedTab.get(this.currentSelectedTabName);
     },
     /**
      * A local version of the settings prop
@@ -365,10 +367,10 @@ export default {
      */
     setCurrentSelectedTab() {
       if (this.localSettings != null) {
-        let firstHeaderName = Object.keys(this.localSettings)[0];
-        let firstTabName = Object.keys(this.localSettings[firstHeaderName])[0];
-        let firstTabDetails = Object.values(this.localSettings[firstHeaderName])[0];
-        this.currentSelectedTab[firstTabName] = firstTabDetails;
+        let firstHeaderName = [...this.localSettings.keys()][0];
+        let firstTabName = [...this.localSettings.get(firstHeaderName).keys()][0];
+        let firstTabDetails = this.localSettings.get(firstHeaderName).get(firstTabName);
+        this.currentSelectedTab.set(firstTabName, firstTabDetails);
       }
     },
     /**
@@ -377,16 +379,16 @@ export default {
      * @param {Object} tabDetails - The details of the tab that is to be marked selected
      */
     selectTab(tabName, tabDetails) {
-      if (this.isMobileView && tabName == this.currentSelectedTabName)
+      if (this.isMobileView && tabName == this.currentSelectedTabName) {
         // In mobile view, the tabs are toggable
         // If someone clicks on an already opened tab, close it and currentSelectedTab
         // will be set to empty
-        this.currentSelectedTab = {};
-      else {
+        this.currentSelectedTab.clear();
+        this.currentSelectedTab = new Map();
+      } else {
         // Mark the clicked tab as the currentSelectedTab
-        let selectedTab = {};
-        selectedTab[tabName] = tabDetails;
-        this.currentSelectedTab = selectedTab;
+        this.currentSelectedTab.clear();
+        this.currentSelectedTab.set(tabName, tabDetails);
       }
     },
     /**
@@ -416,11 +418,11 @@ export default {
     /**
      * Update the settings when a checkbox input type is changed
      * @param {Boolean} isChecked - If the checkbox has been marked checked
-     * @param {Object} settingDetails - The setting to which this checkbox belongs to
+     * @param {Object} leafDetails - The setting to which this checkbox belongs to
      */
-    updateCheckboxSetting(isChecked, settingDetails) {
+    updateCheckboxSetting(isChecked, leafDetails) {
       this.hasUnsavedChanges = true;
-      settingDetails.value = isChecked;
+      leafDetails.value = isChecked;
     },
   },
   emits: ["window-closed", "update:settings", "publish"],

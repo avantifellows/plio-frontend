@@ -552,8 +552,7 @@ import { useToast } from "vue-toastification";
 const confetti = require("canvas-confetti");
 
 // used for deep cloning objects
-import clonedeep from "lodash/cloneDeep";
-import set from "lodash/set";
+let clonedeep = require("lodash.clonedeep");
 var isEqual = require("deep-eql");
 
 // difference in seconds between consecutive checks for item pop-up
@@ -897,7 +896,7 @@ export default {
       isDialogCancelClicked: "isCancelClicked",
     }),
     hasAnySettingsToRender() {
-      return !Utilities.isObjectEmpty(this.settingsToRender);
+      return this.settingsToRender.size > 0;
     },
     /**
      * whether the spinner needs to be shown
@@ -1373,9 +1372,6 @@ export default {
      */
     handleSettingsInheritance() {
       if (this.plioSettings == null) {
-        this.plioSettings = {
-          player: {},
-        };
         // If the plio's fetched config is null, use the global default settings for that plio.
         // Why? Two cases are possible:
         // 1. The fetched plio is an older plio which was created before this settings feature was live
@@ -1385,7 +1381,8 @@ export default {
         // 2. The fetched plio is a newer plio which was made after this settings feature was live
         //    - All newer plios, when created, will contain a version of the users's / global default (whichever is available)
         //      settings in the fetched config. So no need to handle them here.
-        this.plioSettings.player = clonedeep(globalDefaultSettings.player);
+        this.plioSettings = new Map();
+        this.plioSettings.set("player", clonedeep(globalDefaultSettings.get("player")));
       }
     },
     /**
@@ -1401,7 +1398,7 @@ export default {
       // Keep a clone of the plio settings in a local variable
       this.settingsToRender = clonedeep(this.plioSettings);
 
-      for (let [headerName, headerDetails] of Object.entries(this.settingsToRender)) {
+      for (let [headerName, headerDetails] of this.settingsToRender) {
         if (
           !this.isPersonalWorkspace &&
           headerDetails.scope.length > 0 &&
@@ -1409,13 +1406,11 @@ export default {
         ) {
           // In case of an org workspace, we also need to check for scope. If the current user does not
           // have rights for a particular setting, we remove that key from settingsToRender
-          delete this.settingsToRender[headerName];
+          this.settingsToRender.delete(headerName);
           continue;
         }
-        this.settingsToRender[headerName] = clonedeep(headerDetails.children);
-        for (let [tabName, tabDetails] of Object.entries(
-          this.settingsToRender[headerName]
-        )) {
+        this.settingsToRender.set(headerName, clonedeep(headerDetails.children));
+        for (let [tabName, tabDetails] of this.settingsToRender.get(headerName)) {
           if (
             !this.isPersonalWorkspace &&
             tabDetails.scope.length > 0 &&
@@ -1423,44 +1418,51 @@ export default {
           ) {
             // In case of an org workspace, we also need to check for scope. If the current user does not
             // have rights for a particular setting, we remove that key from settingsToRender
-            delete this.settingsToRender[headerName][tabName];
+            this.settingsToRender.get(headerName).delete(tabName);
+            if (this.settingsToRender.get(headerName).size == 0)
+              this.settingsToRender.delete(headerName);
             continue;
           }
-          this.settingsToRender[headerName][tabName] = clonedeep(tabDetails.children);
-          for (let [settingName, settingDetails] of Object.entries(
-            this.settingsToRender[headerName][tabName]
-          )) {
+          this.settingsToRender
+            .get(headerName)
+            .set(tabName, clonedeep(tabDetails.children));
+          for (let [leafName, leafDetails] of this.settingsToRender
+            .get(headerName)
+            .get(tabName)) {
             if (
               !this.isPersonalWorkspace &&
-              settingDetails.scope.length > 0 &&
-              !settingDetails.scope.includes(this.userRoleInActiveWorkspace)
+              leafDetails.scope.length > 0 &&
+              !leafDetails.scope.includes(this.userRoleInActiveWorkspace)
             ) {
               // In case of an org workspace, we also need to check for scope. If the current user does not
               // have rights for a particular setting, we remove that key from settingsToRender
-              delete this.settingsToRender[headerName][tabName][settingName];
+              this.settingsToRender.get(headerName).get(tabName).delete(leafName);
+              if (this.settingsToRender.get(headerName).get(tabName).size == 0)
+                this.settingsToRender.get(headerName).delete(tabName);
               continue;
             }
-            // iterating on all levels of the object, when we reach the end, we attach some
-            // metadata to those settings.
+            // After reaching the leaf node, we add some extra data to the setting meant for rendering
             // These are the things added
             // - metadata     - contains the information on the title/subtitle/type of the setting
             // - value        - value of that setting
             // - isOrgSetting - whether this is an org level setting or not
-            this.settingsToRender[headerName][tabName][settingName] = {
-              ...settingsMetadata[settingName],
-              value: settingDetails.value,
-              isOrgSetting:
-                !this.isPersonalWorkspace && settingDetails.scope.length > 0
-                  ? true
-                  : false,
-            };
+            this.settingsToRender
+              .get(headerName)
+              .get(tabName)
+              .set(leafName, {
+                ...settingsMetadata[leafName],
+                value: leafDetails.value,
+                isOrgSetting:
+                  !this.isPersonalWorkspace && leafDetails.scope.length > 0
+                    ? true
+                    : false,
+              });
             // Adding a watcher to the individual settings' value
             let settingWatcher = this.$watch(
-              () => {
-                return clonedeep(
-                  this.settingsToRender[headerName][tabName][settingName]["value"]
-                );
-              },
+              () =>
+                clonedeep(
+                  this.settingsToRender.get(headerName).get(tabName).get(leafName).value
+                ),
               (value, prevValue) => {
                 // if the value hasn't changed, do nothing
                 if (value === prevValue) return;
@@ -1469,8 +1471,10 @@ export default {
                 // - update the plioSettings object
                 // - update the settings on the DB if the plio is not published.
                 // - if it's published, the user will have to click publish to push the changes
-                let path = `${headerName}.children.${tabName}.children.${settingName}.value`;
-                set(this.plioSettings, path, value);
+                this.plioSettings
+                  .get(headerName)
+                  .children.get(tabName)
+                  .children.get(leafName).value = value;
 
                 if (!this.isPublished) this.updatePlioSettings();
                 else this.publishPlio();
@@ -1912,14 +1916,14 @@ export default {
           this.plioDBId = plioDetails.plioDBId;
 
           let config = this.loadedPlioDetails.config;
-          if (
-            config == null ||
-            !("settings" in config) ||
-            config.settings == null ||
-            !("player" in config.settings)
-          )
+          if (config == null || !("settings" in config) || config.settings == null) {
             this.plioSettings = null;
-          else this.plioSettings = clonedeep(config.settings);
+          } else {
+            let decodedSettings = Utilities.decodeMapFromPayload(config.settings);
+            this.plioSettings = !decodedSettings.has("player")
+              ? null
+              : this.decodeMapFromPayload(clonedeep(config.settings));
+          }
           this.handleSettingsInheritance();
           this.constructSettingsMenu();
           this.stopLoading();

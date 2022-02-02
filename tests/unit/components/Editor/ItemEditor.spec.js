@@ -1,6 +1,6 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import ItemEditor from "@/components/Editor/ItemEditor";
-import clonedeep from "lodash/cloneDeep";
+let clonedeep = require("lodash.clonedeep");
 
 describe("ItemEditor.vue", () => {
   let wrapper;

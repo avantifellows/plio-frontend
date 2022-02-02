@@ -3,7 +3,7 @@ import PlioAPIService from "@/services/API/Plio.js";
 import mockAxios from "jest-mock-axios";
 
 import Dashboard from "@/pages/Dashboard.vue";
-import clonedeep from "lodash/cloneDeep";
+let clonedeep = require("lodash.clonedeep");
 
 const plioId = "abc";
 let wrapper;

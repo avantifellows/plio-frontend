@@ -140,15 +140,12 @@ export default {
     isSkipItemButtonEnabled() {
       // if a custom configuration exists in the props, then use that otherwise
       // use the global settings
-      if (
-        this.configuration != null &&
-        "children" in this.configuration &&
-        this.configuration.children != null &&
-        "skipEnabled" in this.configuration.children
-      )
-        return this.configuration.children.skipEnabled.value;
-      return globalDefaultSettings.player.children.configuration.children.skipEnabled
-        .value;
+      if (this.configuration != null && this.configuration.has("skipEnabled"))
+        return this.configuration.get("skipEnabled").value;
+      return globalDefaultSettings
+        .get("player")
+        .children.get("configuration")
+        .children.get("skipEnabled").value;
     },
     /**
      * URL of the image for an item;

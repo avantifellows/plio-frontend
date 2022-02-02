@@ -38,33 +38,45 @@ export let settingsMetadata = {
  * "children"
  *    - contains details about the nested settings
  */
-export default {
-  player: {
-    scope: ["org-admin", "super-admin"],
-    children: {
-      configuration: {
-        scope: ["org-admin", "super-admin"],
-        children: {
-          skipEnabled: {
+let globalDefaultSetings = new Map(
+  Object.entries({
+    player: {
+      scope: ["org-admin", "super-admin"],
+      children: new Map(
+        Object.entries({
+          configuration: {
             scope: ["org-admin", "super-admin"],
-            value: skipEnabled,
+            children: new Map(
+              Object.entries({
+                skipEnabled: {
+                  scope: ["org-admin", "super-admin"],
+                  value: skipEnabled,
+                },
+              })
+            ),
           },
-        },
-      },
+        })
+      ),
     },
-  },
-  app: {
-    scope: [],
-    children: {
-      appearance: {
-        scope: [],
-        children: {
-          darkMode: {
+    app: {
+      scope: [],
+      children: new Map(
+        Object.entries({
+          appearance: {
             scope: [],
-            value: false,
+            children: new Map(
+              Object.entries({
+                darkMode: {
+                  scope: [],
+                  value: false,
+                },
+              })
+            ),
           },
-        },
-      },
+        })
+      ),
     },
-  },
-};
+  })
+);
+
+export default globalDefaultSetings;

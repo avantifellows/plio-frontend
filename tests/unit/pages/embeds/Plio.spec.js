@@ -4,7 +4,7 @@ import mockAxios from "jest-mock-axios";
 import store from "@/store";
 import UserAPIService from "@/services/API/User.js";
 import EventAPIService from "@/services/API/Event.js";
-import clonedeep from "lodash/cloneDeep";
+let clonedeep = require("lodash.clonedeep");
 let wrapper;
 let plioId = "123";
 
