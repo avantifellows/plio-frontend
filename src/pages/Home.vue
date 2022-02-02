@@ -22,7 +22,7 @@
     <Paginator
       v-if="isTableShown"
       :totalItems="totalNumberOfPlios"
-      :pageSize="numberOfPliosPerPage"
+      :pageSize="numPliosPerPage"
       :initialPage="currentPageNumber"
       @page-selected="fetchPlios($event)"
     >
@@ -97,7 +97,7 @@ export default {
       noPliosIcon: require("@/assets/images/create.svg"),
       toast: useToast(),
       totalNumberOfPlios: 0, // total number of plios for the user
-      numberOfPliosPerPage: 5, // number of plios to show on one page (default: 5)
+      numPliosPerPage: 5, // number of plios to show on one page (default: 5)
       searchString: "", // the search string to filter the plios on
       sortByField: undefined, // string which holds the field to sort the plios on
       currentPageNumber: 1, // holds the current page number
@@ -188,7 +188,7 @@ export default {
         } else this.isTableShown = true;
       }
       this.totalNumberOfPlios = response.data.count; // set total number of plios and show the paginator
-      this.numberOfPliosPerPage = response.data.page_size; // set the page size
+      this.numPliosPerPage = response.data.page_size; // set the page size
       this.prepareTableData(response.data.results); // prepare the data for the table
     },
 

@@ -294,7 +294,7 @@ export default {
     await thirdPartyAuthPromise;
 
     // load plio details
-    await this.fetchPlioCreateSession();
+    this.fetchPlioCreateSession();
 
     // add listener for screen size being changed
     window.addEventListener("resize", this.setScreenProperties);
@@ -730,8 +730,8 @@ export default {
     /**
      * fetches plio details and creates a new session
      */
-    async fetchPlioCreateSession() {
-      await PlioAPIService.getPlio(this.plioId, true)
+    fetchPlioCreateSession() {
+      PlioAPIService.getPlio(this.plioId, true)
         .then((plioDetails) => {
           /**
            * redirect to 404 if the plio is not published

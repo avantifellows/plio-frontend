@@ -12,6 +12,7 @@ import Utilities from "@/services/Functional/Utilities.js";
 import UserAPIService from "@/services/API/User.js";
 
 let clonedeep = require("lodash.clonedeep");
+const videoDuration = 695;
 
 describe("Editor.vue", () => {
   let wrapper;
@@ -68,7 +69,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -104,12 +105,12 @@ describe("Editor.vue", () => {
     ).toBeTruthy();
   });
 
-  it("shows publish + home + preview buttons when video ID is added", async () => {
+  it("shows publish + home + preview buttons when video Id is valid", async () => {
     wrapper = mount(Editor, {
       shallow: true,
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -132,12 +133,12 @@ describe("Editor.vue", () => {
     expect(wrapper.find('[data-test="publishButton"]').exists()).toBeTruthy();
   });
 
-  it("also shows copy draft link button when video ID is added for org workspace", async () => {
+  it("also shows copy draft link button when video is valid for org workspace", async () => {
     wrapper = mount(Editor, {
       shallow: true,
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -176,6 +177,7 @@ describe("Editor.vue", () => {
       data() {
         return {
           videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
       props: {
@@ -228,6 +230,7 @@ describe("Editor.vue", () => {
         });
         return {
           videoId: "jdYJf_ybyVo",
+          isVideoIdValid: true,
           items: clonedeep(global.dummyItems),
           itemDetails: clonedeep(global.dummyItemDetails),
           currentItemIndex: 0,
@@ -352,6 +355,7 @@ describe("Editor.vue", () => {
           items: clonedeep(global.dummyItems),
           itemDetails: clonedeep(global.dummyItemDetails),
           videoId: "jdYJf_ybyVo",
+          isVideoIdValid: true,
         };
       },
     });
@@ -402,6 +406,7 @@ describe("Editor.vue", () => {
           items: clonedeep(global.dummyItems),
           itemDetails: clonedeep(global.dummyItemDetails),
           videoId: "jdYJf_ybyVo",
+          isVideoIdValid: true,
         };
       },
     });
@@ -428,6 +433,33 @@ describe("Editor.vue", () => {
       global.dummyItemDetails[0].id,
       updatedItemDetails[0]
     );
+  });
+
+  it("resets spinner if any error occured upon entering valid video link", async () => {
+    const hideSpinner = jest.spyOn(Editor.methods, "hideSpinner");
+    const plioId = "1234";
+    wrapper = mount(Editor, {
+      props: {
+        plioId: plioId,
+      },
+    });
+
+    // reset the getPlio request made by Editor
+    mockAxios.reset();
+
+    const videoURL = "https://www.youtube.com/watch?v=jdYJf_ybyVo";
+    await wrapper
+      .find('[data-test="videoLinkInput"]')
+      .find('[data-test="input"]')
+      .setValue(videoURL);
+
+    expect(wrapper.vm.isSpinnerShown).toBeTruthy();
+
+    mockAxios.mockError();
+
+    await flushPromises();
+
+    expect(hideSpinner).toHaveBeenCalled();
   });
 
   it("creates video and links to plio when a valid video link is entered", async () => {
@@ -474,6 +506,15 @@ describe("Editor.vue", () => {
       .find('[data-test="input"]')
       .setValue(videoURL);
 
+    // mock the response from youtube api for fetching video details
+    mockAxios.mockResponse(
+      {
+        data: global.dummyYouTubeResponse,
+      },
+      mockAxios.queue()[0]
+    );
+    await flushPromises();
+
     expect(wrapper.vm.videoId).toBe("jdYJf_ybyVo");
     expect(checkAndSaveChanges).toHaveBeenCalled();
     expect(wrapper.vm.isVideoIdValid).toBeTruthy();
@@ -487,7 +528,7 @@ describe("Editor.vue", () => {
     expect(mockAxios.post).toHaveBeenCalledTimes(1);
     expect(mockAxios.post).toHaveBeenCalledWith(`/videos/`, {
       url: videoURL,
-      duration: 0,
+      duration: videoDuration,
     });
 
     mockAxios.mockResponse(
@@ -505,56 +546,206 @@ describe("Editor.vue", () => {
     });
   });
 
-  it("updates video when a new valid URL is updated", async () => {
-    const checkAndSaveChanges = jest.spyOn(
-      Editor.methods,
-      "checkAndSaveChanges"
-    );
+  describe("updating a video", () => {
     const initialVideoId = "jdYJf_ybyVo";
-    wrapper = mount(Editor, {
-      data() {
-        return {
-          videoId: initialVideoId,
-          videoDBId: global.dummyVideo.id,
-        };
-      },
+    const initialVideoURL = `https://www.youtube.com/watch?v=${initialVideoId}`;
+    const newVideoId = "abcdefghijk";
+    const newVideoURL = `https://www.youtube.com/watch?v=${newVideoId}`;
+
+    const mountWrapper = async () => {
+      wrapper = mount(Editor, {
+        data() {
+          return {
+            videoId: initialVideoId,
+            videoURL: initialVideoURL,
+            isVideoIdValid: true,
+            videoDBId: global.dummyVideo.id,
+          };
+        },
+      });
+      await flushPromises();
+      // this is required - DO NOT REMOVE THIS
+      console.log(wrapper.vm.player);
+
+      mockAxios.mockResponse(
+        clonedeep(global.dummyDraftPlio),
+        mockAxios.queue()[0]
+      );
+    };
+
+    it("updates video when a new valid URL is updated when no item with time > duration is present", async () => {
+      const checkAndSaveChanges = jest.spyOn(
+        Editor.methods,
+        "checkAndSaveChanges"
+      );
+
+      await mountWrapper();
+
+      await wrapper
+        .find('[data-test="videoLinkInput"]')
+        .find('[data-test="input"]')
+        .setValue("invalid video url");
+
+      // since an invalid url was given, the video Id should remain the same
+      expect(wrapper.vm.videoId).toBe(initialVideoId);
+
+      await wrapper
+        .find('[data-test="videoLinkInput"]')
+        .find('[data-test="input"]')
+        .setValue(newVideoURL);
+
+      // mock the response from youtube api for fetching video details
+      mockAxios.mockResponse(
+        {
+          data: global.dummyYouTubeResponse,
+        },
+        mockAxios.queue()[0]
+      );
+
+      // wait until the DOM updates after promises resolve
+      await flushPromises();
+
+      expect(wrapper.vm.videoId).toBe("abcdefghijk");
+      expect(checkAndSaveChanges).toHaveBeenCalledWith(
+        "video",
+        global.dummyVideo.id,
+        {
+          duration: videoDuration,
+          url: newVideoURL,
+        }
+      );
+
+      expect(mockAxios.patch).toHaveBeenCalledTimes(1);
+      expect(mockAxios.patch).toHaveBeenCalledWith(
+        `/videos/${global.dummyVideo.id}`,
+        {
+          url: newVideoURL,
+          duration: videoDuration,
+        }
+      );
     });
 
-    // reset the getPlio request made by Editor
-    mockAxios.reset();
+    it("does not update video id when a new valid but non-existing video link is added", async () => {
+      await mountWrapper();
 
-    await wrapper
-      .find('[data-test="videoLinkInput"]')
-      .find('[data-test="input"]')
-      .setValue("invalid video url");
+      await wrapper
+        .find('[data-test="videoLinkInput"]')
+        .find('[data-test="input"]')
+        .setValue(newVideoURL);
 
-    // since an invalid url was given, the video Id should remain the same
-    expect(wrapper.vm.videoId).toBe(initialVideoId);
+      // mock the response from youtube api for non-existing video
+      mockAxios.mockResponse(
+        {
+          data: global.dummyEmptyYouTubeResponse,
+        },
+        mockAxios.queue()[0]
+      );
 
-    const newVideoURL = "https://www.youtube.com/watch?v=abcdefghijk";
-    await wrapper
-      .find('[data-test="videoLinkInput"]')
-      .find('[data-test="input"]')
-      .setValue(newVideoURL);
+      // wait until the DOM updates after promises resolve
+      await flushPromises();
 
-    expect(wrapper.vm.videoId).toBe("abcdefghijk");
-    expect(checkAndSaveChanges).toHaveBeenCalledWith(
-      "video",
-      global.dummyVideo.id,
-      {
-        duration: 0,
-        url: newVideoURL,
-      }
-    );
+      expect(wrapper.vm.videoId).toBe(initialVideoId);
+    });
 
-    expect(mockAxios.patch).toHaveBeenCalledTimes(1);
-    expect(mockAxios.patch).toHaveBeenCalledWith(
-      `/videos/${global.dummyVideo.id}`,
-      {
-        url: newVideoURL,
-        duration: 0,
-      }
-    );
+    describe("dialog for confirming video updation when video duration < timestamp of some items", () => {
+      const newVideoDuration = 100;
+      let removeItems;
+
+      beforeEach(async () => {
+        removeItems = jest.spyOn(Editor.methods, "removeItems");
+        await mountWrapper();
+
+        await wrapper
+          .find('[data-test="videoLinkInput"]')
+          .find('[data-test="input"]')
+          .setValue(newVideoURL);
+
+        // mock the response from youtube api for video with duration
+        // less than the timestamp of some items
+        let dummyYoutubeResponse = clonedeep(global.dummyYouTubeResponse);
+        dummyYoutubeResponse.items[0].contentDetails.duration = "PT1M40S";
+        mockAxios.mockResponse(
+          {
+            data: dummyYoutubeResponse,
+          },
+          mockAxios.queue()[0]
+        );
+
+        // wait until the DOM updates after promises resolve
+        await flushPromises();
+      });
+
+      it("shows a dialog box to confirm video updation", async () => {
+        // video details should be set
+        expect(wrapper.vm.newVideoDetails.videoId).toBe(newVideoId);
+        expect(wrapper.vm.newVideoDetails.videoURL).toBe(newVideoURL);
+        expect(wrapper.vm.newVideoDetails.videoDuration).toBe(newVideoDuration);
+        expect(wrapper.vm.newVideoDetails.oldVideoURL).toBe(initialVideoURL);
+
+        // dialog should be shown
+        expect(store.state.dialog.isShown).toBeTruthy();
+      });
+
+      it("reverts video url to old video url upon dialog cancellation", async () => {
+        expect(wrapper.vm.videoURL).toBe(newVideoURL);
+
+        // trigger dialog cancellation
+        store.dispatch("dialog/setCancelClicked");
+
+        await flushPromises();
+
+        expect(wrapper.vm.videoURL).toBe(initialVideoURL);
+      });
+
+      it("updates video upon dialog confirmation", async () => {
+        // trigger dialog confirmation
+        store.dispatch("dialog/setConfirmClicked");
+
+        await flushPromises();
+
+        expect(wrapper.vm.videoId).toBe(newVideoId);
+        expect(mockAxios.patch).toHaveBeenCalledWith(
+          `/videos/${global.dummyVideo.id}`,
+          {
+            url: newVideoURL,
+            duration: newVideoDuration,
+          }
+        );
+      });
+
+      it("deletes items upon dialog confirmation", async () => {
+        // trigger dialog confirmation
+        store.dispatch("dialog/setConfirmClicked");
+
+        await flushPromises();
+
+        const expectedItemDeleteStartIndex = 2;
+        const expectedNumItemsToRemove = 3;
+        const expectedItemIdsToDelete = [];
+        for (
+          let index = global.dummyItemsWithItemDetails.length - 1;
+          index >= expectedItemDeleteStartIndex;
+          index--
+        ) {
+          expectedItemIdsToDelete.push(
+            global.dummyItemsWithItemDetails[index].id
+          );
+        }
+
+        expect(mockAxios.delete).toHaveBeenCalledWith(`/items/bulk_delete/`, {
+          data: {
+            id: expectedItemIdsToDelete,
+          },
+        });
+        expect(removeItems).toHaveBeenCalledWith(
+          expectedItemDeleteStartIndex,
+          expectedNumItemsToRemove
+        );
+        expect(wrapper.vm.items.length).toBe(
+          global.dummyItemsWithItemDetails.length - expectedNumItemsToRemove
+        );
+      });
+    });
   });
 
   it("share plio button works correctly", async () => {
@@ -575,8 +766,16 @@ describe("Editor.vue", () => {
         },
       },
     });
-    await wrapper.setData({ videoId: "jdYJf_ybyVo" });
-    await wrapper.setData({ status: "published" });
+    await wrapper.setData({
+      videoId: "jdYJf_ybyVo",
+      status: "published",
+      isVideoIdValid: true,
+    });
+
+    // since the video is updated, the app will be in the uploading state
+    // this resets it
+    mockAxios.reset();
+    await store.dispatch("sync/stopUploading");
 
     expect(
       wrapper.find('[data-test="sharePlioButton"]').element.disabled
@@ -605,6 +804,7 @@ describe("Editor.vue", () => {
       data() {
         return {
           videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
       global: {
@@ -644,20 +844,31 @@ describe("Editor.vue", () => {
       props: {
         plioId: plioId,
       },
-      data() {
-        return {
-          videoId: "abcdefgh",
-        };
-      },
     });
 
-    // reset the getPlio request made by Editor
-    mockAxios.reset();
+    // resolve the loadPlio method with a dummy plio
+    mockAxios.mockResponse(
+      clonedeep(global.dummyDraftPlio),
+      mockAxios.queue()[0]
+    );
 
-    /**
-     * the component would be in the uploading state
-     * this would reset it
-     */
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // mock the response from youtube api for fetching video details
+    mockAxios.mockResponse(
+      {
+        data: global.dummyYouTubeResponse,
+      },
+      mockAxios.queue()[0]
+    );
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // since the video is updated, the app will be in the uploading state
+    // this resets it
+    mockAxios.reset();
     await store.dispatch("sync/stopUploading");
 
     // preview should not be shown by default
@@ -665,6 +876,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.isPlioPreviewLoaded).toBeFalsy();
 
     await wrapper.find('[data-test="plioPreviewButton"]').trigger("click");
+
     expect(togglePlioPreviewMode).toHaveBeenCalled();
     expect(wrapper.vm.isPlioPreviewShown).toBeTruthy();
 
@@ -696,6 +908,7 @@ describe("Editor.vue", () => {
       data() {
         return {
           videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -708,6 +921,22 @@ describe("Editor.vue", () => {
 
     // wait until the DOM updates after promises resolve
     await flushPromises();
+
+    // mock the response from youtube api for fetching video details
+    mockAxios.mockResponse(
+      {
+        data: global.dummyYouTubeResponse,
+      },
+      mockAxios.queue()[0]
+    );
+
+    // wait until the DOM updates after promises resolve
+    await flushPromises();
+
+    // since the video is updated, the app will be in the uploading state
+    // this resets it
+    mockAxios.reset();
+    await store.dispatch("sync/stopUploading");
 
     await wrapper.find('[data-test="plioPreviewButton"]').trigger("click");
 
@@ -735,6 +964,7 @@ describe("Editor.vue", () => {
       data() {
         return {
           videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
       global: {
@@ -893,6 +1123,7 @@ describe("Editor.vue", () => {
         });
         return {
           videoId: "abcdefgh",
+          isVideoIdValid: true,
           videoDBId: global.dummyVideo.id,
           confettiHandler: confettiHandler,
           items: clonedeep(global.dummyItems),
@@ -1013,6 +1244,7 @@ describe("Editor.vue", () => {
       data() {
         return {
           videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -1034,6 +1266,7 @@ describe("Editor.vue", () => {
         return {
           videoId: "abcdefgh",
           status: "published",
+          isVideoIdValid: true,
         };
       },
     });
@@ -1135,6 +1368,7 @@ describe("Editor.vue", () => {
     await wrapper.setData({
       isPublishedPlioDialogShown: true,
       videoId: "jdYJf_ybyVo",
+      isVideoIdValid: true,
       status: "published",
     });
 
@@ -1163,6 +1397,7 @@ describe("Editor.vue", () => {
       data() {
         return {
           videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -1262,6 +1497,7 @@ describe("Editor.vue", () => {
     await wrapper.setData({
       isPublishedPlioDialogShown: true,
       videoId: "jdYJf_ybyVo",
+      isVideoIdValid: true,
     });
 
     await wrapper
@@ -1306,6 +1542,7 @@ describe("Editor.vue", () => {
       data() {
         return {
           videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -1399,7 +1636,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
           items: clonedeep(global.dummyItems),
           itemDetails: clonedeep(global.dummyItemDetails),
           currentItemIndex: 0,
@@ -1421,7 +1658,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -1446,7 +1683,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -1491,7 +1728,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -1550,7 +1787,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -1585,7 +1822,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -1621,7 +1858,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
           items: clonedeep(global.dummyItems),
           itemDetails: clonedeep(global.dummyItemDetails),
           currentItemIndex: questionTypeIndex,
@@ -1652,7 +1889,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
           items: clonedeep(global.dummyItems),
           itemDetails: updatedItemDetails,
           currentItemIndex: questionTypeIndex,
@@ -1702,6 +1939,7 @@ describe("Editor.vue", () => {
       itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: null,
       videoId: "jdYJf_ybyVo",
+      isVideoIdValid: true,
       currentTimestamp: 15.6,
     });
 
@@ -1893,7 +2131,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -1962,7 +2200,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
           plioTitle: global.dummyPublishedPlio.data.title,
         };
       },
@@ -1994,6 +2232,7 @@ describe("Editor.vue", () => {
       itemDetails: clonedeep(global.dummyItemDetails),
       currentItemIndex: 0,
       videoId: "jdYJf_ybyVo",
+      isVideoIdValid: true,
     });
 
     await wrapper
@@ -2014,6 +2253,7 @@ describe("Editor.vue", () => {
       isItemSelected: true,
       isModalMinimized: true,
       videoId: "jdYJf_ybyVo",
+      isVideoIdValid: true,
     });
 
     await wrapper.find('[data-test="maximizeButton"]').trigger("click");
@@ -2025,7 +2265,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });
@@ -2053,7 +2293,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         return {
-          videoId: "abcdefgh",
+          isVideoIdValid: true,
         };
       },
     });

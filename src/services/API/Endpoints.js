@@ -1,6 +1,7 @@
 export const pliosEndpoint = "/plios/",
   duplicateEndpoint = "/duplicate/",
   copyEndpoint = "/copy/",
+  bulkDeleteEndpoint = "bulk_delete/",
   plioDataDumpEndpoint = "/download_data/",
   plioMetricsEndpoint = "/metrics/",
   itemsEndpoint = "/items/",

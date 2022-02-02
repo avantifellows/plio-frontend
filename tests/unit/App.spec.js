@@ -595,39 +595,53 @@ describe("App.vue for authenticated user", () => {
       expect(wrapper.vm.isSingleSelectorShown).toBeFalsy();
     });
 
-    it("copies plio to another workspace when a workspace is selected", async () => {
-      const hideSelector = jest.spyOn(App.methods, "hideSelector");
-      const mockRouter = {
-        push: jest.fn(),
-      };
-      await mountWrapper({
-        global: {
-          mocks: {
-            $router: mockRouter,
+    describe("workspace selected", () => {
+      let hideSelector;
+      beforeEach(async () => {
+        mockAxios.reset();
+        hideSelector = jest.spyOn(App.methods, "hideSelector");
+        const mockRouter = {
+          push: jest.fn(),
+        };
+        await mountWrapper({
+          global: {
+            mocks: {
+              $router: mockRouter,
+            },
           },
-        },
+        });
+        setSelectorParams();
+        await flushPromises();
+
+        wrapper.vm.$refs.listSingleSelector.$emit(
+          "select",
+          selectorOptions[selectedOptionIndex].value
+        );
+        await flushPromises();
       });
-      setSelectorParams();
-      await flushPromises();
-      wrapper.vm.$refs.listSingleSelector.$emit(
-        "select",
-        selectorOptions[selectedOptionIndex].value
-      );
-      await flushPromises();
 
-      expect(mockAxios.post).toHaveBeenCalledWith(
-        `/plios/${selectedPlioId}/copy/`,
-        {
-          workspace: selectorOptions[selectedOptionIndex].value,
-        }
-      );
+      it("copies plio to another workspace when a workspace is selected", async () => {
+        expect(mockAxios.post).toHaveBeenCalledWith(
+          `/plios/${selectedPlioId}/copy/`,
+          {
+            workspace: selectorOptions[selectedOptionIndex].value,
+          }
+        );
 
-      mockAxios.mockResponse(global.dummyDraftPlio, mockAxios.queue()[0]);
+        mockAxios.mockResponse(global.dummyDraftPlio, mockAxios.queue()[0]);
 
-      await flushPromises();
+        await flushPromises();
 
-      // the selector is closed once all requests are resolved
-      expect(hideSelector).toHaveBeenCalled();
+        // the selector is closed once all requests are resolved
+        expect(hideSelector).toHaveBeenCalled();
+      });
+
+      it("stops spinner if error on copying plio to another workspace", async () => {
+        mockAxios.mockError();
+
+        // the selector is closed once all requests are resolved
+        expect(hideSelector).toHaveBeenCalled();
+      });
     });
   });
 });

@@ -1,5 +1,9 @@
 import { apiClient } from "@/services/API/RootClient.js";
-import { itemsEndpoint, duplicateEndpoint } from "@/services/API/Endpoints.js";
+import {
+  itemsEndpoint,
+  duplicateEndpoint,
+  bulkDeleteEndpoint,
+} from "@/services/API/Endpoints.js";
 
 export default {
   /**
@@ -43,6 +47,16 @@ export default {
   duplicateItem(itemId, plioDBId) {
     return apiClient().post(itemsEndpoint + itemId + duplicateEndpoint, {
       plioId: plioDBId,
+    });
+  },
+
+  /**
+   * Delete a list of items
+   * @param {Object} payload - params required for deleting the required items
+   */
+  bulkDelete(payload) {
+    return apiClient().delete(itemsEndpoint + bulkDeleteEndpoint, {
+      data: payload,
     });
   },
 };
