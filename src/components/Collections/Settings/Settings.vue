@@ -36,7 +36,7 @@
                 <inline-svg
                   v-if="isMobileView"
                   @click="selectTab(tabName, tabDetails)"
-                  :src="getImageSource('caret-right-solid.svg')"
+                  :src="getImageSource('play.svg')"
                   :class="getTabToggleClass(tabName)"
                 ></inline-svg>
                 <button
@@ -333,7 +333,7 @@ export default {
         {
           "transform rotate-90": tabName == this.currentSelectedTabName,
         },
-        "w-6 h-6 text-yellow-600 fill-current my-auto transition duration-800",
+        "w-4 h-4 text-yellow-600 fill-current my-auto transition duration-800 mr-2",
       ];
     },
     handleScreenSizeChange() {
