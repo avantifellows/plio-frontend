@@ -96,7 +96,6 @@ export default {
       default: null,
       type: String,
     },
-    /** If the skip button should be visible */
     isSkipEnabled: {
       default: true,
       type: Boolean,
