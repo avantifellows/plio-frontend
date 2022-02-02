@@ -625,7 +625,7 @@ export default {
       closePlioPreviewIconConfig: {
         // config for the icon of the button to close the plio preview
         enabled: true,
-        iconName: "times-circle-solid",
+        iconName: "times-circle-white",
         iconClass: "text-primary fill-current h-8 w-8",
       },
       // class for the button to close the plio preview
