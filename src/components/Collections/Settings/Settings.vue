@@ -206,12 +206,6 @@ export default {
   },
   data() {
     return {
-      closeButtonIconConfig: {
-        enabled: true,
-        iconName: "times-circle-white",
-        iconClass: "text-primary fill-current h-8 w-8",
-      },
-      closeButtonClass: "lg:w-10 lg:h-10 bp-500:w-6 bp-500:h-6 h-4 w-4",
       cancelButtonClass:
         "bp-500:px-7 bp-500:py-2 bp-360:px-16 px-10 py-2 transition ease-in duration-200 text-center text-base font-semibold shadow-lg rounded-lg bg-white border-b-outset",
       saveButtonClass:
