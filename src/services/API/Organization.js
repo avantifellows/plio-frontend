@@ -1,7 +1,7 @@
 import { apiClient } from "@/services/API/RootClient.js";
 import {
   organizationsEndpoint,
-  organizationSettingsEndpoint,
+  settingsEndpoint,
 } from "@/services/API/Endpoints.js";
 import Utilities from "@/services/Functional/Utilities.js";
 
@@ -15,7 +15,7 @@ export default {
   updateWorkspaceSettings(orgId, payload) {
     payload = Utilities.encodeMapToPayload(payload);
     return apiClient().patch(
-      organizationsEndpoint + orgId + organizationSettingsEndpoint,
+      organizationsEndpoint + orgId + settingsEndpoint,
       payload
     );
   },

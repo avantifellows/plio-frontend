@@ -3,7 +3,7 @@ import {
   pliosEndpoint,
   duplicateEndpoint,
   plioDataDumpEndpoint,
-  plioSettingsEndpoint,
+  settingsEndpoint,
   plioMetricsEndpoint,
   copyEndpoint,
 } from "@/services/API/Endpoints.js";
@@ -79,7 +79,7 @@ export default {
   updatePlioSettings(plioId, payload) {
     payload = Utilities.encodeMapToPayload(payload);
     return apiClient().patch(
-      pliosEndpoint + plioId + plioSettingsEndpoint,
+      pliosEndpoint + plioId + settingsEndpoint,
       payload
     );
   },
