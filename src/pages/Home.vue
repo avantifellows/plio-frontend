@@ -208,7 +208,7 @@ export default {
       let createPlioResponse = await PlioAPIService.createPlio();
       this.$Progress.finish();
       if (createPlioResponse.status == 201) {
-        // once the plio is created, update it's settings as well
+        // once the plio is created, update its settings as well
         let plioUuid = createPlioResponse.data.uuid;
         let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
           plioUuid,

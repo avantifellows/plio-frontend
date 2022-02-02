@@ -250,7 +250,7 @@ export function convertSecondsToISOTime(timeInSeconds) {
 
 /**
  * Converts a timestamp in ISO format to seconds
- * @param {Object} timeInISO - An object containing the ISO time as it's keys
+ * @param {Object} timeInISO - An object containing the ISO time as its keys
  * @returns {Number} - The converted time in seconds
  */
 export function convertISOTimeToSeconds(timeInISO) {

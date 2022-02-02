@@ -54,7 +54,7 @@ describe("PlioListItem.vue", () => {
               Object.entries({
                 darkMode: {
                   title: "",
-                  subTitle: null,
+                  description: null,
                   type: "checkbox",
                   value: false,
                   isOrgSetting: false,

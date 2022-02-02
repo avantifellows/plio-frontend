@@ -562,7 +562,7 @@ export default {
         skipEnabled: "Viewers can skip questions while attempting plios",
         darkMode: "dark mode", // temporary. Will remove after review+testing
       },
-      subTitle: {
+      description: {
         skipEnabled: "Provide viewers the option to skip a question",
         darkMode: "dark mode", // temporary. Will remove after review+testing
       },

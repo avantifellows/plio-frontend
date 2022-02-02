@@ -1495,7 +1495,7 @@ export default {
             }
             // After reaching the leaf node, we add some extra data to the setting meant for rendering
             // These are the things added
-            // - metadata     - contains the information on the title/subtitle/type of the setting
+            // - metadata     - contains the information on the title/description/type of the setting
             // - value        - value of that setting
             // - isOrgSetting - whether this is an org level setting or not
             this.settingsToRender

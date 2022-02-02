@@ -496,7 +496,7 @@ export default {
      * The global default settings object is used as a structure of the keys to iterate on.
      * While iterating on the keys of the global default settings object, these rules are followed to merge
      * - If a key is not present in org's settings, use the key from user's settings and skip to next key
-     * - If a key is present in org's settings, use the scope for that key and move to it's children
+     * - If a key is present in org's settings, use the scope for that key and move to its children
      * - The above process is done for headers, tabs and atomic settings.
      * - For the lowest level keys (atomic settings), use org's setting value if available otherwise use user's setting value
      *
@@ -517,7 +517,7 @@ export default {
           mergedSettings.set(headerName, userSettings.get(headerName));
           continue;
         }
-        // If the current header name IS present in org settings, use it's scope information
+        // If the current header name IS present in org settings, use its scope information
         mergedSettings.get(headerName).scope = orgSettings.get(headerName).scope;
 
         for (let [tabName, tabDetails] of headerDetails.children) {
@@ -531,7 +531,7 @@ export default {
               .children.set(tabName, userSettings.get(headerName).children.get(tabName));
             continue;
           }
-          // If the current tab name IS present in org settings, use it's scope information
+          // If the current tab name IS present in org settings, use its scope information
           mergedSettings.get(headerName).children.get(tabName).scope = orgSettings
             .get(headerName)
             .children.get(tabName).scope;
@@ -620,7 +620,7 @@ export default {
             }
             // After reaching the leaf node, we add some extra data to the setting meant for rendering
             // These are the things added
-            // - metadata     - contains the information on the title/subtitle/type of the setting
+            // - metadata     - contains the information on the title/description/type of the setting
             // - value        - value of that setting
             // - isOrgSetting - whether this is an org level setting or not
             this.settingsToRender
@@ -814,7 +814,7 @@ export default {
       let createPlioResponse = await PlioAPIService.createPlio();
       this.$Progress.finish();
       if (createPlioResponse.status == 201) {
-        // once the plio is created, update it's settings as well
+        // once the plio is created, update its settings as well
         let plioUuid = createPlioResponse.data.uuid;
         let settingsToUpdate = this.isPersonalWorkspace
           ? this.userSettings.get("player")
@@ -896,14 +896,15 @@ export default {
       this.showSpinner();
       PlioAPIService.copyToWorkspace(this.selectedPlioId, {
         workspace: selectedOptionValue,
-      }).then(() => {
-        this.hideSpinner();
-        this.$router.push({ name: "Home", params: { org: selectedOptionValue } });
       })
-      .catch(() => {
-        this.hideSpinner()
-        this.toast.error(this.$t('toast.error.generic'))
-      })
+        .then(() => {
+          this.hideSpinner();
+          this.$router.push({ name: "Home", params: { org: selectedOptionValue } });
+        })
+        .catch(() => {
+          this.hideSpinner();
+          this.toast.error(this.$t("toast.error.generic"));
+        });
     },
   },
   computed: {

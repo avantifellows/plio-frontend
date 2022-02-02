@@ -254,7 +254,7 @@ describe("App.vue for authenticated user", () => {
     });
 
     it("uses filtered global default settings for org when it's not available in DB", async () => {
-      // our currently logged in user has no settings present in it's organization's configs
+      // our currently logged in user has no settings present in its organization's configs
       // hence, it should use global default settings
       let orgs = clonedeep(global.dummyUser.organizations);
       orgs.forEach((org) => {

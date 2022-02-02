@@ -658,7 +658,7 @@ global.dummySettingsToRender = new Map(
           Object.entries({
             skipEnabled: {
               title: "settings.menu.title.skipEnabled",
-              subTitle: "settings.menu.subTitle.skipEnabled",
+              description: "settings.menu.description.skipEnabled",
               type: "checkbox",
               value: false,
               isOrgSetting: false,
@@ -673,7 +673,7 @@ global.dummySettingsToRender = new Map(
           Object.entries({
             darkMode: {
               title: "settings.menu.title.darkMode",
-              subTitle: "settings.menu.subTitle.darkMode",
+              description: "settings.menu.description.darkMode",
               type: "checkbox",
               value: false,
               isOrgSetting: false,

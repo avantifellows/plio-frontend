@@ -7,9 +7,8 @@ import Utilities from "@/services/Functional/Utilities.js";
 
 export default {
   /**
-   * Update an organization's settings
-   * @param {Number} orgId - id of an organization
-   * @param {Object} payload - the JSON settings object
+   * @param {Number} orgId - id of an organization whose settings need to be updated
+   * @param {Map} payload - the new value for settings as a Map datatype
    * @returns
    */
   updateWorkspaceSettings(orgId, payload) {

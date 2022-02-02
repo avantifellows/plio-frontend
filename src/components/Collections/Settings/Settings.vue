@@ -58,10 +58,10 @@
                   <div class="flex flex-col my-auto mr-4">
                     <p :class="settingTitleTextClass">{{ $t(leafDetails.title) }}</p>
                     <p
-                      :class="settingSubTitleTextClass"
-                      v-if="leafDetails.subTitle != null"
+                      :class="settingDescriptionTextClass"
+                      v-if="leafDetails.description != null"
                     >
-                      {{ $t(leafDetails.subTitle) || "" }}
+                      {{ $t(leafDetails.description) || "" }}
                     </p>
                     <!-- badge to notify an admin setting -->
                     <simple-badge
@@ -117,8 +117,11 @@
         >
           <div class="flex flex-col my-auto mr-4">
             <p :class="settingTitleTextClass">{{ $t(leafDetails.title) }}</p>
-            <p :class="settingSubTitleTextClass" v-if="leafDetails.subTitle != null">
-              {{ $t(leafDetails.subTitle) || "" }}
+            <p
+              :class="settingDescriptionTextClass"
+              v-if="leafDetails.description != null"
+            >
+              {{ $t(leafDetails.description) || "" }}
             </p>
             <!-- badge to notify an admin setting -->
             <simple-badge
@@ -222,7 +225,7 @@ export default {
       },
       settingTitleTextClass:
         "text-base bp-500:text-base md:text-lg lg:text-2xl font-semibold text-gray-500",
-      settingSubTitleTextClass:
+      settingDescriptionTextClass:
         "text-sm bp-500:text-xsm md:text-sm lg:text-base text-gray-400",
       settingItemStyleClass:
         "flex flex-row hover:bg-gray-100 xl:p-4 lg:p-3 md:p-2 p-1 bp-500:mx-0 mx-8",

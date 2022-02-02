@@ -564,7 +564,7 @@ export default {
           "प्लायो का प्रयास करते समय दर्शक प्रश्नों को छोड़ सकते हैं",
         darkMode: "dark mode", // temporary. Will remove after review+testing
       },
-      subTitle: {
+      description: {
         skipEnabled: "दर्शकों को प्रश्न छोड़ने का विकल्प प्रदान करें",
         darkMode: "dark mode", // temporary. Will remove after review+testing
       },

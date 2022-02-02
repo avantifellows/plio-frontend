@@ -92,9 +92,8 @@ export default {
   },
 
   /**
-   * Update a user's settings
-   * @param {Number} userId - id of an user
-   * @param {Object} payload - the JSON settings object
+   * @param {Number} userId - id of the user whose settings need to be updated
+   * @param {Map} payload - the new value for settings as a Map datatype
    * @returns
    */
   updateUserSettings(userId, payload) {

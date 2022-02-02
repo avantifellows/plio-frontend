@@ -1,4 +1,4 @@
-/** Default values of the settings */
+/** Default settings */
 let skipEnabled = true;
 
 /**
@@ -7,18 +7,18 @@ let skipEnabled = true;
  * on the settings menu.
  *
  * "title" - The locale path of the title of a setting that will be shown on the main panel of the menu.
- * "subTitle" - The locale path of the subtitle to the above title
+ * "description" - The locale path of the description to the above title
  * "type" - The type of the setting. Options can be - checkbox, range, text, number etc
  */
 export let settingsMetadata = {
   skipEnabled: {
     title: "settings.menu.title.skipEnabled",
-    subTitle: "settings.menu.subTitle.skipEnabled",
+    description: "settings.menu.description.skipEnabled",
     type: "checkbox",
   },
   darkMode: {
     title: "settings.menu.title.darkMode",
-    subTitle: "settings.menu.subTitle.darkMode",
+    description: "settings.menu.description.darkMode",
     type: "checkbox",
   },
 };

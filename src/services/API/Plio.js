@@ -71,9 +71,8 @@ export default {
   },
 
   /**
-   * Update a plio's settings
-   * @param {String} plioId - uuid of a plio
-   * @param {Object} payload - JSON object that needs to be updated
+   * @param {String} plioId - uuid of a plio whose settings need to be updated
+   * @param {Map} payload - the new value for settings as a Map datatype
    * @returns
    */
   updatePlioSettings(plioId, payload) {
