@@ -23,7 +23,7 @@ const client = axios.create({
 // the interceptor below is doing the following things:
 // 1. Add trailing slash to every API call (if it's not there)
 // 2. Set access token to the API calls
-// 3. Retrieve organization id from current route and update activeWorkspace in vuex store. Then set Organization HTTP header for workspace.
+// 3. Retrieve workspace id from current route and update activeWorkspace in vuex store. Then set Organization HTTP header for workspace.
 client.interceptors.request.use(
   (config) => {
     if (config.url[config.url.length - 1] !== "/") {

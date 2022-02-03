@@ -459,7 +459,7 @@ export default {
       this.$router.replace(this.routeParams);
       this.$mixpanel.register({
         "User Status": this.user.status,
-        "Current Workspace": this.routeParams.params.org || "",
+        "Current Workspace": this.routeParams.params.workspace || "",
       });
       this.$mixpanel.track("Login", {
         "Login Type": loginType,

@@ -7,14 +7,14 @@ import Utilities from "@/services/Functional/Utilities.js";
 
 export default {
   /**
-   * @param {Number} orgId - id of an organization whose settings need to be updated
+   * @param {Number} workspaceId - id of a workspace whose settings need to be updated
    * @param {Map} payload - the new value for settings as a Map datatype
    * @returns
    */
-  updateWorkspaceSettings(orgId, payload) {
+  updateWorkspaceSettings(workspaceId, payload) {
     payload = Utilities.encodeMapToPayload(payload);
     return apiClient().patch(
-      organizationsEndpoint + orgId + settingsEndpoint,
+      organizationsEndpoint + workspaceId + settingsEndpoint,
       payload
     );
   },

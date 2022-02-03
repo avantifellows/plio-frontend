@@ -134,13 +134,13 @@ describe("Home.vue", () => {
       expect(mockRouter.push).toHaveBeenCalledWith({
         name: "Editor",
         params: {
-          org: "",
+          workspace: "",
           plioId: testPlioId,
         },
       });
     });
 
-    it("creates new plio with org's settings on clicking no-plios create button in org workspace", async () => {
+    it("creates new plio with organization's settings on clicking no-plios create button in organization's workspace", async () => {
       // mock router
       const mockRouter = {
         push: jest.fn(),
@@ -239,7 +239,7 @@ describe("Home.vue", () => {
       expect(mockRouter.push).toHaveBeenCalledWith({
         name: "Editor",
         params: {
-          org: store.state.auth.activeWorkspace,
+          workspace: store.state.auth.activeWorkspace,
           plioId: testPlioId,
         },
       });

@@ -424,7 +424,7 @@
         <Plio
           class="w-full"
           :plioId="plioId"
-          :org="org"
+          :workspace="workspace"
           :previewMode="true"
           :key="reRenderKey"
           containerClass="h-full"
@@ -584,7 +584,7 @@ export default {
       default: "",
       type: String,
     },
-    org: {
+    workspace: {
       default: "",
       type: String,
     },
@@ -1338,7 +1338,7 @@ export default {
      * prepare the link for the plio from the plio ID
      */
     plioLink() {
-      return this.getPlioLink(this.plioId, this.org);
+      return this.getPlioLink(this.plioId, this.workspace);
     },
     /**
      * title for the dialog box that appears when publishing a
@@ -1553,7 +1553,9 @@ export default {
      * copies the plio draft link to the clipboard
      */
     copyPlioDraftLink() {
-      let success = this.copyToClipboard(this.getPlioDraftLink(this.plioId, this.org));
+      let success = this.copyToClipboard(
+        this.getPlioDraftLink(this.plioId, this.workspace)
+      );
 
       if (success) this.toast.success(this.$t("toast.success.copying"));
       else this.toast.error(this.$t("toast.error.copying"));
@@ -1678,7 +1680,7 @@ export default {
       if (!this.isPublished) return;
       let routeData = this.$router.resolve({
         name: "Player",
-        params: { org: this.org, plioId: this.plioId },
+        params: { workspace: this.workspace, plioId: this.plioId },
       });
       // required for opening in a new tab
       window.open(routeData.href, "_blank");
@@ -1690,7 +1692,7 @@ export default {
       if (!this.isPublished) return;
       this.$router.push({
         name: "Dashboard",
-        params: { org: this.org, plioId: this.plioId },
+        params: { workspace: this.workspace, plioId: this.plioId },
       });
     },
     /**
@@ -1754,7 +1756,7 @@ export default {
      * returns the user back to Home
      */
     returnToHome() {
-      this.$router.push({ name: "Home", params: { org: this.org } });
+      this.$router.push({ name: "Home", params: { workspace: this.workspace } });
     },
     /**
      * navigate the player to the item selected in the item editor

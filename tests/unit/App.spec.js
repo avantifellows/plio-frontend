@@ -253,28 +253,28 @@ describe("App.vue for authenticated user", () => {
       );
     });
 
-    it("uses filtered global default settings for org when it's not available in DB", async () => {
+    it("uses filtered global default settings for workspace when it's not available in DB", async () => {
       // our currently logged in user has no settings present in its organization's configs
       // hence, it should use global default settings
-      let orgs = clonedeep(global.dummyUser.organizations);
-      orgs.forEach((org) => {
-        expect(store.state.auth.workspaceSettings[org.shortcode]).toStrictEqual(
-          global.dummyGlobalSettingsFilteredForOrgs
+      let workspaces = clonedeep(global.dummyUser.organizations);
+      workspaces.forEach((workspace) => {
+        expect(store.state.auth.workspaceSettings[workspace.shortcode]).toStrictEqual(
+          global.dummyGlobalSettingsFilteredForWorkspaces
         );
       });
 
       await store.dispatch("auth/setActiveWorkspace", "o1");
       expect(store.state.auth.activeWorkspace).toBe("o1");
       expect(store.getters["auth/activeWorkspaceSettings"]).toStrictEqual(
-        global.dummyGlobalSettingsFilteredForOrgs
+        global.dummyGlobalSettingsFilteredForWorkspaces
       );
       expect(wrapper.vm.activeWorkspaceSettings).toStrictEqual(
-        global.dummyGlobalSettingsFilteredForOrgs
+        global.dummyGlobalSettingsFilteredForWorkspaces
       );
     });
 
-    it("uses org's DB settings if it's available", async () => {
-      // create a new user which has a setting stored in one of the orgs (which came from the DB) different than the global setting
+    it("uses workspace's DB settings if it's available", async () => {
+      // create a new user which has a setting stored in one of the workspaces (which came from the DB) different than the global setting
       let dummyUserClone = clonedeep(global.dummyUser);
       dummyUserClone.organizations[1].config = {
         settings: Utilities.encodeMapToPayload(
@@ -365,48 +365,48 @@ describe("App.vue for authenticated user", () => {
     });
 
     it("shows all settings, even org level settings, if in personal workspace", async () => {
-      // create a dummy user with some org and non-org settings
+      // create a dummy user with some workspace and non-workspace settings
       let dummyUserNew = clonedeep(global.dummyUser);
       dummyUserNew.config.settings = Utilities.encodeMapToPayload(
         clonedeep(global.dummyGlobalSettings)
       );
       await loginNewUser(dummyUserNew);
 
-      // dummyGlobalSettings has a few settings which are org settings and some non org
+      // dummyGlobalSettings has a few settings which are workspace settings and some non workspace
       // settings as well.
       // Verifying if settingsToRender contains both types of keys
       expect(wrapper.vm.settingsToRender.get("player")).toBeTruthy();
       expect(wrapper.vm.settingsToRender.get("app")).toBeTruthy();
     });
 
-    it("hides org settings from the menu if user does not have access to a setting", async () => {
-      // create a dummy user with some org and non-org settings
+    it("hides workspace settings from the menu if user does not have access to a setting", async () => {
+      // create a dummy user with some workspace and non-workspace settings
       let dummyUserNew = clonedeep(global.dummyUser);
       dummyUserNew.config.settings = Utilities.encodeMapToPayload(
         clonedeep(global.dummyGlobalSettings)
       );
       dummyUserNew.organizations[0].config = {
         settings: Utilities.encodeMapToPayload(
-          clonedeep(global.dummyGlobalSettingsFilteredForOrgs)
+          clonedeep(global.dummyGlobalSettingsFilteredForWorkspaces)
         ),
       };
       dummyUserNew.organizations[0].role = "org-view";
 
       dummyUserNew.organizations[1].config = {
         settings: Utilities.encodeMapToPayload(
-          clonedeep(global.dummyGlobalSettingsFilteredForOrgs)
+          clonedeep(global.dummyGlobalSettingsFilteredForWorkspaces)
         ),
       };
       dummyUserNew.organizations[1].role = "org-admin";
       await loginNewUser(dummyUserNew);
 
-      // change the workspace to an org workspace
+      // change the active workspace
       await store.dispatch("auth/setActiveWorkspace", "o1");
 
       // the user does not have the correct role to view o1's settings
       // the player header requires someone with 'org-admin' or 'super-admin' roles to view
       expect(wrapper.vm.settingsToRender.has("player")).not.toBeTruthy();
-      // but nevertheless the header exists in the org settings and user settings
+      // but nevertheless the header exists in the workspace settings and user settings
       expect(wrapper.vm.userSettings.has("player")).toBeTruthy();
       expect(wrapper.vm.activeWorkspaceSettings.has("player")).toBeTruthy();
 
@@ -415,7 +415,7 @@ describe("App.vue for authenticated user", () => {
 
       // the user does have the correct role to view o2's settings
       expect(wrapper.vm.settingsToRender.has("player")).toBeTruthy();
-      // the header also exists in the org settings and user settings
+      // the header also exists in the workspace settings and user settings
       expect(wrapper.vm.userSettings.has("player")).toBeTruthy();
       expect(wrapper.vm.activeWorkspaceSettings.has("player")).toBeTruthy();
     });

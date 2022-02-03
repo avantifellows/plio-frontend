@@ -35,7 +35,7 @@ export let settingsMetadata = {
  * Every level has two properties. "scope" and "children".
  * "scope"
  *    - contains an array of user roles. A key is accessible to only those roles
- *    - if the array is empty, that means a particular key is not an org level setting and won't be available in
+ *    - if the array is empty, that means a particular key is not a workspace level setting and won't be available in
  * "children"
  *    - This is a Map which contains details about the settings that are nested inside a parent setting
  */

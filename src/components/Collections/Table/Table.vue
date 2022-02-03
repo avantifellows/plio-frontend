@@ -179,7 +179,7 @@ export default {
   props: {
     data: Array,
     columns: Array,
-    org: {
+    workspace: {
       default: "",
       type: String,
     },

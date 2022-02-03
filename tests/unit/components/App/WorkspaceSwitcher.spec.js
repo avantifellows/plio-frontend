@@ -60,7 +60,7 @@ describe("WorkspaceSwitcher.vue", () => {
       expect(mockRouter.push).toHaveBeenCalledWith({
         name: "Home",
         params: {
-          org: "",
+          workspace: "",
         },
       });
     });

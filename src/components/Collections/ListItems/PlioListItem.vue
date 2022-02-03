@@ -412,7 +412,7 @@ export default {
       // invoked when play button is clicked
       let routeData = this.$router.resolve({
         name: "Player",
-        params: { org: this.activeWorkspace, plioId: this.plioId },
+        params: { workspace: this.activeWorkspace, plioId: this.plioId },
       });
       // required for opening in a new tab
       window.open(routeData.href, "_blank");
@@ -421,7 +421,7 @@ export default {
       // invoked when edit button is clicked
       this.$router.push({
         name: "Editor",
-        params: { plioId: this.plioId, org: this.activeWorkspace },
+        params: { plioId: this.plioId, workspace: this.activeWorkspace },
       });
     },
     /**
@@ -479,7 +479,7 @@ export default {
         this.$Progress.finish();
         this.$router.push({
           name: "Editor",
-          params: { plioId: duplicatedPlioId, org: this.activeWorkspace },
+          params: { plioId: duplicatedPlioId, workspace: this.activeWorkspace },
         });
       });
     },
@@ -488,7 +488,7 @@ export default {
       // redirects to the dashboard page for the selected plio
       this.$router.push({
         name: "Dashboard",
-        params: { plioId: this.plioId, org: this.activeWorkspace },
+        params: { plioId: this.plioId, workspace: this.activeWorkspace },
       });
     },
   },

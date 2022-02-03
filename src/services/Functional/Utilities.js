@@ -178,7 +178,7 @@ export default {
 
     for (let [headerName, headerDetails] of settingsToRender) {
       if (!doesUserHasAccessTo(headerDetails)) {
-        // in case of an org workspace, we also need to check for scope. If the current user does not
+        // in case of a workspace, we also need to check for scope. If the current user does not
         // have rights for a particular setting, we remove that key from settingsToRender
         settingsToRender.delete(headerName);
         continue;
@@ -186,7 +186,7 @@ export default {
       settingsToRender.set(headerName, clonedeep(headerDetails.children));
       for (let [tabName, tabDetails] of settingsToRender.get(headerName)) {
         if (!doesUserHasAccessTo(tabDetails)) {
-          // in case of an org workspace, we also need to check for scope. If the current user does not
+          // in case of a workspace, we also need to check for scope. If the current user does not
           // have rights for a particular setting, we remove that key from settingsToRender
           settingsToRender.get(headerName).delete(tabName);
           if (settingsToRender.get(headerName).size == 0)
@@ -200,7 +200,7 @@ export default {
           .get(headerName)
           .get(tabName)) {
           if (!doesUserHasAccessTo(leafDetails)) {
-            // in case of an org workspace, we also need to check for scope. If the current user does not
+            // in case of a workspace, we also need to check for scope. If the current user does not
             // have rights for a particular setting, we remove that key from settingsToRender
             settingsToRender.get(headerName).get(tabName).delete(leafName);
             if (settingsToRender.get(headerName).get(tabName).size == 0)
@@ -211,7 +211,7 @@ export default {
           // these are the things added
           // - metadata     - contains the information on the title/description/type of the setting
           // - value        - value of that setting
-          // - isWorkspaceSetting - whether this is an org level setting or not
+          // - isWorkspaceSetting - whether this is a workspace level setting or not
           settingsToRender
             .get(headerName)
             .get(tabName)

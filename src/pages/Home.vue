@@ -7,7 +7,7 @@
       :columns="tableColumns"
       :tableTitle="tableTitle"
       :numTotal="totalNumberOfPlios"
-      :org="org"
+      :workspace="workspace"
       @search-plios="fetchPlios($event)"
       @reset-search-string="resetSearchString"
       @sort-num-viewers="sortPlios"
@@ -69,7 +69,7 @@ export default {
     Paginator,
   },
   props: {
-    org: {
+    workspace: {
       default: "",
       type: String,
     },
@@ -224,7 +224,7 @@ export default {
         if (updatePlioSettingsResponse.status == 200) {
           this.$router.push({
             name: "Editor",
-            params: { plioId: plioUuid, org: this.activeWorkspace },
+            params: { plioId: plioUuid, workspace: this.activeWorkspace },
           });
         }
       } else this.toast.error(this.$t("toast.error.create_plio"));

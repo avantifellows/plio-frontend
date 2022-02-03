@@ -133,7 +133,7 @@ describe("Editor.vue", () => {
     expect(wrapper.find('[data-test="publishButton"]').exists()).toBeTruthy();
   });
 
-  it("also shows copy draft link button when video is valid for org workspace", async () => {
+  it("also shows copy draft link button when video is valid for organization's workspace", async () => {
     wrapper = mount(Editor, {
       shallow: true,
       data() {
@@ -166,7 +166,7 @@ describe("Editor.vue", () => {
     await store.dispatch("auth/setActiveWorkspace", "");
   });
 
-  it("clicking on copy draft link button copies draft link in org workspace", async () => {
+  it("clicking on copy draft link button copies draft link in organization's workspace", async () => {
     // mock document.execCommand
     document.execCommand = jest.fn();
 
@@ -182,7 +182,7 @@ describe("Editor.vue", () => {
       },
       props: {
         plioId: plioId,
-        org: activeWorkspace,
+        workspace: activeWorkspace,
       },
     });
 
@@ -198,7 +198,7 @@ describe("Editor.vue", () => {
     draftLink = draftLink.replace("http://", "");
     draftLink = draftLink.replace("https://", "");
     expect(document.execCommand).toHaveBeenCalledWith("copy");
-    expect(wrapper.vm.getPlioDraftLink(wrapper.vm.plioId, wrapper.vm.org)).toBe(
+    expect(wrapper.vm.getPlioDraftLink(wrapper.vm.plioId, wrapper.vm.workspace)).toBe(
       draftLink
     );
     await store.dispatch("auth/setActiveWorkspace", "");
@@ -821,7 +821,7 @@ describe("Editor.vue", () => {
     expect(mockRouter.resolve).toHaveBeenCalledWith({
       name: "Player",
       params: {
-        org: "",
+        workspace: "",
         plioId: plioId,
       },
     });
@@ -979,7 +979,7 @@ describe("Editor.vue", () => {
     expect(mockRouter.push).toHaveBeenCalledWith({
       name: "Home",
       params: {
-        org: "",
+        workspace: "",
       },
     });
   });
@@ -1326,7 +1326,7 @@ describe("Editor.vue", () => {
     expect(mockRouter.resolve).toHaveBeenCalledWith({
       name: "Player",
       params: {
-        org: "",
+        workspace: "",
         plioId: plioId,
       },
     });
@@ -1458,7 +1458,7 @@ describe("Editor.vue", () => {
     expect(mockRouter.push).toHaveBeenCalledWith({
       name: "Home",
       params: {
-        org: "",
+        workspace: "",
       },
     });
   });
@@ -1554,7 +1554,7 @@ describe("Editor.vue", () => {
     expect(mockRouter.push).toHaveBeenCalledWith({
       name: "Dashboard",
       params: {
-        org: "",
+        workspace: "",
         plioId: "",
       },
     });
@@ -2364,7 +2364,7 @@ describe("Editor.vue", () => {
       expect(wrapper.get('[data-test="settings"]').exists()).toBeTruthy();
     });
 
-    it("hides org settings from the menu if user does not have access to a setting", async () => {
+    it("hides organization's settings from the menu if user does not have access to a setting", async () => {
       let dummySkipEnabledValue = false;
       let dummyTempSettingValue = true;
       let dummyPlio = clonedeep(global.dummyDraftPlio);

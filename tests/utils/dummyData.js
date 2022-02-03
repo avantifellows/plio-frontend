@@ -627,7 +627,7 @@ global.dummyGlobalSettings = new Map(
   })
 );
 
-global.dummyGlobalSettingsFilteredForOrgs = new Map(
+global.dummyGlobalSettingsFilteredForWorkspaces = new Map(
   Object.entries({
     player: {
       scope: ["org-admin", "super-admin"],

@@ -139,7 +139,7 @@ describe("Dashboard.vue", () => {
         expect(mockRouter.push).toHaveBeenCalledWith({
           name: "Editor",
           params: {
-            org: "",
+            workspace: "",
             plioId: plioId,
           },
         });
@@ -151,7 +151,7 @@ describe("Dashboard.vue", () => {
         expect(mockRouter.push).toHaveBeenCalledWith({
           name: "Player",
           params: {
-            org: "",
+            workspace: "",
             plioId: plioId,
           },
         });

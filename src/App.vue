@@ -390,10 +390,12 @@ export default {
       // set in the store. If not, then redirect to the personal workspace
       if (value) {
         this.menuSlideTransition = "";
-        let isUserInWorkspace = this.user.organizations.some((org) => {
+        let isUserInWorkspace = this.user.organizations.some((organization) => {
           // no need to redirect if the user belongs to the workspace
           // or the user is in the personal workspace
-          return org.shortcode == this.activeWorkspace || this.activeWorkspace == "";
+          return (
+            organization.shortcode == this.activeWorkspace || this.activeWorkspace == ""
+          );
         });
 
         if (!isUserInWorkspace) {
@@ -489,64 +491,66 @@ export default {
     ...mapActions("selectors", ["hideSelector"]),
     ...Utilities,
     /**
-     * NOTE - In this method, "org" will be used in place of "workspace"
-     * to keep variable names short and readable.
-     *
-     * This method merges the user's and org's settings.
-     * This is needed to show both org level and user level settings in one settings menu.
+     * This method merges the user's and workspace's settings.
+     * This is needed to show both workspace level and user level settings in one settings menu.
      * The global default settings object is used as a structure of the keys to iterate on.
      * While iterating on the keys of the global default settings object, these rules are followed to merge
-     * - If a key is not present in org's settings, use the key from user's settings and skip to next key
-     * - If a key is present in org's settings, use the scope for that key and move to its children
+     * - If a key is not present in workspace's settings, use the key from user's settings and skip to next key
+     * - If a key is present in workspace's settings, use the scope for that key and move to its children
      * - The above process is done for headers, tabs and atomic settings.
-     * - For the lowest level keys (atomic settings), use org's setting value if available otherwise use user's setting value
+     * - For the lowest level keys (leaf nodes), use workspace's setting value if available otherwise use user's setting value
      *
      * @param {Object} userSettings - User's version of settings
-     * @param {Object} orgSettings - Org's version of settings
-     * @returns {Object} An object with user's and org's settings merged (with org's settings taking priority)
+     * @param {Object} workspaceSettings - workspace's version of settings
+     * @returns {Object} An object with user's and workspace's settings merged (with workspace's settings taking priority)
      */
-    mergeSettings(userSettings, orgSettings) {
+    mergeSettings(userSettings, workspaceSettings) {
       // making a deep clone of global default settings.
-      // the keys/values will be removed/updated according to user/org settings as we iterate
+      // the keys/values will be removed/updated according to user/workspace settings as we iterate
       let mergedSettings = clonedeep(globalDefaultSettings);
       for (let [headerName, headerDetails] of mergedSettings) {
         // iterating on headers
-        let headersInOrgSettings = [...orgSettings.keys()];
-        if (!headersInOrgSettings.includes(headerName)) {
-          // if the current header name is not present in org settings,
+        let workspaceHeaders = [...workspaceSettings.keys()];
+        if (!workspaceHeaders.includes(headerName)) {
+          // if the current header name is not present in workspace settings,
           // pick the details from user's settings and put it into merged settings object
           mergedSettings.set(headerName, userSettings.get(headerName));
           continue;
         }
-        // if the current header name is present in org settings, use its scope information
-        mergedSettings.get(headerName).scope = orgSettings.get(headerName).scope;
+        // if the current header name is present in workspace settings, use its scope information
+        mergedSettings.get(headerName).scope = workspaceSettings.get(headerName).scope;
 
         for (let [tabName, tabDetails] of headerDetails.children) {
           // iterating on tabs inside headerName
-          let tabsInOrgSettings = [...orgSettings.get(headerName).children.keys()];
-          if (!tabsInOrgSettings.includes(tabName)) {
-            // if the current tab name is not present in org settings,
+          let workspaceTabs = [...workspaceSettings.get(headerName).children.keys()];
+          if (!workspaceTabs.includes(tabName)) {
+            // if the current tab name is not present in workspace settings,
             // pick the details from user's settings and put it into merged settings object
             mergedSettings
               .get(headerName)
               .children.set(tabName, userSettings.get(headerName).children.get(tabName));
             continue;
           }
-          // if the current tab name IS present in org settings, use its scope information
-          mergedSettings.get(headerName).children.get(tabName).scope = orgSettings
+          // if the current tab name IS present in workspace settings, use its scope information
+          mergedSettings
+            .get(headerName)
+            .children.get(tabName).scope = workspaceSettings
             .get(headerName)
             .children.get(tabName).scope;
 
           for (let [leafName] of tabDetails.children) {
             // iterating on leaf nodes inside tabName
-            let leafsInOrgSettings = [
-              ...orgSettings.get(headerName).children.get(tabName).children.keys(),
+            let workspaceLeafs = [
+              ...workspaceSettings.get(headerName).children.get(tabName).children.keys(),
             ];
-            // if the current leaf name is not present in org settings,
+            // if the current leaf name is not present in workspace settings,
             // pick the details from user's settings else pick it up from
-            // org's settings and put it into merged settings object
-            let validLeafDetails = leafsInOrgSettings.includes(leafName)
-              ? orgSettings.get(headerName).children.get(tabName).children.get(leafName)
+            // workspace's settings and put it into merged settings object
+            let validLeafDetails = workspaceLeafs.includes(leafName)
+              ? workspaceSettings
+                  .get(headerName)
+                  .children.get(tabName)
+                  .children.get(leafName)
               : userSettings.get(headerName).children.get(tabName).children.get(leafName);
 
             mergedSettings
@@ -723,7 +727,7 @@ export default {
     /** redirects to the home page */
     redirectToHome() {
       if (this.isMobileScreen) this.resetMenuState();
-      this.$router.push({ name: "Home", params: { org: this.activeWorkspace } });
+      this.$router.push({ name: "Home", params: { workspace: this.activeWorkspace } });
     },
     /** redirects to the What's New page */
     redirectToWhatsNew() {
@@ -782,7 +786,7 @@ export default {
         if (updatePlioSettingsResponse.status == 200) {
           this.$router.push({
             name: "Editor",
-            params: { plioId: plioUuid, org: this.activeWorkspace },
+            params: { plioId: plioUuid, workspace: this.activeWorkspace },
           });
         }
       } else this.toast.error(this.$t("toast.error.create_plio"));
@@ -851,7 +855,7 @@ export default {
       })
         .then(() => {
           this.hideSpinner();
-          this.$router.push({ name: "Home", params: { org: selectedOptionValue } });
+          this.$router.push({ name: "Home", params: { workspace: selectedOptionValue } });
         })
         .catch(() => {
           this.hideSpinner();
@@ -1217,8 +1221,8 @@ export default {
       if (this.user == null) return [];
       var shortcodes = [];
 
-      this.user.organizations.forEach((organization) => {
-        shortcodes.push(organization.shortcode);
+      this.user.organizations.forEach((workspace) => {
+        shortcodes.push(workspace.shortcode);
       });
 
       return shortcodes;

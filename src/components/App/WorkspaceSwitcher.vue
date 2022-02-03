@@ -56,7 +56,7 @@ export default {
         "Current Workspace": this.selectedWorkspace,
       });
       this.setActiveWorkspace(this.selectedWorkspace);
-      this.$router.push({ name: "Home", params: { org: this.activeWorkspace } });
+      this.$router.push({ name: "Home", params: { workspace: this.activeWorkspace } });
     },
   },
   mounted() {

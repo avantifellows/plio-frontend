@@ -261,7 +261,7 @@ export default {
       })
         .then(async (response) => {
           await this.setAccessToken(response.data);
-          await this.setActiveWorkspace(this.org);
+          await this.setActiveWorkspace(this.workspace);
           thirdPartyAuthPromiseResolve();
         })
         .catch((error) => {
@@ -276,7 +276,7 @@ export default {
             this.$router.replace({
               name: "Player",
               params: {
-                org: this.org,
+                workspace: this.workspace,
                 plioId: this.plioId,
               },
             });
@@ -307,7 +307,7 @@ export default {
       default: "",
       type: String,
     },
-    org: {
+    workspace: {
       default: "",
       type: String,
     },
