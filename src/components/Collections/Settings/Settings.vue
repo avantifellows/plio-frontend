@@ -24,7 +24,7 @@
               class="font-bold text-gray-500 whitespace-nowrap lg:text-xl md:text-lg bp-500:text-base text-3xl tracking-tighter px-2 pl-5 bp-500:py-0 py-4"
               :data-test="`header-${headerName}`"
             >
-              {{ $t(`settings.sidebar.header.${headerName}`) + " " + $t("nav.settings") }}
+              {{ $t(`settings.sidebar.header.${headerName}`) }}
             </div>
             <!-- tab names -->
             <div
@@ -63,7 +63,7 @@
                     >
                       {{ $t(leafDetails.description) || "" }}
                     </p>
-                    <!-- badge to notify an admin setting -->
+                    <!-- badge to mark an admin setting -->
                     <simple-badge
                       v-if="leafDetails.isOrgSetting"
                       text="admin"
@@ -71,13 +71,13 @@
                     ></simple-badge>
                   </div>
                   <input
-                    v-if="leafDetails.type == 'checkbox'"
+                    v-if="isCheckboxSetting(leafDetails.type)"
                     type="checkbox"
                     :class="getInputElementClass(leafDetails.type)"
                     style="box-shadow: none"
                     :checked="leafDetails.value"
                     @change="updateCheckboxSetting($event.target.checked, leafDetails)"
-                    data-test="setting-input"
+                    data-test="input"
                   />
                 </div>
               </div>
@@ -137,7 +137,7 @@
             style="box-shadow: none"
             :checked="leafDetails.value"
             @change="updateCheckboxSetting($event.target.checked, leafDetails)"
-            data-test="setting-input"
+            data-test="input"
           />
         </div>
         <div class="w-full flex flex-col mt-10 bp-500:mt-0">
@@ -327,13 +327,19 @@ export default {
   },
   methods: {
     ...Utilities,
+    isCheckboxSetting(settingType) {
+      return settingType == "checkbox";
+    },
+    isTabSelected(tabName) {
+      return this.currentSelectedTabName == tabName;
+    },
     /**
      * Get the style classes for a particular toggable tab
      */
     getTabToggleClass(tabName) {
       return [
         {
-          "transform rotate-90": tabName == this.currentSelectedTabName,
+          "transform rotate-90": this.isTabSelected(tabName),
         },
         "w-4 h-4 text-yellow-600 fill-current my-auto transition duration-800 mr-2",
       ];
@@ -349,9 +355,9 @@ export default {
       return [
         {
           "text-primary bg-gray-100 border-r-outset border-yellow-500 pl-6 hover:bg-gray-100":
-            this.currentSelectedTabName == tabName && !this.isMobileView,
-          "text-gray-500 ": this.currentSelectedTabName != tabName && this.isMobileView,
-          "text-primary": this.currentSelectedTabName == tabName && this.isMobileView,
+            this.isTabSelected(tabName) && !this.isMobileView,
+          "text-gray-500 ": !this.isTabSelected(tabName) && this.isMobileView,
+          "text-primary": this.isTabSelected(tabName) && this.isMobileView,
           "leading-snug": this.isMobileView,
           "leading-relaxed pl-6": !this.isMobileView,
         },
@@ -375,7 +381,7 @@ export default {
      * @param {Object} tabDetails - The details of the tab that is to be marked selected
      */
     selectTab(tabName, tabDetails) {
-      if (this.isMobileView && tabName == this.currentSelectedTabName) {
+      if (this.isMobileView && this.isTabSelected(tabName)) {
         // in mobile view, the tabs are toggable
         // if someone clicks on an already opened tab, close it and currentSelectedTab
         // will be set to empty

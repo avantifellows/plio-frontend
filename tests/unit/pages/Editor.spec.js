@@ -2535,9 +2535,7 @@ describe("Editor.vue", () => {
 
         // find the settings component, click one of the setting values and click save
         let settingsComponent = wrapper.findComponent(Settings);
-        await settingsComponent
-          .find('[data-test="setting-input"]')
-          .trigger("click");
+        await settingsComponent.find('[data-test="input"]').trigger("click");
         await settingsComponent
           .find('[data-test="saveButton"]')
           .trigger("click");
@@ -2563,9 +2561,7 @@ describe("Editor.vue", () => {
         await wrapper.get('[data-test="settingsButton"]').trigger("click");
         // find the settings component, click one of the setting values and click save
         let settingsComponent = wrapper.findComponent(Settings);
-        await settingsComponent
-          .find('[data-test="setting-input"]')
-          .trigger("click");
+        await settingsComponent.find('[data-test="input"]').trigger("click");
         await settingsComponent
           .find('[data-test="saveButton"]')
           .trigger("click");

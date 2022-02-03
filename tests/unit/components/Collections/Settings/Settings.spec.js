@@ -90,7 +90,7 @@ describe("PlioListItem.vue", () => {
       },
     });
 
-    await wrapper.get('[data-test="setting-input"]').trigger("click");
+    await wrapper.get('[data-test="input"]').trigger("click");
     await wrapper.get('[data-test="saveButton"]').trigger("click");
     expect(saveChanges).toHaveBeenCalled();
     expect(wrapper.emitted()).toHaveProperty("update:settings");
