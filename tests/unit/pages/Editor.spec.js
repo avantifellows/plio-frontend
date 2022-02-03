@@ -2339,9 +2339,9 @@ describe("Editor.vue", () => {
           };
         },
       });
-      let settingsModal = wrapper.get('[data-test="settingsModal"]');
-      expect(settingsModal.exists()).toBeTruthy();
-      wrapper.vm.$refs.settingsModal.$emit("window-closed");
+      let settingsMenu = wrapper.get('[data-test="settings"]');
+      expect(settingsMenu.exists()).toBeTruthy();
+      wrapper.vm.$refs.settings.$emit("window-closed");
       expect(closeSettingsMenu).toHaveBeenCalled();
       expect(wrapper.vm.isSettingsMenuShown).toBeFalsy();
     });
@@ -2361,7 +2361,7 @@ describe("Editor.vue", () => {
       await wrapper.get('[data-test="settingsButton"]').trigger("click");
       expect(showSettingsMenu).toHaveBeenCalled();
       expect(wrapper.vm.isSettingsMenuShown).toBeTruthy();
-      expect(wrapper.get('[data-test="settingsModal"]').exists()).toBeTruthy();
+      expect(wrapper.get('[data-test="settings"]').exists()).toBeTruthy();
     });
 
     it("hides org settings from the menu if user does not have access to a setting", async () => {

@@ -507,12 +507,12 @@
     <Settings
       class="fixed z-20 justify-center mx-auto"
       @window-closed="closeSettingsMenu"
-      :isSaveAndPublishEnabled="isPublished"
+      :isPublishedPlio="isPublished"
       v-if="isSettingsMenuShown"
       v-model:settings="settingsToRender"
       v-click-away="closeSettingsMenu"
-      data-test="settingsModal"
-      ref="settingsModal"
+      data-test="settings"
+      ref="settings"
     ></Settings>
   </div>
 </template>
@@ -1439,9 +1439,9 @@ export default {
             clonedeep(
               this.settingsToRender.get(headerName).get(tabName).get(leafName).value
             ),
-          (value, prevValue) => {
+          (newValue, oldValue) => {
             // if the value hasn't changed, do nothing
-            if (value === prevValue) return;
+            if (newValue === oldValue) return;
 
             // if the value has changed
             // - update the plioSettings object
@@ -1450,7 +1450,7 @@ export default {
             this.plioSettings
               .get(headerName)
               .children.get(tabName)
-              .children.get(leafName).value = value;
+              .children.get(leafName).value = newValue;
 
             if (!this.isPublished)
               PlioAPIService.updatePlioSettings(this.plioId, this.plioSettings);

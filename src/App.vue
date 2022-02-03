@@ -599,9 +599,9 @@ export default {
             clonedeep(
               this.settingsToRender.get(headerName).get(tabName).get(leafName).value
             ),
-          (value, prevValue) => {
+          (newValue, oldValue) => {
             // if the value hasn't changed, do nothing
-            if (value === prevValue) return;
+            if (newValue === oldValue) return;
 
             // if the value has changed, update the settings
             // in the Vuex store and on the server as well
@@ -610,7 +610,7 @@ export default {
               newOrgSettings
                 .get(headerName)
                 .children.get(tabName)
-                .children.get(leafName).value = value;
+                .children.get(leafName).value = newValue;
               this.updateWorkspaceStoreSettings(newOrgSettings);
               OrganizationAPIService.updateWorkspaceSettings(
                 this.activeWorkspaceId,
@@ -621,7 +621,7 @@ export default {
               newUserSettings
                 .get(headerName)
                 .children.get(tabName)
-                .children.get(leafName).value = value;
+                .children.get(leafName).value = newValue;
 
               this.updateUserStoreSettings(newUserSettings);
               UserAPIService.updateUserSettings(this.userId, newUserSettings);
