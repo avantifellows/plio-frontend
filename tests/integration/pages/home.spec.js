@@ -9,15 +9,12 @@ fixture("Home - English")
 
 test("sees the home page", async (testcafe) => {
   const noPlioSection = Selector('[data-test="noPlio"]');
-  await testcafe.expect(noPlioSection.visible).ok();
-
   const plioTable = Selector('[data-test="table"]');
-  await testcafe.expect(plioTable.exists).notOk();
-  // const noPliosExist = await noPlioSection.exists;
+  const noPliosExist = await noPlioSection.exists;
 
-  // if (noPliosExist)
-  //   // plio table should not exist as there are no plios
-  //   await testcafe.expect(plioTable.exists).notOk();
-  // // plio table should exist as there are plios
-  // else await testcafe.expect(plioTable.exists).ok();
+  if (noPliosExist)
+    // plio table should not exist as there are no plios
+    await testcafe.expect(plioTable.exists).notOk();
+  // plio table should exist as there are plios
+  else await testcafe.expect(plioTable.exists).ok();
 });
