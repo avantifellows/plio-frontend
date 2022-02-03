@@ -518,7 +518,7 @@ export default {
           mergedSettings.set(headerName, userSettings.get(headerName));
           continue;
         }
-        // if the current header name IS present in org settings, use its scope information
+        // if the current header name is present in org settings, use its scope information
         mergedSettings.get(headerName).scope = orgSettings.get(headerName).scope;
 
         for (let [tabName, tabDetails] of headerDetails.children) {
