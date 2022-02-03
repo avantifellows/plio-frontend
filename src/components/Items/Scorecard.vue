@@ -209,7 +209,7 @@ export default {
           this.localProgressBarPercentage = this.progressPercentage;
         }, PROGRESS_BAR_ANIMATION_DELAY_TIME);
 
-        // Also, throw some confetti in there
+        // also, throw some confetti in there
         throwConfetti(confettiHandler);
       } else {
         // if scorecard is not visible anymore, reset things

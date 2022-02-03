@@ -4,7 +4,7 @@ import Utilities from "@/services/Functional/Utilities.js";
 
 let clonedeep = require("lodash.clonedeep");
 
-// Reference: https://medium.com/front-end-weekly/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
+// reference: https://medium.com/front-end-weekly/persisting-user-authentication-with-vuex-in-vue-b1514d5d3278
 const state = {
   accessToken: null,
   config: null,
@@ -116,6 +116,7 @@ const actions = {
     commit("updateUserStatus", status);
   },
   async fetchAndUpdateUser({ dispatch, state }) {
+    // if (getters.isAuthenticated) dispatch("unsetUser");
     let response = await UserAPIService.getUserByAccessToken(
       state.accessToken.access_token
     );

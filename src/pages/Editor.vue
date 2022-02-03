@@ -734,7 +734,7 @@ export default {
       isSettingsMenuShown: false,
       plioSettings: null, // the settings for the opened plio
       settingsToRender: new Map(), // the settings + metadata that needs to be rendered
-      settingsWatchers: [], // The unwatch callbacks to the watchers attached to individual settings
+      settingsWatchers: [], // the unwatch callbacks to the watchers attached to individual settings
       newVideoDetails: null, // details for a video being considered for updating the video inside a plio
     };
   },
@@ -751,13 +751,10 @@ export default {
   },
   watch: {
     isSettingsMenuShown(value) {
-      // Don't show the settings tooltip if the settings menu is open
+      // don't show the settings tooltip if the settings menu is open
       const tooltip = document.getElementById("settingsButton")._tippy;
       if (tooltip == undefined) return;
       value ? tooltip.disable() : tooltip.enable();
-    },
-    activeWorkspace() {
-      this.constructSettingsMenu();
     },
     /**
      * Whenever itemTimestamps is updated, check if the current item timestamp is
@@ -1421,17 +1418,17 @@ export default {
      * and add a watcher which will trigger when the value for that setting has been changed.
      */
     constructSettingsMenu() {
-      // Unwatch any attached watchers
+      // unwatch any attached watchers
       this.settingsWatchers.forEach((unwatch) => unwatch());
 
-      // Keep a clone of the plio settings in a local variable
+      // keep a clone of the plio settings in a local variable
       this.settingsToRender = clonedeep(this.plioSettings);
       let preparedDetails = Utilities.prepareSettingsToRender(this.settingsToRender, {
         isPersonalWorkspace: this.isPersonalWorkspace,
         userRoleInActiveWorkspace: this.userRoleInActiveWorkspace,
       });
 
-      // Adding a watcher to the individual setting values
+      // adding a watcher to the individual setting values
       preparedDetails.settingsToWatch.forEach((leafNodePathDetails) => {
         let headerName = leafNodePathDetails.headerName;
         let tabName = leafNodePathDetails.tabName;
@@ -1455,7 +1452,8 @@ export default {
               .children.get(tabName)
               .children.get(leafName).value = value;
 
-            if (!this.isPublished) this.updatePlioSettings();
+            if (!this.isPublished)
+              PlioAPIService.updatePlioSettings(this.plioId, this.plioSettings);
             else this.publishPlio();
           },
           { deep: true }
@@ -1463,10 +1461,6 @@ export default {
         // add the unwatch callback to an array for later use
         this.settingsWatchers.push(settingWatcher);
       });
-    },
-    /** update the plio settings object on the DB */
-    updatePlioSettings() {
-      PlioAPIService.updatePlioSettings(this.plioId, this.plioSettings);
     },
     closeSettingsMenu() {
       this.isSettingsMenuShown = false;
@@ -2063,7 +2057,7 @@ export default {
     async updateVideo(id, payload) {
       // 'url' key in the payload is a required field
       if (id == null && Object.prototype.hasOwnProperty.call(payload, "url")) {
-        // Create the video and link it to the plio
+        // create the video and link it to the plio
         let createdVideo = await VideoAPIService.createVideo(payload);
         this.videoDBId = createdVideo.data.id;
         await this.updatePlio(this.plioId, { video: this.videoDBId });
@@ -2112,7 +2106,7 @@ export default {
       // and update the changes only if already published
       this.isBeingPublished = true;
       this.status = "published";
-      this.updatePlioSettings();
+      PlioAPIService.updatePlioSettings(this.plioId, this.plioSettings);
       await this.saveChanges("all");
       this.isBeingPublished = false;
       this.isPublishedPlioDialogShown = true;

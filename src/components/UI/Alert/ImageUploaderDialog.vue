@@ -93,7 +93,7 @@ import VueImageUploader from "@/components/Vue2PortedPackages/VueImageUploader.v
 import Utilities from "@/services/Functional/Utilities.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 
-// Images more than 10 MB are not allowed to be uploaded
+// images more than 10 MB are not allowed to be uploaded
 const MAX_IMAGE_UPLOAD_SIZE = 10485760;
 
 export default {

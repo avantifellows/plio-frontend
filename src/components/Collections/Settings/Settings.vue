@@ -242,17 +242,17 @@ export default {
   },
   props: {
     settings: {
-      // This contains all the settings and their metadata which needs to be rendered
+      // this contains all the settings and their metadata which needs to be rendered
       type: Object,
       default: null,
     },
     isInfoMessageVisible: {
-      // If the info message is visible in the settings menu
+      // if the info message is visible in the settings menu
       type: Boolean,
       default: false,
     },
     isSaveAndPublishEnabled: {
-      // If the save button will also act as the publish button
+      // if the save button will also act as the publish button
       type: Boolean,
       default: false,
     },
@@ -260,19 +260,19 @@ export default {
   watch: {
     settings: {
       handler() {
-        // Whenever the settings prop changes, set a default selected tab
+        // whenever the settings prop changes, set a default selected tab
         this.setCurrentSelectedTab();
       },
       deep: true,
     },
     screenWidth() {
-      // Update the `isMobileView` variable as screen width changes
+      // update the `isMobileView` variable as screen width changes
       this.isMobileView = this.screenWidth < 500 ? true : false;
     },
   },
   created() {
     if (!this.isMobileView) {
-      // Set a default selected tab if the screen is not in mobile view
+      // set a default selected tab if the screen is not in mobile view
       this.setCurrentSelectedTab();
     }
 
@@ -377,13 +377,13 @@ export default {
      */
     selectTab(tabName, tabDetails) {
       if (this.isMobileView && tabName == this.currentSelectedTabName) {
-        // In mobile view, the tabs are toggable
-        // If someone clicks on an already opened tab, close it and currentSelectedTab
+        // in mobile view, the tabs are toggable
+        // if someone clicks on an already opened tab, close it and currentSelectedTab
         // will be set to empty
         this.currentSelectedTab.clear();
         this.currentSelectedTab = new Map();
       } else {
-        // Mark the clicked tab as the currentSelectedTab
+        // mark the clicked tab as the currentSelectedTab
         this.currentSelectedTab.clear();
         this.currentSelectedTab.set(tabName, tabDetails);
       }

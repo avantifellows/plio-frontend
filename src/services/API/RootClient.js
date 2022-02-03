@@ -70,7 +70,7 @@ client.interceptors.response.use(
     // error status
     const status = error.response ? error.response.status : null;
 
-    // If refresh token is invalid (400 BAD REQUEST)
+    // if refresh token is invalid (400 BAD REQUEST)
     if (
       error.config != undefined &&
       error.config.url == refreshTokenEndpoint &&
@@ -84,9 +84,9 @@ client.interceptors.response.use(
       return new Promise(() => {});
     }
 
-    // Handle expired/deleted access token here
+    // handle expired/deleted access token here
     if (status === 401) {
-      // re-authenticate the user if this is the first re-authentication call. While re-authentication is going on
+      // Re-authenticate the user if this is the first re-authentication call. While re-authentication is going on
       // if some other request ends up here, then wait for the re-authentication process to finish. Once that is done,
       // set the newly retrieved access token as an auth header and retry the request. Any errors in the re-authentication
       // process are caught and the user is logged out.
@@ -108,12 +108,12 @@ client.interceptors.response.use(
               await UserFunctionalService.reAuthenticate(store);
               break;
           }
-          // Add the new access token recieved from the re-authentication process
+          // add the new access token recieved from the re-authentication process
           // to the header of the request and retry the request
           let newAccessToken = store.state.auth.accessToken.access_token;
           error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
           if (error.config.url == userFromTokenEndpoint) {
-            // If the call is fetching a user from an access token, we need to update the
+            // if the call is fetching a user from an access token, we need to update the
             // request params with the new access token
             error.config.params["token"] = newAccessToken;
           }

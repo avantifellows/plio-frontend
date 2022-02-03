@@ -171,7 +171,7 @@ export default {
         headerDetails.scope.length > 0 &&
         !headerDetails.scope.includes(data.userRoleInActiveWorkspace)
       ) {
-        // In case of an org workspace, we also need to check for scope. If the current user does not
+        // in case of an org workspace, we also need to check for scope. If the current user does not
         // have rights for a particular setting, we remove that key from settingsToRender
         settingsToRender.delete(headerName);
         continue;
@@ -183,7 +183,7 @@ export default {
           tabDetails.scope.length > 0 &&
           !tabDetails.scope.includes(data.userRoleInActiveWorkspace)
         ) {
-          // In case of an org workspace, we also need to check for scope. If the current user does not
+          // in case of an org workspace, we also need to check for scope. If the current user does not
           // have rights for a particular setting, we remove that key from settingsToRender
           settingsToRender.get(headerName).delete(tabName);
           if (settingsToRender.get(headerName).size == 0)
@@ -201,15 +201,15 @@ export default {
             leafDetails.scope.length > 0 &&
             !leafDetails.scope.includes(data.userRoleInActiveWorkspace)
           ) {
-            // In case of an org workspace, we also need to check for scope. If the current user does not
+            // in case of an org workspace, we also need to check for scope. If the current user does not
             // have rights for a particular setting, we remove that key from settingsToRender
             settingsToRender.get(headerName).get(tabName).delete(leafName);
             if (settingsToRender.get(headerName).get(tabName).size == 0)
               settingsToRender.get(headerName).delete(tabName);
             continue;
           }
-          // After reaching the leaf node, we add some extra data to the setting meant for rendering
-          // These are the things added
+          // after reaching the leaf node, we add some extra data to the setting meant for rendering
+          // these are the things added
           // - metadata     - contains the information on the title/description/type of the setting
           // - value        - value of that setting
           // - isOrgSetting - whether this is an org level setting or not

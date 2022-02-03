@@ -106,7 +106,7 @@ var isEqual = require("deep-eql");
 var POP_UP_CHECKING_FREQUENCY = 0.5;
 var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 
-// The time period in which Plyr timeupdate event repeats
+// the time period in which Plyr timeupdate event repeats
 // in seconds
 const PLYR_INTERVAL_TIME = 0.05;
 
@@ -902,7 +902,7 @@ export default {
     playerReady() {
       // invoked when the player is ready
       this.showItemMarkersOnSlider();
-      // Only show the scorecard when items are present in the plio
+      // only show the scorecard when items are present in the plio
       if (this.isScorecardEnabled) this.showScorecardMarkerOnSlider();
       this.setPlayerTime(this.currentTimestamp);
       this.$mixpanel.track("Visit Player", {
@@ -913,7 +913,7 @@ export default {
       // sets various properties based on the screen size
       this.setScreenProperties();
 
-      // Disabling autoplay because of bug - issue #157
+      // disabling autoplay because of bug - issue #157
       // this.playPlayer();
     },
     /**
@@ -949,7 +949,7 @@ export default {
         let existingMarker = document.getElementById(`plioModalMarker-${index}`);
         if (existingMarker != undefined) this.removeMarkerOnSlider(existingMarker);
 
-        // Add marker to player seek bar
+        // add marker to player seek bar
         let newMarker = document.createElement("SPAN");
         newMarker.setAttribute("id", `plioModalMarker-${index}`);
 
@@ -967,7 +967,7 @@ export default {
      * Place the marker emoji for scorecard on the plyr progress bar
      */
     showScorecardMarkerOnSlider() {
-      // Add marker to player seek bar
+      // add marker to player seek bar
       let newMarker = document.createElement("p");
       newMarker.setAttribute("id", `plioScorecardMarker`);
 

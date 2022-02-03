@@ -294,8 +294,8 @@ export default {
         "text-xl bp-500:text-sm md:text-base lg:text-lg ml-4 text-gray-500 group-hover:text-primary", // common classes for the text of the menu buttons
       menuSlideTransition: "", // transition name for menu sliding effect
       isSettingsMenuShown: false,
-      settingsToRender: {}, // The settings object that will be rendered when settings menu is opened
-      settingsWatchers: [], // The unwatch callbacks to the watchers attached to individual settings
+      settingsToRender: {}, // the settings object that will be rendered when settings menu is opened
+      settingsWatchers: [], // the unwatch callbacks to the watchers attached to individual settings
     };
   },
   async created() {
@@ -353,11 +353,15 @@ export default {
     UserConfigService.setLocaleFromUserConfig();
   },
   watch: {
+    userSettings() {
+      this.constructSettingsMenu();
+    },
+    activeWorkspaceSettings() {
+      this.constructSettingsMenu();
+    },
     activeWorkspace() {
       // close the side menu if in mobile mode and the workspace changes
       if (this.isMobileScreen) this.resetMenuState();
-
-      // Re construct the settings menu whenever the workspace changes
       this.constructSettingsMenu();
     },
     currentRoute() {
@@ -437,7 +441,7 @@ export default {
           "User Status": this.user.status,
           "Current Workspace": this.activeWorkspace,
         });
-        // Re construct the settings menu whenever the user gets updated
+        // re construct the settings menu whenever the user gets updated
         this.constructSettingsMenu();
       },
       deep: true,
@@ -502,33 +506,33 @@ export default {
      * @returns {Object} An object with user's and org's settings merged (with org's settings taking priority)
      */
     mergeSettings(userSettings, orgSettings) {
-      // Making a deep clone of global default settings.
-      // The keys/values will be removed/updated according to user/org settings as we iterate
+      // making a deep clone of global default settings.
+      // the keys/values will be removed/updated according to user/org settings as we iterate
       let mergedSettings = clonedeep(globalDefaultSettings);
       for (let [headerName, headerDetails] of mergedSettings) {
         // iterating on headers
         let headersInOrgSettings = [...orgSettings.keys()];
         if (!headersInOrgSettings.includes(headerName)) {
-          // If the current header name is not present in org settings,
+          // if the current header name is not present in org settings,
           // pick the details from user's settings and put it into merged settings object
           mergedSettings.set(headerName, userSettings.get(headerName));
           continue;
         }
-        // If the current header name IS present in org settings, use its scope information
+        // if the current header name IS present in org settings, use its scope information
         mergedSettings.get(headerName).scope = orgSettings.get(headerName).scope;
 
         for (let [tabName, tabDetails] of headerDetails.children) {
           // iterating on tabs inside headerName
           let tabsInOrgSettings = [...orgSettings.get(headerName).children.keys()];
           if (!tabsInOrgSettings.includes(tabName)) {
-            // If the current tab name is not present in org settings,
+            // if the current tab name is not present in org settings,
             // pick the details from user's settings and put it into merged settings object
             mergedSettings
               .get(headerName)
               .children.set(tabName, userSettings.get(headerName).children.get(tabName));
             continue;
           }
-          // If the current tab name IS present in org settings, use its scope information
+          // if the current tab name IS present in org settings, use its scope information
           mergedSettings.get(headerName).children.get(tabName).scope = orgSettings
             .get(headerName)
             .children.get(tabName).scope;
@@ -538,7 +542,7 @@ export default {
             let leafsInOrgSettings = [
               ...orgSettings.get(headerName).children.get(tabName).children.keys(),
             ];
-            // If the current leaf name is not present in org settings,
+            // if the current leaf name is not present in org settings,
             // pick the details from user's settings else pick it up from
             // org's settings and put it into merged settings object
             let validLeafDetails = leafsInOrgSettings.includes(leafName)
@@ -562,7 +566,11 @@ export default {
      * and add a watcher which will trigger when the value for that setting has been changed.
      */
     constructSettingsMenu() {
-      // Unwatch any attached watchers
+      if (!(this.userSettings instanceof Map)) return;
+      if (!this.isPersonalWorkspace && !(this.activeWorkspaceSettings instanceof Map))
+        return;
+
+      // unwatch any attached watchers
       this.settingsWatchers.forEach((unwatch) => unwatch());
 
       if (this.isPersonalWorkspace) this.settingsToRender = clonedeep(this.userSettings);
@@ -577,7 +585,7 @@ export default {
         userRoleInActiveWorkspace: this.userRoleInActiveWorkspace,
       });
 
-      // Adding a watcher to the individual setting values
+      // adding a watcher to the individual setting values
       preparedDetails.settingsToWatch.forEach((leafNodePathDetails) => {
         let headerName = leafNodePathDetails.headerName;
         let tabName = leafNodePathDetails.tabName;

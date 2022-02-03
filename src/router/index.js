@@ -113,7 +113,7 @@ const routes = [
     props: { type: "403" },
   },
   {
-    // Refer to: https://stackoverflow.com/a/64186073/7870587
+    // refer to: https://stackoverflow.com/a/64186073/7870587
     path: "/:pathMatch(.*)*",
     redirect: {
       name: "404",
@@ -223,7 +223,7 @@ router.beforeEach((to, from) => {
     .reverse()
     .find((r) => r.meta && r.meta.metaTags);
 
-  // If a route with a title was found, set the document (page) title to that value.
+  // if a route with a title was found, set the document (page) title to that value.
   if (document != null) {
     if (nearestWithTitle) {
       document.title = nearestWithTitle.meta.title;

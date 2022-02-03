@@ -61,7 +61,7 @@ module.exports = {
     "focus",
     "focus-visible",
     "active",
-    "group-disabled", // Custom variant
+    "group-disabled", // custom variant
     "disabled",
   ],
   variants: {
