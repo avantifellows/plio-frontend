@@ -85,7 +85,7 @@
           </div>
         </div>
 
-        <!-- save / cancel buttons in mobile view -->
+        <!-- save button in mobile view -->
         <div
           v-if="isMobileView"
           class="w-full flex justify-around space-x-2 mt-auto mb-10"
@@ -162,7 +162,7 @@
             </p>
           </div>
         </div>
-        <!-- footer buttons - save/cancel -->
+        <!-- footer buttons - save + cancel -->
         <div
           class="w-full flex flex-row bp-500:justify-end justify-around space-x-2 bp-500:mt-auto mt-2"
         >
