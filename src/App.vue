@@ -235,7 +235,7 @@
     ></inline-svg>
   </div>
   <vue-progress-bar></vue-progress-bar>
-  <!-- settings menu popup component -->
+  <!-- settings menu -->
   <Settings
     v-if="isSettingsMenuShown"
     class="fixed z-20 justify-top mx-auto"
@@ -441,7 +441,7 @@ export default {
           "User Status": this.user.status,
           "Current Workspace": this.activeWorkspace,
         });
-        // re construct the settings menu whenever the user gets updated
+        // reconstruct the settings menu whenever the user gets updated
         this.constructSettingsMenu();
       },
       deep: true,
@@ -590,10 +590,10 @@ export default {
         let headerName = leafNodePathDetails.headerName;
         let tabName = leafNodePathDetails.tabName;
         let leafName = leafNodePathDetails.leafName;
-        let isOrgSetting = this.settingsToRender
+        let isWorkspaceSetting = this.settingsToRender
           .get(headerName)
           .get(tabName)
-          .get(leafName).isOrgSetting;
+          .get(leafName).isWorkspaceSetting;
         let settingWatcher = this.$watch(
           () =>
             clonedeep(
@@ -605,16 +605,16 @@ export default {
 
             // if the value has changed, update the settings
             // in the Vuex store and on the server as well
-            if (isOrgSetting) {
-              let newOrgSettings = clonedeep(this.activeWorkspaceSettings);
-              newOrgSettings
+            if (isWorkspaceSetting) {
+              let newWorkspaceSettings = clonedeep(this.activeWorkspaceSettings);
+              newWorkspaceSettings
                 .get(headerName)
                 .children.get(tabName)
                 .children.get(leafName).value = newValue;
-              this.updateWorkspaceStoreSettings(newOrgSettings);
+              this.updateWorkspaceStoreSettings(newWorkspaceSettings);
               OrganizationAPIService.updateWorkspaceSettings(
                 this.activeWorkspaceId,
-                newOrgSettings
+                newWorkspaceSettings
               );
             } else {
               let newUserSettings = clonedeep(this.userSettings);

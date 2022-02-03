@@ -57,7 +57,7 @@ describe("PlioListItem.vue", () => {
                   description: null,
                   type: "checkbox",
                   value: false,
-                  isOrgSetting: false,
+                  isWorkspaceSetting: false,
                 },
               })
             ),

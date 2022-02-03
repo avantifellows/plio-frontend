@@ -210,13 +210,16 @@ export default {
       if (createPlioResponse.status == 201) {
         // once the plio is created, update its settings as well
         let plioUuid = createPlioResponse.data.uuid;
+        let settingsToUpdate = this.isPersonalWorkspace
+          ? this.userSettings.get("player")
+          : this.activeWorkspaceSettings.get("player");
         let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
           plioUuid,
-          {
-            player: this.isPersonalWorkspace
-              ? this.userSettings.player
-              : this.activeWorkspaceSettings.player,
-          }
+          new Map(
+            Object.entries({
+              player: settingsToUpdate,
+            })
+          )
         );
         if (updatePlioSettingsResponse.status == 200) {
           this.$router.push({

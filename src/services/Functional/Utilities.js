@@ -211,14 +211,14 @@ export default {
           // these are the things added
           // - metadata     - contains the information on the title/description/type of the setting
           // - value        - value of that setting
-          // - isOrgSetting - whether this is an org level setting or not
+          // - isWorkspaceSetting - whether this is an org level setting or not
           settingsToRender
             .get(headerName)
             .get(tabName)
             .set(leafName, {
               ...settingsMetadata[leafName],
               value: leafDetails.value,
-              isOrgSetting:
+              isWorkspaceSetting:
                 !data.isPersonalWorkspace && leafDetails.scope.length > 0
                   ? true
                   : false,

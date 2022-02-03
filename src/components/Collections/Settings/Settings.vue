@@ -34,7 +34,7 @@
             >
               <div class="flex flex-row bp-500:ml-0 ml-4">
                 <inline-svg
-                  v-if="isMobileView"
+                  v-if="isMobileScreen"
                   @click="selectTab(tabName, tabDetails)"
                   :src="getImageSource('play.svg')"
                   :class="getTabToggleClass(tabName)"
@@ -49,7 +49,7 @@
               </div>
 
               <!-- content region in mobile view -->
-              <div v-if="isMobileView && currentSelectedTabName == tabName">
+              <div v-if="isMobileScreen && currentSelectedTabName == tabName">
                 <div
                   v-for="[leafName, leafDetails] in currentSelectedTabDetails"
                   :key="leafName"
@@ -65,7 +65,7 @@
                     </p>
                     <!-- badge to mark an admin setting -->
                     <simple-badge
-                      v-if="leafDetails.isOrgSetting"
+                      v-if="leafDetails.isWorkspaceSetting"
                       text="admin"
                       :badgeClass="adminBadgeClass"
                     ></simple-badge>
@@ -87,7 +87,7 @@
 
         <!-- save button in mobile view -->
         <div
-          v-if="isMobileView"
+          v-if="isMobileScreen"
           class="w-full flex justify-around space-x-2 mt-auto mb-10"
         >
           <!-- save button -->
@@ -109,7 +109,7 @@
         </div>
       </div>
       <!-- content region -->
-      <div :class="contentRegionClass" v-if="!isMobileView">
+      <div :class="contentRegionClass" v-if="!isMobileScreen">
         <div
           v-for="[leafName, leafDetails] in currentSelectedTabDetails"
           :key="leafName"
@@ -125,7 +125,7 @@
             </p>
             <!-- badge to notify an admin setting -->
             <simple-badge
-              v-if="leafDetails.isOrgSetting"
+              v-if="leafDetails.isWorkspaceSetting"
               :text="$t('settings.badge.admin')"
               :badgeClass="adminBadgeClass"
             ></simple-badge>
@@ -199,6 +199,7 @@
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import Utilities from "@/services/Functional/Utilities.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
+import { mapGetters } from "vuex";
 
 let clonedeep = require("lodash.clonedeep");
 
@@ -233,9 +234,6 @@ export default {
         "h-full w-full flex flex-col 2xl:px-10 xl:px-8 lg:px-6 md:px-4 bp-500:px-3 px-6 2xl:pt-10 xl:pt-8 lg:pt-6 md:pt-4 bp-500:pt-2 pt-6 pb-5",
       currentSelectedTab: new Map(), // map containing details about the current selected tab
       hasUnsavedChanges: false, // if there are any unsaved setting changes
-      isSidebarRegionOpen: true, // if the sidebar region is visible
-      screenWidth: window.innerWidth, // initial screen width
-      isMobileView: window.innerWidth < 500 ? true : false, // if current screen size is classified as mobile view
       adminBadgeClass:
         "rounded-md border text-black text-xs px-2 border-gray-500 bg-gray-200",
     };
@@ -264,13 +262,9 @@ export default {
       },
       deep: true,
     },
-    screenWidth() {
-      // update the `isMobileView` variable as screen width changes
-      this.isMobileView = this.screenWidth < 500 ? true : false;
-    },
   },
   created() {
-    if (!this.isMobileView) {
+    if (!this.isMobileScreen) {
       // set a default selected tab if the screen is not in mobile view
       this.setCurrentSelectedTab();
     }
@@ -281,11 +275,12 @@ export default {
     window.removeEventListener("resize", this.handleScreenSizeChange);
   },
   computed: {
+    ...mapGetters("generic", ["isMobileScreen"]),
     sidebarRegionClass() {
       return [
         {
-          "w-35/100 space-y-10": !this.isMobileView,
-          "w-full": this.isMobileView,
+          "w-35/100 space-y-10": !this.isMobileScreen,
+          "w-full": this.isMobileScreen,
         },
         "h-full flex flex-col justify-start pt-4",
       ];
@@ -293,9 +288,9 @@ export default {
     mainContainerClass() {
       return [
         {
-          "left-0 right-0 top-0 bottom-0": this.isMobileView,
+          "left-0 right-0 top-0 bottom-0": this.isMobileScreen,
           "top-15/100 bottom-35/100 2xl:left-20/100 2xl:right-20/100 xl:left-15/100 xl:right-15/100 sm:left-10/100 sm:right-10/100 left-5/100 right-5/100": !this
-            .isMobileView,
+            .isMobileScreen,
         },
         "border-2 border-gray-200 shadow-lg rounded-lg bg-white m-auto flex flex-col",
       ];
@@ -344,9 +339,6 @@ export default {
         "w-4 h-4 text-yellow-600 fill-current my-auto transition duration-800 mr-2",
       ];
     },
-    handleScreenSizeChange() {
-      this.screenWidth = window.innerWidth;
-    },
     /**
      * Get style classes for how a tab looks on the sidebar region
      * @param {String} tabName - The name of the tab for which the style classes are required
@@ -355,11 +347,11 @@ export default {
       return [
         {
           "text-primary bg-gray-100 border-r-outset border-yellow-500 pl-6 hover:bg-gray-100":
-            this.isTabSelected(tabName) && !this.isMobileView,
-          "text-gray-500 ": !this.isTabSelected(tabName) && this.isMobileView,
-          "text-primary": this.isTabSelected(tabName) && this.isMobileView,
-          "leading-snug": this.isMobileView,
-          "leading-relaxed pl-6": !this.isMobileView,
+            this.isTabSelected(tabName) && !this.isMobileScreen,
+          "text-gray-500 ": !this.isTabSelected(tabName) && this.isMobileScreen,
+          "text-primary": this.isTabSelected(tabName) && this.isMobileScreen,
+          "leading-snug": this.isMobileScreen,
+          "leading-relaxed pl-6": !this.isMobileScreen,
         },
         "font-medium w-full capitalize whitespace-nowrap lg:text-base md:text-sm bp-500:text-xs text-xl text-left py-1",
       ];
@@ -381,7 +373,7 @@ export default {
      * @param {Object} tabDetails - The details of the tab that is to be marked selected
      */
     selectTab(tabName, tabDetails) {
-      if (this.isMobileView && this.isTabSelected(tabName)) {
+      if (this.isMobileScreen && this.isTabSelected(tabName)) {
         // in mobile view, the tabs are toggable
         // if someone clicks on an already opened tab, close it and currentSelectedTab
         // will be set to empty

@@ -661,7 +661,7 @@ global.dummySettingsToRender = new Map(
               description: "settings.menu.description.skipEnabled",
               type: "checkbox",
               value: false,
-              isOrgSetting: false,
+              isWorkspaceSetting: false,
             },
           })
         ),
@@ -676,7 +676,7 @@ global.dummySettingsToRender = new Map(
               description: "settings.menu.description.darkMode",
               type: "checkbox",
               value: false,
-              isOrgSetting: false,
+              isWorkspaceSetting: false,
             },
           })
         ),
