@@ -11,7 +11,7 @@
         :videoPlayerElementId="videoPlayerElementId"
         @toggle-minimize="toggleMinimize"
         @skip-question="skipQuestion"
-        :isSkipEnabled="isSkipItemButtonEnabled"
+        :isSkipEnabled="isSkipEnabled"
         data-test="header"
       ></item-question-header>
       <!-- main question body -->
@@ -136,12 +136,15 @@ export default {
     ItemQuestionBody,
   },
   computed: {
-    /** Whether the skip item button is enabled */
-    isSkipItemButtonEnabled() {
-      // if a custom configuration exists in the props, then use that otherwise
+    /** whether the skip item button is enabled */
+    isSkipEnabled() {
+      // if a custom configuration is provided, then use that otherwise
       // use the global settings
       if (this.configuration != null && this.configuration.has("skipEnabled"))
         return this.configuration.get("skipEnabled").value;
+      return this.defaultSkipEnabledSetting;
+    },
+    defaultSkipEnabledSetting() {
       return globalDefaultSettings
         .get("player")
         .children.get("configuration")

@@ -260,10 +260,7 @@ import DialogBox from "@/components/UI/Alert/DialogBox";
 import Utilities from "@/services/Functional/Utilities.js";
 import UserAPIService from "@/services/API/User.js";
 import OrganizationAPIService from "@/services/API/Organization.js";
-import globalDefaultSettings, {
-  settingsMetadata,
-} from "@/services/Config/GlobalDefaultSettings.js";
-
+import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 
@@ -457,9 +454,9 @@ export default {
       "setReAuthenticationState",
     ]),
     ...mapActions("auth", {
-      /** Update the user settings stored in vuex */
-      updateUserStoreSettings: "updateUserSettings",
-      /** Update the workspace settings stored in vuex */
+      /** update the user settings stored in vuex */
+      updateUserStoreSettings: "setUserSettings",
+      /** update the workspace settings stored in vuex */
       updateWorkspaceStoreSettings: "updateWorkspaceSettings",
     }),
     ...mapActions("generic", [
@@ -575,111 +572,58 @@ export default {
           clonedeep(this.activeWorkspaceSettings)
         );
 
-      for (let [headerName, headerDetails] of this.settingsToRender) {
-        if (
-          !this.isPersonalWorkspace &&
-          headerDetails.scope.length > 0 &&
-          !headerDetails.scope.includes(this.userRoleInActiveWorkspace)
-        ) {
-          // In case of an org workspace, we also need to check for scope. If the current user does not
-          // have rights for a particular setting, we remove that key from settingsToRender
-          this.settingsToRender.delete(headerName);
-          continue;
-        }
-        this.settingsToRender.set(headerName, clonedeep(headerDetails.children));
-        for (let [tabName, tabDetails] of this.settingsToRender.get(headerName)) {
-          if (
-            !this.isPersonalWorkspace &&
-            tabDetails.scope.length > 0 &&
-            !tabDetails.scope.includes(this.userRoleInActiveWorkspace)
-          ) {
-            // In case of an org workspace, we also need to check for scope. If the current user does not
-            // have rights for a particular setting, we remove that key from settingsToRender
-            this.settingsToRender.get(headerName).delete(tabName);
-            if (this.settingsToRender.get(headerName).size == 0)
-              this.settingsToRender.delete(headerName);
-            continue;
-          }
-          this.settingsToRender
-            .get(headerName)
-            .set(tabName, clonedeep(tabDetails.children));
-          for (let [leafName, leafDetails] of this.settingsToRender
-            .get(headerName)
-            .get(tabName)) {
-            if (
-              !this.isPersonalWorkspace &&
-              leafDetails.scope.length > 0 &&
-              !leafDetails.scope.includes(this.userRoleInActiveWorkspace)
-            ) {
-              // In case of an org workspace, we also need to check for scope. If the current user does not
-              // have rights for a particular setting, we remove that key from settingsToRender
-              this.settingsToRender.get(headerName).get(tabName).delete(leafName);
-              if (this.settingsToRender.get(headerName).get(tabName).size == 0)
-                this.settingsToRender.get(headerName).delete(tabName);
-              continue;
+      let preparedDetails = Utilities.prepareSettingsToRender(this.settingsToRender, {
+        isPersonalWorkspace: this.isPersonalWorkspace,
+        userRoleInActiveWorkspace: this.userRoleInActiveWorkspace,
+      });
+
+      // Adding a watcher to the individual setting values
+      preparedDetails.settingsToWatch.forEach((leafNodePathDetails) => {
+        let headerName = leafNodePathDetails.headerName;
+        let tabName = leafNodePathDetails.tabName;
+        let leafName = leafNodePathDetails.leafName;
+        let isOrgSetting = this.settingsToRender
+          .get(headerName)
+          .get(tabName)
+          .get(leafName).isOrgSetting;
+        let settingWatcher = this.$watch(
+          () =>
+            clonedeep(
+              this.settingsToRender.get(headerName).get(tabName).get(leafName).value
+            ),
+          (value, prevValue) => {
+            // if the value hasn't changed, do nothing
+            if (value === prevValue) return;
+
+            // if the value has changed, update the settings
+            // in the Vuex store and on the server as well
+            if (isOrgSetting) {
+              let newOrgSettings = clonedeep(this.activeWorkspaceSettings);
+              newOrgSettings
+                .get(headerName)
+                .children.get(tabName)
+                .children.get(leafName).value = value;
+              this.updateWorkspaceStoreSettings(newOrgSettings);
+              OrganizationAPIService.updateWorkspaceSettings(
+                this.activeWorkspaceId,
+                newOrgSettings
+              );
+            } else {
+              let newUserSettings = clonedeep(this.userSettings);
+              newUserSettings
+                .get(headerName)
+                .children.get(tabName)
+                .children.get(leafName).value = value;
+
+              this.updateUserStoreSettings(newUserSettings);
+              UserAPIService.updateUserSettings(this.userId, newUserSettings);
             }
-            // After reaching the leaf node, we add some extra data to the setting meant for rendering
-            // These are the things added
-            // - metadata     - contains the information on the title/description/type of the setting
-            // - value        - value of that setting
-            // - isOrgSetting - whether this is an org level setting or not
-            this.settingsToRender
-              .get(headerName)
-              .get(tabName)
-              .set(leafName, {
-                ...settingsMetadata[leafName],
-                value: leafDetails.value,
-                isOrgSetting:
-                  !this.isPersonalWorkspace && leafDetails.scope.length > 0
-                    ? true
-                    : false,
-              });
-            // adding a watcher to the current setting
-            let settingWatcher = this.$watch(
-              () =>
-                clonedeep(
-                  this.settingsToRender.get(headerName).get(tabName).get(leafName).value
-                ),
-              (value, prevValue) => {
-                // if the value hasn't changed, do nothing
-                if (value === prevValue) return;
-
-                // if the value has changed, update the settings
-                // in the Vuex store and on the DB as well
-                let currentLeafNode = this.settingsToRender
-                  .get(headerName)
-                  .get(tabName)
-                  .get(leafName);
-
-                if (currentLeafNode.isOrgSetting) {
-                  let newOrgSettings = clonedeep(this.activeWorkspaceSettings);
-                  newOrgSettings
-                    .get(headerName)
-                    .children.get(tabName)
-                    .children.get(leafName).value = value;
-                  this.updateWorkspaceStoreSettings(newOrgSettings);
-                  OrganizationAPIService.updateWorkspaceSettings(
-                    this.activeWorkspaceId,
-                    newOrgSettings
-                  );
-                } else {
-                  let newUserSettings = clonedeep(this.userSettings);
-                  newUserSettings
-                    .get(headerName)
-                    .children.get(tabName)
-                    .children.get(leafName).value = value;
-
-                  this.updateUserStoreSettings(newUserSettings);
-                  UserAPIService.updateUserSettings(this.userId, newUserSettings);
-                }
-              },
-              { deep: true }
-            );
-            // add the unwatch callback to an array for later use
-            this.settingsWatchers.push(settingWatcher);
-          }
-        }
-      }
+          },
+          { deep: true }
+        );
+        // add the unwatch callback to an array for later use
+        this.settingsWatchers.push(settingWatcher);
+      });
     },
     closeSettingsMenu() {
       if (this.isMobileScreen) this.resetMenuState();

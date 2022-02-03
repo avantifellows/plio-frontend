@@ -55,9 +55,7 @@
           :videoPlayerElementId="plioVideoPlayerElementId"
           v-model:isFullscreen="isFullscreen"
           v-model:responseList="itemResponses"
-          :configuration="
-            plioSettings.get('player').children.get('configuration').children
-          "
+          :configuration="configurationSettings"
           @skip-question="skipQuestion"
           @proceed-question="proceedQuestion"
           @revise-question="reviseQuestion"
@@ -100,10 +98,7 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { resetConfetti } from "@/services/Functional/Utilities.js";
-import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 import Utilities from "@/services/Functional/Utilities.js";
-
-let clonedeep = require("lodash.clonedeep");
 
 var isEqual = require("deep-eql");
 
@@ -343,6 +338,9 @@ export default {
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
     ...mapState("generic", ["windowInnerWidth", "windowInnerHeight"]),
+    configurationSettings() {
+      return this.plioSettings.get("player").children.get("configuration").children;
+    },
     /**
      * whether player has the correct aspect ratio as desired
      */
@@ -513,16 +511,7 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
-    /**
-     * Handles inheritance for this plio's settings.
-     * If the settings pulled from the DB is null, use the global player settings
-     */
-    handleSettingsInheritance() {
-      if (this.plioSettings == null) {
-        this.plioSettings = new Map();
-        this.plioSettings.set("player", globalDefaultSettings.get("player"));
-      }
-    },
+
     /**
      * sets various properties based on the screen size
      */
@@ -747,18 +736,7 @@ export default {
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
           this.plioTitle = plioDetails.plioTitle;
-
-          let config = plioDetails.config;
-          if (config == null || !("settings" in config) || config.settings == null)
-            this.plioSettings = null;
-          else {
-            this.plioSettings = new Map();
-            this.plioSettings.set(
-              "player",
-              Utilities.decodeMapFromPayload(clonedeep(config.settings)).get("player")
-            );
-          }
-          this.handleSettingsInheritance();
+          this.plioSettings = Utilities.setPlioSettings(plioDetails.config);
         })
         .then(() => this.createSession())
         .then(() => this.logData());

@@ -273,7 +273,7 @@ export default {
       if (this.progressPercentage == null || this.isMobileLandscape) return false;
       return true;
     },
-    /** The result to show in the centre of the progress bar */
+    /** the result to show in the centre of the progress bar */
     progressBarResult() {
       return {
         enabled: true,

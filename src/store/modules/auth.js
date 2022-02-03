@@ -67,12 +67,12 @@ const getters = {
     if (getters.isPersonalWorkspace) return null;
     return state.workspaceSettings[state.activeWorkspace];
   },
-  /** User's role in the current active workspace */
+  /** user's role in the current active workspace */
   userRoleInActiveWorkspace: (_, getters) => {
     if (getters.isPersonalWorkspace) return null;
     return getters.activeWorkspaceDetails.role;
   },
-  /** Id of the active workspace */
+  /** id of the active workspace */
   activeWorkspaceId: (_, getters) => {
     if (getters.isPersonalWorkspace) return null;
     return getters.activeWorkspaceDetails.id;
@@ -120,21 +120,20 @@ const actions = {
       state.accessToken.access_token
     );
     if (response != undefined) {
-      // Use the pulled user settings if they exist otherwise use the global defaults
+      // use the config data of a user if it exists otherwise use the global defaults
       if ("settings" in response.data.config)
-        await dispatch(
+        dispatch(
           "setUserSettings",
           Utilities.decodeMapFromPayload(response.data.config.settings)
         );
-      else await dispatch("setUserSettings", clonedeep(globalDefaultSettings));
+      else dispatch("setUserSettings", clonedeep(globalDefaultSettings));
 
-      // Use the pulled organisation's config if it exists otherwise use the global defaults
+      // use the config data of organization(s) if it exists otherwise use the global defaults
       if (response.data.organizations.length > 0)
-        await dispatch("setWorkspaceSettings", response.data.organizations);
-      else await dispatch("unsetWorkspaceSettings");
+        dispatch("setWorkspaceSettings", response.data.organizations);
+      else dispatch("unsetWorkspaceSettings");
 
-      // set the user in the state
-      await dispatch("setUser", response.data);
+      dispatch("setUser", response.data);
     }
   },
   autoLogoutUser({ dispatch }) {
@@ -146,13 +145,12 @@ const actions = {
   unsetUserSettings({ commit }) {
     commit("unsetUserSettings");
   },
-  updateUserSettings({ commit }, settingObject) {
-    commit("updateUserSettings", settingObject);
-  },
-  setWorkspaceSettings({ commit }, organizations) {
+  setWorkspaceSettings({ commit }, workspaces) {
     let workspaceSettings = {};
-    organizations.forEach((org) => {
-      workspaceSettings[org.shortcode] = filterNonOrgSettings(org);
+    workspaces.forEach((workspaceDetails) => {
+      workspaceSettings[workspaceDetails.shortcode] = getWorkspaceSettings(
+        workspaceDetails
+      );
     });
     commit("setWorkspaceSettings", workspaceSettings);
   },
@@ -170,9 +168,6 @@ const mutations = {
   },
   unsetUserSettings(state) {
     state.userSettings = null;
-  },
-  updateUserSettings(state, settingObject) {
-    state.userSettings = settingObject;
   },
   setWorkspaceSettings(state, value) {
     state.workspaceSettings = value;
@@ -230,16 +225,14 @@ export default {
 
 /**
  * This method iterates through the global default settings object
- * and filters out all the keys/settings that are not org level settings
- * @param {Object} orgDetails - Details of an organization as fetched from DB
- * @returns A filtered version of the settings for an org
+ * and filters out all the keys/settings that will not be applied to a workspace
+ * @param {Object} workspaceDetails - Details of a workspace
+ * @returns A filtered version of the settings for a workspace
  */
-function filterNonOrgSettings(orgDetails) {
+function getWorkspaceSettings(workspaceDetails) {
   if (
-    !("config" in orgDetails) ||
-    orgDetails.config == null ||
-    !("settings" in orgDetails.config) ||
-    orgDetails.config.settings == null
+    !("config" in workspaceDetails) ||
+    !Utilities.doesObjectContainValidSettings(workspaceDetails.config)
   ) {
     let workspaceSettings = clonedeep(globalDefaultSettings);
     for (let [headerName, headerDetails] of workspaceSettings) {
@@ -262,5 +255,5 @@ function filterNonOrgSettings(orgDetails) {
     }
     return workspaceSettings;
   }
-  return Utilities.decodeMapFromPayload(orgDetails.config.settings);
+  return Utilities.decodeMapFromPayload(workspaceDetails.config.settings);
 }

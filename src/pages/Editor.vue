@@ -541,9 +541,6 @@ import Utilities, {
   resetConfetti,
   getVideoDuration,
 } from "@/services/Functional/Utilities.js";
-import globalDefaultSettings, {
-  settingsMetadata,
-} from "@/services/Config/GlobalDefaultSettings.js";
 
 import { mapActions, mapState, mapGetters } from "vuex";
 import debounce from "debounce";
@@ -1418,28 +1415,8 @@ export default {
     ]),
     ...Utilities,
     /**
-     * Handles inheritance for this plio's settings.
-     * Whether the settings will be set from this plio's version, user's default version
-     * or the global version
-     */
-    handleSettingsInheritance() {
-      if (this.plioSettings == null) {
-        // If the plio's fetched config is null, use the global default settings for that plio.
-        // Why? Two cases are possible:
-        // 1. The fetched plio is an older plio which was created before this settings feature was live
-        //    - All older plios will contain a null config. If a user's default setting changes, it doesn't
-        //      apply to these older plios. They will continue using the global defaults. This is what we're doing
-        //      in the line of code below
-        // 2. The fetched plio is a newer plio which was made after this settings feature was live
-        //    - All newer plios, when created, will contain a version of the users's / global default (whichever is available)
-        //      settings in the fetched config. So no need to handle them here.
-        this.plioSettings = new Map();
-        this.plioSettings.set("player", clonedeep(globalDefaultSettings.get("player")));
-      }
-    },
-    /**
      * This method constructs the settings menu that needs to be rendered when settings menu is open.
-     * We iterate through the different levels of the plio's settings object.
+     * We iterate through the different levels of a settings object.
      * For each of the atomic settings, which are the last leaf of the object, we attach some metadata to it,
      * and add a watcher which will trigger when the value for that setting has been changed.
      */
@@ -1449,97 +1426,45 @@ export default {
 
       // Keep a clone of the plio settings in a local variable
       this.settingsToRender = clonedeep(this.plioSettings);
+      let preparedDetails = Utilities.prepareSettingsToRender(this.settingsToRender, {
+        isPersonalWorkspace: this.isPersonalWorkspace,
+        userRoleInActiveWorkspace: this.userRoleInActiveWorkspace,
+      });
 
-      for (let [headerName, headerDetails] of this.settingsToRender) {
-        if (
-          !this.isPersonalWorkspace &&
-          headerDetails.scope.length > 0 &&
-          !headerDetails.scope.includes(this.userRoleInActiveWorkspace)
-        ) {
-          // In case of an org workspace, we also need to check for scope. If the current user does not
-          // have rights for a particular setting, we remove that key from settingsToRender
-          this.settingsToRender.delete(headerName);
-          continue;
-        }
-        this.settingsToRender.set(headerName, clonedeep(headerDetails.children));
-        for (let [tabName, tabDetails] of this.settingsToRender.get(headerName)) {
-          if (
-            !this.isPersonalWorkspace &&
-            tabDetails.scope.length > 0 &&
-            !tabDetails.scope.includes(this.userRoleInActiveWorkspace)
-          ) {
-            // In case of an org workspace, we also need to check for scope. If the current user does not
-            // have rights for a particular setting, we remove that key from settingsToRender
-            this.settingsToRender.get(headerName).delete(tabName);
-            if (this.settingsToRender.get(headerName).size == 0)
-              this.settingsToRender.delete(headerName);
-            continue;
-          }
-          this.settingsToRender
-            .get(headerName)
-            .set(tabName, clonedeep(tabDetails.children));
-          for (let [leafName, leafDetails] of this.settingsToRender
-            .get(headerName)
-            .get(tabName)) {
-            if (
-              !this.isPersonalWorkspace &&
-              leafDetails.scope.length > 0 &&
-              !leafDetails.scope.includes(this.userRoleInActiveWorkspace)
-            ) {
-              // In case of an org workspace, we also need to check for scope. If the current user does not
-              // have rights for a particular setting, we remove that key from settingsToRender
-              this.settingsToRender.get(headerName).get(tabName).delete(leafName);
-              if (this.settingsToRender.get(headerName).get(tabName).size == 0)
-                this.settingsToRender.get(headerName).delete(tabName);
-              continue;
-            }
-            // After reaching the leaf node, we add some extra data to the setting meant for rendering
-            // These are the things added
-            // - metadata     - contains the information on the title/description/type of the setting
-            // - value        - value of that setting
-            // - isOrgSetting - whether this is an org level setting or not
-            this.settingsToRender
+      // Adding a watcher to the individual setting values
+      preparedDetails.settingsToWatch.forEach((leafNodePathDetails) => {
+        let headerName = leafNodePathDetails.headerName;
+        let tabName = leafNodePathDetails.tabName;
+        let leafName = leafNodePathDetails.leafName;
+
+        let settingWatcher = this.$watch(
+          () =>
+            clonedeep(
+              this.settingsToRender.get(headerName).get(tabName).get(leafName).value
+            ),
+          (value, prevValue) => {
+            // if the value hasn't changed, do nothing
+            if (value === prevValue) return;
+
+            // if the value has changed
+            // - update the plioSettings object
+            // - update the settings on the server if the plio is not published.
+            // - if it's published, the user will have to click publish to push the changes
+            this.plioSettings
               .get(headerName)
-              .get(tabName)
-              .set(leafName, {
-                ...settingsMetadata[leafName],
-                value: leafDetails.value,
-                isOrgSetting:
-                  !this.isPersonalWorkspace && leafDetails.scope.length > 0
-                    ? true
-                    : false,
-              });
-            // Adding a watcher to the individual settings' value
-            let settingWatcher = this.$watch(
-              () =>
-                clonedeep(
-                  this.settingsToRender.get(headerName).get(tabName).get(leafName).value
-                ),
-              (value, prevValue) => {
-                // if the value hasn't changed, do nothing
-                if (value === prevValue) return;
+              .children.get(tabName)
+              .children.get(leafName).value = value;
 
-                // if the value has changed
-                // - update the plioSettings object
-                // - update the settings on the DB if the plio is not published.
-                // - if it's published, the user will have to click publish to push the changes
-                this.plioSettings
-                  .get(headerName)
-                  .children.get(tabName)
-                  .children.get(leafName).value = value;
-
-                if (!this.isPublished) this.updatePlioSettings();
-                else this.publishPlio();
-              },
-              { deep: true }
-            );
-            // add the unwatch callback to an array for later use
-            this.settingsWatchers.push(settingWatcher);
-          }
-        }
-      }
+            if (!this.isPublished) this.updatePlioSettings();
+            else this.publishPlio();
+          },
+          { deep: true }
+        );
+        // add the unwatch callback to an array for later use
+        this.settingsWatchers.push(settingWatcher);
+      });
     },
-    /** Update the plio settings object on the DB */
+    /** update the plio settings object on the DB */
     updatePlioSettings() {
       PlioAPIService.updatePlioSettings(this.plioId, this.plioSettings);
     },
@@ -2047,17 +1972,7 @@ export default {
           this.hasUnpublishedChanges = false;
           this.videoDBId = plioDetails.videoDBId;
           this.plioDBId = plioDetails.plioDBId;
-
-          let config = this.loadedPlioDetails.config;
-          if (config == null || !("settings" in config) || config.settings == null) {
-            this.plioSettings = null;
-          } else {
-            let decodedSettings = Utilities.decodeMapFromPayload(config.settings);
-            this.plioSettings = !decodedSettings.has("player")
-              ? null
-              : this.decodeMapFromPayload(clonedeep(config.settings));
-          }
-          this.handleSettingsInheritance();
+          this.plioSettings = Utilities.setPlioSettings(this.loadedPlioDetails.config);
           this.constructSettingsMenu();
           this.stopLoading();
         })

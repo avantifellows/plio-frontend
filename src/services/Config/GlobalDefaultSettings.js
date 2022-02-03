@@ -1,8 +1,8 @@
-/** Default settings */
+/** default settings */
 let skipEnabled = true;
 
 /**
- * This object contains a mapping of SETTING_NAME and SETTING_METADATA
+ * This object contains a mapping of a setting and it's metadata.
  * The metadata includes all details necessary for rendering a particular setting
  * on the settings menu.
  *
@@ -24,19 +24,20 @@ export let settingsMetadata = {
 };
 
 /**
- * The below exported object is the global default settings object.
+ * The below exported map is the global default settings object.
+ * These are the default values of settings to be used when no setting has been explicitly set.
  * Different components might choose to use the full structure or a part of it as necessary.
- * There are three levels
- * - Headers: (eg- player, app etc...)
- * - Tabs: (eg- configuration, appearance etc...)
- * - Settings: (eg- skipEnabled, darkMode etc...)
+ * There are three levels of settings. These are called:
+ * - Headers: (eg - player, app etc.)
+ * - Tabs: (eg - configuration, appearance etc.)
+ * - Settings: (eg - skipEnabled, darkMode etc.)
  *
  * Every level has two properties. "scope" and "children".
  * "scope"
  *    - contains an array of user roles. A key is accessible to only those roles
- *    - if the array is empty, that means a particular key is not an org level setting
+ *    - if the array is empty, that means a particular key is not an org level setting and won't be available in
  * "children"
- *    - contains details about the nested settings
+ *    - This is a Map which contains details about the settings that are nested inside a parent setting
  */
 let globalDefaultSetings = new Map(
   Object.entries({

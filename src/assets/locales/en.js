@@ -474,7 +474,7 @@ export default {
       share_plio: "Share this plio with your viewers",
       play_plio: "Try out the created plio yourself",
       embed_plio: "Embed this plio",
-      settings: "Settings for this plio",
+      settings: "Change the settings for this plio",
     },
     home: {
       table: {
