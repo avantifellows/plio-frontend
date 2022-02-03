@@ -258,9 +258,9 @@ describe("App.vue for authenticated user", () => {
       // hence, it should use global default settings
       let workspaces = clonedeep(global.dummyUser.organizations);
       workspaces.forEach((workspace) => {
-        expect(store.state.auth.workspaceSettings[workspace.shortcode]).toStrictEqual(
-          global.dummyGlobalSettingsFilteredForWorkspaces
-        );
+        expect(
+          store.state.auth.workspaceSettings[workspace.shortcode]
+        ).toStrictEqual(global.dummyGlobalSettingsFilteredForWorkspaces);
       });
 
       await store.dispatch("auth/setActiveWorkspace", "o1");

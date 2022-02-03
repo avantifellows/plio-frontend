@@ -280,10 +280,9 @@ function doesObjectContainValidSettings(config, keysToCheck = ["player"]) {
   if (!(decodedSettings instanceof Map)) return false;
 
   // certain keys should be present in the settings Map
-  keysToCheck.forEach((key) => {
+  keysToCheck.every((key) => {
     if (!decodedSettings.has(key)) return false;
   });
-
   return true;
 }
 

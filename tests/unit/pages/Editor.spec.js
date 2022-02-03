@@ -198,9 +198,9 @@ describe("Editor.vue", () => {
     draftLink = draftLink.replace("http://", "");
     draftLink = draftLink.replace("https://", "");
     expect(document.execCommand).toHaveBeenCalledWith("copy");
-    expect(wrapper.vm.getPlioDraftLink(wrapper.vm.plioId, wrapper.vm.workspace)).toBe(
-      draftLink
-    );
+    expect(
+      wrapper.vm.getPlioDraftLink(wrapper.vm.plioId, wrapper.vm.workspace)
+    ).toBe(draftLink);
     await store.dispatch("auth/setActiveWorkspace", "");
   });
 
