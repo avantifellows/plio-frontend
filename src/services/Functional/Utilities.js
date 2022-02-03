@@ -165,12 +165,19 @@ export default {
     let preparedDetails = {
       settingsToWatch: [],
     };
-    for (let [headerName, headerDetails] of settingsToRender) {
+    // Checks if the current user has access to a particular setting level. Only valid for non personal workspace
+    let doesUserHasAccessTo = (settingLevel) => {
       if (
         !data.isPersonalWorkspace &&
-        headerDetails.scope.length > 0 &&
-        !headerDetails.scope.includes(data.userRoleInActiveWorkspace)
-      ) {
+        settingLevel.scope.length > 0 &&
+        !settingLevel.scope.includes(data.userRoleInActiveWorkspace)
+      )
+        return false;
+      return true;
+    };
+
+    for (let [headerName, headerDetails] of settingsToRender) {
+      if (!doesUserHasAccessTo(headerDetails)) {
         // in case of an org workspace, we also need to check for scope. If the current user does not
         // have rights for a particular setting, we remove that key from settingsToRender
         settingsToRender.delete(headerName);
@@ -178,11 +185,7 @@ export default {
       }
       settingsToRender.set(headerName, clonedeep(headerDetails.children));
       for (let [tabName, tabDetails] of settingsToRender.get(headerName)) {
-        if (
-          !data.isPersonalWorkspace &&
-          tabDetails.scope.length > 0 &&
-          !tabDetails.scope.includes(data.userRoleInActiveWorkspace)
-        ) {
+        if (!doesUserHasAccessTo(tabDetails)) {
           // in case of an org workspace, we also need to check for scope. If the current user does not
           // have rights for a particular setting, we remove that key from settingsToRender
           settingsToRender.get(headerName).delete(tabName);
@@ -196,11 +199,7 @@ export default {
         for (let [leafName, leafDetails] of settingsToRender
           .get(headerName)
           .get(tabName)) {
-          if (
-            !data.isPersonalWorkspace &&
-            leafDetails.scope.length > 0 &&
-            !leafDetails.scope.includes(data.userRoleInActiveWorkspace)
-          ) {
+          if (!doesUserHasAccessTo(leafDetails)) {
             // in case of an org workspace, we also need to check for scope. If the current user does not
             // have rights for a particular setting, we remove that key from settingsToRender
             settingsToRender.get(headerName).get(tabName).delete(leafName);
