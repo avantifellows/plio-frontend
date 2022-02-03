@@ -102,7 +102,7 @@ describe("Login.vue", () => {
         await requestOTP();
 
         // resend OTP
-        await wrapper.find('[data-test="resendOTP"]').trigger("click");
+        await wrapper.find('#resendOTP').trigger("click");
 
         await flushPromises();
 
