@@ -117,12 +117,7 @@ describe("Login.vue", () => {
       });
 
       it("OTP timer", async () => {
-        // mock function to verify OTP
-        const startCountdown = jest.spyOn(Login.methods, "startCountdown");
-        mountWrapper();
-
-        await flushPromises();
-
+        //To test the Resend OTP Timer
         //Faketimer is only needed for this test case to advance the time of interval
         jest.useFakeTimers();
         wrapper.vm.startCountdown(1);
