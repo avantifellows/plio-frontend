@@ -222,23 +222,27 @@ export default {
  * @returns A filtered version of the settings for a workspace
  */
 function getWorkspaceSettings(workspaceDetails) {
+  let isApplicableToWorkspace = (settingScope) => {
+    return settingScope.length != 0
+  }
+
   if (
     !("config" in workspaceDetails) ||
     !Utilities.doesObjectContainValidSettings(workspaceDetails.config)
   ) {
     let workspaceSettings = clonedeep(globalDefaultSettings);
     for (let [headerName, headerDetails] of workspaceSettings) {
-      if (headerDetails.scope.length == 0) {
+      if (isApplicableToWorkspace(headerDetails.scope)) {
         workspaceSettings.delete(headerName);
         continue;
       }
       for (let [tabName, tabDetails] of headerDetails.children) {
-        if (tabDetails.scope.length == 0) {
+        if (isApplicableToWorkspace(tabDetails.scope)) {
           headerDetails.children.delete(tabName);
           continue;
         }
         for (let [leafName, leafDetails] of tabDetails.children) {
-          if (leafDetails.scope.length == 0) {
+          if (isApplicableToWorkspace(leafDetails.scope)) {
             tabDetails.children.delete(leafName);
             continue;
           }
