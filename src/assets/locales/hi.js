@@ -554,8 +554,10 @@ export default {
   },
   settings: {
     buttons: {
-      save: "सेव करें",
-      saveAndPublish: "सेव करके प्रकाशित करें",
+      save: {
+        draft: "सेव करें",
+        published: "सेव करके प्रकाशित करें",
+      },
       cancel: "रद्द करें",
     },
     menu: {

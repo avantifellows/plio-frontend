@@ -553,8 +553,10 @@ export default {
   },
   settings: {
     buttons: {
-      save: "Save",
-      saveAndPublish: "Save and Publish",
+      save: {
+        draft: "Save",
+        published: "Save and Publish",
+      },
       cancel: "Cancel",
     },
     menu: {

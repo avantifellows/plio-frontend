@@ -216,8 +216,8 @@ export default {
         "bp-500:px-8 bp-500:py-2 bp-360:px-16 px-10 py-2 transition ease-in duration-200 text-center font-semibold shadow-lg rounded-lg bg-primary border-b-outset border-primary",
       saveButtonTitleConfig: {
         value: this.isPublishedPlio
-          ? this.$t("settings.buttons.saveAndPublish")
-          : this.$t("settings.buttons.save"),
+          ? this.$t("settings.buttons.save.published")
+          : this.$t("settings.buttons.save.draft"),
         class: "text-white lg:text-base md:text-sm bp-500:text-xs text-lg font-bold",
       },
       cancelButtonTitleConfig: {
