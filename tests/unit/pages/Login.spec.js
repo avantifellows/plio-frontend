@@ -96,12 +96,16 @@ describe("Login.vue", () => {
         const requestOtp = jest
           .spyOn(UserAPIService, "requestOtp")
           .mockImplementation(() => jest.fn());
-
         const startCountdown = jest
-            .spyOn(Login.methods,"startCountdown") ;
+          .spyOn(Login.methods, "startCountdown")
+          .mockImplementation(() => jest.fn());
         mountWrapper();
+
         await setPhoneNumber();
         await requestOTP();
+        const counter = 60;
+        await wrapper.setData({ counter: counter });
+        await startCountdown();
         await wrapper.setData({ counting: false });
 
         // resend OTP
@@ -110,7 +114,7 @@ describe("Login.vue", () => {
         await flushPromises();
 
         expect(requestOtp).toHaveBeenCalled();
-        expect(startCountdown).toHaveBeenCalled();
+        expect(startCountdown).toHaveBeenCalledWith(60);
         expect(wrapper.vm.counter).toBe(60);
         expect(wrapper.vm.resentOtp).toBe(true);
         expect(wrapper.vm.invalidOtp).toBe(false);
