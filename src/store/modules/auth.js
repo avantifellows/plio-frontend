@@ -130,8 +130,11 @@ const actions = {
       else dispatch("setUserSettings", clonedeep(globalDefaultSettings));
 
       // use the config data of organization(s) if it exists otherwise use the global defaults
-      if (response.data.organizations.length > 0)
-        dispatch("setWorkspaceSettings", response.data.organizations);
+      if (response.data.organizations.length > 0) {
+        response.data.organizations.forEach((workspaceDetails) => {
+          dispatch("setWorkspaceSettings", getWorkspaceSettings(workspaceDetails), workspaceDetails.shortcode)
+        });
+      }
       else dispatch("unsetWorkspaceSettings");
 
       dispatch("setUser", response.data);
@@ -146,20 +149,11 @@ const actions = {
   unsetUserSettings({ commit }) {
     commit("unsetUserSettings");
   },
-  setWorkspaceSettings({ commit }, workspaces) {
-    let workspaceSettings = {};
-    workspaces.forEach((workspaceDetails) => {
-      workspaceSettings[workspaceDetails.shortcode] = getWorkspaceSettings(
-        workspaceDetails
-      );
-    });
-    commit("setWorkspaceSettings", workspaceSettings);
-  },
   unsetWorkspaceSettings({ commit }) {
     commit("unsetWorkspaceSettings");
   },
-  updateWorkspaceSettings({ commit }, settingObject) {
-    commit("updateWorkspaceSettings", settingObject);
+  setWorkspaceSettings({ commit }, settingObject, shortcode = state.activeWorkspace) {
+    commit("setWorkspaceSettings", settingObject, shortcode);
   },
 };
 
@@ -170,14 +164,11 @@ const mutations = {
   unsetUserSettings(state) {
     state.userSettings = null;
   },
-  setWorkspaceSettings(state, value) {
-    state.workspaceSettings = value;
+  setWorkspaceSettings(state, settingObject, shortcode) {
+    state.workspaceSettings[shortcode] = settingObject;
   },
   unsetWorkspaceSettings(state) {
     state.workspaceSettings = null;
-  },
-  updateWorkspaceSettings(state, settingObject) {
-    state.workspaceSettings[state.activeWorkspace] = settingObject;
   },
   setAccessToken(state, accessToken) {
     state.accessToken = accessToken;

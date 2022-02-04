@@ -462,8 +462,8 @@ export default {
     ...mapActions("auth", {
       /** update the user settings stored in vuex */
       updateUserStoreSettings: "setUserSettings",
-      /** update the workspace settings stored in vuex */
-      updateWorkspaceStoreSettings: "updateWorkspaceSettings",
+      /** set the workspace settings stored in vuex */
+      setWorkspaceStoreSettings: "setWorkspaceSettings",
     }),
     ...mapActions("generic", [
       "unsetSharePlioDialog",
@@ -615,7 +615,7 @@ export default {
                 .get(headerName)
                 .children.get(tabName)
                 .children.get(leafName).value = newValue;
-              this.updateWorkspaceStoreSettings(newWorkspaceSettings);
+              this.setWorkspaceStoreSettings(newWorkspaceSettings);
               OrganizationAPIService.updateWorkspaceSettings(
                 this.activeWorkspaceId,
                 newWorkspaceSettings
