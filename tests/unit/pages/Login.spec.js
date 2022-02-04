@@ -96,16 +96,11 @@ describe("Login.vue", () => {
         const requestOtp = jest
           .spyOn(UserAPIService, "requestOtp")
           .mockImplementation(() => jest.fn());
-        const startCountdown = jest
-          .spyOn(Login.methods, "startCountdown")
-          .mockImplementation(() => jest.fn());
+        const startCountdown = jest.spyOn(Login.methods, "startCountdown");
         mountWrapper();
 
         await setPhoneNumber();
         await requestOTP();
-        const counter = 60;
-        await wrapper.setData({ counter: counter });
-        await startCountdown();
         await wrapper.setData({ counting: false });
 
         // resend OTP
@@ -114,10 +109,28 @@ describe("Login.vue", () => {
         await flushPromises();
 
         expect(requestOtp).toHaveBeenCalled();
-        expect(startCountdown).toHaveBeenCalledWith(60);
+        expect(startCountdown).toHaveBeenCalled();
+        expect(wrapper.vm.counting).toBe(true);
         expect(wrapper.vm.counter).toBe(60);
         expect(wrapper.vm.resentOtp).toBe(true);
         expect(wrapper.vm.invalidOtp).toBe(false);
+      });
+
+      it("OTP timer", async () => {
+        // mock function to verify OTP
+        const startCountdown = jest.spyOn(Login.methods, "startCountdown");
+        mountWrapper();
+
+        await flushPromises();
+
+        //Faketimer is only needed for this test case to advance the time of interval
+        jest.useFakeTimers();
+        wrapper.vm.startCountdown(1);
+        jest.advanceTimersByTime(1000);
+        expect(wrapper.vm.counting).toBe(false);
+        expect(wrapper.vm.counter).toBe(0);
+        //Rest of code should work in real time
+        jest.useRealTimers();
       });
 
       describe("submit valid otp", () => {
