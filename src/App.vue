@@ -261,7 +261,6 @@ import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 import UserAPIService from "@/services/API/User.js";
 import OrganizationAPIService from "@/services/API/Organization.js";
-import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 
@@ -492,78 +491,6 @@ export default {
     ]),
     ...mapActions("selectors", ["hideSelector"]),
     /**
-     * This method merges the user's and workspace's settings.
-     * This is needed to show both workspace level and user level settings in one settings menu.
-     * The global default settings object is used as a structure of the keys to iterate on.
-     * While iterating on the keys of the global default settings object, these rules are followed to merge
-     * - If a key is not present in workspace's settings, use the key from user's settings and skip to next key
-     * - If a key is present in workspace's settings, use the scope for that key and move to its children
-     * - The above process is done for headers, tabs and atomic settings.
-     * - For the lowest level keys (leaf nodes), use workspace's setting value if available otherwise use user's setting value
-     *
-     * @param {Object} userSettings - User's version of settings
-     * @param {Object} workspaceSettings - workspace's version of settings
-     * @returns {Object} An object with user's and workspace's settings merged (with workspace's settings taking priority)
-     */
-    mergeSettings(userSettings, workspaceSettings) {
-      // making a deep clone of global default settings.
-      // the keys/values will be removed/updated according to user/workspace settings as we iterate
-      let mergedSettings = clonedeep(globalDefaultSettings);
-      for (let [headerName, headerDetails] of mergedSettings) {
-        // iterating on headers
-        let workspaceHeaders = [...workspaceSettings.keys()];
-        if (!workspaceHeaders.includes(headerName)) {
-          // if the current header name is not present in workspace settings,
-          // pick the details from user's settings and put it into merged settings object
-          mergedSettings.set(headerName, userSettings.get(headerName));
-          continue;
-        }
-        // if the current header name is present in workspace settings, use its scope information
-        mergedSettings.get(headerName).scope = workspaceSettings.get(headerName).scope;
-
-        for (let [tabName, tabDetails] of headerDetails.children) {
-          // iterating on tabs inside headerName
-          let workspaceTabs = [...workspaceSettings.get(headerName).children.keys()];
-          if (!workspaceTabs.includes(tabName)) {
-            // if the current tab name is not present in workspace settings,
-            // pick the details from user's settings and put it into merged settings object
-            mergedSettings
-              .get(headerName)
-              .children.set(tabName, userSettings.get(headerName).children.get(tabName));
-            continue;
-          }
-          // if the current tab name IS present in workspace settings, use its scope information
-          mergedSettings
-            .get(headerName)
-            .children.get(tabName).scope = workspaceSettings
-            .get(headerName)
-            .children.get(tabName).scope;
-
-          for (let [leafName] of tabDetails.children) {
-            // iterating on leaf nodes inside tabName
-            let workspaceLeafs = [
-              ...workspaceSettings.get(headerName).children.get(tabName).children.keys(),
-            ];
-            // if the current leaf name is not present in workspace settings,
-            // pick the details from user's settings else pick it up from
-            // workspace's settings and put it into merged settings object
-            let validLeafDetails = workspaceLeafs.includes(leafName)
-              ? workspaceSettings
-                  .get(headerName)
-                  .children.get(tabName)
-                  .children.get(leafName)
-              : userSettings.get(headerName).children.get(tabName).children.get(leafName);
-
-            mergedSettings
-              .get(headerName)
-              .children.get(tabName)
-              .children.set(leafName, validLeafDetails);
-          }
-        }
-      }
-      return mergedSettings;
-    },
-    /**
      * This method constructs the settings menu that needs to be rendered when settings menu is open.
      * We iterate through the different levels of a settings object.
      * This settings object is the user's settings or the merger of users/workspace's settings depending on the active workspace.
@@ -580,7 +507,7 @@ export default {
 
       if (this.isPersonalWorkspace) this.settingsToRender = clonedeep(this.userSettings);
       else
-        this.settingsToRender = this.mergeSettings(
+        this.settingsToRender = SettingsUtilities.mergeSettings(
           clonedeep(this.userSettings),
           clonedeep(this.activeWorkspaceSettings)
         );

@@ -1444,10 +1444,6 @@ export default {
             // if the value hasn't changed, do nothing
             if (newValue === oldValue) return;
 
-            // if the value has changed
-            // - update the plioSettings object
-            // - update the settings on the server if the plio is not published.
-            // - if it's published, the user will have to click publish to push the changes
             this.plioSettings
               .get(headerName)
               .children.get(tabName)

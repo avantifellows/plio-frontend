@@ -142,13 +142,10 @@ export default {
       // use the global settings
       if (this.configuration != null && this.configuration.has("skipEnabled"))
         return this.configuration.get("skipEnabled").value;
-      return this.defaultSkipEnabledSetting;
+      return this.defaultConfiguration.get("skipEnabled").value;
     },
-    defaultSkipEnabledSetting() {
-      return globalDefaultSettings
-        .get("player")
-        .children.get("configuration")
-        .children.get("skipEnabled").value;
+    defaultConfiguration() {
+      return globalDefaultSettings.get("player").children.get("configuration").children;
     },
     /**
      * URL of the image for an item;
