@@ -14,9 +14,15 @@ test("sees the home page", async (testcafe) => {
 
   console.log("noPliosExist: ", noPliosExist);
 
-  if (noPliosExist)
+  if (noPliosExist) {
+    console.log(
+      "no plio exists... asserting that plio table's existence is not OK"
+    );
     // plio table should not exist as there are no plios
     await testcafe.expect(plioTable.exists).notOk();
-  // plio table should exist as there are plios
-  else await testcafe.expect(plioTable.exists).ok();
+  } else {
+    console.log("plio exists... asserting that plio table's existence is OK");
+    // plio table should exist as there are plios
+    await testcafe.expect(plioTable.exists).ok();
+  }
 });
