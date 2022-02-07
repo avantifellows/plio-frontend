@@ -1,4 +1,5 @@
 import { mount } from "@vue/test-utils";
+import store from "@/store";
 import Settings from "@/components/Collections/Settings/Settings.vue";
 
 let clonedeep = require("lodash.clonedeep");
@@ -12,6 +13,7 @@ describe("PlioListItem.vue", () => {
   });
 
   it("should render provided settings correctly", () => {
+    store.dispatch("generic/setWindowInnerWidth", 1024);
     const setCurrentSelectedTab = jest.spyOn(
       Settings.methods,
       "setCurrentSelectedTab"
@@ -75,7 +77,8 @@ describe("PlioListItem.vue", () => {
     await wrapper.get('[data-test="tab-appearance"]').trigger("click");
     expect(selectTab).toHaveBeenCalledWith(
       "appearance",
-      wrapper.vm.settings.get("app").get("appearance")
+      wrapper.vm.settings.get("app").get("appearance"),
+      "app"
     );
     expect(wrapper.vm.currentSelectedTab.get("appearance")).toStrictEqual(
       wrapper.vm.settings.get("app").get("appearance")

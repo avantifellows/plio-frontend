@@ -1,6 +1,7 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import Home from "@/pages/Home.vue";
 import store from "@/store";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 
 import mockAxios from "jest-mock-axios";
 
@@ -120,9 +121,13 @@ describe("Home.vue", () => {
       expect(mockAxios.patch).toHaveBeenCalledTimes(1);
       expect(mockAxios.patch).toHaveBeenCalledWith(
         `/plios/${testPlioId}/setting`,
-        {
-          player: global.dummyGlobalSettings.player,
-        }
+        SettingsUtilities.encodeMapToPayload(
+          new Map(
+            Object.entries({
+              player: global.dummyGlobalSettings.get("player"),
+            })
+          )
+        )
       );
 
       // resolve the request waiting in the queue using fake response data
@@ -148,37 +153,25 @@ describe("Home.vue", () => {
 
       // set user
       let dummyUserNew = clonedeep(global.dummyUser);
-      dummyUserNew.organizations[0].config = {
-        settings: {
-          player: {
-            scope: ["org-admin", "super-admin"],
-            children: {
-              configuration: {
-                scope: ["org-admin", "super-admin"],
-                children: {
-                  skipEnabled: {
-                    scope: ["org-admin", "super-admin"],
-                    value: false,
-                  },
-                  tempSetting: {
-                    scope: ["org-admin", "super-admin"],
-                    value: false,
-                  },
-                },
-              },
-            },
-          },
-        },
-      };
+      let dummyWorkspaceSetting = clonedeep(
+        dummyGlobalSettingsFilteredForWorkspaces
+      );
+      dummyWorkspaceSetting
+        .get("player")
+        .children.get("configuration")
+        .children.set("tempSetting", {
+          scope: ["org-admin", "super-admin"],
+          value: false,
+        });
       await store.dispatch("auth/setUser", dummyUserNew);
       await store.dispatch(
         "auth/setUserSettings",
         dummyUserNew.config.settings
       );
-      await store.dispatch("auth/setWorkspaceSettings", {
-        settingObject: dummyUserNew.organizations,
-      });
       await store.dispatch("auth/setActiveWorkspace", "o1");
+      await store.dispatch("auth/setWorkspaceSettings", {
+        settingObject: dummyWorkspaceSetting,
+      });
 
       // changing the user to approved makes another API call to list UUIDs.
       // The below line resets it.
@@ -224,9 +217,13 @@ describe("Home.vue", () => {
       expect(mockAxios.patch).toHaveBeenCalledTimes(1);
       expect(mockAxios.patch).toHaveBeenCalledWith(
         `/plios/${testPlioId}/setting`,
-        {
-          player: dummyUserNew.organizations[0].config.settings.player,
-        }
+        SettingsUtilities.encodeMapToPayload(
+          new Map(
+            Object.entries({
+              player: dummyWorkspaceSetting.get("player"),
+            })
+          )
+        )
       );
 
       // resolve the request waiting in the queue using fake response data

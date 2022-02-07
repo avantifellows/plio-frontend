@@ -502,32 +502,38 @@ export default {
       // leafName - name of the updated leaf node
       // newValue - the updated value
       // isWorkspaceSetting - whether the updated setting is a workspace setting
+      let newWorkspaceSettings = null;
+      let newUserSettings = null;
       Object.keys(updatedSettings).forEach((key) => {
         let setting = updatedSettings[key];
 
         if (setting.isWorkspaceSetting) {
-          let newWorkspaceSettings = clonedeep(this.activeWorkspaceSettings);
+          newWorkspaceSettings = clonedeep(this.activeWorkspaceSettings);
           newWorkspaceSettings
             .get(setting.headerName)
             .children.get(setting.tabName)
             .children.get(setting.leafName).value = setting.newValue;
-
-          this.setWorkspaceStoreSettings({ settingObject: newWorkspaceSettings });
-          OrganizationAPIService.updateWorkspaceSettings(
-            this.activeWorkspaceId,
-            newWorkspaceSettings
-          );
         } else {
-          let newUserSettings = clonedeep(this.userSettings);
+          newUserSettings = clonedeep(this.userSettings);
           newUserSettings
             .get(setting.headerName)
             .children.get(setting.tabName)
             .children.get(setting.leafName).value = setting.newValue;
-
-          this.updateUserStoreSettings(newUserSettings);
-          UserAPIService.updateUserSettings(this.userId, newUserSettings);
         }
       });
+
+      if (newWorkspaceSettings != null) {
+        this.setWorkspaceStoreSettings({ settingObject: newWorkspaceSettings });
+        OrganizationAPIService.updateWorkspaceSettings(
+          this.activeWorkspaceId,
+          newWorkspaceSettings
+        );
+      }
+
+      if (newUserSettings != null) {
+        this.updateUserStoreSettings(newUserSettings);
+        UserAPIService.updateUserSettings(this.userId, newUserSettings);
+      }
     },
     /**
      * This method constructs the settings menu that needs to be rendered when settings menu is open.

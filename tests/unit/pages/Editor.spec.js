@@ -11,6 +11,7 @@ import store from "@/store";
 import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 import UserAPIService from "@/services/API/User.js";
+import PlioAPIService from "@/services/API/Plio.js";
 
 let clonedeep = require("lodash.clonedeep");
 const videoDuration = 695;
@@ -23,11 +24,6 @@ describe("Editor.vue", () => {
 
     // mocking these two functions so they don't interfere with
     // tests that are not related to settings
-    jest
-      .spyOn(Editor.methods, "handleSettingsInheritance")
-      .mockImplementation(() => {
-        return;
-      });
     jest
       .spyOn(Editor.methods, "constructSettingsMenu")
       .mockImplementation(() => {
@@ -1108,7 +1104,7 @@ describe("Editor.vue", () => {
     );
     const publishPlio = jest.spyOn(Editor.methods, "publishPlio");
     const updatePlioSettings = jest
-      .spyOn(Editor.methods, "updatePlioSettings")
+      .spyOn(PlioAPIService, "updatePlioSettings")
       .mockImplementation(() => {
         return;
       });
@@ -2440,15 +2436,14 @@ describe("Editor.vue", () => {
       await store.dispatch("auth/setActiveWorkspace", "o1");
       await flushPromises();
 
-      // in o1 workspace, the user has a role of org-admin.
-      // All the settings that do not have "org-admin" as their scope will not be visible to the user.
+      // on the editor, the scope of the user is not taken into account for
+      // all the settings, regardless of the scope, will be visible to the user
       expect(
         wrapper.vm.settingsToRender
           .get("player")
           .get("configuration")
           .get("tempSetting")
-      ).toBe(undefined);
-      // All settings that have "org-admin" scope will be visible to the user
+      ).not.toBe(undefined);
       expect(
         wrapper.vm.settingsToRender
           .get("player")
@@ -2460,15 +2455,15 @@ describe("Editor.vue", () => {
       await store.dispatch("auth/setActiveWorkspace", "o2");
       await flushPromises();
 
-      // in o2 workspace, the user has a role of org-view
-      // All the settings that dont have "org-view" as their scope will not be visible to the user
-      expect(wrapper.vm.settingsToRender.get("player")).toBe(undefined);
+      // on the editor, the scope of the user is not taken into account for
+      // all the settings, regardless of the scope, will be visible to the user
+      expect(wrapper.vm.settingsToRender.get("player")).not.toBe(undefined);
     });
 
     describe("Watching and updation of settings", () => {
       let updatePlioSettings;
       let dummyPlio;
-
+      store.dispatch("generic/setWindowInnerWidth", 1024);
       beforeEach(async () => {
         // set global default settings as the user's settings
         await store.dispatch(
@@ -2507,7 +2502,11 @@ describe("Editor.vue", () => {
             )
           ),
         };
-        updatePlioSettings = jest.spyOn(Editor.methods, "updatePlioSettings");
+        updatePlioSettings = jest
+          .spyOn(PlioAPIService, "updatePlioSettings")
+          .mockImplementation(() => {
+            return;
+          });
         // mount the component
         wrapper = mount(Editor, {
           data() {
@@ -2587,7 +2586,6 @@ describe("Editor.vue", () => {
      */
     describe("Handling of different plio configs", () => {
       let plioId = "mlungtvmyl";
-      let handleSettingsInheritance;
       let constructSettingsMenu;
 
       let loginNewUser = async (user) => {
@@ -2609,10 +2607,6 @@ describe("Editor.vue", () => {
       beforeEach(async () => {
         // before each test, restore the mocks to their original implementation
         jest.restoreAllMocks();
-        handleSettingsInheritance = jest.spyOn(
-          Editor.methods,
-          "handleSettingsInheritance"
-        );
         constructSettingsMenu = jest.spyOn(
           Editor.methods,
           "constructSettingsMenu"
@@ -2647,7 +2641,6 @@ describe("Editor.vue", () => {
         mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
         await flushPromises();
 
-        expect(handleSettingsInheritance).toHaveBeenCalled();
         expect(constructSettingsMenu).toHaveBeenCalled();
         // the userSettings for player are copied into the plio' settings
         expect(wrapper.vm.plioSettings.get("player")).toStrictEqual(
@@ -2670,7 +2663,6 @@ describe("Editor.vue", () => {
         mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
         await flushPromises();
 
-        expect(handleSettingsInheritance).toHaveBeenCalled();
         expect(constructSettingsMenu).toHaveBeenCalled();
         // the userSettings for player are copied into the plio's settings
         expect(wrapper.vm.plioSettings.get("player")).toStrictEqual(
@@ -2694,7 +2686,6 @@ describe("Editor.vue", () => {
         mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
         await flushPromises();
 
-        expect(handleSettingsInheritance).toHaveBeenCalled();
         expect(constructSettingsMenu).toHaveBeenCalled();
         // the userSettings for player are copied into the plio' settings
         expect(wrapper.vm.plioSettings.get("player")).toStrictEqual(
@@ -2725,7 +2716,6 @@ describe("Editor.vue", () => {
         mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
         await flushPromises();
 
-        expect(handleSettingsInheritance).toHaveBeenCalled();
         expect(constructSettingsMenu).toHaveBeenCalled();
         // the userSettings for player are copied into the plio' settings
         expect(wrapper.vm.plioSettings.get("player")).toStrictEqual(
@@ -2771,7 +2761,6 @@ describe("Editor.vue", () => {
         mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
         await flushPromises();
 
-        expect(handleSettingsInheritance).toHaveBeenCalled();
         expect(constructSettingsMenu).toHaveBeenCalled();
         // the settings from the fetched plio's config are copied into the local
         // plioSettings variable

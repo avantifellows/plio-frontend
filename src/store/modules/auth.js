@@ -236,17 +236,17 @@ function getWorkspaceSettings(workspaceDetails) {
   ) {
     let workspaceSettings = clonedeep(globalDefaultSettings);
     for (let [headerName, headerDetails] of workspaceSettings) {
-      if (isApplicableToWorkspace(headerDetails.scope)) {
+      if (!isApplicableToWorkspace(headerDetails.scope)) {
         workspaceSettings.delete(headerName);
         continue;
       }
       for (let [tabName, tabDetails] of headerDetails.children) {
-        if (isApplicableToWorkspace(tabDetails.scope)) {
+        if (!isApplicableToWorkspace(tabDetails.scope)) {
           headerDetails.children.delete(tabName);
           continue;
         }
         for (let [leafName, leafDetails] of tabDetails.children) {
-          if (isApplicableToWorkspace(leafDetails.scope)) {
+          if (!isApplicableToWorkspace(leafDetails.scope)) {
             tabDetails.children.delete(leafName);
             continue;
           }

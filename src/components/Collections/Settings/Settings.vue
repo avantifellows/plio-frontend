@@ -49,7 +49,7 @@
               </div>
 
               <!-- content region in mobile view -->
-              <div v-if="isMobileScreen && isTabSelected">
+              <div v-if="isMobileScreen && isTabSelected(tabName)">
                 <div
                   v-for="[leafName, leafDetails] in currentSelectedTabDetails"
                   :key="leafName"
@@ -270,7 +270,7 @@ export default {
   },
   created() {
     this.createLocalSettings();
-    this.attachWatchers();
+    if (this.localSettings != null) this.attachWatchers();
     if (!this.isMobileScreen) {
       // set a default selected tab if the screen is not in mobile view
       this.setCurrentSelectedTab();
@@ -481,6 +481,6 @@ export default {
         .get(leafName).value = isChecked;
     },
   },
-  emits: ["window-closed", "update:settings", "publish"],
+  emits: ["window-closed", "update:settings", "updated", "publish"],
 };
 </script>
