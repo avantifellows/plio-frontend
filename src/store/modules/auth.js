@@ -132,10 +132,13 @@ const actions = {
       // use the config data of organization(s) if it exists otherwise use the global defaults
       if (response.data.organizations.length > 0) {
         response.data.organizations.forEach((workspaceDetails) => {
-          dispatch("setWorkspaceSettings", getWorkspaceSettings(workspaceDetails), workspaceDetails.shortcode)
+          dispatch(
+            "setWorkspaceSettings",
+            getWorkspaceSettings(workspaceDetails),
+            workspaceDetails.shortcode
+          );
         });
-      }
-      else dispatch("unsetWorkspaceSettings");
+      } else dispatch("unsetWorkspaceSettings");
 
       dispatch("setUser", response.data);
     }
@@ -152,7 +155,11 @@ const actions = {
   unsetWorkspaceSettings({ commit }) {
     commit("unsetWorkspaceSettings");
   },
-  setWorkspaceSettings({ commit }, settingObject, shortcode = state.activeWorkspace) {
+  setWorkspaceSettings(
+    { commit },
+    settingObject,
+    shortcode = state.activeWorkspace
+  ) {
     commit("setWorkspaceSettings", settingObject, shortcode);
   },
 };
@@ -223,8 +230,8 @@ export default {
  */
 function getWorkspaceSettings(workspaceDetails) {
   let isApplicableToWorkspace = (settingScope) => {
-    return settingScope.length != 0
-  }
+    return settingScope.length != 0;
+  };
 
   if (
     !("config" in workspaceDetails) ||

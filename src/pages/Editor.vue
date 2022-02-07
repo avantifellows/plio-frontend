@@ -734,7 +734,6 @@ export default {
       isSettingsMenuShown: false,
       plioSettings: null, // the settings for the opened plio
       settingsToRender: new Map(), // the settings + metadata that needs to be rendered
-      settingsWatchers: [], // the unwatch callbacks to the watchers attached to individual settings
       newVideoDetails: null, // details for a video being considered for updating the video inside a plio
     };
   },
@@ -1418,9 +1417,6 @@ export default {
      * and add a watcher which will trigger when the value for that setting has been changed.
      */
     constructSettingsMenu() {
-      // unwatch any attached watchers
-      this.settingsWatchers.forEach((unwatch) => unwatch());
-
       // keep a clone of the plio settings in a local variable
       this.settingsToRender = clonedeep(this.plioSettings);
       let preparedDetails = Utilities.prepareSettingsToRender(this.settingsToRender, {
@@ -1434,7 +1430,7 @@ export default {
         let tabName = leafNodePathDetails.tabName;
         let leafName = leafNodePathDetails.leafName;
 
-        let settingWatcher = this.$watch(
+        this.$watch(
           () =>
             clonedeep(
               this.settingsToRender.get(headerName).get(tabName).get(leafName).value
@@ -1458,8 +1454,6 @@ export default {
           },
           { deep: true }
         );
-        // add the unwatch callback to an array for later use
-        this.settingsWatchers.push(settingWatcher);
       });
     },
     closeSettingsMenu() {
