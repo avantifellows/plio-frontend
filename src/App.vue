@@ -242,6 +242,7 @@
     v-model:settings="settingsToRender"
     :isInfoMessageVisible="true"
     v-click-away="closeSettingsMenu"
+    @updated="updateSettings"
     @window-closed="closeSettingsMenu"
   ></Settings>
 </template>
@@ -491,6 +492,44 @@ export default {
     ]),
     ...mapActions("selectors", ["hideSelector"]),
     /**
+     * Update the settings stored in the store and on the server as well
+     * @param {Object} updatedSettings - details about the leaf nodes that the user has updated
+     */
+    updateSettings(updatedSettings) {
+      // The updatedSettings object contains the following keys
+      // headerName - name of the header to which the updated setting belongs to
+      // tabName - name of the tab to which the updated setting belongs to
+      // leafName - name of the updated leaf node
+      // newValue - the updated value
+      // isWorkspaceSetting - whether the updated setting is a workspace setting
+      Object.keys(updatedSettings).forEach((key) => {
+        let setting = updatedSettings[key];
+
+        if (setting.isWorkspaceSetting) {
+          let newWorkspaceSettings = clonedeep(this.activeWorkspaceSettings);
+          newWorkspaceSettings
+            .get(setting.headerName)
+            .children.get(setting.tabName)
+            .children.get(setting.leafName).value = setting.newValue;
+
+          this.setWorkspaceStoreSettings({ settingObject: newWorkspaceSettings });
+          OrganizationAPIService.updateWorkspaceSettings(
+            this.activeWorkspaceId,
+            newWorkspaceSettings
+          );
+        } else {
+          let newUserSettings = clonedeep(this.userSettings);
+          newUserSettings
+            .get(setting.headerName)
+            .children.get(setting.tabName)
+            .children.get(setting.leafName).value = setting.newValue;
+
+          this.updateUserStoreSettings(newUserSettings);
+          UserAPIService.updateUserSettings(this.userId, newUserSettings);
+        }
+      });
+    },
+    /**
      * This method constructs the settings menu that needs to be rendered when settings menu is open.
      * We iterate through the different levels of a settings object.
      * This settings object is the user's settings or the merger of users/workspace's settings depending on the active workspace.
@@ -515,60 +554,9 @@ export default {
           clonedeep(this.activeWorkspaceSettings)
         );
 
-      let preparedDetails = SettingsUtilities.prepareSettingsToRender(
-        this.settingsToRender,
-        {
-          isPersonalWorkspace: this.isPersonalWorkspace,
-          userRoleInActiveWorkspace: this.userRoleInActiveWorkspace,
-        }
-      );
-
-      // adding a watcher to the individual setting values
-      preparedDetails.settingsToWatch.forEach((leafNodePathDetails) => {
-        let headerName = leafNodePathDetails.headerName;
-        let tabName = leafNodePathDetails.tabName;
-        let leafName = leafNodePathDetails.leafName;
-        let isWorkspaceSetting = this.settingsToRender
-          .get(headerName)
-          .get(tabName)
-          .get(leafName).isWorkspaceSetting;
-        let settingWatcher = this.$watch(
-          () =>
-            clonedeep(
-              this.settingsToRender.get(headerName).get(tabName).get(leafName).value
-            ),
-          (newValue, oldValue) => {
-            // if the value hasn't changed, do nothing
-            if (newValue === oldValue) return;
-
-            // if the value has changed, update the settings
-            // in the Vuex store and on the server as well
-            if (isWorkspaceSetting) {
-              let newWorkspaceSettings = clonedeep(this.activeWorkspaceSettings);
-              newWorkspaceSettings
-                .get(headerName)
-                .children.get(tabName)
-                .children.get(leafName).value = newValue;
-              this.setWorkspaceStoreSettings({ settingObject: newWorkspaceSettings });
-              OrganizationAPIService.updateWorkspaceSettings(
-                this.activeWorkspaceId,
-                newWorkspaceSettings
-              );
-            } else {
-              let newUserSettings = clonedeep(this.userSettings);
-              newUserSettings
-                .get(headerName)
-                .children.get(tabName)
-                .children.get(leafName).value = newValue;
-
-              this.updateUserStoreSettings(newUserSettings);
-              UserAPIService.updateUserSettings(this.userId, newUserSettings);
-            }
-          },
-          { deep: true }
-        );
-        // add the unwatch callback to an array for later use
-        this.settingsWatchers.push(settingWatcher);
+      SettingsUtilities.prepareSettingsToRender(this.settingsToRender, {
+        isPersonalWorkspace: this.isPersonalWorkspace,
+        userRoleInActiveWorkspace: this.userRoleInActiveWorkspace,
       });
     },
     closeSettingsMenu() {

@@ -511,6 +511,7 @@
       v-if="isSettingsMenuShown"
       v-model:settings="settingsToRender"
       v-click-away="closeSettingsMenu"
+      @updated="updateSettings"
       data-test="settings"
       ref="settings"
     ></Settings>
@@ -1412,6 +1413,29 @@ export default {
     ]),
     getImageSource: GenericUtilities.getImageSource,
     /**
+     * Update the settings stored in the store and on the server as well
+     * @param {Object} updatedSettings - details about the leaf nodes that the user has updated
+     */
+    updateSettings(updatedSettings) {
+      // The updatedSettings object contains the following keys
+      // headerName - name of the header to which the updated setting belongs to
+      // tabName - name of the tab to which the updated setting belongs to
+      // leafName - name of the updated leaf node
+      // newValue - the updated value
+      // isWorkspaceSetting - whether the updated setting is a workspace setting
+      Object.keys(updatedSettings).forEach((key) => {
+        let setting = updatedSettings[key];
+        this.plioSettings
+          .get(setting.headerName)
+          .children.get(setting.tabName)
+          .children.get(setting.leafName).value = setting.newValue;
+
+        if (!this.isPublished)
+          PlioAPIService.updatePlioSettings(this.plioId, this.plioSettings);
+        else this.publishPlio();
+      });
+    },
+    /**
      * This method constructs the settings menu that needs to be rendered when settings menu is open.
      * We iterate through the different levels of a settings object.
      * For each of the atomic settings, which are the last leaf of the object, we attach some metadata to it,
@@ -1420,7 +1444,7 @@ export default {
     constructSettingsMenu() {
       // keep a clone of the plio settings in a local variable
       this.settingsToRender = clonedeep(this.plioSettings);
-      let preparedDetails = SettingsUtilities.prepareSettingsToRender(
+      SettingsUtilities.prepareSettingsToRender(
         this.settingsToRender,
         {
           isPersonalWorkspace: this.isPersonalWorkspace,
@@ -1428,34 +1452,6 @@ export default {
         },
         false
       );
-
-      // adding a watcher to the individual setting values
-      preparedDetails.settingsToWatch.forEach((leafNodePathDetails) => {
-        let headerName = leafNodePathDetails.headerName;
-        let tabName = leafNodePathDetails.tabName;
-        let leafName = leafNodePathDetails.leafName;
-
-        this.$watch(
-          () =>
-            clonedeep(
-              this.settingsToRender.get(headerName).get(tabName).get(leafName).value
-            ),
-          (newValue, oldValue) => {
-            // if the value hasn't changed, do nothing
-            if (newValue === oldValue) return;
-
-            this.plioSettings
-              .get(headerName)
-              .children.get(tabName)
-              .children.get(leafName).value = newValue;
-
-            if (!this.isPublished)
-              PlioAPIService.updatePlioSettings(this.plioId, this.plioSettings);
-            else this.publishPlio();
-          },
-          { deep: true }
-        );
-      });
     },
     closeSettingsMenu() {
       this.isSettingsMenuShown = false;

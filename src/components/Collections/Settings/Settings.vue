@@ -35,12 +35,12 @@
               <div class="flex flex-row bp-500:ml-0 ml-4">
                 <inline-svg
                   v-if="isMobileScreen"
-                  @click="selectTab(tabName, tabDetails)"
+                  @click="selectTab(tabName, tabDetails, headerName)"
                   :src="getImageSource('play.svg')"
                   :class="getTabToggleClass(tabName)"
                 ></inline-svg>
                 <button
-                  @click="selectTab(tabName, tabDetails)"
+                  @click="selectTab(tabName, tabDetails, headerName)"
                   :class="getTabStyleClasses(tabName)"
                   :data-test="`tab-${tabName}`"
                 >
@@ -76,7 +76,9 @@
                     :class="getInputElementClass(leafDetails.type)"
                     style="box-shadow: none"
                     :checked="leafDetails.value"
-                    @change="updateCheckboxSetting($event.target.checked, leafDetails)"
+                    @change="
+                      updateCheckboxSetting($event.target.checked, leafDetails, leafName)
+                    "
                     data-test="input"
                   />
                 </div>
@@ -136,7 +138,7 @@
             :class="getInputElementClass(leafDetails.type)"
             style="box-shadow: none"
             :checked="leafDetails.value"
-            @change="updateCheckboxSetting($event.target.checked, leafDetails)"
+            @change="updateCheckboxSetting($event.target.checked, leafDetails, leafName)"
             data-test="input"
           />
         </div>
@@ -233,9 +235,12 @@ export default {
       contentRegionClass:
         "h-full w-full flex flex-col 2xl:px-10 xl:px-8 lg:px-6 md:px-4 bp-500:px-3 px-6 2xl:pt-10 xl:pt-8 lg:pt-6 md:pt-4 bp-500:pt-2 pt-6 pb-5",
       currentSelectedTab: new Map(), // map containing details about the current selected tab
-      hasUnsavedChanges: false, // if there are any unsaved setting changes
       adminBadgeClass:
         "rounded-md border text-black text-xs px-2 border-gray-500 bg-gray-200",
+      leafNodeUnwatchers: [], // unwatch callbacks for watchers attached to the leaf nodes
+      changedLeafNodes: {}, // details about those leaf nodes that have been changed by the user
+      currentSelectedHeaderName: null, // name of the header of the current selected tab
+      localSettings: null,
     };
   },
   props: {
@@ -264,6 +269,8 @@ export default {
     },
   },
   created() {
+    this.createLocalSettings();
+    this.attachWatchers();
     if (!this.isMobileScreen) {
       // set a default selected tab if the screen is not in mobile view
       this.setCurrentSelectedTab();
@@ -272,10 +279,14 @@ export default {
     window.addEventListener("resize", this.handleScreenSizeChange);
   },
   unmounted() {
+    this.detachWatchers();
     window.removeEventListener("resize", this.handleScreenSizeChange);
   },
   computed: {
     ...mapGetters("generic", ["isMobileScreen"]),
+    hasUnsavedChanges() {
+      return !GenericUtilities.isObjectEmpty(this.changedLeafNodes);
+    },
     sidebarRegionClass() {
       return [
         {
@@ -312,16 +323,59 @@ export default {
     currentSelectedTabDetails() {
       return this.currentSelectedTab.get(this.currentSelectedTabName);
     },
-    /**
-     * A local version of the settings prop
-     */
-    localSettings() {
-      if (this.settings == null) return null;
-      return clonedeep(this.settings);
-    },
   },
   methods: {
     getImageSource: GenericUtilities.getImageSource,
+    detachWatchers() {
+      this.leafNodeUnwatchers.forEach((unwatch) => unwatch());
+    },
+    createLocalSettings() {
+      this.localSettings = this.settings == null ? null : clonedeep(this.settings);
+    },
+    attachWatchers() {
+      for (let [headerName, headerDetails] of this.localSettings) {
+        for (let [tabName, tabDetails] of headerDetails) {
+          for (let [leafName, leafDetails] of tabDetails) {
+            let unwatch = this.$watch(
+              () =>
+                clonedeep(
+                  this.localSettings.get(headerName).get(tabName).get(leafName).value
+                ),
+              (newValue, oldValue) => {
+                // a unique key name for each leaf node.
+                // used to check if a user has toggled a setting two times, nullifying the change
+                let keyName = `${headerName}_${tabName}_${leafName}`;
+
+                // return if the value hasn't changed
+                if (newValue === oldValue) return;
+
+                // if the changed value picked up by the watcher is the same as the original value,
+                // delete the existing change if it exists in memory and return
+                if (
+                  newValue ===
+                  this.settings.get(headerName).get(tabName).get(leafName).value
+                ) {
+                  if (keyName in this.changedLeafNodes)
+                    delete this.changedLeafNodes[keyName];
+                  return;
+                }
+
+                // add the details of the changed setting in an object
+                this.changedLeafNodes[keyName] = {
+                  headerName,
+                  tabName,
+                  leafName,
+                  newValue,
+                  isWorkspaceSetting: leafDetails.isWorkspaceSetting,
+                };
+              },
+              { deep: true }
+            );
+            this.leafNodeUnwatchers.push(unwatch);
+          }
+        }
+      }
+    },
     isCheckboxSetting(settingType) {
       return settingType == "checkbox";
     },
@@ -366,23 +420,27 @@ export default {
         let firstTabName = [...firstTab.keys()][0];
         let firstTabDetails = firstTab.get(firstTabName);
         this.currentSelectedTab.set(firstTabName, firstTabDetails);
+        this.currentSelectedHeaderName = firstHeaderName;
       }
     },
     /**
      * Mark a tab as selected/unselected
-     * @param {String} tabName - The name of the tab that is to be marked selected
-     * @param {Object} tabDetails - The details of the tab that is to be marked selected
+     * @param {String} tabName - the name of the tab that is to be marked selected
+     * @param {Object} tabDetails - the details of the tab that is to be marked selected
+     * @param {String} headerName - name of the header to which the selected tab belongs to
      */
-    selectTab(tabName, tabDetails) {
+    selectTab(tabName, tabDetails, headerName) {
       if (this.isMobileScreen && this.isTabSelected(tabName)) {
         // in mobile view, the tabs are toggable
         // if someone clicks on an already opened tab, close it and currentSelectedTab
         // will be set to empty
         this.currentSelectedTab = new Map();
+        this.currentSelectedHeaderName = null;
       } else {
         // mark the clicked tab as the currentSelectedTab
         this.currentSelectedTab.clear();
         this.currentSelectedTab.set(tabName, tabDetails);
+        this.currentSelectedHeaderName = headerName;
       }
     },
     /**
@@ -390,6 +448,7 @@ export default {
      */
     saveChanges() {
       this.$emit("update:settings", this.localSettings);
+      this.$emit("updated", this.changedLeafNodes);
       this.$emit("window-closed");
     },
     /**
@@ -412,11 +471,14 @@ export default {
     /**
      * Update the settings when a checkbox input type is changed
      * @param {Boolean} isChecked - If the checkbox has been marked checked
-     * @param {Object} leafDetails - The setting to which this checkbox belongs to
+     * @param {Object} leafDetails - The leaf details to which this checkbox belongs to
+     * @param {String} leafName - The leaf name to which this checkbox belongs to
      */
-    updateCheckboxSetting(isChecked, leafDetails) {
-      this.hasUnsavedChanges = true;
-      leafDetails.value = isChecked;
+    updateCheckboxSetting(isChecked, leafDetails, leafName) {
+      this.localSettings
+        .get(this.currentSelectedHeaderName)
+        .get(this.currentSelectedTabName)
+        .get(leafName).value = isChecked;
     },
   },
   emits: ["window-closed", "update:settings", "publish"],

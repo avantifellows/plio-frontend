@@ -39,12 +39,8 @@ export default {
    * @param {Map} settingsToRender - the object that needs to be prepared
    * @param {Object} data - some extra data required for the preparation
    * @param {Boolean} checkUserScoping - if the user's scope has to be taken into account
-   * @returns {Object} - An object with the prepared settingsToRender object along with some extra information about each leaf node
    */
   prepareSettingsToRender(settingsToRender, data, checkUserScoping = true) {
-    let preparedDetails = {
-      settingsToWatch: [],
-    };
     // Checks if the current user has access to a particular setting level. Only valid for non personal workspace
     let doesUserHasAccessTo = (settingLevel) => {
       if (
@@ -105,18 +101,9 @@ export default {
                   ? true
                   : false,
             });
-
-          let leafNodePathDetails = {
-            headerName,
-            tabName,
-            leafName,
-          };
-          preparedDetails.settingsToWatch.push(leafNodePathDetails);
         }
       }
     }
-    preparedDetails.settingsToRender = settingsToRender;
-    return preparedDetails;
   },
 
   /**
