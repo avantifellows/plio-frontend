@@ -5,7 +5,7 @@ import { useToast } from "vue-toastification";
 import {
   animationFrameRequest,
   resetConfetti,
-} from "@/services/Functional/Utilities.js";
+} from "@/services/Functional/Utilities/Generic.js";
 
 const toast = useToast();
 // these keys should be present as query params when a third party

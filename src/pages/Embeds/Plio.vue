@@ -97,8 +97,8 @@ import ItemModal from "@/components/Player/ItemModal.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 import { mapActions, mapState, mapGetters } from "vuex";
-import { resetConfetti } from "@/services/Functional/Utilities.js";
-import Utilities from "@/services/Functional/Utilities.js";
+import { resetConfetti } from "@/services/Functional/Utilities/Generic.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 
 var isEqual = require("deep-eql");
 
@@ -736,7 +736,7 @@ export default {
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
           this.plioTitle = plioDetails.plioTitle;
-          this.plioSettings = Utilities.setPlioSettings(plioDetails.config);
+          this.plioSettings = SettingsUtilities.setPlioSettings(plioDetails.config);
         })
         .then(() => this.createSession())
         .then(() => this.logData());

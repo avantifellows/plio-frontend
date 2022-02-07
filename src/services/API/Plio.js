@@ -7,7 +7,7 @@ import {
   plioMetricsEndpoint,
   copyEndpoint,
 } from "@/services/API/Endpoints.js";
-import Utilities from "@/services/Functional/Utilities.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 
 export default {
   /**
@@ -76,7 +76,7 @@ export default {
    * @returns
    */
   updatePlioSettings(plioId, payload) {
-    payload = Utilities.encodeMapToPayload(payload);
+    payload = SettingsUtilities.encodeMapToPayload(payload);
     return apiClient().patch(
       pliosEndpoint + plioId + settingsEndpoint,
       payload

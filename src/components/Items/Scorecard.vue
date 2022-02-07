@@ -106,10 +106,10 @@
 
 <script>
 import CircularProgress from "@/components/UI/Progress/CircularProgress.vue";
-import Utilities, {
+import GenericUtilities, {
   throwConfetti,
   isScreenPortrait,
-} from "@/services/Functional/Utilities.js";
+} from "@/services/Functional/Utilities/Generic.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 import domtoimage from "dom-to-image";
@@ -324,7 +324,7 @@ export default {
   },
   methods: {
     ...mapActions("generic", ["showSpinner", "hideSpinner"]),
-    ...Utilities,
+    getImageSource: GenericUtilities.getImageSource,
     /**
      * checks whether the current screen corresponds to a mobile-sized
      * screen in landscape mode

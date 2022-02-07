@@ -53,7 +53,7 @@
 import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import OptionDropdown from "@/components/UI/Selectors/OptionDropdown.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
@@ -239,7 +239,8 @@ export default {
     },
     /** link to the player for a plio */
     plioLink() {
-      if (this.plioId != "") return this.getPlioLink(this.plioId, this.activeWorkspace);
+      if (this.plioId != "")
+        return GenericUtilities.getPlioLink(this.plioId, this.activeWorkspace);
       return "";
     },
     /** whether the plio does not have a title */
@@ -311,7 +312,6 @@ export default {
       "unsetCancelClicked",
     ]),
     ...mapActions("selectors", ["showSelector"]),
-    ...Utilities,
     /**
      * sets various attributes based on the screen size
      */

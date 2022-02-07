@@ -98,7 +98,7 @@
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import { useToast } from "vue-toastification";
 
 const TEAM_WORKSPACE_APPLICATION_FORM =
@@ -145,7 +145,7 @@ export default {
   },
   methods: {
     ...mapActions("generic", ["unsetEmbedPlioDialog"]),
-    ...Utilities,
+    getImageSource: GenericUtilities.getImageSource,
     /**
      * closes the dialog
      */
@@ -195,7 +195,7 @@ export default {
         (useSSO && this.isCodeWithSSOCopied)
       )
         return;
-      const success = this.copyToClipboard(codeToCopy);
+      const success = GenericUtilities.copyToClipboard(codeToCopy);
 
       if (success) {
         this.codeCopyConfig.isCopied = true;
@@ -231,11 +231,11 @@ export default {
     },
     embedCode() {
       // code to be copied for embedding the plio
-      return this.getEmbedCode(this.plioId, this.activeWorkspace);
+      return GenericUtilities.getEmbedCode(this.plioId, this.activeWorkspace);
     },
     embedCodeSSO() {
       // code to be copied for embedding the plio with SSO
-      return this.getEmbedCode(
+      return GenericUtilities.getEmbedCode(
         this.plioId,
         this.activeWorkspace,
         true,

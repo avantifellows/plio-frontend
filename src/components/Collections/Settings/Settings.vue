@@ -197,7 +197,7 @@
 
 <script>
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import { mapGetters } from "vuex";
 
@@ -321,7 +321,7 @@ export default {
     },
   },
   methods: {
-    ...Utilities,
+    getImageSource: GenericUtilities.getImageSource,
     isCheckboxSetting(settingType) {
       return settingType == "checkbox";
     },

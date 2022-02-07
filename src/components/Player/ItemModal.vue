@@ -55,7 +55,7 @@
 import ItemQuestionHeader from "@/components/Items/Question/Header";
 import ItemQuestionBody from "@/components/Items/Question/Body";
 import ItemQuestionFooter from "@/components/Items/Question/Footer";
-import { isScreenPortrait } from "@/services/Functional/Utilities.js";
+import { isScreenPortrait } from "@/services/Functional/Utilities/Generic.js";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 
 var isEqual = require("deep-eql");

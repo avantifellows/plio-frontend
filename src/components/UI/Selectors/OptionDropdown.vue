@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import { mapState } from "vuex";
 
 const DEFAULT_OPTIONS_MARGIN_TOP = 2;
@@ -125,7 +125,7 @@ export default {
     this.setOptionBoxStyling();
   },
   methods: {
-    ...Utilities,
+    getImageSource: GenericUtilities.getImageSource,
     optionClass(index) {
       // class for each option
       return {

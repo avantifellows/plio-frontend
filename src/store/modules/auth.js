@@ -1,6 +1,6 @@
 import UserAPIService from "@/services/API/User.js";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
-import Utilities from "@/services/Functional/Utilities.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 
 let clonedeep = require("lodash.clonedeep");
 
@@ -125,18 +125,17 @@ const actions = {
       if ("settings" in response.data.config)
         dispatch(
           "setUserSettings",
-          Utilities.decodeMapFromPayload(response.data.config.settings)
+          SettingsUtilities.decodeMapFromPayload(response.data.config.settings)
         );
       else dispatch("setUserSettings", clonedeep(globalDefaultSettings));
 
       // use the config data of organization(s) if it exists otherwise use the global defaults
       if (response.data.organizations.length > 0) {
         response.data.organizations.forEach((workspaceDetails) => {
-          dispatch(
-            "setWorkspaceSettings",
-            getWorkspaceSettings(workspaceDetails),
-            workspaceDetails.shortcode
-          );
+          dispatch("setWorkspaceSettings", {
+            settingObject: getWorkspaceSettings(workspaceDetails),
+            shortCode: workspaceDetails.shortcode,
+          });
         });
       } else dispatch("unsetWorkspaceSettings");
 
@@ -155,12 +154,10 @@ const actions = {
   unsetWorkspaceSettings({ commit }) {
     commit("unsetWorkspaceSettings");
   },
-  setWorkspaceSettings(
-    { commit },
-    settingObject,
-    shortcode = state.activeWorkspace
-  ) {
-    commit("setWorkspaceSettings", settingObject, shortcode);
+  setWorkspaceSettings({ commit, state }, details) {
+    // if shortcode is not provided, the default value to be used is the shortcode of the active workspace
+    if (!("shortCode" in details)) details.shortCode = state.activeWorkspace;
+    commit("setWorkspaceSettings", details);
   },
 };
 
@@ -171,8 +168,9 @@ const mutations = {
   unsetUserSettings(state) {
     state.userSettings = null;
   },
-  setWorkspaceSettings(state, settingObject, shortcode) {
-    state.workspaceSettings[shortcode] = settingObject;
+  setWorkspaceSettings(state, details) {
+    if (state.workspaceSettings == null) state.workspaceSettings = {};
+    state.workspaceSettings[details.shortCode] = details.settingObject;
   },
   unsetWorkspaceSettings(state) {
     state.workspaceSettings = null;
@@ -235,7 +233,7 @@ function getWorkspaceSettings(workspaceDetails) {
 
   if (
     !("config" in workspaceDetails) ||
-    !Utilities.doesObjectContainValidSettings(workspaceDetails.config)
+    !SettingsUtilities.doesObjectContainValidSettings(workspaceDetails.config)
   ) {
     let workspaceSettings = clonedeep(globalDefaultSettings);
     for (let [headerName, headerDetails] of workspaceSettings) {
@@ -258,5 +256,7 @@ function getWorkspaceSettings(workspaceDetails) {
     }
     return workspaceSettings;
   }
-  return Utilities.decodeMapFromPayload(workspaceDetails.config.settings);
+  return SettingsUtilities.decodeMapFromPayload(
+    workspaceDetails.config.settings
+  );
 }

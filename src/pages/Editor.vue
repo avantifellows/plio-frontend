@@ -536,11 +536,12 @@ import ImageAPIService from "@/services/API/Image.js";
 import VideoAPIService from "@/services/API/Video.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
-import Utilities, {
+import GenericUtilities, {
   throwConfetti,
   resetConfetti,
   getVideoDuration,
-} from "@/services/Functional/Utilities.js";
+} from "@/services/Functional/Utilities/Generic.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 
 import { mapActions, mapState, mapGetters } from "vuex";
 import debounce from "debounce";
@@ -1337,7 +1338,7 @@ export default {
      * prepare the link for the plio from the plio ID
      */
     plioLink() {
-      return this.getPlioLink(this.plioId, this.workspace);
+      return GenericUtilities.getPlioLink(this.plioId, this.workspace);
     },
     /**
      * title for the dialog box that appears when publishing a
@@ -1409,7 +1410,7 @@ export default {
       "unsetConfirmClicked",
       "unsetCancelClicked",
     ]),
-    ...Utilities,
+    getImageSource: GenericUtilities.getImageSource,
     /**
      * This method constructs the settings menu that needs to be rendered when settings menu is open.
      * We iterate through the different levels of a settings object.
@@ -1419,10 +1420,13 @@ export default {
     constructSettingsMenu() {
       // keep a clone of the plio settings in a local variable
       this.settingsToRender = clonedeep(this.plioSettings);
-      let preparedDetails = Utilities.prepareSettingsToRender(this.settingsToRender, {
-        isPersonalWorkspace: this.isPersonalWorkspace,
-        userRoleInActiveWorkspace: this.userRoleInActiveWorkspace,
-      });
+      let preparedDetails = SettingsUtilities.prepareSettingsToRender(
+        this.settingsToRender,
+        {
+          isPersonalWorkspace: this.isPersonalWorkspace,
+          userRoleInActiveWorkspace: this.userRoleInActiveWorkspace,
+        }
+      );
 
       // adding a watcher to the individual setting values
       preparedDetails.settingsToWatch.forEach((leafNodePathDetails) => {
@@ -1547,8 +1551,8 @@ export default {
      * copies the plio draft link to the clipboard
      */
     copyPlioDraftLink() {
-      let success = this.copyToClipboard(
-        this.getPlioDraftLink(this.plioId, this.workspace)
+      let success = GenericUtilities.copyToClipboard(
+        GenericUtilities.getPlioDraftLink(this.plioId, this.workspace)
       );
 
       if (success) this.toast.success(this.$t("toast.success.copying"));
@@ -1962,7 +1966,9 @@ export default {
           this.hasUnpublishedChanges = false;
           this.videoDBId = plioDetails.videoDBId;
           this.plioDBId = plioDetails.plioDBId;
-          this.plioSettings = Utilities.setPlioSettings(this.loadedPlioDetails.config);
+          this.plioSettings = SettingsUtilities.setPlioSettings(
+            this.loadedPlioDetails.config
+          );
           this.constructSettingsMenu();
           this.stopLoading();
         })

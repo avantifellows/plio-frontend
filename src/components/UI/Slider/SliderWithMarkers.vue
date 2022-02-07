@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { convertSecondsToISOTime } from "@/services/Functional/Utilities.js";
+import { convertSecondsToISOTime } from "@/services/Functional/Utilities/Generic.js";
 export default {
   data() {
     return {

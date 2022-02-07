@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { mapActions } from "vuex";
 import { useToast } from "vue-toastification";
@@ -136,7 +136,6 @@ export default {
   },
   methods: {
     ...mapActions("generic", ["unsetSharePlioDialog"]),
-    ...Utilities,
     shareOnWhatsApp() {
       // share the plio link on whatsapp
       window.open("https://wa.me/send?text=" + this.socialSharingText).focus();
@@ -156,9 +155,7 @@ export default {
       // triggered on clicking the copy link button
       // return if the link has already been copied
       if (this.plioLinkCopied) return;
-
-      var success = this.copyToClipboard(this.plioLink);
-
+      let success = GenericUtilities.copyToClipboard(this.plioLink);
       if (success) this.plioLinkCopied = true;
       else this.toast.error(this.$t("toast.error.copying"));
     },

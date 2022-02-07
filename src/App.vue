@@ -257,7 +257,8 @@ import ListSingleSelector from "@/components/UI/Selectors/ListSingleSelector.vue
 import PlioAPIService from "@/services/API/Plio.js";
 import Settings from "@/components/Collections/Settings/Settings.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 import UserAPIService from "@/services/API/User.js";
 import OrganizationAPIService from "@/services/API/Organization.js";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
@@ -450,6 +451,7 @@ export default {
     },
   },
   methods: {
+    getImageSource: GenericUtilities.getImageSource,
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions("auth", [
@@ -489,7 +491,6 @@ export default {
       "unsetDialogCloseButton",
     ]),
     ...mapActions("selectors", ["hideSelector"]),
-    ...Utilities,
     /**
      * This method merges the user's and workspace's settings.
      * This is needed to show both workspace level and user level settings in one settings menu.
@@ -584,10 +585,13 @@ export default {
           clonedeep(this.activeWorkspaceSettings)
         );
 
-      let preparedDetails = Utilities.prepareSettingsToRender(this.settingsToRender, {
-        isPersonalWorkspace: this.isPersonalWorkspace,
-        userRoleInActiveWorkspace: this.userRoleInActiveWorkspace,
-      });
+      let preparedDetails = SettingsUtilities.prepareSettingsToRender(
+        this.settingsToRender,
+        {
+          isPersonalWorkspace: this.isPersonalWorkspace,
+          userRoleInActiveWorkspace: this.userRoleInActiveWorkspace,
+        }
+      );
 
       // adding a watcher to the individual setting values
       preparedDetails.settingsToWatch.forEach((leafNodePathDetails) => {
@@ -615,7 +619,7 @@ export default {
                 .get(headerName)
                 .children.get(tabName)
                 .children.get(leafName).value = newValue;
-              this.setWorkspaceStoreSettings(newWorkspaceSettings);
+              this.setWorkspaceStoreSettings({ settingObject: newWorkspaceSettings });
               OrganizationAPIService.updateWorkspaceSettings(
                 this.activeWorkspaceId,
                 newWorkspaceSettings
@@ -900,7 +904,7 @@ export default {
     }),
     ...mapGetters("selectors", ["isSingleSelectorShown"]),
     hasAnySettingsToRender() {
-      return !Utilities.isObjectEmpty(this.settingsToRender);
+      return this.settingsToRender.size > 0;
     },
     /**
      * whether the router view is shown

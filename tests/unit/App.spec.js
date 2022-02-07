@@ -5,7 +5,7 @@ import store from "@/store";
 import App from "@/App";
 import Settings from "@/components/Collections/Settings/Settings.vue";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
-import Utilities from "@/services/Functional/Utilities.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 
 import mockAxios from "jest-mock-axios";
 let clonedeep = require("lodash.clonedeep");
@@ -238,7 +238,7 @@ describe("App.vue for authenticated user", () => {
         .get("player")
         .children.get("configuration")
         .children.get("skipEnabled").value = false;
-      dummyUserNew.config.settings = Utilities.encodeMapToPayload(
+      dummyUserNew.config.settings = SettingsUtilities.encodeMapToPayload(
         tempGlobalSettings
       );
 
@@ -277,7 +277,7 @@ describe("App.vue for authenticated user", () => {
       // create a new user which has a setting stored in one of the workspaces (which came from the DB) different than the global setting
       let dummyUserClone = clonedeep(global.dummyUser);
       dummyUserClone.organizations[1].config = {
-        settings: Utilities.encodeMapToPayload(
+        settings: SettingsUtilities.encodeMapToPayload(
           new Map(
             Object.entries({
               player: {
@@ -310,12 +310,12 @@ describe("App.vue for authenticated user", () => {
 
       // the activeWorkspaceSettings should be set to what was pulled from the DB
       expect(store.getters["auth/activeWorkspaceSettings"]).toStrictEqual(
-        Utilities.decodeMapFromPayload(
+        SettingsUtilities.decodeMapFromPayload(
           dummyUserClone.organizations[1].config.settings
         )
       );
       expect(wrapper.vm.activeWorkspaceSettings).toStrictEqual(
-        Utilities.decodeMapFromPayload(
+        SettingsUtilities.decodeMapFromPayload(
           dummyUserClone.organizations[1].config.settings
         )
       );
@@ -367,7 +367,7 @@ describe("App.vue for authenticated user", () => {
     it("shows all settings, even org level settings, if in personal workspace", async () => {
       // create a dummy user with some workspace and non-workspace settings
       let dummyUserNew = clonedeep(global.dummyUser);
-      dummyUserNew.config.settings = Utilities.encodeMapToPayload(
+      dummyUserNew.config.settings = SettingsUtilities.encodeMapToPayload(
         clonedeep(global.dummyGlobalSettings)
       );
       await loginNewUser(dummyUserNew);
@@ -382,18 +382,18 @@ describe("App.vue for authenticated user", () => {
     it("hides workspace settings from the menu if user does not have access to a setting", async () => {
       // create a dummy user with some workspace and non-workspace settings
       let dummyUserNew = clonedeep(global.dummyUser);
-      dummyUserNew.config.settings = Utilities.encodeMapToPayload(
+      dummyUserNew.config.settings = SettingsUtilities.encodeMapToPayload(
         clonedeep(global.dummyGlobalSettings)
       );
       dummyUserNew.organizations[0].config = {
-        settings: Utilities.encodeMapToPayload(
+        settings: SettingsUtilities.encodeMapToPayload(
           clonedeep(global.dummyGlobalSettingsFilteredForWorkspaces)
         ),
       };
       dummyUserNew.organizations[0].role = "org-view";
 
       dummyUserNew.organizations[1].config = {
-        settings: Utilities.encodeMapToPayload(
+        settings: SettingsUtilities.encodeMapToPayload(
           clonedeep(global.dummyGlobalSettingsFilteredForWorkspaces)
         ),
       };
@@ -445,7 +445,7 @@ describe("App.vue for authenticated user", () => {
       // set global default settings as user's settings
 
       let dummyUserNew = clonedeep(global.dummyUser);
-      dummyUserNew.config.settings = Utilities.encodeMapToPayload(
+      dummyUserNew.config.settings = SettingsUtilities.encodeMapToPayload(
         clonedeep(global.dummyGlobalSettings)
       );
       await loginNewUser(dummyUserNew);

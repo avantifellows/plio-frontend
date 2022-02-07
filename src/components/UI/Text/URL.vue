@@ -22,7 +22,7 @@
 
 <script>
 import { useToast } from "vue-toastification";
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 
 export default {
   data() {
@@ -61,7 +61,7 @@ export default {
   methods: {
     copyToClipboard() {
       // copies the link to the clipboard
-      var success = Utilities.copyToClipboard(this.link);
+      let success = GenericUtilities.copyToClipboard(this.link);
 
       if (success) this.toast.success(this.$t("toast.success.copying"));
       else this.toast.error(this.$t("toast.error.copying"));

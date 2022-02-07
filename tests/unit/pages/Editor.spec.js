@@ -8,7 +8,8 @@ import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
 import Settings from "@/components/Collections/Settings/Settings.vue";
 import store from "@/store";
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 import UserAPIService from "@/services/API/User.js";
 
 let clonedeep = require("lodash.clonedeep");
@@ -199,7 +200,7 @@ describe("Editor.vue", () => {
     draftLink = draftLink.replace("https://", "");
     expect(document.execCommand).toHaveBeenCalledWith("copy");
     expect(
-      wrapper.vm.getPlioDraftLink(wrapper.vm.plioId, wrapper.vm.workspace)
+      GenericUtilities.getPlioDraftLink(wrapper.vm.plioId, wrapper.vm.workspace)
     ).toBe(draftLink);
     await store.dispatch("auth/setActiveWorkspace", "");
   });
@@ -2369,7 +2370,7 @@ describe("Editor.vue", () => {
       let dummyTempSettingValue = true;
       let dummyPlio = clonedeep(global.dummyDraftPlio);
       dummyPlio.data.config = {
-        settings: Utilities.encodeMapToPayload(
+        settings: SettingsUtilities.encodeMapToPayload(
           new Map(
             Object.entries({
               player: {
@@ -2481,7 +2482,7 @@ describe("Editor.vue", () => {
         // prepare a dummy plio with proper settings in its config
         dummyPlio = clonedeep(global.dummyDraftPlio);
         dummyPlio.data.config = {
-          settings: Utilities.encodeMapToPayload(
+          settings: SettingsUtilities.encodeMapToPayload(
             new Map(
               Object.entries({
                 player: {
@@ -2711,7 +2712,7 @@ describe("Editor.vue", () => {
         // but no 'player' key exists inside
         let dummyPlio = clonedeep(global.dummyDraftPlio);
         dummyPlio.data.config = {
-          settings: Utilities.encodeMapToPayload(
+          settings: SettingsUtilities.encodeMapToPayload(
             new Map(
               Object.entries({
                 // contains some random key other than 'player'
@@ -2741,7 +2742,7 @@ describe("Editor.vue", () => {
         // the fetched plio's config contains all the required details
         let dummyPlio = clonedeep(global.dummyDraftPlio);
         dummyPlio.data.config = {
-          settings: Utilities.encodeMapToPayload(
+          settings: SettingsUtilities.encodeMapToPayload(
             new Map(
               Object.entries({
                 player: {
@@ -2775,7 +2776,7 @@ describe("Editor.vue", () => {
         // the settings from the fetched plio's config are copied into the local
         // plioSettings variable
         expect(wrapper.vm.plioSettings).toStrictEqual(
-          Utilities.decodeMapFromPayload(dummyPlio.data.config.settings)
+          SettingsUtilities.decodeMapFromPayload(dummyPlio.data.config.settings)
         );
       });
     });

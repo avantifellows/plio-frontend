@@ -172,7 +172,7 @@
 <script>
 import PlioListItem from "@/components/Collections/ListItems/PlioListItem.vue";
 import IconButton from "@/components/UI/Buttons/IconButton";
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import { mapState, mapActions } from "vuex";
 
 export default {
@@ -287,8 +287,8 @@ export default {
     },
   },
   methods: {
-    ...Utilities,
     ...mapActions("sync", ["startLoading"]),
+    getImageSource: GenericUtilities.getImageSource,
     /** increment the number of plios which have been loaded */
     incrementLoadedPlioCount() {
       this.numPliosLoaded += 1;

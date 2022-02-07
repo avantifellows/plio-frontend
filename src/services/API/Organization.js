@@ -3,7 +3,7 @@ import {
   organizationsEndpoint,
   settingsEndpoint,
 } from "@/services/API/Endpoints.js";
-import Utilities from "@/services/Functional/Utilities.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 
 export default {
   /**
@@ -12,7 +12,7 @@ export default {
    * @returns
    */
   updateWorkspaceSettings(workspaceId, payload) {
-    payload = Utilities.encodeMapToPayload(payload);
+    payload = SettingsUtilities.encodeMapToPayload(payload);
     return apiClient().patch(
       organizationsEndpoint + workspaceId + settingsEndpoint,
       payload

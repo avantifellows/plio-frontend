@@ -175,10 +175,9 @@ describe("Home.vue", () => {
         "auth/setUserSettings",
         dummyUserNew.config.settings
       );
-      await store.dispatch(
-        "auth/setWorkspaceSettings",
-        dummyUserNew.organizations
-      );
+      await store.dispatch("auth/setWorkspaceSettings", {
+        settingObject: dummyUserNew.organizations,
+      });
       await store.dispatch("auth/setActiveWorkspace", "o1");
 
       // changing the user to approved makes another API call to list UUIDs.
