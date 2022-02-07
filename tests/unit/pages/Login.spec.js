@@ -113,9 +113,6 @@ describe("Login.vue", () => {
 
         expect(requestOtp).toHaveBeenCalled();
         expect(startResendOTPTimer).toHaveBeenCalled();
-        expect(wrapper.find('[data-test="resendOTP"]').text()).toBe(
-          "OTP दोबारा भेजो"
-        );
         expect(wrapper.vm.resendOTPTimer).toBe(60);
         expect(wrapper.vm.resentOtp).toBe(true);
         expect(wrapper.vm.invalidOtp).toBe(false);
