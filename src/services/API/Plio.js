@@ -72,8 +72,7 @@ export default {
 
   /**
    * @param {String} plioId - uuid of a plio whose settings need to be updated
-   * @param {Map} payload - the new value for settings as a Map datatype
-   * @returns
+   * @param {Map} payload - the new value for settings
    */
   updatePlioSettings(plioId, payload) {
     payload = SettingsUtilities.encodeMapToPayload(payload);

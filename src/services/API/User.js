@@ -93,8 +93,7 @@ export default {
 
   /**
    * @param {Number} userId - id of the user whose settings need to be updated
-   * @param {Map} payload - the new value for settings as a Map datatype
-   * @returns
+   * @param {Map} payload - the new value for settings
    */
   updateUserSettings(userId, payload) {
     payload = SettingsUtilities.encodeMapToPayload(payload);

@@ -6,17 +6,17 @@ let clonedeep = require("lodash.clonedeep");
 export default {
   decodeMapFromPayload,
   encodeMapToPayload,
-  doesObjectContainValidSettings,
+  hasValidSettings,
 
   /**
-   * Depending on wheather the provided config is valid, this methods
+   * Depending on whether the provided config is valid, this method
    * sets the plio settings according to either the provided config or the global default settings
    * @param {Object} config - Config of a plio
    * @returns
    */
   setPlioSettings(config) {
     let plioSettings = new Map();
-    if (!doesObjectContainValidSettings(config)) {
+    if (!hasValidSettings(config)) {
       // if the provided config is not valid, set plio's settings using the global defaults
       plioSettings.set(
         "player",
@@ -249,12 +249,12 @@ function encodeMapToPayload(data) {
 }
 
 /**
- * Checks if the provided object is a valid settings object
- * @param {Object} config - The object that needs to be checked for validity
- * @param {Array} keysToCheck - These keys should exist for the object to be valid
- * @returns {Boolean}
+ * checks if the provided object is a valid settings object
+ * @param {Object} config - the object that needs to be checked for validity
+ * @param {Array} keysToCheck - these keys should exist for the object to be valid
+ * @returns {Boolean} - if the given config object contains valid settings
  */
-function doesObjectContainValidSettings(config, keysToCheck = ["player"]) {
+function hasValidSettings(config, keysToCheck = ["player"]) {
   // settings key should be present inside config object
   if (config == null || !("settings" in config) || config.settings == null)
     return false;

@@ -113,7 +113,7 @@ export default {
           "millisecond"
         )}`;
 
-        // only show the hour value if it's available
+        // only show the hour value if it is available
         if (ISOTimeObject.hour != 0)
           this.markerTooltipContent = `${ISOTimeObject.getAsString("hour")}:${
             this.markerTooltipContent

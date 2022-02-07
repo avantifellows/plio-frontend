@@ -498,6 +498,9 @@ export default {
      * and add a watcher which will trigger when the value for that setting has been changed.
      */
     constructSettingsMenu() {
+      // by the time this method is invoked, if the userSettings store variable or activeWorkspaceSettings store variable
+      // hasn't been updated, don't proceed and return.
+      // userSettings / activeWorkspaceSettings should be Maps
       if (!(this.userSettings instanceof Map)) return;
       if (!this.isPersonalWorkspace && !(this.activeWorkspaceSettings instanceof Map))
         return;

@@ -2,7 +2,7 @@
 let skipEnabled = true;
 
 /**
- * This object contains a mapping of a setting and it's metadata.
+ * This object contains a mapping of a setting and its metadata.
  * The metadata includes all details necessary for rendering a particular setting
  * on the settings menu.
  *
@@ -30,7 +30,7 @@ export let settingsMetadata = {
  * There are three levels of settings. These are called:
  * - Headers: (eg - player, app etc.)
  * - Tabs: (eg - configuration, appearance etc.)
- * - Settings: (eg - skipEnabled, darkMode etc.)
+ * - Leafs: (eg - skipEnabled, darkMode etc.)
  *
  * Every level has two properties. "scope" and "children".
  * "scope"

@@ -474,7 +474,7 @@ export default {
     },
 
     async duplicateThenRoute() {
-      // duplicate the plio and when it's done, route to the editor
+      // duplicate the plio and when it is done, route to the editor
       await this.duplicatePlio().then((duplicatedPlioId) => {
         this.$Progress.finish();
         this.$router.push({

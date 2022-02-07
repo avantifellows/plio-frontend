@@ -1116,7 +1116,7 @@ describe("Editor.vue", () => {
     wrapper = mount(Editor, {
       data() {
         const confetti = require("canvas-confetti");
-        // have to create it manually as jest creates a DIV instead of CANVAS on it's own
+        // have to create it manually as jest creates a DIV instead of CANVAS on its own
         const confettiCanvas = document.createElement("canvas");
         confettiCanvas.setAttribute("id", "sharePlioConfettiCanvas");
         const confettiHandler = confetti.create(confettiCanvas, {

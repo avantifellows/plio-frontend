@@ -221,8 +221,8 @@ describe("App.vue for authenticated user", () => {
       await store.dispatch("auth/setActiveWorkspace", "");
     });
 
-    it("uses global default settings for user when it's not available in DB", () => {
-      // our currently logged in user has no settings present in it's config
+    it("uses global default settings for user when it is not available in DB", () => {
+      // our currently logged in user has no settings present in it is config
       // hence, it should use global default settings
       expect(wrapper.vm.userSettings).toStrictEqual(globalDefaultSettings);
       expect(store.state.auth.userSettings).toStrictEqual(
@@ -230,7 +230,7 @@ describe("App.vue for authenticated user", () => {
       );
     });
 
-    it("uses user's DB settings if it's available", async () => {
+    it("uses user's DB settings if it is available", async () => {
       // create a new user which has a setting stored in the DB different than the global setting
       let dummyUserNew = clonedeep(global.dummyUser);
       let tempGlobalSettings = clonedeep(global.dummyGlobalSettings);
@@ -253,7 +253,7 @@ describe("App.vue for authenticated user", () => {
       );
     });
 
-    it("uses filtered global default settings for workspace when it's not available in DB", async () => {
+    it("uses filtered global default settings for workspace when it is not available in DB", async () => {
       // our currently logged in user has no settings present in its organization's configs
       // hence, it should use global default settings
       let workspaces = clonedeep(global.dummyUser.organizations);
@@ -273,7 +273,7 @@ describe("App.vue for authenticated user", () => {
       );
     });
 
-    it("uses workspace's DB settings if it's available", async () => {
+    it("uses workspace's DB settings if it is available", async () => {
       // create a new user which has a setting stored in one of the workspaces (which came from the DB) different than the global setting
       let dummyUserClone = clonedeep(global.dummyUser);
       dummyUserClone.organizations[1].config = {

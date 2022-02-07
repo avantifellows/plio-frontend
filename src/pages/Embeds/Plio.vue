@@ -55,7 +55,7 @@
           :videoPlayerElementId="plioVideoPlayerElementId"
           v-model:isFullscreen="isFullscreen"
           v-model:responseList="itemResponses"
-          :configuration="configurationSettings"
+          :configuration="configuration"
           @skip-question="skipQuestion"
           @proceed-question="proceedQuestion"
           @revise-question="reviseQuestion"
@@ -338,7 +338,7 @@ export default {
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
     ...mapState("generic", ["windowInnerWidth", "windowInnerHeight"]),
-    configurationSettings() {
+    configuration() {
       return this.plioSettings.get("player").children.get("configuration").children;
     },
     /**

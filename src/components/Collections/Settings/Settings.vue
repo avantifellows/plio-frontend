@@ -49,7 +49,7 @@
               </div>
 
               <!-- content region in mobile view -->
-              <div v-if="isMobileScreen && currentSelectedTabName == tabName">
+              <div v-if="isMobileScreen && isTabSelected">
                 <div
                   v-for="[leafName, leafDetails] in currentSelectedTabDetails"
                   :key="leafName"
@@ -362,8 +362,9 @@ export default {
     setCurrentSelectedTab() {
       if (this.localSettings != null) {
         let firstHeaderName = [...this.localSettings.keys()][0];
-        let firstTabName = [...this.localSettings.get(firstHeaderName).keys()][0];
-        let firstTabDetails = this.localSettings.get(firstHeaderName).get(firstTabName);
+        let firstTab = this.localSettings.get(firstHeaderName);
+        let firstTabName = [...firstTab.keys()][0];
+        let firstTabDetails = firstTab.get(firstTabName);
         this.currentSelectedTab.set(firstTabName, firstTabDetails);
       }
     },
@@ -377,7 +378,6 @@ export default {
         // in mobile view, the tabs are toggable
         // if someone clicks on an already opened tab, close it and currentSelectedTab
         // will be set to empty
-        this.currentSelectedTab.clear();
         this.currentSelectedTab = new Map();
       } else {
         // mark the clicked tab as the currentSelectedTab

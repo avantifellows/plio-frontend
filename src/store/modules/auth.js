@@ -116,12 +116,11 @@ const actions = {
     commit("updateUserStatus", status);
   },
   async fetchAndUpdateUser({ dispatch, state }) {
-    // if (getters.isAuthenticated) dispatch("unsetUser");
     let response = await UserAPIService.getUserByAccessToken(
       state.accessToken.access_token
     );
     if (response != undefined) {
-      // use the config data of a user if it exists otherwise use the global defaults
+      // use the config of a user if it exists otherwise use the global defaults
       if ("settings" in response.data.config)
         dispatch(
           "setUserSettings",
@@ -129,7 +128,7 @@ const actions = {
         );
       else dispatch("setUserSettings", clonedeep(globalDefaultSettings));
 
-      // use the config data of organization(s) if it exists otherwise use the global defaults
+      // use the config of organization(s) if it exists otherwise use the global defaults
       if (response.data.organizations.length > 0) {
         response.data.organizations.forEach((workspaceDetails) => {
           dispatch("setWorkspaceSettings", {
@@ -233,7 +232,7 @@ function getWorkspaceSettings(workspaceDetails) {
 
   if (
     !("config" in workspaceDetails) ||
-    !SettingsUtilities.doesObjectContainValidSettings(workspaceDetails.config)
+    !SettingsUtilities.hasValidSettings(workspaceDetails.config)
   ) {
     let workspaceSettings = clonedeep(globalDefaultSettings);
     for (let [headerName, headerDetails] of workspaceSettings) {

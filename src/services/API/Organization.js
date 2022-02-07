@@ -8,8 +8,7 @@ import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 export default {
   /**
    * @param {Number} workspaceId - id of a workspace whose settings need to be updated
-   * @param {Map} payload - the new value for settings as a Map datatype
-   * @returns
+   * @param {Map} payload - the new value for settings
    */
   updateWorkspaceSettings(workspaceId, payload) {
     payload = SettingsUtilities.encodeMapToPayload(payload);

@@ -758,7 +758,7 @@ export default {
     },
     /**
      * Whenever itemTimestamps is updated, check if the current item timestamp is
-     * greater than the minimum allowed timestamp or not. If it's not, then adjust it.
+     * greater than the minimum allowed timestamp or not. If it is not, then adjust it.
      */
     itemTimestamps() {
       // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
@@ -912,7 +912,7 @@ export default {
       this.updateVideoPlayer(linkValidation["ID"], newVideoURL, videoDuration);
     },
     /**
-     * When plio's title is updated, check if it's different than the loaded plio's title
+     * When plio's title is updated, check if it is different than the loaded plio's title
      * and push the updated title to the backend
      */
     plioTitle(newTitle) {

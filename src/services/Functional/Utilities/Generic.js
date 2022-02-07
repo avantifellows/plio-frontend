@@ -123,7 +123,7 @@ export default {
 
 /**
  * An identifier to hold the current animation frame request.
- * useful when it's needed to cancel a particular animation frame
+ * useful when it is needed to cancel a particular animation frame
  */
 export let animationFrameRequest = null;
 
