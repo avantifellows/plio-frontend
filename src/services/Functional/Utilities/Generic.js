@@ -125,140 +125,140 @@ export default {
  * An identifier to hold the current animation frame request.
  * useful when it's needed to cancel a particular animation frame
  */
- export let animationFrameRequest = null;
+export let animationFrameRequest = null;
 
- /**
-  * Animates confetti gun for a certain amount of time
-  * @param {Object} confettiHandler - Handler which will draw the confetti on the canvas
-  * @param {Number} duration - How long the confetti should be animated for
-  * @param {Array} colors - Colors for the confetti
-  */
- export function throwConfetti(
-   confettiHandler,
-   duration = 3,
-   colors = ["#ff718d", "#fdff6a"]
- ) {
-   const animationEndTime = Date.now() + duration * 1000;
-   const frame = () => {
-     confettiHandler({
-       particleCount: 2,
-       angle: 60,
-       spread: 55,
-       origin: { x: 0 },
-       colors: colors,
-     });
-     confettiHandler({
-       particleCount: 2,
-       angle: 120,
-       spread: 55,
-       origin: { x: 1 },
-       colors: colors,
-     });
- 
-     if (Date.now() < animationEndTime) {
-       // store the animation frame request in a variable
-       // so we can cancel it later on
-       animationFrameRequest = requestAnimationFrame(frame);
-     }
-   };
-   frame();
- }
- 
- /**
-  * Resets the animation frame request for the confetti being rendered
-  */
- export function resetConfetti() {
-   if (animationFrameRequest != undefined)
-     cancelAnimationFrame(animationFrameRequest);
- }
- 
- /**
-  * custom logic for deciding when the screen is considered to be in portrait mode
-  */
- export function isScreenPortrait() {
-   if (screen.availHeight > 0.8 * screen.availWidth) return true;
-   return false;
- }
- 
- /**
-  * Converts a timestamp in seconds to ISO format
-  * @param {Number} timeInSeconds - A timestamp value in seconds
-  * @returns {Object} - The converted timestamp in ISO format
-  */
- export function convertSecondsToISOTime(timeInSeconds) {
-   // reference -
-   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-   // https://stackoverflow.com/questions/1322732/convert-seconds-to-hh-mm-ss-with-javascript
- 
-   let timestampObject = {
-     hour: null,
-     minute: null,
-     second: null,
-     millisecond: null,
-     /**
-      * Converts the time component from a Number to a String and pads it with zeros accordingly
-      * @param {String} timeComponent - "hour", "minute", "second" or "millisecond"
-      * @returns {String} - A string padded on the start with zeroes depending on the time component
-      */
-     getAsString(timeComponent) {
-       let targetLength = timeComponent == "millisecond" ? 3 : 2;
-       return String(this[timeComponent]).padStart(targetLength, "0");
-     },
-   };
-   let isoTime = new Date(Math.floor(timeInSeconds) * 1000)
-     .toISOString()
-     .substr(11, 8);
- 
-   timestampObject.hour = parseInt(isoTime.split(":")[0]);
-   timestampObject.minute = parseInt(isoTime.split(":")[1]);
-   timestampObject.second = parseInt(isoTime.split(":")[2]);
-   timestampObject.millisecond = 0;
- 
-   if (Math.floor(timeInSeconds) < timeInSeconds)
-     timestampObject.millisecond = parseInt(
-       String(timeInSeconds).split(".")[1].padEnd(3, "0")
-     );
- 
-   return timestampObject;
- }
- 
- /**
-  * Converts a timestamp in ISO format to seconds
-  * @param {Object} timeInISO - An object containing the ISO time as its keys
-  * @returns {Number} - The converted time in seconds
-  */
- export function convertISOTimeToSeconds(timeInISO) {
-   let hour = parseInt(timeInISO.hour) || 0;
-   let minute = parseInt(timeInISO.minute) || 0;
-   let second = parseInt(timeInISO.second) || 0;
-   let millisecond = parseInt(timeInISO.millisecond) || 0;
-   return hour * 3600 + minute * 60 + second + millisecond / 1000;
- }
- 
- /**
-  * Get duration of a YouTube video in seconds
-  * @param {String} videoId - the unique id of the video on youtube
-  */
- export async function getVideoDuration(videoId) {
-   let nonExistingVideoError = "video does not exist";
-   try {
-     let response = await axios.get(
-       "https://www.googleapis.com/youtube/v3/videos",
-       {
-         params: {
-           id: videoId,
-           part: "contentDetails",
-           key: process.env.VUE_APP_GOOGLE_API_KEY,
-         },
-       }
-     );
- 
-     let items = response.data["items"];
-     if (items.length === 0) throw new Error(nonExistingVideoError);
-     return dayjs.duration(items[0]["contentDetails"]["duration"]).asSeconds();
-   } catch (error) {
-     if (error.message == nonExistingVideoError)
-       throw new Error(nonExistingVideoError);
-     ErrorHandling.handleAPIErrors(error);
-   }
- }
+/**
+ * Animates confetti gun for a certain amount of time
+ * @param {Object} confettiHandler - Handler which will draw the confetti on the canvas
+ * @param {Number} duration - How long the confetti should be animated for
+ * @param {Array} colors - Colors for the confetti
+ */
+export function throwConfetti(
+  confettiHandler,
+  duration = 3,
+  colors = ["#ff718d", "#fdff6a"]
+) {
+  const animationEndTime = Date.now() + duration * 1000;
+  const frame = () => {
+    confettiHandler({
+      particleCount: 2,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0 },
+      colors: colors,
+    });
+    confettiHandler({
+      particleCount: 2,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1 },
+      colors: colors,
+    });
+
+    if (Date.now() < animationEndTime) {
+      // store the animation frame request in a variable
+      // so we can cancel it later on
+      animationFrameRequest = requestAnimationFrame(frame);
+    }
+  };
+  frame();
+}
+
+/**
+ * Resets the animation frame request for the confetti being rendered
+ */
+export function resetConfetti() {
+  if (animationFrameRequest != undefined)
+    cancelAnimationFrame(animationFrameRequest);
+}
+
+/**
+ * custom logic for deciding when the screen is considered to be in portrait mode
+ */
+export function isScreenPortrait() {
+  if (screen.availHeight > 0.8 * screen.availWidth) return true;
+  return false;
+}
+
+/**
+ * Converts a timestamp in seconds to ISO format
+ * @param {Number} timeInSeconds - A timestamp value in seconds
+ * @returns {Object} - The converted timestamp in ISO format
+ */
+export function convertSecondsToISOTime(timeInSeconds) {
+  // reference -
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
+  // https://stackoverflow.com/questions/1322732/convert-seconds-to-hh-mm-ss-with-javascript
+
+  let timestampObject = {
+    hour: null,
+    minute: null,
+    second: null,
+    millisecond: null,
+    /**
+     * Converts the time component from a Number to a String and pads it with zeros accordingly
+     * @param {String} timeComponent - "hour", "minute", "second" or "millisecond"
+     * @returns {String} - A string padded on the start with zeroes depending on the time component
+     */
+    getAsString(timeComponent) {
+      let targetLength = timeComponent == "millisecond" ? 3 : 2;
+      return String(this[timeComponent]).padStart(targetLength, "0");
+    },
+  };
+  let isoTime = new Date(Math.floor(timeInSeconds) * 1000)
+    .toISOString()
+    .substr(11, 8);
+
+  timestampObject.hour = parseInt(isoTime.split(":")[0]);
+  timestampObject.minute = parseInt(isoTime.split(":")[1]);
+  timestampObject.second = parseInt(isoTime.split(":")[2]);
+  timestampObject.millisecond = 0;
+
+  if (Math.floor(timeInSeconds) < timeInSeconds)
+    timestampObject.millisecond = parseInt(
+      String(timeInSeconds).split(".")[1].padEnd(3, "0")
+    );
+
+  return timestampObject;
+}
+
+/**
+ * Converts a timestamp in ISO format to seconds
+ * @param {Object} timeInISO - An object containing the ISO time as its keys
+ * @returns {Number} - The converted time in seconds
+ */
+export function convertISOTimeToSeconds(timeInISO) {
+  let hour = parseInt(timeInISO.hour) || 0;
+  let minute = parseInt(timeInISO.minute) || 0;
+  let second = parseInt(timeInISO.second) || 0;
+  let millisecond = parseInt(timeInISO.millisecond) || 0;
+  return hour * 3600 + minute * 60 + second + millisecond / 1000;
+}
+
+/**
+ * Get duration of a YouTube video in seconds
+ * @param {String} videoId - the unique id of the video on youtube
+ */
+export async function getVideoDuration(videoId) {
+  let nonExistingVideoError = "video does not exist";
+  try {
+    let response = await axios.get(
+      "https://www.googleapis.com/youtube/v3/videos",
+      {
+        params: {
+          id: videoId,
+          part: "contentDetails",
+          key: process.env.VUE_APP_GOOGLE_API_KEY,
+        },
+      }
+    );
+
+    let items = response.data["items"];
+    if (items.length === 0) throw new Error(nonExistingVideoError);
+    return dayjs.duration(items[0]["contentDetails"]["duration"]).asSeconds();
+  } catch (error) {
+    if (error.message == nonExistingVideoError)
+      throw new Error(nonExistingVideoError);
+    ErrorHandling.handleAPIErrors(error);
+  }
+}

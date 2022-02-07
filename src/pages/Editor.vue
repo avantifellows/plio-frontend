@@ -1425,7 +1425,8 @@ export default {
         {
           isPersonalWorkspace: this.isPersonalWorkspace,
           userRoleInActiveWorkspace: this.userRoleInActiveWorkspace,
-        }
+        },
+        false
       );
 
       // adding a watcher to the individual setting values

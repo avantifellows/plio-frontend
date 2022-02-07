@@ -38,9 +38,10 @@ export default {
    * For each of the leaf nodes, we attach some metadata to it and pass it back to the parent.
    * @param {Map} settingsToRender - the object that needs to be prepared
    * @param {Object} data - some extra data required for the preparation
+   * @param {Boolean} checkUserScoping - if the user's scope has to be taken into account
    * @returns {Object} - An object with the prepared settingsToRender object along with some extra information about each leaf node
    */
-  prepareSettingsToRender(settingsToRender, data) {
+  prepareSettingsToRender(settingsToRender, data, checkUserScoping = true) {
     let preparedDetails = {
       settingsToWatch: [],
     };
@@ -56,7 +57,7 @@ export default {
     };
 
     for (let [headerName, headerDetails] of settingsToRender) {
-      if (!doesUserHasAccessTo(headerDetails)) {
+      if (checkUserScoping && !doesUserHasAccessTo(headerDetails)) {
         // in case of a workspace, we also need to check for scope. If the current user does not
         // have rights for a particular setting, we remove that key from settingsToRender
         settingsToRender.delete(headerName);
@@ -64,7 +65,7 @@ export default {
       }
       settingsToRender.set(headerName, clonedeep(headerDetails.children));
       for (let [tabName, tabDetails] of settingsToRender.get(headerName)) {
-        if (!doesUserHasAccessTo(tabDetails)) {
+        if (checkUserScoping && !doesUserHasAccessTo(tabDetails)) {
           // in case of a workspace, we also need to check for scope. If the current user does not
           // have rights for a particular setting, we remove that key from settingsToRender
           settingsToRender.get(headerName).delete(tabName);
@@ -78,7 +79,7 @@ export default {
         for (let [leafName, leafDetails] of settingsToRender
           .get(headerName)
           .get(tabName)) {
-          if (!doesUserHasAccessTo(leafDetails)) {
+          if (checkUserScoping && !doesUserHasAccessTo(leafDetails)) {
             // in case of a workspace, we also need to check for scope. If the current user does not
             // have rights for a particular setting, we remove that key from settingsToRender
             settingsToRender.get(headerName).get(tabName).delete(leafName);
@@ -98,7 +99,9 @@ export default {
               ...settingsMetadata[leafName],
               value: leafDetails.value,
               isWorkspaceSetting:
-                !data.isPersonalWorkspace && leafDetails.scope.length > 0
+                checkUserScoping &&
+                !data.isPersonalWorkspace &&
+                leafDetails.scope.length > 0
                   ? true
                   : false,
             });
