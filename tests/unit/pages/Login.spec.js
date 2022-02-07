@@ -104,7 +104,7 @@ describe("Login.vue", () => {
 
         await setPhoneNumber();
         await requestOTP();
-        await wrapper.setData({ counting: false });
+        await wrapper.setData({ isResendOTPEnabled: false });
 
         // resend OTP
         await wrapper.find('[data-test="resendOTP"]').trigger("click");
@@ -113,8 +113,7 @@ describe("Login.vue", () => {
 
         expect(requestOtp).toHaveBeenCalled();
         expect(startResendOTPTimer).toHaveBeenCalled();
-        expect(wrapper.vm.counting).toBe(true);
-        expect(wrapper.vm.counter).toBe(60);
+        expect(wrapper.vm.resendOTPTimer).toBe(60);
         expect(wrapper.vm.resentOtp).toBe(true);
         expect(wrapper.vm.invalidOtp).toBe(false);
       });
@@ -125,8 +124,8 @@ describe("Login.vue", () => {
         jest.useFakeTimers();
         wrapper.vm.startResendOTPTimer(1);
         jest.advanceTimersByTime(1000);
-        expect(wrapper.vm.counting).toBe(false);
-        expect(wrapper.vm.counter).toBe(0);
+        expect(wrapper.vm.isResendOTPEnabled).toBe(false);
+        expect(wrapper.vm.resendOTPTimer).toBe(0);
         //Rest of code should work in real time
         jest.useRealTimers();
       });
