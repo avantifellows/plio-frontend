@@ -277,9 +277,13 @@ export default {
         invalid: "OTP 6 अंको का होना चाहिए",
       },
       submit: "OTP जमा करें",
-      resend: "OTP दोबारा भेजो",
-      timer: "OTP वापस भेजें",
-      secs: "सेकंड में",
+      resend: {
+        no_timer: "OTP दोबारा भेजो",
+        timer: {
+          1: "OTP वापस भेजें",
+          2: "सेकंड में",
+        },
+      },
     },
     or: "या फिर",
     google: {

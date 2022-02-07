@@ -96,7 +96,10 @@ describe("Login.vue", () => {
         const requestOtp = jest
           .spyOn(UserAPIService, "requestOtp")
           .mockImplementation(() => jest.fn());
-        const startCountdown = jest.spyOn(Login.methods, "startCountdown");
+        const startResendOTPTimer = jest.spyOn(
+          Login.methods,
+          "startResendOTPTimer"
+        );
         mountWrapper();
 
         await setPhoneNumber();
@@ -109,7 +112,7 @@ describe("Login.vue", () => {
         await flushPromises();
 
         expect(requestOtp).toHaveBeenCalled();
-        expect(startCountdown).toHaveBeenCalled();
+        expect(startResendOTPTimer).toHaveBeenCalled();
         expect(wrapper.vm.counting).toBe(true);
         expect(wrapper.vm.counter).toBe(60);
         expect(wrapper.vm.resentOtp).toBe(true);
@@ -120,7 +123,7 @@ describe("Login.vue", () => {
         //To test the Resend OTP Timer
         //Faketimer is only needed for this test case to advance the time of interval
         jest.useFakeTimers();
-        wrapper.vm.startCountdown(1);
+        wrapper.vm.startResendOTPTimer(1);
         jest.advanceTimersByTime(1000);
         expect(wrapper.vm.counting).toBe(false);
         expect(wrapper.vm.counter).toBe(0);

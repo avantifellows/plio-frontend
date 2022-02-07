@@ -167,7 +167,7 @@
       ></icon-button>
       <!-- text to show when OTP will be resent -->
       <p v-if="counting" class="text-center mt-2">
-          {{$t("login.otp.timer")}} {{ counter }} {{$t("login.otp.secs")}}
+        {{ $t("login.otp.resend.timer.1") }} {{ counter }} {{ $t("login.otp.resend.timer.2") }}
       </p>
 
       <!-- terms and service declaration message -->
@@ -352,7 +352,7 @@ export default {
     resendOTPTitleConfig() {
       // title config for the resend OTP button
       return {
-        value: this.$t("login.otp.resend"),
+        value: this.$t("login.otp.resend.no_timer"),
       };
     },
     resendOTPButtonClass() {
@@ -397,16 +397,19 @@ export default {
       // whether the phone number entered by the user is valid
       return this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g) != null;
     },
-    startCountdown(seconds) {
-      // counts seconds before enabling resend OTP button
+    startResendOTPTimer(seconds) {
+      /**
+     *  counts seconds before enabling resend OTP button
+     *
+     * @param {Integer} seconds - how many seconds timer to be executed
+     */
       this.counter = seconds;
       const interval = setInterval(() => {
-          this.counter--;
-          if(this.counter == 0)
-          {
-            this.counting= false;
-            clearInterval(interval);
-          }
+        this.counter--;
+        if (!this.counter) {
+          this.counting = false;
+          clearInterval(interval);
+        }
       }, 1000);
     },
     requestOtp() {
@@ -414,7 +417,7 @@ export default {
       UserAPIService.requestOtp(this.formattedPhoneInput);
       this.requestedOtp = true;
       this.counting = true;
-      this.startCountdown(60);
+      this.startResendOTPTimer(60);
       this.invalidOtp = false;
     },
     resendOtp() {
@@ -422,7 +425,7 @@ export default {
       UserAPIService.requestOtp(this.formattedPhoneInput);
       this.resentOtp = true;
       this.counting = true;
-      this.startCountdown(60);
+      this.startResendOTPTimer(60);
       this.invalidOtp = false;
     },
     phoneLogin() {
