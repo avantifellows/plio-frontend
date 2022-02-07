@@ -88,7 +88,6 @@ describe("Login.vue", () => {
           .setValue("919191919");
 
         expect(wrapper.vm.requestedOtp).toBe(false);
-        expect(wrapper.vm.resentOtp).toBe(false);
       });
 
       it("resends OTP upon requesting", async () => {
@@ -104,7 +103,6 @@ describe("Login.vue", () => {
 
         await setPhoneNumber();
         await requestOTP();
-        await wrapper.setData({ isResendOTPEnabled: false });
 
         // resend OTP
         await wrapper.find('[data-test="resendOTP"]').trigger("click");
@@ -114,19 +112,19 @@ describe("Login.vue", () => {
         expect(requestOtp).toHaveBeenCalled();
         expect(startResendOTPTimer).toHaveBeenCalled();
         expect(wrapper.vm.resendOTPTimer).toBe(60);
-        expect(wrapper.vm.resentOtp).toBe(true);
+        expect(wrapper.vm.isResendOTPEnabled).toBe(false);
         expect(wrapper.vm.invalidOtp).toBe(false);
       });
 
-      it("OTP timer", async () => {
-        //To test the Resend OTP Timer
+      it("enables ResendOTP button when timer ends", async () => {
         //Faketimer is only needed for this test case to advance the time of interval
         jest.useFakeTimers();
-        wrapper.vm.startResendOTPTimer(1);
-        jest.advanceTimersByTime(1000);
-        expect(wrapper.vm.isResendOTPEnabled).toBe(false);
+        const numseconds = 2;
+        wrapper.vm.startResendOTPTimer(numseconds);
+        jest.advanceTimersByTime(numseconds * 1000);
+        expect(wrapper.vm.isResendOTPEnabled).toBe(true);
         expect(wrapper.vm.resendOTPTimer).toBe(0);
-        //Rest of code should work in real time
+        //reset timers
         jest.useRealTimers();
       });
 
