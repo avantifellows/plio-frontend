@@ -14,26 +14,17 @@ describe("PlioListItem.vue", () => {
 
   it("should render provided settings correctly", () => {
     store.dispatch("generic/setWindowInnerWidth", 1024);
-    const setCurrentSelectedTab = jest.spyOn(
+    const setDefaultSelectedTab = jest.spyOn(
       Settings.methods,
-      "setCurrentSelectedTab"
+      "setDefaultSelectedTab"
     );
     wrapper = mount(Settings, {
       props: {
         settings: clonedeep(global.dummySettingsToRender),
       },
     });
-    expect(setCurrentSelectedTab).toHaveBeenCalled();
+    expect(setDefaultSelectedTab).toHaveBeenCalled();
     expect(wrapper.vm.localSettings).toEqual(global.dummySettingsToRender);
-    expect(wrapper.vm.currentSelectedTab).toEqual(
-      new Map(
-        Object.entries({
-          configuration: global.dummySettingsToRender
-            .get("player")
-            .get("configuration"),
-        })
-      )
-    );
     expect(wrapper.vm.hasUnsavedChanges).toBeFalsy();
     expect(wrapper.vm.currentSelectedTabName).toBe("configuration");
     expect(wrapper.vm.currentSelectedTabDetails).toStrictEqual(
@@ -80,7 +71,7 @@ describe("PlioListItem.vue", () => {
       wrapper.vm.settings.get("app").get("appearance"),
       "app"
     );
-    expect(wrapper.vm.currentSelectedTab.get("appearance")).toStrictEqual(
+    expect(wrapper.vm.currentSelectedTabDetails).toStrictEqual(
       wrapper.vm.settings.get("app").get("appearance")
     );
   });

@@ -217,9 +217,7 @@ export default {
       saveButtonClass:
         "bp-500:px-8 bp-500:py-2 bp-360:px-16 px-10 py-2 transition ease-in duration-200 text-center font-semibold shadow-lg rounded-lg bg-primary border-b-outset border-primary",
       saveButtonTitleConfig: {
-        value: this.isPublishedPlio
-          ? this.$t("settings.buttons.save.published")
-          : this.$t("settings.buttons.save.draft"),
+        value: this.$t(`settings.buttons.save.${this.plioStatus}`),
         class: "text-white lg:text-base md:text-sm bp-500:text-xs text-lg font-bold",
       },
       cancelButtonTitleConfig: {
@@ -234,9 +232,10 @@ export default {
         "flex flex-row hover:bg-gray-100 xl:p-4 lg:p-3 md:p-2 p-1 bp-500:mx-0 mx-8",
       contentRegionClass:
         "h-full w-full flex flex-col 2xl:px-10 xl:px-8 lg:px-6 md:px-4 bp-500:px-3 px-6 2xl:pt-10 xl:pt-8 lg:pt-6 md:pt-4 bp-500:pt-2 pt-6 pb-5",
-      currentSelectedTab: new Map(), // map containing details about the current selected tab
       adminBadgeClass:
         "rounded-md border text-black text-xs px-2 border-gray-500 bg-gray-200",
+      currentSelectedTabName: null,
+      currentSelectedTabDetails: new Map(),
       leafUnwatchers: [], // unwatch callbacks for watchers attached to the leaf settings
       changedLeaves: {}, // details about those leaf settings that have been changed by the user
       currentSelectedHeaderName: null, // name of the header of the current selected tab
@@ -254,32 +253,32 @@ export default {
       type: Boolean,
       default: false,
     },
-    isPublishedPlio: {
-      type: Boolean,
-      default: false,
+    plioStatus: {
+      type: String,
+      default: "draft",
     },
   },
   watch: {
     settings: {
       handler() {
         // whenever the settings prop changes, set a default selected tab
-        this.setCurrentSelectedTab();
+        this.setDefaultSelectedTab();
       },
       deep: true,
     },
   },
   created() {
     this.createLocalSettings();
-    if (this.localSettings != null) this.attachWatchers();
+    if (this.localSettings != null) this.attachLeafWatchers();
     if (!this.isMobileScreen) {
       // set a default selected tab if the screen is not in mobile view
-      this.setCurrentSelectedTab();
+      this.setDefaultSelectedTab();
     }
 
     window.addEventListener("resize", this.handleScreenSizeChange);
   },
   unmounted() {
-    this.detachWatchers();
+    this.detachLeafWatchers();
     window.removeEventListener("resize", this.handleScreenSizeChange);
   },
   computed: {
@@ -311,28 +310,16 @@ export default {
         ? ""
         : this.$t("tooltip.settings.buttons.save.noUnsavedChanges");
     },
-    /**
-     * Get the name of the current selected tab
-     */
-    currentSelectedTabName() {
-      return [...this.currentSelectedTab.keys()][0];
-    },
-    /**
-     * Get the details of the current selected tab
-     */
-    currentSelectedTabDetails() {
-      return this.currentSelectedTab.get(this.currentSelectedTabName);
-    },
   },
   methods: {
     getImageSource: GenericUtilities.getImageSource,
-    detachWatchers() {
+    detachLeafWatchers() {
       this.leafUnwatchers.forEach((unwatch) => unwatch());
     },
     createLocalSettings() {
       this.localSettings = this.settings == null ? null : clonedeep(this.settings);
     },
-    attachWatchers() {
+    attachLeafWatchers() {
       for (let [headerName, headerDetails] of this.localSettings) {
         for (let [tabName, tabDetails] of headerDetails) {
           for (let [leafName, leafDetails] of tabDetails) {
@@ -342,12 +329,12 @@ export default {
                   this.localSettings.get(headerName).get(tabName).get(leafName).value
                 ),
               (newValue, oldValue) => {
+                // return if the value hasn't changed
+                if (newValue === oldValue) return;
+
                 // a unique key name for each leaf setting.
                 // used to check if a user has toggled a setting two times, nullifying the change
                 let keyName = `${headerName}_${tabName}_${leafName}`;
-
-                // return if the value hasn't changed
-                if (newValue === oldValue) return;
 
                 // if the changed value picked up by the watcher is the same as the original value,
                 // delete the existing change if it exists in memory and return
@@ -412,14 +399,13 @@ export default {
     /**
      * Set the tab which will be selected by default when the menu opens up
      */
-    setCurrentSelectedTab() {
+    setDefaultSelectedTab() {
       if (this.localSettings != null) {
         let firstHeaderName = [...this.localSettings.keys()][0];
         let firstTab = this.localSettings.get(firstHeaderName);
         let firstTabName = [...firstTab.keys()][0];
         let firstTabDetails = firstTab.get(firstTabName);
-        this.currentSelectedTab.set(firstTabName, firstTabDetails);
-        this.currentSelectedHeaderName = firstHeaderName;
+        this.selectTab(firstTabName, firstTabDetails, firstHeaderName);
       }
     },
     /**
@@ -431,14 +417,15 @@ export default {
     selectTab(tabName, tabDetails, headerName) {
       if (this.isMobileScreen && this.isTabSelected(tabName)) {
         // in mobile view, the tabs are toggable
-        // if someone clicks on an already opened tab, close it and currentSelectedTab
-        // will be set to empty
-        this.currentSelectedTab = new Map();
+        // if someone clicks on an already opened tab, close it
+        // and currentSelectedTabName and currentSelectedTabDetails will be reset to empty
+        this.currentSelectedTabName = null;
+        this.currentSelectedTabDetails = null;
         this.currentSelectedHeaderName = null;
       } else {
-        // mark the clicked tab as the currentSelectedTab
-        this.currentSelectedTab.clear();
-        this.currentSelectedTab.set(tabName, tabDetails);
+        // update currentSelectedTabName and currentSelectedTabDetails
+        this.currentSelectedTabName = tabName;
+        this.currentSelectedTabDetails = tabDetails;
         this.currentSelectedHeaderName = headerName;
       }
     },

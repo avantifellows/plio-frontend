@@ -508,13 +508,14 @@ export default {
         let setting = updatedSettings[key];
 
         if (setting.isWorkspaceSetting) {
-          newWorkspaceSettings = clonedeep(this.activeWorkspaceSettings);
+          if (newWorkspaceSettings == null)
+            newWorkspaceSettings = clonedeep(this.activeWorkspaceSettings);
           newWorkspaceSettings
             .get(setting.headerName)
             .children.get(setting.tabName)
             .children.get(setting.leafName).value = setting.newValue;
         } else {
-          newUserSettings = clonedeep(this.userSettings);
+          if (newUserSettings == null) newUserSettings = clonedeep(this.userSettings);
           newUserSettings
             .get(setting.headerName)
             .children.get(setting.tabName)

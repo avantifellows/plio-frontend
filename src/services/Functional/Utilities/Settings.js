@@ -18,11 +18,12 @@ export default {
     if (data == null) return data;
     let dataAsString = JSON.stringify(data);
     let decodedJSON = JSON.parse(dataAsString, (_, value) => {
-      if (typeof value === "object" && value !== null) {
-        if (value.dataType === "Map") {
-          return new Map(value.data);
-        }
-      }
+      if (
+        typeof value === "object" &&
+        value !== null &&
+        value.dataType === "Map"
+      )
+        return new Map(value.data);
       return value;
     });
     return decodedJSON;
@@ -37,14 +38,12 @@ export default {
     // refer - https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map/56150320#56150320
     if (data == null) return data;
     let dataAsString = JSON.stringify(data, (_, value) => {
-      if (value instanceof Map) {
+      if (value instanceof Map)
         return {
           dataType: "Map",
           data: Array.from(value.entries()),
         };
-      } else {
-        return value;
-      }
+      else return value;
     });
     let encodedJSON = JSON.parse(dataAsString);
     return encodedJSON;
@@ -185,9 +184,9 @@ export default {
     // making a deep clone of global default settings.
     // the keys/values will be removed/updated according to user/workspace settings as we iterate
     let mergedSettings = clonedeep(globalDefaultSettings);
+    let workspaceHeaders = [...workspaceSettings.keys()];
     for (let [headerName, headerDetails] of mergedSettings) {
       // iterating on headers
-      let workspaceHeaders = [...workspaceSettings.keys()];
       if (!workspaceHeaders.includes(headerName)) {
         // if the current header name is not present in workspace settings,
         // pick the details from user's settings and put it into merged settings object
@@ -199,11 +198,11 @@ export default {
         headerName
       ).scope;
 
+      let workspaceTabs = [
+        ...workspaceSettings.get(headerName).children.keys(),
+      ];
       for (let [tabName, tabDetails] of headerDetails.children) {
         // iterating on tabs inside headerName
-        let workspaceTabs = [
-          ...workspaceSettings.get(headerName).children.keys(),
-        ];
         if (!workspaceTabs.includes(tabName)) {
           // if the current tab name is not present in workspace settings,
           // pick the details from user's settings and put it into merged settings object
@@ -222,18 +221,18 @@ export default {
           .get(headerName)
           .children.get(tabName).scope;
 
+        let workspaceLeafs = [
+          ...workspaceSettings
+            .get(headerName)
+            .children.get(tabName)
+            .children.keys(),
+        ];
         for (let [leafName] of tabDetails.children) {
           // iterating on leaves inside tabName
-          let workspaceLeafs = [
-            ...workspaceSettings
-              .get(headerName)
-              .children.get(tabName)
-              .children.keys(),
-          ];
           // if the current leaf name is not present in workspace settings,
           // pick the details from user's settings else pick it up from
           // workspace's settings and put it into merged settings object
-          let validLeafDetails = workspaceLeafs.includes(leafName)
+          let leafDetails = workspaceLeafs.includes(leafName)
             ? workspaceSettings
                 .get(headerName)
                 .children.get(tabName)
@@ -246,7 +245,7 @@ export default {
           mergedSettings
             .get(headerName)
             .children.get(tabName)
-            .children.set(leafName, validLeafDetails);
+            .children.set(leafName, leafDetails);
         }
       }
     }

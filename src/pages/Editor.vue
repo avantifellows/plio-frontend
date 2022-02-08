@@ -507,7 +507,7 @@
     <Settings
       class="fixed z-20 justify-center mx-auto"
       @window-closed="closeSettingsMenu"
-      :isPublishedPlio="isPublished"
+      :plioStatus="status"
       v-if="isSettingsMenuShown"
       v-model:settings="settingsToRender"
       v-click-away="closeSettingsMenu"
@@ -1422,7 +1422,6 @@ export default {
       // tabName - name of the tab to which the updated setting belongs to
       // leafName - name of the updated leaf setting
       // newValue - the updated value
-      // isWorkspaceSetting - whether the updated setting is a workspace setting
       Object.keys(updatedSettings).forEach((key) => {
         let setting = updatedSettings[key];
         this.plioSettings
