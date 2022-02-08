@@ -14,7 +14,6 @@
         placement: 'bottom-start',
       }"
     >
-
       <QuestionTypeDropdown
         class="w-full"
         @toggle-visibility="toggleQuestionTypeDropdown"
@@ -90,7 +89,6 @@
         <!-- question input box : expandable -->
         <!-- <textFormatter v-model="questionText" /> -->
         <Textarea
-
           :placeholder="$t('editor.item_editor.question_input.placeholder')"
           :title="$t('editor.item_editor.question_input.title')"
           v-model:value="questionText"

@@ -41,7 +41,7 @@
 
       <div class="z-10 w-full">
         <div class="z-30 w-full absolute top-0 left-0">
-          <textFormatter :value ="localValue" class="formatter w-full" />
+          <textFormatter :value="localValue" class="formatter w-full" />
         </div>
         <textarea
           class="p-5 border placeholder-blueGray-300 z-20 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
@@ -207,13 +207,12 @@ export default {
     textFormatter,
   },
   methods: {
-   
     inputChange(event) {
       // invoked on input change
-       console.log(event.srcElement);
+      console.log(event.srcElement);
       this.$emit("input", this.value);
-      Marked.parse(this.value)||"<p><br></p>";
-     
+      Marked.parse(this.value) || "<p><br></p>";
+
       // auto expand the textbox if a `maxHeightLimit` has been specified
       if (this.maxHeightLimit > 0) {
         var textareaElement = event.srcElement;

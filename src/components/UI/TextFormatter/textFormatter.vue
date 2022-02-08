@@ -1,7 +1,6 @@
 <template>
   <div>
-    <div class="flex flex-wrap"
-    :value ="innerValue">
+    <div class="flex flex-wrap" :value="innerValue">
       <button @click="applyBold" class="text-sm text-red-500 font-bold mr-3 ml-1">
         B
       </button>
@@ -36,13 +35,10 @@ export default {
 
   data() {
     //let value;
-   console.log("data is"+ this.value);
+    console.log("data is" + this.value);
     return {
-      
       innerValue: Marked.parse(this.value) || "<br>",
-      
     };
-     
   },
 
   mounted() {
@@ -67,6 +63,11 @@ export default {
     },
     applyUnderline() {
       document.execCommand("underline");
+    },
+  },
+  computed: {
+    getValue() {
+      return this.value;
     },
   },
 };
