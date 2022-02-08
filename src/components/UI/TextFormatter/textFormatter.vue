@@ -25,9 +25,6 @@
 </template>
 
 <script>
-import { Marked } from "@ts-stack/markdown";
-import TurndownService from "turndown";
-
 export default {
   name: "textFormatter",
 
@@ -37,7 +34,7 @@ export default {
     //let value;
     console.log("data is" + this.value);
     return {
-      innerValue: Marked.parse(this.value) || "<br>",
+      innerValue: this.value,
     };
   },
 
@@ -48,13 +45,8 @@ export default {
   methods: {
     onInput(event) {
       console.log(event.target.innerHTML);
-      const turndown = new TurndownService({
-        emDelimiter: "_",
-        linkStyle: "inlined",
-        headingStyle: "atx",
-      });
-      this.$emit("input", turndown.turndown(event.target.innerHTML));
     },
+
     applyBold() {
       document.execCommand("bold");
     },
@@ -63,11 +55,6 @@ export default {
     },
     applyUnderline() {
       document.execCommand("underline");
-    },
-  },
-  computed: {
-    getValue() {
-      return this.value;
     },
   },
 };
