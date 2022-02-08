@@ -8,21 +8,22 @@ fixture("Home - English")
   });
 
 test("sees the home page", async (testcafe) => {
-  const noPlioSection = Selector('[data-test="noPlio"]');
+  // const noPlioSection = Selector('[data-test="noPlio"]');
   const plioTable = Selector('[data-test="table"]');
-  const noPliosExist = await noPlioSection.exists;
+  // const noPliosExist = await noPlioSection.exists;
 
-  console.log("noPliosExist: ", noPliosExist);
+  await testcafe.expect(plioTable.exists).notOk();
+  // console.log("noPliosExist: ", noPliosExist);
 
-  if (noPliosExist) {
-    console.log(
-      "no plio exists... asserting that plio table's existence is not OK"
-    );
-    // plio table should not exist as there are no plios
-    await testcafe.expect(plioTable.exists).notOk();
-  } else {
-    console.log("plio exists... asserting that plio table's existence is OK");
-    // plio table should exist as there are plios
-    await testcafe.expect(plioTable.exists).ok();
-  }
+  // if (noPliosExist) {
+  //   console.log(
+  //     "no plio exists... asserting that plio table's existence is not OK"
+  //   );
+  //   // plio table should not exist as there are no plios
+  //   await testcafe.expect(plioTable.exists).notOk();
+  // } else {
+  //   console.log("plio exists... asserting that plio table's existence is OK");
+  //   // plio table should exist as there are plios
+  //   await testcafe.expect(plioTable.exists).ok();
+  // }
 });
