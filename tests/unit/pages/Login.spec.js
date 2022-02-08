@@ -56,7 +56,6 @@ describe("Login.vue", () => {
         mountWrapper();
         await setPhoneNumber();
         await requestOTP();
-
         expect(requestOtp).toHaveBeenCalled();
         expect(wrapper.vm.invalidOtp).toBe(false);
         expect(wrapper.vm.requestedOtp).toBe(true);
@@ -95,6 +94,7 @@ describe("Login.vue", () => {
         const requestOtp = jest
           .spyOn(UserAPIService, "requestOtp")
           .mockImplementation(() => jest.fn());
+        const resendOtp = jest.spyOn(Login.methods, "resendOtp");
         const startResendOTPTimer = jest.spyOn(
           Login.methods,
           "startResendOTPTimer"
@@ -102,14 +102,18 @@ describe("Login.vue", () => {
         mountWrapper();
 
         await setPhoneNumber();
+        jest.useFakeTimers();
         await requestOTP();
+        await jest.advanceTimersByTime(60000);
+        // reset timers
+        jest.useRealTimers();
 
         // resend OTP
         await wrapper.find('[data-test="resendOTP"]').trigger("click");
-
         await flushPromises();
 
         expect(requestOtp).toHaveBeenCalled();
+        expect(resendOtp).toHaveBeenCalled();
         expect(startResendOTPTimer).toHaveBeenCalled();
         expect(wrapper.vm.resendOTPTimer).toBe(60);
         expect(wrapper.vm.isResendOTPEnabled).toBe(false);
@@ -117,7 +121,7 @@ describe("Login.vue", () => {
       });
 
       it("enables ResendOTP button when timer ends", async () => {
-        //Faketimer is only needed for this test case to advance the time of interval
+        //Faketimer is needed for this test case to advance the time of interval
         jest.useFakeTimers();
         const numseconds = 2;
         wrapper.vm.startResendOTPTimer(numseconds);
