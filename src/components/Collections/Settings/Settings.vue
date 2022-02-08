@@ -237,8 +237,8 @@ export default {
       currentSelectedTab: new Map(), // map containing details about the current selected tab
       adminBadgeClass:
         "rounded-md border text-black text-xs px-2 border-gray-500 bg-gray-200",
-      leafNodeUnwatchers: [], // unwatch callbacks for watchers attached to the leaf nodes
-      changedLeafNodes: {}, // details about those leaf nodes that have been changed by the user
+      leafUnwatchers: [], // unwatch callbacks for watchers attached to the leaf settings
+      changedLeaves: {}, // details about those leaf settings that have been changed by the user
       currentSelectedHeaderName: null, // name of the header of the current selected tab
       localSettings: null,
     };
@@ -285,7 +285,7 @@ export default {
   computed: {
     ...mapGetters("generic", ["isMobileScreen"]),
     hasUnsavedChanges() {
-      return !GenericUtilities.isObjectEmpty(this.changedLeafNodes);
+      return !GenericUtilities.isObjectEmpty(this.changedLeaves);
     },
     sidebarRegionClass() {
       return [
@@ -327,7 +327,7 @@ export default {
   methods: {
     getImageSource: GenericUtilities.getImageSource,
     detachWatchers() {
-      this.leafNodeUnwatchers.forEach((unwatch) => unwatch());
+      this.leafUnwatchers.forEach((unwatch) => unwatch());
     },
     createLocalSettings() {
       this.localSettings = this.settings == null ? null : clonedeep(this.settings);
@@ -342,7 +342,7 @@ export default {
                   this.localSettings.get(headerName).get(tabName).get(leafName).value
                 ),
               (newValue, oldValue) => {
-                // a unique key name for each leaf node.
+                // a unique key name for each leaf setting.
                 // used to check if a user has toggled a setting two times, nullifying the change
                 let keyName = `${headerName}_${tabName}_${leafName}`;
 
@@ -355,13 +355,12 @@ export default {
                   newValue ===
                   this.settings.get(headerName).get(tabName).get(leafName).value
                 ) {
-                  if (keyName in this.changedLeafNodes)
-                    delete this.changedLeafNodes[keyName];
+                  if (keyName in this.changedLeaves) delete this.changedLeaves[keyName];
                   return;
                 }
 
                 // add the details of the changed setting in an object
-                this.changedLeafNodes[keyName] = {
+                this.changedLeaves[keyName] = {
                   headerName,
                   tabName,
                   leafName,
@@ -371,7 +370,7 @@ export default {
               },
               { deep: true }
             );
-            this.leafNodeUnwatchers.push(unwatch);
+            this.leafUnwatchers.push(unwatch);
           }
         }
       }
@@ -448,7 +447,7 @@ export default {
      */
     saveChanges() {
       this.$emit("update:settings", this.localSettings);
-      this.$emit("updated", this.changedLeafNodes);
+      this.$emit("updated", this.changedLeaves);
       this.$emit("window-closed");
     },
     /**

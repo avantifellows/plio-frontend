@@ -1414,13 +1414,13 @@ export default {
     getImageSource: GenericUtilities.getImageSource,
     /**
      * Update the settings stored in the store and on the server as well
-     * @param {Object} updatedSettings - details about the leaf nodes that the user has updated
+     * @param {Object} updatedSettings - details about the leaf settings that the user has updated
      */
     updateSettings(updatedSettings) {
       // The updatedSettings object contains the following keys
       // headerName - name of the header to which the updated setting belongs to
       // tabName - name of the tab to which the updated setting belongs to
-      // leafName - name of the updated leaf node
+      // leafName - name of the updated leaf setting
       // newValue - the updated value
       // isWorkspaceSetting - whether the updated setting is a workspace setting
       Object.keys(updatedSettings).forEach((key) => {
@@ -1438,20 +1438,13 @@ export default {
     /**
      * This method constructs the settings menu that needs to be rendered when settings menu is open.
      * We iterate through the different levels of a settings object.
-     * For each of the atomic settings, which are the last leaf of the object, we attach some metadata to it,
+     * For each of the leaf settings, which are the last leaf of the object, we attach some metadata to it,
      * and add a watcher which will trigger when the value for that setting has been changed.
      */
     constructSettingsMenu() {
       // keep a clone of the plio settings in a local variable
       this.settingsToRender = clonedeep(this.plioSettings);
-      SettingsUtilities.prepareSettingsToRender(
-        this.settingsToRender,
-        {
-          isPersonalWorkspace: this.isPersonalWorkspace,
-          userRoleInActiveWorkspace: this.userRoleInActiveWorkspace,
-        },
-        false
-      );
+      SettingsUtilities.prepareSettingsToRender(this.settingsToRender, false);
     },
     closeSettingsMenu() {
       this.isSettingsMenuShown = false;

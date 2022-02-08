@@ -493,13 +493,13 @@ export default {
     ...mapActions("selectors", ["hideSelector"]),
     /**
      * Update the settings stored in the store and on the server as well
-     * @param {Object} updatedSettings - details about the leaf nodes that the user has updated
+     * @param {Object} updatedSettings - details about the leaf settings that the user has updated
      */
     updateSettings(updatedSettings) {
       // The updatedSettings object contains the following keys
       // headerName - name of the header to which the updated setting belongs to
       // tabName - name of the tab to which the updated setting belongs to
-      // leafName - name of the updated leaf node
+      // leafName - name of the updated leaf setting
       // newValue - the updated value
       // isWorkspaceSetting - whether the updated setting is a workspace setting
       let newWorkspaceSettings = null;
@@ -539,7 +539,7 @@ export default {
      * This method constructs the settings menu that needs to be rendered when settings menu is open.
      * We iterate through the different levels of a settings object.
      * This settings object is the user's settings or the merger of users/workspace's settings depending on the active workspace.
-     * For each of the atomic settings, which are the last leaf of the object, we attach some metadata to it,
+     * For each of the leaf settings, which are the last leaf of the object, we attach some metadata to it,
      * and add a watcher which will trigger when the value for that setting has been changed.
      */
     constructSettingsMenu() {
@@ -560,10 +560,7 @@ export default {
           clonedeep(this.activeWorkspaceSettings)
         );
 
-      SettingsUtilities.prepareSettingsToRender(this.settingsToRender, {
-        isPersonalWorkspace: this.isPersonalWorkspace,
-        userRoleInActiveWorkspace: this.userRoleInActiveWorkspace,
-      });
+      SettingsUtilities.prepareSettingsToRender(this.settingsToRender);
     },
     closeSettingsMenu() {
       if (this.isMobileScreen) this.resetMenuState();
