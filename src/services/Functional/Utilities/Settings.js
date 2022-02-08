@@ -12,7 +12,6 @@ export default {
    * Depending on whether the provided config is valid, this method
    * sets the plio settings according to either the provided config or the global default settings
    * @param {Object} config - Config of a plio
-   * @returns
    */
   setPlioSettings(config) {
     let plioSettings = new Map();

@@ -1,5 +1,6 @@
 import { mount, flushPromises } from "@vue/test-utils";
 import UserAPIService from "@/services/API/User.js";
+import OrganizationAPIService from "@/services/API/Organization.js";
 import router from "@/router";
 import store from "@/store";
 import App from "@/App";
@@ -483,6 +484,45 @@ describe("App.vue for authenticated user", () => {
       // the setting should've been updated in settingsToRender as well
       expect(wrapper.vm.settingsToRender).not.toStrictEqual(
         global.dummyGlobalSettings
+      );
+    });
+
+    it("watches and updates the workspace's settings", async () => {
+      // login a user with an organization which has some settings available
+      let dummyUserNew = clonedeep(global.dummyUser);
+      dummyUserNew.config.settings = SettingsUtilities.encodeMapToPayload(
+        clonedeep(global.dummyGlobalSettings)
+      );
+      dummyUserNew.organizations[0].config = {
+        settings: SettingsUtilities.encodeMapToPayload(
+          clonedeep(global.dummyGlobalSettingsFilteredForWorkspaces)
+        ),
+      };
+      await loginNewUser(dummyUserNew);
+
+      // set the active workspace
+      await store.dispatch("auth/setActiveWorkspace", "o1");
+      // show the settings menu
+      await wrapper.setData({
+        isSettingsMenuShown: true,
+      });
+
+      let updateWorkspaceSettingsAPI = jest.spyOn(
+        OrganizationAPIService,
+        "updateWorkspaceSettings"
+      );
+      // find the settings component, click one of the setting values and click save
+      let settingsComponent = wrapper.findComponent(Settings);
+      await settingsComponent.find('[data-test="input"]').trigger("click");
+      await settingsComponent.find('[data-test="saveButton"]').trigger("click");
+      // the settings component should emit the updated settings
+      expect(settingsComponent.emitted()).toHaveProperty("update:settings");
+      expect(settingsComponent.emitted()).toHaveProperty("updated");
+      // the setting should be updated through an API call
+      expect(updateWorkspaceSettingsAPI).toHaveBeenCalled();
+      // the setting should've been updated in settingsToRender as well
+      expect(wrapper.vm.settingsToRender.get("player")).not.toStrictEqual(
+        global.dummyGlobalSettingsFilteredForWorkspaces.get("player")
       );
     });
   });
