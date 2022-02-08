@@ -87,7 +87,7 @@
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
       <div class="flex flex-row">
         <!-- question input box : expandable -->
-        <!-- <textFormatter v-model="questionText" /> -->
+
         <Textarea
           :placeholder="$t('editor.item_editor.question_input.placeholder')"
           :title="$t('editor.item_editor.question_input.title')"
@@ -209,7 +209,7 @@ import InputText from "@/components/UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
 import ItemFunctionalService from "@/services/Functional/Item.js";
-// import textFormatter from "@/components/UI/TextFormatter/textFormatter.vue";
+
 import {
   convertSecondsToISOTime,
   convertISOTimeToSeconds,
@@ -361,7 +361,6 @@ export default {
     TimeInput,
     Textarea,
     QuestionTypeDropdown,
-    // textFormatter,
   },
   methods: {
     showImageUploaderBox() {

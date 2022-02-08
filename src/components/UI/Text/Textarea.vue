@@ -47,7 +47,7 @@
             :class="{ disp: isDisabled }"
           />
         </div>
-        <!-- v-model="localValue" -->
+
         <div
           class="textbox p-5 border placeholder-blueGray-300 z-20 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
           :class="[inputAreaClass, boxStyling]"
@@ -212,7 +212,7 @@ export default {
   methods: {
     inputChange(event) {
       // invoked on input change
-      console.log(event.target.innerHTML);
+
       this.$emit("input", this.value);
 
       // auto expand the textbox if a `maxHeightLimit` has been specified

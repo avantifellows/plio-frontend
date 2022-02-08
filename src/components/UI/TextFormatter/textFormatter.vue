@@ -14,13 +14,6 @@
         U
       </button>
     </div>
-
-    <!-- <div
-      @input="onInput"
-      v-html="innerValue"
-      contenteditable="true"
-      class="outline-none border-2 p-4 rounded-lg border-gray-300 focus:border-green-300"
-    /> -->
   </div>
 </template>
 
@@ -31,8 +24,6 @@ export default {
   props: ["value", "name"],
 
   data() {
-    //let value;
-    console.log("data is" + this.value);
     return {
       innerValue: this.value,
     };
@@ -43,13 +34,8 @@ export default {
   },
 
   methods: {
-    onInput(event) {
-      console.log(event.target.innerHTML);
-    },
-
     applyBold() {
       document.execCommand("bold");
-      console.log("boldcalled");
     },
     applyItalic() {
       document.execCommand("italic");
@@ -60,20 +46,3 @@ export default {
   },
 };
 </script>
-<style>
-.button {
-  @apply border-2;
-  @apply border-gray-300;
-  @apply rounded-lg;
-  @apply px-3 py-1;
-  @apply mb-3 mr-3;
-}
-.button:hover {
-  @apply border-green-300;
-}
-.wysiwyg-output h1 {
-  @apply text-2xl;
-  @apply font-bold;
-  @apply pb-4;
-}
-</style>
