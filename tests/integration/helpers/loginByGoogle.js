@@ -49,5 +49,8 @@ export const loginGoogleUserAndSetLocale = async (locale = "en") => {
     .useRole(googleAuthUser)
     .navigateTo(`${process.env.BROWSERSTACK_BASE_URL}/home`);
 
+  // wait for 2 seconds for page to render properly and all requests are finished
+  await testcafe.wait(2000);
+
   await selectLocaleFromDialog(locale);
 };
