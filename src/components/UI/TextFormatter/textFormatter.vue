@@ -15,12 +15,12 @@
       </button>
     </div>
 
-    <div
+    <!-- <div
       @input="onInput"
       v-html="innerValue"
       contenteditable="true"
       class="outline-none border-2 p-4 rounded-lg border-gray-300 focus:border-green-300"
-    />
+    /> -->
   </div>
 </template>
 
@@ -49,6 +49,7 @@ export default {
 
     applyBold() {
       document.execCommand("bold");
+      console.log("boldcalled");
     },
     applyItalic() {
       document.execCommand("italic");

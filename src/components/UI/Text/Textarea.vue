@@ -41,16 +41,20 @@
 
       <div class="z-10 w-full">
         <div class="z-30 w-full absolute top-0 left-0">
-          <textFormatter :value="localValue" class="formatter w-full" />
+          <textFormatter
+            :value="localValue"
+            class="formatter w-full"
+            :class="{ disp: isDisabled }"
+          />
         </div>
-        <textarea
-          class="p-5 border placeholder-blueGray-300 z-20 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
+        <!-- v-model="localValue" -->
+        <div
+          class="textbox p-5 border placeholder-blueGray-300 z-20 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
           :class="[inputAreaClass, boxStyling]"
           :disabled="isDisabled"
           v-html="value"
           contenteditable="true"
           :placeholder="placeholder"
-          v-model="localValue"
           name="placeholder"
           autocomplete="off"
           @input="inputChange"
@@ -208,7 +212,7 @@ export default {
   methods: {
     inputChange(event) {
       // invoked on input change
-      console.log(event.srcElement);
+      console.log(event.target.innerHTML);
       this.$emit("input", this.value);
 
       // auto expand the textbox if a `maxHeightLimit` has been specified
@@ -238,5 +242,15 @@ export default {
 <style scoped>
 .formatter {
   background: #f4eae1;
+}
+.textbox {
+  overflow-y: scroll;
+}
+.textbox:empty:before {
+  content: attr(placeholder);
+  color: gray;
+}
+.disp {
+  display: none;
 }
 </style>
