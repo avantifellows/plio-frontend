@@ -12,11 +12,9 @@ test("sees the home page", async (testcafe) => {
   const plioTable = Selector('[data-test="table"]');
   const noPliosExist = await noPlioSection.exists;
 
-  if (noPliosExist) {
+  if (noPliosExist)
     // plio table should not exist as there are no plios
     await testcafe.expect(plioTable.exists).notOk();
-  } else {
-    // plio table should exist as there are plios
-    await testcafe.expect(plioTable.exists).ok();
-  }
+  // plio table should exist as there are plios
+  else await testcafe.expect(plioTable.exists).ok();
 });
