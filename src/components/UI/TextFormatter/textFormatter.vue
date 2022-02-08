@@ -37,7 +37,7 @@ export default {
     //let value;
     console.log("data is" + this.value);
     return {
-      innerValue: Marked.parse(this.value) || "<p><br></p>",
+      innerValue: Marked.parse(this.value) || "<br>",
     };
   },
 

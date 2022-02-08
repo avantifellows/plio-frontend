@@ -211,7 +211,6 @@ export default {
       // invoked on input change
       console.log(event.srcElement);
       this.$emit("input", this.value);
-      Marked.parse(this.value) || "<p><br></p>";
 
       // auto expand the textbox if a `maxHeightLimit` has been specified
       if (this.maxHeightLimit > 0) {
