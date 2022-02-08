@@ -523,7 +523,7 @@ export default {
       });
 
       if (newWorkspaceSettings != null) {
-        this.setWorkspaceStoreSettings({ settingObject: newWorkspaceSettings });
+        this.setWorkspaceStoreSettings({ setting: newWorkspaceSettings });
         OrganizationAPIService.updateWorkspaceSettings(
           this.activeWorkspaceId,
           newWorkspaceSettings
@@ -700,14 +700,14 @@ export default {
       if (createPlioResponse.status == 201) {
         // once the plio is created, update its settings as well
         let plioUuid = createPlioResponse.data.uuid;
-        let settingsToUpdate = this.isPersonalWorkspace
+        let newPlioSettings = this.isPersonalWorkspace
           ? this.userSettings.get("player")
           : this.activeWorkspaceSettings.get("player");
         let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
           plioUuid,
           new Map(
             Object.entries({
-              player: settingsToUpdate,
+              player: newPlioSettings,
             })
           )
         );

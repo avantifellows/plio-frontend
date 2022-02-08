@@ -132,7 +132,7 @@ const actions = {
       if (response.data.organizations.length > 0) {
         response.data.organizations.forEach((workspaceDetails) => {
           dispatch("setWorkspaceSettings", {
-            settingObject: getWorkspaceSettings(workspaceDetails),
+            setting: getWorkspaceSettings(workspaceDetails),
             shortCode: workspaceDetails.shortcode,
           });
         });
@@ -169,7 +169,7 @@ const mutations = {
   },
   setWorkspaceSettings(state, details) {
     if (state.workspaceSettings == null) state.workspaceSettings = {};
-    state.workspaceSettings[details.shortCode] = details.settingObject;
+    state.workspaceSettings[details.shortCode] = details.setting;
   },
   unsetWorkspaceSettings(state) {
     state.workspaceSettings = null;
