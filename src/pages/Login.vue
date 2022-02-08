@@ -274,10 +274,10 @@ export default {
       };
     },
     /**
-     *  whether the button for resending OTP is enabled
+     * whether the button for resending OTP is enabled
      */
     isResendOTPEnabled() {
-      if (this.resendOTPTimer == 0) return true;
+      if (!this.resendOTPTimer) return true;
       return false;
     },
     routeParams() {
@@ -414,7 +414,7 @@ export default {
       this.resendOTPTimer = seconds;
       const interval = setInterval(() => {
         this.resendOTPTimer--;
-        if (!this.resendOTPTimer || !this.requestedOtp) clearInterval(interval);
+        if (!this.resendOTPTimer || !this.isPhoneValid()) clearInterval(interval);
       }, 1000);
     },
     requestOtp() {

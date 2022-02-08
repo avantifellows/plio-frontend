@@ -121,7 +121,7 @@ describe("Login.vue", () => {
       });
 
       it("enables ResendOTP button when timer ends", async () => {
-        //Faketimer is needed for this test case to advance the time of interval
+        // fake timer is needed for this test case to advance the time of interval
         jest.useFakeTimers();
         const numseconds = 2;
         wrapper.vm.startResendOTPTimer(numseconds);
