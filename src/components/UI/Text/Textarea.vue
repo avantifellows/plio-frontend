@@ -65,7 +65,6 @@
 
 <script>
 import textFormatter from "@/components/UI/TextFormatter/textFormatter.vue";
-import { Marked } from "@ts-stack/markdown";
 export default {
   props: {
     placeholder: {
