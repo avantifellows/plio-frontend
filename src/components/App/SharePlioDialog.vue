@@ -155,7 +155,7 @@ export default {
       // triggered on clicking the copy link button
       // return if the link has already been copied
       if (this.plioLinkCopied) return;
-      let success = GenericUtilities.copyToClipboard(this.plioLink);
+      const success = GenericUtilities.copyToClipboard(this.plioLink);
       if (success) this.plioLinkCopied = true;
       else this.toast.error(this.$t("toast.error.copying"));
     },
