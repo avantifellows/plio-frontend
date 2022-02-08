@@ -38,24 +38,34 @@
       </div>
 
       <!-- input text area -->
-      <textarea
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
-        :class="[inputAreaClass, boxStyling]"
-        :disabled="isDisabled"
-        :placeholder="placeholder"
-        v-model="localValue"
-        name="placeholder"
-        autocomplete="off"
-        @input="inputChange"
-        @keypress="keyPress"
-        @keydown="keyDown"
-        data-test="input"
-      />
+
+      <div class="z-10 w-full">
+        <div class="z-30 w-full absolute top-0 left-0">
+          <textFormatter :value ="localValue" class="formatter w-full" />
+        </div>
+        <textarea
+          class="p-5 border placeholder-blueGray-300 z-20 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
+          :class="[inputAreaClass, boxStyling]"
+          :disabled="isDisabled"
+          v-html="value"
+          contenteditable="true"
+          :placeholder="placeholder"
+          v-model="localValue"
+          name="placeholder"
+          autocomplete="off"
+          @input="inputChange"
+          @keypress="keyPress"
+          @keydown="keyDown"
+          data-test="input"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import textFormatter from "@/components/UI/TextFormatter/textFormatter.vue";
+import { Marked } from "@ts-stack/markdown";
 export default {
   props: {
     placeholder: {
@@ -193,11 +203,17 @@ export default {
       };
     },
   },
+  components: {
+    textFormatter,
+  },
   methods: {
+   
     inputChange(event) {
       // invoked on input change
+       console.log(event.srcElement);
       this.$emit("input", this.value);
-
+      Marked.parse(this.value)||"<p><br></p>";
+     
       // auto expand the textbox if a `maxHeightLimit` has been specified
       if (this.maxHeightLimit > 0) {
         var textareaElement = event.srcElement;
@@ -222,3 +238,8 @@ export default {
   emits: ["input", "keypress", "keydown", "update:value", "start-icon-selected"],
 };
 </script>
+<style scoped>
+.formatter {
+  background: #f4eae1;
+}
+</style>
