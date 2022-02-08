@@ -61,7 +61,7 @@ export default {
   methods: {
     copyToClipboard() {
       // copies the link to the clipboard
-      let success = GenericUtilities.copyToClipboard(this.link);
+      const success = GenericUtilities.copyToClipboard(this.link);
 
       if (success) this.toast.success(this.$t("toast.success.copying"));
       else this.toast.error(this.$t("toast.error.copying"));
