@@ -524,7 +524,7 @@ export default {
       });
 
       if (newWorkspaceSettings != null) {
-        this.setWorkspaceStoreSettings({ setting: newWorkspaceSettings });
+        this.setWorkspaceStoreSettings({ settings: newWorkspaceSettings });
         OrganizationAPIService.updateWorkspaceSettings(
           this.activeWorkspaceId,
           newWorkspaceSettings
