@@ -124,7 +124,7 @@ describe("Login.vue", () => {
         jest.advanceTimersByTime(numseconds * 1000);
         expect(wrapper.vm.isResendOTPEnabled).toBe(true);
         expect(wrapper.vm.resendOTPTimer).toBe(0);
-        //reset timers
+        // reset timers
         jest.useRealTimers();
       });
 

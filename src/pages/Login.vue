@@ -219,7 +219,7 @@ export default {
     return {
       phoneInput: "", // phone input text
       otpInput: "", // otp input text
-      resendOTPTimer: "", // the count of the timer
+      resendOTPTimer: 0, // the count of the timer
       requestedOtp: false, // whether the user has requested OTP once
       invalidOtp: false, // whether the OTP is invalid
       toast: useToast(),
@@ -274,12 +274,10 @@ export default {
       };
     },
     /**
-     * whether resendOTPTimer is enabled for resend OTP
+     *  whether the button for resending OTP is enabled
      */
     isResendOTPEnabled() {
-      if (this.resendOTPTimer == 0) {
-        return true;
-      }
+      if (this.resendOTPTimer == 0) return true;
       return false;
     },
     routeParams() {
@@ -416,7 +414,7 @@ export default {
       this.resendOTPTimer = seconds;
       const interval = setInterval(() => {
         this.resendOTPTimer--;
-        if (!this.resendOTPTimer) clearInterval(interval);
+        if (!this.resendOTPTimer || !this.requestedOtp) clearInterval(interval);
       }, 1000);
     },
     requestOtp() {
