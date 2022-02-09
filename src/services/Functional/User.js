@@ -22,10 +22,10 @@ export default {
       // try refreshing the access token
       let response = await UserAPIService.refreshAccessToken();
       if (response != undefined && response.data != undefined) {
-        // set the recieved access token into the store
+        // Set the recieved access token into the store
         // and mark the re-authentication process as completed.
         // We will also resolve the pending reAuthenticationPromise so the code
-        // that is waiting for the promises to resolve can proceed
+        // that is waiting for the promises to resolve can proceed.
         store.dispatch("auth/setAccessToken", response.data);
         store.dispatch("auth/setReAuthenticationState", "completed");
         store.state.auth.reAuthenticationPromiseResolver();
@@ -33,7 +33,7 @@ export default {
       }
     } catch (e) {
       // an error occured in the process of refreshing the access token.
-      // We'll mark the re-authentication process as dropped and throw an error
+      // we'll mark the re-authentication process as dropped and throw an error
       store.dispatch("auth/setReAuthenticationState", "dropped");
       throw new Error(e);
     }

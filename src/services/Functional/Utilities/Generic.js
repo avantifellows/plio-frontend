@@ -104,7 +104,6 @@ export default {
   isObjectEmpty(obj) {
     return Object.keys(obj).length === 0 && obj.constructor === Object;
   },
-
   /**
    * Copies the given value to the clipboard
    *
@@ -124,7 +123,7 @@ export default {
 
 /**
  * An identifier to hold the current animation frame request.
- * useful when it's needed to cancel a particular animation frame
+ * useful when it is needed to cancel a particular animation frame
  */
 export let animationFrameRequest = null;
 
@@ -225,7 +224,7 @@ export function convertSecondsToISOTime(timeInSeconds) {
 
 /**
  * Converts a timestamp in ISO format to seconds
- * @param {Object} timeInISO - An object containing the ISO time as it's keys
+ * @param {Object} timeInISO - An object containing the ISO time as its keys
  * @returns {Number} - The converted time in seconds
  */
 export function convertISOTimeToSeconds(timeInISO) {

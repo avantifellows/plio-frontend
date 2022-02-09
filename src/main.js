@@ -16,7 +16,7 @@ import "offline-js";
 import * as Sentry from "@sentry/browser";
 import { Integrations } from "@sentry/tracing";
 
-// Google AOauth. Add CLIENT_ID in .env file
+// google AOauth. Add CLIENT_ID in .env file
 import GAuth from "vue3-google-oauth2";
 
 import "./index.css";
@@ -47,19 +47,19 @@ const vueProgressBarOptions = {
 
 const filterBeforeCreate = (toast, toasts) => {
   // adapted from here - https://github.com/Maronato/vue-toastification#filterbeforecreate
-  // Prevents toasts with the same content from appearing simultaneously, discarding duplicates
+  // prevents toasts with the same content from appearing simultaneously, discarding duplicates
   // and prevent toasts from showing up for an embedded plio
   if (
     toasts.filter((t) => t.content === toast.content).length !== 0 ||
     router.currentRoute._value.name == "Plio"
   ) {
-    // Returning false discards the toast
+    // returning false discards the toast
     return false;
   }
   return toast;
 };
 
-// Cypress automatically sets window.Cypress by default
+// cypress automatically sets window.Cypress by default
 if (window.Cypress) {
   window.__store__ = store;
 }
@@ -70,13 +70,13 @@ if (
   ["staging", "production"].includes(process.env.NODE_ENV) &&
   process.env.VUE_APP_SENTRY_DSN
 ) {
-  // Since Vue3 isn't officially supported yet by Sentry, we're using
+  // since Vue3 isn't officially supported yet by Sentry, we're using
   // the JavaScript Sentry integration with @sentry/browser.
-  // Refer Sentry documentation for more configs: https://docs.sentry.io/platforms/javascript/configuration/
+  // refer Sentry documentation for more configs: https://docs.sentry.io/platforms/javascript/configuration/
   Sentry.init({
     dsn: process.env.VUE_APP_SENTRY_DSN,
     integrations: [new Integrations.BrowserTracing()],
-    // Set tracesSampleRate to 1.0 to capture 100%
+    // set tracesSampleRate to 1.0 to capture 100%
     // of transactions for performance monitoring.
     tracesSampleRate: 1.0,
     environment: process.env.NODE_ENV,

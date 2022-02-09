@@ -11,6 +11,17 @@
         <p class="my-2 sm:my-4 text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
           {{ syncStatusText }}
         </p>
+
+        <!-- settings button -->
+        <icon-button
+          v-if="hasAnySettingsToRender"
+          :iconConfig="settingsButtonIconConfig"
+          :buttonClass="settingsButtonClass"
+          @click="showSettingsMenu"
+          data-test="settingsButton"
+          id="settingsButton"
+          v-tooltip="{ content: $t('tooltip.editor.settings'), placement: 'top' }"
+        ></icon-button>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 items-stretch">
@@ -413,7 +424,7 @@
         <Plio
           class="w-full"
           :plioId="plioId"
-          :org="org"
+          :workspace="workspace"
           :previewMode="true"
           :key="reRenderKey"
           containerClass="h-full"
@@ -493,6 +504,17 @@
         </div>
       </div>
     </div>
+    <Settings
+      class="fixed z-20 justify-center mx-auto"
+      @window-closed="closeSettingsMenu"
+      :plioStatus="status"
+      v-if="isSettingsMenuShown"
+      v-model:settings="settingsToRender"
+      v-click-away="closeSettingsMenu"
+      @updated="updateSettings"
+      data-test="settings"
+      ref="settings"
+    ></Settings>
   </div>
 </template>
 
@@ -506,6 +528,7 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import ItemModal from "@/components/Player/ItemModal.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
+import Settings from "@/components/App/Settings.vue";
 
 import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
@@ -514,11 +537,13 @@ import ImageAPIService from "@/services/API/Image.js";
 import VideoAPIService from "@/services/API/Video.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
-import Utilities, {
+import GenericUtilities, {
   throwConfetti,
   resetConfetti,
   getVideoDuration,
-} from "@/services/Functional/Utilities.js";
+} from "@/services/Functional/Utilities/Generic.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
+
 import { mapActions, mapState, mapGetters } from "vuex";
 import debounce from "debounce";
 import { useToast } from "vue-toastification";
@@ -554,13 +579,14 @@ export default {
     ItemModal,
     ImageUploaderDialog,
     Plio,
+    Settings,
   },
   props: {
     plioId: {
       default: "",
       type: String,
     },
-    org: {
+    workspace: {
       default: "",
       type: String,
     },
@@ -642,6 +668,14 @@ export default {
         iconName: "share",
         iconClass: "text-yellow-800 fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
       },
+      settingsButtonIconConfig: {
+        enabled: true,
+        iconName: "settings",
+        iconClass:
+          "text-primary group-hover:text-white fill-current h-4 w-4 bp-500:h-6 bp-500:w-6",
+      },
+      settingsButtonClass:
+        "bg-gray-100 hover:bg-primary bp-500:p-2 p-1 bp-500:px-4 px-2 rounded-md border-b-outset mt-2",
       // styling class for the play plio button
       playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
       // styling class for the copy draft button
@@ -699,6 +733,9 @@ export default {
         "font-bold text-center text-xs bp-420:text-sm lg:test-base",
       confettiHandler: confettiHandler,
       toast: useToast(),
+      isSettingsMenuShown: false,
+      plioSettings: null, // the settings for the opened plio
+      settingsToRender: new Map(), // the settings + metadata that needs to be rendered
       newVideoDetails: null, // details for a video being considered for updating the video inside a plio
     };
   },
@@ -714,9 +751,15 @@ export default {
     clearInterval(this.savingInterval);
   },
   watch: {
+    isSettingsMenuShown(value) {
+      // don't show the settings tooltip if the settings menu is open
+      const tooltip = document.getElementById("settingsButton")._tippy;
+      if (tooltip == undefined) return;
+      value ? tooltip.disable() : tooltip.enable();
+    },
     /**
      * Whenever itemTimestamps is updated, check if the current item timestamp is
-     * greater than the minimum allowed timestamp or not. If it's not, then adjust it.
+     * greater than the minimum allowed timestamp or not. If it is not, then adjust it.
      */
     itemTimestamps() {
       // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
@@ -870,7 +913,7 @@ export default {
       this.updateVideoPlayer(linkValidation["ID"], newVideoURL, videoDuration);
     },
     /**
-     * When plio's title is updated, check if it's different than the loaded plio's title
+     * When plio's title is updated, check if it is different than the loaded plio's title
      * and push the updated title to the backend
      */
     plioTitle(newTitle) {
@@ -893,13 +936,17 @@ export default {
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
-    ...mapGetters("auth", ["isPersonalWorkspace"]),
+    ...mapGetters("auth", ["isPersonalWorkspace", "userRoleInActiveWorkspace"]),
+    ...mapState("auth", ["userSettings", "activeWorkspace"]),
     ...mapState("dialog", {
       isDialogBoxShown: "isShown",
       dialogAction: "action",
       isDialogConfirmClicked: "isConfirmClicked",
       isDialogCancelClicked: "isCancelClicked",
     }),
+    hasAnySettingsToRender() {
+      return this.settingsToRender.size > 0;
+    },
     /**
      * whether the spinner needs to be shown
      */
@@ -1148,7 +1195,8 @@ export default {
         this.isImageUploaderDialogShown ||
         this.isPublishedPlioDialogShown ||
         this.isEmbedPlioDialogShown ||
-        (this.isPlioPreviewShown && this.isPlioPreviewLoaded)
+        (this.isPlioPreviewShown && this.isPlioPreviewLoaded) ||
+        this.isSettingsMenuShown
       );
     },
     /**
@@ -1291,7 +1339,7 @@ export default {
      * prepare the link for the plio from the plio ID
      */
     plioLink() {
-      return this.getPlioLink(this.plioId, this.org);
+      return GenericUtilities.getPlioLink(this.plioId, this.workspace);
     },
     /**
      * title for the dialog box that appears when publishing a
@@ -1363,7 +1411,47 @@ export default {
       "unsetConfirmClicked",
       "unsetCancelClicked",
     ]),
-    ...Utilities,
+    getImageSource: GenericUtilities.getImageSource,
+    /**
+     * Update the settings stored in the store and on the server as well
+     * @param {Object} updatedSettings - details about the leaf settings that the user has updated
+     */
+    updateSettings(updatedSettings) {
+      // The updatedSettings object contains all the settings that have been updated.
+      // Each updated setting has the following keys:
+      // headerName - name of the header to which the updated setting belongs to
+      // tabName - name of the tab to which the updated setting belongs to
+      // leafName - name of the updated leaf setting
+      // newValue - the updated value
+      Object.keys(updatedSettings).forEach((key) => {
+        let setting = updatedSettings[key];
+        this.plioSettings
+          .get(setting.headerName)
+          .children.get(setting.tabName)
+          .children.get(setting.leafName).value = setting.newValue;
+
+        if (!this.isPublished)
+          PlioAPIService.updatePlioSettings(this.plioId, this.plioSettings);
+        else this.publishPlio();
+      });
+    },
+    /**
+     * This method constructs the settings menu that needs to be rendered when settings menu is open.
+     * We iterate through the different levels of a settings object.
+     * For each of the leaf settings, which are the last leaf of the object, we attach some metadata to it,
+     * and add a watcher which will trigger when the value for that setting has been changed.
+     */
+    constructSettingsMenu() {
+      // keep a clone of the plio settings in a local variable
+      this.settingsToRender = clonedeep(this.plioSettings);
+      SettingsUtilities.prepareSettingsToRender(this.settingsToRender, false);
+    },
+    closeSettingsMenu() {
+      this.isSettingsMenuShown = false;
+    },
+    showSettingsMenu() {
+      this.isSettingsMenuShown = true;
+    },
     /**
      * remove a sequence of items
      *
@@ -1449,7 +1537,9 @@ export default {
      * copies the plio draft link to the clipboard
      */
     copyPlioDraftLink() {
-      let success = this.copyToClipboard(this.getPlioDraftLink(this.plioId, this.org));
+      let success = GenericUtilities.copyToClipboard(
+        GenericUtilities.getPlioDraftLink(this.plioId, this.workspace)
+      );
 
       if (success) this.toast.success(this.$t("toast.success.copying"));
       else this.toast.error(this.$t("toast.error.copying"));
@@ -1574,7 +1664,7 @@ export default {
       if (!this.isPublished) return;
       let routeData = this.$router.resolve({
         name: "Player",
-        params: { org: this.org, plioId: this.plioId },
+        params: { workspace: this.workspace, plioId: this.plioId },
       });
       // required for opening in a new tab
       window.open(routeData.href, "_blank");
@@ -1586,7 +1676,7 @@ export default {
       if (!this.isPublished) return;
       this.$router.push({
         name: "Dashboard",
-        params: { org: this.org, plioId: this.plioId },
+        params: { workspace: this.workspace, plioId: this.plioId },
       });
     },
     /**
@@ -1650,7 +1740,7 @@ export default {
      * returns the user back to Home
      */
     returnToHome() {
-      this.$router.push({ name: "Home", params: { org: this.org } });
+      this.$router.push({ name: "Home", params: { workspace: this.workspace } });
     },
     /**
      * navigate the player to the item selected in the item editor
@@ -1824,8 +1914,10 @@ export default {
      * sets variables once the player instance is ready
      */
     playerReady() {
-      this.videoDuration = this.player.duration;
-      if (!this.plioTitle) this.plioTitle = this.player.config.title;
+      if (this.player != undefined) {
+        this.videoDuration = this.player.duration;
+        if (!this.plioTitle) this.plioTitle = this.player.config.title;
+      }
       // re-render the plio preview component
       this.reRenderKey = !this.reRenderKey;
     },
@@ -1833,8 +1925,8 @@ export default {
      * checks if the video link is valid
      */
     isVideoLinkValid(link) {
-      var pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
-      var matches = link.match(pattern);
+      let pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+      let matches = link.match(pattern);
       if (matches) {
         return { valid: true, ID: matches[1] };
       }
@@ -1860,6 +1952,10 @@ export default {
           this.hasUnpublishedChanges = false;
           this.videoDBId = plioDetails.videoDBId;
           this.plioDBId = plioDetails.plioDBId;
+          this.plioSettings = SettingsUtilities.setPlioSettings(
+            this.loadedPlioDetails.config
+          );
+          this.constructSettingsMenu();
           this.stopLoading();
         })
         .then(() => {
@@ -1949,7 +2045,7 @@ export default {
     async updateVideo(id, payload) {
       // 'url' key in the payload is a required field
       if (id == null && Object.prototype.hasOwnProperty.call(payload, "url")) {
-        // Create the video and link it to the plio
+        // create the video and link it to the plio
         let createdVideo = await VideoAPIService.createVideo(payload);
         this.videoDBId = createdVideo.data.id;
         await this.updatePlio(this.plioId, { video: this.videoDBId });
@@ -1998,6 +2094,7 @@ export default {
       // and update the changes only if already published
       this.isBeingPublished = true;
       this.status = "published";
+      PlioAPIService.updatePlioSettings(this.plioId, this.plioSettings);
       await this.saveChanges("all");
       this.isBeingPublished = false;
       this.isPublishedPlioDialogShown = true;

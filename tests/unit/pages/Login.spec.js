@@ -168,7 +168,7 @@ describe("Login.vue", () => {
         it("redirects to appropriate page after login", async () => {
           await wrapper.setProps({
             redirectTo: "Editor",
-            params: '{"org":"","plioId":"abc"}',
+            params: '{"workspace":"","plioId":"abc"}',
           });
 
           // submit otp
@@ -181,7 +181,7 @@ describe("Login.vue", () => {
           expect(mockRouter.replace).toHaveBeenCalledWith({
             name: "Editor",
             params: {
-              org: "",
+              workspace: "",
               plioId: "abc",
             },
           });

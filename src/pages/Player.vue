@@ -3,7 +3,7 @@
     <!-- plio -->
     <plio
       :plioId="plioId"
-      :org="org"
+      :workspace="workspace"
       :thirdPartyUniqueId="thirdPartyUniqueId"
       :thirdPartyApiKey="thirdPartyApiKey"
       class="w-full"
@@ -48,7 +48,7 @@ export default {
       default: "",
       type: String,
     },
-    org: {
+    workspace: {
       default: "",
       type: String,
     },

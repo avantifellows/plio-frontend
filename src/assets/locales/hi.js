@@ -11,6 +11,7 @@ export default {
     teams: "टीमों के लिए प्लायो",
     abtesting: "",
     player: "",
+    settings: "सेटिंग्स",
     404: "एरर",
   },
   editor: {
@@ -474,6 +475,7 @@ export default {
       share_plio: "इस प्लायो को अपने दर्शकों के साथ बातें",
       play_plio: "इस प्लायो को खुद से आज़माएं",
       embed_plio: "इस प्लायो को एम्बेड करें",
+      settings: "इस प्लायो की सेटिंग्स को बदलें",
     },
     home: {
       table: {
@@ -516,6 +518,15 @@ export default {
           "प्रत्येक दर्शक द्वारा उत्तर दिए गए प्रश्नों की औसत संख्या",
       },
     },
+    settings: {
+      buttons: {
+        save: {
+          hasUnsavedChanges: "अपने परिवर्तन सहेजें",
+          noUnsavedChanges: "सहेजने के लिए कुछ नहीं हैं",
+        },
+        cancel: "",
+      },
+    },
   },
   dashboard: {
     updated: "सबसे हाल ही में प्रकाशित हुआ",
@@ -539,6 +550,37 @@ export default {
       num_questions_answered: {
         title: "उत्तर किये गए प्रश्न",
       },
+    },
+  },
+  settings: {
+    buttons: {
+      save: {
+        draft: "सेव करें",
+        published: "सेव करके प्रकाशित करें",
+      },
+      cancel: "रद्द करें",
+    },
+    menu: {
+      title: {
+        skipEnabled:
+          "प्लायो का प्रयास करते समय दर्शक प्रश्नों को छोड़ सकते हैं",
+      },
+      description: {
+        skipEnabled: "दर्शकों को प्रश्न छोड़ने का विकल्प प्रदान करें",
+      },
+      info:
+        "नई सेटिंग्स केवल भविष्य में बनाए जाने वाले प्लायो पर लागू होंगी, न कि पहले से बनाए गए प्लायो पर",
+    },
+    sidebar: {
+      header: {
+        player: "प्लेयर",
+      },
+      tab: {
+        configuration: "विन्यास",
+      },
+    },
+    badge: {
+      admin: "व्यवस्थापक",
     },
   },
   toast: {

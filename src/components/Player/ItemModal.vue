@@ -11,6 +11,7 @@
         :videoPlayerElementId="videoPlayerElementId"
         @toggle-minimize="toggleMinimize"
         @skip-question="skipQuestion"
+        :isSkipEnabled="isSkipEnabled"
         data-test="header"
       ></item-question-header>
       <!-- main question body -->
@@ -54,7 +55,9 @@
 import ItemQuestionHeader from "@/components/Items/Question/Header";
 import ItemQuestionBody from "@/components/Items/Question/Body";
 import ItemQuestionFooter from "@/components/Items/Question/Footer";
-import { isScreenPortrait } from "@/services/Functional/Utilities.js";
+import { isScreenPortrait } from "@/services/Functional/Utilities/Generic.js";
+import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
+
 var isEqual = require("deep-eql");
 
 export default {
@@ -121,6 +124,11 @@ export default {
       default: null,
       type: String,
     },
+    /** custom configuration options for the item modal */
+    configuration: {
+      default: null,
+      type: Object,
+    },
   },
   components: {
     ItemQuestionHeader,
@@ -128,6 +136,17 @@ export default {
     ItemQuestionBody,
   },
   computed: {
+    /** whether the skip item button is enabled */
+    isSkipEnabled() {
+      // if a custom configuration is provided, then use that otherwise
+      // use the global settings
+      if (this.configuration != null && this.configuration.has("skipEnabled"))
+        return this.configuration.get("skipEnabled").value;
+      return this.defaultConfiguration.get("skipEnabled").value;
+    },
+    defaultConfiguration() {
+      return globalDefaultSettings.get("player").children.get("configuration").children;
+    },
     /**
      * URL of the image for an item;
      * returns NULL if the image doesn't exist

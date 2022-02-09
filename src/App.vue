@@ -58,7 +58,7 @@
             <icon-button
               :titleConfig="createButtonMenuTextConfig"
               :buttonClass="createButtonClass"
-              class="my-4"
+              class="my-4 border-b-outset border-primary"
               :class="{ 'hidden bp-500:inline': onHomePage }"
               @click="createNewPlio"
               :isDisabled="pending"
@@ -66,20 +66,35 @@
 
             <!-- home button -->
             <icon-button
-              class="place-self-start"
+              class="place-self-start w-full"
               :iconConfig="homeButtonIconConfig"
               :titleConfig="homeButtonTextConfig"
               :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
               @click="redirectToHome"
               :isDisabled="pending"
             ></icon-button>
 
+            <!-- settings button -->
+            <icon-button
+              v-if="onHomePage && hasAnySettingsToRender"
+              class="place-self-start w-full"
+              :iconConfig="settingsButtonIconConfig"
+              :titleConfig="settingsButtonTextConfig"
+              :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
+              @click="showSettingsMenu"
+              :isDisabled="pending"
+              data-test="settingsButton"
+            ></icon-button>
+
             <!-- plio for teams -->
             <icon-button
-              class="place-self-start"
+              class="place-self-start w-full"
               :iconConfig="teamsButtonIconConfig"
               :titleConfig="teamsButtonTextConfig"
               :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
               :isDisabled="pending"
               @click="redirectToTeamsPage"
               v-if="isPersonalWorkspace"
@@ -88,10 +103,11 @@
 
             <!-- product guides -->
             <icon-button
-              class="place-self-start"
+              class="place-self-start w-full"
               :iconConfig="productGuidesButtonIconConfig"
               :titleConfig="productGuidesButtonTextConfig"
               :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
               @click="redirectToProductGuides"
               :isDisabled="pending"
               data-test="productGuides"
@@ -99,10 +115,11 @@
 
             <!-- docs -->
             <icon-button
-              class="place-self-start"
+              class="place-self-start w-full"
               :iconConfig="docsButtonIconConfig"
               :titleConfig="docsButtonTextConfig"
               :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
               @click="redirectToDocs"
               :isDisabled="pending"
               data-test="docs"
@@ -110,10 +127,11 @@
 
             <!-- whats new -->
             <icon-button
-              class="place-self-start"
+              class="place-self-start w-full"
               :iconConfig="whatsNewButtonIconConfig"
               :titleConfig="whatsNewButtonTextConfig"
               :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
               @click="redirectToWhatsNew"
               :isDisabled="pending"
               data-test="whatsNew"
@@ -121,10 +139,11 @@
 
             <!-- logout -->
             <icon-button
-              class="place-self-start"
+              class="place-self-start w-full"
               :iconConfig="logoutButtonIconConfig"
               :titleConfig="logoutButtonTextConfig"
               :buttonClass="menuButtonsClass"
+              :innerContainerClass="menuButtonsInnerContainerClass"
               @click="logoutButtonClicked"
               :isDisabled="pending"
               data-test="logout"
@@ -216,6 +235,16 @@
     ></inline-svg>
   </div>
   <vue-progress-bar></vue-progress-bar>
+  <!-- settings menu -->
+  <Settings
+    v-if="isSettingsMenuShown"
+    class="fixed z-20 justify-top mx-auto"
+    v-model:settings="settingsToRender"
+    :isInfoMessageVisible="true"
+    v-click-away="closeSettingsMenu"
+    @updated="updateSettings"
+    @window-closed="closeSettingsMenu"
+  ></Settings>
 </template>
 
 <script>
@@ -227,10 +256,16 @@ import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
 import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
 import ListSingleSelector from "@/components/UI/Selectors/ListSingleSelector.vue";
 import PlioAPIService from "@/services/API/Plio.js";
+import Settings from "@/components/App/Settings.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
+import UserAPIService from "@/services/API/User.js";
+import OrganizationAPIService from "@/services/API/Organization.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
+
+let clonedeep = require("lodash.clonedeep");
 
 export default {
   components: {
@@ -240,6 +275,7 @@ export default {
     WorkspaceSwitcher,
     IconButton,
     DialogBox,
+    Settings,
     ListSingleSelector,
   },
   data() {
@@ -251,10 +287,16 @@ export default {
       createButtonClass:
         "bg-primary hover:bg-primary-hover rounded-md shadow-lg w-full ring-primary p-2 sm:py-4",
       isMenuButtonActive: false, // whether the menu button is active
-      menuButtonsClass: "rounded-lg ring-primary p-2 py-4", // common classes for the menu buttons
-      menuButtonsIconClass: "text-gray-500 fill-current h-4 md:h-6 w-4 md:w-6", // common classes for the icon of the menu buttons
-      menuButtonsTextClass: "text-sm md:text-base lg:text-lg ml-4 text-gray-500", // common classes for the text of the menu buttons
+      menuButtonsClass: "rounded-lg ring-primary p-2 py-4 hover:bg-gray-200", // common classes for the menu buttons
+      menuButtonsInnerContainerClass: "w-full flex justify-start", // common classes for the inner container of the menu buttons
+      menuButtonsIconClass:
+        "text-gray-500 group-hover:text-primary fill-current h-4 md:h-6 w-4 md:w-6", // common classes for the icon of the menu buttons
+      menuButtonsTextClass:
+        "text-xl bp-500:text-sm md:text-base lg:text-lg ml-4 text-gray-500 group-hover:text-primary", // common classes for the text of the menu buttons
       menuSlideTransition: "", // transition name for menu sliding effect
+      isSettingsMenuShown: false,
+      settingsToRender: {}, // the settings object that will be rendered when settings menu is opened
+      settingsWatchers: [], // the unwatch callbacks to the watchers attached to individual settings
     };
   },
   async created() {
@@ -271,6 +313,7 @@ export default {
     window.addEventListener("beforeunload", this.onClose);
     if (this.isAuthenticated) {
       await this.fetchAndUpdateUser();
+      this.constructSettingsMenu();
     }
     // ask user to pick the language if they are visiting for the first time
     if (this.locale == null && this.user != null) {
@@ -311,6 +354,17 @@ export default {
     UserConfigService.setLocaleFromUserConfig();
   },
   watch: {
+    userSettings() {
+      this.constructSettingsMenu();
+    },
+    activeWorkspaceSettings() {
+      this.constructSettingsMenu();
+    },
+    activeWorkspace() {
+      // close the side menu if in mobile mode and the workspace changes
+      if (this.isMobileScreen) this.resetMenuState();
+      this.constructSettingsMenu();
+    },
     currentRoute() {
       // when the page is being changed, reset the state variables
       this.resetState();
@@ -329,6 +383,7 @@ export default {
         // reset the value of `userClickedLogout`
         this.userClickedLogout = false;
         if (this.locale == null) this.showLanguagePickerDialog = true;
+        this.constructSettingsMenu();
       }
     },
     onHomePage(value) {
@@ -336,10 +391,12 @@ export default {
       // set in the store. If not, then redirect to the personal workspace
       if (value) {
         this.menuSlideTransition = "";
-        let isUserInWorkspace = this.user.organizations.some((org) => {
+        let isUserInWorkspace = this.user.organizations.some((organization) => {
           // no need to redirect if the user belongs to the workspace
           // or the user is in the personal workspace
-          return org.shortcode == this.activeWorkspace || this.activeWorkspace == "";
+          return (
+            organization.shortcode == this.activeWorkspace || this.activeWorkspace == ""
+          );
         });
 
         if (!isUserInWorkspace) {
@@ -387,11 +444,14 @@ export default {
           "User Status": this.user.status,
           "Current Workspace": this.activeWorkspace,
         });
+        // reconstruct the settings menu whenever the user gets updated
+        this.constructSettingsMenu();
       },
       deep: true,
     },
   },
   methods: {
+    getImageSource: GenericUtilities.getImageSource,
     // object spread operator
     // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions("auth", [
@@ -401,6 +461,12 @@ export default {
       "unsetActiveWorkspace",
       "setReAuthenticationState",
     ]),
+    ...mapActions("auth", {
+      /** update the user settings stored in vuex */
+      updateUserStoreSettings: "setUserSettings",
+      /** set the workspace settings stored in vuex */
+      setWorkspaceStoreSettings: "setWorkspaceSettings",
+    }),
     ...mapActions("generic", [
       "unsetSharePlioDialog",
       "unsetEmbedPlioDialog",
@@ -425,7 +491,86 @@ export default {
       "unsetDialogCloseButton",
     ]),
     ...mapActions("selectors", ["hideSelector"]),
-    ...Utilities,
+    /**
+     * Update the settings stored in the store and on the server as well
+     * @param {Object} updatedSettings - details about the leaf settings that the user has updated
+     */
+    updateSettings(updatedSettings) {
+      // The updatedSettings object contains all the settings that have been updated.
+      // Each updated setting has the following keys:
+      // headerName - name of the header to which the updated setting belongs to
+      // tabName - name of the tab to which the updated setting belongs to
+      // leafName - name of the updated leaf setting
+      // newValue - the updated value
+      // isWorkspaceSetting - whether the updated setting is a workspace setting
+      let newWorkspaceSettings = null;
+      let newUserSettings = null;
+      Object.keys(updatedSettings).forEach((key) => {
+        let setting = updatedSettings[key];
+
+        if (setting.isWorkspaceSetting) {
+          if (newWorkspaceSettings == null)
+            newWorkspaceSettings = clonedeep(this.activeWorkspaceSettings);
+          newWorkspaceSettings
+            .get(setting.headerName)
+            .children.get(setting.tabName)
+            .children.get(setting.leafName).value = setting.newValue;
+        } else {
+          if (newUserSettings == null) newUserSettings = clonedeep(this.userSettings);
+          newUserSettings
+            .get(setting.headerName)
+            .children.get(setting.tabName)
+            .children.get(setting.leafName).value = setting.newValue;
+        }
+      });
+
+      if (newWorkspaceSettings != null) {
+        this.setWorkspaceStoreSettings({ settings: newWorkspaceSettings });
+        OrganizationAPIService.updateWorkspaceSettings(
+          this.activeWorkspaceId,
+          newWorkspaceSettings
+        );
+      }
+
+      if (newUserSettings != null) {
+        this.updateUserStoreSettings(newUserSettings);
+        UserAPIService.updateUserSettings(this.userId, newUserSettings);
+      }
+    },
+    /**
+     * This method constructs the settings menu that needs to be rendered when settings menu is open.
+     * We iterate through the different levels of a settings object.
+     * This settings object is the user's settings or the merger of users/workspace's settings depending on the active workspace.
+     * For each of the leaf settings, which are the last leaf of the object, we attach some metadata to it,
+     * and add a watcher which will trigger when the value for that setting has been changed.
+     */
+    constructSettingsMenu() {
+      // by the time this method is invoked, if the userSettings store variable or activeWorkspaceSettings store variable
+      // hasn't been updated, don't proceed and return.
+      // userSettings / activeWorkspaceSettings should be Maps
+      if (!(this.userSettings instanceof Map)) return;
+      if (!this.isPersonalWorkspace && !(this.activeWorkspaceSettings instanceof Map))
+        return;
+
+      // unwatch any attached watchers
+      this.settingsWatchers.forEach((unwatch) => unwatch());
+
+      if (this.isPersonalWorkspace) this.settingsToRender = clonedeep(this.userSettings);
+      else
+        this.settingsToRender = SettingsUtilities.mergeSettings(
+          clonedeep(this.userSettings),
+          clonedeep(this.activeWorkspaceSettings)
+        );
+
+      SettingsUtilities.prepareSettingsToRender(this.settingsToRender);
+    },
+    closeSettingsMenu() {
+      if (this.isMobileScreen) this.resetMenuState();
+      this.isSettingsMenuShown = false;
+    },
+    showSettingsMenu() {
+      this.isSettingsMenuShown = true;
+    },
     /**
      * resets various state variables when the app is created
      */
@@ -509,7 +654,7 @@ export default {
     /** redirects to the home page */
     redirectToHome() {
       if (this.isMobileScreen) this.resetMenuState();
-      this.$router.push({ name: "Home", params: { org: this.activeWorkspace } });
+      this.$router.push({ name: "Home", params: { workspace: this.activeWorkspace } });
     },
     /** redirects to the What's New page */
     redirectToWhatsNew() {
@@ -538,7 +683,7 @@ export default {
     /**
      * creates a new draft plio and redirects the user to the editor
      */
-    createNewPlio() {
+    async createNewPlio() {
       this.$Progress.start();
       this.$mixpanel.track("Click Create");
       this.$mixpanel.people.set_once({
@@ -548,17 +693,30 @@ export default {
         "Last Plio Created": new Date().toISOString(),
       });
       this.$mixpanel.people.increment("Total Plios Created");
-      PlioAPIService.createPlio()
-        .then((response) => {
-          this.$Progress.finish();
-          if (response.status == 201) {
-            this.$router.push({
-              name: "Editor",
-              params: { plioId: response.data.uuid, org: this.activeWorkspace },
-            });
-          }
-        })
-        .catch(() => this.toast.error(this.$t("toast.error.create_plio")));
+
+      let createPlioResponse = await PlioAPIService.createPlio();
+      this.$Progress.finish();
+      if (createPlioResponse.status == 201) {
+        // once the plio is created, update its settings as well
+        let plioUuid = createPlioResponse.data.uuid;
+        let newPlioSettings = this.isPersonalWorkspace
+          ? this.userSettings.get("player")
+          : this.activeWorkspaceSettings.get("player");
+        let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
+          plioUuid,
+          new Map(
+            Object.entries({
+              player: newPlioSettings,
+            })
+          )
+        );
+        if (updatePlioSettingsResponse.status == 200) {
+          this.$router.push({
+            name: "Editor",
+            params: { plioId: plioUuid, workspace: this.activeWorkspace },
+          });
+        }
+      } else this.toast.error(this.$t("toast.error.create_plio"));
     },
     /** logs out the user */
     logoutUser() {
@@ -570,9 +728,13 @@ export default {
         // resets the distinct ID so that multiple users can use the same device
         this.$mixpanel.reset();
         this.$mixpanel.track("Logout");
+
         // added here so that if someone clicks on logout while
         // some activity is pending
         this.stopLoading();
+
+        // clear active workspace
+        this.unsetActiveWorkspace();
       });
     },
     onClose(event) {
@@ -621,14 +783,15 @@ export default {
       this.showSpinner();
       PlioAPIService.copyToWorkspace(this.selectedPlioId, {
         workspace: selectedOptionValue,
-      }).then(() => {
-        this.hideSpinner();
-        this.$router.push({ name: "Home", params: { org: selectedOptionValue } });
       })
-      .catch(() => {
-        this.hideSpinner()
-        this.toast.error(this.$t('toast.error.generic'))
-      })
+        .then(() => {
+          this.hideSpinner();
+          this.$router.push({ name: "Home", params: { workspace: selectedOptionValue } });
+        })
+        .catch(() => {
+          this.hideSpinner();
+          this.toast.error(this.$t("toast.error.generic"));
+        });
     },
   },
   computed: {
@@ -637,9 +800,12 @@ export default {
       "activeWorkspaceSchema",
       "locale",
       "isPersonalWorkspace",
+      "activeWorkspaceSettings",
+      "userRoleInActiveWorkspace",
+      "activeWorkspaceId",
     ]),
     ...mapGetters("generic", ["isMobileScreen"]),
-    ...mapState("auth", ["config", "user", "activeWorkspace"]),
+    ...mapState("auth", ["config", "user", "activeWorkspace", "userId", "userSettings"]),
     ...mapState("generic", [
       "isSharePlioDialogShown",
       "isEmbedPlioDialogShown",
@@ -664,6 +830,9 @@ export default {
       selectorInfo: "info",
     }),
     ...mapGetters("selectors", ["isSingleSelectorShown"]),
+    hasAnySettingsToRender() {
+      return this.settingsToRender.size > 0;
+    },
     /**
      * whether the router view is shown
      */
@@ -806,6 +975,13 @@ export default {
         `fill-current h-8 w-8`,
       ];
     },
+    settingsButtonIconConfig() {
+      return {
+        enabled: true,
+        iconName: "settings",
+        iconClass: this.menuButtonsIconClass,
+      };
+    },
     /**
      * whether the menu has been shown
      */
@@ -830,7 +1006,7 @@ export default {
     createButtonMenuTextConfig() {
       return {
         value: this.$t("home.create_button"),
-        class: "text-md sm:text-lg md:text-xl lg:text-2xl text-white",
+        class: "text-xl bp-500:text-lg md:text-xl lg:text-2xl text-white",
       };
     },
     /**
@@ -866,6 +1042,12 @@ export default {
     homeButtonTextConfig() {
       return {
         value: this.$t("nav.home"),
+        class: this.menuButtonsTextClass,
+      };
+    },
+    settingsButtonTextConfig() {
+      return {
+        value: this.$t("nav.settings"),
         class: this.menuButtonsTextClass,
       };
     },
@@ -959,6 +1141,7 @@ export default {
         this.isEmbedPlioDialogShown ||
         this.isDialogBoxShown ||
         this.isSpinnerShown ||
+        this.isSettingsMenuShown ||
         this.isSingleSelectorShown
       );
     },
@@ -969,8 +1152,8 @@ export default {
       if (this.user == null) return [];
       var shortcodes = [];
 
-      this.user.organizations.forEach((organization) => {
-        shortcodes.push(organization.shortcode);
+      this.user.organizations.forEach((workspace) => {
+        shortcodes.push(workspace.shortcode);
       });
 
       return shortcodes;
