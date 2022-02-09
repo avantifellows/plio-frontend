@@ -10,20 +10,20 @@ describe("Settings.vue", () => {
   let mountWrapper = (settingsToRender = null) => {
     wrapper = mount(Settings, {
       props: {
-        settings: (settingsToRender == null) ? null : clonedeep(settingsToRender),
+        settings: settingsToRender == null ? null : clonedeep(settingsToRender),
       },
     });
-  }
+  };
 
   it("should render with default values", () => {
     // wrapper = mount(Settings);
-    mountWrapper()
+    mountWrapper();
     expect(wrapper).toBeTruthy();
   });
 
   it("should render provided settings correctly", () => {
     store.dispatch("generic/setWindowInnerWidth", 1024);
-    mountWrapper(global.dummySettingsToRender)
+    mountWrapper(global.dummySettingsToRender);
     expect(wrapper.vm.localSettings).toEqual(global.dummySettingsToRender);
     expect(wrapper.vm.hasUnsavedChanges).toBeFalsy();
     expect(wrapper.vm.currentSelectedTabName).toBe("configuration");
@@ -39,7 +39,7 @@ describe("Settings.vue", () => {
 
   it("sets the clicked tab as selected", async () => {
     const selectTab = jest.spyOn(Settings.methods, "selectTab");
-    mountWrapper(global.dummySettingsToRender)
+    mountWrapper(global.dummySettingsToRender);
     await wrapper.get('[data-test="tab-appearance"]').trigger("click");
     expect(selectTab).toHaveBeenCalledWith(
       "appearance",
@@ -52,7 +52,7 @@ describe("Settings.vue", () => {
   });
 
   it("emits any changes made when save is clicked", async () => {
-    mountWrapper(global.dummySettingsToRender)
+    mountWrapper(global.dummySettingsToRender);
     await wrapper.get('[data-test="input"]').trigger("click");
     await wrapper.get('[data-test="saveButton"]').trigger("click");
     expect(wrapper.emitted()).toHaveProperty("update:settings");
@@ -60,7 +60,7 @@ describe("Settings.vue", () => {
   });
 
   it("emits close signal when cancel button is clicked", async () => {
-    mountWrapper(global.dummySettingsToRender)
+    mountWrapper(global.dummySettingsToRender);
     await wrapper.get('[data-test="cancelButton"]').trigger("click");
     expect(wrapper.emitted()).toHaveProperty("window-closed");
   });
