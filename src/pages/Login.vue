@@ -152,7 +152,7 @@
         :iconConfig="submitOTPIconConfig"
         :buttonClass="submitOTPButtonClass"
         v-if="requestedOtp"
-        :disabled="!isSubmitOTPEnabled || submitOTPIconConfig.enabled"
+        :disabled="!isSubmitOTPEnabled || isSubmitOTPInProgress"
         data-test="submitOTP"
       ></icon-button>
       <!-- button to request resending OTP -->
@@ -161,14 +161,10 @@
         :titleConfig="resendOTPTitleConfig"
         :buttonClass="resendOTPButtonClass"
         class="mt-2"
-        :isDisabled="submitOTPIconConfig.enabled"
-        v-if="requestedOtp && !resentOtp"
+        :isDisabled="isSubmitOTPInProgress || !isResendOTPEnabled"
+        v-if="requestedOtp"
         data-test="resendOTP"
       ></icon-button>
-      <!-- text to show when OTP has been resent -->
-      <p v-if="resentOtp" class="text-center mt-2">
-        {{ $t("login.otp.resent") }}
-      </p>
 
       <!-- terms and service declaration message -->
       <div class="p-2 rounded flex items-start max-w-xl mx-auto mt-4 space-x-1">
@@ -216,7 +212,7 @@ export default {
     isRequestOtpEnabled() {
       if (!this.isRequestOtpEnabled) {
         this.requestedOtp = false;
-        this.resentOtp = false;
+        if (this.resendOTPTimer) clearInterval(this.otpTimerInterval);
       }
     },
   },
@@ -224,8 +220,9 @@ export default {
     return {
       phoneInput: "", // phone input text
       otpInput: "", // otp input text
+      resendOTPTimer: 0, // the count of the timer
+      otpTimerInterval: 0, // to reset the otp timer
       requestedOtp: false, // whether the user has requested OTP once
-      resentOtp: false, // whether the user has requested to resend OTP
       invalidOtp: false, // whether the OTP is invalid
       toast: useToast(),
       warningIcon: require("@/assets/images/exclamation-circle-solid.svg"),
@@ -277,6 +274,13 @@ export default {
         iconName: "spinner-solid",
         iconClass: "animate-spin h-4 object-scale-down text-white",
       };
+    },
+    /**
+     * whether the button for resending OTP is enabled
+     */
+    isResendOTPEnabled() {
+      if (!this.resendOTPTimer) return true;
+      return false;
     },
     routeParams() {
       // returns the params for where the user should be directed to
@@ -349,8 +353,16 @@ export default {
     },
     resendOTPTitleConfig() {
       // title config for the resend OTP button
+      if (!this.isResendOTPEnabled) {
+        return {
+          value:
+            this.$t("login.otp.resend.timer.1") +
+            this.resendOTPTimer +
+            this.$t("login.otp.resend.timer.2"),
+        };
+      }
       return {
-        value: this.$t("login.otp.resend"),
+        value: this.$t("login.otp.resend.no_timer"),
       };
     },
     resendOTPButtonClass() {
@@ -395,16 +407,31 @@ export default {
       // whether the phone number entered by the user is valid
       return this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g) != null;
     },
+    /**
+     *  counts seconds before enabling resend OTP button
+     *
+     * @param {Number} seconds - the number of seconds for which the timer is to be run
+     */
+    startResendOTPTimer(seconds = 60) {
+      this.resendOTPTimer = seconds;
+      this.otpTimerInterval = setInterval(() => {
+        this.resendOTPTimer--;
+        if (!this.resendOTPTimer) clearInterval(this.otpTimerInterval);
+      }, 1000);
+    },
     requestOtp() {
       // requests OTP for the first time
       UserAPIService.requestOtp(this.formattedPhoneInput);
       this.requestedOtp = true;
+      this.startResendOTPTimer();
+      this.otpInput = "";
       this.invalidOtp = false;
     },
     resendOtp() {
       // resends OTP on user request
       UserAPIService.requestOtp(this.formattedPhoneInput);
-      this.resentOtp = true;
+      this.startResendOTPTimer();
+      this.otpInput = "";
       this.invalidOtp = false;
     },
     phoneLogin() {
