@@ -55,6 +55,7 @@
           :videoPlayerElementId="plioVideoPlayerElementId"
           v-model:isFullscreen="isFullscreen"
           v-model:responseList="itemResponses"
+          :configuration="configuration"
           @skip-question="skipQuestion"
           @proceed-question="proceedQuestion"
           @revise-question="reviseQuestion"
@@ -96,7 +97,8 @@ import ItemModal from "@/components/Player/ItemModal.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 import { mapActions, mapState, mapGetters } from "vuex";
-import { resetConfetti } from "@/services/Functional/Utilities.js";
+import { resetConfetti } from "@/services/Functional/Utilities/Generic.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 
 var isEqual = require("deep-eql");
 
@@ -104,7 +106,7 @@ var isEqual = require("deep-eql");
 var POP_UP_CHECKING_FREQUENCY = 0.5;
 var POP_UP_PRECISION_TIME = POP_UP_CHECKING_FREQUENCY * 1000;
 
-// The time period in which Plyr timeupdate event repeats
+// the time period in which Plyr timeupdate event repeats
 // in seconds
 const PLYR_INTERVAL_TIME = 0.05;
 
@@ -199,6 +201,7 @@ export default {
       plioTitle: "", // title of the plio
       isAspectRatioChecked: false, // whether the check for aspect ratio has been done
       watchingEventDBId: null, // the DB id of the latest 'watching' event for a given session
+      plioSettings: null, // stores this plio's settings
     };
   },
   watch: {
@@ -258,7 +261,7 @@ export default {
       })
         .then(async (response) => {
           await this.setAccessToken(response.data);
-          await this.setActiveWorkspace(this.org);
+          await this.setActiveWorkspace(this.workspace);
           thirdPartyAuthPromiseResolve();
         })
         .catch((error) => {
@@ -273,7 +276,7 @@ export default {
             this.$router.replace({
               name: "Player",
               params: {
-                org: this.org,
+                workspace: this.workspace,
                 plioId: this.plioId,
               },
             });
@@ -286,7 +289,7 @@ export default {
     await thirdPartyAuthPromise;
 
     // load plio details
-    await this.fetchPlioCreateSession();
+    this.fetchPlioCreateSession();
 
     // add listener for screen size being changed
     window.addEventListener("resize", this.setScreenProperties);
@@ -304,7 +307,7 @@ export default {
       default: "",
       type: String,
     },
-    org: {
+    workspace: {
       default: "",
       type: String,
     },
@@ -335,6 +338,9 @@ export default {
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
     ...mapState("generic", ["windowInnerWidth", "windowInnerHeight"]),
+    configuration() {
+      return this.plioSettings.get("player").children.get("configuration").children;
+    },
     /**
      * whether player has the correct aspect ratio as desired
      */
@@ -505,6 +511,7 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
+
     /**
      * sets various properties based on the screen size
      */
@@ -712,8 +719,8 @@ export default {
     /**
      * fetches plio details and creates a new session
      */
-    async fetchPlioCreateSession() {
-      await PlioAPIService.getPlio(this.plioId, true)
+    fetchPlioCreateSession() {
+      PlioAPIService.getPlio(this.plioId, true)
         .then((plioDetails) => {
           /**
            * redirect to 404 if the plio is not published
@@ -729,6 +736,7 @@ export default {
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
           this.plioTitle = plioDetails.plioTitle;
+          this.plioSettings = SettingsUtilities.setPlioSettings(plioDetails.config);
         })
         .then(() => this.createSession())
         .then(() => this.logData());
@@ -894,7 +902,7 @@ export default {
     playerReady() {
       // invoked when the player is ready
       this.showItemMarkersOnSlider();
-      // Only show the scorecard when items are present in the plio
+      // only show the scorecard when items are present in the plio
       if (this.isScorecardEnabled) this.showScorecardMarkerOnSlider();
       this.setPlayerTime(this.currentTimestamp);
       this.$mixpanel.track("Visit Player", {
@@ -905,7 +913,7 @@ export default {
       // sets various properties based on the screen size
       this.setScreenProperties();
 
-      // Disabling autoplay because of bug - issue #157
+      // disabling autoplay because of bug - issue #157
       // this.playPlayer();
     },
     /**
@@ -941,7 +949,7 @@ export default {
         let existingMarker = document.getElementById(`plioModalMarker-${index}`);
         if (existingMarker != undefined) this.removeMarkerOnSlider(existingMarker);
 
-        // Add marker to player seek bar
+        // add marker to player seek bar
         let newMarker = document.createElement("SPAN");
         newMarker.setAttribute("id", `plioModalMarker-${index}`);
 
@@ -959,7 +967,7 @@ export default {
      * Place the marker emoji for scorecard on the plyr progress bar
      */
     showScorecardMarkerOnSlider() {
-      // Add marker to player seek bar
+      // add marker to player seek bar
       let newMarker = document.createElement("p");
       newMarker.setAttribute("id", `plioScorecardMarker`);
 

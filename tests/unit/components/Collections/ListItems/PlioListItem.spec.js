@@ -86,6 +86,9 @@ describe("PlioListItem.vue", () => {
 
       // now the screen size should be classified as true
       expect(wrapper.vm.isTabScreen).toBeTruthy();
+
+      // reset the value of the window width
+      store.dispatch("generic/setWindowInnerWidth", 1024);
     });
 
     describe("action buttons", () => {
@@ -171,7 +174,7 @@ describe("PlioListItem.vue", () => {
         expect(mockRouter.push).toHaveBeenCalledWith({
           name: "Editor",
           params: {
-            org: "",
+            workspace: "",
             plioId: plioDetails.uuid,
           },
         });
@@ -370,7 +373,7 @@ describe("PlioListItem.vue", () => {
           expect(mockRouter.resolve).toHaveBeenCalledWith({
             name: "Player",
             params: {
-              org: "",
+              workspace: "",
               plioId: plioDetails.uuid,
             },
           });
@@ -416,7 +419,7 @@ describe("PlioListItem.vue", () => {
           expect(mockRouter.push).toHaveBeenCalledWith({
             name: "Dashboard",
             params: {
-              org: "",
+              workspace: "",
               plioId: plioDetails.uuid,
             },
           });

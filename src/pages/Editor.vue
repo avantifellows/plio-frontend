@@ -11,6 +11,17 @@
         <p class="my-2 sm:my-4 text-xs lg:text-sm text-gray-500" :class="syncStatusClass">
           {{ syncStatusText }}
         </p>
+
+        <!-- settings button -->
+        <icon-button
+          v-if="hasAnySettingsToRender"
+          :iconConfig="settingsButtonIconConfig"
+          :buttonClass="settingsButtonClass"
+          @click="showSettingsMenu"
+          data-test="settingsButton"
+          id="settingsButton"
+          v-tooltip="{ content: $t('tooltip.editor.settings'), placement: 'top' }"
+        ></icon-button>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 items-stretch">
@@ -413,7 +424,7 @@
         <Plio
           class="w-full"
           :plioId="plioId"
-          :org="org"
+          :workspace="workspace"
           :previewMode="true"
           :key="reRenderKey"
           containerClass="h-full"
@@ -493,6 +504,17 @@
         </div>
       </div>
     </div>
+    <Settings
+      class="fixed z-20 justify-center mx-auto"
+      @window-closed="closeSettingsMenu"
+      :plioStatus="status"
+      v-if="isSettingsMenuShown"
+      v-model:settings="settingsToRender"
+      v-click-away="closeSettingsMenu"
+      @updated="updateSettings"
+      data-test="settings"
+      ref="settings"
+    ></Settings>
   </div>
 </template>
 
@@ -506,6 +528,7 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import ItemModal from "@/components/Player/ItemModal.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
+import Settings from "@/components/App/Settings.vue";
 
 import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
@@ -514,10 +537,13 @@ import ImageAPIService from "@/services/API/Image.js";
 import VideoAPIService from "@/services/API/Video.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
-import Utilities, {
+import GenericUtilities, {
   throwConfetti,
   resetConfetti,
-} from "@/services/Functional/Utilities.js";
+  getVideoDuration,
+} from "@/services/Functional/Utilities/Generic.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
+
 import { mapActions, mapState, mapGetters } from "vuex";
 import debounce from "debounce";
 import { useToast } from "vue-toastification";
@@ -553,13 +579,14 @@ export default {
     ItemModal,
     ImageUploaderDialog,
     Plio,
+    Settings,
   },
   props: {
     plioId: {
       default: "",
       type: String,
     },
-    org: {
+    workspace: {
       default: "",
       type: String,
     },
@@ -605,6 +632,8 @@ export default {
       sliderStep: 0.1, // timestep for the slider
       itemTimestamps: [], // stores the list of the timestamps of all items
       videoURL: "", // full video url
+      isVideoValidationEnabled: false,
+      isVideoIdValid: false,
       lastUpdated: new Date(), // time when the last update to remote was made
       minUpdateInterval: 1000, // minimum time in milliseconds between updates
       isBeingPublished: false, // whether the current plio is in the process of being published
@@ -639,6 +668,14 @@ export default {
         iconName: "share",
         iconClass: "text-yellow-800 fill-current h-3 bp-360:h-4 w-3 bp-360:w-4",
       },
+      settingsButtonIconConfig: {
+        enabled: true,
+        iconName: "settings",
+        iconClass:
+          "text-primary group-hover:text-white fill-current h-4 w-4 bp-500:h-6 bp-500:w-6",
+      },
+      settingsButtonClass:
+        "bg-gray-100 hover:bg-primary bp-500:p-2 p-1 bp-500:px-4 px-2 rounded-md border-b-outset mt-2",
       // styling class for the play plio button
       playPlioButtonClass: "bg-primary hover:bg-primary-hover p-2 px-4 rounded-md",
       // styling class for the copy draft button
@@ -696,11 +733,15 @@ export default {
         "font-bold text-center text-xs bp-420:text-sm lg:test-base",
       confettiHandler: confettiHandler,
       toast: useToast(),
+      isSettingsMenuShown: false,
+      plioSettings: null, // the settings for the opened plio
+      settingsToRender: new Map(), // the settings + metadata that needs to be rendered
+      newVideoDetails: null, // details for a video being considered for updating the video inside a plio
     };
   },
-  async created() {
+  created() {
     // fetch plio details
-    await this.loadPlio();
+    this.loadPlio();
 
     // debounce checkAndSaveChanges method
     this.checkAndSaveChanges = debounce(this.checkAndSaveChanges, DEBOUNCE_DELAY_TIME);
@@ -710,9 +751,15 @@ export default {
     clearInterval(this.savingInterval);
   },
   watch: {
+    isSettingsMenuShown(value) {
+      // don't show the settings tooltip if the settings menu is open
+      const tooltip = document.getElementById("settingsButton")._tippy;
+      if (tooltip == undefined) return;
+      value ? tooltip.disable() : tooltip.enable();
+    },
     /**
      * Whenever itemTimestamps is updated, check if the current item timestamp is
-     * greater than the minimum allowed timestamp or not. If it's not, then adjust it.
+     * greater than the minimum allowed timestamp or not. If it is not, then adjust it.
      */
     itemTimestamps() {
       // set minimum question timestamp as MINIMUM_QUESTION_TIMESTAMP
@@ -746,6 +793,14 @@ export default {
             // the dialog would already be closed
             // nothing else needs to be done
             break;
+          case "updateVideoPlayer":
+            this.player.destroy();
+            this.updateVideoPlayer(
+              this.newVideoDetails.videoId,
+              this.newVideoDetails.videoURL,
+              this.newVideoDetails.videoDuration
+            );
+            break;
           default:
             // this watch will be triggered whenever the confirm button
             // of the shared dialog box will be clicked
@@ -778,6 +833,13 @@ export default {
               this.togglePlioPreviewMode();
             }
             break;
+          case "updateVideoPlayer":
+            // if the user chooses to not update the video,
+            // we have to revert the video link in the input field
+            // to the url of the existing video
+            this.videoURL = this.newVideoDetails.oldVideoURL;
+            this.newVideoDetails = null;
+            break;
           default:
             // this watch will be triggered whenever the cancel button
             // of the shared dialog box will be clicked
@@ -798,25 +860,60 @@ export default {
      * When video url is updated, check its validity; if valid, update the player with the new URL
      * and push the updated video object to the backend
      * @param {String} newVideoURL - The new video URL that the user has entered
+     * @param {String} oldVideoURL - The old video URL that has been changed
      */
-    videoURL(newVideoURL) {
+    async videoURL(newVideoURL, oldVideoURL) {
       // invoked when the video link is updated
-      var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
-      if (!linkValidation["valid"]) return;
+      let linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(newVideoURL);
+      // return if the link was invalid or was reset to the previous valid url
+      if (!linkValidation["valid"] || linkValidation["ID"] == this.videoId) {
+        if (this.videoId == "") {
+          // without this, everytime the editor is loaded, even though a valid video
+          // has been added, momentarily it would show that the video link is invalid
+          // this is because the it takes some time for video ID to be changed from "" to the value
+          // that is stored for the plio
+          this.isVideoIdValid = false;
+          if (!this.isVideoValidationEnabled) this.isVideoValidationEnabled = true;
+        }
+        return;
+      }
 
-      if (this.isVideoIdValid && linkValidation["ID"] != this.videoId) {
+      let videoDuration;
+      // error handling with async/await
+      // reference: https://itnext.io/error-handling-with-async-await-in-js-26c3f20bc06a
+      // rejected promise goes into the catch: https://stackoverflow.com/a/42453705/7870587
+      await (async () => {
+        try {
+          this.showSpinner();
+          videoDuration = await getVideoDuration(linkValidation["ID"]);
+        } catch (_) {
+          this.toast.error(this.$t("toast.editor.video_input.error.invalid_video"));
+        }
+        this.hideSpinner();
+      })();
+
+      // video link was invalid
+      if (videoDuration == undefined) return;
+
+      if (this.videoId != "") {
+        // warn users when there are items at timestamps greater
+        // than the duration of the new video
+        if (this.hasAnyItems && this.items.at(-1).time > videoDuration) {
+          this.newVideoDetails = {
+            videoId: linkValidation["ID"],
+            videoURL: newVideoURL,
+            videoDuration,
+            oldVideoURL,
+          };
+          this.showVideoUpdateConfirmationDialogBox();
+          return;
+        }
         this.player.destroy();
       }
-      this.videoId = linkValidation["ID"];
-
-      if (this.loadedPlioDetails.videoURL == newVideoURL) return;
-      this.checkAndSaveChanges("video", this.videoDBId, {
-        url: newVideoURL,
-        duration: this.videoDuration,
-      });
+      this.updateVideoPlayer(linkValidation["ID"], newVideoURL, videoDuration);
     },
     /**
-     * When plio's title is updated, check if it's different than the loaded plio's title
+     * When plio's title is updated, check if it is different than the loaded plio's title
      * and push the updated title to the backend
      */
     plioTitle(newTitle) {
@@ -839,13 +936,17 @@ export default {
   computed: {
     ...mapState("sync", ["uploading", "pending"]),
     ...mapState("generic", ["isEmbedPlioDialogShown"]),
-    ...mapGetters("auth", ["isPersonalWorkspace"]),
+    ...mapGetters("auth", ["isPersonalWorkspace", "userRoleInActiveWorkspace"]),
+    ...mapState("auth", ["userSettings", "activeWorkspace"]),
     ...mapState("dialog", {
       isDialogBoxShown: "isShown",
       dialogAction: "action",
       isDialogConfirmClicked: "isConfirmClicked",
       isDialogCancelClicked: "isCancelClicked",
     }),
+    hasAnySettingsToRender() {
+      return this.settingsToRender.size > 0;
+    },
     /**
      * whether the spinner needs to be shown
      */
@@ -1057,7 +1158,7 @@ export default {
      */
     videoInputValidation() {
       return {
-        enabled: this.videoURL,
+        enabled: this.isVideoValidationEnabled,
         isValid: this.isVideoIdValid,
         validMessage: this.$t("editor.video_input.validation.valid"),
         invalidMessage: this.$t("editor.video_input.validation.invalid"),
@@ -1067,7 +1168,8 @@ export default {
      * returns the player instance
      */
     player() {
-      return this.$refs.videoPlayer.player;
+      if (this.$refs.videoPlayer != null) return this.$refs.videoPlayer.player;
+      return null;
     },
     /**
      * get the correct answer for the question
@@ -1093,7 +1195,8 @@ export default {
         this.isImageUploaderDialogShown ||
         this.isPublishedPlioDialogShown ||
         this.isEmbedPlioDialogShown ||
-        (this.isPlioPreviewShown && this.isPlioPreviewLoaded)
+        (this.isPlioPreviewShown && this.isPlioPreviewLoaded) ||
+        this.isSettingsMenuShown
       );
     },
     /**
@@ -1196,7 +1299,10 @@ export default {
      * whether there are any items
      */
     hasAnyItems() {
-      return this.items.length != 0;
+      return this.numItems != 0;
+    },
+    numItems() {
+      return this.items.length;
     },
     /**
      * whether the plio has been pubished
@@ -1233,13 +1339,7 @@ export default {
      * prepare the link for the plio from the plio ID
      */
     plioLink() {
-      return this.getPlioLink(this.plioId, this.org);
-    },
-    /**
-     * whether the video Id is valid
-     */
-    isVideoIdValid() {
-      return this.videoId != "";
+      return GenericUtilities.getPlioLink(this.plioId, this.workspace);
     },
     /**
      * title for the dialog box that appears when publishing a
@@ -1311,12 +1411,135 @@ export default {
       "unsetConfirmClicked",
       "unsetCancelClicked",
     ]),
-    ...Utilities,
+    getImageSource: GenericUtilities.getImageSource,
+    /**
+     * Update the settings stored in the store and on the server as well
+     * @param {Object} updatedSettings - details about the leaf settings that the user has updated
+     */
+    updateSettings(updatedSettings) {
+      // The updatedSettings object contains all the settings that have been updated.
+      // Each updated setting has the following keys:
+      // headerName - name of the header to which the updated setting belongs to
+      // tabName - name of the tab to which the updated setting belongs to
+      // leafName - name of the updated leaf setting
+      // newValue - the updated value
+      Object.keys(updatedSettings).forEach((key) => {
+        let setting = updatedSettings[key];
+        this.plioSettings
+          .get(setting.headerName)
+          .children.get(setting.tabName)
+          .children.get(setting.leafName).value = setting.newValue;
+
+        if (!this.isPublished)
+          PlioAPIService.updatePlioSettings(this.plioId, this.plioSettings);
+        else this.publishPlio();
+      });
+    },
+    /**
+     * This method constructs the settings menu that needs to be rendered when settings menu is open.
+     * We iterate through the different levels of a settings object.
+     * For each of the leaf settings, which are the last leaf of the object, we attach some metadata to it,
+     * and add a watcher which will trigger when the value for that setting has been changed.
+     */
+    constructSettingsMenu() {
+      // keep a clone of the plio settings in a local variable
+      this.settingsToRender = clonedeep(this.plioSettings);
+      SettingsUtilities.prepareSettingsToRender(this.settingsToRender, false);
+    },
+    closeSettingsMenu() {
+      this.isSettingsMenuShown = false;
+    },
+    showSettingsMenu() {
+      this.isSettingsMenuShown = true;
+    },
+    /**
+     * remove a sequence of items
+     *
+     * @param {Number} startIndex - index of the first item to be deleted
+     * @param {Number} numItemsToRemove - number of items to remove starting from the item at startIndex
+     */
+    removeItems(startIndex, numItemsToRemove = 1) {
+      this.itemDetails.splice(startIndex, numItemsToRemove);
+      let itemsToDelete = this.items.splice(startIndex, numItemsToRemove);
+      this.updateItemTimestamps();
+      return itemsToDelete;
+    },
+    isItemQuestion(index) {
+      return this.items[index].type == "question";
+    },
+    /**
+     * shows the dialog box for confirming whether to update the video link
+     */
+    showVideoUpdateConfirmationDialogBox() {
+      // set dialog properties
+      this.setDialogTitle(this.$t("editor.dialog.video_update.title"));
+      this.setDialogDescription(this.$t("editor.dialog.video_update.description"));
+      this.setDialogCloseButton();
+      this.setConfirmButtonConfig({
+        enabled: true,
+        text: this.$t(`generic.yes`),
+        class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
+      });
+      this.setCancelButtonConfig({
+        enabled: true,
+        text: this.$t(`generic.no`),
+        class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
+      });
+      this.setDialogBoxClass("w-72");
+      // closing the dialog executes this action
+      this.setDialogAction("updateVideoPlayer");
+      // show the dialog box
+      this.showDialogBox();
+    },
+    /**
+     * update the video player with a new video
+     *
+     * @param {Number} videoId - youtube id of the new video
+     * @param {String} videoURL - link of the new video
+     * @param {Number} videoDuration - duration of the new video
+     */
+    updateVideoPlayer(videoId, videoURL, videoDuration) {
+      // update the video
+      this.videoId = videoId;
+      this.isVideoIdValid = true;
+
+      this.checkAndSaveChanges("video", this.videoDBId, {
+        url: videoURL,
+        duration: videoDuration,
+      });
+
+      // delete items with timestamp larger than the updated video duration
+      let itemIdsToDelete = []; // database ids of the items to be removed
+      let deleteStartIndex; // the index of the first item to be deleted
+      for (let index = this.numItems - 1; index >= 0; index--) {
+        if (this.items[index].time >= videoDuration) {
+          deleteStartIndex = index;
+          itemIdsToDelete.push(this.items[index].id);
+
+          // if an item to be removed is currently active, unselect it
+          if (this.currentItemIndex == index) {
+            this.currentTimestamp = 0;
+            this.markNoItemSelected();
+          }
+        } else break;
+      }
+
+      // no items to be deleted
+      if (deleteStartIndex == undefined) return;
+
+      ItemAPIService.bulkDelete({
+        id: itemIdsToDelete,
+      });
+      // remove the required items from the video player
+      this.removeItems(deleteStartIndex, itemIdsToDelete.length);
+    },
     /**
      * copies the plio draft link to the clipboard
      */
     copyPlioDraftLink() {
-      let success = this.copyToClipboard(this.getPlioDraftLink(this.plioId, this.org));
+      let success = GenericUtilities.copyToClipboard(
+        GenericUtilities.getPlioDraftLink(this.plioId, this.workspace)
+      );
 
       if (success) this.toast.success(this.$t("toast.success.copying"));
       else this.toast.error(this.$t("toast.error.copying"));
@@ -1441,7 +1664,7 @@ export default {
       if (!this.isPublished) return;
       let routeData = this.$router.resolve({
         name: "Player",
-        params: { org: this.org, plioId: this.plioId },
+        params: { workspace: this.workspace, plioId: this.plioId },
       });
       // required for opening in a new tab
       window.open(routeData.href, "_blank");
@@ -1453,7 +1676,7 @@ export default {
       if (!this.isPublished) return;
       this.$router.push({
         name: "Dashboard",
-        params: { org: this.org, plioId: this.plioId },
+        params: { workspace: this.workspace, plioId: this.plioId },
       });
     },
     /**
@@ -1517,7 +1740,7 @@ export default {
      * returns the user back to Home
      */
     returnToHome() {
-      this.$router.push({ name: "Home", params: { org: this.org } });
+      this.$router.push({ name: "Home", params: { workspace: this.workspace } });
     },
     /**
      * navigate the player to the item selected in the item editor
@@ -1527,7 +1750,7 @@ export default {
     navigateToItem(itemIndex) {
       if (itemIndex == null) return;
 
-      var selectedTimestamp = this.items[itemIndex].time;
+      let selectedTimestamp = this.items[itemIndex].time;
       if (selectedTimestamp != null) {
         this.currentTimestamp = selectedTimestamp;
         this.itemSelected(itemIndex);
@@ -1691,8 +1914,10 @@ export default {
      * sets variables once the player instance is ready
      */
     playerReady() {
-      this.videoDuration = this.player.duration;
-      if (!this.plioTitle) this.plioTitle = this.player.config.title;
+      if (this.player != undefined) {
+        this.videoDuration = this.player.duration;
+        if (!this.plioTitle) this.plioTitle = this.player.config.title;
+      }
       // re-render the plio preview component
       this.reRenderKey = !this.reRenderKey;
     },
@@ -1700,8 +1925,8 @@ export default {
      * checks if the video link is valid
      */
     isVideoLinkValid(link) {
-      var pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
-      var matches = link.match(pattern);
+      let pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+      let matches = link.match(pattern);
       if (matches) {
         return { valid: true, ID: matches[1] };
       }
@@ -1710,9 +1935,9 @@ export default {
     /**
      * fetches the details of the plio
      */
-    async loadPlio() {
+    loadPlio() {
       this.startLoading();
-      await PlioAPIService.getPlio(this.plioId)
+      PlioAPIService.getPlio(this.plioId)
         .then((plioDetails) => {
           this.loadedPlioDetails = clonedeep(plioDetails);
           this.items = plioDetails.items || [];
@@ -1727,6 +1952,10 @@ export default {
           this.hasUnpublishedChanges = false;
           this.videoDBId = plioDetails.videoDBId;
           this.plioDBId = plioDetails.plioDBId;
+          this.plioSettings = SettingsUtilities.setPlioSettings(
+            this.loadedPlioDetails.config
+          );
+          this.constructSettingsMenu();
           this.stopLoading();
         })
         .then(() => {
@@ -1790,7 +2019,7 @@ export default {
 
           // update all the item details
           this.itemDetails.forEach(async (itemDetail, index) => {
-            if (this.items[index].type == "question") {
+            if (this.isItemQuestion(index)) {
               await this.updateQuestionDetails(itemDetail.id, itemDetail);
             }
           });
@@ -1816,7 +2045,7 @@ export default {
     async updateVideo(id, payload) {
       // 'url' key in the payload is a required field
       if (id == null && Object.prototype.hasOwnProperty.call(payload, "url")) {
-        // Create the video and link it to the plio
+        // create the video and link it to the plio
         let createdVideo = await VideoAPIService.createVideo(payload);
         this.videoDBId = createdVideo.data.id;
         await this.updatePlio(this.plioId, { video: this.videoDBId });
@@ -1865,6 +2094,7 @@ export default {
       // and update the changes only if already published
       this.isBeingPublished = true;
       this.status = "published";
+      PlioAPIService.updatePlioSettings(this.plioId, this.plioSettings);
       await this.saveChanges("all");
       this.isBeingPublished = false;
       this.isPublishedPlioDialogShown = true;
@@ -2093,10 +2323,8 @@ export default {
       this.clearItemAndItemDetailWatcher(currentItem.id);
 
       // remove the item and itemDetails locally and remotely
-      this.itemDetails.splice(this.currentItemIndex, 1);
-      var itemToDelete = this.items.splice(this.currentItemIndex, 1);
-      this.updateItemTimestamps();
-      ItemAPIService.deleteItem(itemToDelete[0].id);
+      let itemToDelete = this.removeItems(this.currentItemIndex)[0];
+      ItemAPIService.deleteItem(itemToDelete.id);
       // set currentItemIndex to null to hide the item editor
       this.currentItemIndex = null;
     },

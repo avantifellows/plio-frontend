@@ -11,6 +11,7 @@ export default {
     teams: "Plio for Teams",
     abtesting: "",
     player: "",
+    settings: "Settings",
     404: "Error",
   },
   editor: {
@@ -122,6 +123,11 @@ export default {
           home: "Home",
         },
         title: "Hooray! Your Plio is ready 🥳",
+      },
+      video_update: {
+        title: "Are you sure you want to update the video link?",
+        description:
+          "Some of your questions that are present at timestamps greater than the duration of the video will be deleted",
       },
       share_plio: {
         title: "Share this Plio",
@@ -473,6 +479,7 @@ export default {
       share_plio: "Share this plio with your viewers",
       play_plio: "Try out the created plio yourself",
       embed_plio: "Embed this plio",
+      settings: "Change the settings for this plio",
     },
     home: {
       table: {
@@ -515,6 +522,15 @@ export default {
           "Average number of questions answered by each viewer",
       },
     },
+    settings: {
+      buttons: {
+        save: {
+          hasUnsavedChanges: "Save your changes",
+          noUnsavedChanges: "Nothing to save",
+        },
+        cancel: "",
+      },
+    },
   },
   dashboard: {
     updated: "Last published on",
@@ -540,6 +556,36 @@ export default {
       },
     },
   },
+  settings: {
+    buttons: {
+      save: {
+        draft: "Save",
+        published: "Save and Publish",
+      },
+      cancel: "Cancel",
+    },
+    menu: {
+      title: {
+        skipEnabled: "Viewers can skip questions while attempting plios",
+      },
+      description: {
+        skipEnabled: "Provide viewers the option to skip a question",
+      },
+      info:
+        "The new settings will only apply to plios created in the future and not the existing plios",
+    },
+    sidebar: {
+      header: {
+        player: "Player",
+      },
+      tab: {
+        configuration: "Configuration",
+      },
+    },
+    badge: {
+      admin: "Admin",
+    },
+  },
   toast: {
     login: {
       otp: {
@@ -553,6 +599,7 @@ export default {
       create_plio: "Could not create Plio. Please try again",
       copying: "Error while copying",
       internet_lost: "Internet connection lost",
+      generic: "Something went wrong. Please try again!",
     },
     success: {
       copying: "Link Copied Successfully",
@@ -563,6 +610,11 @@ export default {
         correct_answer: {
           unmark_last_selected_option_warning:
             "At least one option should be selected as the correct answer",
+        },
+      },
+      video_input: {
+        error: {
+          invalid_video: "Invalid video link",
         },
       },
     },

@@ -78,7 +78,7 @@
               {{ $t("dashboard.summary.number_of_viewers") }}
             </p>
             <p :class="textMetricValueClass" data-test="numViewers">
-              {{ numberOfViewers }}
+              {{ numViewers }}
             </p>
           </div>
         </div>
@@ -276,7 +276,7 @@ export default {
       default: "",
       type: String,
     },
-    org: {
+    workspace: {
       default: "",
       type: String,
     },
@@ -321,7 +321,7 @@ export default {
   computed: {
     ...mapState("sync", ["pending"]),
     // styling class for the first type of metric
-    numberOfViewers() {
+    numViewers() {
       // total number of unique viewers
       return this.plioMetrics["unique_viewers"] || 0;
     },
@@ -411,7 +411,7 @@ export default {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
     async fetchData() {
       this.loadPlio();
-      this.loadMetrics();
+      await this.loadMetrics();
     },
     // styling class for the second type of metric
     getCardMetricValueClass(metricValue) {
@@ -458,7 +458,7 @@ export default {
       this.$mixpanel.track("Visit Dashboard", {
         "Plio UUID": this.plioId,
         "Plio Average Watch Time": this.averageWatchTime,
-        "Plio Number of Viewers": this.numberOfViewers,
+        "Plio Number of Viewers": this.numViewers,
         "Plio Retention At 1 Minute": this.oneMinuteRetention,
         "Plio Accuracy": this.accuracy,
         "Plio Completion Rate": this.completionRate,
@@ -475,13 +475,13 @@ export default {
     editPlio() {
       this.$router.push({
         name: "Editor",
-        params: { plioId: this.plioId, org: this.org },
+        params: { plioId: this.plioId, workspace: this.workspace },
       });
     },
     playPlio() {
       this.$router.push({
         name: "Player",
-        params: { plioId: this.plioId, org: this.org },
+        params: { plioId: this.plioId, workspace: this.workspace },
       });
     },
     downloadReport() {

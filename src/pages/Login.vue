@@ -185,7 +185,7 @@ import InputText from "@/components/UI/Text/InputText.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { mapActions, mapState } from "vuex";
 import { useToast } from "vue-toastification";
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 
 // interval to keep checking if google authentication is ready
 const GAUTH_VALID_CHECK_INTERVAL = 200;
@@ -402,7 +402,7 @@ export default {
   methods: {
     ...mapActions("auth", ["setAccessToken"]),
     ...mapActions("sync", ["startLoading", "stopLoading"]),
-    ...Utilities,
+    getImageSource: GenericUtilities.getImageSource,
     isPhoneValid() {
       // whether the phone number entered by the user is valid
       return this.phoneInput.toString().match(/^([0]|\+91)?[6-9]\d{9}$/g) != null;
@@ -486,7 +486,7 @@ export default {
       this.$router.replace(this.routeParams);
       this.$mixpanel.register({
         "User Status": this.user.status,
-        "Current Workspace": this.routeParams.params.org || "",
+        "Current Workspace": this.routeParams.params.workspace || "",
       });
       this.$mixpanel.track("Login", {
         "Login Type": loginType,

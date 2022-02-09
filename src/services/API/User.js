@@ -8,7 +8,9 @@ import {
   convertTokenEndpoint,
   refreshTokenEndpoint,
   externalAuthTokenEndpoint,
+  settingsEndpoint,
 } from "@/services/API/Endpoints.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 import store from "@/store";
 
 export default {
@@ -87,5 +89,17 @@ export default {
     }
 
     return Promise.reject("Refresh token not found in local storage");
+  },
+
+  /**
+   * @param {Number} userId - id of the user whose settings need to be updated
+   * @param {Map} payload - the new value for settings
+   */
+  updateUserSettings(userId, payload) {
+    payload = SettingsUtilities.encodeMapToPayload(payload);
+    return apiClient().patch(
+      usersEndpoint + userId + settingsEndpoint,
+      payload
+    );
   },
 };

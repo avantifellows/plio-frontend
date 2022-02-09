@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 
 export default {
@@ -82,7 +82,7 @@ export default {
     },
   },
   methods: {
-    ...Utilities,
+    getImageSource: GenericUtilities.getImageSource,
     /**
      * returns the user back to Home
      */

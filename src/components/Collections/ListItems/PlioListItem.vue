@@ -53,7 +53,7 @@
 import PlioAPIService from "@/services/API/Plio.js";
 import ItemAPIService from "@/services/API/Item.js";
 import QuestionAPIService from "@/services/API/Question.js";
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import OptionDropdown from "@/components/UI/Selectors/OptionDropdown.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
@@ -239,7 +239,8 @@ export default {
     },
     /** link to the player for a plio */
     plioLink() {
-      if (this.plioId != "") return this.getPlioLink(this.plioId, this.activeWorkspace);
+      if (this.plioId != "")
+        return GenericUtilities.getPlioLink(this.plioId, this.activeWorkspace);
       return "";
     },
     /** whether the plio does not have a title */
@@ -311,7 +312,6 @@ export default {
       "unsetCancelClicked",
     ]),
     ...mapActions("selectors", ["showSelector"]),
-    ...Utilities,
     /**
      * sets various attributes based on the screen size
      */
@@ -412,7 +412,7 @@ export default {
       // invoked when play button is clicked
       let routeData = this.$router.resolve({
         name: "Player",
-        params: { org: this.activeWorkspace, plioId: this.plioId },
+        params: { workspace: this.activeWorkspace, plioId: this.plioId },
       });
       // required for opening in a new tab
       window.open(routeData.href, "_blank");
@@ -421,7 +421,7 @@ export default {
       // invoked when edit button is clicked
       this.$router.push({
         name: "Editor",
-        params: { plioId: this.plioId, org: this.activeWorkspace },
+        params: { plioId: this.plioId, workspace: this.activeWorkspace },
       });
     },
     /**
@@ -474,12 +474,12 @@ export default {
     },
 
     async duplicateThenRoute() {
-      // duplicate the plio and when it's done, route to the editor
+      // duplicate the plio and when it is done, route to the editor
       await this.duplicatePlio().then((duplicatedPlioId) => {
         this.$Progress.finish();
         this.$router.push({
           name: "Editor",
-          params: { plioId: duplicatedPlioId, org: this.activeWorkspace },
+          params: { plioId: duplicatedPlioId, workspace: this.activeWorkspace },
         });
       });
     },
@@ -488,7 +488,7 @@ export default {
       // redirects to the dashboard page for the selected plio
       this.$router.push({
         name: "Dashboard",
-        params: { plioId: this.plioId, org: this.activeWorkspace },
+        params: { plioId: this.plioId, workspace: this.activeWorkspace },
       });
     },
   },

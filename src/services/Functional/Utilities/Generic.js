@@ -1,3 +1,10 @@
+import axios from "axios";
+import dayjs from "dayjs";
+import ErrorHandling from "@/services/API/ErrorHandling.js";
+
+var duration = require("dayjs/plugin/duration");
+dayjs.extend(duration);
+
 export default {
   /**
    * Returns the link to the Player for a plio
@@ -97,7 +104,6 @@ export default {
   isObjectEmpty(obj) {
     return Object.keys(obj).length === 0 && obj.constructor === Object;
   },
-
   /**
    * Copies the given value to the clipboard
    *
@@ -117,7 +123,7 @@ export default {
 
 /**
  * An identifier to hold the current animation frame request.
- * useful when it's needed to cancel a particular animation frame
+ * useful when it is needed to cancel a particular animation frame
  */
 export let animationFrameRequest = null;
 
@@ -218,7 +224,7 @@ export function convertSecondsToISOTime(timeInSeconds) {
 
 /**
  * Converts a timestamp in ISO format to seconds
- * @param {Object} timeInISO - An object containing the ISO time as it's keys
+ * @param {Object} timeInISO - An object containing the ISO time as its keys
  * @returns {Number} - The converted time in seconds
  */
 export function convertISOTimeToSeconds(timeInISO) {
@@ -227,4 +233,32 @@ export function convertISOTimeToSeconds(timeInISO) {
   let second = parseInt(timeInISO.second) || 0;
   let millisecond = parseInt(timeInISO.millisecond) || 0;
   return hour * 3600 + minute * 60 + second + millisecond / 1000;
+}
+
+/**
+ * Get duration of a YouTube video in seconds
+ * @param {String} videoId - the unique id of the video on youtube
+ */
+export async function getVideoDuration(videoId) {
+  let nonExistingVideoError = "video does not exist";
+  try {
+    let response = await axios.get(
+      "https://www.googleapis.com/youtube/v3/videos",
+      {
+        params: {
+          id: videoId,
+          part: "contentDetails",
+          key: process.env.VUE_APP_GOOGLE_API_KEY,
+        },
+      }
+    );
+
+    let items = response.data["items"];
+    if (items.length === 0) throw new Error(nonExistingVideoError);
+    return dayjs.duration(items[0]["contentDetails"]["duration"]).asSeconds();
+  } catch (error) {
+    if (error.message == nonExistingVideoError)
+      throw new Error(nonExistingVideoError);
+    ErrorHandling.handleAPIErrors(error);
+  }
 }

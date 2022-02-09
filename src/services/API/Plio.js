@@ -3,9 +3,11 @@ import {
   pliosEndpoint,
   duplicateEndpoint,
   plioDataDumpEndpoint,
+  settingsEndpoint,
   plioMetricsEndpoint,
   copyEndpoint,
 } from "@/services/API/Endpoints.js";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 
 export default {
   /**
@@ -42,6 +44,7 @@ export default {
         plioDetails.plioDBId = plio.data.id;
         plioDetails.videoDBId = plio.data.video.id || null;
         plioDetails.videoDuration = plio.data.video.duration || 0;
+        plioDetails.config = plio.data.config;
         return plioDetails;
       });
   },
@@ -65,6 +68,18 @@ export default {
     if (sortBy != undefined) queryParams["ordering"] = sortBy;
 
     return apiClient().get(pliosEndpoint, { params: queryParams });
+  },
+
+  /**
+   * @param {String} plioId - uuid of a plio whose settings need to be updated
+   * @param {Map} payload - the new value for settings
+   */
+  updatePlioSettings(plioId, payload) {
+    payload = SettingsUtilities.encodeMapToPayload(payload);
+    return apiClient().patch(
+      pliosEndpoint + plioId + settingsEndpoint,
+      payload
+    );
   },
 
   /**
