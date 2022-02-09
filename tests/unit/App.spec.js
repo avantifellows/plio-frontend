@@ -4,7 +4,7 @@ import OrganizationAPIService from "@/services/API/Organization.js";
 import router from "@/router";
 import store from "@/store";
 import App from "@/App";
-import Settings from "@/components/Collections/Settings/Settings.vue";
+import Settings from "@/components/App/Settings.vue";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 
@@ -422,8 +422,7 @@ describe("App.vue for authenticated user", () => {
     });
 
     it("re-constructs settings menu if the user's object is updated", async () => {
-      // currently, the headers available in the settings menu are 'app' and 'player'
-      expect(wrapper.vm.settingsToRender.has("app")).toBeTruthy();
+      // currently, the header available in the settings menu is 'player'
       expect(wrapper.vm.settingsToRender.has("player")).toBeTruthy();
 
       // switching the workspace to o2

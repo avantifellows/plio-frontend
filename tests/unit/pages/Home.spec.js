@@ -173,8 +173,7 @@ describe("Home.vue", () => {
         settings: dummyWorkspaceSetting,
       });
 
-      // changing the user to approved makes another API call to list UUIDs.
-      // The below line resets it.
+      // reset the  API call to list UUIDs
       mockAxios.reset();
 
       const wrapper = mount(Home, {
