@@ -236,7 +236,6 @@ export default {
         "rounded-md border text-black text-xs px-2 border-gray-500 bg-gray-200",
       currentSelectedTabName: null,
       currentSelectedTabDetails: new Map(),
-      leafUnwatchers: [], // unwatch callbacks for watchers attached to the leaf settings
       changedLeaves: {}, // details about those leaf settings that have been changed by the user
       currentSelectedHeaderName: null, // name of the header of the current selected tab
       localSettings: null,
@@ -278,7 +277,6 @@ export default {
     window.addEventListener("resize", this.handleScreenSizeChange);
   },
   unmounted() {
-    this.detachLeafWatchers();
     window.removeEventListener("resize", this.handleScreenSizeChange);
   },
   computed: {
@@ -313,9 +311,6 @@ export default {
   },
   methods: {
     getImageSource: GenericUtilities.getImageSource,
-    detachLeafWatchers() {
-      this.leafUnwatchers.forEach((unwatch) => unwatch());
-    },
     createLocalSettings() {
       this.localSettings = this.settings == null ? null : clonedeep(this.settings);
     },
@@ -323,7 +318,7 @@ export default {
       for (let [headerName, headerDetails] of this.localSettings) {
         for (let [tabName, tabDetails] of headerDetails) {
           for (let [leafName, leafDetails] of tabDetails) {
-            let unwatch = this.$watch(
+            this.$watch(
               () =>
                 clonedeep(
                   this.localSettings.get(headerName).get(tabName).get(leafName).value
@@ -357,7 +352,6 @@ export default {
               },
               { deep: true }
             );
-            this.leafUnwatchers.push(unwatch);
           }
         }
       }

@@ -496,7 +496,8 @@ export default {
      * @param {Object} updatedSettings - details about the leaf settings that the user has updated
      */
     updateSettings(updatedSettings) {
-      // The updatedSettings object contains the following keys
+      // The updatedSettings object contains all the settings that have been updated.
+      // Each updated setting has the following keys:
       // headerName - name of the header to which the updated setting belongs to
       // tabName - name of the tab to which the updated setting belongs to
       // leafName - name of the updated leaf setting

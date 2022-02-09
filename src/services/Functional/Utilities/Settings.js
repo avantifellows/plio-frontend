@@ -5,8 +5,8 @@ import globalDefaultSettings, {
 let clonedeep = require("lodash.clonedeep");
 
 export default {
-  isSettingApplicableToWorkspace(settingScope) {
-    return settingScope.length != 0;
+  isSettingApplicableToWorkspace(setting) {
+    return setting.scope?.length > 0;
   },
   /**
    * Converts a plain JS object datatype that contains ordering information to a JS Map object.
@@ -104,7 +104,7 @@ export default {
     let canUserAccess = (settingLevel) => {
       if (
         !store.getters["auth/isPersonalWorkspace"] &&
-        this.isSettingApplicableToWorkspace(settingLevel.scope) &&
+        this.isSettingApplicableToWorkspace(settingLevel) &&
         !settingLevel.scope.includes(
           store.getters["auth/userRoleInActiveWorkspace"]
         )
@@ -153,7 +153,7 @@ export default {
               isWorkspaceSetting:
                 checkUserScoping &&
                 !store.getters["auth/isPersonalWorkspace"] &&
-                this.isSettingApplicableToWorkspace(leafDetails.scope)
+                this.isSettingApplicableToWorkspace(leafDetails)
                   ? true
                   : false,
             });
