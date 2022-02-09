@@ -1,7 +1,7 @@
 import { mount, flushPromises } from "@vue/test-utils";
-import PlioAPIService from "@/services/API/Plio.js";
 import Home from "@/pages/Home.vue";
 import store from "@/store";
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 
 import mockAxios from "jest-mock-axios";
 
@@ -67,11 +67,18 @@ describe("Home.vue", () => {
       expect(wrapper.find('[data-test="noPlio"]').exists()).toBe(true);
     });
 
-    it("creates new plio on clicking no plios create button", async () => {
+    it("creates new plio with user's settings on clicking no-plios create button in personal workspace", async () => {
       // mock router
       const mockRouter = {
         push: jest.fn(),
       };
+
+      // set user
+      await store.dispatch("auth/setUser", global.dummyUser);
+      await store.dispatch("auth/setUserSettings", global.dummyGlobalSettings);
+
+      // reset the  API call to list UUIDs
+      mockAxios.reset();
 
       mountWrapper({
         global: {
@@ -81,9 +88,17 @@ describe("Home.vue", () => {
         },
       });
 
-      await mockEmptyResponse();
+      // resolve the `GET` request waiting in the queue
+      // using the fake response data
+      mockAxios.mockResponse(
+        clonedeep(global.dummyEmptyPlioList),
+        mockAxios.queue()[0]
+      );
 
-      // trigger click on create plio button
+      // wait until the DOM updates after promises resolve
+      await flushPromises();
+
+      // trigger click
       await wrapper.find('[data-test="create"]').trigger("click");
 
       // `createPlio` inside services/API/Plio.js should've been called
@@ -100,11 +115,126 @@ describe("Home.vue", () => {
 
       // wait until the DOM updates after promises resolve
       await flushPromises();
+      // after plio creation, a call to update plio's settings
+      // should've been made
+      expect(mockAxios.patch).toHaveBeenCalledTimes(1);
+      expect(mockAxios.patch).toHaveBeenCalledWith(
+        `/plios/${testPlioId}/setting`,
+        SettingsUtilities.encodeMapToPayload(
+          new Map(
+            Object.entries({
+              player: global.dummyGlobalSettings.get("player"),
+            })
+          )
+        )
+      );
+
+      // resolve the request waiting in the queue using fake response data
+      mockAxios.mockResponse({ status: 200 }, mockAxios.queue()[0]);
+
+      // wait until the DOM updates after promises resolve
+      await flushPromises();
 
       expect(mockRouter.push).toHaveBeenCalledWith({
         name: "Editor",
         params: {
-          org: "",
+          workspace: "",
+          plioId: testPlioId,
+        },
+      });
+    });
+
+    it("creates new plio with organization's settings on clicking no-plios create button in organization's workspace", async () => {
+      // mock router
+      const mockRouter = {
+        push: jest.fn(),
+      };
+
+      // set user
+      let dummyUserNew = clonedeep(global.dummyUser);
+      let dummyWorkspaceSetting = clonedeep(
+        dummyGlobalSettingsFilteredForWorkspaces
+      );
+      const activeWorkspace = "o1";
+      dummyWorkspaceSetting
+        .get("player")
+        .children.get("configuration")
+        .children.set("tempSetting", {
+          scope: ["org-admin", "super-admin"],
+          value: false,
+        });
+      await store.dispatch("auth/setUser", dummyUserNew);
+      await store.dispatch(
+        "auth/setUserSettings",
+        dummyUserNew.config.settings
+      );
+      await store.dispatch("auth/setActiveWorkspace", activeWorkspace);
+      await store.dispatch("auth/setWorkspaceSettings", {
+        settings: dummyWorkspaceSetting,
+      });
+
+      // reset the  API call to list UUIDs
+      mockAxios.reset();
+
+      mountWrapper({
+        global: {
+          mocks: {
+            $router: mockRouter,
+          },
+        },
+      });
+
+      // resolve the `GET` request waiting in the queue
+      // using the fake response data
+      mockAxios.mockResponse(
+        clonedeep(global.dummyEmptyPlioList),
+        mockAxios.queue()[0]
+      );
+
+      // wait until the DOM updates after promises resolve
+      await flushPromises();
+
+      // trigger click
+      await wrapper.find('[data-test="create"]').trigger("click");
+
+      // `createPlio` inside services/API/Plio.js should've been called
+      expect(mockAxios.post).toHaveBeenCalledTimes(1);
+      expect(mockAxios.post).toHaveBeenCalledWith(`/plios/`);
+
+      // resolve the `POST` request waiting in the queue
+      // using the fake response data
+      const testPlioId = "abcd";
+      mockAxios.mockResponse(
+        { status: 201, data: { uuid: testPlioId } },
+        mockAxios.queue()[0]
+      );
+
+      // wait until the DOM updates after promises resolve
+      await flushPromises();
+      // after plio creation, a call to update plio's settings
+      // should've been made
+      expect(mockAxios.patch).toHaveBeenCalledTimes(1);
+      expect(mockAxios.patch).toHaveBeenCalledWith(
+        `/plios/${testPlioId}/setting`,
+        SettingsUtilities.encodeMapToPayload(
+          new Map(
+            Object.entries({
+              player: dummyWorkspaceSetting.get("player"),
+            })
+          )
+        )
+      );
+
+      // resolve the request waiting in the queue using fake response data
+      mockAxios.mockResponse({ status: 200 }, mockAxios.queue()[0]);
+
+      // wait until the DOM updates after promises resolve
+      await flushPromises();
+
+      expect(mockRouter.push).toHaveBeenCalledWith({
+        name: "Editor",
+        params: {
+          workspace: activeWorkspace,
           plioId: testPlioId,
         },
       });

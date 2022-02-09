@@ -276,7 +276,7 @@ export default {
       default: "",
       type: String,
     },
-    org: {
+    workspace: {
       default: "",
       type: String,
     },
@@ -475,13 +475,13 @@ export default {
     editPlio() {
       this.$router.push({
         name: "Editor",
-        params: { plioId: this.plioId, org: this.org },
+        params: { plioId: this.plioId, workspace: this.workspace },
       });
     },
     playPlio() {
       this.$router.push({
         name: "Player",
-        params: { plioId: this.plioId, org: this.org },
+        params: { plioId: this.plioId, workspace: this.workspace },
       });
     },
     downloadReport() {

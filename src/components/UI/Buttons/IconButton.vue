@@ -2,11 +2,11 @@
   <button
     type="button"
     :class="buttonClass"
-    class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+    class="flex justify-center items-center transition ease-in duration-200 text-center text-base font-semibold focus:shadow-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed group"
     :disabled="isDisabled"
     :aria-label="ariaLabel"
   >
-    <div :class="innerContainerClass">
+    <div :class="innerContainerStyleClass">
       <inline-svg
         v-if="isIconConfigEnabled"
         :src="icon"
@@ -39,19 +39,24 @@ export default {
   props: {
     iconConfig: {
       type: Object,
-      default: function () {
+      default: () => {
         return {};
       },
     },
     titleConfig: {
       type: Object,
-      default: function () {
+      default: () => {
         return {};
       },
     },
     buttonClass: {
       type: [String, Object],
       default: () => {},
+    },
+    /** Style classes for the inner container of the button */
+    innerContainerClass: {
+      type: String,
+      default: "flex w-full justify-center",
     },
     isDisabled: {
       type: Boolean,
@@ -68,13 +73,13 @@ export default {
     },
   },
   computed: {
-    innerContainerClass() {
+    innerContainerStyleClass() {
       return [
         {
           "flex-col": this.isStackedVertically,
           "space-x-2": !this.isStackedVertically,
         },
-        `flex w-full justify-center`,
+        this.innerContainerClass,
       ];
     },
     isStackedVertically() {

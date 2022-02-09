@@ -3,7 +3,7 @@ import Scorecard from "@/components/Items/Scorecard";
 import i18n from "@/services/Localisation/i18n.js";
 import domtoimage from "dom-to-image";
 
-jest.mock("@/services/Functional/Utilities.js", () => ({
+jest.mock("@/services/Functional/Utilities/Generic.js", () => ({
   __esModule: true,
   throwConfetti: jest.fn(),
   resetConfetti: jest.fn(),

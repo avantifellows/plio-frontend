@@ -32,6 +32,12 @@ module.exports = {
         "1/20": "5%",
         "1/100": "1%",
       },
+      spacing: {
+        "10/100": "10%",
+        "15/100": "15%",
+        "20/100": "20%",
+        "35/100": "35%",
+      },
     },
     screens: {
       "bp-320": "320px",
@@ -55,7 +61,7 @@ module.exports = {
     "focus",
     "focus-visible",
     "active",
-    "group-disabled", // Custom variant
+    "group-disabled", // custom variant
     "disabled",
   ],
   variants: {

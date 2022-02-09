@@ -5,7 +5,7 @@
       <button
         type="button"
         @click="toggleDropdownDisplay"
-        class="sm:w-full group flex space-x-2 p-2 text-left cursor-default hover:cursor-pointer focus:outline-none sm:text-sm items-center bg-gray-200 hover:bg-primary rounded-md shadow-md"
+        class="sm:w-full group flex space-x-2 p-2 text-left cursor-default hover:cursor-pointer focus:outline-none sm:text-sm items-center bg-gray-200 hover:bg-primary rounded-md shadow-md border-b-outset"
         data-test="toggleButton"
         aria-label="toggle options visibility"
       >
@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import { mapState } from "vuex";
 
 const DEFAULT_OPTIONS_MARGIN_TOP = 2;
@@ -125,7 +125,7 @@ export default {
     this.setOptionBoxStyling();
   },
   methods: {
-    ...Utilities,
+    getImageSource: GenericUtilities.getImageSource,
     optionClass(index) {
       // class for each option
       return {

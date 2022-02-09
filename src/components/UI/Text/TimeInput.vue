@@ -272,7 +272,7 @@ export default {
       return mergedErrorStates;
     },
     inputTooltip() {
-      // tooltip for time input box when it's disabled
+      // tooltip for time input box when it is disabled
       if (this.isDisabled) return this.disabledTooltip;
       return undefined;
     },

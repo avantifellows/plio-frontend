@@ -7,7 +7,7 @@
       :columns="tableColumns"
       :tableTitle="tableTitle"
       :numTotal="totalNumberOfPlios"
-      :org="org"
+      :workspace="workspace"
       @search-plios="fetchPlios($event)"
       @reset-search-string="resetSearchString"
       @sort-num-viewers="sortPlios"
@@ -58,7 +58,7 @@ import Table from "@/components/Collections/Table/Table.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
 import Paginator from "@/components/UI/Navigation/Paginator.vue";
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 
 export default {
@@ -69,18 +69,20 @@ export default {
     Paginator,
   },
   props: {
-    org: {
+    workspace: {
       default: "",
       type: String,
     },
   },
   watch: {
     async activeWorkspace() {
-      // reset currentPageNumber
-      this.currentPageNumber = 1;
-      // reset search string
-      this.resetSearchString();
-      await this.fetchPlios();
+      if (this.isAuthenticated) {
+        // reset currentPageNumber
+        this.currentPageNumber = 1;
+        // reset search string
+        this.resetSearchString();
+        await this.fetchPlios();
+      }
     },
   },
   data() {
@@ -103,7 +105,7 @@ export default {
       currentPageNumber: 1, // holds the current page number
       // class for the create button
       createButtonClass:
-        "bg-primary hover:bg-primary-hover rounded-lg h-14 w-40 sm:h-20 sm:w-60 ring-primary px-2",
+        "bg-primary hover:bg-primary-hover rounded-lg h-14 w-40 sm:h-20 sm:w-60 ring-primary px-2 border-b-outset border-primary",
     };
   },
   async created() {
@@ -113,8 +115,13 @@ export default {
     this.$mixpanel.track("Visit Home");
   },
   computed: {
-    ...mapState("auth", ["activeWorkspace"]),
+    ...mapState("auth", ["activeWorkspace", "userSettings"]),
     ...mapState("sync", ["pending"]),
+    ...mapGetters("auth", [
+      "isPersonalWorkspace",
+      "activeWorkspaceSettings",
+      "isAuthenticated",
+    ]),
     createButtonTextConfig() {
       // config for the text of the create button shown when no plios have been created
       return {
@@ -191,7 +198,7 @@ export default {
       this.prepareTableData(response.data.results); // prepare the data for the table
     },
 
-    createNewPlio() {
+    async createNewPlio() {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
       this.$Progress.start();
@@ -203,17 +210,30 @@ export default {
         "Last Plio Created": new Date().toISOString(),
       });
       this.$mixpanel.people.increment("Total Plios Created");
-      PlioAPIService.createPlio()
-        .then((response) => {
-          this.$Progress.finish();
-          if (response.status == 201) {
-            this.$router.push({
-              name: "Editor",
-              params: { plioId: response.data.uuid, org: this.activeWorkspace },
-            });
-          }
-        })
-        .catch(() => this.toast.error(this.$t("toast.error.create_plio")));
+
+      let createPlioResponse = await PlioAPIService.createPlio();
+      this.$Progress.finish();
+      if (createPlioResponse.status == 201) {
+        // once the plio is created, update its settings as well
+        let plioUuid = createPlioResponse.data.uuid;
+        let newPlioSettings = this.isPersonalWorkspace
+          ? this.userSettings.get("player")
+          : this.activeWorkspaceSettings.get("player");
+        let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
+          plioUuid,
+          new Map(
+            Object.entries({
+              player: newPlioSettings,
+            })
+          )
+        );
+        if (updatePlioSettingsResponse.status == 200) {
+          this.$router.push({
+            name: "Editor",
+            params: { plioId: plioUuid, workspace: this.activeWorkspace },
+          });
+        }
+      } else this.toast.error(this.$t("toast.error.create_plio"));
     },
 
     async prepareTableData(plioList) {
