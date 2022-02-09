@@ -214,7 +214,7 @@ export default {
     },
     requestedOtp()
     {
-       if (!this.resendOTPTimer) clearInterval(this.interval);
+       if (!this.requestedOtp) clearInterval(this.otpTimerInterval);
     },
   },
   data() {
@@ -222,7 +222,7 @@ export default {
       phoneInput: "", // phone input text
       otpInput: "", // otp input text
       resendOTPTimer: 0, // the count of the timer
-      interval: 0, // to reset the timer
+      otpTimerInterval: 0, // to reset the otp timer
       requestedOtp: false, // whether the user has requested OTP once
       invalidOtp: false, // whether the OTP is invalid
       toast: useToast(),
@@ -415,9 +415,9 @@ export default {
      */
     startResendOTPTimer(seconds = 60) {
       this.resendOTPTimer = seconds;
-      this.interval = setInterval(() => {
+      this.otpTimerInterval = setInterval(() => {
         this.resendOTPTimer--;
-        if (!this.resendOTPTimer) clearInterval(this.interval);
+        if (!this.resendOTPTimer) clearInterval(this.otpTimerInterval);
       }, 1000);
     },
     requestOtp() {
@@ -425,14 +425,14 @@ export default {
       UserAPIService.requestOtp(this.formattedPhoneInput);
       this.requestedOtp = true;
       this.startResendOTPTimer();
-      this.otpInput= "";
+      this.otpInput = "";
       this.invalidOtp = false;
     },
     resendOtp() {
       // resends OTP on user request
       UserAPIService.requestOtp(this.formattedPhoneInput);
       this.startResendOTPTimer();
-      this.otpInput= "";
+      this.otpInput = "";
       this.invalidOtp = false;
     },
     phoneLogin() {
