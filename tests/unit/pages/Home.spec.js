@@ -77,11 +77,10 @@ describe("Home.vue", () => {
       await store.dispatch("auth/setUser", global.dummyUser);
       await store.dispatch("auth/setUserSettings", global.dummyGlobalSettings);
 
-      // changing the user to approved makes another API call to list UUIDs.
-      // The below line resets it.
+      // reset the  API call to list UUIDs
       mockAxios.reset();
 
-      const wrapper = mount(Home, {
+      mountWrapper({
         global: {
           mocks: {
             $router: mockRouter,
@@ -156,6 +155,7 @@ describe("Home.vue", () => {
       let dummyWorkspaceSetting = clonedeep(
         dummyGlobalSettingsFilteredForWorkspaces
       );
+      const activeWorkspace = "o1";
       dummyWorkspaceSetting
         .get("player")
         .children.get("configuration")
@@ -168,16 +168,15 @@ describe("Home.vue", () => {
         "auth/setUserSettings",
         dummyUserNew.config.settings
       );
-      await store.dispatch("auth/setActiveWorkspace", "o1");
+      await store.dispatch("auth/setActiveWorkspace", activeWorkspace);
       await store.dispatch("auth/setWorkspaceSettings", {
         settings: dummyWorkspaceSetting,
       });
 
-      // changing the user to approved makes another API call to list UUIDs.
-      // The below line resets it.
+      // reset the  API call to list UUIDs
       mockAxios.reset();
 
-      const wrapper = mount(Home, {
+      mountWrapper({
         global: {
           mocks: {
             $router: mockRouter,
@@ -235,7 +234,7 @@ describe("Home.vue", () => {
       expect(mockRouter.push).toHaveBeenCalledWith({
         name: "Editor",
         params: {
-          workspace: store.state.auth.activeWorkspace,
+          workspace: activeWorkspace,
           plioId: testPlioId,
         },
       });
