@@ -210,9 +210,7 @@ export default {
   },
   watch: {
     isRequestOtpEnabled() {
-      if (!this.isRequestOtpEnabled) {
-        this.requestedOtp = false;
-      }
+      if (!this.isRequestOtpEnabled) this.requestedOtp = false;
     },
     requestedOtp()
     {
