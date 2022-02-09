@@ -728,9 +728,13 @@ export default {
         // resets the distinct ID so that multiple users can use the same device
         this.$mixpanel.reset();
         this.$mixpanel.track("Logout");
+
         // added here so that if someone clicks on logout while
         // some activity is pending
         this.stopLoading();
+
+        // clear active workspace
+        this.unsetActiveWorkspace();
       });
     },
     onClose(event) {

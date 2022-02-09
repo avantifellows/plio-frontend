@@ -76,11 +76,13 @@ export default {
   },
   watch: {
     async activeWorkspace() {
-      // reset currentPageNumber
-      this.currentPageNumber = 1;
-      // reset search string
-      this.resetSearchString();
-      await this.fetchPlios();
+      if (this.isAuthenticated) {
+        // reset currentPageNumber
+        this.currentPageNumber = 1;
+        // reset search string
+        this.resetSearchString();
+        await this.fetchPlios();
+      }
     },
   },
   data() {
@@ -115,7 +117,11 @@ export default {
   computed: {
     ...mapState("auth", ["activeWorkspace", "userSettings"]),
     ...mapState("sync", ["pending"]),
-    ...mapGetters("auth", ["isPersonalWorkspace", "activeWorkspaceSettings"]),
+    ...mapGetters("auth", [
+      "isPersonalWorkspace",
+      "activeWorkspaceSettings",
+      "isAuthenticated",
+    ]),
     createButtonTextConfig() {
       // config for the text of the create button shown when no plios have been created
       return {
