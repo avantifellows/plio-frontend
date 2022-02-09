@@ -256,7 +256,7 @@ import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
 import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
 import ListSingleSelector from "@/components/UI/Selectors/ListSingleSelector.vue";
 import PlioAPIService from "@/services/API/Plio.js";
-import Settings from "@/components/Collections/Settings/Settings.vue";
+import Settings from "@/components/App/Settings.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";

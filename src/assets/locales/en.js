@@ -562,11 +562,9 @@ export default {
     menu: {
       title: {
         skipEnabled: "Viewers can skip questions while attempting plios",
-        darkMode: "dark mode", // temporary. Will remove after review+testing
       },
       description: {
         skipEnabled: "Provide viewers the option to skip a question",
-        darkMode: "dark mode", // temporary. Will remove after review+testing
       },
       info:
         "The new settings will only apply to plios created in the future and not the existing plios",
@@ -574,11 +572,9 @@ export default {
     sidebar: {
       header: {
         player: "Player",
-        app: "app", // temporary. Will remove after review+testing
       },
       tab: {
         configuration: "Configuration",
-        appearance: "appearance", // temporary. Will remove after review+testing
       },
     },
     badge: {

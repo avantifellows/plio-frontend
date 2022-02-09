@@ -6,7 +6,7 @@ import Plio from "@/pages/Embeds/Plio.vue";
 import ImageUploaderDialog from "@/components/UI/Alert/ImageUploaderDialog.vue";
 import ItemEditor from "@/components/Editor/ItemEditor.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
-import Settings from "@/components/Collections/Settings/Settings.vue";
+import Settings from "@/components/App/Settings.vue";
 import store from "@/store";
 import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";

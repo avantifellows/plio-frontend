@@ -86,6 +86,9 @@ describe("PlioListItem.vue", () => {
 
       // now the screen size should be classified as true
       expect(wrapper.vm.isTabScreen).toBeTruthy();
+
+      // reset the value of the window width
+      store.dispatch("generic/setWindowInnerWidth", 1024);
     });
 
     describe("action buttons", () => {

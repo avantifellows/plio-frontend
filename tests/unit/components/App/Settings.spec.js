@@ -1,29 +1,29 @@
 import { mount } from "@vue/test-utils";
 import store from "@/store";
-import Settings from "@/components/Collections/Settings/Settings.vue";
+import Settings from "@/components/App/Settings.vue";
 
 let clonedeep = require("lodash.clonedeep");
 
-describe("PlioListItem.vue", () => {
+describe("Settings.vue", () => {
   let wrapper;
 
+  let mountWrapper = (settingsToRender = null) => {
+    wrapper = mount(Settings, {
+      props: {
+        settings: settingsToRender == null ? null : clonedeep(settingsToRender),
+      },
+    });
+  };
+
   it("should render with default values", () => {
-    wrapper = mount(Settings);
+    // wrapper = mount(Settings);
+    mountWrapper();
     expect(wrapper).toBeTruthy();
   });
 
   it("should render provided settings correctly", () => {
     store.dispatch("generic/setWindowInnerWidth", 1024);
-    const setDefaultSelectedTab = jest.spyOn(
-      Settings.methods,
-      "setDefaultSelectedTab"
-    );
-    wrapper = mount(Settings, {
-      props: {
-        settings: clonedeep(global.dummySettingsToRender),
-      },
-    });
-    expect(setDefaultSelectedTab).toHaveBeenCalled();
+    mountWrapper(global.dummySettingsToRender);
     expect(wrapper.vm.localSettings).toEqual(global.dummySettingsToRender);
     expect(wrapper.vm.hasUnsavedChanges).toBeFalsy();
     expect(wrapper.vm.currentSelectedTabName).toBe("configuration");
@@ -38,33 +38,8 @@ describe("PlioListItem.vue", () => {
   });
 
   it("sets the clicked tab as selected", async () => {
-    let tempSettingsToRender = new Map(
-      Object.entries({
-        player: global.dummySettingsToRender.get("player"),
-        app: new Map(
-          Object.entries({
-            appearance: new Map(
-              Object.entries({
-                darkMode: {
-                  title: "",
-                  description: null,
-                  type: "checkbox",
-                  value: false,
-                  isWorkspaceSetting: false,
-                },
-              })
-            ),
-          })
-        ),
-      })
-    );
     const selectTab = jest.spyOn(Settings.methods, "selectTab");
-    wrapper = mount(Settings, {
-      props: {
-        settings: tempSettingsToRender,
-      },
-    });
-
+    mountWrapper(global.dummySettingsToRender);
     await wrapper.get('[data-test="tab-appearance"]').trigger("click");
     expect(selectTab).toHaveBeenCalledWith(
       "appearance",
@@ -77,30 +52,16 @@ describe("PlioListItem.vue", () => {
   });
 
   it("emits any changes made when save is clicked", async () => {
-    const saveChanges = jest.spyOn(Settings.methods, "saveChanges");
-    wrapper = mount(Settings, {
-      props: {
-        settings: clonedeep(global.dummySettingsToRender),
-      },
-    });
-
+    mountWrapper(global.dummySettingsToRender);
     await wrapper.get('[data-test="input"]').trigger("click");
     await wrapper.get('[data-test="saveButton"]').trigger("click");
-    expect(saveChanges).toHaveBeenCalled();
     expect(wrapper.emitted()).toHaveProperty("update:settings");
     expect(wrapper.emitted()).toHaveProperty("window-closed");
   });
 
   it("emits close signal when cancel button is clicked", async () => {
-    const closeMenu = jest.spyOn(Settings.methods, "closeMenu");
-    wrapper = mount(Settings, {
-      props: {
-        settings: clonedeep(global.dummySettingsToRender),
-      },
-    });
-
+    mountWrapper(global.dummySettingsToRender);
     await wrapper.get('[data-test="cancelButton"]').trigger("click");
-    expect(closeMenu).toHaveBeenCalled();
     expect(wrapper.emitted()).toHaveProperty("window-closed");
   });
 });

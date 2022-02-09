@@ -16,11 +16,6 @@ export let settingsMetadata = {
     description: "settings.menu.description.skipEnabled",
     type: "checkbox",
   },
-  darkMode: {
-    title: "settings.menu.title.darkMode",
-    description: "settings.menu.description.darkMode",
-    type: "checkbox",
-  },
 };
 
 /**
@@ -52,24 +47,6 @@ let globalDefaultSetings = new Map(
                 skipEnabled: {
                   scope: ["org-admin", "super-admin"],
                   value: skipEnabled,
-                },
-              })
-            ),
-          },
-        })
-      ),
-    },
-    app: {
-      scope: [],
-      children: new Map(
-        Object.entries({
-          appearance: {
-            scope: [],
-            children: new Map(
-              Object.entries({
-                darkMode: {
-                  scope: [],
-                  value: false,
                 },
               })
             ),
