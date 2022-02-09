@@ -57,6 +57,7 @@ describe("Login.vue", () => {
         await setPhoneNumber();
         await requestOTP();
         expect(requestOtp).toHaveBeenCalled();
+        expect(wrapper.vm.otpInput).toBe("");
         expect(wrapper.vm.invalidOtp).toBe(false);
         expect(wrapper.vm.requestedOtp).toBe(true);
         expect(wrapper.find('[data-test="otp"]').exists()).toBe(true);
@@ -115,6 +116,7 @@ describe("Login.vue", () => {
         expect(requestOtp).toHaveBeenCalled();
         expect(resendOtp).toHaveBeenCalled();
         expect(startResendOTPTimer).toHaveBeenCalled();
+        expect(wrapper.vm.otpInput).toBe("");
         expect(wrapper.vm.resendOTPTimer).toBe(60);
         expect(wrapper.vm.isResendOTPEnabled).toBe(false);
         expect(wrapper.vm.invalidOtp).toBe(false);
