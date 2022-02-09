@@ -210,11 +210,10 @@ export default {
   },
   watch: {
     isRequestOtpEnabled() {
-      if (!this.isRequestOtpEnabled) this.requestedOtp = false;
-    },
-    requestedOtp()
-    {
-       if (!this.requestedOtp) clearInterval(this.otpTimerInterval);
+      if (!this.isRequestOtpEnabled) {
+        this.requestedOtp = false;
+        if (this.resendOTPTimer) clearInterval(this.otpTimerInterval);
+      }
     },
   },
   data() {
