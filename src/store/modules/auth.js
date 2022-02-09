@@ -147,9 +147,6 @@ const actions = {
   setUserSettings({ commit }, value) {
     commit("setUserSettings", value);
   },
-  unsetUserSettings({ commit }) {
-    commit("unsetUserSettings");
-  },
   unsetWorkspaceSettings({ commit }) {
     commit("unsetWorkspaceSettings");
   },
@@ -163,9 +160,6 @@ const actions = {
 const mutations = {
   setUserSettings(state, value) {
     state.userSettings = value;
-  },
-  unsetUserSettings(state) {
-    state.userSettings = null;
   },
   setWorkspaceSettings(state, details) {
     if (state.workspaceSettings == null) state.workspaceSettings = {};
