@@ -22,7 +22,7 @@ describe("Editor.vue", () => {
     jest.useFakeTimers();
     jest.clearAllMocks();
 
-    // mocking these two functions so they don't interfere with
+    // mocking this function so that it doesn't interfere with
     // tests that are not related to settings
     jest
       .spyOn(Editor.methods, "constructSettingsMenu")
@@ -31,9 +31,10 @@ describe("Editor.vue", () => {
       });
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     // cleaning up the mess left behind by the previous test
     mockAxios.reset();
+    await store.dispatch("auth/setActiveWorkspace", "");
     if (wrapper != undefined) wrapper.unmount();
   });
 
@@ -160,7 +161,6 @@ describe("Editor.vue", () => {
     expect(wrapper.find('[data-test="homeButton"]').exists()).toBeTruthy();
     expect(wrapper.find('[data-test="publishButton"]').exists()).toBeTruthy();
     expect(wrapper.find('[data-test="copyDraftButton"]').exists()).toBeTruthy();
-    await store.dispatch("auth/setActiveWorkspace", "");
   });
 
   it("clicking on copy draft link button copies draft link in organization's workspace", async () => {
@@ -198,7 +198,6 @@ describe("Editor.vue", () => {
     expect(
       GenericUtilities.getPlioDraftLink(wrapper.vm.plioId, wrapper.vm.workspace)
     ).toBe(draftLink);
-    await store.dispatch("auth/setActiveWorkspace", "");
   });
 
   it("share + play + embed buttons appear on publishing", async () => {
@@ -891,7 +890,6 @@ describe("Editor.vue", () => {
   });
 
   it("clicking on the close button of preview closes the preview", async () => {
-    jest.restoreAllMocks();
     const plioId = "123";
     jest
       .spyOn(Plio.methods, "setPlayerAspectRatio")
@@ -982,7 +980,6 @@ describe("Editor.vue", () => {
   });
 
   it("checks that no question time is smaller than minimum question timestamp", async () => {
-    jest.restoreAllMocks();
     wrapper = mount(Editor, { shallow: true });
     // defined in Editor.vue, cannot access the variable from there,
     // hence harcoding here
@@ -2315,9 +2312,22 @@ describe("Editor.vue", () => {
   });
 
   describe("settings", () => {
+    const mountWrapper = (
+      params = {
+        data() {
+          return {
+            settingsToRender: clonedeep(global.dummySettingsToRender),
+          };
+        },
+      }
+    ) => {
+      wrapper = mount(Editor, params);
+    };
+
     beforeEach(async () => {
       jest.restoreAllMocks();
-      await store.dispatch("auth/setActiveWorkspace", "");
+
+      mountWrapper();
     });
 
     afterEach(async () => {
@@ -2326,80 +2336,38 @@ describe("Editor.vue", () => {
       await store.dispatch("auth/unsetUser");
     });
 
-    it("closes settings menu properly", () => {
-      let closeSettingsMenu = jest.spyOn(Editor.methods, "closeSettingsMenu");
-      wrapper = mount(Editor, {
-        data() {
-          return {
-            isSettingsMenuShown: true,
-            settingsToRender: clonedeep(global.dummySettingsToRender),
-          };
-        },
+    it("closes settings menu properly", async () => {
+      await wrapper.setData({
+        isSettingsMenuShown: true,
       });
       let settingsMenu = wrapper.get('[data-test="settings"]');
       expect(settingsMenu.exists()).toBeTruthy();
       wrapper.vm.$refs.settings.$emit("window-closed");
-      expect(closeSettingsMenu).toHaveBeenCalled();
       expect(wrapper.vm.isSettingsMenuShown).toBeFalsy();
     });
 
     it("opens settings menu when settings icon is clicked", async () => {
-      let showSettingsMenu = jest.spyOn(Editor.methods, "showSettingsMenu");
-      wrapper = mount(Editor, {
-        data() {
-          return {
-            settingsToRender: clonedeep(global.dummySettingsToRender),
-          };
-        },
-      });
-
       expect(wrapper.vm.isSettingsMenuShown).toBeFalsy();
       expect(wrapper.vm.hasAnySettingsToRender).toBeTruthy();
       await wrapper.get('[data-test="settingsButton"]').trigger("click");
-      expect(showSettingsMenu).toHaveBeenCalled();
       expect(wrapper.vm.isSettingsMenuShown).toBeTruthy();
       expect(wrapper.get('[data-test="settings"]').exists()).toBeTruthy();
     });
 
-    it("hides organization's settings from the menu if user does not have access to a setting", async () => {
-      let dummySkipEnabledValue = false;
-      let dummyTempSettingValue = true;
+    it("shows settings with organization scope even if user does not have access to them", async () => {
+      let dummySkipEnabledValue = true;
       let dummyPlio = clonedeep(global.dummyDraftPlio);
       dummyPlio.data.config = {
         settings: SettingsUtilities.encodeMapToPayload(
-          new Map(
-            Object.entries({
-              player: {
-                scope: ["org-admin"],
-                children: new Map(
-                  Object.entries({
-                    configuration: {
-                      scope: ["org-admin"],
-                      children: new Map(
-                        Object.entries({
-                          skipEnabled: {
-                            scope: ["org-admin"],
-                            value: dummySkipEnabledValue,
-                          },
-                          tempSetting: {
-                            scope: ["org-view"],
-                            value: dummyTempSettingValue,
-                          },
-                        })
-                      ),
-                    },
-                  })
-                ),
-              },
-            })
-          )
+          clonedeep(global.dummyGlobalSettings)
         ),
       };
 
       await store.dispatch("auth/setUser", clonedeep(global.dummyUser));
+      mockAxios.reset();
 
       // mount the component
-      wrapper = mount(Editor, {
+      await mountWrapper({
         data() {
           return {
             isSettingsMenuShown: false,
@@ -2414,10 +2382,6 @@ describe("Editor.vue", () => {
       mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
       await flushPromises();
 
-      // switching to personal workspace
-      await store.dispatch("auth/setActiveWorkspace", "");
-      await flushPromises();
-
       // in personal workspace, the user should be able to see plio's all settings
       expect(
         wrapper.vm.settingsToRender
@@ -2425,12 +2389,6 @@ describe("Editor.vue", () => {
           .get("configuration")
           .get("skipEnabled").value
       ).toBe(dummySkipEnabledValue);
-      expect(
-        wrapper.vm.settingsToRender
-          .get("player")
-          .get("configuration")
-          .get("tempSetting").value
-      ).toBe(dummyTempSettingValue);
 
       // switching to o1 workspace
       await store.dispatch("auth/setActiveWorkspace", "o1");
@@ -2438,12 +2396,6 @@ describe("Editor.vue", () => {
 
       // on the editor, the scope of the user is not taken into account for
       // all the settings, regardless of the scope, will be visible to the user
-      expect(
-        wrapper.vm.settingsToRender
-          .get("player")
-          .get("configuration")
-          .get("tempSetting")
-      ).not.toBe(undefined);
       expect(
         wrapper.vm.settingsToRender
           .get("player")
@@ -2471,44 +2423,23 @@ describe("Editor.vue", () => {
           global.dummyGlobalSettings
         );
 
-        // restor all mocks to their original implementation
         jest.restoreAllMocks();
 
         // prepare a dummy plio with proper settings in its config
         dummyPlio = clonedeep(global.dummyDraftPlio);
         dummyPlio.data.config = {
           settings: SettingsUtilities.encodeMapToPayload(
-            new Map(
-              Object.entries({
-                player: {
-                  scope: [],
-                  children: new Map(
-                    Object.entries({
-                      configuration: {
-                        scope: [],
-                        children: new Map(
-                          Object.entries({
-                            skipEnabled: {
-                              scope: [],
-                              value: false,
-                            },
-                          })
-                        ),
-                      },
-                    })
-                  ),
-                },
-              })
-            )
+            clonedeep(global.dummyGlobalSettings)
           ),
         };
+        mockAxios.reset();
         updatePlioSettings = jest
           .spyOn(PlioAPIService, "updatePlioSettings")
           .mockImplementation(() => {
             return;
           });
         // mount the component
-        wrapper = mount(Editor, {
+        mountWrapper({
           data() {
             return {
               isSettingsMenuShown: false,
@@ -2547,7 +2478,7 @@ describe("Editor.vue", () => {
             .get("player")
             .children.get("configuration")
             .children.get("skipEnabled").value
-        ).toBeTruthy();
+        ).toBeFalsy();
         // the method to update the plio's settings to the DB should've been called
         expect(updatePlioSettings).toHaveBeenCalled();
       });
@@ -2573,17 +2504,13 @@ describe("Editor.vue", () => {
             .get("player")
             .children.get("configuration")
             .children.get("skipEnabled").value
-        ).toBeTruthy();
+        ).toBeFalsy();
         // the method to update the plio's settings to the DB should have been called
         // because the plio gets published when save is clicked
         expect(updatePlioSettings).toHaveBeenCalled();
       });
     });
 
-    /**
-     * Tests for handling different variations of plio config that is fetched
-     * from the DB
-     */
     describe("Handling of different plio configs", () => {
       let plioId = "mlungtvmyl";
       let constructSettingsMenu;
@@ -2605,6 +2532,7 @@ describe("Editor.vue", () => {
       };
 
       beforeEach(async () => {
+        mockAxios.reset();
         // before each test, restore the mocks to their original implementation
         jest.restoreAllMocks();
         constructSettingsMenu = jest.spyOn(
@@ -2617,20 +2545,20 @@ describe("Editor.vue", () => {
         // set the user
         await store.dispatch("auth/setUser", global.dummyUser);
         // mount the wrapper before each test
-        wrapper = mount(Editor, {
+        mountWrapper({
           props: {
             plioId: plioId,
           },
         });
+
+        await loginNewUser(global.dummyUser);
       });
 
       afterEach(() => {
-        mockAxios.reset();
         wrapper.unmount();
       });
 
       it("handles fetched plio config which is null", async () => {
-        await loginNewUser(global.dummyUser);
         // GET request to retrieve plio details
         expect(mockAxios.get).toHaveBeenCalledTimes(1);
         expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
@@ -2649,11 +2577,6 @@ describe("Editor.vue", () => {
       });
 
       it("handles fetched plio config where settings key is missing", async () => {
-        await loginNewUser(global.dummyUser);
-        // GET request to retrieve plio details
-        expect(mockAxios.get).toHaveBeenCalledTimes(1);
-        expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
-
         // simulating the plio's fetched config as not containing 'settings' key
         let dummyPlio = clonedeep(global.dummyDraftPlio);
         dummyPlio.data.config = {
@@ -2671,11 +2594,6 @@ describe("Editor.vue", () => {
       });
 
       it("handles fetched plio config where settings key is null", async () => {
-        await loginNewUser(global.dummyUser);
-        // GET request to retrieve plio details
-        expect(mockAxios.get).toHaveBeenCalledTimes(1);
-        expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
-
         // simulating the plio's fetched config as containing the 'settings' key
         // but the value of that key is null
         let dummyPlio = clonedeep(global.dummyDraftPlio);
@@ -2694,11 +2612,6 @@ describe("Editor.vue", () => {
       });
 
       it("handles fetched plio config where player key is missing inside settings key", async () => {
-        await loginNewUser(global.dummyUser);
-        // GET request to retrieve plio details
-        expect(mockAxios.get).toHaveBeenCalledTimes(1);
-        expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
-
         // simulating the plio's fetched config as containing the 'settings' key
         // but no 'player' key exists inside
         let dummyPlio = clonedeep(global.dummyDraftPlio);
@@ -2724,37 +2637,11 @@ describe("Editor.vue", () => {
       });
 
       it("handles fetched plio config where all information is present", async () => {
-        await loginNewUser(global.dummyUser);
-        // GET request to retrieve plio details
-        expect(mockAxios.get).toHaveBeenCalledTimes(1);
-        expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}`);
-
         // the fetched plio's config contains all the required details
         let dummyPlio = clonedeep(global.dummyDraftPlio);
         dummyPlio.data.config = {
           settings: SettingsUtilities.encodeMapToPayload(
-            new Map(
-              Object.entries({
-                player: {
-                  scope: [],
-                  children: new Map(
-                    Object.entries({
-                      configuration: {
-                        scope: [],
-                        children: new Map(
-                          Object.entries({
-                            skipEnabled: {
-                              scope: [],
-                              value: false,
-                            },
-                          })
-                        ),
-                      },
-                    })
-                  ),
-                },
-              })
-            )
+            clonedeep(global.dummyGlobalSettings)
           ),
         };
 
@@ -2765,7 +2652,11 @@ describe("Editor.vue", () => {
         // the settings from the fetched plio's config are copied into the local
         // plioSettings variable
         expect(wrapper.vm.plioSettings).toStrictEqual(
-          SettingsUtilities.decodeMapFromPayload(dummyPlio.data.config.settings)
+          new Map(
+            Object.entries({
+              player: global.dummyGlobalSettings.get("player"),
+            })
+          )
         );
       });
     });
