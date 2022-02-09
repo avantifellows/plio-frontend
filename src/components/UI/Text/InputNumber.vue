@@ -29,7 +29,7 @@
       <!-- start icon -->
       <div
         v-if="isStartIconEnabled"
-        class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center w-5 inset-y-1/4 left-1.5"
+        class="z-10 absolute bg-transparent rounded place-self-center w-5 left-1.5"
         @click="startIconSelected"
         :class="startIconClass"
         data-test="startIcon"

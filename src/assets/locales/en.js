@@ -281,8 +281,13 @@ export default {
         invalid: "OTP should be 6 digits long",
       },
       submit: "Submit OTP",
-      resend: "Resend OTP",
-      resent: "OTP has been sent again",
+      resend: {
+        no_timer: "Resend OTP",
+        timer: {
+          1: "Resend OTP in ",
+          2: " secs",
+        },
+      },
     },
     or: "OR",
     google: {
