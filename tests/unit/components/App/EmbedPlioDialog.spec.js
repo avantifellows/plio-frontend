@@ -51,14 +51,14 @@ describe("EmbedPlioDialog.vue", () => {
     expect(document.execCommand).toHaveBeenCalled();
   });
 
-  it("shows appropriate view for personal vs org workspace", async () => {
-    // set the list of organizations for the user
-    const orgDetails = {
-      shortcode: "testorg",
+  it("shows appropriate view for personal vs organization workspace", async () => {
+    // set the list of workspaces for the user
+    const workspaceDetails = {
+      shortcode: "testworkspace",
       api_key: "testkey",
     };
     await store.dispatch("auth/setUser", {
-      organizations: [orgDetails],
+      organizations: [workspaceDetails],
     });
 
     const plioId = "123";
@@ -81,11 +81,11 @@ describe("EmbedPlioDialog.vue", () => {
     /**
      * change active workspace now
      */
-    await store.dispatch("auth/setActiveWorkspace", orgDetails.shortcode);
+    await store.dispatch("auth/setActiveWorkspace", workspaceDetails.shortcode);
 
     // active workspace api key should now be updated
     expect(store.getters["auth/activeWorkspaceApiKey"]).toBe(
-      orgDetails.api_key
+      workspaceDetails.api_key
     );
 
     // both the embed codes with and without SSO should be visible
@@ -102,18 +102,18 @@ describe("EmbedPlioDialog.vue", () => {
 
   it("copying the with/without SSO code sets the copy statuses correctly", async () => {
     // set the list of organizations for the user
-    const orgDetails = {
-      shortcode: "testorg",
+    const workspaceDetails = {
+      shortcode: "testworkspace",
       api_key: "testkey",
     };
     await store.dispatch("auth/setUser", {
-      organizations: [orgDetails],
+      organizations: [workspaceDetails],
     });
 
     const plioId = "123";
 
-    // change active workspace and set org in the props
-    await store.dispatch("auth/setActiveWorkspace", orgDetails.shortcode);
+    // change active workspace and set workspace in the props
+    await store.dispatch("auth/setActiveWorkspace", workspaceDetails.shortcode);
 
     const wrapper = mount(EmbedPlioDialog, {
       props: {

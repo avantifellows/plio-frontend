@@ -56,8 +56,8 @@ describe("Login.vue", () => {
         mountWrapper();
         await setPhoneNumber();
         await requestOTP();
-
         expect(requestOtp).toHaveBeenCalled();
+        expect(wrapper.vm.otpInput).toBe("");
         expect(wrapper.vm.invalidOtp).toBe(false);
         expect(wrapper.vm.requestedOtp).toBe(true);
         expect(wrapper.find('[data-test="otp"]').exists()).toBe(true);
@@ -88,7 +88,6 @@ describe("Login.vue", () => {
           .setValue("919191919");
 
         expect(wrapper.vm.requestedOtp).toBe(false);
-        expect(wrapper.vm.resentOtp).toBe(false);
       });
 
       it("resends OTP upon requesting", async () => {
@@ -96,19 +95,43 @@ describe("Login.vue", () => {
         const requestOtp = jest
           .spyOn(UserAPIService, "requestOtp")
           .mockImplementation(() => jest.fn());
-
+        const resendOtp = jest.spyOn(Login.methods, "resendOtp");
+        const startResendOTPTimer = jest.spyOn(
+          Login.methods,
+          "startResendOTPTimer"
+        );
         mountWrapper();
+
         await setPhoneNumber();
+        jest.useFakeTimers();
         await requestOTP();
+        await jest.advanceTimersByTime(60000);
+        // reset timers
+        jest.useRealTimers();
 
         // resend OTP
         await wrapper.find('[data-test="resendOTP"]').trigger("click");
-
         await flushPromises();
 
         expect(requestOtp).toHaveBeenCalled();
-        expect(wrapper.vm.resentOtp).toBe(true);
+        expect(resendOtp).toHaveBeenCalled();
+        expect(startResendOTPTimer).toHaveBeenCalled();
+        expect(wrapper.vm.otpInput).toBe("");
+        expect(wrapper.vm.resendOTPTimer).toBe(60);
+        expect(wrapper.vm.isResendOTPEnabled).toBe(false);
         expect(wrapper.vm.invalidOtp).toBe(false);
+      });
+
+      it("enables ResendOTP button when timer ends", async () => {
+        // fake timer is needed for this test case to advance the time of interval
+        jest.useFakeTimers();
+        const numseconds = 2;
+        wrapper.vm.startResendOTPTimer(numseconds);
+        jest.advanceTimersByTime(numseconds * 1000);
+        expect(wrapper.vm.isResendOTPEnabled).toBe(true);
+        expect(wrapper.vm.resendOTPTimer).toBe(0);
+        // reset timers
+        jest.useRealTimers();
       });
 
       describe("submit valid otp", () => {
@@ -168,7 +191,7 @@ describe("Login.vue", () => {
         it("redirects to appropriate page after login", async () => {
           await wrapper.setProps({
             redirectTo: "Editor",
-            params: '{"org":"","plioId":"abc"}',
+            params: '{"workspace":"","plioId":"abc"}',
           });
 
           // submit otp
@@ -181,7 +204,7 @@ describe("Login.vue", () => {
           expect(mockRouter.replace).toHaveBeenCalledWith({
             name: "Editor",
             params: {
-              org: "",
+              workspace: "",
               plioId: "abc",
             },
           });

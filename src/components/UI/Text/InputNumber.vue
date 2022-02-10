@@ -29,7 +29,7 @@
       <!-- start icon -->
       <div
         v-if="isStartIconEnabled"
-        class="z-10 absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center w-5 inset-y-1/4 left-1.5"
+        class="z-10 absolute bg-transparent rounded place-self-center w-5 left-1.5"
         @click="startIconSelected"
         :class="startIconClass"
         data-test="startIcon"
@@ -53,7 +53,7 @@
         :class="[inputAreaClass, boxStyling]"
         :min="min"
         :max="max"
-        type="number"
+        :type="type"
         autocomplete="off"
         data-test="input"
         :disabled="isDisabled"
@@ -105,6 +105,11 @@ export default {
     value: {
       default: "",
       type: [String, Number],
+    },
+    /** the type of the input in the input box */
+    type: {
+      default: "tel",
+      type: String,
     },
     /** minimum value acceptable in a number textbox */
     min: {
@@ -257,7 +262,11 @@ export default {
     },
     keyPress(event) {
       // invoked when a key is pressed
-      if (this.maxLength != null && this.localValue.length == this.maxLength) {
+      // character key not accepted
+      if (!/^[0-9]+$/.test(event.key)){
+        event.preventDefault();
+      }
+      if (this.maxLength != null && this.localValue.toString().length == this.maxLength) {
         event.preventDefault();
         return;
       }

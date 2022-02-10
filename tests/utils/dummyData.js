@@ -363,6 +363,8 @@ global.dummyUser = {
       schema_name: "qwertyuiop",
       name: "Organization 1",
       shortcode: "o1",
+      role: "org-admin",
+      config: null,
       created_at: "2021-04-26T09:46:38.972422Z",
       updated_at: "2021-04-26T09:46:38.972433Z",
     },
@@ -371,6 +373,8 @@ global.dummyUser = {
       schema_name: "asdfghjkla",
       name: "Organization 2",
       shortcode: "o2",
+      role: "org-view",
+      config: null,
       created_at: "2021-04-21T10:12:51.751152Z",
       updated_at: "2021-06-30T08:41:41.652160Z",
     },
@@ -581,3 +585,102 @@ global.dummySession = {
     session_answers: global.dummyItemResponses,
   },
 };
+
+global.dummyGlobalSettings = new Map(
+  Object.entries({
+    player: {
+      scope: ["org-admin", "super-admin"],
+      children: new Map(
+        Object.entries({
+          configuration: {
+            scope: ["org-admin", "super-admin"],
+            children: new Map(
+              Object.entries({
+                skipEnabled: {
+                  scope: ["org-admin", "super-admin"],
+                  value: true,
+                },
+              })
+            ),
+          },
+        })
+      ),
+    },
+    app: {
+      scope: [],
+      children: new Map(
+        Object.entries({
+          appearance: {
+            scope: [],
+            children: new Map(
+              Object.entries({
+                darkMode: {
+                  scope: [],
+                  value: false,
+                },
+              })
+            ),
+          },
+        })
+      ),
+    },
+  })
+);
+
+global.dummyGlobalSettingsFilteredForWorkspaces = new Map(
+  Object.entries({
+    player: {
+      scope: ["org-admin", "super-admin"],
+      children: new Map(
+        Object.entries({
+          configuration: {
+            scope: ["org-admin", "super-admin"],
+            children: new Map(
+              Object.entries({
+                skipEnabled: {
+                  scope: ["org-admin", "super-admin"],
+                  value: true,
+                },
+              })
+            ),
+          },
+        })
+      ),
+    },
+  })
+);
+
+global.dummySettingsToRender = new Map(
+  Object.entries({
+    player: new Map(
+      Object.entries({
+        configuration: new Map(
+          Object.entries({
+            skipEnabled: {
+              title: "settings.menu.title.skipEnabled",
+              description: "settings.menu.description.skipEnabled",
+              type: "checkbox",
+              value: false,
+              isWorkspaceSetting: false,
+            },
+          })
+        ),
+      })
+    ),
+    app: new Map(
+      Object.entries({
+        appearance: new Map(
+          Object.entries({
+            darkMode: {
+              title: "settings.menu.title.darkMode",
+              description: "settings.menu.description.darkMode",
+              type: "checkbox",
+              value: false,
+              isWorkspaceSetting: false,
+            },
+          })
+        ),
+      })
+    ),
+  })
+);

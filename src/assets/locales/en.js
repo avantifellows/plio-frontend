@@ -11,6 +11,7 @@ export default {
     teams: "Plio for Teams",
     abtesting: "",
     player: "",
+    settings: "Settings",
     404: "Error",
   },
   editor: {
@@ -280,8 +281,13 @@ export default {
         invalid: "OTP should be 6 digits long",
       },
       submit: "Submit OTP",
-      resend: "Resend OTP",
-      resent: "OTP has been sent again",
+      resend: {
+        no_timer: "Resend OTP",
+        timer: {
+          1: "Resend OTP in ",
+          2: " secs",
+        },
+      },
     },
     or: "OR",
     google: {
@@ -473,6 +479,7 @@ export default {
       share_plio: "Share this plio with your viewers",
       play_plio: "Try out the created plio yourself",
       embed_plio: "Embed this plio",
+      settings: "Change the settings for this plio",
     },
     home: {
       table: {
@@ -515,6 +522,15 @@ export default {
           "Average number of questions answered by each viewer",
       },
     },
+    settings: {
+      buttons: {
+        save: {
+          hasUnsavedChanges: "Save your changes",
+          noUnsavedChanges: "Nothing to save",
+        },
+        cancel: "",
+      },
+    },
   },
   dashboard: {
     updated: "Last published on",
@@ -538,6 +554,36 @@ export default {
       num_questions_answered: {
         title: "QUESTIONS ANSWERED",
       },
+    },
+  },
+  settings: {
+    buttons: {
+      save: {
+        draft: "Save",
+        published: "Save and Publish",
+      },
+      cancel: "Cancel",
+    },
+    menu: {
+      title: {
+        skipEnabled: "Viewers can skip questions while attempting plios",
+      },
+      description: {
+        skipEnabled: "Provide viewers the option to skip a question",
+      },
+      info:
+        "The new settings will only apply to plios created in the future and not the existing plios",
+    },
+    sidebar: {
+      header: {
+        player: "Player",
+      },
+      tab: {
+        configuration: "Configuration",
+      },
+    },
+    badge: {
+      admin: "Admin",
     },
   },
   toast: {

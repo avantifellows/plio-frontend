@@ -211,7 +211,7 @@ import ItemFunctionalService from "@/services/Functional/Item.js";
 import {
   convertSecondsToISOTime,
   convertISOTimeToSeconds,
-} from "@/services/Functional/Utilities.js";
+} from "@/services/Functional/Utilities/Generic.js";
 import { useToast } from "vue-toastification";
 
 export default {

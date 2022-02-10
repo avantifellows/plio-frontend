@@ -5,7 +5,7 @@ import { useToast } from "vue-toastification";
 import {
   animationFrameRequest,
   resetConfetti,
-} from "@/services/Functional/Utilities.js";
+} from "@/services/Functional/Utilities/Generic.js";
 
 const toast = useToast();
 // these keys should be present as query params when a third party
@@ -20,7 +20,7 @@ const routes = [
     },
   },
   {
-    path: "/:org?/home",
+    path: "/:workspace?/home",
     name: "Home",
     component: () => import(/* webpackChunkName: "home" */ "@/pages/Home.vue"),
     props: true,
@@ -30,7 +30,7 @@ const routes = [
     },
   },
   {
-    path: "/:org?/edit/:plioId",
+    path: "/:workspace?/edit/:plioId",
     name: "Editor",
     component: () =>
       import(/* webpackChunkName: "editor" */ "@/pages/Editor.vue"),
@@ -54,7 +54,7 @@ const routes = [
     },
   },
   {
-    path: "/:org?/play/:plioId",
+    path: "/:workspace?/play/:plioId",
     name: "Player",
     component: () =>
       import(/* webpackChunkName: "player" */ "@/pages/Player.vue"),
@@ -65,7 +65,7 @@ const routes = [
     // https://router.vuejs.org/guide/essentials/passing-props.html#passing-props-to-route-components
     props: (route) => ({
       plioId: route.params.plioId,
-      org: route.params.org,
+      workspace: route.params.workspace,
       thirdPartyUniqueId: route.query.unique_id,
       thirdPartyApiKey: route.query.api_key,
     }),
@@ -75,13 +75,13 @@ const routes = [
     },
   },
   {
-    path: "/:org?/plio/:plioId",
+    path: "/:workspace?/plio/:plioId",
     name: "Plio",
     component: () =>
       import(/* webpackChunkName: "plio" */ "@/pages/Embeds/Plio.vue"),
     props: (route) => ({
       plioId: route.params.plioId,
-      org: route.params.org,
+      workspace: route.params.workspace,
       thirdPartyUniqueId: route.query.unique_id,
       thirdPartyApiKey: route.query.api_key,
     }),
@@ -90,7 +90,7 @@ const routes = [
     },
   },
   {
-    path: "/:org?/analyse/:plioId",
+    path: "/:workspace?/analyse/:plioId",
     name: "Dashboard",
     component: () =>
       import(/* webpackChunkName: "dashboard" */ "@/pages/Dashboard.vue"),
@@ -113,7 +113,7 @@ const routes = [
     props: { type: "403" },
   },
   {
-    // Refer to: https://stackoverflow.com/a/64186073/7870587
+    // refer to: https://stackoverflow.com/a/64186073/7870587
     path: "/:pathMatch(.*)*",
     redirect: {
       name: "404",
@@ -164,12 +164,12 @@ router.beforeEach((to, from) => {
   }
 
   // if in the previous session, the user was in a workspace other than the personal workspace,
-  // pass those params in the router going forward. Only do this after checking that any org params
-  // are not explicitly specified in the requested URL. This will lead them to the org workspace's home
+  // pass those params in the router going forward. Only do this after checking that any workspace params
+  // are not explicitly specified in the requested URL. This will lead them to the workspace's home
   // where they left off the in the previous session
   const existingActiveWorkspace = store.state["auth"]["activeWorkspace"];
-  if (existingActiveWorkspace != "" && to.params.org != "")
-    to.params.org = existingActiveWorkspace;
+  if (existingActiveWorkspace != "" && to.params.workspace != "")
+    to.params.workspace = existingActiveWorkspace;
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     // app has to be authenticated using third party auth if all the query params
@@ -223,7 +223,7 @@ router.beforeEach((to, from) => {
     .reverse()
     .find((r) => r.meta && r.meta.metaTags);
 
-  // If a route with a title was found, set the document (page) title to that value.
+  // if a route with a title was found, set the document (page) title to that value.
   if (document != null) {
     if (nearestWithTitle) {
       document.title = nearestWithTitle.meta.title;
@@ -235,11 +235,11 @@ router.beforeEach((to, from) => {
   return;
 });
 
-// set organization in vuex state if the route org parameter is in vuex user organizations array
+// set workspace in vuex state if the route workspace parameter is in vuex user organizations array
 router.beforeEach((to) => {
   if (store.getters["auth/isAuthenticated"]) {
-    if (to.params.org != "" && to.params.org != undefined)
-      store.dispatch("auth/setActiveWorkspace", to.params.org);
+    if (to.params.workspace != "" && to.params.workspace != undefined)
+      store.dispatch("auth/setActiveWorkspace", to.params.workspace);
     else store.dispatch("auth/unsetActiveWorkspace");
   }
   return;

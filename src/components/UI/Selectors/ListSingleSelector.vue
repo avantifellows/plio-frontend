@@ -61,7 +61,7 @@
 
 <script>
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
-import Utilities from "@/services/Functional/Utilities.js";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 
 export default {
   name: "ListSingleSelector",
@@ -95,7 +95,7 @@ export default {
     };
   },
   methods: {
-    ...Utilities,
+    getImageSource: GenericUtilities.getImageSource,
     /** emits the details of the option selected */
     setOption(index) {
       this.$emit("select", this.options[index].value);

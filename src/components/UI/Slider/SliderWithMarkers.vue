@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { convertSecondsToISOTime } from "@/services/Functional/Utilities.js";
+import { convertSecondsToISOTime } from "@/services/Functional/Utilities/Generic.js";
 export default {
   data() {
     return {
@@ -113,7 +113,7 @@ export default {
           "millisecond"
         )}`;
 
-        // Only show the hour value if it's available
+        // only show the hour value if it is available
         if (ISOTimeObject.hour != 0)
           this.markerTooltipContent = `${ISOTimeObject.getAsString("hour")}:${
             this.markerTooltipContent
@@ -139,7 +139,8 @@ export default {
       var markerRelativePosition = this.markerRelativePositions[markerIndex];
       return (
         markerRelativePosition >= 0 &&
-        markerRelativePosition <= ((100 * this.markerArenaWidth) / this.sliderWidth).toFixed(2)
+        markerRelativePosition <=
+          ((100 * this.markerArenaWidth) / this.sliderWidth).toFixed(2)
       );
     },
     valueUpdated() {

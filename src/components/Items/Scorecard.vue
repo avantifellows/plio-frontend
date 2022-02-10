@@ -106,10 +106,10 @@
 
 <script>
 import CircularProgress from "@/components/UI/Progress/CircularProgress.vue";
-import Utilities, {
+import GenericUtilities, {
   throwConfetti,
   isScreenPortrait,
-} from "@/services/Functional/Utilities.js";
+} from "@/services/Functional/Utilities/Generic.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import { useToast } from "vue-toastification";
 import domtoimage from "dom-to-image";
@@ -209,7 +209,7 @@ export default {
           this.localProgressBarPercentage = this.progressPercentage;
         }, PROGRESS_BAR_ANIMATION_DELAY_TIME);
 
-        // Also, throw some confetti in there
+        // also, throw some confetti in there
         throwConfetti(confettiHandler);
       } else {
         // if scorecard is not visible anymore, reset things
@@ -273,7 +273,7 @@ export default {
       if (this.progressPercentage == null || this.isMobileLandscape) return false;
       return true;
     },
-    /** The result to show in the centre of the progress bar */
+    /** the result to show in the centre of the progress bar */
     progressBarResult() {
       return {
         enabled: true,
@@ -324,7 +324,7 @@ export default {
   },
   methods: {
     ...mapActions("generic", ["showSpinner", "hideSpinner"]),
-    ...Utilities,
+    getImageSource: GenericUtilities.getImageSource,
     /**
      * checks whether the current screen corresponds to a mobile-sized
      * screen in landscape mode
