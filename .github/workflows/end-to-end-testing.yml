@@ -90,8 +90,6 @@ jobs:
           # setup docker containers
           docker-compose up -d --build
 
-          # temporary comment
-
       - name: Install TestCafe BrowserStack plugin
         run: npm install testcafe-browser-provider-browserstack
 
