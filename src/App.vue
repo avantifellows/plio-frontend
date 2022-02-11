@@ -183,6 +183,7 @@
           <div
             class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer"
             @click="setLocale('en')"
+            data-test="languagePicker-en"
           >
             <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">
               English
@@ -191,6 +192,7 @@
           <div
             class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer"
             @click="setLocale('hi')"
+            data-test="languagePicker-hi"
           >
             <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">
               हिंदी

@@ -59,10 +59,8 @@ const filterBeforeCreate = (toast, toasts) => {
   return toast;
 };
 
-// cypress automatically sets window.Cypress by default
-if (window.Cypress) {
-  window.__store__ = store;
-}
+// using this for testcafe to access vue store
+window.__store__ = store;
 
 const app = createApp(App).use(store).use(router);
 

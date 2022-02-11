@@ -1,4 +1,5 @@
 .DS_Store
+.dccache
 node_modules
 /dist
 dist/
@@ -28,12 +29,6 @@ package-lock.json
 
 # testing
 /coverage
-
-# cypress
-cypress.env.json
-.nyc_output/
-tests/integration/videos/
-tests/integration/screenshots/
 
 # codespaces
 workspace.code-workspace
