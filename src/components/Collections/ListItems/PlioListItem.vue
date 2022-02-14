@@ -38,26 +38,38 @@
         ></OptionDropdown>
       </div>
 
-      <div class="flex space-x-4">
+      <div class="flex space-x-4 truncate">
         <!-- thumnail -->
         <inline-svg
           :src="thumbnail"
           v-if="!isVideoIdValid"
-          class="h-12 w-16 fill-current text-gray-400"
+          class="fill-current text-gray-400"
+          :class="thumbnailClasses"
         ></inline-svg>
 
-        <img v-else :src="thumbnail" class="h-12 w-16" alt="Video thumbnail" />
+        <img v-else :src="thumbnail" :class="thumbnailClasses" alt="Video thumbnail" />
 
         <!-- plio title -->
-        <div class="flex items-center">
-          <p
-            class="text-base sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold truncate"
-            :class="{ 'opacity-50': isUntitled }"
-          >
-            {{ title }}
-          </p>
+        <div
+          class="text-base sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold truncate flex items-center"
+          :class="{ 'opacity-50': isUntitled }"
+        >
+          {{ title }}
         </div>
       </div>
+      <!-- plio title -->
+      <!-- <div
+        class="text-base sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold truncate"
+        :class="{ 'opacity-50': isUntitled }"
+      >
+        {{ title }}
+      </div> -->
+      <!-- <div
+        class="text-base sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold truncate"
+        :class="{ 'opacity-50': isUntitled }"
+      >
+        {{ title }}
+      </div> -->
     </div>
   </div>
 </template>
@@ -98,6 +110,7 @@ export default {
       toast: useToast(), // toast component
       optionsOverflowMarginTop: -14, // margin to be set from the top when the options would overflow from the screen
       itemDetails: [],
+      thumbnailClasses: "h-8 w-12 bp-500:h-10 bp-500:w-14 md:h-12 md:w-16",
     };
   },
   async created() {
@@ -165,7 +178,9 @@ export default {
         "video_url" in this.plioDetails &&
         this.plioDetails.video_url != null
       )
-        return VideoFunctionalService.getYouTubeVideoIdfromURL(this.plioDetails.video_url);
+        return VideoFunctionalService.getYouTubeVideoIdfromURL(
+          this.plioDetails.video_url
+        );
       return "";
     },
 
