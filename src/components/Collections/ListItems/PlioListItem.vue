@@ -45,6 +45,7 @@
           v-if="!isVideoIdValid"
           class="fill-current text-gray-400"
           :class="thumbnailClasses"
+          data-test="defaultThumbnail"
         ></inline-svg>
 
         <img
@@ -53,6 +54,7 @@
           :class="thumbnailClasses"
           class="rounded-md"
           alt="Video thumbnail"
+          data-test="videoThumbnail"
         />
 
         <!-- plio title -->
@@ -63,19 +65,6 @@
           {{ title }}
         </div>
       </div>
-      <!-- plio title -->
-      <!-- <div
-        class="text-base sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold truncate"
-        :class="{ 'opacity-50': isUntitled }"
-      >
-        {{ title }}
-      </div> -->
-      <!-- <div
-        class="text-base sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold truncate"
-        :class="{ 'opacity-50': isUntitled }"
-      >
-        {{ title }}
-      </div> -->
     </div>
   </div>
 </template>
