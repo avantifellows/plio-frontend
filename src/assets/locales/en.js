@@ -54,6 +54,7 @@ export default {
     },
     updated: "Updated at",
     item_editor: {
+      survey_mode: "Survey Mode",
       question_input: {
         title: "Question",
         placeholder: "Enter the question here",

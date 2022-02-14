@@ -82,9 +82,21 @@
         ></icon-button>
       </span>
     </div>
-
+    
     <!-- item editor -->
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
+      <div class="flex flex-row p-2">
+      <!-- checkbox -->
+        <label class="inline-flex items-center ">
+          <input
+            type="checkbox"
+            class="form-checkbox h-5 w-5 text-primary focus:ring-transparent"
+            data-test="surveyquestioncheckbox"
+            /><span class="ml-2 text-gray-700">{{
+            $t("editor.item_editor.survey_mode")
+            }}</span>
+        </label>
+      </div>
       <div class="flex flex-row">
         <!-- question input box : expandable -->
         <Textarea
