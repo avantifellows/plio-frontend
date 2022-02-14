@@ -13,7 +13,7 @@ export default {
    * extracts the video Id from the YouTube URL
    * @param {String} videoURL - the url of the youtube video whose id is to be extracted
    */
-  getVideoIdfromURL(videoURL) {
+  getYouTubeVideoIdfromURL(videoURL) {
     let linkValidation = this.isYouTubeVideoLinkValid(videoURL);
     if (!linkValidation["valid"]) return "";
     return linkValidation["ID"];

@@ -165,7 +165,7 @@ export default {
         "video_url" in this.plioDetails &&
         this.plioDetails.video_url != null
       )
-        return VideoFunctionalService.getVideoIdfromURL(this.plioDetails.video_url);
+        return VideoFunctionalService.getYouTubeVideoIdfromURL(this.plioDetails.video_url);
       return "";
     },
 
