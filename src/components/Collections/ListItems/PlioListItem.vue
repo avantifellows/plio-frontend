@@ -47,7 +47,13 @@
           :class="thumbnailClasses"
         ></inline-svg>
 
-        <img v-else :src="thumbnail" :class="thumbnailClasses" alt="Video thumbnail" />
+        <img
+          v-else
+          :src="thumbnail"
+          :class="thumbnailClasses"
+          class="rounded-md"
+          alt="Video thumbnail"
+        />
 
         <!-- plio title -->
         <div
@@ -173,11 +179,7 @@ export default {
     },
 
     videoId() {
-      if (
-        this.plioDetails != undefined &&
-        "video_url" in this.plioDetails &&
-        this.plioDetails.video_url != null
-      )
+      if (this.plioDetails != undefined && this.plioDetails.video_url != null)
         return VideoFunctionalService.getYouTubeVideoIdfromURL(
           this.plioDetails.video_url
         );
