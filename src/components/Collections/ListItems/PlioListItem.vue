@@ -105,7 +105,7 @@ export default {
       toast: useToast(), // toast component
       optionsOverflowMarginTop: -14, // margin to be set from the top when the options would overflow from the screen
       itemDetails: [],
-      thumbnailClasses: "h-8 w-12 bp-500:h-10 bp-500:w-14 md:h-12 md:w-16",
+      thumbnailClasses: "h-12 w-16 bp-500:h-14 bp-500:w-18 md:h-16 md:w-20",
     };
   },
   async created() {
