@@ -217,13 +217,14 @@
       ></EmbedPlioDialog>
     </div>
     <!-- list of options that can be selected -->
-    <div class="fixed top-1/6 w-full flex justify-center">
+    <div class="fixed top-1/4 lg:top-1/6 w-full flex justify-center">
       <ListSingleSelector
         v-if="isSingleSelectorShown"
         v-click-away="hideSelector"
         :options="selectorOptions"
-        :title="selectorTitle"
+        :heading="selectorHeading"
         :info="selectorInfo"
+        :isCloseButtonShown="isSelectorCloseButtonShown"
         @close="hideSelector"
         @select="selectOption"
         ref="listSingleSelector"
@@ -832,8 +833,9 @@ export default {
     }),
     ...mapState("selectors", {
       selectorOptions: "options",
-      selectorTitle: "title",
+      selectorHeading: "heading",
       selectorInfo: "info",
+      isSelectorCloseButtonShown: "isCloseButtonShown",
     }),
     ...mapGetters("selectors", ["isSingleSelectorShown"]),
     hasAnySettingsToRender() {

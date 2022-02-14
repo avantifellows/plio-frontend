@@ -2,8 +2,9 @@ const state = {
   isShown: false,
   type: "single",
   options: [],
-  title: "",
+  heading: "",
   info: "",
+  isCloseButtonShown: true,
 };
 
 const getters = {
@@ -24,17 +25,15 @@ const actions = {
 const mutations = {
   showSelector(state, params) {
     state.isShown = true;
-    state.type = params.type;
-    state.options = params.options;
 
-    if (params.title != undefined) state.title = params.title;
-    if (params.info != undefined) state.info = params.info;
+    for (const [key, value] of Object.entries(params)) state[key] = value;
   },
   hideSelector(state) {
     state.isShown = false;
     state.options = [];
-    state.title = "";
+    state.heading = "";
     state.info = "";
+    state.isCloseButtonShown = true;
   },
 };
 

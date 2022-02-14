@@ -3,7 +3,7 @@
     class="bg-white fixed w-3/4 bp-500:w-1/2 lg:w-1/3 z-10 shadow-lg rounded-md pb-4"
     data-test="optionsContainer"
   >
-    <div class="w-full flex justify-end">
+    <div class="w-full flex justify-end" v-if="isCloseButtonShown">
       <!-- close button -->
       <icon-button
         :iconConfig="closeDialogIconConfig"
@@ -13,8 +13,8 @@
       ></icon-button>
     </div>
 
-    <p v-if="isTitlePresent" class="p-2 px-6 text-lg font-bold" data-test="title">
-      {{ title }}
+    <p v-if="isHeadingPresent" class="p-2 px-6 text-lg font-bold" data-test="heading">
+      {{ heading }}
     </p>
 
     <hr />
@@ -36,7 +36,7 @@
         >
           <div class="flex space-x-4 items-center">
             <!-- option text -->
-            <p class="text-base w-full" data-test="label">{{ option.label }}</p>
+            <p class="text-base w-full" data-test="title">{{ option.title }}</p>
           </div>
         </li>
       </ul>
@@ -73,13 +73,17 @@ export default {
       type: Array,
       required: true,
     },
-    title: {
+    heading: {
       type: String,
       default: "",
     },
     info: {
       type: String,
       default: "",
+    },
+    isCloseButtonShown: {
+      type: Boolean,
+      default: true,
     },
   },
   data() {
@@ -106,11 +110,11 @@ export default {
     },
   },
   computed: {
-    isTitlePresent() {
-      return this.title != undefined && this.title != "";
+    isHeadingPresent() {
+      return this.heading != undefined && this.heading != "";
     },
     isInfoPresent() {
-      return this.info != undefined && this.title != "";
+      return this.info != undefined && this.info != "";
     },
   },
   emits: ["select", "close"],

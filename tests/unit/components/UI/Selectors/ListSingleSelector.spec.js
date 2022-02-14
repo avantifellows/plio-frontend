@@ -21,29 +21,29 @@ describe("ListSingleSelector.vue", () => {
   });
 
   describe("all props passed", () => {
-    let title, info, options;
+    let heading, info, options;
     beforeEach(async () => {
-      title = "testTitle";
+      heading = "testHeading";
       info = "testInfo";
       options = [
         {
           value: "testValue1",
-          label: "testLabel1",
+          title: "testLabel1",
         },
         {
           value: "testValue2",
-          label: "testLabel2",
+          title: "testLabel2",
         },
       ];
 
       await wrapper.setProps({
-        title: title,
+        heading: heading,
         info: info,
         options: options,
       });
     });
-    it("renders title, info and options", () => {
-      expect(wrapper.find('[data-test="title"]').text()).toBe(title);
+    it("renders heading, info and options", () => {
+      expect(wrapper.find('[data-test="heading"]').text()).toBe(heading);
       expect(wrapper.find('[data-test="info"]').exists()).toBeTruthy();
       expect(wrapper.find('[data-test="infoText"]').text()).toBe(info);
 
@@ -51,9 +51,9 @@ describe("ListSingleSelector.vue", () => {
         expect(
           wrapper
             .find(`[data-test="option-${index}"]`)
-            .find('[data-test="label"]')
+            .find('[data-test="title"]')
             .text()
-        ).toBe(option.label);
+        ).toBe(option.title);
       }
     });
     it("clicking on option emits that the options was clicked", async () => {

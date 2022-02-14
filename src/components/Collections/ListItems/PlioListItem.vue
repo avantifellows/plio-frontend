@@ -424,14 +424,16 @@ export default {
           this.workspaces.forEach((workspace) => {
             selectorOptions.push({
               value: workspace.shortcode,
-              label: workspace.name,
+              title: workspace.name,
             });
           });
           await this.setSelectedPlioId(this.plioId);
           this.showSelector({
             type: "single",
             options: selectorOptions,
-            title: this.$t("home.table.plio_list_item.selectors.copy_to_workspace.title"),
+            heading: this.$t(
+              "home.table.plio_list_item.selectors.copy_to_workspace.heading"
+            ),
             info: this.$t("home.table.plio_list_item.selectors.copy_to_workspace.info"),
           });
           break;
