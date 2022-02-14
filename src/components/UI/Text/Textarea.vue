@@ -153,7 +153,7 @@ export default {
     },
     validationIcon() {
       // fetches and returns the icon object, depending on "isValid"
-      var icon = require("@/assets/images/times-solid.svg");
+      let icon = require("@/assets/images/times-solid.svg");
       if (this.isValid) {
         icon = require("@/assets/images/check.svg");
       }

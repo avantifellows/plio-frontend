@@ -286,7 +286,7 @@ export default {
   },
   data() {
     return {
-      videoID: "", // video ID for the youtube video linked to the plio
+      videoId: "", // video ID for the youtube video linked to the plio
       plioTitle: "", // title for the current plio
       lastUpdated: "", // date when the plio was last updated,
       // style for the text of the url component
@@ -384,7 +384,8 @@ export default {
     },
     videoThumbnailURL() {
       // link to the thumbnail for the video linked to the plio
-      if (this.videoID) return `https://img.youtube.com/vi/${this.videoID}/sddefault.jpg`;
+      if (this.videoId)
+        return VideoFunctionalService.getYouTubeVideoThumbnailURL(this.videoId);
       return "";
     },
     lastUpdatedString() {
@@ -447,7 +448,7 @@ export default {
       // fetch plio details
       PlioAPIService.getPlio(this.plioId).then((plioDetails) => {
         if (plioDetails.status != "published") this.$router.replace({ name: "404" });
-        this.videoID = this.getVideoIDfromURL(plioDetails.videoURL);
+        this.videoId = VideoFunctionalService.getVideoIdfromURL(plioDetails.videoURL);
         this.plioTitle = plioDetails.plioTitle;
         this.lastUpdated = new Date(plioDetails.updatedAt);
       });
@@ -466,11 +467,6 @@ export default {
       });
 
       this.stopLoading();
-    },
-    getVideoIDfromURL(videoURL) {
-      // gets the video Id from the YouTube URL
-      var linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(videoURL);
-      return linkValidation["ID"];
     },
     editPlio() {
       this.$router.push({
