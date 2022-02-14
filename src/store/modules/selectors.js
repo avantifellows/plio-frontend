@@ -4,6 +4,9 @@ const state = {
   options: [],
   heading: "",
   info: "",
+  positionClass: "",
+  optionsContainerClass: "",
+  containerClass: "",
   isCloseButtonShown: true,
 };
 
@@ -34,6 +37,9 @@ const mutations = {
     state.heading = "";
     state.info = "";
     state.isCloseButtonShown = true;
+    state.optionsContainerClass = "";
+    state.positionClass = "";
+    state.containerClass = "";
   },
 };
 

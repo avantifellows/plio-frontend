@@ -2,7 +2,9 @@
   <div class="flex relative">
     <div
       class="w-full"
-      :class="{ 'opacity-20 pointer-events-none': isBackgroundDisabled }"
+      :class="{
+        'opacity-20 pointer-events-none cursor-not-allowed': isBackgroundDisabled,
+      }"
       @keydown="keyboardPressed"
     >
       <div
@@ -24,7 +26,7 @@
           :titleConfig="createButtonMenuTextConfig"
           :buttonClass="createButtonClass"
           class="bp-500:hidden"
-          @click="createNewPlio"
+          @click="choosePlioType"
           :isDisabled="pending"
         ></icon-button>
 
@@ -60,7 +62,7 @@
               :buttonClass="createButtonClass"
               class="my-4 border-b-outset border-primary"
               :class="{ 'hidden bp-500:inline': onHomePage }"
-              @click="createNewPlio"
+              @click="choosePlioType"
               :isDisabled="pending"
             ></icon-button>
 
@@ -217,7 +219,7 @@
       ></EmbedPlioDialog>
     </div>
     <!-- list of options that can be selected -->
-    <div class="fixed top-1/4 lg:top-1/6 w-full flex justify-center">
+    <div class="fixed w-full" :class="selectorPositionClass">
       <ListSingleSelector
         v-if="isSingleSelectorShown"
         v-click-away="hideSelector"
@@ -225,6 +227,8 @@
         :heading="selectorHeading"
         :info="selectorInfo"
         :isCloseButtonShown="isSelectorCloseButtonShown"
+        :optionsContainerClass="selectorOptionsContainerClass"
+        :containerClass="selectorContainerClass"
         @close="hideSelector"
         @select="selectOption"
         ref="listSingleSelector"
@@ -493,7 +497,7 @@ export default {
       "unsetCancelClicked",
       "unsetDialogCloseButton",
     ]),
-    ...mapActions("selectors", ["hideSelector"]),
+    ...mapActions("selectors", ["hideSelector", "showSelector"]),
     /**
      * Update the settings stored in the store and on the server as well
      * @param {Object} updatedSettings - details about the leaf settings that the user has updated
@@ -688,6 +692,46 @@ export default {
       this.isMenuButtonActive = !this.isMenuButtonActive;
     },
     /**
+     * asks the creator to choose which type of plio they want to create
+     */
+    choosePlioType() {
+      this.showSelector({
+        type: "single",
+        options: [
+          {
+            type: "CompoundListItem",
+            value: "quiz",
+            data: {
+              imageConfig: {
+                name: "plio-type-quiz",
+                class: "h-24 w-32",
+              },
+              title: "New Quiz",
+              description: "ABCD",
+            },
+            class: "hover:bg-gray-200 rounded-md",
+          },
+          {
+            type: "CompoundListItem",
+            value: "video",
+            data: {
+              imageConfig: {
+                name: "plio-type-video",
+                class: "h-24 w-32",
+              },
+              title: "New Interactive Video",
+              description: "EFGH",
+            },
+            class: "hover:bg-gray-200 rounded-md",
+          },
+        ],
+        isCloseButtonShown: false,
+        optionsContainerClass: "mx-4",
+        containerClass: "w-full bp-500:w-auto",
+        positionClass: "bp-500:ml-2 sm:ml-4 top-27.5 sm:top-3/10 lg:top-1/3",
+      });
+    },
+    /**
      * creates a new draft plio and redirects the user to the editor
      */
     async createNewPlio() {
@@ -836,6 +880,9 @@ export default {
       selectorHeading: "heading",
       selectorInfo: "info",
       isSelectorCloseButtonShown: "isCloseButtonShown",
+      selectorOptionsContainerClass: "optionsContainerClass",
+      selectorPositionClass: "positionClass",
+      selectorContainerClass: "containerClass",
     }),
     ...mapGetters("selectors", ["isSingleSelectorShown"]),
     hasAnySettingsToRender() {

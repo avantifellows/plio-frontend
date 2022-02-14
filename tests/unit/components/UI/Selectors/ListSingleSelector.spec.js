@@ -28,11 +28,11 @@ describe("ListSingleSelector.vue", () => {
       options = [
         {
           value: "testValue1",
-          title: "testLabel1",
+          data: "testLabel1",
         },
         {
           value: "testValue2",
-          title: "testLabel2",
+          data: "testLabel2",
         },
       ];
 
@@ -51,9 +51,9 @@ describe("ListSingleSelector.vue", () => {
         expect(
           wrapper
             .find(`[data-test="option-${index}"]`)
-            .find('[data-test="title"]')
+            .find('[data-test="value"]')
             .text()
-        ).toBe(option.title);
+        ).toBe(option.data);
       }
     });
     it("clicking on option emits that the options was clicked", async () => {

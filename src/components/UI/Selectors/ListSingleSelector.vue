@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="bg-white fixed w-3/4 bp-500:w-1/2 lg:w-1/3 z-10 shadow-lg rounded-md pb-4"
-    data-test="optionsContainer"
-  >
+  <div class="bg-white fixed z-10 shadow-lg rounded-md pb-4" :class="mainContainerClass">
     <div class="w-full flex justify-end" v-if="isCloseButtonShown">
       <!-- close button -->
       <icon-button
@@ -17,26 +14,38 @@
       {{ heading }}
     </p>
 
-    <hr />
+    <hr v-if="isHeadingPresent" />
 
     <div>
       <ul
         tabindex="-1"
         role="listbox"
-        class="text-base overflow-auto focus:outline-none sm:text-sm max-h-48"
+        class="text-base overflow-auto focus:outline-none sm:text-sm"
+        :class="optionsContainerClass"
         data-test="options"
       >
         <li
           v-for="(option, optionIndex) in options"
           :key="optionIndex"
           role="option"
-          class="text-gray-900 select-none relative p-2 px-6 hover:bg-primary hover:cursor-pointer hover:text-white"
+          class="text-gray-900 select-none relative hover:cursor-pointer"
+          :class="option.class || ''"
           @click="setOption(optionIndex)"
           :data-test="`option-${optionIndex}`"
         >
           <div class="flex space-x-4 items-center">
-            <!-- option text -->
-            <p class="text-base w-full" data-test="title">{{ option.title }}</p>
+            <p v-if="isOptionTypeText(option)" class="text-base w-full" data-test="value">
+              {{ option.data }}
+            </p>
+
+            <CompoundListItem
+              v-if="isOptionTypeCompoundListItem(option)"
+              :title="option.data.title"
+              :description="option.data.description"
+              :imageConfig="option.data.imageConfig"
+              class="text-base w-full"
+              data-test="value"
+            ></CompoundListItem>
           </div>
         </li>
       </ul>
@@ -62,11 +71,13 @@
 <script>
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
+import CompoundListItem from "@/components/Collections/ListItems/CompoundListItem.vue";
 
 export default {
   name: "ListSingleSelector",
   components: {
     IconButton,
+    CompoundListItem,
   },
   props: {
     options: {
@@ -85,6 +96,14 @@ export default {
       type: Boolean,
       default: true,
     },
+    optionsContainerClass: {
+      type: String,
+      default: "",
+    },
+    containerClass: {
+      type: String,
+      default: "",
+    },
   },
   data() {
     return {
@@ -100,6 +119,12 @@ export default {
   },
   methods: {
     getImageSource: GenericUtilities.getImageSource,
+    isOptionTypeText(option) {
+      return option.type == "text";
+    },
+    isOptionTypeCompoundListItem(option) {
+      return option.type == "CompoundListItem";
+    },
     /** emits the details of the option selected */
     setOption(index) {
       this.$emit("select", this.options[index].value);
@@ -110,6 +135,9 @@ export default {
     },
   },
   computed: {
+    mainContainerClass() {
+      return [{ "pt-4": !this.isHeadingPresent }, this.containerClass];
+    },
     isHeadingPresent() {
       return this.heading != undefined && this.heading != "";
     },
@@ -120,3 +148,9 @@ export default {
   emits: ["select", "close"],
 };
 </script>
+
+<style scoped>
+li.menu-item:not(:last-child) {
+  margin-bottom: 3px;
+}
+</style>

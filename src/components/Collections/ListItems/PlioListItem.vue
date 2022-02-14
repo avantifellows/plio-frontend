@@ -423,8 +423,10 @@ export default {
           let selectorOptions = [];
           this.workspaces.forEach((workspace) => {
             selectorOptions.push({
+              type: "text",
               value: workspace.shortcode,
-              title: workspace.name,
+              data: workspace.name,
+              class: "hover:bg-primary hover:text-white p-2 px-6",
             });
           });
           await this.setSelectedPlioId(this.plioId);
@@ -434,6 +436,9 @@ export default {
             heading: this.$t(
               "home.table.plio_list_item.selectors.copy_to_workspace.heading"
             ),
+            optionsContainerClass: "max-h-48",
+            containerClass: "w-3/4 bp-500:w-1/2 lg:w-1/3",
+            positionClass: "flex justify-center top-1/4 lg:top-1/6",
             info: this.$t("home.table.plio_list_item.selectors.copy_to_workspace.info"),
           });
           break;
