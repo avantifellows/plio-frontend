@@ -10,7 +10,6 @@ export default {
   },
 
   /**
-   * extracts the video Id from the YouTube URL
    * @param {String} videoURL - the url of the youtube video whose id is to be extracted
    */
   getYouTubeVideoIdfromURL(videoURL) {
@@ -20,7 +19,6 @@ export default {
   },
 
   /**
-   * Get the thumbnail image of a YouTube video
    * @param {String} videoId - the unique id of the video on youtube
    */
   getYouTubeVideoThumbnailURL(videoId) {

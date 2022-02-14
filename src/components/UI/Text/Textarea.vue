@@ -153,11 +153,10 @@ export default {
     },
     validationIcon() {
       // fetches and returns the icon object, depending on "isValid"
-      let icon = require("@/assets/images/times-solid.svg");
       if (this.isValid) {
-        icon = require("@/assets/images/check.svg");
+        return require("@/assets/images/check.svg");
       }
-      return icon;
+      return require("@/assets/images/times-solid.svg");
     },
     startIconName() {
       // gets the start icon name from the prop

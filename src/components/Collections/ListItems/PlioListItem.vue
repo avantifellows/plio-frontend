@@ -156,11 +156,10 @@ export default {
     }),
 
     thumbnail() {
-      let icon = require("@/assets/images/video-thumbnail.svg");
       if (this.isVideoIdValid) {
         return VideoFunctionalService.getYouTubeVideoThumbnailURL(this.videoId);
       }
-      return icon;
+      return require("@/assets/images/video-thumbnail.svg");
     },
 
     isVideoIdValid() {
