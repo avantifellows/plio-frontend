@@ -39,7 +39,7 @@
       </div>
 
       <div class="flex space-x-4 truncate">
-        <!-- thumnail -->
+        <!-- thumbnail -->
         <inline-svg
           :src="thumbnail"
           v-if="!isVideoIdValid"
