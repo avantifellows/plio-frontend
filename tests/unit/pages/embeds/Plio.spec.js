@@ -2,8 +2,11 @@ import { flushPromises, mount } from "@vue/test-utils";
 import Plio from "@/pages/Embeds/Plio.vue";
 import mockAxios from "jest-mock-axios";
 import store from "@/store";
+import router from "@/router";
 import UserAPIService from "@/services/API/User.js";
 import EventAPIService from "@/services/API/Event.js";
+import { userFromTokenEndpoint } from "@/services/API/Endpoints";
+
 let clonedeep = require("lodash.clonedeep");
 let wrapper;
 let plioId = "123";
@@ -216,38 +219,49 @@ describe("Plio.vue", () => {
     });
 
     it("handles SAML SSO", async () => {
-      const setAccessToken = jest
-        .spyOn(Plio.methods, "setAccessToken")
-        .mockImplementation(() => {
-          return new Promise((resolve) => resolve());
-        });
-      const setActiveWorkspace = jest
-        .spyOn(Plio.methods, "setActiveWorkspace")
-        .mockImplementation(() => {
-          return new Promise((resolve) => resolve());
-        });
+      const fetchPlioCreateSession = jest.spyOn(
+        Plio.methods,
+        "fetchPlioCreateSession"
+      );
+
+      // the user navigates to a plio using SSO
+      router.push(
+        `/tempOrg/play/${plioId}?api_key=${apiKey}&unique_id=${uniqueId}`
+      );
       await mountWrapper({
         props: {
           thirdPartyApiKey: apiKey,
           thirdPartyUniqueId: uniqueId,
         },
       });
-
+      await router.isReady();
       // post request made to retrieve the SSO token
-      expect(mockAxios.post).toHaveBeenCalledTimes(1);
       expect(mockAxios.post).toHaveBeenCalledWith(
         "/generate-external-auth-access-token/",
         { api_key: apiKey, unique_id: uniqueId },
         { baseURL: process.env.VUE_APP_BACKEND_AUTH_URL }
       );
-
       mockAxios.mockResponse(
         { data: global.dummyAccessToken },
         mockAxios.queue()[0]
       );
       await flushPromises();
-      expect(setAccessToken).toHaveBeenCalled();
-      expect(setActiveWorkspace).toHaveBeenCalled();
+
+      // get request to retrieve the user from the given access token
+      expect(mockAxios.get).toHaveBeenCalledWith(userFromTokenEndpoint, {
+        params: { token: global.dummyAccessToken.access_token },
+      });
+      mockAxios.mockResponse(
+        { data: global.dummySSOUser },
+        mockAxios.queue()[0]
+      );
+      await flushPromises();
+
+      // the SSO user should be logged in properly and session fetching/creation should beging
+      expect(store.getters["auth/isSSOUser"]).toBe(true);
+      expect(store.getters["auth/isPersonalWorkspace"]).toBe(true);
+      expect(store.getters["auth/isAuthenticated"]).toBe(true);
+      expect(fetchPlioCreateSession).toHaveBeenCalled();
     });
   });
 

@@ -340,6 +340,29 @@ global.dummyDraftPlio = {
   },
 };
 
+global.dummySSOUser = {
+  id: 5,
+  last_login: null,
+  is_superuser: false,
+  first_name: "",
+  last_name: "",
+  is_staff: false,
+  is_active: true,
+  date_joined: "2021-04-21T08:49:09.763295Z",
+  email: "first.last@email.com",
+  mobile: null,
+  avatar_url: null,
+  config: {
+    locale: "en",
+  },
+  created_at: "2021-04-21T08:49:09.763814Z",
+  updated_at: "2021-07-08T09:51:19.145752Z",
+  organizations: [],
+  status: "approved",
+  unique_id: "0000000000",
+  auth_org: 1,
+};
+
 global.dummyUser = {
   id: 4,
   last_login: null,
