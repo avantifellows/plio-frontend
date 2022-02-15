@@ -14,6 +14,17 @@ export default {
     settings: "Settings",
     404: "Error",
   },
+  create_plio: {
+    quiz: {
+      title: "New Quiz",
+      description: "Create engaging quizzes that students can participate in!",
+    },
+    video: {
+      title: "New Interactive Video",
+      description:
+        "Create engaging lessons by adding interactions to passive videos!",
+    },
+  },
   editor: {
     video_input: {
       placeholder: "Enter the link of the YouTube video",
