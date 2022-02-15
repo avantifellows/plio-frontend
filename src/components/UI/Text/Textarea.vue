@@ -71,8 +71,8 @@
 </template>
 
 <script>
-import Quill from 'quill';
-import 'quill/dist/quill.snow.css';
+import Quill from "quill";
+import "quill/dist/quill.snow.css";
 
 export default {
   props: {
@@ -132,11 +132,11 @@ export default {
       type: Number,
     },
   },
-   data() {
-            return {
-                editor: null
-            };
-        },
+  data() {
+    return {
+      editor: null,
+    };
+  },
 
   computed: {
     localValue: {
@@ -218,10 +218,9 @@ export default {
     },
   },
   methods: {
-
-     update() {
-           this.$emit('update:value', this.editor.getText() ? this.editor.root.innerHTML : '');
-     },
+    update() {
+      this.$emit("update:value", this.editor.getText() ? this.editor.root.innerHTML : "");
+    },
     inputChange(event) {
       // invoked on input change
       this.$emit("input", this.value);
@@ -234,10 +233,10 @@ export default {
           Math.min(textareaElement.scrollHeight, this.maxHeightLimit) + "px";
       }
     },
-  //   onInput(event){
-  //   inputChange(event);
-  //   updateChange(event);
-  // },
+    //   onInput(event){
+    //   inputChange(event);
+    //   updateChange(event);
+    // },
     keyPress(event) {
       // invoked by pressing a key
       this.$emit("keypress", event);
@@ -254,41 +253,39 @@ export default {
   emits: ["input", "keypress", "keydown", "update:value", "start-icon-selected"],
   mounted() {
     this.editor = new Quill(this.$refs.editor, {
-        modules: {
-            toolbar: [
-                ['bold', 'italic', 'underline']
-            ]
-        },
-        theme: 'snow',
-        formats: ['bold', 'underline', 'italic']
+      modules: {
+        toolbar: [["bold", "italic", "underline"]],
+      },
+      theme: "snow",
+      formats: ["bold", "underline", "italic"],
     });
 
     this.editor.root.innerHTML = this.value;
 
     // We will add the update event here
-    this.editor.on('text-change', () => {});
-
-
-}};
+    this.editor.on("text-change", () => {});
+  },
+};
 </script>
 <style>
 .ql-container.ql-snow {
-    height: auto;
+  height: auto;
 }
-.ql-toolbar.ql-snow{
+.ql-toolbar.ql-snow {
   z-index: 100;
-    position: absolute;
-    width:100%;
-    background-color:#F2E8DF;
-    border:1px solid transparent;
-    padding:0px;
+  position: absolute;
+  width: 100%;
+  background-color: #f2e8df;
+  border: 1px solid transparent;
+  padding: 0px;
 }
 
-.ql-editor, .textbox {
-  height:7rem;
+.ql-editor,
+.textbox {
+  height: 7rem;
 
-   max-height: 7rem;
-    overflow-y: auto;
-    padding:1rem 1rem 0 0 ;
+  max-height: 7rem;
+  overflow-y: auto;
+  padding: 1rem 1rem 0 0;
 }
 </style>
