@@ -128,7 +128,6 @@ export default {
       if (this.isOptionSpacingPresent && optionIndex != this.options.length - 1) {
         classes.push(this.optionSpacingClass);
       }
-      console.log(classes);
       return classes;
     },
     isOptionTypeText(option) {
