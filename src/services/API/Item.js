@@ -1,7 +1,7 @@
 import { apiClient } from "@/services/API/RootClient.js";
 import {
   itemsEndpoint,
-  duplicateEndpoint,
+  // duplicateEndpoint,
   bulkDeleteEndpoint,
 } from "@/services/API/Endpoints.js";
 
@@ -44,11 +44,11 @@ export default {
    * @param {Number} plioDBId - database id of the plio to which the newly created item should be linked
    * @returns {Promise}
    */
-  duplicateItem(itemId, plioDBId) {
-    return apiClient().post(itemsEndpoint + itemId + duplicateEndpoint, {
-      plioId: plioDBId,
-    });
-  },
+  // duplicateItem(itemId, plioDBId) {
+  //   return apiClient().post(itemsEndpoint + itemId + duplicateEndpoint, {
+  //     plioId: plioDBId,
+  //   });
+  // },
 
   /**
    * Delete a list of items

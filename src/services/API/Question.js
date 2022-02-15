@@ -1,7 +1,7 @@
 import { apiClient } from "@/services/API/RootClient.js";
 import {
   questionsEndpoint,
-  duplicateEndpoint,
+  // duplicateEndpoint,
 } from "@/services/API/Endpoints.js";
 
 export default {
@@ -31,12 +31,12 @@ export default {
    * @param {Number} questionId - id of the question to be duplicated
    * @param {Number} itemId - id of the item to which the duplicated question should be linked
    */
-  duplicateQuestion(questionId, itemId) {
-    return apiClient().post(
-      questionsEndpoint + questionId + duplicateEndpoint,
-      {
-        itemId: itemId,
-      }
-    );
-  },
+  // duplicateQuestion(questionId, itemId) {
+  //   return apiClient().post(
+  //     questionsEndpoint + questionId + duplicateEndpoint,
+  //     {
+  //       itemId: itemId,
+  //     }
+  //   );
+  // },
 };
