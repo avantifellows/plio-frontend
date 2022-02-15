@@ -172,6 +172,7 @@
         data-test="dialogBox"
       ></dialog-box>
     </div>
+    <div v-if="isBackgroundDisabled" class="absolute h-full w-full z-50"></div>
     <!-- first-time language picker -->
     <div
       class="fixed w-full top-1/4 my-5 flex justify-center"
@@ -364,6 +365,10 @@ export default {
     UserConfigService.setLocaleFromUserConfig();
   },
   watch: {
+    isBackgroundDisabled(value) {
+      if (value) this.disableScroll();
+      else this.enableScroll();
+    },
     userSettings() {
       this.constructSettingsMenu();
     },
@@ -462,8 +467,6 @@ export default {
   },
   methods: {
     getImageSource: GenericUtilities.getImageSource,
-    // object spread operator
-    // https://vuex.vuejs.org/guide/state.html#object-spread-operator
     ...mapActions("auth", [
       "unsetAccessToken",
       "fetchAndUpdateUser",
@@ -501,6 +504,18 @@ export default {
       "unsetDialogCloseButton",
     ]),
     ...mapActions("selectors", ["hideSelector", "showSelector"]),
+    disableScroll() {
+      // Get the current page scroll position
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+      // if any scroll is attempted, set this to the previous value
+      window.onscroll = () => {
+        window.scrollTo(scrollLeft, scrollTop);
+      };
+    },
+    enableScroll() {
+      window.onscroll = () => {};
+    },
     /**
      * Update the settings stored in the store and on the server as well
      * @param {Object} updatedSettings - details about the leaf settings that the user has updated
