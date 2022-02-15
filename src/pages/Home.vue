@@ -84,6 +84,11 @@ export default {
         await this.fetchPlios();
       }
     },
+    isTableShown(value) {
+      if (!value) {
+        this.$nextTick(() => this.stopLoading());
+      }
+    },
   },
   data() {
     return {
@@ -190,7 +195,7 @@ export default {
         // criteria specified by the params (based on search, for example)
         if (response.data.raw_count == 0) {
           this.isTableShown = false;
-          this.stopLoading();
+          return;
         } else this.isTableShown = true;
       }
       this.totalNumberOfPlios = response.data.count; // set total number of plios and show the paginator
@@ -240,11 +245,11 @@ export default {
       /**
        * prepares the data for the plios to be fed into the table
        */
-
       if (!plioList.length) {
         // no plios found
         this.stopLoading();
         this.tableData = [];
+        return;
       }
 
       // holds the data to be fed to the table
