@@ -82,20 +82,33 @@
         ></icon-button>
       </span>
     </div>
-    
+
     <!-- item editor -->
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
       <div class="flex flex-row p-2">
-      <!-- checkbox -->
-        <label class="inline-flex items-center ">
-          <input
-            type="checkbox"
-            class="form-checkbox h-5 w-5 text-primary focus:ring-transparent"
-            data-test="surveyquestioncheckbox"
+        <div class="flex-col ">
+          <!-- checkbox -->
+          <label class="inline-flex items-center">
+            <input
+              type="checkbox"
+              class="form-checkbox h-5 w-5 text-primary focus:ring-transparent"
+              v-model="isThisSurveyQuestion"
+              data-test="surveyquestioncheckbox"
             /><span class="ml-2 text-gray-700">{{
-            $t("editor.item_editor.survey_mode")
+              $t("editor.item_editor.survey_mode")
             }}</span>
-        </label>
+          </label>
+        </div>
+        <div class="flex-col">
+          <span
+            v-tooltip="{ content: $t('tooltip.editor.analyze'), placement: 'bottom' }"
+          >
+            <inline-svg
+                :src="getImageSource('information-survey.svg')"
+                class="w-8 h-5 items-center "
+            ></inline-svg>
+          </span>  
+        </div>
       </div>
       <div class="flex flex-row">
         <!-- question input box : expandable -->
@@ -219,6 +232,7 @@ import QuestionTypeDropdown from "@/components/Editor/QuestionTypeDropdown.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import {
   convertSecondsToISOTime,
@@ -373,6 +387,7 @@ export default {
     QuestionTypeDropdown,
   },
   methods: {
+    getImageSource: GenericUtilities.getImageSource,
     showImageUploaderBox() {
       // to show or hide the image uploader dialog box
       this.$emit("show-image-uploader");
@@ -744,6 +759,17 @@ export default {
       set(value) {
         // set the character limit in the item
         this.selectedItemDetail.max_char_limit = value;
+      },
+    },
+    isThisSurveyQuestion: {
+      get() {
+        // extract whether question is for survey
+        if (this.selectedItemDetail == null) return false;
+        return this.selectedItemDetail.survey;
+      },
+      set(value) {
+        // set whether question is for survey
+        this.selectedItemDetail.survey = value;
       },
     },
     isMaxCharLimitSet: {

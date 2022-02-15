@@ -7,6 +7,7 @@ import {
   plioMetricsEndpoint,
   copyEndpoint,
 } from "@/services/API/Endpoints.js";
+let clonedeep = require("lodash.clonedeep");
 import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 
 export default {
@@ -28,6 +29,7 @@ export default {
         // prepares plio details to be consumed by the components
         let plioDetails = {};
         plioDetails.itemDetails = [];
+        console.log(clonedeep(plio.data.items));
         for (let item of plio.data.items) {
           /**
            * add every item's details to an itemDetails array
@@ -36,6 +38,7 @@ export default {
           plioDetails.itemDetails.push(item.details);
           delete item.details;
         }
+        console.log(plioDetails.itemDetails);
         plioDetails.items = plio.data.items;
         plioDetails.videoURL = plio.data.video.url;
         plioDetails.plioTitle = plio.data.name;

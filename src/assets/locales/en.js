@@ -55,6 +55,7 @@ export default {
     updated: "Updated at",
     item_editor: {
       survey_mode: "Survey Mode",
+      tooltip_survey_mode: "In survey mode, questions do not have correct options",
       question_input: {
         title: "Question",
         placeholder: "Enter the question here",

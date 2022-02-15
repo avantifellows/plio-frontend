@@ -55,6 +55,8 @@ export default {
     },
     updated: "अपडेटेड ऐट",
     item_editor: {
+      survey_mode: "सर्वेक्षण मोड",
+      tooltip_survey_mode: "सर्वेक्षण मोड में, प्रश्नों के सही विकल्प नहीं होते हैं",
       question_input: {
         title: "सवाल",
         placeholder: "अपना सवाल यहाँ दर्ज करें",
