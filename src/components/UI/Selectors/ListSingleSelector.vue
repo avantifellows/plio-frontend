@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white fixed z-10 shadow-lg rounded-md pb-4" :class="mainContainerClass">
+  <div class="bg-white fixed z-10 shadow-2xl rounded-md pb-4" :class="mainContainerClass">
     <div class="w-full flex justify-end" v-if="isCloseButtonShown">
       <!-- close button -->
       <icon-button

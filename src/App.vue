@@ -304,6 +304,8 @@ export default {
       isSettingsMenuShown: false,
       settingsToRender: {}, // the settings object that will be rendered when settings menu is opened
       settingsWatchers: [], // the unwatch callbacks to the watchers attached to individual settings
+      plioTypeOptionImageClass:
+        "h-14 w-20 bp-360:h-16 bp-360:w-24 bp-500:h-20 bp-500:w-28 md:h-24 md:w-32",
     };
   },
   async created() {
@@ -704,12 +706,12 @@ export default {
             data: {
               imageConfig: {
                 name: "plio-type-quiz",
-                class: "h-24 w-32",
+                class: this.plioTypeOptionImageClass,
               },
               title: "New Quiz",
-              description: "ABCD",
+              description: "Create engaging quizzes that students can participate in!",
             },
-            class: "hover:bg-gray-200 rounded-md",
+            class: "hover:bg-gray-100 rounded-md sm:p-2",
           },
           {
             type: "CompoundListItem",
@@ -717,18 +719,20 @@ export default {
             data: {
               imageConfig: {
                 name: "plio-type-video",
-                class: "h-24 w-32",
+                class: this.plioTypeOptionImageClass,
               },
               title: "New Interactive Video",
-              description: "EFGH",
+              description:
+                "Create engaging lessons by adding interactions to passive videos!",
             },
-            class: "hover:bg-gray-200 rounded-md",
+            class: "hover:bg-gray-100 rounded-md sm:p-2",
           },
         ],
         isCloseButtonShown: false,
-        optionsContainerClass: "mx-4",
-        containerClass: "w-full bp-500:w-auto",
-        positionClass: "bp-500:ml-2 sm:ml-4 top-27.5 sm:top-3/10 lg:top-1/3",
+        optionsContainerClass: "mx-2 md:mx-4 max-w-lg",
+        containerClass: "w-full bp-420:w-5/6 bp-500:w-3/4 sm:w-auto rounded-lg",
+        positionClass:
+          "flex justify-center bp-500:block bp-500:ml-2 sm:ml-4 top-27.5 sm:top-52",
       });
     },
     /**
