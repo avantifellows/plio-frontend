@@ -257,7 +257,7 @@ describe("Plio.vue", () => {
       );
       await flushPromises();
 
-      // the SSO user should be logged in properly and session fetching/creation should beging
+      // the SSO user should be logged in properly and session fetching/creation should begin
       expect(store.getters["auth/isSSOUser"]).toBe(true);
       expect(store.getters["auth/isPersonalWorkspace"]).toBe(true);
       expect(store.getters["auth/isAuthenticated"]).toBe(true);

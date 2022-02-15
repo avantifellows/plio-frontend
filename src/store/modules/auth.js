@@ -67,8 +67,8 @@ const getters = {
   },
   /** settings for the active workspace */
   activeWorkspaceSettings: (state, getters) => {
-    if (getters.isPersonalWorkspace) return null;
     if (
+      getters.isPersonalWorkspace ||
       state.workspaceSettings == null ||
       !(state.activeWorkspace in state.workspaceSettings)
     )
