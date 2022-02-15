@@ -9,6 +9,7 @@ const state = {
   containerClass: "",
   isCloseButtonShown: true,
   optionSpacingClass: "",
+  action: "",
 };
 
 const getters = {
@@ -42,6 +43,7 @@ const mutations = {
     state.positionClass = "";
     state.containerClass = "";
     state.optionSpacingClass = "";
+    state.action = "";
   },
 };
 

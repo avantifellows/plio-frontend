@@ -59,7 +59,7 @@ export default {
       return this.description != "";
     },
     isImageEnabled() {
-      return this.imageConfig != {} && this.imageConfig.name != "";
+      return this.imageConfig.name != "";
     },
     iconClass() {
       return this.imageConfig.class;

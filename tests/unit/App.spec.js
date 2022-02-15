@@ -543,7 +543,7 @@ describe("App.vue for authenticated user", () => {
   });
 
   describe("list selector", () => {
-    const selectorTitle = "testTitle";
+    const selectorHeading = "testHeading";
     const selectorInfo = "testInfo";
     const selectedOptionIndex = 0;
     let selectorOptions = [];
@@ -554,8 +554,9 @@ describe("App.vue for authenticated user", () => {
       store.dispatch("selectors/showSelector", {
         type: "single",
         options: selectorOptions,
-        title: selectorTitle,
+        heading: selectorHeading,
         info: selectorInfo,
+        action: "copyPlioToWorkspace",
       });
 
       // set selected plio details
@@ -565,15 +566,16 @@ describe("App.vue for authenticated user", () => {
     beforeEach(() => {
       store.getters["auth/workspaces"].forEach((workspace) => {
         selectorOptions.push({
+          type: "text",
           value: workspace.shortcode,
-          label: workspace.name,
+          data: workspace.name,
         });
       });
       setSelectorParams();
     });
 
-    it("sets the values correctly", () => {
-      expect(wrapper.vm.selectorTitle).toBe(selectorTitle);
+    it("sets the heading, info and options correctly", () => {
+      expect(wrapper.vm.selectorHeading).toBe(selectorHeading);
       expect(wrapper.vm.selectorInfo).toBe(selectorInfo);
       expect(wrapper.vm.selectorOptions).toStrictEqual(selectorOptions);
       expect(wrapper.vm.isSingleSelectorShown).toBeTruthy();
@@ -587,7 +589,7 @@ describe("App.vue for authenticated user", () => {
       wrapper.vm.$refs.listSingleSelector.$emit("close");
       await flushPromises();
       expect(hideSelector).toHaveBeenCalled();
-      expect(wrapper.vm.selectorTitle).toBeFalsy();
+      expect(wrapper.vm.selectorHeading).toBeFalsy();
       expect(wrapper.vm.selectorInfo).toBeFalsy();
       expect(wrapper.vm.selectorOptions).toEqual([]);
       expect(wrapper.vm.isSingleSelectorShown).toBeFalsy();

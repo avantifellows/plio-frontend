@@ -359,8 +359,10 @@ describe("PlioListItem.vue", () => {
         const expectedOptions = [];
         testWorkspaces.forEach((workspace) => {
           expectedOptions.push({
+            type: "text",
             value: workspace.shortcode,
-            label: workspace.name,
+            class: "hover:bg-primary hover:text-white p-2 px-6",
+            data: workspace.name,
           });
         });
         expect(store.state.selectors.options).toEqual(expectedOptions);

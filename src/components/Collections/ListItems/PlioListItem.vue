@@ -439,6 +439,7 @@ export default {
             containerClass: "w-3/4 bp-500:w-1/2 lg:w-1/3",
             positionClass: "flex justify-center top-1/4 lg:top-1/6",
             info: this.$t("home.table.plio_list_item.selectors.copy_to_workspace.info"),
+            action: "copyPlioToWorkspace",
           });
           break;
         }

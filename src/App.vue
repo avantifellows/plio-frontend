@@ -748,6 +748,7 @@ export default {
         optionSpacingClass: "mb-4 bp-500:mb-2",
         positionClass:
           "flex justify-center bp-500:block bp-500:ml-2 sm:ml-4 top-27.5 sm:top-52",
+        action: "createPlio",
       });
     },
     /**
@@ -849,19 +850,30 @@ export default {
      * @param {String} selectedOptionValue - the value of the option selected
      */
     selectOption(selectedOptionValue) {
+      switch (this.selectorAction) {
+        case "copyPlioToWorkspace":
+          this.showSpinner();
+          PlioAPIService.copyToWorkspace(this.selectedPlioId, {
+            workspace: selectedOptionValue,
+          })
+            .then(() => {
+              this.hideSpinner();
+              this.$router.push({
+                name: "Home",
+                params: { workspace: selectedOptionValue },
+              });
+            })
+            .catch(() => {
+              this.hideSpinner();
+              this.toast.error(this.$t("toast.error.generic"));
+            });
+          break;
+        case "createPlio":
+          break;
+        default:
+          break;
+      }
       this.hideSelector();
-      this.showSpinner();
-      PlioAPIService.copyToWorkspace(this.selectedPlioId, {
-        workspace: selectedOptionValue,
-      })
-        .then(() => {
-          this.hideSpinner();
-          this.$router.push({ name: "Home", params: { workspace: selectedOptionValue } });
-        })
-        .catch(() => {
-          this.hideSpinner();
-          this.toast.error(this.$t("toast.error.generic"));
-        });
     },
   },
   computed: {
@@ -903,6 +915,7 @@ export default {
       selectorPositionClass: "positionClass",
       selectorContainerClass: "containerClass",
       selectorOptionSpacingClass: "optionSpacingClass",
+      selectorAction: "action",
     }),
     ...mapGetters("selectors", ["isSingleSelectorShown"]),
     hasAnySettingsToRender() {

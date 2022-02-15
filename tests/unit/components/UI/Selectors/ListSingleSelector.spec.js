@@ -27,10 +27,12 @@ describe("ListSingleSelector.vue", () => {
       info = "testInfo";
       options = [
         {
+          type: "text",
           value: "testValue1",
           data: "testLabel1",
         },
         {
+          type: "text",
           value: "testValue2",
           data: "testLabel2",
         },
