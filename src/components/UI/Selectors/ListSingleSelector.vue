@@ -29,7 +29,7 @@
           :key="optionIndex"
           role="option"
           class="text-gray-900 select-none relative hover:cursor-pointer"
-          :class="option.class || ''"
+          :class="getOptionClass(option, optionIndex)"
           @click="setOption(optionIndex)"
           :data-test="`option-${optionIndex}`"
         >
@@ -104,6 +104,10 @@ export default {
       type: String,
       default: "",
     },
+    optionSpacingClass: {
+      type: String,
+      default: "",
+    },
   },
   data() {
     return {
@@ -119,6 +123,14 @@ export default {
   },
   methods: {
     getImageSource: GenericUtilities.getImageSource,
+    getOptionClass(option, optionIndex) {
+      const classes = [option.class];
+      if (this.isOptionSpacingPresent && optionIndex != this.options.length - 1) {
+        classes.push(this.optionSpacingClass);
+      }
+      console.log(classes);
+      return classes;
+    },
     isOptionTypeText(option) {
       return option.type == "text";
     },
@@ -143,6 +155,9 @@ export default {
     },
     isInfoPresent() {
       return this.info != undefined && this.info != "";
+    },
+    isOptionSpacingPresent() {
+      return this.optionSpacingClass != "";
     },
   },
   emits: ["select", "close"],

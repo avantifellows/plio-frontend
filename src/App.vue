@@ -229,6 +229,7 @@
         :isCloseButtonShown="isSelectorCloseButtonShown"
         :optionsContainerClass="selectorOptionsContainerClass"
         :containerClass="selectorContainerClass"
+        :optionSpacingClass="selectorOptionSpacingClass"
         @close="hideSelector"
         @select="selectOption"
         ref="listSingleSelector"
@@ -731,6 +732,7 @@ export default {
         isCloseButtonShown: false,
         optionsContainerClass: "mx-2 md:mx-4 max-w-lg",
         containerClass: "w-full bp-420:w-5/6 bp-500:w-3/4 sm:w-auto rounded-lg",
+        optionSpacingClass: "mb-4 bp-500:mb-2",
         positionClass:
           "flex justify-center bp-500:block bp-500:ml-2 sm:ml-4 top-27.5 sm:top-52",
       });
@@ -887,6 +889,7 @@ export default {
       selectorOptionsContainerClass: "optionsContainerClass",
       selectorPositionClass: "positionClass",
       selectorContainerClass: "containerClass",
+      selectorOptionSpacingClass: "optionSpacingClass",
     }),
     ...mapGetters("selectors", ["isSingleSelectorShown"]),
     hasAnySettingsToRender() {

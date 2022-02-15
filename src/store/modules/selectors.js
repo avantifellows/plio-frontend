@@ -8,6 +8,7 @@ const state = {
   optionsContainerClass: "",
   containerClass: "",
   isCloseButtonShown: true,
+  optionSpacingClass: "",
 };
 
 const getters = {
@@ -40,6 +41,7 @@ const mutations = {
     state.optionsContainerClass = "";
     state.positionClass = "";
     state.containerClass = "";
+    state.optionSpacingClass = "";
   },
 };
 
