@@ -36,10 +36,25 @@
       >
         <inline-svg :src="startIconObj"></inline-svg>
       </div>
-
       <!-- input text area -->
-      <textarea
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
+
+      <div
+        contenteditable="true"
+        class="pt-7 textbox pl-0 border placeholder-blueGray-300 h-24 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
+        :class="[inputAreaClass, boxStyling]"
+        :disabled="isDisabled"
+        ref="editor"
+        :placeholder="placeholder"
+        v-html="value"
+        name="placeholder"
+        autocomplete="off"
+        @input="inputChange"
+        @keypress="keyPress"
+        @keydown="keyDown"
+        data-test="input"
+      />
+      <!-- <textarea
+        class="p-2 z-20 relative textbox border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
         :class="[inputAreaClass, boxStyling]"
         :disabled="isDisabled"
         :placeholder="placeholder"
@@ -50,12 +65,15 @@
         @keypress="keyPress"
         @keydown="keyDown"
         data-test="input"
-      />
+      /> -->
     </div>
   </div>
 </template>
 
 <script>
+import Quill from 'quill';
+import 'quill/dist/quill.snow.css';
+
 export default {
   props: {
     placeholder: {
@@ -114,6 +132,12 @@ export default {
       type: Number,
     },
   },
+   data() {
+            return {
+                editor: null
+            };
+        },
+
   computed: {
     localValue: {
       // local copy of the value prop
@@ -194,6 +218,10 @@ export default {
     },
   },
   methods: {
+
+     update() {
+           this.$emit('update:value', this.editor.getText() ? this.editor.root.innerHTML : '');
+     },
     inputChange(event) {
       // invoked on input change
       this.$emit("input", this.value);
@@ -206,6 +234,10 @@ export default {
           Math.min(textareaElement.scrollHeight, this.maxHeightLimit) + "px";
       }
     },
+  //   onInput(event){
+  //   inputChange(event);
+  //   updateChange(event);
+  // },
     keyPress(event) {
       // invoked by pressing a key
       this.$emit("keypress", event);
@@ -220,5 +252,43 @@ export default {
     },
   },
   emits: ["input", "keypress", "keydown", "update:value", "start-icon-selected"],
-};
+  mounted() {
+    this.editor = new Quill(this.$refs.editor, {
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline']
+            ]
+        },
+        theme: 'snow',
+        formats: ['bold', 'underline', 'italic']
+    });
+
+    this.editor.root.innerHTML = this.value;
+
+    // We will add the update event here
+    this.editor.on('text-change', () => {});
+
+
+}};
 </script>
+<style>
+.ql-container.ql-snow {
+    height: auto;
+}
+.ql-toolbar.ql-snow{
+  z-index: 100;
+    position: absolute;
+    width:100%;
+    background-color:#F2E8DF;
+    border:1px solid transparent;
+    padding:0px;
+}
+
+.ql-editor, .textbox {
+  height:7rem;
+
+   max-height: 7rem;
+    overflow-y: auto;
+    padding:1rem 1rem 0 0 ;
+}
+</style>
