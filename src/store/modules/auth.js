@@ -1,6 +1,7 @@
 import UserAPIService from "@/services/API/User.js";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
+import router from "@/router";
 
 let clonedeep = require("lodash.clonedeep");
 
@@ -29,7 +30,9 @@ const getters = {
     return null;
   },
   /** whether the current workspace is the personal workspace */
-  isPersonalWorkspace: (state) => {
+  isPersonalWorkspace: (state, getters) => {
+    // for an SSO user, the current workspace will always be a personal workspace
+    if (getters.isSSOUser) return true;
     return state.activeWorkspace == "";
   },
   /** list of all workspaces that the user is a part of */
@@ -64,7 +67,12 @@ const getters = {
   },
   /** settings for the active workspace */
   activeWorkspaceSettings: (state, getters) => {
-    if (getters.isPersonalWorkspace) return null;
+    if (
+      getters.isPersonalWorkspace ||
+      state.workspaceSettings == null ||
+      !(state.activeWorkspace in state.workspaceSettings)
+    )
+      return null;
     return state.workspaceSettings[state.activeWorkspace];
   },
   /** user's role in the current active workspace */
@@ -76,6 +84,16 @@ const getters = {
   activeWorkspaceId: (_, getters) => {
     if (getters.isPersonalWorkspace) return null;
     return getters.activeWorkspaceDetails.id;
+  },
+  /** if the current user logged in via SSO */
+  isSSOUser: () => {
+    if (
+      "api_key" in router.currentRoute._value.query &&
+      "unique_id" in router.currentRoute._value.query &&
+      "workspace" in router.currentRoute._value.params
+    )
+      return true;
+    return false;
   },
 };
 
@@ -219,8 +237,9 @@ export default {
  * @param {Object} workspaceDetails - Details of a workspace
  * @returns A filtered version of the settings for a workspace
  */
-function getWorkspaceSettings(workspaceDetails) {
+function getWorkspaceSettings(workspaceDetails = null) {
   if (
+    workspaceDetails == null ||
     !("config" in workspaceDetails) ||
     !SettingsUtilities.hasValidSettings(workspaceDetails.config)
   ) {
