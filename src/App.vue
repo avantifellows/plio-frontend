@@ -754,7 +754,7 @@ export default {
     /**
      * creates a new draft plio and redirects the user to the editor
      */
-    async createNewPlio() {
+    async createNewPlio(plioType) {
       this.$Progress.start();
       this.$mixpanel.track("Click Create");
       this.$mixpanel.people.set_once({
@@ -765,7 +765,7 @@ export default {
       });
       this.$mixpanel.people.increment("Total Plios Created");
 
-      let createPlioResponse = await PlioAPIService.createPlio();
+      let createPlioResponse = await PlioAPIService.createPlio(plioType);
       this.$Progress.finish();
       if (createPlioResponse.status == 201) {
         // once the plio is created, update its settings as well
@@ -869,6 +869,7 @@ export default {
             });
           break;
         case "createPlio":
+          this.createNewPlio(selectedOptionValue);
           break;
         default:
           break;

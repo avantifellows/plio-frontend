@@ -84,10 +84,13 @@ export default {
 
   /**
    * creates a new draft plio
+   * @param {String} plioType - the type of the plio to be created
    * @returns {Promise}
    */
-  createPlio() {
-    return apiClient().post(pliosEndpoint);
+  createPlio(plioType) {
+    return apiClient().post(pliosEndpoint, {
+      type: plioType,
+    });
   },
 
   /**
