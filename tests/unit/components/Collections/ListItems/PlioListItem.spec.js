@@ -30,6 +30,7 @@ describe("PlioListItem.vue", () => {
       status: "draft",
       uuid: "123",
       name: "testTitle",
+      video_url: "https://www.youtube.com/watch?v=F0ng8UXjdC0",
     };
 
     const mountWrapper = (
@@ -46,13 +47,29 @@ describe("PlioListItem.vue", () => {
       mountWrapper();
     });
 
-    it("title, updatedAt and status", () => {
+    it("title, updatedAt, thumbnail and status", () => {
       expect(wrapper.vm.updatedAt).toBe(
         plioDetails.updated_at.toDateString().slice(4)
       );
       expect(wrapper.vm.status).toBe(plioDetails.status);
       expect(wrapper.vm.title).toBe(plioDetails.name);
       expect(wrapper.vm.statusBadge).toBe("Draft");
+      expect(
+        wrapper.find('[data-test="videoThumbnail"]').exists()
+      ).toBeTruthy();
+      expect(
+        wrapper.find('[data-test="defaultThumbnail"]').exists()
+      ).toBeFalsy();
+    });
+
+    it("uses placeholder thumbnail when no video url is given", async () => {
+      await wrapper.setProps({
+        plioDetails: {},
+      });
+      expect(wrapper.find('[data-test="videoThumbnail"]').exists()).toBeFalsy();
+      expect(
+        wrapper.find('[data-test="defaultThumbnail"]').exists()
+      ).toBeTruthy();
     });
 
     it("uses placeholder title when no plio title is given", async () => {

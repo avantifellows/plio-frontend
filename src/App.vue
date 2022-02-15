@@ -54,7 +54,7 @@
               ></WorkspaceSwitcher>
             </div>
 
-            <!-- create plio button -->
+            <!-- create plio button - not visible in mobile screens -->
             <icon-button
               :titleConfig="createButtonMenuTextConfig"
               :buttonClass="createButtonClass"
