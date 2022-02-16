@@ -1,5 +1,5 @@
 # base stage
-FROM node@sha256:dc92f36e7cd917816fa2df041d4e9081453366381a00f40398d99e9392e78664 as base-stage
+FROM node:lts-alpine as base-stage
 WORKDIR /app
 COPY package.json ./
 # install dependencies for npm run test:unit
@@ -7,7 +7,7 @@ RUN apk --no-cache --virtual tmp add python3 make g++ && npm install && apk del 
 
 # development stage
 FROM base-stage as development-stage
-CMD npm run serve -- --port ${APP_PORT}
+CMD node --max-old-space-size=4096 `which npm` run serve -- --port ${APP_PORT}
 
 # build stage
 FROM base-stage as build-stage
