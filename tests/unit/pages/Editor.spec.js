@@ -98,9 +98,7 @@ describe("Editor.vue", () => {
     // things that should be visible
     expect(wrapper.find('[data-test="videoLinkInput"]').exists()).toBeTruthy();
     expect(wrapper.find('[data-test="videoLinkInfo"]').exists()).toBeTruthy();
-    expect(
-      wrapper.find('[data-test="videoPreviewSkeleton"]').exists()
-    ).toBeTruthy();
+    expect(wrapper.find('[data-test="previewSkeleton"]').exists()).toBeTruthy();
   });
 
   it("shows publish + home + preview buttons when video Id is valid", async () => {
@@ -479,9 +477,7 @@ describe("Editor.vue", () => {
       .setValue("invalid video url");
 
     expect(wrapper.vm.isVideoIdValid).toBeFalsy();
-    expect(
-      wrapper.find('[data-test="videoPreviewSkeleton"]').exists()
-    ).toBeTruthy();
+    expect(wrapper.find('[data-test="previewSkeleton"]').exists()).toBeTruthy();
     expect(wrapper.find('[data-test="videoPreview"]').exists()).toBeFalsy();
     expect(
       wrapper

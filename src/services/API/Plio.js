@@ -42,6 +42,7 @@ export default {
         plioDetails.status = plio.data.status;
         plioDetails.updatedAt = plio.data.updated_at;
         plioDetails.plioDBId = plio.data.id;
+        plioDetails.type = plio.data.type;
         plioDetails.videoDBId = plio.data.video.id || null;
         plioDetails.videoDuration = plio.data.video.duration || 0;
         plioDetails.config = plio.data.config;

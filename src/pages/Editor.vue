@@ -1,9 +1,15 @@
 <template>
   <!--- base grid -->
-  <div class="flex relative justify-center md:mx-4 lg:mx-10 xl:mx-20">
+  <div
+    :class="{ 'grid grid-cols-6': isTypeQuiz, 'md:mx-4 lg:mx-10 xl:mx-20': isTypeVideo }"
+  >
+    <div v-if="isTypeQuiz" class="h-full border-r-2"></div>
     <div
       class="flex flex-col w-full"
-      :class="{ 'opacity-30 pointer-events-none': isBackgroundDisabled }"
+      :class="{
+        'opacity-30 pointer-events-none': isBackgroundDisabled,
+        'col-span-5': isTypeQuiz,
+      }"
       data-test="blurDiv"
     >
       <div class="w-full flex justify-between px-6" :class="{ hidden: !isVideoIdValid }">
@@ -24,10 +30,12 @@
         ></icon-button>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 items-stretch">
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 items-stretch h-full space-x-4 md:space-x-6 mx-4 md:mx-8"
+      >
         <!--- preview grid -->
         <div
-          class="flex flex-col mx-2 md:mx-6 z-0"
+          class="flex flex-col z-0"
           :class="{ 'mt-6': !isVideoIdValid }"
           data-test="previewDiv"
         >
@@ -96,20 +104,21 @@
             ></icon-button>
           </div>
 
-          <div class="justify-center" data-test="video">
+          <div :class="{ 'h-full': isTypeVideo, 'h-1/2': isTypeQuiz }" data-test="video">
             <!--- video preview -->
             <div
               v-if="!isVideoIdValid"
-              class="flex justify-center"
-              data-test="videoPreviewSkeleton"
+              class="flex justify-center h-full"
+              data-test="previewSkeleton"
             >
-              <div class="flex relative justify-center items-center w-full">
+              <div class="flex relative justify-center w-full items-center">
                 <div
-                  class="w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-80 md:h-64 lg:h-80 xl:h-96 rounded-md bg-gray-300"
+                  class="rounded-md bg-gray-300"
+                  :class="previewSkeletonContainerClass"
                 ></div>
                 <div class="absolute flex flex-col items-center">
                   <inline-svg
-                    :src="getImageSource('youtube.svg')"
+                    :src="previewSkeletonImageSource"
                     class="h-16 w-16 bp-420:w-24 bp-420:h-24 bp-500:w-32 bp-500:h-32 md:w-24 md:h-24 lg:w-32 lg:h-32"
                   ></inline-svg>
                   <p class="text-sm bp-420:text-base">{{ $t("generic.preview") }}</p>
@@ -236,7 +245,7 @@
 
         <!--- input grid -->
         <div
-          class="flex flex-col mx-2 md:mx-6 justify-start"
+          class="flex flex-col justify-start"
           :class="{ 'mt-6': !isVideoIdValid }"
           data-test="inputDiv"
         >
@@ -244,7 +253,7 @@
             <!-- info about pasting youtube link -->
             <div
               class="flex items-center space-x-2 bg-primary rounded-lg p-4"
-              v-if="!isVideoIdValid && !pending"
+              v-if="!isVideoIdValid && !pending && isTypeVideo"
               data-test="videoLinkInfo"
             >
               <!-- icon -->
@@ -268,14 +277,15 @@
 
             <!--- video link -->
             <input-text
+              v-if="isTypeVideo"
               :placeholder="videoInputPlaceholder"
               :title="videoInputTitle"
               :validation="videoInputValidation"
-              v-model:value="videoURL"
-              ref="videoLink"
               :boxStyling="videoLinkInputStyling"
               :isDisabled="isPublished"
               v-tooltip="videoLinkTooltip"
+              v-model:value="videoURL"
+              ref="videoLink"
               data-test="videoLinkInput"
             ></input-text>
 
@@ -283,10 +293,10 @@
             <input-text
               :placeholder="titleInputPlaceholder"
               :title="titleInputTitle"
+              :boxStyling="'pl-4'"
+              v-if="isTitleInputShown"
               v-model:value="plioTitle"
               ref="title"
-              :boxStyling="'pl-4'"
-              v-if="isVideoIdValid"
               data-test="plioName"
             ></input-text>
           </div>
@@ -604,6 +614,7 @@ export default {
       videoDuration: 0, // duration of the video in seconds
       videoId: "", // ID of the YouTube video
       status: "draft", // whether the plio is in draft/publish mode
+      type: "", // type of plio: video or quiz
       isItemSelected: false, // indicated if an item has been selected currently
       plioTitle: "", // title for the current plio
       currentTimestamp: 0, // current timestamp
@@ -944,6 +955,27 @@ export default {
       isDialogConfirmClicked: "isConfirmClicked",
       isDialogCancelClicked: "isCancelClicked",
     }),
+    previewSkeletonContainerClass() {
+      return {
+        "w-full h-40 bp-420:h-48 bp-500:h-72 sm:h-80 md:h-64 lg:h-80 xl:h-96": this
+          .isTypeVideo,
+        "w-full h-full": this.isTypeQuiz,
+      };
+    },
+    previewSkeletonImageSource() {
+      if (this.isTypeVideo) return this.getImageSource("youtube.svg");
+      if (this.isTypeQuiz) return this.getImageSource("quiz-thumbnail.svg");
+      return "";
+    },
+    isTitleInputShown() {
+      return (this.isTypeVideo && this.isVideoIdValid) || this.isTypeQuiz;
+    },
+    isTypeQuiz() {
+      return this.type == "quiz";
+    },
+    isTypeVideo() {
+      return this.type == "video";
+    },
     hasAnySettingsToRender() {
       return this.settingsToRender.size > 0;
     },
@@ -1945,6 +1977,7 @@ export default {
           this.itemDetails = plioDetails.itemDetails || [];
           this.addItemAndItemDetailWatchers();
           this.videoURL = plioDetails.videoURL || "";
+          this.type = plioDetails.type;
           this.plioTitle = plioDetails.plioTitle || "";
           this.status = plioDetails.status;
           if (plioDetails.updatedAt != undefined && plioDetails.updatedAt != "")
