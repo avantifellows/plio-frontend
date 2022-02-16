@@ -205,7 +205,7 @@ export default {
         badges: {
           plio_type: {
             quiz: "प्रश्नोत्तरी",
-            video: "इंटरैक्टिव वीडियो",
+            video: "वीडियो",
           },
         },
         buttons: {

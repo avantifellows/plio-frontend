@@ -3,10 +3,8 @@
   <div v-else class="flex relative rounded-sm p-2 w-auto">
     <div class="grid grid-flow-row auto-rows-min gap-2 w-full">
       <!-- last updated date -->
-      <div
-        class="flex flex-row justify-start bp-420:space-x-3 bp-500:space-x-0 lg:space-x-3"
-      >
-        <p class="hidden bp-420:block bp-500:hidden lg:block text-xs place-self-center">
+      <div class="flex flex-row justify-start space-x-3">
+        <p class="text-xs place-self-center">
           {{ updatedAt }}
         </p>
 
@@ -31,7 +29,7 @@
           :options="plioActionOptions"
           :scrollY="scrollY"
           :overflowMarginTop="optionsOverflowMarginTop"
-          class="flex-grow flex justify-end lg:justify-start"
+          class="flex-grow flex justify-end sm:justify-start"
           @select="runAction"
           data-test="optionDropdown"
         ></OptionDropdown>

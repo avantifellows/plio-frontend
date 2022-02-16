@@ -204,7 +204,7 @@ export default {
         badges: {
           plio_type: {
             quiz: "Quiz",
-            video: "Interactive Video",
+            video: "Video",
           },
         },
         buttons: {
