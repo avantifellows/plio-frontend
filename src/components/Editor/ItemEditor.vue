@@ -86,7 +86,7 @@
     <!-- item editor -->
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
       <div class="flex flex-row p-2">
-        <div class="flex-col ">
+        <div class="flex-col">
           <!-- checkbox -->
           <label class="inline-flex items-center">
             <input
@@ -104,10 +104,10 @@
             v-tooltip="{ content: $t('tooltip.editor.analyze'), placement: 'bottom' }"
           >
             <inline-svg
-                :src="getImageSource('information-survey.svg')"
-                class="w-8 h-5 items-center "
+              :src="getImageSource('information-survey.svg')"
+              class="w-8 h-5 items-center"
             ></inline-svg>
-          </span>  
+          </span>
         </div>
       </div>
       <div class="flex flex-row">
@@ -152,9 +152,23 @@
         @error-resolved="$emit('error-resolved')"
         data-test="time"
       ></time-input>
-
+      <!-- input field for entering options for survey question  -->
+      <div v-if="areOptionsVisible && isThisSurveyQuestion" data-test="options">
+        <input-text
+          v-for="(option, optionIndex) in options"
+          class="p-2"
+          v-model:value="options[optionIndex]"
+          :placeholder="$t('editor.item_editor.option_input.placeholder')"
+          :title="getOptionInputTitle(optionIndex)"
+          :key="optionIndex"
+          :startIcon="getCorrectOptionIconConfig(optionIndex)"
+          :endIcon="getDeleteOptionIconConfig"
+          @end-icon-selected="deleteOption(optionIndex)"
+          data-test="option"
+        ></input-text>
+      </div>
       <!-- input field for entering options  -->
-      <div v-if="areOptionsVisible" data-test="options">
+      <div v-if="areOptionsVisible && !isThisSurveyQuestion" data-test="options">
         <input-text
           v-for="(option, optionIndex) in options"
           class="p-2"
@@ -445,6 +459,16 @@ export default {
       this.selectedItemDetail.options.push("");
     },
     getCorrectOptionIconConfig(optionIndex) {
+      // config for the option in survey mode, no correct options
+      if (this.isThisSurveyQuestion) {
+        return {
+          enabled: true,
+          name: this.correctOptionIcon,
+          class: [
+          "ml-1",
+        ],
+        };
+      }
       // config for the correct option icon
       return {
         enabled: true,
