@@ -773,14 +773,12 @@ export default {
       let createPlioResponse = await PlioAPIService.createPlio({
         type: plioType,
         config: {
-          settings: {
-            new Map(
-              Object.entries({
-                player: newPlioSettings,
-              })
-            )
-          }
-        }
+          settings: new Map(
+            Object.entries({
+              player: newPlioSettings,
+            })
+          ),
+        },
       });
       this.$Progress.finish();
       if (createPlioResponse.status == 201) {
