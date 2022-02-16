@@ -765,28 +765,30 @@ export default {
       });
       this.$mixpanel.people.increment("Total Plios Created");
 
-      let createPlioResponse = await PlioAPIService.createPlio(plioType);
+      let plioId = createPlioResponse.data.uuid;
+      let newPlioSettings = this.isPersonalWorkspace
+        ? this.userSettings.get("player")
+        : this.activeWorkspaceSettings.get("player");
+
+      let createPlioResponse = await PlioAPIService.createPlio({
+        type: plioType,
+        config: {
+          settings: {
+            new Map(
+              Object.entries({
+                player: newPlioSettings,
+              })
+            )
+          }
+        }
+      });
       this.$Progress.finish();
       if (createPlioResponse.status == 201) {
         // once the plio is created, update its settings as well
-        let plioUuid = createPlioResponse.data.uuid;
-        let newPlioSettings = this.isPersonalWorkspace
-          ? this.userSettings.get("player")
-          : this.activeWorkspaceSettings.get("player");
-        let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
-          plioUuid,
-          new Map(
-            Object.entries({
-              player: newPlioSettings,
-            })
-          )
-        );
-        if (updatePlioSettingsResponse.status == 200) {
-          this.$router.push({
-            name: "Editor",
-            params: { plioId: plioUuid, workspace: this.activeWorkspace },
-          });
-        }
+        this.$router.push({
+          name: "Editor",
+          params: { plioId: plioId, workspace: this.activeWorkspace },
+        });
       } else this.toast.error(this.$t("toast.error.create_plio"));
     },
     /** logs out the user */
