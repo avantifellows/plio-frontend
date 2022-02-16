@@ -101,7 +101,10 @@
         </div>
         <div class="flex-col">
           <span
-            v-tooltip="{ content: $t('editor.item_editor.tooltip_survey_mode'), placement: 'bottom' }"
+            v-tooltip="{
+              content: $t('editor.item_editor.tooltip_survey_mode'),
+              placement: 'bottom',
+            }"
           >
             <inline-svg
               :src="getImageSource('information-survey.svg')"
