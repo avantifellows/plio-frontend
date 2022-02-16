@@ -100,7 +100,7 @@
         <!-- add image to item button -->
         <span
           v-tooltip="{ content: addImageButtonTooltip, placement: 'left' }"
-          class="my-auto"
+          class="mt-8"
         >
           <icon-button
             class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
