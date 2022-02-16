@@ -40,7 +40,7 @@
 
       <div
         contenteditable="true"
-        class="pt-7 textbox pl-0 border placeholder-blueGray-300 h-24 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
+        class="pt-7 h-26 textbox pl-0 border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
         :class="[inputAreaClass, boxStyling]"
         :disabled="isDisabled"
         ref="editor"
@@ -53,19 +53,6 @@
         @keydown="keyDown"
         data-test="input"
       />
-      <!-- <textarea
-        class="p-2 z-20 relative textbox border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
-        :class="[inputAreaClass, boxStyling]"
-        :disabled="isDisabled"
-        :placeholder="placeholder"
-        v-model="localValue"
-        name="placeholder"
-        autocomplete="off"
-        @input="inputChange"
-        @keypress="keyPress"
-        @keydown="keyDown"
-        data-test="input"
-      /> -->
     </div>
   </div>
 </template>
@@ -218,25 +205,27 @@ export default {
     },
   },
   methods: {
+
     update() {
-      this.$emit("update:value", this.editor.getText() ? this.editor.root.innerHTML : "");
+      let r = this.editor.getText() ? this.editor.root.innerHTML : "";
+      console.log("r is" + r);
+      this.$emit("input", this.editor.getText() ? this.editor.root.innerHTML : "");
     },
     inputChange(event) {
       // invoked on input change
       this.$emit("input", this.value);
 
       // auto expand the textbox if a `maxHeightLimit` has been specified
+      //  console.log(this.maxHeightLimit);
       if (this.maxHeightLimit > 0) {
         var textareaElement = event.srcElement;
         textareaElement.style.height = "";
         textareaElement.style.height =
           Math.min(textareaElement.scrollHeight, this.maxHeightLimit) + "px";
       }
+
     },
-    //   onInput(event){
-    //   inputChange(event);
-    //   updateChange(event);
-    // },
+
     keyPress(event) {
       // invoked by pressing a key
       this.$emit("keypress", event);
@@ -263,29 +252,17 @@ export default {
     this.editor.root.innerHTML = this.value;
 
     // We will add the update event here
-    this.editor.on("text-change", () => {});
+    this.editor.on("text-change", () => this.update());
   },
 };
 </script>
 <style>
-.ql-container.ql-snow {
-  height: auto;
-}
 .ql-toolbar.ql-snow {
-  z-index: 100;
+  z-index: 5;
   position: absolute;
   width: 100%;
   background-color: #f2e8df;
   border: 1px solid transparent;
   padding: 0px;
-}
-
-.ql-editor,
-.textbox {
-  height: 7rem;
-
-  max-height: 7rem;
-  overflow-y: auto;
-  padding: 1rem 1rem 0 0;
 }
 </style>
