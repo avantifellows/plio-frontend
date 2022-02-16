@@ -46,7 +46,7 @@
         :titleConfig="createButtonTextConfig"
         :buttonClass="createButtonClass"
         class="rounded-md shadow-lg mt-4 place-self-center"
-        @click="createNewPlio"
+        @click="choosePlioType"
         data-test="create"
       ></icon-button>
     </div>
@@ -108,6 +108,8 @@ export default {
       searchString: "", // the search string to filter the plios on
       sortByField: undefined, // string which holds the field to sort the plios on
       currentPageNumber: 1, // holds the current page number
+      plioTypeOptionImageClass:
+        "h-14 w-20 bp-360:h-16 bp-360:w-24 bp-500:h-20 bp-500:w-28 md:h-24 md:w-32",
       // class for the create button
       createButtonClass:
         "bg-primary hover:bg-primary-hover rounded-lg h-14 w-40 sm:h-20 sm:w-60 ring-primary px-2 border-b-outset border-primary",
@@ -141,6 +143,7 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
+    ...mapActions("selectors", ["showSelector"]),
     plioDeleted() {
       // invoked when a plio is deleted
 
@@ -203,42 +206,48 @@ export default {
       this.prepareTableData(response.data.results); // prepare the data for the table
     },
 
-    async createNewPlio() {
-      // invoked when the user clicks on Create
-      // creates a new draft plio and redirects the user to the editor
-      this.$Progress.start();
-      this.$mixpanel.track("Click Create");
-      this.$mixpanel.people.set_once({
-        "First Plio Created": new Date().toISOString(),
+    /**
+     * asks the creator to choose the type of plio they want to create
+     */
+    choosePlioType() {
+      this.showSelector({
+        type: "single",
+        options: [
+          {
+            type: "CompoundListItem",
+            value: "quiz",
+            data: {
+              imageConfig: {
+                name: "plio-type-quiz",
+                class: this.plioTypeOptionImageClass,
+              },
+              title: this.$t("create_plio.quiz.title"),
+              description: this.$t("create_plio.quiz.description"),
+            },
+            class: "hover:bg-gray-100 rounded-md sm:p-2",
+          },
+          {
+            type: "CompoundListItem",
+            value: "video",
+            data: {
+              imageConfig: {
+                name: "plio-type-video",
+                class: this.plioTypeOptionImageClass,
+              },
+              title: this.$t("create_plio.video.title"),
+              description: this.$t("create_plio.video.description"),
+            },
+            class: "hover:bg-gray-100 rounded-md sm:p-2",
+          },
+        ],
+        isCloseButtonShown: false,
+        optionsContainerClass: "mx-2 md:mx-4 max-w-lg",
+        containerClass: "w-full bp-420:w-5/6 bp-500:w-3/4 sm:w-auto rounded-lg",
+        optionSpacingClass: "mb-4 bp-500:mb-2",
+        positionClass:
+          "flex justify-center bp-500:block bp-500:ml-2 sm:ml-4 top-27.5 sm:top-52",
+        action: "createPlio",
       });
-      this.$mixpanel.people.set({
-        "Last Plio Created": new Date().toISOString(),
-      });
-      this.$mixpanel.people.increment("Total Plios Created");
-
-      let createPlioResponse = await PlioAPIService.createPlio();
-      this.$Progress.finish();
-      if (createPlioResponse.status == 201) {
-        // once the plio is created, update its settings as well
-        let plioUuid = createPlioResponse.data.uuid;
-        let newPlioSettings = this.isPersonalWorkspace
-          ? this.userSettings.get("player")
-          : this.activeWorkspaceSettings.get("player");
-        let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
-          plioUuid,
-          new Map(
-            Object.entries({
-              player: newPlioSettings,
-            })
-          )
-        );
-        if (updatePlioSettingsResponse.status == 200) {
-          this.$router.push({
-            name: "Editor",
-            params: { plioId: plioUuid, workspace: this.activeWorkspace },
-          });
-        }
-      } else this.toast.error(this.$t("toast.error.create_plio"));
     },
 
     async prepareTableData(plioList) {

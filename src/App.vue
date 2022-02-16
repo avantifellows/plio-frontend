@@ -709,7 +709,7 @@ export default {
       this.isMenuButtonActive = !this.isMenuButtonActive;
     },
     /**
-     * asks the creator to choose which type of plio they want to create
+     * asks the creator to choose the type of plio they want to create
      */
     choosePlioType() {
       this.showSelector({
@@ -756,6 +756,8 @@ export default {
      */
     async createNewPlio(plioType) {
       this.$Progress.start();
+
+      // --- mixpanel --
       this.$mixpanel.track("Click Create");
       this.$mixpanel.people.set_once({
         "First Plio Created": new Date().toISOString(),
@@ -764,8 +766,8 @@ export default {
         "Last Plio Created": new Date().toISOString(),
       });
       this.$mixpanel.people.increment("Total Plios Created");
+      // --- mixpanel --
 
-      let plioId = createPlioResponse.data.uuid;
       let newPlioSettings = this.isPersonalWorkspace
         ? this.userSettings.get("player")
         : this.activeWorkspaceSettings.get("player");
@@ -773,10 +775,12 @@ export default {
       let createPlioResponse = await PlioAPIService.createPlio({
         type: plioType,
         config: {
-          settings: new Map(
-            Object.entries({
-              player: newPlioSettings,
-            })
+          settings: SettingsUtilities.encodeMapToPayload(
+            new Map(
+              Object.entries({
+                player: newPlioSettings,
+              })
+            )
           ),
         },
       });
@@ -785,7 +789,10 @@ export default {
         // once the plio is created, update its settings as well
         this.$router.push({
           name: "Editor",
-          params: { plioId: plioId, workspace: this.activeWorkspace },
+          params: {
+            plioId: createPlioResponse.data.uuid,
+            workspace: this.activeWorkspace,
+          },
         });
       } else this.toast.error(this.$t("toast.error.create_plio"));
     },
