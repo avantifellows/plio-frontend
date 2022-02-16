@@ -202,6 +202,12 @@ export default {
         views: "व्यूज",
       },
       plio_list_item: {
+        badges: {
+          plio_type: {
+            quiz: "प्रश्नोत्तरी",
+            video: "इंटरैक्टिव वीडियो",
+          },
+        },
         buttons: {
           play: "चलाओ",
           edit: "संपादन",
@@ -495,6 +501,10 @@ export default {
     home: {
       table: {
         plio_list_item: {
+          plio_type: {
+            quiz: "यह एक प्रश्नोत्तरी है",
+            video: "यह एक इंटरैक्टिव वीडियो पाठ है",
+          },
           buttons: {
             play: {
               published: "इस प्लेओ को देखें",

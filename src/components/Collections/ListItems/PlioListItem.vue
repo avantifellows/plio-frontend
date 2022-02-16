@@ -3,27 +3,26 @@
   <div v-else class="flex relative rounded-sm p-2 w-auto">
     <div class="grid grid-flow-row auto-rows-min gap-2 w-full">
       <!-- last updated date -->
-      <div class="flex flex-row justify-start space-x-3">
-        <p class="text-xs place-self-center">{{ updatedAt }}</p>
+      <div
+        class="flex flex-row justify-start bp-420:space-x-3 bp-500:space-x-0 lg:space-x-3"
+      >
+        <p class="hidden bp-420:block bp-500:hidden lg:block text-xs place-self-center">
+          {{ updatedAt }}
+        </p>
 
-        <div class="flex relative place-self-center">
+        <div class="flex space-x-2 relative place-self-center">
           <!-- status badge -->
           <simple-badge
             :text="statusBadge"
-            class="absolute"
             :badgeClass="statusBadgeClass"
             v-tooltip="statusBadgeTooltip"
           ></simple-badge>
 
-          <!--
-            dummy badge to ensure that the dropdown button
-            is placed at the same spot for both draft and published plios
-          -->
+          <!-- plio type -->
           <simple-badge
-            :text="$t(`generic.status.published`)"
-            class="invisible"
-            :badgeClass="statusBadgeClass"
-            v-tooltip="statusBadgeTooltip"
+            :text="plioTypeBadge"
+            :badgeClass="plioTypeBadgeClass"
+            v-tooltip="plioTypeBadgeTooltip"
           ></simple-badge>
         </div>
 
@@ -32,7 +31,7 @@
           :options="plioActionOptions"
           :scrollY="scrollY"
           :overflowMarginTop="optionsOverflowMarginTop"
-          class="flex-grow flex justify-end sm:justify-start"
+          class="flex-grow flex justify-end lg:justify-start"
           @select="runAction"
           data-test="optionDropdown"
         ></OptionDropdown>
@@ -159,7 +158,21 @@ export default {
       if (this.isVideoIdValid) {
         return VideoFunctionalService.getYouTubeVideoThumbnailURL(this.videoId);
       }
-      return require("@/assets/images/video-thumbnail.svg");
+      if (this.isTypeQuiz) return require("@/assets/images/quiz-thumbnail.svg");
+      if (this.isTypeVideo) return require("@/assets/images/video-thumbnail.svg");
+      return "";
+    },
+
+    plioType() {
+      return this.plioDetails.type;
+    },
+
+    isTypeQuiz() {
+      return this.plioType == "quiz";
+    },
+
+    isTypeVideo() {
+      return this.plioType == "video";
     },
 
     isVideoIdValid() {
@@ -242,6 +255,10 @@ export default {
       if (this.status == undefined) return null;
       return this.$t(`generic.status.${this.status}`);
     },
+    plioTypeBadge() {
+      if (this.plioType == undefined) return null;
+      return this.$t(`home.table.plio_list_item.badges.plio_type.${this.plioType}`);
+    },
     isPublished() {
       return this.status == "published";
     },
@@ -249,13 +266,26 @@ export default {
       if (!this.isPublished) return this.$t("tooltip.editor.status.draft");
       return this.$t("tooltip.editor.status.published");
     },
+    plioTypeBadgeTooltip() {
+      return this.$t(`tooltip.home.table.plio_list_item.plio_type.${this.plioType}`);
+    },
     statusBadgeClass() {
-      return {
-        "text-green-700 border-green-700": this.isPublished,
-        "border-black text-black": !this.isPublished,
-        "text-xs": true,
-        "px-2 py-1": true,
-      };
+      return [
+        {
+          "text-green-700 border-green-700": this.isPublished,
+          "border-black text-black": !this.isPublished,
+        },
+        `text-xs px-2 py-1`,
+      ];
+    },
+    plioTypeBadgeClass() {
+      return [
+        {
+          "text-blue-700 border-blue-700": this.isTypeQuiz,
+          "text-red-600 border-red-600": this.isTypeVideo,
+        },
+        `text-xs px-2 py-1`,
+      ];
     },
     /**
      * human readable date string

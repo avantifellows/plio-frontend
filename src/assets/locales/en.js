@@ -201,6 +201,12 @@ export default {
         views: "Views",
       },
       plio_list_item: {
+        badges: {
+          plio_type: {
+            quiz: "Quiz",
+            video: "Interactive Video",
+          },
+        },
         buttons: {
           play: "Play",
           edit: "Edit",
@@ -495,6 +501,10 @@ export default {
     home: {
       table: {
         plio_list_item: {
+          plio_type: {
+            quiz: "This is a quiz",
+            video: "This an interactive video lesson",
+          },
           buttons: {
             share: {
               published: "Share this plio",
