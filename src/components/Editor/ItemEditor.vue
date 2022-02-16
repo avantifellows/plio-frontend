@@ -458,16 +458,6 @@ export default {
       this.selectedItemDetail.options.push("");
     },
     getCorrectOptionIconConfig(optionIndex) {
-      // config for the option in survey mode, no correct options
-      if (this.isThisSurveyQuestion) {
-        return {
-          enabled: true,
-          name: this.correctOptionIcon,
-          class: [
-          "ml-1",
-        ],
-        };
-      }
       // config for the correct option icon
       return {
         enabled: true,
