@@ -161,7 +161,6 @@
           :placeholder="$t('editor.item_editor.option_input.placeholder')"
           :title="getOptionInputTitle(optionIndex)"
           :key="optionIndex"
-          :startIcon="getCorrectOptionIconConfig(optionIndex)"
           :endIcon="getDeleteOptionIconConfig"
           @end-icon-selected="deleteOption(optionIndex)"
           data-test="surveyoption"
