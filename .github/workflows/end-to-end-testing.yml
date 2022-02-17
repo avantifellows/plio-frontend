@@ -1,0 +1,116 @@
+name: Plio End-to-End Testing
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+env:
+  BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+  BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+  BROWSERSTACK_BASE_URL: ${{ secrets.BROWSERSTACK_BASE_URL }}
+  BROWSERSTACK_PROJECT_NAME: ${{ secrets.BROWSERSTACK_PROJECT_NAME }}
+  BROWSERSTACK_USE_AUTOMATE: 1
+  BROWSERSTACK_DEBUG: true
+  BROWSERSTACK_CONSOLE: 'info'
+  GOOGLE_OAUTH2_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}
+  GOOGLE_OAUTH2_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
+  GOOGLE_OAUTH2_REFRESH_TOKEN: ${{ secrets.GOOGLE_OAUTH2_REFRESH_TOKEN }}
+  BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL: ${{ secrets.BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL }}
+  BACKEND_DEFAULT_OAUTH2_CLIENT_ID: ${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_ID }}
+  BACKEND_DEFAULT_OAUTH2_CLIENT_SECRET: ${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_SECRET }}
+
+jobs:
+  end-to-end-tests:
+    name: End-to-End tests
+    runs-on: ubuntu-latest
+
+    environment:
+      name: End-to-End Testing
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Plio Frontend
+        run: |
+          # clone the project
+          mkdir -p projects/ && cd projects/
+          git clone https://github.com/avantifellows/plio-frontend/
+          cd plio-frontend/
+
+          # check branch and switch to branch if exists
+          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
+          then
+            echo "Switching to branch ${{ github.head_ref }}."
+            git checkout ${{ github.head_ref }}
+            git pull origin ${{ github.head_ref }}
+          else
+            echo "Branch not found. Going with default branch."
+          fi
+
+          # create the env file
+          cp .env.example .env
+
+          # add env secrets
+          echo 'VUE_APP_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}' >> .env
+          echo 'VUE_APP_BACKEND_API_CLIENT_ID=${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
+          echo 'VUE_APP_BACKEND_API_CLIENT_SECRET=${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
+
+          # setup docker containers
+          docker-compose up -d --build
+
+      - name: Set up Plio Backend
+        run: |
+          # clone the project
+          mkdir -p projects/ && cd projects/
+          git clone https://github.com/avantifellows/plio-backend
+          cd plio-backend/
+
+          # check branch and switch to branch if exists
+          if [ `git branch --list --remote origin/${{ github.head_ref }}` ]
+          then
+            echo "Switching to branch ${{ github.head_ref }}."
+            git checkout ${{ github.head_ref }}
+            git pull origin ${{ github.head_ref }}
+          else
+            echo "Branch not found. Going with default branch."
+          fi
+
+          # create the env file
+          cp .env.example .env
+
+          # add env secrets
+          echo 'SECRET_KEY=${{ secrets.BACKEND_SECRET_KEY }}' >> .env
+          echo 'DEFAULT_OAUTH2_CLIENT_SETUP=${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_SETUP }}' >> .env
+          echo 'DEFAULT_OAUTH2_CLIENT_ID=${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_ID }}' >> .env
+          echo 'DEFAULT_OAUTH2_CLIENT_SECRET=${{ secrets.BACKEND_DEFAULT_OAUTH2_CLIENT_SECRET }}' >> .env
+          echo 'GOOGLE_OAUTH2_CLIENT_ID=${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}' >> .env
+          echo 'GOOGLE_OAUTH2_CLIENT_SECRET=${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}' >> .env
+
+          # setup docker containers
+          docker-compose up -d --build
+
+      - name: Install TestCafe BrowserStack plugin
+        run: npm install testcafe-browser-provider-browserstack
+
+      - name: Run Windows 10 tests (chrome@96, firefox@95, edge@96)
+        uses: DevExpress/testcafe-action@latest
+        with:
+          args: "'browserstack:chrome@96.0:Windows 10','browserstack:firefox@95.0:Windows 10','browserstack:edge@96.0:Windows 10' projects/plio-frontend/tests/integration --skip-js-errors > tests-win-10.log && cat tests-win-10.log"
+
+      - name: Run OS X Big Sur tests (chrome@96, firefox@95, safari@14.1)
+        uses: DevExpress/testcafe-action@latest
+        with:
+          args: "'browserstack:chrome@96.0:OS X Big Sur','browserstack:firefox@95.0:OS X Big Sur','browserstack:safari@14.1:OS X Big Sur' projects/plio-frontend/tests/integration --skip-js-errors > tests-osx-bigsur.log && cat tests-osx-bigsur.log"
+
+      - name: Run OS X Catalina tests (chrome@96, firefox@95, safari@13.1)
+        uses: DevExpress/testcafe-action@latest
+        with:
+          args: "'browserstack:chrome@96.0:OS X Catalina','browserstack:firefox@95.0:OS X Catalina','browserstack:safari@13.1:OS X Catalina' projects/plio-frontend/tests/integration --skip-js-errors > tests-osx-catalina.log && cat tests-osx-catalina.log"
+
+      - name: Stop the containers
+        if: always()
+        run: |
+          cd projects/
+          cd plio-frontend/ && docker-compose down
+          cd ../plio-backend/ && docker-compose down
