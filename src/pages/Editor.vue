@@ -1009,7 +1009,6 @@ export default {
      * the details corresponding to the current item
      */
     currentItemDetail() {
-      //console.log("curentdetail");
       return this.itemDetails[this.currentItemIndex];
     },
     /**
@@ -2078,7 +2077,6 @@ export default {
      * @param {Object} payload - The payload that needs to be pushed to the backend
      */
     async updateItem(id, payload) {
-      //this.componentkey!=this.componentkey;
       await ItemAPIService.updateItem(id, payload);
     },
 
