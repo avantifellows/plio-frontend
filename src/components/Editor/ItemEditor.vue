@@ -156,7 +156,7 @@
         data-test="time"
       ></time-input>
       <!-- input field for entering options for survey question  -->
-      <div v-if="areOptionsVisible && isThisSurveyQuestion" data-test="options">
+      <div v-if="areOptionsVisible && isThisSurveyQuestion" data-test="surveyoptions">
         <input-text
           v-for="(option, optionIndex) in options"
           class="p-2"

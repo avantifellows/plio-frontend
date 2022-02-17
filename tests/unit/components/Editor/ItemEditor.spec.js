@@ -27,6 +27,12 @@ describe("ItemEditor.vue", () => {
       options: ["", "", ""],
       correct_answer: [0, 1],
     },
+    {
+      text: "test",
+      type: "mcq",
+      options: ["", ""],
+      survey: true,
+    },
   ];
 
   const mountWrapper = (newItemList = null, newItemDetailList = null) => {
