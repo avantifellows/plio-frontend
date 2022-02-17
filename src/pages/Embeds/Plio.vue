@@ -881,12 +881,14 @@ export default {
           }
           this.itemResponses.push(itemResponse);
         });
-        const lastUnansweredInteraction = this.checkMovingToTimestampAllowed(
-          this.currentTimestamp
-        );
-        if (lastUnansweredInteraction != null) {
-          this.currentTimestamp =
-            lastUnansweredInteraction.time - POP_UP_CHECKING_FREQUENCY;
+        if (!this.isSkipEnabled) {
+          const lastUnansweredInteraction = this.checkMovingToTimestampAllowed(
+            this.currentTimestamp
+          );
+          if (lastUnansweredInteraction != null) {
+            this.currentTimestamp =
+              lastUnansweredInteraction.time - POP_UP_CHECKING_FREQUENCY;
+          }
         }
         // once itemResponses is full, calculate all the scorecard metrics
         this.calculateScorecardMetrics();
