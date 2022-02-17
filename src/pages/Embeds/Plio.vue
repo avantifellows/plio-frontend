@@ -477,7 +477,7 @@ export default {
      * whether there are any items
      */
     hasAnyItems() {
-      return this.items.length != 0;
+      return this.numItems != 0;
     },
     /**
      * whether any item is currently active
@@ -578,6 +578,7 @@ export default {
      * Show the scorecard on top of the player
      */
     popupScorecard() {
+      if (this.checkMovingToTimestampAllowed(this.player.duration) != null) return;
       if (!this.isScorecardShown) {
         this.isScorecardShown = true;
         var scorecardModal = document.getElementById("scorecardmodal");
@@ -773,7 +774,7 @@ export default {
           this.itemDetails = plioDetails.itemDetails || [];
           // setting numSkipped to number of items. This value will keep reducing
           // as numCorrect and numWrong are calculated
-          this.numSkipped = this.items.length;
+          this.numSkipped = this.numItems;
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
           this.plioTitle = plioDetails.plioTitle;
@@ -961,7 +962,7 @@ export default {
       this.$mixpanel.track("Visit Player", {
         "Plio UUID": this.plioId,
         "Plio Video Length": this.player.duration || 0,
-        "Plio Num Items": this.items.length || 0,
+        "Plio Num Items": this.numItems || 0,
       });
       // sets various properties based on the screen size
       this.setScreenProperties();
