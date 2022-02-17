@@ -99,8 +99,10 @@ import { useToast } from "vue-toastification";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { resetConfetti } from "@/services/Functional/Utilities/Generic.js";
 import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
+import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 
 var isEqual = require("deep-eql");
+let clonedeep = require("lodash.clonedeep");
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
@@ -202,6 +204,7 @@ export default {
       isAspectRatioChecked: false, // whether the check for aspect ratio has been done
       watchingEventDBId: null, // the DB id of the latest 'watching' event for a given session
       plioSettings: null, // stores this plio's settings
+      lastAnsweredInteractionIndex: -1, // index of the interaction that was last answered
     };
   },
   watch: {
@@ -338,6 +341,19 @@ export default {
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
     ...mapState("generic", ["windowInnerWidth", "windowInnerHeight"]),
+    numItems() {
+      return this.items.length;
+    },
+    isSkipEnabled() {
+      // if a custom configuration is provided, then use that otherwise
+      // use the global settings
+      if (this.configuration != null && this.configuration.has("skipEnabled"))
+        return this.configuration.get("skipEnabled").value;
+      return this.defaultConfiguration.get("skipEnabled").value;
+    },
+    defaultConfiguration() {
+      return globalDefaultSettings.get("player").children.get("configuration").children;
+    },
     configuration() {
       return this.plioSettings.get("player").children.get("configuration").children;
     },
@@ -659,7 +675,28 @@ export default {
         if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
       });
     },
+    checkMovingToTimestampAllowed(timestamp) {
+      if (!this.isSkipEnabled && this.lastAnsweredInteractionIndex < this.numItems - 1) {
+        const lastUnansweredInteraction = this.items[
+          this.lastAnsweredInteractionIndex + 1
+        ];
+        if (timestamp > lastUnansweredInteraction.time) return lastUnansweredInteraction;
+      }
+    },
     videoSeeked() {
+      const lastUnansweredInteraction = this.checkMovingToTimestampAllowed(
+        this.player.currentTime
+      );
+      if (lastUnansweredInteraction != null) {
+        this.setPlayerTime(lastUnansweredInteraction.time - POP_UP_CHECKING_FREQUENCY);
+        setTimeout(() => {
+          this.toast.error(this.$t("toast.player.cannot_skip_interaction"), {
+            id: "internetLostToast",
+            position: "bottom-center",
+          });
+        }, 500);
+        return;
+      }
       // invoked when a seek operation ends
       this.createEvent("video_seeked", { currentTime: this.player.currentTime });
     },
@@ -700,6 +737,9 @@ export default {
           answer: itemResponse.answer,
         });
       }
+
+      this.lastAnsweredInteractionIndex = clonedeep(this.currentItemIndex);
+
       // update the marker colors on the player
       this.showItemMarkersOnSlider();
 
@@ -836,8 +876,18 @@ export default {
           if (this.isItemMCQ(itemIndex)) {
             itemResponse.answer = parseInt(itemResponse.answer);
           }
+          if (itemResponse.answer != null && !isNaN(itemResponse.answer)) {
+            this.lastAnsweredInteractionIndex = itemIndex;
+          }
           this.itemResponses.push(itemResponse);
         });
+        const lastUnansweredInteraction = this.checkMovingToTimestampAllowed(
+          this.currentTimestamp
+        );
+        if (lastUnansweredInteraction != null) {
+          this.currentTimestamp =
+            lastUnansweredInteraction.time - POP_UP_CHECKING_FREQUENCY;
+        }
         // once itemResponses is full, calculate all the scorecard metrics
         this.calculateScorecardMetrics();
       });
@@ -1043,7 +1093,12 @@ export default {
       this.lastCheckTimestamp = timestamp;
       if (!this.isAspectRatioChecked) this.checkAndSetPlayerAspectRatio();
 
-      this.checkForItemPopup(timestamp);
+      const itemIndex = this.checkForItemPopup(timestamp);
+      if (itemIndex != null) {
+        this.currentItemIndex = itemIndex;
+        this.markItemSelected();
+        this.createEvent("item_opened", { itemIndex: this.currentItemIndex });
+      }
     },
     /**
      * checks if an item is to be selected and marks/unmarks accordingly
@@ -1051,15 +1106,11 @@ export default {
      */
     checkForItemPopup(timestamp) {
       this.isModalMinimized = false;
-      this.currentItemIndex = ItemFunctionalService.checkItemPopup(
+      return ItemFunctionalService.checkItemPopup(
         timestamp,
         this.itemTimestamps,
         POP_UP_PRECISION_TIME
       );
-      if (this.currentItemIndex != null) {
-        this.markItemSelected();
-        this.createEvent("item_opened", { itemIndex: this.currentItemIndex });
-      }
     },
     markItemSelected() {
       // mark the item at the currentItemIndex as selected
