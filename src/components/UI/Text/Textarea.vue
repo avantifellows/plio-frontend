@@ -25,7 +25,10 @@
       </div>
     </div>
 
-    <div class="flex relative mt-1">
+    <div
+    class=" flex relative mt-1"
+
+    >
       <!-- left icon -->
       <div
         v-if="isStartIconEnabled"
@@ -40,19 +43,18 @@
 
       <div
         contenteditable="true"
-        class="pt-7 h-26 textbox pl-0 border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
+        class="pt-7 h-30 textbox pl-0 border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
         :class="[inputAreaClass, boxStyling]"
         :disabled="isDisabled"
-        ref="editor"
+       ref="editor"
         :placeholder="placeholder"
-        v-html="value"
+        @input="inputChange"
         name="placeholder"
         autocomplete="off"
-        @input="inputChange"
         @keypress="keyPress"
         @keydown="keyDown"
         data-test="input"
-      />
+      ></div>
     </div>
   </div>
 </template>
@@ -206,15 +208,15 @@ export default {
   },
   methods: {
     update() {
-     // let r = this.editor.getText() ? this.editor.root.innerHTML : "";
-     // console.log("r is" + r);
-      console.log("valueis"+ this.value);
-      this.$emit("input", this.editor.getText()?this.editor.root.innerHTML : "");
+
+      this.$emit("update:value", this.editor.getText()?this.editor.root.innerHTML : "");
     },
-    inputChange(event) {
+    inputChange() {
       // invoked on input change
-      console.log("htmlis"+this.editor.getText());
-      this.$emit("input", this.editor.getText());
+      //console.dir(this.editor.root.innerHTML);
+      //console.log("on input vaLue"+event.target.children[0].innerHTML);
+    //  console.log("htmlis"+this.editor.root.innerHTML);
+     // this.$emit("input", this.value);
 
       // auto expand the textbox if a `maxHeightLimit` has been specified
       //  console.log(this.maxHeightLimit);
@@ -264,5 +266,12 @@ export default {
   background-color: #f2e8df;
   border: 1px solid transparent;
   padding: 0px;
+}
+.ql-editor{
+  overflow-y:auto;
+}
+.disabledDiv {
+    pointer-events: none;
+    opacity: 0.4;
 }
 </style>
