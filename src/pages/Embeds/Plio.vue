@@ -677,18 +677,19 @@ export default {
     },
     checkMovingToTimestampAllowed(timestamp) {
       if (!this.isSkipEnabled && this.lastAnsweredInteractionIndex < this.numItems - 1) {
-        const lastUnansweredInteraction = this.items[
+        const firstUnansweredInteraction = this.items[
           this.lastAnsweredInteractionIndex + 1
         ];
-        if (timestamp > lastUnansweredInteraction.time) return lastUnansweredInteraction;
+        if (timestamp > firstUnansweredInteraction.time)
+          return firstUnansweredInteraction;
       }
     },
     videoSeeked() {
-      const lastUnansweredInteraction = this.checkMovingToTimestampAllowed(
+      const firstUnansweredInteraction = this.checkMovingToTimestampAllowed(
         this.player.currentTime
       );
-      if (lastUnansweredInteraction != null) {
-        this.setPlayerTime(lastUnansweredInteraction.time - POP_UP_CHECKING_FREQUENCY);
+      if (firstUnansweredInteraction != null) {
+        this.setPlayerTime(firstUnansweredInteraction.time - POP_UP_CHECKING_FREQUENCY);
         setTimeout(() => {
           this.toast.error(this.$t("toast.player.cannot_skip_interaction"), {
             id: "internetLostToast",
@@ -882,12 +883,12 @@ export default {
           this.itemResponses.push(itemResponse);
         });
         if (!this.isSkipEnabled) {
-          const lastUnansweredInteraction = this.checkMovingToTimestampAllowed(
+          const firstUnansweredInteraction = this.checkMovingToTimestampAllowed(
             this.currentTimestamp
           );
-          if (lastUnansweredInteraction != null) {
+          if (firstUnansweredInteraction != null) {
             this.currentTimestamp =
-              lastUnansweredInteraction.time - POP_UP_CHECKING_FREQUENCY;
+              firstUnansweredInteraction.time - POP_UP_CHECKING_FREQUENCY;
           }
         }
         // once itemResponses is full, calculate all the scorecard metrics
