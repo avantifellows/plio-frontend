@@ -91,6 +91,19 @@ describe("ItemEditor.vue", () => {
       });
     });
 
+    it("should render with required values", () => {
+      expect(wrapper.find('[data-test="options"]').exists()).toBeTruthy();
+      expect(
+        wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
+      ).toBeFalsy();
+      // no option should be marked as correct answer as no correct answer has been given
+      wrapper.findAll('[data-test="option"]').forEach((option) => {
+        expect(option.find('[data-test="startIcon"]').classes()).not.toContain(
+          "text-green-500"
+        );
+      });
+    });
+
     it("should disable appropriate fields", async () => {
       await wrapper.setProps({
         isInteractionDisabled: true,
@@ -184,6 +197,21 @@ describe("ItemEditor.vue", () => {
         .find('[data-test="endIcon"]')
         .trigger("click");
       expect(wrapper.emitted()).toHaveProperty("delete-option");
+    });
+  });
+
+  describe("survey mcq question", () => {
+    it("check for mcq type", async () => {
+      await wrapper
+        .find('[data-test="surveyquestioncheckbox"]')
+        .setChecked("checked");
+      await flushPromises();
+      expect(wrapper.find('[data-test="surveyOptions"]').exists()).toBeTruthy();
+      expect(wrapper.find('[data-test="options"]').exists()).toBeFalsy();
+      expect(
+        wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
+      ).toBeFalsy();
+      expect(wrapper.vm.isSurveyQuestion).toBe(true);
     });
   });
 
@@ -421,6 +449,18 @@ describe("ItemEditor.vue", () => {
       expect(
         wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
       ).toBeTruthy();
+    });
+
+    it("check for survey mode", async () => {
+      await wrapper
+        .find('[data-test="surveyquestioncheckbox"]')
+        .setChecked("checked");
+      await flushPromises();
+      expect(
+        wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
+      ).toBeTruthy();
+      expect(wrapper.find('[data-test="surveyOptions"]').exists()).toBeFalsy();
+      expect(wrapper.vm.isSurveyQuestion).toBe(true);
     });
 
     it("enables/disables max char limit", async () => {

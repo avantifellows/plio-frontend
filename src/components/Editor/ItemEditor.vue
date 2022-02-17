@@ -156,7 +156,7 @@
         data-test="time"
       ></time-input>
       <!-- input field for entering options for survey question  -->
-      <div v-if="areOptionsVisible && isThisSurveyQuestion" data-test="surveyoptions">
+      <div v-if="areOptionsVisible && isThisSurveyQuestion" data-test="surveyOptions">
         <input-text
           v-for="(option, optionIndex) in options"
           class="p-2"
@@ -306,6 +306,7 @@ export default {
       itemInVicinity: false, // stores if another item is in the vicinity of the current selected item
       // index of the option to be deleted; -1 means nothing to be deleted
       optionIndexToDelete: -1,
+      isSurveyQuestion: false,
       // warning messages for error states
       timeExceedsWarning: "The time entered exceeds the video duration",
       itemInVicinityWarning: "Questions should be at least 2 seconds apart",
@@ -785,6 +786,7 @@ export default {
       },
       set(value) {
         // set whether question is for survey
+        this.isSurveyQuestion = true;
         this.selectedItemDetail.survey = value;
       },
     },
