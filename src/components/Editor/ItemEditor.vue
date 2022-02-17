@@ -316,7 +316,6 @@ export default {
       } else tooltip.enable();
     },
   },
-
   props: {
     itemList: {
       type: Array,

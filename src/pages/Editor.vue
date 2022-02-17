@@ -368,6 +368,7 @@
             </div>
             <!--- item editor  -->
             <item-editor
+              :key="componentKey"
               v-if="hasAnyItems && currentItemIndex != null"
               v-model:itemList="items"
               v-model:itemDetailList="itemDetails"
@@ -597,6 +598,7 @@ export default {
     const confettiHandler = confetti.create(confettiCanvas, { resize: true });
 
     return {
+      componentKey: 0,
       items: [], // list of all items created for this plio
       itemUnwatchers: {}, // functions to unwatch all the items
       itemDetails: [], // list of all the items' details created for this plio
@@ -1007,6 +1009,7 @@ export default {
      * the details corresponding to the current item
      */
     currentItemDetail() {
+      //console.log("curentdetail");
       return this.itemDetails[this.currentItemIndex];
     },
     /**
@@ -1386,6 +1389,9 @@ export default {
     },
   },
   methods: {
+    forceUpdate() {
+      this.componentKey++;
+    },
     ...mapActions("sync", [
       "startUploading",
       "stopUploading",
@@ -1889,6 +1895,8 @@ export default {
           this.itemDetails[itemIndex].type
         );
       }
+      //for rerendering item editor.
+      this.forceUpdate();
     },
     /**
      * marks that no item has been currently selected
@@ -2070,6 +2078,7 @@ export default {
      * @param {Object} payload - The payload that needs to be pushed to the backend
      */
     async updateItem(id, payload) {
+      //this.componentkey!=this.componentkey;
       await ItemAPIService.updateItem(id, payload);
     },
 

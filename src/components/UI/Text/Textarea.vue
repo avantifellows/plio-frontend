@@ -205,15 +205,16 @@ export default {
     },
   },
   methods: {
-
     update() {
-      let r = this.editor.getText() ? this.editor.root.innerHTML : "";
-      console.log("r is" + r);
-      this.$emit("input", this.editor.getText() ? this.editor.root.innerHTML : "");
+     // let r = this.editor.getText() ? this.editor.root.innerHTML : "";
+     // console.log("r is" + r);
+      console.log("valueis"+ this.value);
+      this.$emit("input", this.editor.getText()?this.editor.root.innerHTML : "");
     },
     inputChange(event) {
       // invoked on input change
-      this.$emit("input", this.value);
+      console.log("htmlis"+this.editor.getText());
+      this.$emit("input", this.editor.getText());
 
       // auto expand the textbox if a `maxHeightLimit` has been specified
       //  console.log(this.maxHeightLimit);
@@ -223,7 +224,6 @@ export default {
         textareaElement.style.height =
           Math.min(textareaElement.scrollHeight, this.maxHeightLimit) + "px";
       }
-
     },
 
     keyPress(event) {
@@ -240,6 +240,7 @@ export default {
     },
   },
   emits: ["input", "keypress", "keydown", "update:value", "start-icon-selected"],
+  // quilljs editor
   mounted() {
     this.editor = new Quill(this.$refs.editor, {
       modules: {
@@ -251,7 +252,6 @@ export default {
 
     this.editor.root.innerHTML = this.value;
 
-    // We will add the update event here
     this.editor.on("text-change", () => this.update());
   },
 };
