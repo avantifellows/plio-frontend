@@ -878,7 +878,11 @@ export default {
           if (this.isItemMCQ(itemIndex)) {
             itemResponse.answer = parseInt(itemResponse.answer);
           }
-          if (itemResponse.answer != null && !isNaN(itemResponse.answer)) {
+          if (
+            itemResponse.answer != null &&
+            !isNaN(itemResponse.answer) &&
+            !this.isSkipEnabled
+          ) {
             this.lastAnsweredInteractionIndex = itemIndex;
           }
           this.itemResponses.push(itemResponse);
