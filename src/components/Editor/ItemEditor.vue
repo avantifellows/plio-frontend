@@ -91,7 +91,7 @@
           <label class="inline-flex items-center">
             <input
               type="checkbox"
-              class="form-checkbox h-5 w-5 text-primary focus:ring-transparent"
+              class="form-checkbox h-5 w-5 text-primary focus:ring-transparent disabled:opacity-40"
               v-model="isThisSurveyQuestion"
               :disabled="isInteractionDisabled"
               data-test="surveyquestioncheckbox"
