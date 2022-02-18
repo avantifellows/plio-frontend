@@ -71,8 +71,6 @@
 
 <script>
 import PlioAPIService from "@/services/API/Plio.js";
-import ItemAPIService from "@/services/API/Item.js";
-import QuestionAPIService from "@/services/API/Question.js";
 import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
@@ -500,17 +498,6 @@ export default {
         "Plio Status": this.status,
       });
       let newPlio = await PlioAPIService.duplicatePlio(this.plioId);
-      await Promise.all(
-        this.plioDetails.items.map(async (item, index) => {
-          // duplicate item and link it to the newly created plio
-          let newItem = await ItemAPIService.duplicateItem(item.id, newPlio.data.id);
-          // duplicate question and link it to the newly created item
-          await QuestionAPIService.duplicateQuestion(
-            this.itemDetails[index].id,
-            newItem.data.id
-          );
-        })
-      );
       return newPlio.data.uuid;
     },
 
