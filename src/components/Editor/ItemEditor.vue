@@ -93,7 +93,7 @@
           v-model:value="questionText"
           ref="questionText"
           class="p-2 w-full"
-          :boxStyling="'pl-4 focus:ring-primary'"
+          :boxStyling="'focus:ring-primary'"
           :maxHeightLimit="questionTextboxHeightLimit"
           data-test="questionText"
         ></Textarea>

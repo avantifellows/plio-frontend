@@ -39,11 +39,10 @@
       <!-- input text area -->
 
       <div
-        contenteditable="true"
-        class="pt-7 h-30 textbox pl-0 border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
+        class="pt-7 h-30 textbox border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
         :class="[inputAreaClass, boxStyling]"
         :disabled="isDisabled"
-        ref="editor"
+        ref="quillEditor"
         :placeholder="placeholder"
         @input="inputChange"
         name="placeholder"
@@ -57,6 +56,7 @@
 </template>
 
 <script>
+// importing css file is necessary and icons wont appear properly without it
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 
@@ -120,7 +120,7 @@ export default {
   },
   data() {
     return {
-      editor: null,
+      quillEditor: null,
     };
   },
 
@@ -205,7 +205,8 @@ export default {
   },
   methods: {
     update() {
-      this.$emit("update:value", this.editor.getText() ? this.editor.root.innerHTML : "");
+      console.log(this.quillEditor.getText() ? this.quillEditor.root.innerHTML : "");
+      this.$emit("update:value", this.quillEditor.getText() ? this.quillEditor.root.innerHTML : "");
     },
     inputChange() {
       // invoked on input change
@@ -233,9 +234,9 @@ export default {
     },
   },
   emits: ["input", "keypress", "keydown", "update:value", "start-icon-selected"],
-  // quilljs editor
+  // quilljs quillEditor
   mounted() {
-    this.editor = new Quill(this.$refs.editor, {
+    this.quillEditor = new Quill(this.$refs.quillEditor, {
       modules: {
         toolbar: [["bold", "italic", "underline"]],
       },
@@ -243,9 +244,9 @@ export default {
       formats: ["bold", "underline", "italic"],
     });
 
-    this.editor.root.innerHTML = this.value;
+    this.quillEditor.root.innerHTML = this.value;
 
-    this.editor.on("text-change", () => this.update());
+    this.quillEditor.on("text-change", () => this.update());
   },
 };
 </script>
@@ -260,5 +261,9 @@ export default {
 }
 .ql-editor {
   overflow-y: auto;
+}
+.disabledDiv{
+  pointer-events:none;
+  opacity:0.4;
 }
 </style>
