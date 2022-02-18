@@ -37,7 +37,6 @@
         <inline-svg :src="startIconObj"></inline-svg>
       </div>
       <!-- input text area -->
-
       <div
         class="pt-7 h-30 textbox border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
         :class="[inputAreaClass, boxStyling]"
@@ -204,8 +203,9 @@ export default {
     },
   },
   methods: {
-    update() {
-      console.log(this.quillEditor.getText() ? this.quillEditor.root.innerHTML : "");
+    //update HTML on input change in textarea
+    updateChange() {
+      //invoked on input change
       this.$emit(
         "update:value",
         this.quillEditor.getText() ? this.quillEditor.root.innerHTML : ""
@@ -237,23 +237,25 @@ export default {
     },
   },
   emits: ["input", "keypress", "keydown", "update:value", "start-icon-selected"],
-  // quilljs quillEditor
+
   mounted() {
+    //new instance of quilljs is created
     this.quillEditor = new Quill(this.$refs.quillEditor, {
       modules: {
         toolbar: [["bold", "italic", "underline"]],
       },
-      theme: "snow",
-      formats: ["bold", "underline", "italic"],
+      theme: "snow", //css for quilleditor
+      formats: ["bold", "underline", "italic"], //formatting options for editor
     });
 
     this.quillEditor.root.innerHTML = this.value;
-
-    this.quillEditor.on("text-change", () => this.update());
+    //invoked on input change
+    this.quillEditor.on("text-change", () => this.updateChange());
   },
 };
 </script>
 <style>
+/* quillEditor toolbar css */
 .ql-toolbar.ql-snow {
   z-index: 5;
   position: absolute;
@@ -262,9 +264,7 @@ export default {
   border: 1px solid transparent;
   padding: 0px;
 }
-.ql-editor {
-  overflow-y: auto;
-}
+/* when the answer div is diabled */
 .disabledDiv {
   pointer-events: none;
   opacity: 0.4;
