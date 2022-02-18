@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div class="flex relative mt-1">
+    <div class="flex relative mt-1" :class="isDisabled ? 'disabledDiv' : ''">
       <!-- left icon -->
       <div
         v-if="isStartIconEnabled"
@@ -265,8 +265,10 @@ export default {
   padding: 0px;
 }
 /* when the answer div is diabled */
-.disabledDiv {
+.disabledDiv,
+.disabledDiv:hover {
   pointer-events: none;
   opacity: 0.4;
+  cursor: not-allowed;
 }
 </style>
