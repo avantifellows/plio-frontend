@@ -368,7 +368,7 @@
             </div>
             <!--- item editor  -->
             <item-editor
-              :key="componentKey"
+              :key="reRenderKey"
               v-if="hasAnyItems && currentItemIndex != null"
               v-model:itemList="items"
               v-model:itemDetailList="itemDetails"
@@ -598,7 +598,6 @@ export default {
     const confettiHandler = confetti.create(confettiCanvas, { resize: true });
 
     return {
-      componentKey: 0,
       items: [], // list of all items created for this plio
       itemUnwatchers: {}, // functions to unwatch all the items
       itemDetails: [], // list of all the items' details created for this plio
@@ -727,7 +726,7 @@ export default {
       isImageUploaderDialogShown: false, // whether to show the image uploader or not
       loadedPlioDetails: {}, // details of the plio fetched when the page was loaded
       isPlioPreviewShown: false, // whether to show a full preview of the plio (draft mode only)
-      reRenderKey: 0, // key required to re-render the plio preview player
+      reRenderKey: 0, // key required to re-render the plio preview player and itemEditor
       editorVideoPlayerElementId: "editorVideoPlayer", // id of the video player in the editor
       isPlioPreviewLoaded: false, // whether the plio preview has been loaded
       // class for the heading of each question type
@@ -1388,8 +1387,9 @@ export default {
     },
   },
   methods: {
-    forceUpdate() {
-      this.componentKey++;
+    // rerender itemEditor component everytime user click on slidermarker .
+    reRender() {
+      this.reRenderKey = 1 - this.reRenderKey;
     },
     ...mapActions("sync", [
       "startUploading",
@@ -1895,7 +1895,7 @@ export default {
         );
       }
       //for rerendering item editor.
-      this.forceUpdate();
+      this.reRender();
     },
     /**
      * marks that no item has been currently selected

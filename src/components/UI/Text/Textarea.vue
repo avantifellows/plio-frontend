@@ -206,7 +206,10 @@ export default {
   methods: {
     update() {
       console.log(this.quillEditor.getText() ? this.quillEditor.root.innerHTML : "");
-      this.$emit("update:value", this.quillEditor.getText() ? this.quillEditor.root.innerHTML : "");
+      this.$emit(
+        "update:value",
+        this.quillEditor.getText() ? this.quillEditor.root.innerHTML : ""
+      );
     },
     inputChange() {
       // invoked on input change
@@ -262,8 +265,8 @@ export default {
 .ql-editor {
   overflow-y: auto;
 }
-.disabledDiv{
-  pointer-events:none;
-  opacity:0.4;
+.disabledDiv {
+  pointer-events: none;
+  opacity: 0.4;
 }
 </style>
