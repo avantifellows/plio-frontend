@@ -146,6 +146,7 @@ export default {
           global: false,
         },
 
+        hideControls: false,
         clickToPlay: false,
 
         invertTime: false,
@@ -341,6 +342,10 @@ export default {
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
     ...mapState("generic", ["windowInnerWidth", "windowInnerHeight"]),
+    currentItem() {
+      if (!this.isAnyItemActive) return null;
+      return this.items[this.currentItemIndex];
+    },
     numItems() {
       return this.items.length;
     },
@@ -454,7 +459,7 @@ export default {
      * eg - question, note etc
      */
     currentItemType() {
-      return this.items[this.currentItemIndex].type;
+      return this.currentItem.type;
     },
     /**
      * config for the title of the maximise button
@@ -681,24 +686,43 @@ export default {
         const firstUnansweredInteraction = this.items[
           this.lastAnsweredInteractionIndex + 1
         ];
-        if (timestamp > firstUnansweredInteraction.time)
+        if (timestamp >= firstUnansweredInteraction.time)
           return firstUnansweredInteraction;
       }
     },
-    videoSeeked() {
+    moveToFirstUnansweredItemTimestampOrPass() {
+      let playerProgress = document.getElementsByClassName("plyr__progress__buffer")[0];
+      console.log(playerProgress.getAttribute("value"));
+      let timeToInspect = this.player.currentTime;
+
+      if (
+        this.isAnyItemActive &&
+        this.player.currentTime < this.currentItem.time &&
+        this.player.currentTime >= this.currentItem.time - POP_UP_CHECKING_FREQUENCY
+      )
+        timeToInspect += POP_UP_CHECKING_FREQUENCY;
+
       const firstUnansweredInteraction = this.checkMovingToTimestampAllowed(
-        this.player.currentTime
+        timeToInspect
       );
       if (firstUnansweredInteraction != null) {
         this.setPlayerTime(firstUnansweredInteraction.time - POP_UP_CHECKING_FREQUENCY);
         setTimeout(() => {
           this.toast.error(this.$t("toast.player.cannot_skip_interaction"), {
-            id: "internetLostToast",
+            id: "cannotSkipInteraction",
             position: "bottom-center",
           });
         }, 500);
+        return true;
+      }
+      return false;
+    },
+    videoSeeked() {
+      if (this.moveToFirstUnansweredItemTimestampOrPass()) {
+        this.isModalMinimized = false;
         return;
       }
+
       // invoked when a seek operation ends
       this.createEvent("video_seeked", { currentTime: this.player.currentTime });
     },
@@ -812,6 +836,7 @@ export default {
     closeItemModal() {
       // invoked when the modal is to be closed
       this.currentItemIndex = null;
+      this.toast.dismiss("cannotSkipInteraction");
       this.playPlayer();
     },
     playPlayer() {
@@ -930,16 +955,17 @@ export default {
       return linkValidation["ID"];
     },
     playerPlayed() {
-      console.log(this.player.playing);
-      console.log(this.isSkipEnabled);
-      console.log(this.isAnyItemActive);
+      if (this.moveToFirstUnansweredItemTimestampOrPass()) {
+        this.pausePlayer();
+        return;
+      }
+
       // invoked when the play button of the player is clicked
-      if (this.isScorecardShown || (!this.isSkipEnabled && this.isAnyItemActive)) {
+      if (this.isScorecardShown) {
         /**
          * prevents the video from playing while the
-         * scorecard is being shown or when an item is active with skip disabled
+         * scorecard is being shown
          */
-        console.log("yolo");
         this.pausePlayer();
         return;
       }
@@ -1110,6 +1136,8 @@ export default {
         this.currentItemIndex = itemIndex;
         this.markItemSelected();
         this.createEvent("item_opened", { itemIndex: this.currentItemIndex });
+      } else {
+        this.closeItemModal();
       }
     },
     /**
