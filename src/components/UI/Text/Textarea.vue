@@ -38,8 +38,9 @@
       </div>
       <!-- input text area -->
       <div
-        class="pt-7 h-30 textbox border placeholder-blueGray-300 text-blueGray-600 bg-white disabled:bg-gray-200 rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 disabled:cursor-not-allowed"
+        class="pt-7 overflow-y-auto h-32 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200"
         :class="[inputAreaClass, boxStyling]"
+        contenteditable="true"
         :disabled="isDisabled"
         ref="quillEditor"
         :placeholder="placeholder"
@@ -168,7 +169,7 @@ export default {
       }
       return icon;
     },
-    startIconName() {
+    Name() {
       // gets the start icon name from the prop
       return this.startIcon.name;
     },
@@ -213,7 +214,7 @@ export default {
     },
     inputChange() {
       // invoked on input change
-      this.$emit("input", this.value);
+      //  this.$emit("input", this.value);
       // auto expand the textbox if a `maxHeightLimit` has been specified
       if (this.maxHeightLimit > 0) {
         var textareaElement = event.srcElement;
@@ -265,10 +266,14 @@ export default {
   padding: 0px;
 }
 /* when the answer div is diabled */
-.disabledDiv,
-.disabledDiv:hover {
+.disabledDiv {
   pointer-events: none;
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.ql-editor:empty:before {
+  content: attr(placeholder);
+  color: gray;
 }
 </style>

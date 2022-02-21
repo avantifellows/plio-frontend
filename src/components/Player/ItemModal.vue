@@ -269,11 +269,13 @@ export default {
         return parseInt(this.currentItemDetails["correct_answer"]);
       return this.currentItemDetails["correct_answer"];
     },
+
     /** text for the question */
     questionText() {
       if (this.currentItemDetails == undefined) return null;
       return this.currentItemDetails["text"];
     },
+
     /** whether the item is a Question */
     isItemQuestion() {
       return this.itemType == "question";

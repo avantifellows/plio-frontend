@@ -3,7 +3,7 @@
     <!-- question text -->
     <div class="px-4 md:px-6" :class="{ 'xl:px-10': !previewMode }">
       <p :class="questionTextClass" data-test="questionText">
-        {{ questionText }}
+        <span v-html="questionText"></span>
       </p>
     </div>
     <div :class="orientationClass">
