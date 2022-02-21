@@ -71,8 +71,6 @@
 
 <script>
 import PlioAPIService from "@/services/API/Plio.js";
-import ItemAPIService from "@/services/API/Item.js";
-import QuestionAPIService from "@/services/API/Question.js";
 import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import VideoFunctionalService from "@/services/Functional/Video.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
@@ -104,23 +102,10 @@ export default {
       scrollY: window.scrollY, // the number of pixels scrolled vertically
       toast: useToast(), // toast component
       optionsOverflowMarginTop: -14, // margin to be set from the top when the options would overflow from the screen
-      itemDetails: [],
       thumbnailClasses: "h-12 w-16 bp-500:h-14 bp-500:w-18 md:h-16 md:w-20",
     };
   },
   async created() {
-    if (this.plioDetails != undefined && "items" in this.plioDetails) {
-      // create itemDetails and update items to remove details
-      for (let item of this.plioDetails.items) {
-        /**
-         * add every item's details to an itemDetails array
-         * and then, remove those details from the item object
-         */
-        this.itemDetails.push(item.details);
-        delete item.details;
-      }
-    }
-
     // add listener for resize
     window.addEventListener("resize", this.handleResize);
 
@@ -500,17 +485,6 @@ export default {
         "Plio Status": this.status,
       });
       let newPlio = await PlioAPIService.duplicatePlio(this.plioId);
-      await Promise.all(
-        this.plioDetails.items.map(async (item, index) => {
-          // duplicate item and link it to the newly created plio
-          let newItem = await ItemAPIService.duplicateItem(item.id, newPlio.data.id);
-          // duplicate question and link it to the newly created item
-          await QuestionAPIService.duplicateQuestion(
-            this.itemDetails[index].id,
-            newItem.data.id
-          );
-        })
-      );
       return newPlio.data.uuid;
     },
 
