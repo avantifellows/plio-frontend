@@ -86,33 +86,28 @@
     <!-- item editor -->
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
       <div class="flex flex-row p-2">
-        <div class="flex-col">
-          <!-- checkbox -->
-          <label class="inline-flex items-center">
-            <input
-              type="checkbox"
-              class="form-checkbox h-5 w-5 text-primary focus:ring-transparent disabled:opacity-40"
-              v-model="isThisSurveyQuestion"
-              :disabled="isInteractionDisabled"
-              data-test="surveyquestioncheckbox"
-            /><span class="ml-2 text-gray-700">{{
-              $t("editor.item_editor.survey_mode")
-            }}</span>
-          </label>
-        </div>
-        <div class="flex-col">
-          <span
-            v-tooltip="{
-              content: $t('editor.item_editor.tooltip_survey_mode'),
-              placement: 'bottom',
-            }"
-          >
-            <inline-svg
-              :src="getImageSource('information-survey.svg')"
-              class="w-8 h-5 items-center"
-            ></inline-svg>
-          </span>
-        </div>
+        <!-- Survey checkbox -->
+        <label class="inline-flex items-center">
+          <input
+            type="checkbox"
+            class="h-4 w-4 text-primary focus:ring-transparent disabled:opacity-40 disabled:cursor-not-allowed"
+            v-model="isSelectedItemSurveyQuestion"
+            :disabled="isInteractionDisabled"
+            data-test="surveyQuestionCheckbox"
+          />
+          <span class="ml-2 text-gray-700 text-sm" :class="DisabledClass">{{
+            $t("editor.item_editor.survey_mode")
+          }}</span>
+        </label>
+        <inline-svg
+          :src="getImageSource('question-circle-regular.svg')"
+          class="w-5 h-5 pl-1 items-center place-self-center"
+          :class="DisabledClass"
+          v-tooltip="{
+            content: SurveyModeTooltip,
+            placement: 'bottom',
+          }"
+        ></inline-svg>
       </div>
       <div class="flex flex-row">
         <!-- question input box : expandable -->
@@ -157,7 +152,10 @@
         data-test="time"
       ></time-input>
       <!-- input field for entering options for survey question  -->
-      <div v-if="areOptionsVisible && isThisSurveyQuestion" data-test="surveyOptions">
+      <div
+        v-if="areOptionsVisible && isSelectedItemSurveyQuestion"
+        data-test="surveyOptions"
+      >
         <input-text
           v-for="(option, optionIndex) in options"
           class="p-2"
@@ -166,12 +164,13 @@
           :title="getOptionInputTitle(optionIndex)"
           :key="optionIndex"
           :endIcon="getDeleteOptionIconConfig"
+          :boxStyling="'pl-4 focus:ring-primary'"
           @end-icon-selected="deleteOption(optionIndex)"
           data-test="surveyoption"
         ></input-text>
       </div>
       <!-- input field for entering options  -->
-      <div v-if="areOptionsVisible && !isThisSurveyQuestion" data-test="options">
+      <div v-if="areOptionsVisible && !isSelectedItemSurveyQuestion" data-test="options">
         <input-text
           v-for="(option, optionIndex) in options"
           class="p-2"
@@ -206,34 +205,34 @@
         class="p-2"
         data-test="subjectiveQuestionContainer"
       >
-        <!-- checkbox -->
+        <!-- CharLimitSet checkbox -->
         <label class="inline-flex items-center mt-3">
           <input
             type="checkbox"
-            class="form-checkbox h-5 w-5 text-primary focus:ring-transparent"
+            class="h-4 w-4 text-primary focus:ring-transparent"
             v-model="isMaxCharLimitSet"
             data-test="maxCharLimitCheckbox"
             checked
-          /><span class="ml-2 text-gray-700">{{
+          /><span class="ml-2 text-gray-700 text-sm">{{
             $t("editor.item_editor.heading.set_character_limit")
           }}</span>
         </label>
         <!-- the max limit input -->
         <div v-if="isMaxCharLimitSet" class="flex space-x-2 items-center">
-          <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">
+          <p class="text-gray-500 h-full text-sm">
             {{ $t("editor.item_editor.heading.char_limit.max") }}
           </p>
           <input-text
             :placeholder="'100'"
             v-model:value.number="maxCharLimit"
             ref="maxCharLimit"
-            class="w-24"
+            class="w-12"
             :boxStyling="charLimitBoxClass"
             @keypress="maxCharLimitInputKeypress"
             @keydown="maxCharLimitInputKeydown"
             data-test="maxCharLimit"
           ></input-text>
-          <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">
+          <p class="text-gray-500 h-full text-sm">
             {{ $t("editor.item_editor.heading.char_limit.chars_allowed") }}
           </p>
         </div>
@@ -307,7 +306,6 @@ export default {
       itemInVicinity: false, // stores if another item is in the vicinity of the current selected item
       // index of the option to be deleted; -1 means nothing to be deleted
       optionIndexToDelete: -1,
-      isSurveyQuestion: false,
       // warning messages for error states
       timeExceedsWarning: "The time entered exceeds the video duration",
       itemInVicinityWarning: "Questions should be at least 2 seconds apart",
@@ -555,6 +553,16 @@ export default {
   },
 
   computed: {
+    DisabledClass() {
+      return {
+        "opacity-40 cursor-not-allowed": this.isInteractionDisabled,
+      };
+    },
+    SurveyModeTooltip() {
+      return this.isInteractionDisabled
+        ? this.$t("tooltip.editor.item_editor.survey_mode.disabled")
+        : this.$t("tooltip.editor.item_editor.survey_mode.enabled");
+    },
     correctOptionIcon() {
       if (this.isQuestionTypeMCQ) return "check-circle-regular";
       return "check-square-regular";
@@ -620,7 +628,7 @@ export default {
     },
     charLimitBoxClass() {
       // class for the input area to enter max char limit
-      return "text-center disabled:opacity-50";
+      return " text-sm text-center disabled:opacity-50";
     },
     questionTypeDropdownClass() {
       // class for the question type dropdown
@@ -779,7 +787,7 @@ export default {
         this.selectedItemDetail.max_char_limit = value;
       },
     },
-    isThisSurveyQuestion: {
+    isSelectedItemSurveyQuestion: {
       get() {
         // extract whether question is for survey
         if (this.selectedItemDetail == null) return false;
@@ -787,7 +795,6 @@ export default {
       },
       set(value) {
         // set whether question is for survey
-        this.isSurveyQuestion = true;
         this.selectedItemDetail.survey = value;
       },
     },

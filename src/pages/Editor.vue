@@ -608,7 +608,6 @@ export default {
       plioTitle: "", // title for the current plio
       currentTimestamp: 0, // current timestamp
       currentItemIndex: null, // current item being displayed
-      isQuestionModeSurvey: false,
       currentQuestionTypeIndex: 0, // index of the current question type being created
       plyrConfig: {
         controls: ["play-large", "play", "volume", "current-time"],

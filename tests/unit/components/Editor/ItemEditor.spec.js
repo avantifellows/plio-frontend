@@ -14,6 +14,10 @@ describe("ItemEditor.vue", () => {
       type: "question",
       time: 20,
     },
+    {
+      type: "question",
+      time: 10,
+    },
   ];
   let itemDetailList = [
     {
@@ -78,19 +82,6 @@ describe("ItemEditor.vue", () => {
   });
 
   describe("mcq questions", () => {
-    it("should render with required values", () => {
-      expect(wrapper.find('[data-test="options"]').exists()).toBeTruthy();
-      expect(
-        wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
-      ).toBeFalsy();
-      // no option should be marked as correct answer as no correct answer has been given
-      wrapper.findAll('[data-test="option"]').forEach((option) => {
-        expect(option.find('[data-test="startIcon"]').classes()).not.toContain(
-          "text-green-500"
-        );
-      });
-    });
-
     it("should render with required values", () => {
       expect(wrapper.find('[data-test="options"]').exists()).toBeTruthy();
       expect(
@@ -198,12 +189,10 @@ describe("ItemEditor.vue", () => {
         .trigger("click");
       expect(wrapper.emitted()).toHaveProperty("delete-option");
     });
-  });
 
-  describe("survey mcq question", () => {
-    it("check for mcq type", async () => {
+    it("check for survey mode", async () => {
       await wrapper
-        .find('[data-test="surveyquestioncheckbox"]')
+        .find('[data-test="surveyQuestionCheckbox"]')
         .setChecked("checked");
       await flushPromises();
       expect(wrapper.find('[data-test="surveyOptions"]').exists()).toBeTruthy();
@@ -211,7 +200,7 @@ describe("ItemEditor.vue", () => {
       expect(
         wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
       ).toBeFalsy();
-      expect(wrapper.vm.isSurveyQuestion).toBe(true);
+      expect(wrapper.vm.isSelectedItemSurveyQuestion).toBe(true);
     });
   });
 
@@ -453,14 +442,14 @@ describe("ItemEditor.vue", () => {
 
     it("check for survey mode", async () => {
       await wrapper
-        .find('[data-test="surveyquestioncheckbox"]')
+        .find('[data-test="surveyQuestionCheckbox"]')
         .setChecked("checked");
       await flushPromises();
       expect(
         wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
       ).toBeTruthy();
       expect(wrapper.find('[data-test="surveyOptions"]').exists()).toBeFalsy();
-      expect(wrapper.vm.isSurveyQuestion).toBe(true);
+      expect(wrapper.vm.isSelectedItemSurveyQuestion).toBe(true);
     });
 
     it("enables/disables max char limit", async () => {
