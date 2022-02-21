@@ -931,10 +931,10 @@ export default {
     },
     playerPlayed() {
       // invoked when the play button of the player is clicked
-      if (this.isScorecardShown) {
+      if (this.isScorecardShown || (!this.isSkipEnabled && this.isAnyItemActive)) {
         /**
          * prevents the video from playing while the
-         * scorecard is being shown
+         * scorecard is being shown or when an item is active with skip disabled
          */
         this.pausePlayer();
         return;
