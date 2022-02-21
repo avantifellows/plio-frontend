@@ -696,8 +696,6 @@ export default {
       }
     },
     moveToFirstUnansweredItemTimestampOrPass() {
-      let playerProgress = document.getElementsByClassName("plyr__progress__buffer")[0];
-      console.log(playerProgress.getAttribute("value"));
       let timeToInspect = this.player.currentTime;
 
       if (
