@@ -930,12 +930,16 @@ export default {
       return linkValidation["ID"];
     },
     playerPlayed() {
+      console.log(this.player.playing);
+      console.log(this.isSkipEnabled);
+      console.log(this.isAnyItemActive);
       // invoked when the play button of the player is clicked
       if (this.isScorecardShown || (!this.isSkipEnabled && this.isAnyItemActive)) {
         /**
          * prevents the video from playing while the
          * scorecard is being shown or when an item is active with skip disabled
          */
+        console.log("yolo");
         this.pausePlayer();
         return;
       }
