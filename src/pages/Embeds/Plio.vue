@@ -532,7 +532,12 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
-
+    isItemResponseEmpty(itemIndex, answer) {
+      if (answer == null) return true;
+      if (this.itemDetails[itemIndex].type == "mcq") return isNaN(answer);
+      if (this.itemDetails[itemIndex].type == "checkbox") return answer.length == 0;
+      return false;
+    },
     /**
      * sets various properties based on the screen size
      */
@@ -904,8 +909,7 @@ export default {
             itemResponse.answer = parseInt(itemResponse.answer);
           }
           if (
-            itemResponse.answer != null &&
-            !isNaN(itemResponse.answer) &&
+            !this.isItemResponseEmpty(itemIndex, itemResponse.answer) &&
             !this.isSkipEnabled
           ) {
             this.lastAnsweredInteractionIndex = itemIndex;
