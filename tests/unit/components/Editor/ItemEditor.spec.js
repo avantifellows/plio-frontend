@@ -16,7 +16,7 @@ describe("ItemEditor.vue", () => {
     },
     {
       type: "question",
-      time: 10,
+      time: 30,
     },
   ];
   let itemDetailList = [
@@ -195,7 +195,7 @@ describe("ItemEditor.vue", () => {
         .find('[data-test="surveyQuestionCheckbox"]')
         .setChecked("checked");
       await flushPromises();
-      expect(wrapper.find('[data-test="surveyOptions"]').exists()).toBeTruthy();
+      expect(wrapper.find('[data-test="options"]').exists()).toBeTruthy();
       expect(wrapper.find('[data-test="options"]').exists()).toBeFalsy();
       expect(
         wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()

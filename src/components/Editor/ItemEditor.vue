@@ -86,7 +86,7 @@
     <!-- item editor -->
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
       <div class="flex flex-row p-2">
-        <!-- Survey checkbox -->
+        <!-- survey mode checkbox -->
         <label class="inline-flex items-center">
           <input
             type="checkbox"
@@ -189,7 +189,7 @@
         class="p-2"
         data-test="subjectiveQuestionContainer"
       >
-        <!-- CharLimitSet checkbox -->
+        <!-- checkbox for setting max char limit -->
         <label class="inline-flex items-center mt-3">
           <input
             type="checkbox"
@@ -541,9 +541,7 @@ export default {
 
   computed: {
     surveyModeTooltip() {
-      return this.isInteractionDisabled
-        ? this.$t("tooltip.editor.item_editor.survey_mode.disabled")
-        : this.$t("tooltip.editor.item_editor.survey_mode.enabled");
+      return this.$t("tooltip.editor.item_editor.survey_mode");
     },
     correctOptionIcon() {
       if (this.isQuestionTypeMCQ) return "check-circle-regular";
