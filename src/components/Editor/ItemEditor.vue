@@ -90,6 +90,7 @@
         <label class="inline-flex items-center">
           <input
             type="checkbox"
+            style="box-shadow: none"
             class="h-4 w-4 text-primary focus:ring-transparent disabled:opacity-40 disabled:cursor-not-allowed"
             v-model="selectedItemDetail.survey"
             :disabled="isInteractionDisabled"
@@ -194,6 +195,7 @@
         <label class="inline-flex items-center mt-3">
           <input
             type="checkbox"
+            style="box-shadow: none"
             class="h-4 w-4 text-primary focus:ring-transparent"
             v-model="isMaxCharLimitSet"
             data-test="maxCharLimitCheckbox"
