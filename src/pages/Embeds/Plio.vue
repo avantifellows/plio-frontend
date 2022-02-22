@@ -696,6 +696,7 @@ export default {
       }
     },
     moveToFirstUnansweredItemTimestampOrPass() {
+      if (this.isSkipEnabled) return false;
       let timeToInspect = this.player.currentTime;
 
       if (
@@ -918,6 +919,9 @@ export default {
           const firstUnansweredInteraction = this.checkMovingToTimestampAllowed(
             this.currentTimestamp
           );
+          // check if any item before the current timestamp is unanswered
+          // if there is, then update the timestamp to just before the
+          // unanswered item
           if (firstUnansweredInteraction != null) {
             this.currentTimestamp =
               firstUnansweredInteraction.time - POP_UP_CHECKING_FREQUENCY;

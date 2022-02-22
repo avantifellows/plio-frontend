@@ -1,3 +1,4 @@
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 let clonedeep = require("lodash.clonedeep");
 
 global.dummyItemsWithItemDetails = [
@@ -407,68 +408,6 @@ global.dummyUser = {
   auth_org: null,
 };
 
-global.dummyPublishedPlio = {
-  data: {
-    id: 113,
-    name: "dummy plio",
-    uuid: "abcdefghij",
-    failsafe_url: "",
-    status: "published",
-    is_public: true,
-    config: null,
-    created_by: {
-      id: 4,
-      last_login: null,
-      is_superuser: true,
-      first_name: "",
-      last_name: "",
-      is_staff: false,
-      is_active: true,
-      date_joined: "2021-04-21T08:49:09.763295Z",
-      email: "first.last@email.com",
-      mobile: null,
-      avatar_url: null,
-      config: {
-        locale: "en",
-      },
-      created_at: "2021-04-21T08:49:09.763814Z",
-      updated_at: "2021-07-08T09:51:19.145752Z",
-      organizations: [
-        {
-          id: 3,
-          schema_name: "qwertyuiop",
-          name: "Organization 1",
-          shortcode: "o1",
-          created_at: "2021-04-26T09:46:38.972422Z",
-          updated_at: "2021-04-26T09:46:38.972433Z",
-        },
-        {
-          id: 2,
-          schema_name: "asdfghjkla",
-          name: "Organization 2",
-          shortcode: "o2",
-          created_at: "2021-04-21T10:12:51.751152Z",
-          updated_at: "2021-06-30T08:41:41.652160Z",
-        },
-      ],
-      status: "approved",
-      unique_id: null,
-      auth_org: null,
-    },
-    video: {
-      id: 300,
-      url: "https://www.youtube.com/watch?v=jdYJf_ybyVo",
-      title: null,
-      duration: 725,
-      created_at: "2021-06-17T16:14:21.084680Z",
-      updated_at: "2021-07-03T15:25:04.527931Z",
-    },
-    created_at: "2021-07-03T15:00:01.669764Z",
-    updated_at: "2021-07-03T15:25:04.589996Z",
-    items: dummyItemsWithItemDetails,
-  },
-};
-
 global.dummyVideo = {
   id: 300,
   url: "https://www.youtube.com/watch?v=jdYJf_ybyVo",
@@ -707,3 +646,69 @@ global.dummySettingsToRender = new Map(
     ),
   })
 );
+
+global.dummyPublishedPlio = {
+  data: {
+    id: 113,
+    name: "dummy plio",
+    uuid: "abcdefghij",
+    failsafe_url: "",
+    status: "published",
+    is_public: true,
+    config: {
+      settings: SettingsUtilities.encodeMapToPayload(
+        clonedeep(global.dummyGlobalSettings)
+      ),
+    },
+    created_by: {
+      id: 4,
+      last_login: null,
+      is_superuser: true,
+      first_name: "",
+      last_name: "",
+      is_staff: false,
+      is_active: true,
+      date_joined: "2021-04-21T08:49:09.763295Z",
+      email: "first.last@email.com",
+      mobile: null,
+      avatar_url: null,
+      config: {
+        locale: "en",
+      },
+      created_at: "2021-04-21T08:49:09.763814Z",
+      updated_at: "2021-07-08T09:51:19.145752Z",
+      organizations: [
+        {
+          id: 3,
+          schema_name: "qwertyuiop",
+          name: "Organization 1",
+          shortcode: "o1",
+          created_at: "2021-04-26T09:46:38.972422Z",
+          updated_at: "2021-04-26T09:46:38.972433Z",
+        },
+        {
+          id: 2,
+          schema_name: "asdfghjkla",
+          name: "Organization 2",
+          shortcode: "o2",
+          created_at: "2021-04-21T10:12:51.751152Z",
+          updated_at: "2021-06-30T08:41:41.652160Z",
+        },
+      ],
+      status: "approved",
+      unique_id: null,
+      auth_org: null,
+    },
+    video: {
+      id: 300,
+      url: "https://www.youtube.com/watch?v=jdYJf_ybyVo",
+      title: null,
+      duration: 725,
+      created_at: "2021-06-17T16:14:21.084680Z",
+      updated_at: "2021-07-03T15:25:04.527931Z",
+    },
+    created_at: "2021-07-03T15:00:01.669764Z",
+    updated_at: "2021-07-03T15:25:04.589996Z",
+    items: dummyItemsWithItemDetails,
+  },
+};
