@@ -768,7 +768,6 @@ export default {
       },
     },
     isSelectedItemSurveyQuestion() {
-      // extract whether question is for survey
       if (this.selectedItemDetail == null) return false;
       return this.selectedItemDetail.survey;
     },
