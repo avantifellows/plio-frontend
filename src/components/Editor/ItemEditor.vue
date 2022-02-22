@@ -91,24 +91,25 @@
           <input
             type="checkbox"
             class="h-4 w-4 text-primary focus:ring-transparent disabled:opacity-40 disabled:cursor-not-allowed"
-            v-model="isSelectedItemSurveyQuestion"
+            v-model="selectedItemDetail.survey"
             :disabled="isInteractionDisabled"
             data-test="surveyQuestionCheckbox"
           />
-          <span class="ml-2 text-gray-700 text-sm" :class="DisabledClass">{{
+          <span class="ml-2 text-gray-700 text-sm" :class="disabledClass">{{
             $t("editor.item_editor.survey_mode")
           }}</span>
         </label>
         <inline-svg
           :src="getImageSource('question-circle-regular.svg')"
           class="w-5 h-5 pl-1 items-center place-self-center"
-          :class="DisabledClass"
+          :class="disabledClass"
           v-tooltip="{
-            content: SurveyModeTooltip,
+            content: surveyModeTooltip,
             placement: 'bottom',
           }"
         ></inline-svg>
       </div>
+
       <div class="flex flex-row">
         <!-- question input box : expandable -->
         <Textarea
@@ -151,26 +152,9 @@
         @error-resolved="$emit('error-resolved')"
         data-test="time"
       ></time-input>
-      <!-- input field for entering options for survey question  -->
-      <div
-        v-if="areOptionsVisible && isSelectedItemSurveyQuestion"
-        data-test="surveyOptions"
-      >
-        <input-text
-          v-for="(option, optionIndex) in options"
-          class="p-2"
-          v-model:value="options[optionIndex]"
-          :placeholder="$t('editor.item_editor.option_input.placeholder')"
-          :title="getOptionInputTitle(optionIndex)"
-          :key="optionIndex"
-          :endIcon="getDeleteOptionIconConfig"
-          :boxStyling="'pl-4 focus:ring-primary'"
-          @end-icon-selected="deleteOption(optionIndex)"
-          data-test="surveyoption"
-        ></input-text>
-      </div>
+
       <!-- input field for entering options  -->
-      <div v-if="areOptionsVisible && !isSelectedItemSurveyQuestion" data-test="options">
+      <div v-if="areOptionsVisible" data-test="options">
         <input-text
           v-for="(option, optionIndex) in options"
           class="p-2"
@@ -186,6 +170,7 @@
           data-test="option"
         ></input-text>
       </div>
+
       <!-- add option button -->
       <div class="flex justify-end m-2" v-if="areOptionsVisible">
         <span v-tooltip="addOptionTooltip" tabindex="0">
@@ -461,19 +446,21 @@ export default {
       this.selectedItemDetail.options.push("");
     },
     getCorrectOptionIconConfig(optionIndex) {
-      // config for the correct option icon
-      return {
-        enabled: true,
-        name: this.correctOptionIcon,
-        class: [
-          {
-            "text-green-500": this.isOptionMarkedCorrect(optionIndex),
-            "w-1 h-1": this.isQuestionTypeCheckbox,
-          },
-          "cursor-pointer ml-1",
-        ],
-        tooltip: this.getCorrectOptionTooltip(optionIndex),
-      };
+      if (!this.isSelectedItemSurveyQuestion) {
+        // config for the correct option icon
+        return {
+          enabled: true,
+          name: this.correctOptionIcon,
+          class: [
+            {
+              "text-green-500": this.isOptionMarkedCorrect(optionIndex),
+              "w-1 h-1": this.isQuestionTypeCheckbox,
+            },
+            "cursor-pointer ml-1",
+          ],
+          tooltip: this.getCorrectOptionTooltip(optionIndex),
+        };
+      }
     },
     deleteOption(optionIndex) {
       // emit a request for option deletion, pass the optionIndex
@@ -497,6 +484,7 @@ export default {
     },
     /** returns the styling for the option box for the given index */
     getOptionBoxStyling(optionIndex) {
+      if (this.isSelectedItemSurveyQuestion) return "pl-4 focus:ring-primary";
       return {
         "border-green-500": this.isOptionMarkedCorrect(optionIndex),
       };
@@ -553,12 +541,12 @@ export default {
   },
 
   computed: {
-    DisabledClass() {
+    disabledClass() {
       return {
         "opacity-40 cursor-not-allowed": this.isInteractionDisabled,
       };
     },
-    SurveyModeTooltip() {
+    surveyModeTooltip() {
       return this.isInteractionDisabled
         ? this.$t("tooltip.editor.item_editor.survey_mode.disabled")
         : this.$t("tooltip.editor.item_editor.survey_mode.enabled");
@@ -792,10 +780,6 @@ export default {
         // extract whether question is for survey
         if (this.selectedItemDetail == null) return false;
         return this.selectedItemDetail.survey;
-      },
-      set(value) {
-        // set whether question is for survey
-        this.selectedItemDetail.survey = value;
       },
     },
     isMaxCharLimitSet: {
