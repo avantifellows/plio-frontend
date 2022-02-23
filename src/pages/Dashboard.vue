@@ -106,43 +106,11 @@
           </div>
         </div>
       </div>
-      <div class="col-span-6 grid grid-cols-2 mt-4 bp-420:mt-6 sm:mt-0">
-        <div class="flex flex-col mx-2 bp-500:mx-4">
-          <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
-            <!-- completion rate -->
-            <div
-              v-if="pending"
-              class="w-full flex flex-col justify-center animate-pulse py-4"
-            >
-              <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
-              <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
-            </div>
-            <div v-else>
-              <!-- value -->
-              <p :class="getCardMetricValueClass(completionRate)" data-test="completion">
-                {{ completionRate }}
-              </p>
-              <div :class="cardMetricTitleClass">
-                <!-- title -->
-                <p>
-                  {{ $t("dashboard.summary.completion_rate.title") }}
-                </p>
-                <div
-                  class="flex relative"
-                  v-tooltip="$t('tooltip.dashboard.summary.completion_rate')"
-                >
-                  <!-- info icon -->
-                  <inline-svg
-                    :src="questionIcon"
-                    class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
-                  ></inline-svg>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="mt-4">
+      <div class="col-span-6 flex flex-col">
+        <div class="grid grid-cols-2 w-full mt-4 bp-420:mt-6 sm:mt-0">
+          <div class="flex flex-col mx-2 bp-500:mx-4">
             <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
-              <!-- one minute retention -->
+              <!-- completion rate -->
               <div
                 v-if="pending"
                 class="w-full flex flex-col justify-center animate-pulse py-4"
@@ -153,101 +121,149 @@
               <div v-else>
                 <!-- value -->
                 <p
-                  :class="getCardMetricValueClass(oneMinuteRetention)"
-                  data-test="retention"
+                  :class="getCardMetricValueClass(completionRate)"
+                  data-test="completion"
                 >
-                  {{ oneMinuteRetention }}
+                  {{ completionRate }}
                 </p>
                 <div :class="cardMetricTitleClass">
                   <!-- title -->
                   <p>
-                    {{ $t("dashboard.summary.one_minute_retention.title") }}
+                    {{ $t("dashboard.summary.completion_rate.title") }}
                   </p>
                   <div
                     class="flex relative"
-                    v-tooltip="$t('tooltip.dashboard.summary.one_minute_retention')"
+                    v-tooltip="$t('tooltip.dashboard.summary.completion_rate')"
                   >
                     <!-- info icon -->
                     <inline-svg
                       :src="questionIcon"
                       class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
                     ></inline-svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4">
+              <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
+                <!-- one minute retention -->
+                <div
+                  v-if="pending"
+                  class="w-full flex flex-col justify-center animate-pulse py-4"
+                >
+                  <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
+                  <p
+                    class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"
+                  ></p>
+                </div>
+                <div v-else>
+                  <!-- value -->
+                  <p
+                    :class="getCardMetricValueClass(oneMinuteRetention)"
+                    data-test="retention"
+                  >
+                    {{ oneMinuteRetention }}
+                  </p>
+                  <div :class="cardMetricTitleClass">
+                    <!-- title -->
+                    <p>
+                      {{ $t("dashboard.summary.one_minute_retention.title") }}
+                    </p>
+                    <div
+                      class="flex relative"
+                      v-tooltip="$t('tooltip.dashboard.summary.one_minute_retention')"
+                    >
+                      <!-- info icon -->
+                      <inline-svg
+                        :src="questionIcon"
+                        class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                      ></inline-svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col mx-2 bp-500:mx-4">
+            <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
+              <!-- accuracy -->
+              <div
+                v-if="pending"
+                class="w-full flex flex-col justify-center animate-pulse py-4"
+              >
+                <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
+                <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
+              </div>
+              <div v-else>
+                <!-- value -->
+                <p :class="getCardMetricValueClass(accuracy)" data-test="accuracy">
+                  {{ accuracy }}
+                </p>
+                <div :class="cardMetricTitleClass">
+                  <!-- title -->
+                  <p>
+                    {{ $t("dashboard.summary.accuracy.title") }}
+                  </p>
+                  <div
+                    class="flex relative"
+                    v-tooltip="$t('tooltip.dashboard.summary.accuracy')"
+                  >
+                    <!-- info icon -->
+                    <inline-svg
+                      :src="questionIcon"
+                      class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                    ></inline-svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4">
+              <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
+                <!-- number of questions answered -->
+                <div
+                  v-if="pending"
+                  class="w-full flex flex-col justify-center animate-pulse py-4"
+                >
+                  <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
+                  <p
+                    class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"
+                  ></p>
+                </div>
+                <div v-else>
+                  <!-- value -->
+                  <p
+                    :class="getCardMetricValueClass(numQuestionsAnswered)"
+                    data-test="questionAnswered"
+                  >
+                    {{ numQuestionsAnswered }}
+                  </p>
+                  <div :class="cardMetricTitleClass">
+                    <!-- title -->
+                    <p>
+                      {{ $t("dashboard.summary.num_questions_answered.title") }}
+                    </p>
+                    <div
+                      class="flex relative"
+                      v-tooltip="$t('tooltip.dashboard.summary.num_questions_answered')"
+                    >
+                      <!-- info icon -->
+                      <inline-svg
+                        :src="questionIcon"
+                        class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
+                      ></inline-svg>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="flex flex-col mx-2 bp-500:mx-4">
-          <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
-            <!-- accuracy -->
-            <div
-              v-if="pending"
-              class="w-full flex flex-col justify-center animate-pulse py-4"
-            >
-              <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
-              <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
-            </div>
-            <div v-else>
-              <!-- value -->
-              <p :class="getCardMetricValueClass(accuracy)" data-test="accuracy">
-                {{ accuracy }}
-              </p>
-              <div :class="cardMetricTitleClass">
-                <!-- title -->
-                <p>
-                  {{ $t("dashboard.summary.accuracy.title") }}
-                </p>
-                <div
-                  class="flex relative"
-                  v-tooltip="$t('tooltip.dashboard.summary.accuracy')"
-                >
-                  <!-- info icon -->
-                  <inline-svg
-                    :src="questionIcon"
-                    class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
-                  ></inline-svg>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="mt-4">
-            <div class="bg-white py-4 border-gray-300 border-2 rounded-lg">
-              <!-- number of questions answered -->
-              <div
-                v-if="pending"
-                class="w-full flex flex-col justify-center animate-pulse py-4"
-              >
-                <p class="h-10 w-1/2 place-self-center bg-yellow-900 rounded-md"></p>
-                <p class="h-4 w-1/2 place-self-center bg-yellow-900 rounded-md mt-1"></p>
-              </div>
-              <div v-else>
-                <!-- value -->
-                <p
-                  :class="getCardMetricValueClass(numQuestionsAnswered)"
-                  data-test="questionAnswered"
-                >
-                  {{ numQuestionsAnswered }}
-                </p>
-                <div :class="cardMetricTitleClass">
-                  <!-- title -->
-                  <p>
-                    {{ $t("dashboard.summary.num_questions_answered.title") }}
-                  </p>
-                  <div
-                    class="flex relative"
-                    v-tooltip="$t('tooltip.dashboard.summary.num_questions_answered')"
-                  >
-                    <!-- info icon -->
-                    <inline-svg
-                      :src="questionIcon"
-                      class="h-4 w-4 text-yellow-900 fill-current hover:cursor-pointer"
-                    ></inline-svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="pt-4 pr-4 h-3">
+          <p
+            class="text-primary text-xs bp-320:text-xsm md:text-xs md:text-right lg:text-right bp-320:text-center"
+          >
+            {{ $t("dashboard.summary.survey_warning") }}
+          </p>
         </div>
       </div>
     </div>
