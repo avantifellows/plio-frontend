@@ -557,6 +557,8 @@ export default {
       num_questions_answered: {
         title: "उत्तर किये गए प्रश्न",
       },
+      survey_warning:
+        "*किसी भी मीट्रिक की गणना में सर्वे मोड के प्रश्नों पर विचार नहीं किया जाता है",
     },
   },
   settings: {
