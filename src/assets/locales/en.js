@@ -54,6 +54,7 @@ export default {
     },
     updated: "Updated at",
     item_editor: {
+      survey_mode: "Survey Mode",
       question_input: {
         title: "Question",
         placeholder: "Enter the question here",
@@ -416,6 +417,7 @@ export default {
           "Click here to add a multiple-choice question with multiple correct answers",
       },
       item_editor: {
+        survey_mode: "In survey mode, questions do not have correct answers",
         buttons: {
           previous: "Move to the previous question",
           next: "Move to the next question",

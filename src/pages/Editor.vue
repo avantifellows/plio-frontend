@@ -180,7 +180,7 @@
           </div>
           <!-- info for subjective question -->
           <div
-            v-if="isQuestionTypeSubjective"
+            v-if="isQuestionTypeSubjective && !currentItemDetail.survey"
             class="mt-6 sm:mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
           >
             <!-- icon -->

@@ -14,6 +14,10 @@ describe("ItemEditor.vue", () => {
       type: "question",
       time: 20,
     },
+    {
+      type: "question",
+      time: 30,
+    },
   ];
   let itemDetailList = [
     {
@@ -26,6 +30,12 @@ describe("ItemEditor.vue", () => {
       type: "checkbox",
       options: ["", "", ""],
       correct_answer: [0, 1],
+    },
+    {
+      text: "test",
+      type: "mcq",
+      options: ["", ""],
+      survey: true,
     },
   ];
 
@@ -415,6 +425,18 @@ describe("ItemEditor.vue", () => {
       expect(
         wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
       ).toBeTruthy();
+    });
+
+    it("check for survey mode", async () => {
+      await wrapper
+        .find('[data-test="surveyQuestionCheckbox"]')
+        .setChecked("checked");
+      await flushPromises();
+      expect(
+        wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
+      ).toBeTruthy();
+      expect(wrapper.find('[data-test="surveyOptions"]').exists()).toBeFalsy();
+      expect(wrapper.vm.isSelectedItemSurveyQuestion).toBe(true);
     });
 
     it("enables/disables max char limit", async () => {

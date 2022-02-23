@@ -85,6 +85,30 @@
 
     <!-- item editor -->
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
+      <div class="flex flex-row p-2">
+        <!-- survey mode checkbox -->
+        <label class="inline-flex items-center">
+          <input
+            type="checkbox"
+            style="box-shadow: none"
+            class="h-4 w-4 text-primary focus:ring-transparent"
+            v-model="selectedItemDetail.survey"
+            data-test="surveyQuestionCheckbox"
+          />
+          <span class="ml-2 text-gray-700 text-sm">{{
+            $t("editor.item_editor.survey_mode")
+          }}</span>
+        </label>
+        <inline-svg
+          :src="getImageSource('question-circle-regular.svg')"
+          class="w-5 h-5 pl-1 items-center place-self-center"
+          v-tooltip="{
+            content: surveyModeTooltip,
+            placement: 'bottom',
+          }"
+        ></inline-svg>
+      </div>
+
       <div class="flex flex-row">
         <!-- question input box : expandable -->
         <Textarea
@@ -145,6 +169,7 @@
           data-test="option"
         ></input-text>
       </div>
+
       <!-- add option button -->
       <div class="flex justify-end m-2" v-if="areOptionsVisible">
         <span v-tooltip="addOptionTooltip" tabindex="0">
@@ -164,34 +189,35 @@
         class="p-2"
         data-test="subjectiveQuestionContainer"
       >
-        <!-- checkbox -->
+        <!-- checkbox for setting max char limit -->
         <label class="inline-flex items-center mt-3">
           <input
             type="checkbox"
-            class="form-checkbox h-5 w-5 text-primary focus:ring-transparent"
+            style="box-shadow: none"
+            class="h-4 w-4 text-primary focus:ring-transparent"
             v-model="isMaxCharLimitSet"
             data-test="maxCharLimitCheckbox"
             checked
-          /><span class="ml-2 text-gray-700">{{
+          /><span class="ml-2 text-gray-700 text-sm">{{
             $t("editor.item_editor.heading.set_character_limit")
           }}</span>
         </label>
         <!-- the max limit input -->
         <div v-if="isMaxCharLimitSet" class="flex space-x-2 items-center">
-          <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">
+          <p class="text-gray-500 h-full text-sm">
             {{ $t("editor.item_editor.heading.char_limit.max") }}
           </p>
           <input-text
             :placeholder="'100'"
             v-model:value.number="maxCharLimit"
             ref="maxCharLimit"
-            class="w-24"
+            class="w-12"
             :boxStyling="charLimitBoxClass"
             @keypress="maxCharLimitInputKeypress"
             @keydown="maxCharLimitInputKeydown"
             data-test="maxCharLimit"
           ></input-text>
-          <p class="text-gray-500 h-full text-sm sm:text-base md:text-sm lg:text-base">
+          <p class="text-gray-500 h-full text-sm">
             {{ $t("editor.item_editor.heading.char_limit.chars_allowed") }}
           </p>
         </div>
@@ -207,6 +233,7 @@ import QuestionTypeDropdown from "@/components/Editor/QuestionTypeDropdown.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
+import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import {
   convertSecondsToISOTime,
@@ -361,6 +388,7 @@ export default {
     QuestionTypeDropdown,
   },
   methods: {
+    getImageSource: GenericUtilities.getImageSource,
     showImageUploaderBox() {
       // to show or hide the image uploader dialog box
       this.$emit("show-image-uploader");
@@ -418,7 +446,8 @@ export default {
       this.selectedItemDetail.options.push("");
     },
     getCorrectOptionIconConfig(optionIndex) {
-      // config for the correct option icon
+      if (this.isSelectedItemSurveyQuestion) return;
+
       return {
         enabled: true,
         name: this.correctOptionIcon,
@@ -454,6 +483,7 @@ export default {
     },
     /** returns the styling for the option box for the given index */
     getOptionBoxStyling(optionIndex) {
+      if (this.isSelectedItemSurveyQuestion) return "pl-4 focus:ring-primary";
       return {
         "border-green-500": this.isOptionMarkedCorrect(optionIndex),
       };
@@ -510,6 +540,9 @@ export default {
   },
 
   computed: {
+    surveyModeTooltip() {
+      return this.$t("tooltip.editor.item_editor.survey_mode");
+    },
     correctOptionIcon() {
       if (this.isQuestionTypeMCQ) return "check-circle-regular";
       return "check-square-regular";
@@ -575,7 +608,7 @@ export default {
     },
     charLimitBoxClass() {
       // class for the input area to enter max char limit
-      return "text-center disabled:opacity-50";
+      return "text-sm text-center disabled:opacity-50";
     },
     questionTypeDropdownClass() {
       // class for the question type dropdown
@@ -733,6 +766,10 @@ export default {
         // set the character limit in the item
         this.selectedItemDetail.max_char_limit = value;
       },
+    },
+    isSelectedItemSurveyQuestion() {
+      if (this.selectedItemDetail == null) return false;
+      return this.selectedItemDetail.survey;
     },
     isMaxCharLimitSet: {
       get() {
