@@ -39,8 +39,9 @@
       </div>
 
       <!-- input text area -->
+      <div class="w-full" v-if="isFormattingEnabled">
       <div
-        class="border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
+        class="textbox border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
         type="text"
         contenteditable="true"
         name="placeholder"
@@ -54,9 +55,25 @@
         autocomplete="off"
         data-test="input"
       >
-        <span v-html="value"></span>
+        <!-- <span v-html="localValue"></span> -->
       </div>
-
+      </div>
+      <div class="w-full" v-else>
+      <input
+        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
+        type="text"
+        name="placeholder"
+        :placeholder="placeholder"
+        v-model="localValue"
+        @input="inputChange"
+        @keypress="keyPress"
+        :class="[inputAreaClass, boxStyling]"
+        :maxLength="maxLength"
+        :disabled="isDisabled"
+        autocomplete="off"
+        data-test="input"
+      />
+      </div>
       <!-- end icon -->
       <div
         v-if="isEndIconEnabled"
@@ -355,5 +372,10 @@ export default {
     font-size: 0.9rem;
     padding-left:1.2rem;
     color: gray;
+    font-style:normal;
+}
+ .textbox:empty:before {
+  content:attr(placeholder);
+  color:gray
 }
 </style>
