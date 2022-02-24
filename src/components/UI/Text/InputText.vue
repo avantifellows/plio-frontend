@@ -361,6 +361,7 @@ export default {
 /* classes for quillJS editor */
 .ql-editor {
   margin-top: 1rem;
+  overflow-y:hidden;
 }
 .ql-tooltip,
 .ql-hidden {
