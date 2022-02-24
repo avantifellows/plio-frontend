@@ -40,39 +40,37 @@
 
       <!-- input text area -->
       <div class="w-full" v-if="isFormattingEnabled">
-      <div
-        class="textbox border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
-        type="text"
-        contenteditable="true"
-        name="placeholder"
-        :placeholder="placeholder"
-        ref="quillEditor"
-        @input="inputChange"
-        @keypress="keyPress"
-        :class="[inputAreaClass, boxStyling]"
-        :maxLength="maxLength"
-        :disabled="isDisabled"
-        autocomplete="off"
-        data-test="input"
-      >
-        <!-- <span v-html="localValue"></span> -->
-      </div>
+        <div
+          class="textbox border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
+          type="text"
+          contenteditable="true"
+          name="placeholder"
+          :placeholder="placeholder"
+          ref="quillEditor"
+          @input="inputChange"
+          @keypress="keyPress"
+          :class="[inputAreaClass, boxStyling]"
+          :maxLength="maxLength"
+          :disabled="isDisabled"
+          autocomplete="off"
+          data-test="input"
+        ></div>
       </div>
       <div class="w-full" v-else>
-      <input
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
-        type="text"
-        name="placeholder"
-        :placeholder="placeholder"
-        v-model="localValue"
-        @input="inputChange"
-        @keypress="keyPress"
-        :class="[inputAreaClass, boxStyling]"
-        :maxLength="maxLength"
-        :disabled="isDisabled"
-        autocomplete="off"
-        data-test="input"
-      />
+        <input
+          class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
+          type="text"
+          name="placeholder"
+          :placeholder="placeholder"
+          v-model="localValue"
+          @input="inputChange"
+          @keypress="keyPress"
+          :class="[inputAreaClass, boxStyling]"
+          :maxLength="maxLength"
+          :disabled="isDisabled"
+          autocomplete="off"
+          data-test="input"
+        />
       </div>
       <!-- end icon -->
       <div
@@ -349,7 +347,7 @@ export default {
           toolbar: [["bold", "italic", "underline"]],
         },
         theme: "snow", //css for quilleditor
-        placeholder:this.placeholder,//placeholder for editor
+        placeholder: this.placeholder, //placeholder for editor
         formats: ["bold", "underline", "italic"], //formatting options for editor
       });
       this.quillEditor.root.innerHTML = this.value;
@@ -368,14 +366,14 @@ export default {
 .ql-hidden {
   display: none;
 }
-.ql-editor.ql-blank::before{
-    font-size: 0.9rem;
-    padding-left:1.2rem;
-    color: gray;
-    font-style:normal;
+.ql-editor.ql-blank::before {
+  font-size: 0.9rem;
+  padding-left: 1.2rem;
+  color: gray;
+  font-style: normal;
 }
- .textbox:empty:before {
-  content:attr(placeholder);
-  color:gray
+.textbox:empty:before {
+  content: attr(placeholder);
+  color: gray;
 }
 </style>
