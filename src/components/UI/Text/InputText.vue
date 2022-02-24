@@ -325,15 +325,16 @@ export default {
 
   mounted() {
     //new instance of quilljs is created
+
     if (this.isFormattingEnabled) {
       this.quillEditor = new Quill(this.$refs.quillEditor, {
         modules: {
           toolbar: [["bold", "italic", "underline"]],
         },
         theme: "snow", //css for quilleditor
+        placeholder:this.placeholder,//placeholder for editor
         formats: ["bold", "underline", "italic"], //formatting options for editor
       });
-
       this.quillEditor.root.innerHTML = this.value;
       //invoked on input change
       this.quillEditor.on("text-change", () => this.updateChange());
@@ -349,5 +350,10 @@ export default {
 .ql-tooltip,
 .ql-hidden {
   display: none;
+}
+.ql-editor.ql-blank::before{
+    font-size: 0.9rem;
+    padding-left:1.2rem;
+    color: gray;
 }
 </style>

@@ -246,6 +246,7 @@ export default {
         toolbar: [["bold", "italic", "underline"]],
       },
       theme: "snow", //css for quilleditor
+      placeholder:this.placeholder,//placeholder for textarea
       formats: ["bold", "underline", "italic"], //formatting options for editor
     });
 
