@@ -275,6 +275,7 @@
               ref="videoLink"
               :boxStyling="videoLinkInputStyling"
               :isDisabled="isPublished"
+              :isFormattingEnabled="false"
               v-tooltip="videoLinkTooltip"
               data-test="videoLinkInput"
             ></input-text>
@@ -2177,6 +2178,7 @@ export default {
      */
     deleteSelectedOption() {
       // delete the option
+      console.log("deleted");
       this.currentItemDetail.options.splice(this.optionIndexToDelete, 1);
       if (this.isQuestionTypeMCQ) {
         if (this.optionIndexToDelete == this.correctAnswer) {
@@ -2205,6 +2207,8 @@ export default {
         }
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
+
+      this.reRender();
     },
     /**
      * returns the type of item being added when add item button is clicked

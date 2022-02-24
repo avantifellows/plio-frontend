@@ -38,7 +38,7 @@
       </div>
       <!-- input text area -->
       <div
-        class="pt-7 overflow-y-auto h-32 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200"
+        class="pt-4 overflow-y-auto h-32 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200"
         :class="[inputAreaClass, boxStyling]"
         contenteditable="true"
         :disabled="isDisabled"
@@ -112,6 +112,7 @@ export default {
       default: false,
       type: Boolean,
     },
+
     /** maximum allowed height of the text box (in px) */
     maxHeightLimit: {
       default: 0,
@@ -214,7 +215,6 @@ export default {
     },
     inputChange() {
       // invoked on input change
-      //  this.$emit("input", this.value);
       // auto expand the textbox if a `maxHeightLimit` has been specified
       if (this.maxHeightLimit > 0) {
         var textareaElement = event.srcElement;
@@ -259,6 +259,7 @@ export default {
 /* quillEditor toolbar css */
 .ql-toolbar.ql-snow {
   z-index: 5;
+  top: 0%;
   position: absolute;
   width: 100%;
   background-color: #f2e8df;
@@ -271,7 +272,13 @@ export default {
   opacity: 0.4;
   cursor: not-allowed;
 }
-
+.ql-snow.ql-toolbar button.ql-active .ql-stroke,
+.ql-snow.ql-toolbar button:hover .ql-stroke {
+  stroke: #f78000;
+}
+.ql-snow.ql-toolbar button.ql-active .ql-fill {
+  fill: #f78000;
+}
 .ql-editor:empty:before {
   content: attr(placeholder);
   color: gray;

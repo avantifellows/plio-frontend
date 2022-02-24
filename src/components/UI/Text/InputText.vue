@@ -25,11 +25,11 @@
       </div>
     </div>
 
-    <div class="flex relative mt-1 items-center">
+    <div class="flex relative mt-1 items-center" :class="isDisabled ? 'disabledDiv' : ''">
       <!-- start icon -->
       <div
         v-if="isStartIconEnabled"
-        class="absolute font-xl text-blueGray-300 bg-transparent rounded text-base items-center w-5 inset-y-1/4 left-1.5"
+        class="absolute z-20 top-9 font-xl text-blueGray-300 bg-transparent rounded text-base items-center w-5 inset-y-1/4 left-1.5"
         @click="startIconSelected"
         :class="startIconClass"
         v-tooltip="startIconTooltip"
@@ -39,12 +39,13 @@
       </div>
 
       <!-- input text area -->
-      <input
-        class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
+      <div
+        class="border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
         type="text"
+        contenteditable="true"
         name="placeholder"
         :placeholder="placeholder"
-        v-model="localValue"
+        ref="quillEditor"
         @input="inputChange"
         @keypress="keyPress"
         :class="[inputAreaClass, boxStyling]"
@@ -52,12 +53,14 @@
         :disabled="isDisabled"
         autocomplete="off"
         data-test="input"
-      />
+      >
+        <span v-html="value"></span>
+      </div>
 
       <!-- end icon -->
       <div
         v-if="isEndIconEnabled"
-        class="absolute rounded text-base place-content-center w-5 right-1.5 flex"
+        class="absolute rounded top-8 text-base place-content-center w-5 right-1.5 flex"
         @click="endIconSelected"
         :class="endIconClass"
         v-tooltip="endIconTooltip"
@@ -70,6 +73,9 @@
 </template>
 
 <script>
+import Quill from "quill";
+import "quill/dist/quill.snow.css";
+
 export default {
   props: {
     placeholder: {
@@ -91,6 +97,10 @@ export default {
         };
       },
       type: Object,
+    },
+    isFormattingEnabled: {
+      default: false,
+      type: Boolean,
     },
     /**
      * whether the start icon is enabled and the icon name, if enabled
@@ -141,6 +151,11 @@ export default {
     isDisabled: {
       default: false,
       type: Boolean,
+    },
+    data() {
+      return {
+        editor: null,
+      };
     },
     /**
      * type of input allowed;
@@ -269,6 +284,12 @@ export default {
     },
   },
   methods: {
+    updateChange() {
+      this.$emit(
+        "update:value",
+        this.quillEditor.getText() ? this.quillEditor.root.innerHTML : ""
+      );
+    },
     /** invoked on input change */
     inputChange() {
       this.$emit("input", this.value);
@@ -298,5 +319,31 @@ export default {
     "start-icon-selected",
     "end-icon-selected",
   ],
+
+  mounted() {
+    //new instance of quilljs is created
+    if (this.isFormattingEnabled) {
+      this.quillEditor = new Quill(this.$refs.quillEditor, {
+        modules: {
+          toolbar: [["bold", "italic", "underline"]],
+        },
+        theme: "snow", //css for quilleditor
+        formats: ["bold", "underline", "italic"], //formatting options for editor
+      });
+
+      this.quillEditor.root.innerHTML = this.value;
+      //invoked on input change
+      this.quillEditor.on("text-change", () => this.updateChange());
+    }
+  },
 };
 </script>
+<style>
+.ql-editor {
+  margin-top: 1rem;
+}
+.ql-tooltip,
+.ql-hidden {
+  display: none;
+}
+</style>

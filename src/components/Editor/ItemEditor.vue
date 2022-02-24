@@ -137,6 +137,7 @@
           :placeholder="$t('editor.item_editor.option_input.placeholder')"
           :title="getOptionInputTitle(optionIndex)"
           :key="optionIndex"
+          :isFormattingEnabled="true"
           :startIcon="getCorrectOptionIconConfig(optionIndex)"
           :endIcon="getDeleteOptionIconConfig"
           :boxStyling="getOptionBoxStyling(optionIndex)"
@@ -434,6 +435,7 @@ export default {
     deleteOption(optionIndex) {
       // emit a request for option deletion, pass the optionIndex
       // as a payload -- will be listened to by Editor.vue
+
       this.$emit("delete-option", optionIndex);
     },
     getCorrectOptionTooltip(optionIndex) {
