@@ -73,6 +73,7 @@
 </template>
 
 <script>
+// importing css file is necessary and icons wont appear properly without it
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 
@@ -98,6 +99,7 @@ export default {
       },
       type: Object,
     },
+    // to check whether editor is required in input options or not
     isFormattingEnabled: {
       default: false,
       type: Boolean,
@@ -284,10 +286,11 @@ export default {
     },
   },
   methods: {
+    // invoked on change in input
     updateChange() {
       this.$emit(
         "update:value",
-        this.quillEditor.getText() ? this.quillEditor.root.innerHTML : ""
+        this.quillEditor.getText() ? this.quillEditor.root.innerHTML : "" //return the formatted value
       );
     },
     /** invoked on input change */
@@ -339,6 +342,7 @@ export default {
 };
 </script>
 <style>
+/* classes for quillJS editor */
 .ql-editor {
   margin-top: 1rem;
 }

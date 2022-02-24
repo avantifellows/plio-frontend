@@ -2178,7 +2178,6 @@ export default {
      */
     deleteSelectedOption() {
       // delete the option
-      console.log("deleted");
       this.currentItemDetail.options.splice(this.optionIndexToDelete, 1);
       if (this.isQuestionTypeMCQ) {
         if (this.optionIndexToDelete == this.correctAnswer) {
@@ -2207,8 +2206,7 @@ export default {
         }
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
-
-      this.reRender();
+      this.reRender(); //for rerendering itemEditor whenever option is deleted.
     },
     /**
      * returns the type of item being added when add item button is clicked
