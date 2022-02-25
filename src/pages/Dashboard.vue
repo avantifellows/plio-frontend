@@ -258,7 +258,7 @@
             </div>
           </div>
         </div>
-        <div class="pt-4 pr-4 h-3">
+        <div v-if="isSurvey" class="pt-4 pr-4 h-3">
           <p
             class="text-primary text-xs bp-320:text-xsm md:text-xs md:text-right lg:text-right bp-320:text-center"
           >
@@ -336,6 +336,10 @@ export default {
   },
   computed: {
     ...mapState("sync", ["pending"]),
+    // does plio has any survey question
+    isSurvey() {
+      return this.plioMetrics["isQuesSurvey"];
+    },
     // styling class for the first type of metric
     numViewers() {
       // total number of unique viewers
@@ -479,6 +483,7 @@ export default {
         "Plio Accuracy": this.accuracy,
         "Plio Completion Rate": this.completionRate,
         "Plio Num Questions Answered": this.numQuestionsAnswered,
+        "Plio contains survey question": this.isSurvey,
       });
 
       this.stopLoading();
