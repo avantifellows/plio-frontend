@@ -336,7 +336,6 @@ export default {
   },
   computed: {
     ...mapState("sync", ["pending"]),
-    // does plio has any survey question
     plioHasSurveyQuestion() {
       return this.plioMetrics["has_survey_question"];
     },
@@ -483,7 +482,6 @@ export default {
         "Plio Accuracy": this.accuracy,
         "Plio Completion Rate": this.completionRate,
         "Plio Num Questions Answered": this.numQuestionsAnswered,
-        "Plio contains survey question": this.plioHasSurveyQuestion,
       });
 
       this.stopLoading();
