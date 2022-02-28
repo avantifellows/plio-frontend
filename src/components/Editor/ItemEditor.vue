@@ -87,7 +87,7 @@
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
       <div class="flex flex-row p-2">
         <!-- survey mode checkbox -->
-        <label class="inline-flex items-center">
+        <label class="inline-flex items-center hover:cursor-pointer">
           <input
             type="checkbox"
             style="box-shadow: none"
