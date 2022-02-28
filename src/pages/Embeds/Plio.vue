@@ -342,6 +342,15 @@ export default {
   computed: {
     ...mapGetters('auth', ['isAuthenticated']),
     ...mapState('generic', ['windowInnerWidth', 'windowInnerHeight']),
+    firstUnansweredItem() {
+      if (
+        this.skipEnabled ||
+        this.lastAnsweredItemIndex == -1 ||
+        this.lastAnsweredItemIndex == this.numItems - 1
+      )
+        return null
+      return this.items[this.lastAnsweredItemIndex + 1]
+    },
     currentItem() {
       if (!this.isAnyItemActive) return null
       return this.items[this.currentItemIndex]
@@ -588,7 +597,7 @@ export default {
      * Show the scorecard on top of the player
      */
     popupScorecard() {
-      if (this.checkMovingToTimestampAllowed(this.player.duration) != null) return
+      if (this.isMovingToTimestampAllowed(this.player.duration) != null) return
       if (!this.isScorecardShown) {
         this.isScorecardShown = true
         var scorecardModal = document.getElementById('scorecardmodal')
@@ -684,12 +693,10 @@ export default {
         if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton)
       })
     },
-    checkMovingToTimestampAllowed(timestamp) {
+    isMovingToTimestampAllowed(timestamp) {
+      if (this.firstUnansweredItem == null) return true
       // check whether skip is disabled and all items have been answered
-      if (!this.isSkipEnabled && this.lastAnsweredItemIndex < this.numItems - 1) {
-        const firstUnansweredItem = this.items[this.lastAnsweredItemIndex + 1]
-        if (timestamp >= firstUnansweredItem.time) return firstUnansweredItem
-      }
+      return timestamp < this.firstUnansweredItem.time
     },
     /**
      * whether the user should be moved to the first unanswered item
@@ -714,11 +721,10 @@ export default {
       )
         timeToInspect += POP_UP_CHECKING_FREQUENCY
 
-      const firstUnansweredItem = this.checkMovingToTimestampAllowed(timeToInspect)
-      if (firstUnansweredItem == null) return false
+      if (this.isMovingToTimestampAllowed(timeToInspect)) return false
 
       // move to first unanswered item
-      this.setPlayerTime(firstUnansweredItem.time - POP_UP_CHECKING_FREQUENCY)
+      this.setPlayerTime(this.firstUnansweredItem.time - POP_UP_CHECKING_FREQUENCY)
       setTimeout(() => {
         this.toast.error(`☝️ ${this.$t('toast.player.cannot_skip_item')}`, {
           id: 'cannotSkipItem',
@@ -922,14 +928,12 @@ export default {
           this.itemResponses.push(itemResponse)
         })
         if (!this.isSkipEnabled) {
-          const firstUnansweredItem = this.checkMovingToTimestampAllowed(
-            this.currentTimestamp
-          )
           // check if any item before the current timestamp is unanswered
           // if there is, then update the timestamp to just before the
           // unanswered item
-          if (firstUnansweredItem != null) {
-            this.currentTimestamp = firstUnansweredItem.time - POP_UP_CHECKING_FREQUENCY
+          if (!this.isMovingToTimestampAllowed(this.currentTimestamp)) {
+            this.currentTimestamp =
+              this.firstUnansweredItem.time - POP_UP_CHECKING_FREQUENCY
           }
         }
         // once itemResponses is full, calculate all the scorecard metrics
