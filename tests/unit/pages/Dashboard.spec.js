@@ -119,7 +119,7 @@ describe("Dashboard.vue", () => {
         String(global.dummyPlioMetrics["percent_one_minute_retention"]) + "%"
       );
 
-      expect(wrapper.find('[data-test="plioHasSurveyQuestion"]').exists()).toBe(
+      expect(wrapper.find('[data-test="surveyQuestionWarning"]').exists()).toBe(
         global.dummyPlioMetrics["has_survey_question"]
       );
     });
