@@ -91,7 +91,7 @@
           <input
             type="checkbox"
             style="box-shadow: none"
-            class="h-4 w-4 text-primary focus:ring-transparent"
+            class="h-4 w-4 text-primary focus:ring-transparent hover:cursor-pointer"
             v-model="selectedItemDetail.survey"
             data-test="surveyQuestionCheckbox"
           />
