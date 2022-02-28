@@ -629,8 +629,7 @@ export default {
       },
     },
     player: {
-      cannot_skip_interaction:
-        "You have to answer this question before moving ahead",
+      cannot_skip_item: "You have to answer this question before moving ahead",
     },
   },
 };

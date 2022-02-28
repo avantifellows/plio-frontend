@@ -631,8 +631,7 @@ export default {
       },
     },
     player: {
-      cannot_skip_interaction:
-        "आगे बढ़ने से पहले आपको इस सवाल का जवाब देना होगा",
+      cannot_skip_item: "आगे बढ़ने से पहले आपको इस सवाल का जवाब देना होगा",
     },
   },
 };
