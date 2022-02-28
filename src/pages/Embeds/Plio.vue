@@ -961,13 +961,7 @@ export default {
       if (this.moveToFirstUnansweredItemOrPass()) {
         this.pausePlayer()
 
-        if (this.isAnyItemActive) {
-          this.maximizeModal()
-          this.toast.error(`☝️ ${this.$t('toast.player.cannot_skip_item')}`, {
-            id: 'cannotSkipItem',
-            position: 'bottom-center'
-          })
-        }
+        if (this.isAnyItemActive) this.maximizeModal()
         return
       }
 
