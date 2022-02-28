@@ -337,7 +337,11 @@ export default {
   computed: {
     ...mapState("sync", ["pending"]),
 <<<<<<< HEAD
+<<<<<<< HEAD
     plioHasSurveyQuestion() {
+=======
+    hasSurveyQuestion() {
+>>>>>>> 54da3ffb (code updated)
 =======
     hasSurveyQuestion() {
 >>>>>>> 54da3ffb (code updated)
