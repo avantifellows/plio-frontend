@@ -698,7 +698,7 @@ export default {
      * or allowed to pass through to whatever timestamp they are trying to
      * go to
      */
-    moveToFirstUnansweredItemTimestampOrPass() {
+    moveToFirstUnansweredItemOrPass() {
       if (this.isSkipEnabled) return false
       let timeToInspect = this.player.currentTime
 
@@ -720,20 +720,9 @@ export default {
 
       // move to first unanswered item
       this.setPlayerTime(this.firstUnansweredItem.time - POP_UP_CHECKING_FREQUENCY)
-      setTimeout(() => {
-        this.toast.error(`☝️ ${this.$t('toast.player.cannot_skip_item')}`, {
-          id: 'cannotSkipItem',
-          position: 'bottom-center'
-        })
-      }, 500)
       return true
     },
     videoSeeked() {
-      if (this.moveToFirstUnansweredItemTimestampOrPass()) {
-        this.isModalMinimized = false
-        return
-      }
-
       // invoked when a seek operation ends
       this.createEvent('video_seeked', { currentTime: this.player.currentTime })
     },
@@ -967,8 +956,13 @@ export default {
       return linkValidation['ID']
     },
     playerPlayed() {
-      if (this.moveToFirstUnansweredItemTimestampOrPass()) {
+      if (this.moveToFirstUnansweredItemOrPass()) {
         this.pausePlayer()
+        this.maximizeModal()
+        this.toast.error(`☝️ ${this.$t('toast.player.cannot_skip_item')}`, {
+          id: 'cannotSkipItem',
+          position: 'bottom-center'
+        })
         return
       }
 
@@ -1156,7 +1150,7 @@ export default {
      * @param {Number} timestamp - The player's current timestamp in seconds
      */
     checkForItemPopup(timestamp) {
-      this.isModalMinimized = false
+      this.maximizeModal()
       return ItemFunctionalService.checkItemPopup(
         timestamp,
         this.itemTimestamps,
