@@ -343,12 +343,7 @@ export default {
     ...mapGetters('auth', ['isAuthenticated']),
     ...mapState('generic', ['windowInnerWidth', 'windowInnerHeight']),
     firstUnansweredItem() {
-      if (
-        this.skipEnabled ||
-        this.lastAnsweredItemIndex == -1 ||
-        this.lastAnsweredItemIndex == this.numItems - 1
-      )
-        return null
+      if (this.skipEnabled || this.lastAnsweredItemIndex == this.numItems - 1) return null
       return this.items[this.lastAnsweredItemIndex + 1]
     },
     currentItem() {
@@ -919,15 +914,17 @@ export default {
           if (this.isItemMCQ(itemIndex)) {
             itemResponse.answer = parseInt(itemResponse.answer)
           }
-          if (
-            !this.isItemResponseEmpty(itemIndex, itemResponse.answer) &&
-            !this.isSkipEnabled
-          ) {
-            this.lastAnsweredItemIndex = itemIndex
-          }
           this.itemResponses.push(itemResponse)
         })
         if (!this.isSkipEnabled) {
+          // set the last answered item index
+          for (let [itemIndex, itemResponse] of this.itemResponses.entries()) {
+            if (!this.isItemResponseEmpty(itemIndex, itemResponse.answer))
+              this.lastAnsweredItemIndex = itemIndex
+            // https://github.com/avantifellows/plio-frontend/pull/629#issuecomment-1053819610
+            else break
+          }
+
           // check if any item before the current timestamp is unanswered
           // if there is, then update the timestamp to just before the
           // unanswered item
