@@ -205,7 +205,8 @@ export default {
       isAspectRatioChecked: false, // whether the check for aspect ratio has been done
       watchingEventDBId: null, // the DB id of the latest 'watching' event for a given session
       plioSettings: null, // stores this plio's settings
-      lastAnsweredItemIndex: -1 // index of the interaction that was last answered
+      lastAnsweredItemIndex: -1, // index of the interaction that was last answered
+      showItemPopUpErrorToast: false // whether to show the error toast when an item is opened
     }
   },
   watch: {
@@ -720,6 +721,7 @@ export default {
 
       // move to first unanswered item
       this.setPlayerTime(this.firstUnansweredItem.time - POP_UP_CHECKING_FREQUENCY)
+      this.showItemPopUpErrorToast = true
       return true
     },
     videoSeeked() {
@@ -958,11 +960,14 @@ export default {
     playerPlayed() {
       if (this.moveToFirstUnansweredItemOrPass()) {
         this.pausePlayer()
-        this.maximizeModal()
-        this.toast.error(`☝️ ${this.$t('toast.player.cannot_skip_item')}`, {
-          id: 'cannotSkipItem',
-          position: 'bottom-center'
-        })
+
+        if (this.isAnyItemActive) {
+          this.maximizeModal()
+          this.toast.error(`☝️ ${this.$t('toast.player.cannot_skip_item')}`, {
+            id: 'cannotSkipItem',
+            position: 'bottom-center'
+          })
+        }
         return
       }
 
@@ -1139,6 +1144,16 @@ export default {
       const itemIndex = this.checkForItemPopup(timestamp)
       if (itemIndex != null) {
         this.currentItemIndex = itemIndex
+
+        // show an error toast indicating that the user
+        // has to answer the current item before moving ahead
+        if (this.showItemPopUpErrorToast) {
+          this.toast.error(`☝️ ${this.$t('toast.player.cannot_skip_item')}`, {
+            id: 'cannotSkipItem',
+            position: 'bottom-center'
+          })
+          this.showItemPopUpErrorToast = false
+        }
         this.markItemSelected()
         this.createEvent('item_opened', { itemIndex: this.currentItemIndex })
       } else {
