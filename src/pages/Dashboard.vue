@@ -258,7 +258,7 @@
             </div>
           </div>
         </div>
-        <div v-if="plioHasSurveyQues" class="pt-4 pr-4 h-3">
+        <div v-if="plioHasSurveyQuestion" class="pt-4 pr-4 h-3" data-test="plioHasSurveyQuestion">
           <p
             class="text-primary text-xs bp-320:text-xsm md:text-xs md:text-right lg:text-right bp-320:text-center"
           >
@@ -337,8 +337,8 @@ export default {
   computed: {
     ...mapState("sync", ["pending"]),
     // does plio has any survey question
-    plioHasSurveyQues() {
-      return this.plioMetrics["isQuesSurvey"];
+    plioHasSurveyQuestion() {
+      return this.plioMetrics["has_survey_question"];
     },
     // styling class for the first type of metric
     numViewers() {
@@ -483,7 +483,7 @@ export default {
         "Plio Accuracy": this.accuracy,
         "Plio Completion Rate": this.completionRate,
         "Plio Num Questions Answered": this.numQuestionsAnswered,
-        "Plio contains survey question": this.plioHasSurveyQues,
+        "Plio contains survey question": this.plioHasSurveyQuestion,
       });
 
       this.stopLoading();
