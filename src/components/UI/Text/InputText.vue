@@ -41,7 +41,7 @@
       <!-- input text area -->
       <div class="w-full" v-if="isFormattingEnabled">
         <div
-          class="textbox border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
+          class="textinput border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
           type="text"
           contenteditable="true"
           name="placeholder"
@@ -58,7 +58,7 @@
       </div>
       <div class="w-full" v-else>
         <input
-          class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
+          class="textinput p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
           type="text"
           name="placeholder"
           :placeholder="placeholder"
@@ -361,20 +361,22 @@ export default {
 /* classes for quillJS editor */
 .ql-editor {
   margin-top: 1rem;
-  overflow-y:hidden;
+  overflow-y: hidden;
+  padding: 11px 15px 0px 15px;
 }
 .ql-tooltip,
 .ql-hidden {
   display: none;
 }
-.ql-editor.ql-blank::before {
+.textinput .ql-editor.ql-blank::before {
   font-size: 0.9rem;
-  padding-left: 1.2rem;
   color: gray;
+  margin-left: 14%;
   font-style: normal;
 }
-.textbox:empty:before {
-  content: attr(placeholder);
+.ql-editor.ql-blank::before {
   color: gray;
+  font-size: 0.9rem;
+  font-style: normal;
 }
 </style>

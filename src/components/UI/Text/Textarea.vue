@@ -38,7 +38,7 @@
       </div>
       <!-- input text area -->
       <div
-        class="pt-4 overflow-y-auto h-32 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200"
+        class="pt-4 h-32 pb-6 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200"
         :class="[inputAreaClass, boxStyling]"
         contenteditable="true"
         :disabled="isDisabled"
@@ -246,7 +246,7 @@ export default {
         toolbar: [["bold", "italic", "underline"]],
       },
       theme: "snow", //css for quilleditor
-      placeholder:this.placeholder,//placeholder for textarea
+      placeholder: this.placeholder, //placeholder for textarea
       formats: ["bold", "underline", "italic"], //formatting options for editor
     });
 
@@ -266,6 +266,7 @@ export default {
   background-color: #f2e8df;
   border: 1px solid transparent;
   padding: 0px;
+  border-radius: 0.25rem;
 }
 /* when the answer div is diabled */
 .disabledDiv {
@@ -279,9 +280,5 @@ export default {
 }
 .ql-snow.ql-toolbar button.ql-active .ql-fill {
   fill: #f78000;
-}
-.ql-editor:empty:before {
-  content: attr(placeholder);
-  color: gray;
 }
 </style>
