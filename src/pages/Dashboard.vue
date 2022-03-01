@@ -258,9 +258,13 @@
             </div>
           </div>
         </div>
-        <div v-if="hasSurveyQuestion" class="pt-4 pr-4 h-3" data-test="surveyQuestionWarning">
+        <div
+          v-if="hasSurveyQuestion"
+          class="pt-4 bp-320:pt-1 md:pt-4 lg-pt-4 pr-4 h-3"
+          data-test="surveyQuestionWarning"
+        >
           <p
-            class="text-primary text-xs bp-320:text-xsm md:text-xs md:text-right lg:text-right bp-320:text-center"
+            class="text-primary text-xs bp-320:text-xsm md:text-xs md:text-right lg:text-right bp-320:text-center leading-none"
           >
             *{{ $t("dashboard.summary.survey_mode_warning") }}
           </p>
