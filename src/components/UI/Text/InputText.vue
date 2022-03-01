@@ -58,7 +58,7 @@
           data-test="input"
         ></div>
       </div>
-      <div class="w-full" v-else>
+      <div class=" rounded w-full" v-else>
         <input
           class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
           type="text"

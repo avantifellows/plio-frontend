@@ -289,4 +289,7 @@ export default {
 .ql-snow.ql-toolbar button.ql-active .ql-fill {
   fill: #f78000;
 }
+.rounded{
+  border-radius:0.4rem;
+}
 </style>
