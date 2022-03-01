@@ -336,20 +336,7 @@ export default {
   },
   computed: {
     ...mapState("sync", ["pending"]),
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     plioHasSurveyQuestion() {
-=======
-    hasSurveyQuestion() {
->>>>>>> 54da3ffb (code updated)
-=======
-    hasSurveyQuestion() {
->>>>>>> 54da3ffb (code updated)
-=======
-    // does plio has any survey question
-    plioHasSurveyQuestion() {
->>>>>>> 64d4710d (variable names updated)
       return this.plioMetrics["has_survey_question"];
     },
     // styling class for the first type of metric
