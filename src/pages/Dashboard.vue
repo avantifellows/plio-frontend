@@ -336,11 +336,7 @@ export default {
   },
   computed: {
     ...mapState("sync", ["pending"]),
-<<<<<<< HEAD
-    plioHasSurveyQuestion() {
-=======
     hasSurveyQuestion() {
->>>>>>> 54da3ffb (code updated)
       return this.plioMetrics["has_survey_question"];
     },
     // styling class for the first type of metric
