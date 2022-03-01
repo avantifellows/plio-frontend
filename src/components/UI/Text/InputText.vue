@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div class="flex relative mt-1 items-center" :class="isDisabled ? 'disabledDiv' : ''">
+    <div class="rounded textbox flex relative mt-1 items-center" :class="isDisabled ? 'disabledDiv' : ''">
       <!-- start icon -->
       <div
         v-if="isStartIconEnabled"
@@ -39,26 +39,26 @@
       </div>
 
       <!-- input text area -->
-      <div class="w-full" v-if="isFormattingEnabled">
+      <div class="rounded w-full" v-if="isFormattingEnabled">
         <div
           class="textinput border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
           type="text"
-          contenteditable="true"
           name="placeholder"
           :placeholder="placeholder"
           ref="quillEditor"
+          @keydown="keyDown"
           @input="inputChange"
           @keypress="keyPress"
-          :class="[inputAreaClass, boxStyling]"
           :maxLength="maxLength"
           :disabled="isDisabled"
           autocomplete="off"
           data-test="input"
-        ></div>
+        >
+        </div>
       </div>
       <div class="w-full" v-else>
         <input
-          class="textinput p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
+          class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
           type="text"
           name="placeholder"
           :placeholder="placeholder"
@@ -308,6 +308,13 @@ export default {
         this.quillEditor.getText() ? this.quillEditor.root.innerHTML : "" //return the formatted value
       );
     },
+    keyDown(event) {
+      // invoked by pressing a key
+      if (event.key == "Backspace" && this.quillEditor.root.innerText === "\n") {
+        event.preventDefault();
+      }
+      this.$emit("keydown", event);
+    },
     /** invoked on input change */
     inputChange() {
       this.$emit("input", this.value);
@@ -336,6 +343,7 @@ export default {
     "update:value",
     "start-icon-selected",
     "end-icon-selected",
+    "keydown",
   ],
 
   mounted() {
@@ -361,14 +369,11 @@ export default {
 /* classes for quillJS editor */
 .ql-editor {
   margin-top: 1rem;
-  overflow-y: hidden;
+  overflow-y: auto;
   padding: 11px 15px 0px 15px;
 }
-.ql-tooltip,
-.ql-hidden {
-  display: none;
-}
-.textinput .ql-editor.ql-blank::before {
+/* classes for quillEditor placeholder */
+.textinput .ql-editor.ql-blank::before  {
   font-size: 0.9rem;
   color: gray;
   margin-left: 14%;
@@ -378,5 +383,8 @@ export default {
   color: gray;
   font-size: 0.9rem;
   font-style: normal;
+}
+.textinput .ql-editor p{
+  margin-left:12%;
 }
 </style>
