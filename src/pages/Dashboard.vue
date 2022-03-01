@@ -258,7 +258,7 @@
             </div>
           </div>
         </div>
-        <div v-if="plioHasSurveyQuestion" class="pt-4 pr-4 h-3" data-test="plioHasSurveyQuestion">
+        <div v-if="hasSurveyQuestion" class="pt-4 pr-4 h-3" data-test="surveyQuestionWarning">
           <p
             class="text-primary text-xs bp-320:text-xsm md:text-xs md:text-right lg:text-right bp-320:text-center"
           >
@@ -336,7 +336,11 @@ export default {
   },
   computed: {
     ...mapState("sync", ["pending"]),
+<<<<<<< HEAD
     plioHasSurveyQuestion() {
+=======
+    hasSurveyQuestion() {
+>>>>>>> 54da3ffb (code updated)
       return this.plioMetrics["has_survey_question"];
     },
     // styling class for the first type of metric
