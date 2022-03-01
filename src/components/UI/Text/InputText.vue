@@ -25,7 +25,10 @@
       </div>
     </div>
 
-    <div class="rounded textbox flex relative mt-1 items-center" :class="isDisabled ? 'disabledDiv' : ''">
+    <div
+      class="rounded textbox flex relative mt-1 items-center"
+      :class="isDisabled ? 'disabledDiv' : ''"
+    >
       <!-- start icon -->
       <div
         v-if="isStartIconEnabled"
@@ -53,8 +56,7 @@
           :disabled="isDisabled"
           autocomplete="off"
           data-test="input"
-        >
-        </div>
+        ></div>
       </div>
       <div class="w-full" v-else>
         <input
@@ -373,7 +375,7 @@ export default {
   padding: 11px 15px 0px 15px;
 }
 /* classes for quillEditor placeholder */
-.textinput .ql-editor.ql-blank::before  {
+.textinput .ql-editor.ql-blank::before {
   font-size: 0.9rem;
   color: gray;
   margin-left: 14%;
@@ -384,7 +386,7 @@ export default {
   font-size: 0.9rem;
   font-style: normal;
 }
-.textinput .ql-editor p{
-  margin-left:12%;
+.textinput .ql-editor p {
+  margin-left: 12%;
 }
 </style>

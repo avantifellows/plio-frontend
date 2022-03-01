@@ -25,7 +25,10 @@
       </div>
     </div>
 
-    <div class="textbox rounded flex relative mt-1" :class="isDisabled ? 'disabledDiv' : ''">
+    <div
+      class="textbox rounded flex relative mt-1"
+      :class="isDisabled ? 'disabledDiv' : ''"
+    >
       <!-- left icon -->
       <div
         v-if="isStartIconEnabled"
@@ -40,7 +43,6 @@
       <div
         class="pt-4 h-32 pb-6 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200"
         :disabled="isDisabled"
-
         ref="quillEditor"
         :placeholder="placeholder"
         @input="inputChange"
@@ -207,9 +209,6 @@ export default {
     //update HTML on input change in textarea
     updateChange() {
       //invoked on input changeconsole.
-      //     console.log("updateChange called");
-      // console.log(this.quillEditor);
-      // console.log("text is"+ this.quillEditor.getText());
       this.$emit(
         "update:value",
         this.quillEditor.getText() ? this.quillEditor.root.innerHTML : ""
@@ -279,9 +278,9 @@ export default {
   opacity: 0.4;
   cursor: not-allowed;
 }
-.textbox:focus-within{
-  border: 3px solid #F78000;
-  border-raidus:0.4rem;
+.textbox:focus-within {
+  border: 3px solid #f78000;
+  border-raidus: 0.4rem;
 }
 .ql-snow.ql-toolbar button.ql-active .ql-stroke,
 .ql-snow.ql-toolbar button:hover .ql-stroke {
