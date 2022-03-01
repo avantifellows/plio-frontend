@@ -258,9 +258,9 @@
             </div>
           </div>
         </div>
-        <div v-if="hasSurveyQuestion" class="pt-4 pr-4 h-3" data-test="surveyQuestionWarning">
+        <div v-if="plioHasSurveyQuestion" class="pt-4 bp-320:pt-1 md:pt-4 lg:pt-4 pr-4 h-3" data-test="surveyQuestionWarning">
           <p
-            class="text-primary text-xs bp-320:text-xsm md:text-xs md:text-right lg:text-right bp-320:text-center"
+            class="text-primary text-xs bp-320:text-xsm md:text-xs md:text-right lg:text-right bp-320:text-center leading-none"
           >
             *{{ $t("dashboard.summary.survey_mode_warning") }}
           </p>
@@ -338,6 +338,7 @@ export default {
     ...mapState("sync", ["pending"]),
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     plioHasSurveyQuestion() {
 =======
     hasSurveyQuestion() {
@@ -345,6 +346,10 @@ export default {
 =======
     hasSurveyQuestion() {
 >>>>>>> 54da3ffb (code updated)
+=======
+    // does plio has any survey question
+    plioHasSurveyQuestion() {
+>>>>>>> 64d4710d (variable names updated)
       return this.plioMetrics["has_survey_question"];
     },
     // styling class for the first type of metric
@@ -490,6 +495,7 @@ export default {
         "Plio Accuracy": this.accuracy,
         "Plio Completion Rate": this.completionRate,
         "Plio Num Questions Answered": this.numQuestionsAnswered,
+        "Plio contains survey question": this.plioHasSurveyQuestion,
       });
 
       this.stopLoading();
