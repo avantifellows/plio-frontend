@@ -25,10 +25,7 @@
       </div>
     </div>
 
-    <div
-      class="rounded textbox flex relative mt-1 items-center"
-      :class="isDisabled ? 'disabledDiv' : ''"
-    >
+    <div :class="containerStyleClass">
       <!-- start icon -->
       <div
         v-if="isStartIconEnabled"
@@ -44,10 +41,9 @@
       <!-- input text area -->
       <div class="rounded w-full" v-if="isFormattingEnabled">
         <div
-          class="textinput border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
+          :class="inputAreaClass"
           type="text"
-          name="placeholder"
-          :placeholder="placeholder"
+          name="quillEditorInput"
           ref="quillEditor"
           @keydown="keyDown"
           @input="inputChange"
@@ -58,16 +54,15 @@
           data-test="input"
         ></div>
       </div>
-      <div class=" rounded w-full" v-else>
+      <div class="rounded w-full" v-else>
         <input
-          class="p-2 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200"
+          :class="inputAreaClass"
           type="text"
-          name="placeholder"
+          name="vanillaInput"
           :placeholder="placeholder"
           v-model="localValue"
           @input="inputChange"
           @keypress="keyPress"
-          :class="[inputAreaClass, boxStyling]"
           :maxLength="maxLength"
           :disabled="isDisabled"
           autocomplete="off"
@@ -186,6 +181,14 @@ export default {
     },
   },
   computed: {
+    containerStyleClass() {
+      return [
+        {
+          "cursor-not-allowed pointer-events-none opacity-50": this.isDisabled,
+        },
+        "focus-within:border-2 focus-within:border-solid focus-within:border-primary rounded-md flex relative mt-1items-center",
+      ];
+    },
     isEndIconDisabled() {
       // is end icon disabled or not
       if (this.endIcon.isDisabled != null) return this.endIcon.isDisabled;
@@ -296,10 +299,15 @@ export default {
     },
     inputAreaClass() {
       // class for the input element
-      return {
-        "pl-10": this.isStartIconEnabled,
-        "pr-12": this.isEndIconEnabled,
-      };
+      return [
+        {
+          "pl-10": this.isStartIconEnabled && !this.isFormattingEnabled,
+          "pr-12": this.isEndIconEnabled && !this.isFormattingEnabled,
+          "p-2": !this.isFormattingEnabled,
+        },
+        !this.isFormattingEnabled ? this.boxStyling : "",
+        "border placeholder-blueGray-300 text-blueGray-600 bg-white rounded-md text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200 text-md",
+      ];
     },
   },
   methods: {
@@ -367,26 +375,14 @@ export default {
   },
 };
 </script>
-<style>
-/* classes for quillJS editor */
-.ql-editor {
-  margin-top: 1rem;
-  overflow-y: auto;
-  padding: 11px 15px 0px 15px;
+
+<style lang="postcss">
+/* classes for quill editor placeholder */
+div[name="quillEditorInput"] .ql-editor.ql-blank::before {
+  @apply text-sm text-gray-400 ml-6 not-italic;
 }
-/* classes for quillEditor placeholder */
-.textinput .ql-editor.ql-blank::before {
-  font-size: 0.9rem;
-  color: gray;
-  margin-left: 14%;
-  font-style: normal;
-}
-.ql-editor.ql-blank::before {
-  color: gray;
-  font-size: 0.9rem;
-  font-style: normal;
-}
-.textinput .ql-editor p {
-  margin-left: 12%;
+/* classes for quill editor user input */
+div[name="quillEditorInput"] .ql-editor p {
+  @apply ml-3 text-sm;
 }
 </style>

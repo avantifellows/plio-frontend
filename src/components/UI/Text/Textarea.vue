@@ -25,10 +25,7 @@
       </div>
     </div>
 
-    <div
-      class="textbox rounded flex relative mt-1"
-      :class="isDisabled ? 'disabledDiv' : ''"
-    >
+    <div :class="containerStyleClass">
       <!-- left icon -->
       <div
         v-if="isStartIconEnabled"
@@ -44,9 +41,8 @@
         class="pt-4 h-32 pb-6 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200"
         :disabled="isDisabled"
         ref="quillEditor"
-        :placeholder="placeholder"
         @input="inputChange"
-        name="placeholder"
+        name="quillEditorTextarea"
         autocomplete="off"
         @keypress="keyPress"
         @keydown="keyDown"
@@ -59,7 +55,6 @@
 <script>
 // importing css file is necessary and icons wont appear properly without it
 import Quill from "quill";
-import "quill/dist/quill.snow.css";
 
 export default {
   props: {
@@ -127,6 +122,14 @@ export default {
   },
 
   computed: {
+    containerStyleClass() {
+      return [
+        {
+          "cursor-not-allowed pointer-events-none opacity-50": this.isDisabled,
+        },
+        "focus-within:border-2 focus-within:border-solid focus-within:border-primary rounded-md flex relative mt-1",
+      ];
+    },
     localValue: {
       // local copy of the value prop
       get() {
@@ -260,36 +263,9 @@ export default {
   },
 };
 </script>
-<style>
-/* quillEditor toolbar css */
-.ql-toolbar.ql-snow {
-  z-index: 5;
-  top: 0%;
-  position: absolute;
-  width: 100%;
-  background-color: #f2e8df;
-  border: 1px solid transparent;
-  padding: 0px;
-  border-radius: 0.25rem;
-}
-/* when the answer div is diabled */
-.disabledDiv {
-  pointer-events: none;
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-.textbox:focus-within {
-  border: 3px solid #f78000;
-  border-raidus: 0.4rem;
-}
-.ql-snow.ql-toolbar button.ql-active .ql-stroke,
-.ql-snow.ql-toolbar button:hover .ql-stroke {
-  stroke: #f78000;
-}
-.ql-snow.ql-toolbar button.ql-active .ql-fill {
-  fill: #f78000;
-}
-.rounded{
-  border-radius:0.4rem;
+<style lang="postcss">
+/* classes for quill editor placeholder */
+div[name="quillEditorTextarea"] .ql-editor.ql-blank::before {
+  @apply text-sm text-gray-400 not-italic;
 }
 </style>

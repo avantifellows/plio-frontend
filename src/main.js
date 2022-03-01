@@ -19,6 +19,7 @@ import { Integrations } from "@sentry/tracing";
 // google AOauth. Add CLIENT_ID in .env file
 import GAuth from "vue3-google-oauth2";
 
+import "quill/dist/quill.snow.css";
 import "./index.css";
 import "vue-toastification/dist/index.css";
 import "tippy.js/dist/tippy.css";

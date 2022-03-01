@@ -658,7 +658,7 @@ export default {
       return {
         enabled: this.isDeleteOptionEnabled,
         name: "delete",
-        class: "bg-red-500 cursor-pointer w-8 h-8 hover:bg-red-700 rounded-md",
+        class: "bg-red-500 cursor-pointer w-7 h-7 hover:bg-red-700 rounded-md",
         tooltip: this.isInteractionDisabled
           ? this.$t("tooltip.editor.item_editor.buttons.delete_option.disabled")
           : this.$t("tooltip.editor.item_editor.buttons.delete_option.enabled"),

@@ -66,7 +66,7 @@ module.exports = {
   ],
   variants: {
     extend: {
-      // to use "disabled:opacity-50" with tailwind
+      // https://v2.tailwindcss.com/docs/configuring-variants
       opacity: ["disabled"],
       pointerEvents: ["disabled"],
       cursor: ["disabled", "hover"],
@@ -75,6 +75,9 @@ module.exports = {
       borderColor: ["checked"],
       display: ["hover"],
       strokeWidth: ["hover", "focus"],
+      borderWidth: ["focus-within"],
+      borderStyle: ["focus-within"],
+      borderRadius: ["focus-within"],
     },
   },
   plugins: [

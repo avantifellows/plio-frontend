@@ -15,3 +15,21 @@
     }
   }
 }
+
+/* classes for quillJS editor */
+
+/* editor input */
+.ql-editor {
+  @apply mt-4 overflow-y-auto pt-3 pr-4 pb-0 pl-4 not-italic
+}
+/* toolbar */
+.ql-toolbar.ql-snow {
+  @apply z-10 top-0 absolute w-full bg-peach p-0 rounded-t
+}
+.ql-snow.ql-toolbar button.ql-active .ql-stroke,
+.ql-snow.ql-toolbar button:hover .ql-stroke {
+  @apply stroke-current text-primary
+}
+.ql-snow.ql-toolbar button.ql-active .ql-fill {
+  @apply fill-current text-primary
+}
