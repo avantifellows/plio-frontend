@@ -303,8 +303,8 @@ export default {
           "pr-12": this.isEndIconEnabled && !this.isFormattingEnabled,
           "p-2": !this.isFormattingEnabled,
         },
-        !this.isFormattingEnabled ? this.boxStyling : "",
         "border placeholder-blueGray-300 text-blueGray-600 bg-white rounded-md text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200 text-md ",
+        !this.isFormattingEnabled ? this.boxStyling : "",
       ];
     },
   },
@@ -314,11 +314,11 @@ export default {
     inputValue() {
       this.$emit(
         "update:value",
-        this.quillEditor.getText() ? this.quillEditor.root.innerHTML : "" //return the formatted value
+        this.quillEditor.getText() ? this.quillEditor.root.innerHTML : "" // return the formatted value
       );
     },
     /** invoked when a key is pressed
-     * @param  {object} event
+     * @param {object} event
      */
     keyDown(event) {
       // ensures that the quillEditor is not removed from input options when the backspace key is pressed.
@@ -332,7 +332,7 @@ export default {
       this.$emit("input", this.value);
     },
     /** invoked when a key is pressed
-     * @param  {object} event
+     * @param {object} event
      */
     keyPress(event) {
       if (this.inputType == "number" && !(event.keyCode >= 48 && event.keyCode <= 57)) {
@@ -362,7 +362,6 @@ export default {
 
   mounted() {
     // new instance of quilljs is created
-
     if (this.isFormattingEnabled) {
       this.quillEditor = new Quill(this.$refs.quillEditor, {
         modules: {

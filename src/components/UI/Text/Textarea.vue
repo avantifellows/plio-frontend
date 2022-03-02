@@ -208,6 +208,7 @@ export default {
           "pl-10": this.isStartIconEnabled,
         },
         "pt-4 h-32 pb-6 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 boxStyling",
+        this.boxStyling,
       ];
     },
   },
@@ -229,10 +230,15 @@ export default {
           Math.min(textareaElement.scrollHeight, this.maxHeightLimit) + "px";
       }
     },
+    /** invoked when a key is pressed
+     * @param {object} event
+     */
     keyPress(event) {
-      // invoked by pressing a key
       this.$emit("keypress", event);
     },
+    /** invoked when a key is pressed
+     * @param {object} event
+     */
     keyDown(event) {
       // ensures that the quillEditor is not removed from textarea when the backspace key is pressed.
       if (event.key == "Backspace" && this.quillEditor.root.innerText === "\n") {
@@ -248,7 +254,7 @@ export default {
   emits: ["input", "keypress", "keydown", "update:value", "start-icon-selected"],
 
   mounted() {
-    //new instance of quilljs is created
+    // new instance of quilljs is created
     this.quillEditor = new Quill(this.$refs.quillEditor, {
       modules: {
         toolbar: [["bold", "italic", "underline"]],
