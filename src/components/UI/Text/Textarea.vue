@@ -38,7 +38,7 @@
       </div>
       <!-- input text area -->
       <div
-        class="pt-4 h-32 pb-6 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200"
+        :class="inputAreaClass"
         :disabled="isDisabled"
         ref="quillEditor"
         @input="inputChange"
@@ -203,18 +203,21 @@ export default {
     },
     inputAreaClass() {
       // class for the input element
-      return {
-        "pl-10": this.isStartIconEnabled,
-      };
+      return [
+        {
+          "pl-10": this.isStartIconEnabled,
+        },
+        "pt-4 h-32 pb-6 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 boxStyling",
+        !this.isFormattingEnabled ? this.boxStyling : "",
+      ];
     },
   },
   methods: {
-    //update HTML on input change in textarea
-    updateChange() {
-      //invoked on input changeconsole.
+    /** invoked on change in textarea and emits the current input value */
+    inputValue() {
       this.$emit(
         "update:value",
-        this.quillEditor.getText() ? this.quillEditor.root.innerHTML : ""
+        this.quillEditor.getText() ? this.quillEditor.root.innerHTML : "" // return formatted value
       );
     },
     inputChange() {
@@ -227,13 +230,12 @@ export default {
           Math.min(textareaElement.scrollHeight, this.maxHeightLimit) + "px";
       }
     },
-
     keyPress(event) {
       // invoked by pressing a key
-
       this.$emit("keypress", event);
     },
     keyDown(event) {
+      // ensures that the quillEditor is not removed from textarea when the backspace key is pressed.
       if (event.key == "Backspace" && this.quillEditor.root.innerText === "\n") {
         event.preventDefault();
       }
@@ -252,14 +254,14 @@ export default {
       modules: {
         toolbar: [["bold", "italic", "underline"]],
       },
-      theme: "snow", //css for quilleditor
-      placeholder: this.placeholder, //placeholder for textarea
+      theme: "snow",
+      placeholder: this.placeholder,
       formats: ["bold", "underline", "italic"], //formatting options for editor
     });
 
     this.quillEditor.root.innerHTML = this.value;
-    //invoked on input change
-    this.quillEditor.on("text-change", () => this.updateChange());
+    //invoked on input change and emits the current value of textarea
+    this.quillEditor.on("text-change", () => this.inputValue());
   },
 };
 </script>

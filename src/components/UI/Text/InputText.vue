@@ -85,10 +85,7 @@
 </template>
 
 <script>
-// importing css file is necessary and icons wont appear properly without it
 import Quill from "quill";
-import "quill/dist/quill.snow.css";
-
 export default {
   props: {
     placeholder: {
@@ -166,6 +163,7 @@ export default {
       default: false,
       type: Boolean,
     },
+    /** return quillEditor in input options */
     data() {
       return {
         editor: null,
@@ -306,20 +304,22 @@ export default {
           "p-2": !this.isFormattingEnabled,
         },
         !this.isFormattingEnabled ? this.boxStyling : "",
-        "border placeholder-blueGray-300 text-blueGray-600 bg-white rounded-md text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200 text-md",
+        "border placeholder-blueGray-300 text-blueGray-600 bg-white rounded-md text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200 text-md ",
       ];
     },
   },
+
   methods: {
-    // invoked on change in input
-    updateChange() {
+    /** invoked on change in input and emits the current input value */
+    inputValue() {
       this.$emit(
         "update:value",
         this.quillEditor.getText() ? this.quillEditor.root.innerHTML : "" //return the formatted value
       );
     },
+    /** invoked when a key is pressed */
     keyDown(event) {
-      // invoked by pressing a key
+      // ensures that the quillEditor is not removed from input options when the backspace key is pressed.
       if (event.key == "Backspace" && this.quillEditor.root.innerText === "\n") {
         event.preventDefault();
       }
@@ -357,20 +357,20 @@ export default {
   ],
 
   mounted() {
-    //new instance of quilljs is created
+    // new instance of quilljs is created
 
     if (this.isFormattingEnabled) {
       this.quillEditor = new Quill(this.$refs.quillEditor, {
         modules: {
           toolbar: [["bold", "italic", "underline"]],
         },
-        theme: "snow", //css for quilleditor
-        placeholder: this.placeholder, //placeholder for editor
-        formats: ["bold", "underline", "italic"], //formatting options for editor
+        theme: "snow",
+        placeholder: this.placeholder,
+        formats: ["bold", "underline", "italic"], // formatting options
       });
       this.quillEditor.root.innerHTML = this.value;
-      //invoked on input change
-      this.quillEditor.on("text-change", () => this.updateChange());
+      // invoked on input change and emits the current value of input options
+      this.quillEditor.on("text-change", () => this.inputValue());
     }
   },
 };

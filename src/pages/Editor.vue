@@ -2206,7 +2206,7 @@ export default {
         }
       }
       this.optionIndexToDelete = -1; // reset the option index to be deleted
-      this.reRender(); //for rerendering itemEditor whenever option is deleted.
+      this.reRender(); // rerendering itemEditor whenever option is deleted.
     },
     /**
      * returns the type of item being added when add item button is clicked
