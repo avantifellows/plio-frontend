@@ -317,7 +317,9 @@ export default {
         this.quillEditor.getText() ? this.quillEditor.root.innerHTML : "" //return the formatted value
       );
     },
-    /** invoked when a key is pressed */
+    /** invoked when a key is pressed
+     * @param  {object} event
+     */
     keyDown(event) {
       // ensures that the quillEditor is not removed from input options when the backspace key is pressed.
       if (event.key == "Backspace" && this.quillEditor.root.innerText === "\n") {
@@ -329,7 +331,9 @@ export default {
     inputChange() {
       this.$emit("input", this.value);
     },
-    /** invoked when a key is pressed */
+    /** invoked when a key is pressed
+     * @param  {object} event
+     */
     keyPress(event) {
       if (this.inputType == "number" && !(event.keyCode >= 48 && event.keyCode <= 57)) {
         // prevent anything apart from a number from being entered

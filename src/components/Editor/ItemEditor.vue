@@ -94,7 +94,7 @@
           ref="questionText"
           class="p-2 w-full"
           :isFormattingEnabled="true"
-          :boxStyling="'focus:ring-red-500'"
+          :boxStyling="'focus:ring-primary'"
           :maxHeightLimit="questionTextboxHeightLimit"
           data-test="questionText"
         ></Textarea>
