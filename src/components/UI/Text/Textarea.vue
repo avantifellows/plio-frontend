@@ -208,7 +208,6 @@ export default {
           "pl-10": this.isStartIconEnabled,
         },
         "pt-4 h-32 pb-6 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 boxStyling",
-        !this.isFormattingEnabled ? this.boxStyling : "",
       ];
     },
   },
