@@ -111,7 +111,7 @@ export default {
       },
       type: Object,
     },
-    // to check whether editor is required in input options or not
+    // whether to allow the user to format the text
     isFormattingEnabled: {
       default: false,
       type: Boolean,
