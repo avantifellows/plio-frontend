@@ -2,7 +2,11 @@
   <div :id="plioContainerId">
     <!-- skeleton loading -->
     <video-skeleton v-if="!isPlioLoaded && !previewMode"></video-skeleton>
-    <div v-if="isPlioLoaded" class="flex relative shadow-lg" :class="containerClass">
+    <div
+      v-if="isPlioLoaded"
+      class="flex relative shadow-lg"
+      :class="containerClass"
+    >
       <!-- video player component -->
       <video-player
         :videoId="videoId"
@@ -84,25 +88,25 @@
 </template>
 
 <script>
-import VideoPlayer from '@/components/UI/Player/VideoPlayer'
-import VideoSkeleton from '@/components/UI/Skeletons/VideoSkeleton.vue'
-import Scorecard from '@/components/Items/Scorecard.vue'
-import PlioAPIService from '@/services/API/Plio.js'
-import UserAPIService from '@/services/API/User.js'
-import SessionAPIService from '@/services/API/Session.js'
-import EventAPIService from '@/services/API/Event.js'
-import VideoFunctionalService from '@/services/Functional/Video.js'
-import ItemFunctionalService from '@/services/Functional/Item.js'
-import ItemModal from '@/components/Player/ItemModal.vue'
-import IconButton from '@/components/UI/Buttons/IconButton.vue'
-import { useToast } from 'vue-toastification'
-import { mapActions, mapState, mapGetters } from 'vuex'
-import { resetConfetti } from '@/services/Functional/Utilities/Generic.js'
-import SettingsUtilities from '@/services/Functional/Utilities/Settings.js'
-import globalDefaultSettings from '@/services/Config/GlobalDefaultSettings.js'
+import VideoPlayer from "@/components/UI/Player/VideoPlayer"
+import VideoSkeleton from "@/components/UI/Skeletons/VideoSkeleton.vue"
+import Scorecard from "@/components/Items/Scorecard.vue"
+import PlioAPIService from "@/services/API/Plio.js"
+import UserAPIService from "@/services/API/User.js"
+import SessionAPIService from "@/services/API/Session.js"
+import EventAPIService from "@/services/API/Event.js"
+import VideoFunctionalService from "@/services/Functional/Video.js"
+import ItemFunctionalService from "@/services/Functional/Item.js"
+import ItemModal from "@/components/Player/ItemModal.vue"
+import IconButton from "@/components/UI/Buttons/IconButton.vue"
+import { useToast } from "vue-toastification"
+import { mapActions, mapState, mapGetters } from "vuex"
+import { resetConfetti } from "@/services/Functional/Utilities/Generic.js"
+import SettingsUtilities from "@/services/Functional/Utilities/Settings.js"
+import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js"
 
-var isEqual = require('deep-eql')
-let clonedeep = require('lodash.clonedeep')
+var isEqual = require("deep-eql")
+let clonedeep = require("lodash.clonedeep")
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5
@@ -131,14 +135,14 @@ export default {
     return {
       plyrConfig: {
         controls: [
-          'play',
-          'play-large',
-          'progress',
-          'current-time',
-          'mute',
-          'volume',
-          'fullscreen',
-          'settings'
+          "play",
+          "play-large",
+          "progress",
+          "current-time",
+          "mute",
+          "volume",
+          "fullscreen",
+          "settings"
         ],
 
         keyboard: {
@@ -151,7 +155,7 @@ export default {
 
         invertTime: false
       },
-      videoId: '', // video Id for the Plio
+      videoId: "", // video Id for the Plio
       componentProperties: {}, // properties of the plio player
       items: [], // holds the list of all items for this plio
       itemDetails: [], // list of all the items' details created for this plio
@@ -161,29 +165,29 @@ export default {
       currentItemIndex: null, // current item being displayed
       markerClass: [
         // class for the item marker displayed on top of the video slider
-        'bg-red-600',
-        'absolute',
-        'z-10',
-        'transform',
-        'translate',
-        '-translate-x-2/4',
-        'translate-y-4',
-        'py-1.5',
-        'px-1',
-        'bottom-full',
-        'pointer-events-none',
-        'rounded-md'
+        "bg-red-600",
+        "absolute",
+        "z-10",
+        "transform",
+        "translate",
+        "-translate-x-2/4",
+        "translate-y-4",
+        "py-1.5",
+        "px-1",
+        "bottom-full",
+        "pointer-events-none",
+        "rounded-md"
       ],
       scorecardMarkerClass: [
-        'absolute',
-        'z-10',
-        'transform',
-        'translate',
-        '-translate-x-2/4',
-        'translate-y-6',
-        'bottom-full',
-        'pointer-events-none',
-        'text-2xl'
+        "absolute",
+        "z-10",
+        "transform",
+        "translate",
+        "-translate-x-2/4",
+        "translate-y-6",
+        "bottom-full",
+        "pointer-events-none",
+        "text-2xl"
       ],
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       isFullscreen: false, // is the player in fullscreen
@@ -196,12 +200,12 @@ export default {
       isModalMinimized: false, // whether the item modal is minimized or not
       // styling class for the maximise button
       maximizeButtonClass:
-        'px-3 sm:p-2 sm:px-6 lg:p-4 lg:px-8 bg-primary hover:bg-primary-hover p-1 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none',
+        "px-3 sm:p-2 sm:px-6 lg:p-4 lg:px-8 bg-primary hover:bg-primary-hover p-1 rounded-md shadow-xl disabled:opacity-50 disabled:pointer-events-none",
       numCorrect: 0, // number of correctly answered questions
       numWrong: 0, // number of wrongly answered questions
       numSkipped: 0, // number of skipped questions
       isScorecardShown: false, // to show the scorecard or not
-      plioTitle: '', // title of the plio
+      plioTitle: "", // title of the plio
       isAspectRatioChecked: false, // whether the check for aspect ratio has been done
       watchingEventDBId: null, // the DB id of the latest 'watching' event for a given session
       plioSettings: null, // stores this plio's settings
@@ -229,11 +233,11 @@ export default {
     },
     isPlioLoaded(value) {
       // emit if a plio has completed loading
-      if (value) this.$emit('loaded')
+      if (value) this.$emit("loaded")
     },
     showItemModal(value) {
       // emit if an item's visibility has been toggled
-      this.$emit('item-toggle', value)
+      this.$emit("item-toggle", value)
     },
     itemResponses: {
       handler(value) {
@@ -279,14 +283,14 @@ export default {
           // object, then redirect the user to a 404 page
           if (error.response != undefined && error.response.status === 400) {
             this.$router.replace({
-              name: 'Player',
+              name: "Player",
               params: {
                 workspace: this.workspace,
                 plioId: this.plioId
               }
             })
             thirdPartyAuthPromiseResolve()
-          } else this.$router.replace({ name: '404' })
+          } else this.$router.replace({ name: "404" })
         })
     } else thirdPartyAuthPromiseResolve()
 
@@ -297,7 +301,7 @@ export default {
     this.fetchPlioCreateSession()
 
     // add listener for screen size being changed
-    window.addEventListener('resize', this.setScreenProperties)
+    window.addEventListener("resize", this.setScreenProperties)
   },
   beforeUnmount() {
     // remove timeout
@@ -305,15 +309,15 @@ export default {
   },
   unmounted() {
     // remove listeners
-    window.removeEventListener('resize', this.setScreenProperties)
+    window.removeEventListener("resize", this.setScreenProperties)
   },
   props: {
     plioId: {
-      default: '',
+      default: "",
       type: String
     },
     workspace: {
-      default: '',
+      default: "",
       type: String
     },
     thirdPartyUniqueId: {
@@ -336,15 +340,16 @@ export default {
      * custom classes for the plio container
      */
     containerClass: {
-      default: 'h-screen',
+      default: "h-screen",
       type: String
     }
   },
   computed: {
-    ...mapGetters('auth', ['isAuthenticated']),
-    ...mapState('generic', ['windowInnerWidth', 'windowInnerHeight']),
+    ...mapGetters("auth", ["isAuthenticated"]),
+    ...mapState("generic", ["windowInnerWidth", "windowInnerHeight"]),
     firstUnansweredItem() {
-      if (this.skipEnabled || this.lastAnsweredItemIndex == this.numItems - 1) return null
+      if (this.skipEnabled || this.lastAnsweredItemIndex == this.numItems - 1)
+        return null
       return this.items[this.lastAnsweredItemIndex + 1]
     },
     currentItem() {
@@ -357,15 +362,17 @@ export default {
     isSkipEnabled() {
       // if a custom configuration is provided, then use that otherwise
       // use the global settings
-      if (this.configuration != null && this.configuration.has('skipEnabled'))
-        return this.configuration.get('skipEnabled').value
-      return this.defaultConfiguration.get('skipEnabled').value
+      if (this.configuration != null && this.configuration.has("skipEnabled"))
+        return this.configuration.get("skipEnabled").value
+      return this.defaultConfiguration.get("skipEnabled").value
     },
     defaultConfiguration() {
-      return globalDefaultSettings.get('player').children.get('configuration').children
+      return globalDefaultSettings.get("player").children.get("configuration")
+        .children
     },
     configuration() {
-      return this.plioSettings.get('player').children.get('configuration').children
+      return this.plioSettings.get("player").children.get("configuration")
+        .children
     },
     /**
      * whether player has the correct aspect ratio as desired
@@ -374,7 +381,7 @@ export default {
       return (
         document
           .getElementById(this.plioContainerId)
-          .getElementsByClassName('plyr__video-embed')[0].style.paddingBottom ==
+          .getElementsByClassName("plyr__video-embed")[0].style.paddingBottom ==
         `${this.getDesiredPlayerAspectRatio}%`
       )
     },
@@ -422,26 +429,26 @@ export default {
     scorecardMetrics() {
       return [
         {
-          name: this.$t('player.scorecard.metric.description.correct'),
+          name: this.$t("player.scorecard.metric.description.correct"),
           icon: {
-            source: 'check.svg',
-            class: 'text-green-500'
+            source: "check.svg",
+            class: "text-green-500"
           },
           value: this.numCorrect
         },
         {
-          name: this.$t('player.scorecard.metric.description.wrong'),
+          name: this.$t("player.scorecard.metric.description.wrong"),
           icon: {
-            source: 'times-solid.svg',
-            class: 'text-red-500'
+            source: "times-solid.svg",
+            class: "text-red-500"
           },
           value: this.numWrong
         },
         {
-          name: this.$t('player.scorecard.metric.description.skipped'),
+          name: this.$t("player.scorecard.metric.description.skipped"),
           icon: {
-            source: 'skip.svg',
-            class: 'text-yellow-700'
+            source: "skip.svg",
+            class: "text-yellow-700"
           },
           value: this.numSkipped
         }
@@ -473,15 +480,15 @@ export default {
       return {
         value: this.isModalMinimized
           ? this.$t(`editor.buttons.show_${this.currentItemType}`)
-          : this.$t('editor.buttons.show_video'),
-        class: 'text-white text-md sm:text-base lg:text-xl font-bold'
+          : this.$t("editor.buttons.show_video"),
+        class: "text-white text-md sm:text-base lg:text-xl font-bold"
       }
     },
     /**
      * whether the plio has been loaded
      */
     isPlioLoaded() {
-      return this.videoId != ''
+      return this.videoId != ""
     },
     /**
      * whether there are any items
@@ -524,8 +531,8 @@ export default {
      */
     fullscreenButtonTitleConfig() {
       return {
-        value: this.$t('player.fullscreen.enter'),
-        class: 'text-white text-lg font-bold'
+        value: this.$t("player.fullscreen.enter"),
+        class: "text-white text-lg font-bold"
       }
     },
     /**
@@ -536,11 +543,12 @@ export default {
     }
   },
   methods: {
-    ...mapActions('auth', ['setAccessToken', 'setActiveWorkspace']),
+    ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
     isItemResponseEmpty(itemIndex, answer) {
       if (answer == null) return true
-      if (this.itemDetails[itemIndex].type == 'mcq') return isNaN(answer)
-      if (this.itemDetails[itemIndex].type == 'checkbox') return answer.length == 0
+      if (this.itemDetails[itemIndex].type == "mcq") return isNaN(answer)
+      if (this.itemDetails[itemIndex].type == "checkbox")
+        return answer.length == 0
       return false
     },
     /**
@@ -555,12 +563,13 @@ export default {
      */
     setPlayerVolumeVisibility() {
       let plyrInstance = document.getElementById(this.plioContainerId)
-      let plyrVolumeElement = plyrInstance.getElementsByClassName('plyr__volume')[0]
+      let plyrVolumeElement =
+        plyrInstance.getElementsByClassName("plyr__volume")[0]
       if (plyrVolumeElement == undefined) return
       if (plyrInstance.clientWidth < PLAYER_VOLUME_DISPLAY_WIDTH_THRESHOLD) {
-        plyrVolumeElement.style.display = 'none'
+        plyrVolumeElement.style.display = "none"
       } else {
-        plyrVolumeElement.style.display = 'flex'
+        plyrVolumeElement.style.display = "flex"
       }
     },
     /**
@@ -575,7 +584,7 @@ export default {
        */
       const plyrElement = document
         .getElementById(this.plioContainerId) // to ensure that only this plio instance is affected and not other plyr instances
-        .getElementsByClassName('plyr__video-embed')[0]
+        .getElementsByClassName("plyr__video-embed")[0]
       if (plyrElement != undefined)
         plyrElement.style.paddingBottom = `${this.getDesiredPlayerAspectRatio}%`
     },
@@ -596,8 +605,9 @@ export default {
       if (this.isMovingToTimestampAllowed(this.player.duration) != null) return
       if (!this.isScorecardShown) {
         this.isScorecardShown = true
-        var scorecardModal = document.getElementById('scorecardmodal')
-        if (scorecardModal != undefined) this.mountOnFullscreenPlyr(scorecardModal)
+        var scorecardModal = document.getElementById("scorecardmodal")
+        if (scorecardModal != undefined)
+          this.mountOnFullscreenPlyr(scorecardModal)
       }
     },
     /**
@@ -610,7 +620,7 @@ export default {
       return (
         this.isItemSubjectiveQuestion(itemIndex) &&
         userAnswer != null &&
-        userAnswer.trim() != ''
+        userAnswer.trim() != ""
       )
     },
     /**
@@ -621,7 +631,9 @@ export default {
     updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
       if (this.isItemMCQ(itemIndex) && !isNaN(userAnswer)) {
         const correctAnswer = this.itemDetails[itemIndex].correct_answer
-        userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1)
+        userAnswer == correctAnswer
+          ? (this.numCorrect += 1)
+          : (this.numWrong += 1)
         // reduce numSkipped by 1 if numCorrect or numWrong increases
         this.numSkipped -= 1
       } else if (
@@ -632,7 +644,9 @@ export default {
         // for checkbox questions, check if the answers match exactly
         const correctAnswer = this.itemDetails[itemIndex].correct_answer
 
-        isEqual(userAnswer, correctAnswer) ? (this.numCorrect += 1) : (this.numWrong += 1)
+        isEqual(userAnswer, correctAnswer)
+          ? (this.numCorrect += 1)
+          : (this.numWrong += 1)
         this.numSkipped -= 1
       } else if (this.isSubjectiveQuestionAnswered(itemIndex, userAnswer)) {
         // for subjective questions, as long as the viewer has given any answer
@@ -666,7 +680,7 @@ export default {
     mountOnFullscreenPlyr(elementToMount) {
       var plyrInstance = document
         .getElementById(this.plioContainerId)
-        .getElementsByClassName('plyr')[0]
+        .getElementsByClassName("plyr")[0]
       plyrInstance.insertBefore(elementToMount, plyrInstance.firstChild)
     },
     maximizeModal() {
@@ -680,13 +694,14 @@ export default {
       // set some CSS variables which tells the animation where the modal should shrink to
       // and where the maximize button should pop up. These variables are defined in `Editor.vue`
       let root = document.documentElement
-      root.style.setProperty('--t-origin-x', positions.centerX + 'px')
-      root.style.setProperty('--t-origin-y', positions.centerY + 'px')
+      root.style.setProperty("--t-origin-x", positions.centerX + "px")
+      root.style.setProperty("--t-origin-y", positions.centerY + "px")
 
       // insert the button inside the plyr instance so that it shows up in fullscreen mode
       this.$nextTick(() => {
-        let maximizeButton = document.getElementById('plioMaximizeButton')
-        if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton)
+        let maximizeButton = document.getElementById("plioMaximizeButton")
+        if (maximizeButton != undefined)
+          this.mountOnFullscreenPlyr(maximizeButton)
       })
     },
     isMovingToTimestampAllowed(timestamp) {
@@ -713,24 +728,27 @@ export default {
       if (
         this.isAnyItemActive &&
         this.player.currentTime < this.currentItem.time &&
-        this.player.currentTime >= this.currentItem.time - POP_UP_CHECKING_FREQUENCY
+        this.player.currentTime >=
+          this.currentItem.time - POP_UP_CHECKING_FREQUENCY
       )
         timeToInspect += POP_UP_CHECKING_FREQUENCY
 
       if (this.isMovingToTimestampAllowed(timeToInspect)) return false
 
       // move to first unanswered item
-      this.setPlayerTime(this.firstUnansweredItem.time - POP_UP_CHECKING_FREQUENCY)
+      this.setPlayerTime(
+        this.firstUnansweredItem.time - POP_UP_CHECKING_FREQUENCY
+      )
       this.showItemPopUpErrorToast = true
       return true
     },
     videoSeeked() {
       // invoked when a seek operation ends
-      this.createEvent('video_seeked', { currentTime: this.player.currentTime })
+      this.createEvent("video_seeked", { currentTime: this.player.currentTime })
     },
     optionSelected(optionIndex) {
       // invoked when an option of a question is selected
-      this.createEvent('option_selected', {
+      this.createEvent("option_selected", {
         itemIndex: this.currentItemIndex,
         optionIndex: optionIndex
       })
@@ -742,9 +760,10 @@ export default {
       this.player.currentTime =
         this.currentItemIndex == 0
           ? 0
-          : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000
+          : this.itemTimestamps[this.currentItemIndex - 1] +
+            POP_UP_PRECISION_TIME / 1000
       // create an event for the revise action
-      this.createEvent('question_revised', { itemIndex: this.currentItemIndex })
+      this.createEvent("question_revised", { itemIndex: this.currentItemIndex })
       this.closeItemModal()
     },
     /**
@@ -760,7 +779,7 @@ export default {
       if (this.isAuthenticated && !this.previewMode) {
         SessionAPIService.updateSessionAnswer(itemResponse)
         // create an event for the submit action
-        this.createEvent('question_answered', {
+        this.createEvent("question_answered", {
           itemIndex: this.currentItemIndex,
           answer: itemResponse.answer
         })
@@ -777,12 +796,12 @@ export default {
     skipQuestion() {
       // invoked when the user skips the question
       this.closeItemModal()
-      this.createEvent('question_skipped', { itemIndex: this.currentItemIndex })
+      this.createEvent("question_skipped", { itemIndex: this.currentItemIndex })
     },
     proceedQuestion() {
       // invoked when the user has answered the question and wishes to proceed
       this.closeItemModal()
-      this.createEvent('question_proceed', { itemIndex: this.currentItemIndex })
+      this.createEvent("question_proceed", { itemIndex: this.currentItemIndex })
     },
     /**
      * fetches plio details and creates a new session
@@ -794,8 +813,8 @@ export default {
            * redirect to 404 if the plio is not published
            * and the plio is not opened in preview mode
            */
-          if (plioDetails.status != 'published' && !this.previewMode)
-            this.$router.replace({ name: '404' })
+          if (plioDetails.status != "published" && !this.previewMode)
+            this.$router.replace({ name: "404" })
           this.items = plioDetails.items || []
           this.itemDetails = plioDetails.itemDetails || []
           // setting numSkipped to number of items. This value will keep reducing
@@ -804,7 +823,9 @@ export default {
           this.plioDBId = plioDetails.plioDBId
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL)
           this.plioTitle = plioDetails.plioTitle
-          this.plioSettings = SettingsUtilities.setPlioSettings(plioDetails.config)
+          this.plioSettings = SettingsUtilities.setPlioSettings(
+            plioDetails.config
+          )
         })
         .then(() => this.createSession())
         .then(() => this.logData())
@@ -824,11 +845,11 @@ export default {
         this.updateSession()
         // if a 'watching' event exists for the current session, update that event
         // else create a new event
-        if (this.watchingEventDBId == null) this.createEvent('watching')
-        else this.updateEvent('watching', this.watchingEventDBId)
+        if (this.watchingEventDBId == null) this.createEvent("watching")
+        else this.updateEvent("watching", this.watchingEventDBId)
 
         this.$mixpanel.people.increment(
-          'Total Watch Time',
+          "Total Watch Time",
           this.watchTimeIncrement.toFixed(2)
         )
         this.watchTimeIncrement = 0
@@ -838,7 +859,7 @@ export default {
     closeItemModal() {
       // invoked when the modal is to be closed
       this.currentItemIndex = null
-      this.toast.dismiss('cannotSkipItem')
+      this.toast.dismiss("cannotSkipItem")
       this.playPlayer()
     },
     playPlayer() {
@@ -883,7 +904,7 @@ export default {
         // if this is the first session for this plio-user combination
         // increment the number of plios watched by this user
         if (sessionDetails.is_first) {
-          this.$mixpanel.people.increment('Total Plios Viewed')
+          this.$mixpanel.people.increment("Total Plios Viewed")
         }
 
         // handle retention array
@@ -899,7 +920,7 @@ export default {
           // create another dictionary every time we want to upload
           let itemResponse = {}
           for (let key of Object.keys(sessionAnswer)) {
-            itemResponse[key.replace('_id', '')] = sessionAnswer[key]
+            itemResponse[key.replace("_id", "")] = sessionAnswer[key]
           }
           // for mcq items, convert answers to integer
           if (this.isItemMCQ(itemIndex)) {
@@ -946,16 +967,17 @@ export default {
     },
     retentionStrToArray(retentionStr) {
       // convert retention string to retention array
-      return retentionStr.split(',').map((value) => parseInt(value))
+      return retentionStr.split(",").map((value) => parseInt(value))
     },
     retentionArrayToStr(retentionArray) {
       // convert retention array to retention string
-      return retentionArray.join(',')
+      return retentionArray.join(",")
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL
-      let linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(videoURL)
-      return linkValidation['ID']
+      let linkValidation =
+        VideoFunctionalService.isYouTubeVideoLinkValid(videoURL)
+      return linkValidation["ID"]
     },
     playerPlayed() {
       if (this.moveToFirstUnansweredItemOrPass()) {
@@ -974,16 +996,16 @@ export default {
         this.pausePlayer()
         return
       }
-      this.createEvent('played')
+      this.createEvent("played")
     },
     playerPaused() {
       // invoked when the pause button of the player is clicked
-      this.createEvent('paused')
+      this.createEvent("paused")
     },
     playerInitiated() {
       // sets the aspect ratio while the player is getting ready
       this.setPlayerAspectRatio()
-      this.$emit('initiated')
+      this.$emit("initiated")
     },
     /**
      * sets the current time of the player to the given time
@@ -998,10 +1020,10 @@ export default {
       // only show the scorecard when items are present in the plio
       if (this.isScorecardEnabled) this.showScorecardMarkerOnSlider()
       this.setPlayerTime(this.currentTimestamp)
-      this.$mixpanel.track('Visit Player', {
-        'Plio UUID': this.plioId,
-        'Plio Video Length': this.player.duration || 0,
-        'Plio Num Items': this.numItems || 0
+      this.$mixpanel.track("Visit Player", {
+        "Plio UUID": this.plioId,
+        "Plio Video Length": this.player.duration || 0,
+        "Plio Num Items": this.numItems || 0
       })
       // sets various properties based on the screen size
       this.setScreenProperties()
@@ -1016,10 +1038,10 @@ export default {
      * @param {Number} positionPercent - By what % from the left should the marker be placed
      */
     placeMarkerOnSlider(marker, classList, positionPercent) {
-      let plyrProgressBar = document.querySelectorAll('.plyr__progress')[0]
+      let plyrProgressBar = document.querySelectorAll(".plyr__progress")[0]
       if (plyrProgressBar != undefined) {
         marker.classList.add(...classList)
-        marker.style.setProperty('left', `${positionPercent}%`)
+        marker.style.setProperty("left", `${positionPercent}%`)
         plyrProgressBar.appendChild(marker)
       }
     },
@@ -1028,7 +1050,7 @@ export default {
      * @param {Object} marker - The HTML element that needs to be removed from the progress bar
      */
     removeMarkerOnSlider(marker) {
-      var plyrProgressBar = document.querySelectorAll('.plyr__progress')[0]
+      var plyrProgressBar = document.querySelectorAll(".plyr__progress")[0]
       if (plyrProgressBar != undefined) {
         plyrProgressBar.removeChild(marker)
       }
@@ -1040,16 +1062,17 @@ export default {
     showItemMarkersOnSlider() {
       this.items.forEach((item, index) => {
         let existingMarker = document.getElementById(`plioModalMarker-${index}`)
-        if (existingMarker != undefined) this.removeMarkerOnSlider(existingMarker)
+        if (existingMarker != undefined)
+          this.removeMarkerOnSlider(existingMarker)
 
         // add marker to player seek bar
-        let newMarker = document.createElement('SPAN')
-        newMarker.setAttribute('id', `plioModalMarker-${index}`)
+        let newMarker = document.createElement("SPAN")
+        newMarker.setAttribute("id", `plioModalMarker-${index}`)
 
         // set marker style and position
         if (this.isItemResponseDone(index)) {
-          this.markerClass[0] = 'bg-green-600'
-        } else this.markerClass[0] = 'bg-red-600'
+          this.markerClass[0] = "bg-green-600"
+        } else this.markerClass[0] = "bg-red-600"
 
         let positionPercent = (100 * item.time) / this.player.duration
 
@@ -1061,11 +1084,11 @@ export default {
      */
     showScorecardMarkerOnSlider() {
       // add marker to player seek bar
-      let newMarker = document.createElement('p')
-      newMarker.setAttribute('id', `plioScorecardMarker`)
+      let newMarker = document.createElement("p")
+      newMarker.setAttribute("id", `plioScorecardMarker`)
 
       // what the marker should look like - trophy cup emoji
-      newMarker.innerText = '🏆'
+      newMarker.innerText = "🏆"
 
       // set marker position
 
@@ -1075,7 +1098,8 @@ export default {
       // whether the response to an item is complete
       if (this.itemResponses && this.itemResponses[itemIndex]) {
         if (this.itemResponses[itemIndex].answer == null) return false
-        if (this.isItemMCQ(itemIndex)) return !isNaN(this.itemResponses[itemIndex].answer)
+        if (this.isItemMCQ(itemIndex))
+          return !isNaN(this.itemResponses[itemIndex].answer)
         return true
       }
       return false
@@ -1084,14 +1108,18 @@ export default {
      * @param {Number} itemIndex - index of an item in the items array
      */
     isItemMCQ(itemIndex) {
-      return this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == 'mcq'
+      return (
+        this.isItemQuestion(itemIndex) &&
+        this.itemDetails[itemIndex].type == "mcq"
+      )
     },
     /**
      * @param {Number} itemIndex - index of an item in the items array
      */
     isItemCheckboxQuestion(itemIndex) {
       return (
-        this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == 'checkbox'
+        this.isItemQuestion(itemIndex) &&
+        this.itemDetails[itemIndex].type == "checkbox"
       )
     },
     /**
@@ -1099,14 +1127,15 @@ export default {
      */
     isItemSubjectiveQuestion(itemIndex) {
       return (
-        this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == 'subjective'
+        this.isItemQuestion(itemIndex) &&
+        this.itemDetails[itemIndex].type == "subjective"
       )
     },
     /**
      * @param {Number} itemIndex - index of an item in the items array
      */
     isItemQuestion(itemIndex) {
-      return this.items[itemIndex].type == 'question'
+      return this.items[itemIndex].type == "question"
     },
     /**
      * invoked when the current time in the video is updated
@@ -1130,7 +1159,10 @@ export default {
      * @param {Number} timestamp - The player's current timestamp in seconds
      */
     checkForPopups(timestamp) {
-      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+      if (
+        Math.abs(timestamp - this.lastCheckTimestamp) <
+        POP_UP_CHECKING_FREQUENCY
+      )
         return
       this.lastCheckTimestamp = timestamp
       if (!this.isAspectRatioChecked) this.checkAndSetPlayerAspectRatio()
@@ -1142,14 +1174,14 @@ export default {
         // show an error toast indicating that the user
         // has to answer the current item before moving ahead
         if (this.showItemPopUpErrorToast) {
-          this.toast.error(`☝️ ${this.$t('toast.player.cannot_skip_item')}`, {
-            id: 'cannotSkipItem',
-            position: 'bottom-center'
+          this.toast.error(`☝️ ${this.$t("toast.player.cannot_skip_item")}`, {
+            id: "cannotSkipItem",
+            position: "bottom-center"
           })
           this.showItemPopUpErrorToast = false
         }
         this.markItemSelected()
-        this.createEvent('item_opened', { itemIndex: this.currentItemIndex })
+        this.createEvent("item_opened", { itemIndex: this.currentItemIndex })
       } else {
         this.closeItemModal()
       }
@@ -1174,18 +1206,19 @@ export default {
       let modal = document.getElementById(this.plioModalElementId)
       if (modal != undefined) this.mountOnFullscreenPlyr(modal)
 
-      let maximizeButton = document.getElementById('plioMaximizeButton')
-      if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton)
+      let maximizeButton = document.getElementById("plioMaximizeButton")
+      if (maximizeButton != undefined)
+        this.mountOnFullscreenPlyr(maximizeButton)
     },
     enterPlayerFullscreen() {
       // sets the player to fullscreen
       this.isFullscreen = true
-      this.createEvent('enter_fullscreen')
+      this.createEvent("enter_fullscreen")
     },
     exitPlayerFullscreen() {
       // unsets the player from fullscreen
       this.isFullscreen = false
-      this.createEvent('exit_fullscreen')
+      this.createEvent("exit_fullscreen")
       this.setPlayerAspectRatio()
     },
     /**
@@ -1199,14 +1232,16 @@ export default {
        * or the user is not authenticated or if the plio is opened
        * in preview mode
        */
-      if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode) return
+      if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode)
+        return
       let response = await EventAPIService.createEvent({
         type: eventType,
         details: eventDetails,
-        player_time: this.player.currentTime != null ? this.player.currentTime : 0,
+        player_time:
+          this.player.currentTime != null ? this.player.currentTime : 0,
         session: this.sessionDBId
       })
-      if (eventType == 'watching') this.watchingEventDBId = response.id
+      if (eventType == "watching") this.watchingEventDBId = response.id
     },
     /**
      * Updates an event
@@ -1218,7 +1253,8 @@ export default {
       EventAPIService.updateEvent(eventDBId, {
         type: eventType,
         details: eventDetails,
-        player_time: this.player.currentTime != null ? this.player.currentTime : 0,
+        player_time:
+          this.player.currentTime != null ? this.player.currentTime : 0,
         session: this.sessionDBId
       })
     },
@@ -1226,7 +1262,7 @@ export default {
       this.isFullscreen = true
     }
   },
-  emits: ['initiated', 'loaded', 'item-toggle']
+  emits: ["initiated", "loaded", "item-toggle"]
 }
 </script>
 
