@@ -200,6 +200,10 @@ export default {
       default: false,
       type: Boolean,
     },
+    isSelectedItemSurveyQuestion: {
+      default: false,
+      type: Boolean,
+    },
   },
   components: { Textarea },
   methods: {
@@ -227,6 +231,13 @@ export default {
     optionBackgroundClass(optionIndex) {
       // returns the background class for the option
       if (!this.isAnswerSubmitted) return {};
+      if (this.isQuestionTypeMCQ && this.isSelectedItemSurveyQuestion) {
+        if(optionIndex == this.submittedAnswer) return "bg-gray-200";
+      }
+      if(this.isQuestionTypeCheckbox && this.isSelectedItemSurveyQuestion) {
+        if (this.correctAnswer.indexOf(optionIndex) != -1) return "bg-white-200";
+        if(this.submittedAnswer.indexOf(optionIndex) != -1) return "bg-gray-200";
+      }
       if (this.isQuestionTypeMCQ) {
         if (optionIndex == this.correctAnswer) return this.correctOptionClass;
         if (optionIndex == this.submittedAnswer) return this.wrongOptionClass;

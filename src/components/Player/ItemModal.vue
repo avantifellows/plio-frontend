@@ -20,6 +20,7 @@
         :options="questionOptions"
         :correctAnswer="questionCorrectAnswer"
         :isAnswerSubmitted="isAnswerSubmitted"
+        :isSelectedItemSurveyQuestion="isSelectedItemSurveyQuestion"
         :draftAnswer="draftResponses[selectedItemIndex]"
         :submittedAnswer="currentItemResponseAnswer"
         :questionType="questionType"
