@@ -129,7 +129,7 @@ export default {
     VideoSkeleton,
     ItemModal,
     IconButton,
-    Scorecard
+    Scorecard,
   },
   data() {
     return {
@@ -142,18 +142,18 @@ export default {
           "mute",
           "volume",
           "fullscreen",
-          "settings"
+          "settings",
         ],
 
         keyboard: {
           focused: false,
-          global: false
+          global: false,
         },
 
         hideControls: false,
         clickToPlay: false,
 
-        invertTime: false
+        invertTime: false,
       },
       videoId: "", // video Id for the Plio
       componentProperties: {}, // properties of the plio player
@@ -176,7 +176,7 @@ export default {
         "px-1",
         "bottom-full",
         "pointer-events-none",
-        "rounded-md"
+        "rounded-md",
       ],
       scorecardMarkerClass: [
         "absolute",
@@ -187,7 +187,7 @@ export default {
         "translate-y-6",
         "bottom-full",
         "pointer-events-none",
-        "text-2xl"
+        "text-2xl",
       ],
       lastCheckTimestamp: 0, // time in milliseconds when the last check for item pop-up took place
       isFullscreen: false, // is the player in fullscreen
@@ -210,7 +210,7 @@ export default {
       watchingEventDBId: null, // the DB id of the latest 'watching' event for a given session
       plioSettings: null, // stores this plio's settings
       lastAnsweredItemIndex: -1, // index of the interaction that was last answered
-      showItemPopUpErrorToast: false // whether to show the error toast when an item is opened
+      showItemPopUpErrorToast: false, // whether to show the error toast when an item is opened
     };
   },
   watch: {
@@ -247,8 +247,8 @@ export default {
           this.showItemMarkersOnSlider();
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   async created() {
     // Creating a promise for the third party auth functionality.
@@ -266,7 +266,7 @@ export default {
       // and set the user accordingly
       UserAPIService.generateExternalAuthToken({
         unique_id: this.thirdPartyUniqueId,
-        api_key: this.thirdPartyApiKey
+        api_key: this.thirdPartyApiKey,
       })
         .then(async (response) => {
           await this.setAccessToken(response.data);
@@ -286,8 +286,8 @@ export default {
               name: "Player",
               params: {
                 workspace: this.workspace,
-                plioId: this.plioId
-              }
+                plioId: this.plioId,
+              },
             });
             thirdPartyAuthPromiseResolve();
           } else this.$router.replace({ name: "404" });
@@ -314,19 +314,19 @@ export default {
   props: {
     plioId: {
       default: "",
-      type: String
+      type: String,
     },
     workspace: {
       default: "",
-      type: String
+      type: String,
     },
     thirdPartyUniqueId: {
       default: null,
-      type: String
+      type: String,
     },
     thirdPartyApiKey: {
       default: null,
-      type: String
+      type: String,
     },
     /**
      * whether it is being opened in preview mode
@@ -334,15 +334,15 @@ export default {
      */
     previewMode: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     /**
      * custom classes for the plio container
      */
     containerClass: {
       default: "h-screen",
-      type: String
-    }
+      type: String,
+    },
   },
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
@@ -432,26 +432,26 @@ export default {
           name: this.$t("player.scorecard.metric.description.correct"),
           icon: {
             source: "check.svg",
-            class: "text-green-500"
+            class: "text-green-500",
           },
-          value: this.numCorrect
+          value: this.numCorrect,
         },
         {
           name: this.$t("player.scorecard.metric.description.wrong"),
           icon: {
             source: "times-solid.svg",
-            class: "text-red-500"
+            class: "text-red-500",
           },
-          value: this.numWrong
+          value: this.numWrong,
         },
         {
           name: this.$t("player.scorecard.metric.description.skipped"),
           icon: {
             source: "skip.svg",
-            class: "text-yellow-700"
+            class: "text-yellow-700",
           },
-          value: this.numSkipped
-        }
+          value: this.numSkipped,
+        },
       ];
     },
     /**
@@ -481,7 +481,7 @@ export default {
         value: this.isModalMinimized
           ? this.$t(`editor.buttons.show_${this.currentItemType}`)
           : this.$t("editor.buttons.show_video"),
-        class: "text-white text-md sm:text-base lg:text-xl font-bold"
+        class: "text-white text-md sm:text-base lg:text-xl font-bold",
       };
     },
     /**
@@ -532,7 +532,7 @@ export default {
     fullscreenButtonTitleConfig() {
       return {
         value: this.$t("player.fullscreen.enter"),
-        class: "text-white text-lg font-bold"
+        class: "text-white text-lg font-bold",
       };
     },
     /**
@@ -540,7 +540,7 @@ export default {
      */
     fullscreenButtonClass() {
       return `ring-2 ring-red-100 bg-primary hover:bg-primary-hover p-4 rounded-md shadow-xl place-self-center animate-bounce m-auto`;
-    }
+    },
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
@@ -745,14 +745,14 @@ export default {
     videoSeeked() {
       // invoked when a seek operation ends
       this.createEvent("video_seeked", {
-        currentTime: this.player.currentTime
+        currentTime: this.player.currentTime,
       });
     },
     optionSelected(optionIndex) {
       // invoked when an option of a question is selected
       this.createEvent("option_selected", {
         itemIndex: this.currentItemIndex,
-        optionIndex: optionIndex
+        optionIndex: optionIndex,
       });
     },
     reviseQuestion() {
@@ -766,7 +766,7 @@ export default {
             POP_UP_PRECISION_TIME / 1000;
       // create an event for the revise action
       this.createEvent("question_revised", {
-        itemIndex: this.currentItemIndex
+        itemIndex: this.currentItemIndex,
       });
       this.closeItemModal();
     },
@@ -785,7 +785,7 @@ export default {
         // create an event for the submit action
         this.createEvent("question_answered", {
           itemIndex: this.currentItemIndex,
-          answer: itemResponse.answer
+          answer: itemResponse.answer,
         });
       }
 
@@ -804,14 +804,14 @@ export default {
       // invoked when the user skips the question
       this.closeItemModal();
       this.createEvent("question_skipped", {
-        itemIndex: this.currentItemIndex
+        itemIndex: this.currentItemIndex,
       });
     },
     proceedQuestion() {
       // invoked when the user has answered the question and wishes to proceed
       this.closeItemModal();
       this.createEvent("question_proceed", {
-        itemIndex: this.currentItemIndex
+        itemIndex: this.currentItemIndex,
       });
     },
     /**
@@ -894,11 +894,11 @@ export default {
         this.items.forEach((_, itemIndex) => {
           if (this.isItemMCQ(itemIndex)) {
             this.itemResponses.push({
-              answer: NaN
+              answer: NaN,
             });
           } else {
             this.itemResponses.push({
-              answer: null
+              answer: null,
             });
           }
         });
@@ -973,7 +973,7 @@ export default {
       return SessionAPIService.updateSession(this.sessionDBId, {
         plio: this.plioDBId,
         watch_time: this.watchTime,
-        retention: this.retentionArrayToStr(this.retention)
+        retention: this.retentionArrayToStr(this.retention),
       }).catch((err) => console.log(err));
     },
     retentionStrToArray(retentionStr) {
@@ -1034,7 +1034,7 @@ export default {
       this.$mixpanel.track("Visit Player", {
         "Plio UUID": this.plioId,
         "Plio Video Length": this.player.duration || 0,
-        "Plio Num Items": this.numItems || 0
+        "Plio Num Items": this.numItems || 0,
       });
       // sets various properties based on the screen size
       this.setScreenProperties();
@@ -1189,7 +1189,7 @@ export default {
         if (this.showItemPopUpErrorToast) {
           this.toast.error(`☝️ ${this.$t("toast.player.cannot_skip_item")}`, {
             id: "cannotSkipItem",
-            position: "bottom-center"
+            position: "bottom-center",
           });
           this.showItemPopUpErrorToast = false;
         }
@@ -1252,7 +1252,7 @@ export default {
         details: eventDetails,
         player_time:
           this.player.currentTime != null ? this.player.currentTime : 0,
-        session: this.sessionDBId
+        session: this.sessionDBId,
       });
       if (eventType == "watching") this.watchingEventDBId = response.id;
     },
@@ -1268,14 +1268,14 @@ export default {
         details: eventDetails,
         player_time:
           this.player.currentTime != null ? this.player.currentTime : 0,
-        session: this.sessionDBId
+        session: this.sessionDBId,
       });
     },
     goFullscreen() {
       this.isFullscreen = true;
-    }
+    },
   },
-  emits: ["initiated", "loaded", "item-toggle"]
+  emits: ["initiated", "loaded", "item-toggle"],
 };
 </script>
 
