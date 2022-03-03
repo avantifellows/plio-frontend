@@ -99,7 +99,7 @@ export default {
     /** classes for the input boxes */
     boxStyling: {
       default: () => {
-        return "focus:ring-primary";
+        return "focus-within:border-primary";
       },
       type: [Object, String],
     },
@@ -127,7 +127,8 @@ export default {
         {
           "cursor-not-allowed pointer-events-none opacity-50": this.isDisabled,
         },
-        "focus-within:border-2 focus-within:border-solid focus-within:border-primary rounded-md flex relative mt-1",
+        "focus-within:border-2 focus-within:border-solid rounded-md flex relative mt-1",
+        this.boxStyling,
       ];
     },
     localValue: {
@@ -207,7 +208,7 @@ export default {
         {
           "pl-10": this.isStartIconEnabled,
         },
-        "pt-4 h-32 pb-6 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 boxStyling",
+        "pt-4 overflow-y-hidden h-32 pb-6 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200",
         this.boxStyling,
       ];
     },

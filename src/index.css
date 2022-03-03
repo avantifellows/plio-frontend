@@ -33,3 +33,6 @@
 .ql-snow.ql-toolbar button.ql-active .ql-fill {
   @apply fill-current text-primary
 }
+.ql-tooltip ,.ql-hidden{
+@apply hidden
+}

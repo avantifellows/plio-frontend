@@ -93,7 +93,7 @@
           v-model:value="questionText"
           ref="questionText"
           class="p-2 w-full"
-          :boxStyling="'focus:ring-primary'"
+          :boxStyling="'focus-within:border-primary'"
           :maxHeightLimit="questionTextboxHeightLimit"
           data-test="questionText"
         ></Textarea>
@@ -287,7 +287,7 @@ export default {
         },
       ],
       isQuestionDropdownShown: false, // whether the question type dropdown is shown
-      questionTextboxHeightLimit: 200, // maximum allowed height of the question text box in px
+      questionTextboxHeightLimit: 104, // maximum allowed height of the question text box in px
       // styling classes for add image button
       addImageButtonClass:
         "bg-white hover:bg-primary disabled:bg-white focus:ring-primary",
@@ -454,9 +454,12 @@ export default {
     },
     /** returns the styling for the option box for the given index */
     getOptionBoxStyling(optionIndex) {
-      return {
-        "border-green-500": this.isOptionMarkedCorrect(optionIndex),
-      };
+      return [
+        "focus-within:border-primary",
+        {
+          "border-green-500": this.isOptionMarkedCorrect(optionIndex),
+        },
+      ];
     },
     /** updates the current item selected */
     updateSelectedItemIndex(index) {
