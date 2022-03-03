@@ -128,9 +128,8 @@ export default {
         this.formattedAnswer.length > this.maxCharLimit
       ) {
         // prevent answers more than the character limit from being entered via copy pasting
-       this.subjectiveAnswer = this.subjectiveAnswer.substring(0, this.maxCharLimit);
+        this.subjectiveAnswer = this.subjectiveAnswer.substring(0, this.maxCharLimit);
       }
-
       this.$emit("answer-updated", this.subjectiveAnswer);
     },
     imageData: {
@@ -347,17 +346,16 @@ export default {
       if (this.formattedAnswer == null) return 0;
       // length of text in the itemModal
       return this.formattedAnswer.length;
-
     },
-    formattedAnswer(){
+    formattedAnswer() {
       // the formatted subjective answer that will be shown on itemModal
-      if(this.subjectiveAnswer==null){
+      if (this.subjectiveAnswer == null) {
         return "";
       }
       // added to ensure that answer doesnot exceed maxCharLimit
       // removes all the HTML tags from the Html String.
       let regex = /<[^>]*(>|$)|&nbsp;|&zwnj;|&raquo;|&laquo;|&gt;/g;
-      return this.subjectiveAnswer.replace(regex,"");
+      return this.subjectiveAnswer.replace(regex, "");
     },
     defaultAnswer() {
       // the default answer to be shown
