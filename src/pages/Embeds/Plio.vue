@@ -209,7 +209,7 @@ export default {
       isAspectRatioChecked: false, // whether the check for aspect ratio has been done
       watchingEventDBId: null, // the DB id of the latest 'watching' event for a given session
       plioSettings: null, // stores this plio's settings
-      lastAnsweredItemIndex: -1, // index of the interaction that was last answered
+      lastAnsweredItemIndex: -1, // index of the item that was last answered
       showItemPopUpErrorToast: false, // whether to show the error toast when an item is opened
     };
   },
@@ -544,6 +544,10 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
+    /**
+     * @param {Number} itemIndex - the index of the item whose response is to be checked
+     * @param {Number} answer - the response to be checked
+     */
     isItemResponseEmpty(itemIndex, answer) {
       if (answer == null) return true;
       if (this.itemDetails[itemIndex].type == "mcq") return isNaN(answer);
@@ -704,14 +708,18 @@ export default {
           this.mountOnFullscreenPlyr(maximizeButton);
       });
     },
+    /**
+     * @param {Number} timestamp - the timestamp to be checked
+     */
     isMovingToTimestampAllowed(timestamp) {
       if (this.firstUnansweredItem == null) return true;
-      // check whether skip is disabled and all items have been answered
+      // comes here only when skip is disabled and there are unanswered items
+      // at times before the timestamp given
       return timestamp < this.firstUnansweredItem.time;
     },
     /**
      * whether the user should be moved to the first unanswered item
-     * or allowed to pass through to whatever timestamp they are trying to
+     * or is allowed to pass through to whatever timestamp they are trying to
      * go to
      */
     moveToFirstUnansweredItemOrPass() {
@@ -721,9 +729,9 @@ export default {
       /**
        * this is required to handle the case that the user toggles
        * the show video/question button while an item is active and tries
-       * to play the video since the user will be in the time range of item
-       * timestamp and item timestamp - POP_UP_CHECKING_FREQUENCY, the code
-       * after this snippet will function incorrectly
+       * to play the video. Since the user will be in the time range of item
+       * timestamp and item timestamp - POP_UP_CHECKING_FREQUENCY, without
+       * this snippet, the code following it will function incorrectly
        */
       if (
         this.isAnyItemActive &&
