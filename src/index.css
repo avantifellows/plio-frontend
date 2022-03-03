@@ -34,5 +34,5 @@
   @apply fill-current text-primary
 }
 .ql-tooltip ,.ql-hidden{
-@apply hidden
+  @apply hidden
 }

@@ -125,7 +125,7 @@ export default {
     containerStyleClass() {
       return [
         {
-          "cursor-not-allowed pointer-events-none opacity-50": this.isDisabled,
+          "cursor-not-allowed pointer-events-none opacity-50 h-32": this.isDisabled,
         },
         "focus-within:border-2 focus-within:border-solid rounded-md flex relative mt-1",
         this.boxStyling,
@@ -208,8 +208,7 @@ export default {
         {
           "pl-10": this.isStartIconEnabled,
         },
-        "pt-4 overflow-y-hidden h-32 pb-6 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200",
-        this.boxStyling,
+        "pt-4 pb-6 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200",
       ];
     },
   },
@@ -225,7 +224,7 @@ export default {
       // invoked on input change
       // auto expand the textbox if a `maxHeightLimit` has been specified
       if (this.maxHeightLimit > 0) {
-        var textareaElement = event.srcElement;
+        var textareaElement = event.srcElement.parentElement;
         textareaElement.style.height = "";
         textareaElement.style.height =
           Math.min(textareaElement.scrollHeight, this.maxHeightLimit) + "px";

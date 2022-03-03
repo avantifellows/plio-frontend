@@ -125,7 +125,7 @@ export default {
       if (
         this.subjectiveAnswer != null &&
         this.hasCharLimit &&
-        this.formattedAnswer.length > this.maxCharLimit
+        this.isSubjectiveAnswerExceedsMaxLimit
       ) {
         // prevent answers more than the character limit from being entered via copy pasting
         this.subjectiveAnswer = this.subjectiveAnswer.substring(0, this.maxCharLimit);
@@ -216,7 +216,16 @@ export default {
       if (!this.hasCharLimit) return;
       if (!this.charactersLeft) event.preventDefault();
     },
-
+    calculateSubjectiveAnswerLength() {
+      // returns the length of subjective answer.
+      if (this.subjectiveAnswer == null) {
+        return "";
+      }
+      // added to ensure that answer doesnot exceed maxCharLimit
+      // removes all the HTML tags from the HTML String.
+      let regex = /<[^>]*(>|$)|&nbsp;|&zwnj;|&raquo;|&laquo;|&gt;/g;
+      return this.subjectiveAnswer.replace(regex, "").length;
+    },
     labelClass(optionText) {
       return [{ "h-4 sm:h-5": optionText == "" }, "flex content-center"];
     },
@@ -243,6 +252,10 @@ export default {
     },
   },
   computed: {
+    // check whether subjective answer exceeds the maximum char limit
+    isSubjectiveAnswerExceedsMaxLimit() {
+      return this.calculateSubjectiveAnswerLength() > this.maxCharLimit;
+    },
     optionInputType() {
       if (!this.areOptionsVisible) return null;
       if (this.isQuestionTypeMCQ) return "radio";
@@ -343,19 +356,8 @@ export default {
     currentAnswerLength() {
       // length of the current answer (for subjective question)
       if (this.subjectiveAnswer == null) return 0;
-      if (this.formattedAnswer == null) return 0;
       // length of text in the itemModal
-      return this.formattedAnswer.length;
-    },
-    formattedAnswer() {
-      // the formatted subjective answer that will be shown on itemModal
-      if (this.subjectiveAnswer == null) {
-        return "";
-      }
-      // added to ensure that answer doesnot exceed maxCharLimit
-      // removes all the HTML tags from the Html String.
-      let regex = /<[^>]*(>|$)|&nbsp;|&zwnj;|&raquo;|&laquo;|&gt;/g;
-      return this.subjectiveAnswer.replace(regex, "");
+      return this.calculateSubjectiveAnswerLength();
     },
     defaultAnswer() {
       // the default answer to be shown

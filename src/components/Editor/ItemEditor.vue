@@ -93,7 +93,6 @@
           v-model:value="questionText"
           ref="questionText"
           class="p-2 w-full"
-          :boxStyling="'focus-within:border-primary'"
           :maxHeightLimit="questionTextboxHeightLimit"
           data-test="questionText"
         ></Textarea>
@@ -287,7 +286,7 @@ export default {
         },
       ],
       isQuestionDropdownShown: false, // whether the question type dropdown is shown
-      questionTextboxHeightLimit: 104, // maximum allowed height of the question text box in px
+      questionTextboxHeightLimit: 200, // maximum allowed height of the question text box in px
       // styling classes for add image button
       addImageButtonClass:
         "bg-white hover:bg-primary disabled:bg-white focus:ring-primary",
