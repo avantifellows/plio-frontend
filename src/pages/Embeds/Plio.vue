@@ -560,7 +560,7 @@ export default {
     },
     ifAllQuestionsAreSurvey() {
       let count = 0;
-      for (let itemIndex of this.itemDetails) 
+      for (let itemIndex of this.itemDetails)
         if(this.itemDetails[itemIndex].survey == true) count += 1;
       return count;
     },
