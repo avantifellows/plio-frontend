@@ -561,14 +561,14 @@ export default {
     ifAllQuestionsAreSurvey() {
       let count = 0;
       for (let itemIndex of this.itemDetails)
-        if(this.itemDetails[itemIndex].survey == true) count += 1;
+        if (this.itemDetails[itemIndex].survey == true) count += 1;
       return count;
     },
     /**
      * Show the scorecard on top of the player
      */
     popupScorecard() {
-      if (this.numSkipped == this.ifAllQuestionsAreSurvey ) {
+      if (this.numSkipped == this.ifAllQuestionsAreSurvey) {
         this.isScorecardShown = false;
         this.numSkipped = 0;
       }
@@ -598,7 +598,11 @@ export default {
      */
     updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
       if (this.itemDetails[itemIndex].survey) this.numSkipped -= 1;
-      if (this.isItemMCQ(itemIndex) && !isNaN(userAnswer) && !this.itemDetails[itemIndex].survey) {
+      if (
+        this.isItemMCQ(itemIndex) &&
+        !isNaN(userAnswer) &&
+        !this.itemDetails[itemIndex].survey
+      ) {
         const correctAnswer = this.itemDetails[itemIndex].correct_answer;
         userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
         // reduce numSkipped by 1 if numCorrect or numWrong increases
@@ -616,7 +620,10 @@ export default {
           ? (this.numCorrect += 1)
           : (this.numWrong += 1);
         this.numSkipped -= 1;
-      } else if (this.isSubjectiveQuestionAnswered(itemIndex, userAnswer) && !this.itemDetails[itemIndex].survey) {
+      } else if (
+        this.isSubjectiveQuestionAnswered(itemIndex, userAnswer) &&
+        !this.itemDetails[itemIndex].survey
+      ) {
         // for subjective questions, as long as the viewer has given any answer
         // their response is considered correct
         this.numCorrect += 1;
