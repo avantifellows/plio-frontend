@@ -558,10 +558,20 @@ export default {
         this.isAspectRatioChecked = true;
       }
     },
+    ifAllQuestionsAreSurvey() {
+      let count = 0;
+      for (let itemIndex of this.itemDetails) 
+        if(this.itemDetails[itemIndex].survey == true) count += 1;
+      return count;
+    },
     /**
      * Show the scorecard on top of the player
      */
     popupScorecard() {
+      if (this.numSkipped == this.ifAllQuestionsAreSurvey ) {
+        this.isScorecardShown = false;
+        this.numSkipped = 0;
+      }
       if (!this.isScorecardShown) {
         this.isScorecardShown = true;
         var scorecardModal = document.getElementById("scorecardmodal");
@@ -587,7 +597,8 @@ export default {
      * @param  {String, Number, Object} userAnswer - User's answer to that item
      */
     updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
-      if (this.isItemMCQ(itemIndex) && !isNaN(userAnswer)) {
+      if (this.itemDetails[itemIndex].survey) this.numSkipped -= 1;
+      if (this.isItemMCQ(itemIndex) && !isNaN(userAnswer) && !this.itemDetails[itemIndex].survey) {
         const correctAnswer = this.itemDetails[itemIndex].correct_answer;
         userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
         // reduce numSkipped by 1 if numCorrect or numWrong increases
@@ -595,7 +606,8 @@ export default {
       } else if (
         this.isItemCheckboxQuestion(itemIndex) &&
         userAnswer != null &&
-        userAnswer.length > 0
+        userAnswer.length > 0 &&
+        !this.itemDetails[itemIndex].survey
       ) {
         // for checkbox questions, check if the answers match exactly
         const correctAnswer = this.itemDetails[itemIndex].correct_answer;
@@ -604,7 +616,7 @@ export default {
           ? (this.numCorrect += 1)
           : (this.numWrong += 1);
         this.numSkipped -= 1;
-      } else if (this.isSubjectiveQuestionAnswered(itemIndex, userAnswer)) {
+      } else if (this.isSubjectiveQuestionAnswered(itemIndex, userAnswer) && !this.itemDetails[itemIndex].survey) {
         // for subjective questions, as long as the viewer has given any answer
         // their response is considered correct
         this.numCorrect += 1;
