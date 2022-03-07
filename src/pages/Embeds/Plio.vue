@@ -380,6 +380,9 @@ export default {
      * whether the scorecard is enabled or not
      */
     isScorecardEnabled() {
+      if (this.areAllQuestionsSurvey()) {
+        return;
+      }
       return this.items != undefined && this.hasAnyItems;
     },
     /**
@@ -560,17 +563,17 @@ export default {
     },
     areAllQuestionsSurvey() {
       let count = 0;
-      for (let itemIndex of this.itemDetails)
-        if (this.itemDetails[itemIndex].survey) count += 1;
-      return count  == this.itemDetails.length;
+      for (let itemDetail of this.itemDetails) {
+        if (itemDetail.survey) count += 1;
+      }
+      return count == this.itemDetails.length;
     },
     /**
      * Show the scorecard on top of the player
      */
     popupScorecard() {
-      if (this.areAllQuestionsSurvey) {
-        this.isScorecardShown = false;
-        this.numSkipped = 0;
+      if (this.areAllQuestionsSurvey()) {
+        return;
       }
       if (!this.isScorecardShown) {
         this.isScorecardShown = true;
@@ -598,13 +601,10 @@ export default {
      */
     updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
       if (this.itemDetails[itemIndex].survey) {
-          this.numSkipped -= 1;
-          return;
+        this.numSkipped -= 1;
+        return;
       }
-      if (
-        this.isItemMCQ(itemIndex) &&
-        !isNaN(userAnswer)
-      ) {
+      if (this.isItemMCQ(itemIndex) && !isNaN(userAnswer)) {
         const correctAnswer = this.itemDetails[itemIndex].correct_answer;
         userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
         // reduce numSkipped by 1 if numCorrect or numWrong increases
@@ -621,9 +621,7 @@ export default {
           ? (this.numCorrect += 1)
           : (this.numWrong += 1);
         this.numSkipped -= 1;
-      } else if (
-        this.isSubjectiveQuestionAnswered(itemIndex, userAnswer)
-      ) {
+      } else if (this.isSubjectiveQuestionAnswered(itemIndex, userAnswer)) {
         // for subjective questions, as long as the viewer has given any answer
         // their response is considered correct
         this.numCorrect += 1;
