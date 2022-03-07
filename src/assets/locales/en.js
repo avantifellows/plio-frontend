@@ -556,6 +556,8 @@ export default {
       num_questions_answered: {
         title: "QUESTIONS ANSWERED",
       },
+      survey_mode_warning:
+        "Survey mode questions are not considered in the calculation of any metric",
     },
   },
   settings: {

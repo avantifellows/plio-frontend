@@ -557,6 +557,8 @@ export default {
       num_questions_answered: {
         title: "उत्तर किये गए प्रश्न",
       },
+      survey_mode_warning:
+        "सर्वे मोड के प्रश्न किसी भी आंकड़े की गणना में शामिल नहीं हैं",
     },
   },
   settings: {
