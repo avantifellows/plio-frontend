@@ -234,13 +234,17 @@ export default {
       if (!this.isAnswerSubmitted) return {};
       if (this.isQuestionTypeMCQ) {
         if (optionIndex == this.correctAnswer && !this.isSelectedItemSurveyQuestion) return this.correctOptionClass;
-        if (optionIndex == this.submittedAnswer && !this.isSelectedItemSurveyQuestion) return this.wrongOptionClass;
-        if (optionIndex == this.submittedAnswer && this.isSelectedItemSurveyQuestion) return this.surveyAnswerClass;
+        if (optionIndex == this.submittedAnswer) {
+            if (this.isSelectedItemSurveyQuestion) return this.surveyAnswerClass;
+            return this.wrongOptionClass;
+        }
       }
       if (this.isQuestionTypeCheckbox) {
         if (this.correctAnswer.indexOf(optionIndex) != -1 && !this.isSelectedItemSurveyQuestion) return this.correctOptionClass;
-        if (this.submittedAnswer.indexOf(optionIndex) != -1 && !this.isSelectedItemSurveyQuestion) return this.wrongOptionClass;
-        if (this.submittedAnswer.indexOf(optionIndex) != -1 && this.isSelectedItemSurveyQuestion) return this.surveyAnswerClass;
+        if (this.submittedAnswer.indexOf(optionIndex) != -1) {
+            if (this.isSelectedItemSurveyQuestion) return this.surveyAnswerClass;
+            return this.wrongOptionClass;
+        }
       }
     },
     isOptionMarked(optionIndex) {

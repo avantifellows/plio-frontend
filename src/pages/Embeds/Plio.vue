@@ -558,17 +558,17 @@ export default {
         this.isAspectRatioChecked = true;
       }
     },
-    ifAllQuestionsAreSurvey() {
+    areAllQuestionsSurvey() {
       let count = 0;
       for (let itemIndex of this.itemDetails)
-        if (this.itemDetails[itemIndex].survey == true) count += 1;
-      return count;
+        if (this.itemDetails[itemIndex].survey) count += 1;
+      return count  == this.itemDetails.length;
     },
     /**
      * Show the scorecard on top of the player
      */
     popupScorecard() {
-      if (this.numSkipped == this.ifAllQuestionsAreSurvey) {
+      if (this.areAllQuestionsSurvey) {
         this.isScorecardShown = false;
         this.numSkipped = 0;
       }
@@ -597,11 +597,13 @@ export default {
      * @param  {String, Number, Object} userAnswer - User's answer to that item
      */
     updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
-      if (this.itemDetails[itemIndex].survey) this.numSkipped -= 1;
+      if (this.itemDetails[itemIndex].survey) {
+          this.numSkipped -= 1;
+          return;
+      }
       if (
         this.isItemMCQ(itemIndex) &&
-        !isNaN(userAnswer) &&
-        !this.itemDetails[itemIndex].survey
+        !isNaN(userAnswer)
       ) {
         const correctAnswer = this.itemDetails[itemIndex].correct_answer;
         userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
@@ -610,8 +612,7 @@ export default {
       } else if (
         this.isItemCheckboxQuestion(itemIndex) &&
         userAnswer != null &&
-        userAnswer.length > 0 &&
-        !this.itemDetails[itemIndex].survey
+        userAnswer.length > 0
       ) {
         // for checkbox questions, check if the answers match exactly
         const correctAnswer = this.itemDetails[itemIndex].correct_answer;
@@ -621,8 +622,7 @@ export default {
           : (this.numWrong += 1);
         this.numSkipped -= 1;
       } else if (
-        this.isSubjectiveQuestionAnswered(itemIndex, userAnswer) &&
-        !this.itemDetails[itemIndex].survey
+        this.isSubjectiveQuestionAnswered(itemIndex, userAnswer)
       ) {
         // for subjective questions, as long as the viewer has given any answer
         // their response is considered correct
