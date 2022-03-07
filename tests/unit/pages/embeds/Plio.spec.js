@@ -397,19 +397,6 @@ describe("Plio.vue", () => {
         expect(showItemMarkersOnSlider).toHaveBeenCalled();
         expect(calculateScorecardMetrics).toHaveBeenCalled();
       });
-      it("if all questions survey no scorecard shown", async () => {
-        const popupScorecard = jest.spyOn(Plio.methods, "popupScorecard");
-        const ifAllQuestionsAreSurvey = jest.spyOn(
-          Plio.methods,
-          "ifAllQuestionsAreSurvey"
-        );
-        await wrapper.setData({ isScorecardShown: false });
-        await wrapper.setData({ numSkipped: 0 });
-        await setupWrapper();
-        popupScorecard();
-        expect(ifAllQuestionsAreSurvey).toHaveBeenCalled();
-        expect(wrapper.find('[data-test="scorecard"]')).toBeFalsy();
-      });
       it("converts checkbox answers from set to array", async () => {
         const currentItemIndex = 4;
         await setupWrapper({
