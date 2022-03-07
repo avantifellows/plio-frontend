@@ -264,7 +264,7 @@
           data-test="surveyQuestionWarning"
         >
           <p
-            class="text-primary text-xs bp-320:text-xsm lg:text-xs md:text-xs md:text-right lg:text-right bp-320:text-center leading-none"
+            class="text-primary text-xs bp-320:text-xsm lg:text-xs md:text-xs md:text-right lg:text-right bp-400:text-right bp-320:text-center leading-none"
           >
             *{{ $t("dashboard.summary.survey_mode_warning") }}
           </p>
