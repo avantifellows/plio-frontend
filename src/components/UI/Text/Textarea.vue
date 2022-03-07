@@ -230,7 +230,7 @@ export default {
           Math.min(textareaElement.scrollHeight, this.maxHeightLimit) + "px";
       }
       // reset the textarea height if it is empty
-       if(event.srcElement.innerText.length <=1){
+       if(event.srcElement.innerText.length <1){
           textareaElement.style.height = "6rem";
   }
     },
