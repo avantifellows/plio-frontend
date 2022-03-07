@@ -8,4 +8,20 @@ export default {
     }
     return { valid: false };
   },
+
+  /**
+   * @param {String} videoURL - the url of the youtube video whose id is to be extracted
+   */
+  getYouTubeVideoIdfromURL(videoURL) {
+    let linkValidation = this.isYouTubeVideoLinkValid(videoURL);
+    if (!linkValidation["valid"]) return "";
+    return linkValidation["ID"];
+  },
+
+  /**
+   * @param {String} videoId - the unique id of the video on youtube
+   */
+  getYouTubeVideoThumbnailURL(videoId) {
+    return `https://img.youtube.com/vi/${videoId}/sddefault.jpg`;
+  },
 };

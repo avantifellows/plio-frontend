@@ -6,7 +6,7 @@
       <div class="flex flex-row justify-start space-x-3">
         <p class="text-xs place-self-center">{{ updatedAt }}</p>
 
-        <div class="flex relative">
+        <div class="flex relative place-self-center">
           <!-- status badge -->
           <simple-badge
             :text="statusBadge"
@@ -38,12 +38,32 @@
         ></OptionDropdown>
       </div>
 
-      <!-- plio title -->
-      <div
-        class="text-base sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold truncate"
-        :class="{ 'opacity-50': isUntitled }"
-      >
-        {{ title }}
+      <div class="flex space-x-4 truncate">
+        <!-- thumbnail -->
+        <inline-svg
+          :src="thumbnail"
+          v-if="!isVideoIdValid"
+          class="fill-current text-gray-400"
+          :class="thumbnailClasses"
+          data-test="defaultThumbnail"
+        ></inline-svg>
+
+        <img
+          v-else
+          :src="thumbnail"
+          :class="thumbnailClasses"
+          class="rounded-md"
+          alt="Video thumbnail"
+          data-test="videoThumbnail"
+        />
+
+        <!-- plio title -->
+        <div
+          class="text-base sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold truncate flex items-center"
+          :class="{ 'opacity-50': isUntitled }"
+        >
+          {{ title }}
+        </div>
       </div>
     </div>
   </div>
@@ -51,9 +71,8 @@
 
 <script>
 import PlioAPIService from "@/services/API/Plio.js";
-import ItemAPIService from "@/services/API/Item.js";
-import QuestionAPIService from "@/services/API/Question.js";
 import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
+import VideoFunctionalService from "@/services/Functional/Video.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import OptionDropdown from "@/components/UI/Selectors/OptionDropdown.vue";
 import PlioListItemSkeleton from "@/components/UI/Skeletons/PlioListItemSkeleton.vue";
@@ -61,7 +80,7 @@ import { mapState, mapGetters, mapActions } from "vuex";
 import { useToast } from "vue-toastification";
 
 export default {
-  name: "PlioThumbnail",
+  name: "PlioListItem",
   props: {
     plioDetails: {
       default: () => {},
@@ -83,22 +102,10 @@ export default {
       scrollY: window.scrollY, // the number of pixels scrolled vertically
       toast: useToast(), // toast component
       optionsOverflowMarginTop: -14, // margin to be set from the top when the options would overflow from the screen
-      itemDetails: [],
+      thumbnailClasses: "h-12 w-16 bp-500:h-14 bp-500:w-18 md:h-16 md:w-20",
     };
   },
   async created() {
-    if (this.plioDetails != undefined && "items" in this.plioDetails) {
-      // create itemDetails and update items to remove details
-      for (let item of this.plioDetails.items) {
-        /**
-         * add every item's details to an itemDetails array
-         * and then, remove those details from the item object
-         */
-        this.itemDetails.push(item.details);
-        delete item.details;
-      }
-    }
-
     // add listener for resize
     window.addEventListener("resize", this.handleResize);
 
@@ -132,6 +139,25 @@ export default {
       isDialogConfirmClicked: "isConfirmClicked",
       isDialogCancelClicked: "isCancelClicked",
     }),
+
+    thumbnail() {
+      if (this.isVideoIdValid) {
+        return VideoFunctionalService.getYouTubeVideoThumbnailURL(this.videoId);
+      }
+      return require("@/assets/images/video-thumbnail.svg");
+    },
+
+    isVideoIdValid() {
+      return this.videoId != "";
+    },
+
+    videoId() {
+      if (this.plioDetails != undefined && this.plioDetails.video_url != null)
+        return VideoFunctionalService.getYouTubeVideoIdfromURL(
+          this.plioDetails.video_url
+        );
+      return "";
+    },
 
     plioId() {
       if (this.plioDetails != undefined && "uuid" in this.plioDetails)
@@ -459,17 +485,6 @@ export default {
         "Plio Status": this.status,
       });
       let newPlio = await PlioAPIService.duplicatePlio(this.plioId);
-      await Promise.all(
-        this.plioDetails.items.map(async (item, index) => {
-          // duplicate item and link it to the newly created plio
-          let newItem = await ItemAPIService.duplicateItem(item.id, newPlio.data.id);
-          // duplicate question and link it to the newly created item
-          await QuestionAPIService.duplicateQuestion(
-            this.itemDetails[index].id,
-            newItem.data.id
-          );
-        })
-      );
       return newPlio.data.uuid;
     },
 
