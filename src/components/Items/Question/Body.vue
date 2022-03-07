@@ -279,8 +279,8 @@ export default {
       // classes for the subjective answer box
       return [
         {
-          "bp-420:h-20 sm:h-28 md:h-36": !this.previewMode,
-          "bp-420:h-16 sm:h-20 md:h-16 text-xs bp-420:text-sm sm:text-base md:text-sm lg:text-base": this
+          "bp-420:h-28 sm:h-28 md:h-36": !this.previewMode,
+          "bp-420:h-24 sm:h-24 md:h-28 text-xs bp-420:text-sm sm:text-base md:text-sm lg:text-base": this
             .previewMode,
         },
         "placeholder-gray-400 focus:border-gray-200 focus:ring-transparent",

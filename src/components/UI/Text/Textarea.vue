@@ -229,6 +229,10 @@ export default {
         textareaElement.style.height =
           Math.min(textareaElement.scrollHeight, this.maxHeightLimit) + "px";
       }
+      // reset the textarea height if it is empty
+       if(event.srcElement.innerText.length <=1){
+          textareaElement.style.height = "6rem";
+  }
     },
     /** invoked when a key is pressed
      * @param {object} event
@@ -241,7 +245,7 @@ export default {
      */
     keyDown(event) {
       // ensures that the quillEditor is not removed from textarea when the backspace key is pressed.
-      if (event.key == "Backspace" && this.quillEditor.root.innerText === "\n") {
+      if (event.key=="Backspace" && this.quillEditor.root.innerText === "\n") {
         event.preventDefault();
       }
       this.$emit("keydown", event);
