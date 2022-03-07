@@ -606,7 +606,7 @@ export default {
      * Show the scorecard on top of the player
      */
     popupScorecard() {
-      if (this.isMovingToTimestampAllowed(this.player.duration) != null) return;
+      if (this.isMovingToTimestampAllowed(this.player.duration)) return;
       if (!this.isScorecardShown) {
         this.isScorecardShown = true;
         var scorecardModal = document.getElementById("scorecardmodal");
