@@ -417,10 +417,7 @@ export default {
           "Click here to add a multiple-choice question with multiple correct answers",
       },
       item_editor: {
-        survey_mode: {
-          enabled: "In survey mode, questions do not have correct answers",
-          disabled: "Cannot change the question mode once a plio is published",
-        },
+        survey_mode: "In survey mode, questions do not have correct answers",
         buttons: {
           previous: "Move to the previous question",
           next: "Move to the next question",
