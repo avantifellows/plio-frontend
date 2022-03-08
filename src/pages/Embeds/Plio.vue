@@ -348,7 +348,7 @@ export default {
     ...mapGetters("auth", ["isAuthenticated"]),
     ...mapState("generic", ["windowInnerWidth", "windowInnerHeight"]),
     firstUnansweredItem() {
-      if (this.skipEnabled || this.lastAnsweredItemIndex == this.numItems - 1)
+      if (this.isSkipEnabled || this.lastAnsweredItemIndex == this.numItems - 1)
         return null;
       return this.items[this.lastAnsweredItemIndex + 1];
     },
@@ -606,7 +606,7 @@ export default {
      * Show the scorecard on top of the player
      */
     popupScorecard() {
-      if (this.isMovingToTimestampAllowed(this.player.duration) != null) return;
+      if (!this.isMovingToTimestampAllowed(this.player.duration)) return;
       if (!this.isScorecardShown) {
         this.isScorecardShown = true;
         var scorecardModal = document.getElementById("scorecardmodal");
