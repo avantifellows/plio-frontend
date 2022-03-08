@@ -20,7 +20,10 @@
           @click="showSettingsMenu"
           data-test="settingsButton"
           id="settingsButton"
-          v-tooltip="{ content: $t('tooltip.editor.settings'), placement: 'top' }"
+          v-tooltip="{
+            content: $t('tooltip.editor.settings'),
+            placement: 'top',
+          }"
         ></icon-button>
       </div>
 
@@ -44,7 +47,10 @@
               :buttonClass="sharePlioButtonClass"
               @click="showSharePlioLinkDialog"
               data-test="sharePlioButton"
-              v-tooltip="{ content: $t('tooltip.editor.share_plio'), placement: 'top' }"
+              v-tooltip="{
+                content: $t('tooltip.editor.share_plio'),
+                placement: 'top',
+              }"
             ></icon-button>
 
             <!-- play plio -->
@@ -55,7 +61,10 @@
               :buttonClass="playPlioButtonClass"
               @click="redirectToPlayer"
               data-test="playPlioButton"
-              v-tooltip="{ content: $t('tooltip.editor.play_plio'), placement: 'top' }"
+              v-tooltip="{
+                content: $t('tooltip.editor.play_plio'),
+                placement: 'top',
+              }"
             ></icon-button>
 
             <!-- preview plio -->
@@ -67,7 +76,10 @@
               :isDisabled="uploading"
               @click="togglePlioPreviewMode"
               data-test="plioPreviewButton"
-              v-tooltip="{ content: $t('tooltip.editor.preview'), placement: 'top' }"
+              v-tooltip="{
+                content: $t('tooltip.editor.preview'),
+                placement: 'top',
+              }"
             ></icon-button>
 
             <!-- copy draft link -->
@@ -92,7 +104,10 @@
               :buttonClass="embedPlioButtonClass"
               @click="showEmbedPlio"
               data-test="embedPlioButton"
-              v-tooltip="{ content: $t('tooltip.editor.embed_plio'), placement: 'top' }"
+              v-tooltip="{
+                content: $t('tooltip.editor.embed_plio'),
+                placement: 'top',
+              }"
             ></icon-button>
           </div>
 
@@ -112,7 +127,9 @@
                     :src="getImageSource('youtube.svg')"
                     class="h-16 w-16 bp-420:w-24 bp-420:h-24 bp-500:w-32 bp-500:h-32 md:w-24 md:h-24 lg:w-32 lg:h-32"
                   ></inline-svg>
-                  <p class="text-sm bp-420:text-base">{{ $t("generic.preview") }}</p>
+                  <p class="text-sm bp-420:text-base">
+                    {{ $t("generic.preview") }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -180,7 +197,7 @@
           </div>
           <!-- info for subjective question -->
           <div
-            v-if="isQuestionTypeSubjective && !currentItemDetail.survey"
+            v-if="isQuestionTypeSubjective && !isSurveyQuestion"
             class="mt-6 sm:mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
           >
             <!-- icon -->
@@ -206,7 +223,10 @@
               :titleConfig="homeButtonTitleConfig"
               :iconConfig="homeIconConfig"
               :buttonClass="homeButtonClass"
-              v-tooltip="{ content: $t('tooltip.editor.home'), placement: 'bottom' }"
+              v-tooltip="{
+                content: $t('tooltip.editor.home'),
+                placement: 'bottom',
+              }"
               @click="returnToHome"
               data-test="homeButton"
             ></icon-button>
@@ -229,7 +249,10 @@
               :buttonClass="analyzePlioButtonClass"
               @click="redirectToDashboard"
               data-test="analyseButton"
-              v-tooltip="{ content: $t('tooltip.editor.analyze'), placement: 'bottom' }"
+              v-tooltip="{
+                content: $t('tooltip.editor.analyze'),
+                placement: 'bottom',
+              }"
             ></icon-button>
           </div>
         </div>
@@ -323,7 +346,9 @@
                       :src="getImageSource('radio-button.svg')"
                       class="w-4 h-8 fill-current text-primary group-hover:text-white group-disabled:text-primary"
                     ></inline-svg>
-                    <p :class="questionTypeHeadingClass">{{ $t("generic.mcq") }}</p>
+                    <p :class="questionTypeHeadingClass">
+                      {{ $t("generic.mcq") }}
+                    </p>
                   </button>
 
                   <!-- choose subjective question -->
@@ -361,7 +386,9 @@
                       :src="getImageSource('check-square-regular.svg')"
                       class="w-10 h-8 pb-2 xl:pb-1 xl:pt-1 fill-current text-primary group-hover:text-white group-disabled:text-primary"
                     ></inline-svg>
-                    <p :class="questionTypeHeadingClass">{{ $t("generic.checkbox") }}</p>
+                    <p :class="questionTypeHeadingClass">
+                      {{ $t("generic.checkbox") }}
+                    </p>
                   </button>
                 </div>
               </div>
@@ -930,7 +957,9 @@ export default {
     videoDuration(newVideoDuration) {
       if (this.loadedPlioDetails.videoDuration == newVideoDuration) return;
       if (newVideoDuration != 0)
-        this.checkAndSaveChanges("video", this.videoDBId, { duration: newVideoDuration });
+        this.checkAndSaveChanges("video", this.videoDBId, {
+          duration: newVideoDuration,
+        });
     },
   },
   computed: {
@@ -944,6 +973,10 @@ export default {
       isDialogConfirmClicked: "isConfirmClicked",
       isDialogCancelClicked: "isCancelClicked",
     }),
+    isSurveyQuestion() {
+      if (this.currentItemIndex == null) return false;
+      return this.currentItemDetail.survey;
+    },
     hasAnySettingsToRender() {
       return this.settingsToRender.size > 0;
     },
@@ -962,7 +995,7 @@ export default {
      */
     lowerButtonsContainerClass() {
       return {
-        "my-6 sm:my-10": !this.isQuestionTypeSubjective,
+        "my-6 sm:my-10": !this.isQuestionTypeSubjective || this.isSurveyQuestion,
         "my-4 sm:my-8": this.isQuestionTypeSubjective,
       };
     },
@@ -1270,8 +1303,8 @@ export default {
     publishButtonClass() {
       return [
         {
-          "opacity-50 cursor-not-allowed pointer-events-none": !this
-            .isPublishButtonEnabled,
+          "opacity-50 cursor-not-allowed pointer-events-none":
+            !this.isPublishButtonEnabled,
         },
         `rounded-md ring-green-500 bg-green-500 hover:bg-green-600 p-2 bp-420:px-4 bp-500:px-2 sm:px-4`,
       ];
@@ -1740,7 +1773,10 @@ export default {
      * returns the user back to Home
      */
     returnToHome() {
-      this.$router.push({ name: "Home", params: { workspace: this.workspace } });
+      this.$router.push({
+        name: "Home",
+        params: { workspace: this.workspace },
+      });
     },
     /**
      * navigate the player to the item selected in the item editor
@@ -1925,7 +1961,8 @@ export default {
      * checks if the video link is valid
      */
     isVideoLinkValid(link) {
-      let pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+      let pattern =
+        /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
       let matches = link.match(pattern);
       if (matches) {
         return { valid: true, ID: matches[1] };

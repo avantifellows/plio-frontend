@@ -49,7 +49,9 @@
           v-if="!isModalMinimized"
           :id="plioModalElementId"
           class="absolute z-10"
-          :class="{ hidden: !isItemModalShown }"
+          :class="{
+            hidden: !isItemModalShown,
+          }"
           :selectedItemIndex="currentItemIndex"
           :itemList="items"
           :itemDetailList="itemDetails"
@@ -73,7 +75,9 @@
       <Scorecard
         id="scorecardmodal"
         class="absolute z-10"
-        :class="{ hidden: !isScorecardShown }"
+        :class="{
+          hidden: !isScorecardShown,
+        }"
         :metrics="scorecardMetrics"
         :progressPercentage="scorecardProgress"
         :isShown="isScorecardShown"
@@ -290,7 +294,10 @@ export default {
               },
             });
             thirdPartyAuthPromiseResolve();
-          } else this.$router.replace({ name: "404" });
+          } else
+            this.$router.replace({
+              name: "404",
+            });
         });
     } else thirdPartyAuthPromiseResolve();
 
@@ -409,11 +416,25 @@ export default {
     plioModalElementId() {
       return `plioModal${this.plioId}`;
     },
+    numSurveyQuestions() {
+      let count = 0;
+      for (let itemDetail of this.itemDetails) {
+        if (itemDetail.survey) count += 1;
+      }
+      return count;
+    },
+    areAllQuestionsSurvey() {
+      return this.numSurveyQuestions == this.itemDetails.length;
+    },
     /**
      * whether the scorecard is enabled or not
      */
     isScorecardEnabled() {
-      return this.items != undefined && this.hasAnyItems;
+      return (
+        this.items != undefined &&
+        this.hasAnyItems &&
+        !this.areAllQuestionsSurvey
+      );
     },
     /**
      * progress value (0-100) to be passed to the Scorecard component
@@ -606,6 +627,7 @@ export default {
      * Show the scorecard on top of the player
      */
     popupScorecard() {
+      if (this.areAllQuestionsSurvey) return;
       if (!this.isMovingToTimestampAllowed(this.player.duration)) return;
       if (!this.isScorecardShown) {
         this.isScorecardShown = true;
@@ -633,6 +655,9 @@ export default {
      * @param  {String, Number, Object} userAnswer - User's answer to that item
      */
     updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
+      if (this.itemDetails[itemIndex].survey) {
+        return;
+      }
       if (this.isItemMCQ(itemIndex) && !isNaN(userAnswer)) {
         const correctAnswer = this.itemDetails[itemIndex].correct_answer;
         userAnswer == correctAnswer
@@ -652,7 +677,10 @@ export default {
           ? (this.numCorrect += 1)
           : (this.numWrong += 1);
         this.numSkipped -= 1;
-      } else if (this.isSubjectiveQuestionAnswered(itemIndex, userAnswer)) {
+      } else if (
+        this.isSubjectiveQuestionAnswered(itemIndex, userAnswer) &&
+        userAnswer != null
+      ) {
         // for subjective questions, as long as the viewer has given any answer
         // their response is considered correct
         this.numCorrect += 1;
@@ -833,12 +861,14 @@ export default {
            * and the plio is not opened in preview mode
            */
           if (plioDetails.status != "published" && !this.previewMode)
-            this.$router.replace({ name: "404" });
+            this.$router.replace({
+              name: "404",
+            });
           this.items = plioDetails.items || [];
           this.itemDetails = plioDetails.itemDetails || [];
           // setting numSkipped to number of items. This value will keep reducing
           // as numCorrect and numWrong are calculated
-          this.numSkipped = this.numItems;
+          this.numSkipped = this.numItems - this.numSurveyQuestions;
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
           this.plioTitle = plioDetails.plioTitle;
@@ -1202,7 +1232,9 @@ export default {
           this.showItemPopUpErrorToast = false;
         }
         this.markItemSelected();
-        this.createEvent("item_opened", { itemIndex: this.currentItemIndex });
+        this.createEvent("item_opened", {
+          itemIndex: this.currentItemIndex,
+        });
       } else {
         this.closeItemModal();
       }
