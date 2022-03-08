@@ -417,10 +417,7 @@ export default {
           "Click here to add a multiple-choice question with multiple correct answers",
       },
       item_editor: {
-        survey_mode: {
-          enabled: "In survey mode, questions do not have correct answers",
-          disabled: "Cannot change the question mode once a plio is published",
-        },
+        survey_mode: "In survey mode, questions do not have correct answers",
         buttons: {
           previous: "Move to the previous question",
           next: "Move to the next question",
@@ -559,6 +556,8 @@ export default {
       num_questions_answered: {
         title: "QUESTIONS ANSWERED",
       },
+      survey_mode_warning:
+        "Survey mode questions are not considered in the calculation of any metric",
     },
   },
   settings: {
@@ -632,6 +631,9 @@ export default {
           },
         },
       },
+    },
+    player: {
+      cannot_skip_item: "You have to answer this question before moving ahead",
     },
   },
 };

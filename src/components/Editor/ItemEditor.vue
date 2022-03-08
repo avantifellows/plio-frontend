@@ -86,23 +86,22 @@
     <!-- item editor -->
     <div class="h-full border-2 rounded-t-xl mr-2 ml-2 p-2 pb-5 item-editor-box">
       <div class="flex flex-row p-2">
-        <!-- Survey checkbox -->
-        <label class="inline-flex items-center">
+        <!-- survey mode checkbox -->
+        <label class="inline-flex items-center hover:cursor-pointer">
           <input
             type="checkbox"
-            class="h-4 w-4 text-primary focus:ring-transparent disabled:opacity-40 disabled:cursor-not-allowed"
+            style="box-shadow: none"
+            class="h-4 w-4 text-primary focus:ring-transparent hover:cursor-pointer"
             v-model="selectedItemDetail.survey"
-            :disabled="isInteractionDisabled"
             data-test="surveyQuestionCheckbox"
           />
-          <span class="ml-2 text-gray-700 text-sm" :class="disabledClass">{{
+          <span class="ml-2 text-gray-700 text-sm">{{
             $t("editor.item_editor.survey_mode")
           }}</span>
         </label>
         <inline-svg
           :src="getImageSource('question-circle-regular.svg')"
           class="w-5 h-5 pl-1 items-center place-self-center"
-          :class="disabledClass"
           v-tooltip="{
             content: surveyModeTooltip,
             placement: 'bottom',
@@ -190,10 +189,11 @@
         class="p-2"
         data-test="subjectiveQuestionContainer"
       >
-        <!-- CharLimitSet checkbox -->
+        <!-- checkbox for setting max char limit -->
         <label class="inline-flex items-center mt-3">
           <input
             type="checkbox"
+            style="box-shadow: none"
             class="h-4 w-4 text-primary focus:ring-transparent"
             v-model="isMaxCharLimitSet"
             data-test="maxCharLimitCheckbox"
@@ -446,21 +446,20 @@ export default {
       this.selectedItemDetail.options.push("");
     },
     getCorrectOptionIconConfig(optionIndex) {
-      if (!this.isSelectedItemSurveyQuestion) {
-        // config for the correct option icon
-        return {
-          enabled: true,
-          name: this.correctOptionIcon,
-          class: [
-            {
-              "text-green-500": this.isOptionMarkedCorrect(optionIndex),
-              "w-1 h-1": this.isQuestionTypeCheckbox,
-            },
-            "cursor-pointer ml-1",
-          ],
-          tooltip: this.getCorrectOptionTooltip(optionIndex),
-        };
-      }
+      if (this.isSelectedItemSurveyQuestion) return;
+
+      return {
+        enabled: true,
+        name: this.correctOptionIcon,
+        class: [
+          {
+            "text-green-500": this.isOptionMarkedCorrect(optionIndex),
+            "w-1 h-1": this.isQuestionTypeCheckbox,
+          },
+          "cursor-pointer ml-1",
+        ],
+        tooltip: this.getCorrectOptionTooltip(optionIndex),
+      };
     },
     deleteOption(optionIndex) {
       // emit a request for option deletion, pass the optionIndex
@@ -541,15 +540,8 @@ export default {
   },
 
   computed: {
-    disabledClass() {
-      return {
-        "opacity-40 cursor-not-allowed": this.isInteractionDisabled,
-      };
-    },
     surveyModeTooltip() {
-      return this.isInteractionDisabled
-        ? this.$t("tooltip.editor.item_editor.survey_mode.disabled")
-        : this.$t("tooltip.editor.item_editor.survey_mode.enabled");
+      return this.$t("tooltip.editor.item_editor.survey_mode");
     },
     correctOptionIcon() {
       if (this.isQuestionTypeMCQ) return "check-circle-regular";
@@ -616,7 +608,7 @@ export default {
     },
     charLimitBoxClass() {
       // class for the input area to enter max char limit
-      return " text-sm text-center disabled:opacity-50";
+      return "text-sm text-center disabled:opacity-50";
     },
     questionTypeDropdownClass() {
       // class for the question type dropdown
@@ -775,12 +767,9 @@ export default {
         this.selectedItemDetail.max_char_limit = value;
       },
     },
-    isSelectedItemSurveyQuestion: {
-      get() {
-        // extract whether question is for survey
-        if (this.selectedItemDetail == null) return false;
-        return this.selectedItemDetail.survey;
-      },
+    isSelectedItemSurveyQuestion() {
+      if (this.selectedItemDetail == null) return false;
+      return this.selectedItemDetail.survey;
     },
     isMaxCharLimitSet: {
       get() {
