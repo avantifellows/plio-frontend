@@ -129,7 +129,10 @@ export default {
         this.subjectiveAnswer.length > this.maxCharLimit
       ) {
         // prevent answers more than the character limit from being entered via copy pasting
-        this.subjectiveAnswer = this.subjectiveAnswer.substring(0, this.maxCharLimit);
+        this.subjectiveAnswer = this.subjectiveAnswer.substring(
+          0,
+          this.maxCharLimit
+        );
       }
       this.$emit("answer-updated", this.subjectiveAnswer);
     },
@@ -201,7 +204,7 @@ export default {
       default: false,
       type: Boolean,
     },
-    isSelectedItemSurveyQuestion: {
+    isSurveyQuestion: {
       default: false,
       type: Boolean,
     },
@@ -233,24 +236,31 @@ export default {
       // returns the background class for the option
       if (!this.isAnswerSubmitted) return {};
       if (this.isQuestionTypeMCQ) {
-        if (optionIndex == this.correctAnswer && !this.isSelectedItemSurveyQuestion) return this.correctOptionClass;
+        if (optionIndex == this.correctAnswer && !this.isSurveyQuestion)
+          return this.correctOptionClass;
         if (optionIndex == this.submittedAnswer) {
-            if (this.isSelectedItemSurveyQuestion) return this.surveyAnswerClass;
-            return this.wrongOptionClass;
+          if (this.isSurveyQuestion) return this.surveyAnswerClass;
+          return this.wrongOptionClass;
         }
       }
       if (this.isQuestionTypeCheckbox) {
-        if (this.correctAnswer.indexOf(optionIndex) != -1 && !this.isSelectedItemSurveyQuestion) return this.correctOptionClass;
+        if (
+          !this.isSurveyQuestion &&
+          this.correctAnswer.indexOf(optionIndex) != -1
+        )
+          return this.correctOptionClass;
         if (this.submittedAnswer.indexOf(optionIndex) != -1) {
-            if (this.isSelectedItemSurveyQuestion) return this.surveyAnswerClass;
-            return this.wrongOptionClass;
+          if (this.isSurveyQuestion) return this.surveyAnswerClass;
+          return this.wrongOptionClass;
         }
       }
     },
     isOptionMarked(optionIndex) {
       // whether the given option index should be marked selected
       if (this.isQuestionTypeMCQ) return this.draftAnswer == optionIndex;
-      return this.draftAnswer != null && this.draftAnswer.indexOf(optionIndex) != -1;
+      return (
+        this.draftAnswer != null && this.draftAnswer.indexOf(optionIndex) != -1
+      );
     },
   },
   computed: {
@@ -311,10 +321,13 @@ export default {
           "content-center": this.isQuestionImagePresent && !this.isPortrait,
           "flex-col": this.isQuestionImagePresent && this.isPortrait,
           "space-x-2 md:space-x-4":
-            !this.previewMode && !this.isPortrait && this.isQuestionImagePresent,
+            !this.previewMode &&
+            !this.isPortrait &&
+            this.isQuestionImagePresent,
           "mx-6 md:mx-10 py-4": !this.previewMode,
           "mx-4 md:mx-6 sm:py-4 md:py-0 lg:py-2": this.previewMode,
-          "space-x-1 md:space-x-2": this.previewMode && this.isQuestionImagePresent,
+          "space-x-1 md:space-x-2":
+            this.previewMode && this.isQuestionImagePresent,
         },
         "flex",
       ];
@@ -336,7 +349,8 @@ export default {
       return [
         {
           "p-2 text-lg md:text-xl lg:text-2xl": !this.previewMode,
-          "p-1 text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg": this.previewMode,
+          "p-1 text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg": this
+            .previewMode,
         },
         "border rounded-md mx-2 whitespace-pre-wrap",
       ];
@@ -344,7 +358,8 @@ export default {
     maxCharLimitClass() {
       // class for the character limit text
       if (this.charactersLeft > 0.2 * this.maxCharLimit) return "text-gray-400";
-      else if (this.charactersLeft > 0.1 * this.maxCharLimit) return "text-yellow-500";
+      else if (this.charactersLeft > 0.1 * this.maxCharLimit)
+        return "text-yellow-500";
       else return "text-red-400";
     },
     charactersLeft() {
