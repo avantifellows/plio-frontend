@@ -54,7 +54,7 @@
               ></WorkspaceSwitcher>
             </div>
 
-            <!-- create plio button -->
+            <!-- create plio button - not visible in mobile screens -->
             <icon-button
               :titleConfig="createButtonMenuTextConfig"
               :buttonClass="createButtonClass"
@@ -183,6 +183,7 @@
           <div
             class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer"
             @click="setLocale('en')"
+            data-test="languagePicker-en"
           >
             <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">
               English
@@ -191,6 +192,7 @@
           <div
             class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer"
             @click="setLocale('hi')"
+            data-test="languagePicker-hi"
           >
             <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">
               हिंदी
@@ -658,7 +660,11 @@ export default {
     },
     /** redirects to the What's New page */
     redirectToWhatsNew() {
-      window.open("https://plio.substack.com/", "_blank", "noopener");
+      window.open(
+        "https://avantifellows.notion.site/What-s-New-1dc885b3ccc74e0aaa9c6789ab319abf/",
+        "_blank",
+        "noopener"
+      );
     },
     /** redirects to the Documentation page */
     redirectToDocs() {

@@ -2,7 +2,11 @@
   <div :id="plioContainerId">
     <!-- skeleton loading -->
     <video-skeleton v-if="!isPlioLoaded && !previewMode"></video-skeleton>
-    <div v-if="isPlioLoaded" class="flex relative shadow-lg" :class="containerClass">
+    <div
+      v-if="isPlioLoaded"
+      class="flex relative shadow-lg"
+      :class="containerClass"
+    >
       <!-- video player component -->
       <video-player
         :videoId="videoId"
@@ -99,8 +103,10 @@ import { useToast } from "vue-toastification";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { resetConfetti } from "@/services/Functional/Utilities/Generic.js";
 import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
+import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 
 var isEqual = require("deep-eql");
+let clonedeep = require("lodash.clonedeep");
 
 // difference in seconds between consecutive checks for item pop-up
 var POP_UP_CHECKING_FREQUENCY = 0.5;
@@ -144,6 +150,7 @@ export default {
           global: false,
         },
 
+        hideControls: false,
         clickToPlay: false,
 
         invertTime: false,
@@ -202,6 +209,8 @@ export default {
       isAspectRatioChecked: false, // whether the check for aspect ratio has been done
       watchingEventDBId: null, // the DB id of the latest 'watching' event for a given session
       plioSettings: null, // stores this plio's settings
+      lastAnsweredItemIndex: -1, // index of the item that was last answered
+      showItemPopUpErrorToast: false, // whether to show the error toast when an item is opened
     };
   },
   watch: {
@@ -338,8 +347,32 @@ export default {
   computed: {
     ...mapGetters("auth", ["isAuthenticated"]),
     ...mapState("generic", ["windowInnerWidth", "windowInnerHeight"]),
+    firstUnansweredItem() {
+      if (this.isSkipEnabled || this.lastAnsweredItemIndex == this.numItems - 1)
+        return null;
+      return this.items[this.lastAnsweredItemIndex + 1];
+    },
+    currentItem() {
+      if (!this.isAnyItemActive) return null;
+      return this.items[this.currentItemIndex];
+    },
+    numItems() {
+      return this.items.length;
+    },
+    isSkipEnabled() {
+      // if a custom configuration is provided, then use that otherwise
+      // use the global settings
+      if (this.configuration != null && this.configuration.has("skipEnabled"))
+        return this.configuration.get("skipEnabled").value;
+      return this.defaultConfiguration.get("skipEnabled").value;
+    },
+    defaultConfiguration() {
+      return globalDefaultSettings.get("player").children.get("configuration")
+        .children;
+    },
     configuration() {
-      return this.plioSettings.get("player").children.get("configuration").children;
+      return this.plioSettings.get("player").children.get("configuration")
+        .children;
     },
     /**
      * whether player has the correct aspect ratio as desired
@@ -438,7 +471,7 @@ export default {
      * eg - question, note etc
      */
     currentItemType() {
-      return this.items[this.currentItemIndex].type;
+      return this.currentItem.type;
     },
     /**
      * config for the title of the maximise button
@@ -461,7 +494,7 @@ export default {
      * whether there are any items
      */
     hasAnyItems() {
-      return this.items.length != 0;
+      return this.numItems != 0;
     },
     /**
      * whether any item is currently active
@@ -511,7 +544,17 @@ export default {
   },
   methods: {
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
-
+    /**
+     * @param {Number} itemIndex - the index of the item whose response is to be checked
+     * @param {Number} answer - the response to be checked
+     */
+    isItemResponseEmpty(itemIndex, answer) {
+      if (answer == null) return true;
+      if (this.itemDetails[itemIndex].type == "mcq") return isNaN(answer);
+      if (this.itemDetails[itemIndex].type == "checkbox")
+        return answer.length == 0;
+      return false;
+    },
     /**
      * sets various properties based on the screen size
      */
@@ -524,7 +567,8 @@ export default {
      */
     setPlayerVolumeVisibility() {
       let plyrInstance = document.getElementById(this.plioContainerId);
-      let plyrVolumeElement = plyrInstance.getElementsByClassName("plyr__volume")[0];
+      let plyrVolumeElement =
+        plyrInstance.getElementsByClassName("plyr__volume")[0];
       if (plyrVolumeElement == undefined) return;
       if (plyrInstance.clientWidth < PLAYER_VOLUME_DISPLAY_WIDTH_THRESHOLD) {
         plyrVolumeElement.style.display = "none";
@@ -562,10 +606,12 @@ export default {
      * Show the scorecard on top of the player
      */
     popupScorecard() {
+      if (!this.isMovingToTimestampAllowed(this.player.duration)) return;
       if (!this.isScorecardShown) {
         this.isScorecardShown = true;
         var scorecardModal = document.getElementById("scorecardmodal");
-        if (scorecardModal != undefined) this.mountOnFullscreenPlyr(scorecardModal);
+        if (scorecardModal != undefined)
+          this.mountOnFullscreenPlyr(scorecardModal);
       }
     },
     /**
@@ -589,7 +635,9 @@ export default {
     updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
       if (this.isItemMCQ(itemIndex) && !isNaN(userAnswer)) {
         const correctAnswer = this.itemDetails[itemIndex].correct_answer;
-        userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
+        userAnswer == correctAnswer
+          ? (this.numCorrect += 1)
+          : (this.numWrong += 1);
         // reduce numSkipped by 1 if numCorrect or numWrong increases
         this.numSkipped -= 1;
       } else if (
@@ -656,12 +704,57 @@ export default {
       // insert the button inside the plyr instance so that it shows up in fullscreen mode
       this.$nextTick(() => {
         let maximizeButton = document.getElementById("plioMaximizeButton");
-        if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
+        if (maximizeButton != undefined)
+          this.mountOnFullscreenPlyr(maximizeButton);
       });
+    },
+    /**
+     * @param {Number} timestamp - the timestamp to be checked
+     */
+    isMovingToTimestampAllowed(timestamp) {
+      if (this.firstUnansweredItem == null) return true;
+      // comes here only when skip is disabled and there are unanswered items
+      // at times before the timestamp given
+      return timestamp < this.firstUnansweredItem.time;
+    },
+    /**
+     * whether the user should be moved to the first unanswered item
+     * or is allowed to pass through to whatever timestamp they are trying to
+     * go to
+     */
+    moveToFirstUnansweredItemOrPass() {
+      if (this.isSkipEnabled) return false;
+      let timeToInspect = this.player.currentTime;
+
+      /**
+       * this is required to handle the case that the user toggles
+       * the show video/question button while an item is active and tries
+       * to play the video. Since the user will be in the time range of item
+       * timestamp and item timestamp - POP_UP_CHECKING_FREQUENCY, without
+       * this snippet, the code following it will function incorrectly
+       */
+      if (
+        this.isAnyItemActive &&
+        this.player.currentTime < this.currentItem.time &&
+        this.player.currentTime >=
+          this.currentItem.time - POP_UP_CHECKING_FREQUENCY
+      )
+        timeToInspect += POP_UP_CHECKING_FREQUENCY;
+
+      if (this.isMovingToTimestampAllowed(timeToInspect)) return false;
+
+      // move to first unanswered item
+      this.setPlayerTime(
+        this.firstUnansweredItem.time - POP_UP_CHECKING_FREQUENCY
+      );
+      this.showItemPopUpErrorToast = true;
+      return true;
     },
     videoSeeked() {
       // invoked when a seek operation ends
-      this.createEvent("video_seeked", { currentTime: this.player.currentTime });
+      this.createEvent("video_seeked", {
+        currentTime: this.player.currentTime,
+      });
     },
     optionSelected(optionIndex) {
       // invoked when an option of a question is selected
@@ -677,9 +770,12 @@ export default {
       this.player.currentTime =
         this.currentItemIndex == 0
           ? 0
-          : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
+          : this.itemTimestamps[this.currentItemIndex - 1] +
+            POP_UP_PRECISION_TIME / 1000;
       // create an event for the revise action
-      this.createEvent("question_revised", { itemIndex: this.currentItemIndex });
+      this.createEvent("question_revised", {
+        itemIndex: this.currentItemIndex,
+      });
       this.closeItemModal();
     },
     /**
@@ -700,21 +796,31 @@ export default {
           answer: itemResponse.answer,
         });
       }
+
+      this.lastAnsweredItemIndex = clonedeep(this.currentItemIndex);
+
       // update the marker colors on the player
       this.showItemMarkersOnSlider();
 
       // recalculate the scorecard metrics
-      this.calculateScorecardMetrics(this.currentItemIndex, itemResponse.answer);
+      this.calculateScorecardMetrics(
+        this.currentItemIndex,
+        itemResponse.answer
+      );
     },
     skipQuestion() {
       // invoked when the user skips the question
       this.closeItemModal();
-      this.createEvent("question_skipped", { itemIndex: this.currentItemIndex });
+      this.createEvent("question_skipped", {
+        itemIndex: this.currentItemIndex,
+      });
     },
     proceedQuestion() {
       // invoked when the user has answered the question and wishes to proceed
       this.closeItemModal();
-      this.createEvent("question_proceed", { itemIndex: this.currentItemIndex });
+      this.createEvent("question_proceed", {
+        itemIndex: this.currentItemIndex,
+      });
     },
     /**
      * fetches plio details and creates a new session
@@ -732,11 +838,13 @@ export default {
           this.itemDetails = plioDetails.itemDetails || [];
           // setting numSkipped to number of items. This value will keep reducing
           // as numCorrect and numWrong are calculated
-          this.numSkipped = this.items.length;
+          this.numSkipped = this.numItems;
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
           this.plioTitle = plioDetails.plioTitle;
-          this.plioSettings = SettingsUtilities.setPlioSettings(plioDetails.config);
+          this.plioSettings = SettingsUtilities.setPlioSettings(
+            plioDetails.config
+          );
         })
         .then(() => this.createSession())
         .then(() => this.logData());
@@ -770,6 +878,7 @@ export default {
     closeItemModal() {
       // invoked when the modal is to be closed
       this.currentItemIndex = null;
+      this.toast.dismiss("cannotSkipItem");
       this.playPlayer();
     },
     playPlayer() {
@@ -838,6 +947,23 @@ export default {
           }
           this.itemResponses.push(itemResponse);
         });
+        if (!this.isSkipEnabled) {
+          // set the last answered item index
+          for (let [itemIndex, itemResponse] of this.itemResponses.entries()) {
+            if (!this.isItemResponseEmpty(itemIndex, itemResponse.answer))
+              this.lastAnsweredItemIndex = itemIndex;
+            // https://github.com/avantifellows/plio-frontend/pull/629#issuecomment-1053819610
+            else break;
+          }
+
+          // check if any item before the current timestamp is unanswered
+          // if there is, then update the timestamp to just before the
+          // unanswered item
+          if (!this.isMovingToTimestampAllowed(this.currentTimestamp)) {
+            this.currentTimestamp =
+              this.firstUnansweredItem.time - POP_UP_CHECKING_FREQUENCY;
+          }
+        }
         // once itemResponses is full, calculate all the scorecard metrics
         this.calculateScorecardMetrics();
       });
@@ -868,10 +994,18 @@ export default {
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL
-      let linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(videoURL);
+      let linkValidation =
+        VideoFunctionalService.isYouTubeVideoLinkValid(videoURL);
       return linkValidation["ID"];
     },
     playerPlayed() {
+      if (this.moveToFirstUnansweredItemOrPass()) {
+        this.pausePlayer();
+
+        if (this.isAnyItemActive) this.maximizeModal();
+        return;
+      }
+
       // invoked when the play button of the player is clicked
       if (this.isScorecardShown) {
         /**
@@ -908,7 +1042,7 @@ export default {
       this.$mixpanel.track("Visit Player", {
         "Plio UUID": this.plioId,
         "Plio Video Length": this.player.duration || 0,
-        "Plio Num Items": this.items.length || 0,
+        "Plio Num Items": this.numItems || 0,
       });
       // sets various properties based on the screen size
       this.setScreenProperties();
@@ -946,8 +1080,11 @@ export default {
      */
     showItemMarkersOnSlider() {
       this.items.forEach((item, index) => {
-        let existingMarker = document.getElementById(`plioModalMarker-${index}`);
-        if (existingMarker != undefined) this.removeMarkerOnSlider(existingMarker);
+        let existingMarker = document.getElementById(
+          `plioModalMarker-${index}`
+        );
+        if (existingMarker != undefined)
+          this.removeMarkerOnSlider(existingMarker);
 
         // add marker to player seek bar
         let newMarker = document.createElement("SPAN");
@@ -992,14 +1129,18 @@ export default {
      * @param {Number} itemIndex - index of an item in the items array
      */
     isItemMCQ(itemIndex) {
-      return this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == "mcq";
+      return (
+        this.isItemQuestion(itemIndex) &&
+        this.itemDetails[itemIndex].type == "mcq"
+      );
     },
     /**
      * @param {Number} itemIndex - index of an item in the items array
      */
     isItemCheckboxQuestion(itemIndex) {
       return (
-        this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == "checkbox"
+        this.isItemQuestion(itemIndex) &&
+        this.itemDetails[itemIndex].type == "checkbox"
       );
     },
     /**
@@ -1007,7 +1148,8 @@ export default {
      */
     isItemSubjectiveQuestion(itemIndex) {
       return (
-        this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == "subjective"
+        this.isItemQuestion(itemIndex) &&
+        this.itemDetails[itemIndex].type == "subjective"
       );
     },
     /**
@@ -1038,28 +1180,44 @@ export default {
      * @param {Number} timestamp - The player's current timestamp in seconds
      */
     checkForPopups(timestamp) {
-      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
+      if (
+        Math.abs(timestamp - this.lastCheckTimestamp) <
+        POP_UP_CHECKING_FREQUENCY
+      )
         return;
       this.lastCheckTimestamp = timestamp;
       if (!this.isAspectRatioChecked) this.checkAndSetPlayerAspectRatio();
 
-      this.checkForItemPopup(timestamp);
+      const itemIndex = this.checkForItemPopup(timestamp);
+      if (itemIndex != null) {
+        this.currentItemIndex = itemIndex;
+
+        // show an error toast indicating that the user
+        // has to answer the current item before moving ahead
+        if (this.showItemPopUpErrorToast) {
+          this.toast.error(`☝️ ${this.$t("toast.player.cannot_skip_item")}`, {
+            id: "cannotSkipItem",
+            position: "bottom-center",
+          });
+          this.showItemPopUpErrorToast = false;
+        }
+        this.markItemSelected();
+        this.createEvent("item_opened", { itemIndex: this.currentItemIndex });
+      } else {
+        this.closeItemModal();
+      }
     },
     /**
      * checks if an item is to be selected and marks/unmarks accordingly
      * @param {Number} timestamp - The player's current timestamp in seconds
      */
     checkForItemPopup(timestamp) {
-      this.isModalMinimized = false;
-      this.currentItemIndex = ItemFunctionalService.checkItemPopup(
+      this.maximizeModal();
+      return ItemFunctionalService.checkItemPopup(
         timestamp,
         this.itemTimestamps,
         POP_UP_PRECISION_TIME
       );
-      if (this.currentItemIndex != null) {
-        this.markItemSelected();
-        this.createEvent("item_opened", { itemIndex: this.currentItemIndex });
-      }
     },
     markItemSelected() {
       // mark the item at the currentItemIndex as selected
@@ -1070,7 +1228,8 @@ export default {
       if (modal != undefined) this.mountOnFullscreenPlyr(modal);
 
       let maximizeButton = document.getElementById("plioMaximizeButton");
-      if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
+      if (maximizeButton != undefined)
+        this.mountOnFullscreenPlyr(maximizeButton);
     },
     enterPlayerFullscreen() {
       // sets the player to fullscreen
@@ -1094,11 +1253,13 @@ export default {
        * or the user is not authenticated or if the plio is opened
        * in preview mode
        */
-      if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode) return;
+      if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode)
+        return;
       let response = await EventAPIService.createEvent({
         type: eventType,
         details: eventDetails,
-        player_time: this.player.currentTime != null ? this.player.currentTime : 0,
+        player_time:
+          this.player.currentTime != null ? this.player.currentTime : 0,
         session: this.sessionDBId,
       });
       if (eventType == "watching") this.watchingEventDBId = response.id;
@@ -1113,7 +1274,8 @@ export default {
       EventAPIService.updateEvent(eventDBId, {
         type: eventType,
         details: eventDetails,
-        player_time: this.player.currentTime != null ? this.player.currentTime : 0,
+        player_time:
+          this.player.currentTime != null ? this.player.currentTime : 0,
         session: this.sessionDBId,
       });
     },

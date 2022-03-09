@@ -1,5 +1,5 @@
 # base stage
-FROM node@sha256:dc92f36e7cd917816fa2df041d4e9081453366381a00f40398d99e9392e78664 as base-stage
+FROM node:lts-alpine as base-stage
 WORKDIR /app
 COPY package.json ./
 # install dependencies for npm run test:unit
