@@ -289,14 +289,12 @@ describe("Body.vue", () => {
       ).toContain("bg-red-500");
     });
 
-    it("highlights options gray for survey question answers", async () => {
+    it("highlights options gray for survey mode answers", async () => {
       const submittedAnswer = 0;
-      const correctAnswer = 1;
       await wrapper.setProps({
         submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
         isAnswerSubmitted: true,
-        isSelectedItemSurveyQuestion: true,
+        isSurveyQuestion: true,
       });
 
       expect(
@@ -368,14 +366,12 @@ describe("Body.vue", () => {
       ).toContain("bg-red-500");
     });
 
-    it("highlights options gray for survey question answers", async () => {
+    it("highlights options gray for survey mode answers", async () => {
       const submittedAnswer = [1, 2];
-      const correctAnswer = [0, 1];
       await wrapper.setProps({
         submittedAnswer: submittedAnswer,
-        correctAnswer: correctAnswer,
         isAnswerSubmitted: true,
-        isSelectedItemSurveyQuestion: true,
+        isSurveyQuestion: true,
       });
 
       expect(

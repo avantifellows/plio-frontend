@@ -20,7 +20,7 @@
         :options="questionOptions"
         :correctAnswer="questionCorrectAnswer"
         :isAnswerSubmitted="isAnswerSubmitted"
-        :isSelectedItemSurveyQuestion="isSelectedItemSurveyQuestion"
+        :isSurveyQuestion="isSelectedItemSurveyQuestion"
         :draftAnswer="draftResponses[selectedItemIndex]"
         :submittedAnswer="currentItemResponseAnswer"
         :questionType="questionType"
@@ -147,7 +147,8 @@ export default {
       return this.defaultConfiguration.get("skipEnabled").value;
     },
     defaultConfiguration() {
-      return globalDefaultSettings.get("player").children.get("configuration").children;
+      return globalDefaultSettings.get("player").children.get("configuration")
+        .children;
     },
     /**
      * URL of the image for an item;
@@ -170,12 +171,14 @@ export default {
     },
     /** text to be used as feedback once answer is submitted */
     answerFeedbackText() {
-      if (this.isQuestionTypeSubjective || this.isSelectedItemSurveyQuestion) return this.$t("generic.submitted");
+      if (this.isQuestionTypeSubjective || this.isSelectedItemSurveyQuestion)
+        return this.$t("generic.submitted");
       return "";
     },
     /** class for the text to be used as feedback once answer is submitted */
     answerFeedbackTextClass() {
-      if (this.isQuestionTypeSubjective || this.isSelectedItemSurveyQuestion) return "text-green-600";
+      if (this.isQuestionTypeSubjective || this.isSelectedItemSurveyQuestion)
+        return "text-green-600";
       return "";
     },
     /** whether the question has a character limit if the item is a question */
@@ -253,13 +256,17 @@ export default {
       )
         return null;
       if (this.isQuestionTypeSubjective) return true;
-      return isEqual(this.questionCorrectAnswer, this.currentItemResponseAnswer);
+      return isEqual(
+        this.questionCorrectAnswer,
+        this.currentItemResponseAnswer
+      );
     },
     /** has the answer for the current item submitted - if current item is a question */
     isAnswerSubmitted() {
       if (this.currentItemResponseAnswer == null) return false;
       if (this.isQuestionTypeMCQ) return !isNaN(this.currentItemResponseAnswer);
-      if (this.isQuestionTypeCheckbox) return this.currentItemResponseAnswer.length > 0;
+      if (this.isQuestionTypeCheckbox)
+        return this.currentItemResponseAnswer.length > 0;
       return true;
     },
     /** options for the question */
@@ -359,9 +366,9 @@ export default {
     },
     /** mark the current attempt as the submitted answer for the current item */
     submitQuestion() {
-      this.localResponseList[this.selectedItemIndex].answer = this.draftResponses[
+      this.localResponseList[
         this.selectedItemIndex
-      ];
+      ].answer = this.draftResponses[this.selectedItemIndex];
       this.$emit("submit-question");
     },
   },
