@@ -81,9 +81,10 @@
           class="px-2 w-full"
           :boxStyling="subjectiveAnswerBoxStyling"
           :placeholder="subjectiveAnswerInputPlaceholder"
-          :isDisabled="isAnswerSubmitted || previewMode"
+          :isDisabled="isAnswerSubmitted"
+          :isPreviewMode="previewMode"
           :maxHeightLimit="subjectiveBoxHeightLimit"
-          @keypress="checkCharLimit"
+          ref="textarea"
           data-test="subjectiveAnswer"
         ></Textarea>
         <!-- character limit -->
@@ -112,7 +113,7 @@ export default {
   data() {
     return {
       subjectiveAnswer: "", // holds the answer to the subjective question
-      subjectiveBoxHeightLimit: 250, // maximum allowed height of the subjective answer text box in px
+      subjectiveBoxHeightLimit: 200, // maximum allowed height of the subjective answer text box in px
       // set containing the question types in which options are present
       questionTypesSupportingOptions: new Set(["mcq", "checkbox"]),
       isImageLoading: false, // whether the image is loading
@@ -127,8 +128,16 @@ export default {
         this.hasCharLimit &&
         this.isSubjectiveAnswerExceedsMaxLimit
       ) {
-        // prevent answers more than the character limit from being entered via copy pasting
-        this.subjectiveAnswer = this.subjectiveAnswer.substring(0, this.maxCharLimit);
+        // prevent answers more than the character limit from being entered via copy pasting or typing
+        // this piece of code deletes the extra characters, when some text is copy pasted or typed
+        if (this.subjectiveAnswerElement != null) {
+          this.subjectiveAnswerElement.quillEditor.deleteText(
+            this.subjectiveAnswerElement.quillEditor.getLength() -
+              1 -
+              Math.abs(this.charactersLeft),
+            Math.abs(this.charactersLeft)
+          );
+        }
       }
       this.$emit("answer-updated", this.subjectiveAnswer);
     },
@@ -211,21 +220,6 @@ export default {
       // stop the loading spinner when the image has been loaded
       this.isImageLoading = false;
     },
-    checkCharLimit(event) {
-      // checks if character limit is reached in case it is set
-      if (!this.hasCharLimit) return;
-      if (!this.charactersLeft) event.preventDefault();
-    },
-    calculateSubjectiveAnswerLength() {
-      // returns the length of subjective answer.
-      if (this.subjectiveAnswer == null) {
-        return "";
-      }
-      // added to ensure that answer doesnot exceed maxCharLimit
-      // removes all the HTML tags from the HTML String.
-      let regex = /<[^>]*(>|$)|&nbsp;|&zwnj;|&raquo;|&laquo;|&gt;/g;
-      return this.subjectiveAnswer.replace(regex, "").length;
-    },
     labelClass(optionText) {
       return [{ "h-4 sm:h-5": optionText == "" }, "flex content-center"];
     },
@@ -252,9 +246,16 @@ export default {
     },
   },
   computed: {
+    /** reference to the component which contains the subjective answer */
+    subjectiveAnswerElement() {
+      if ("textarea" in this.$refs) {
+        return this.$refs.textarea;
+      }
+      return null;
+    },
     // check whether subjective answer exceeds the maximum char limit
     isSubjectiveAnswerExceedsMaxLimit() {
-      return this.calculateSubjectiveAnswerLength() > this.maxCharLimit;
+      return this.currentAnswerLength > this.maxCharLimit;
     },
     optionInputType() {
       if (!this.areOptionsVisible) return null;
@@ -279,9 +280,7 @@ export default {
       // classes for the subjective answer box
       return [
         {
-          "bp-420:h-28 sm:h-28 md:h-36": !this.previewMode,
-          "bp-420:h-24 sm:h-24 md:h-28 text-xs bp-420:text-sm sm:text-base md:text-sm lg:text-base": this
-            .previewMode,
+          "text-xs bp-420:text-sm sm:text-base md:text-sm lg:text-base": this.previewMode,
         },
         "placeholder-gray-400 focus:border-gray-200 focus:ring-transparent",
       ];
@@ -355,9 +354,9 @@ export default {
     },
     currentAnswerLength() {
       // length of the current answer (for subjective question)
-      if (this.subjectiveAnswer == null) return 0;
+      if (this.subjectiveAnswer == null || this.subjectiveAnswerElement == null) return 0;
       // length of text in the itemModal
-      return this.calculateSubjectiveAnswerLength();
+      return this.subjectiveAnswerElement.quillEditor.getLength() - 1;
     },
     defaultAnswer() {
       // the default answer to be shown
