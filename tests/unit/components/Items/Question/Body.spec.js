@@ -288,6 +288,21 @@ describe("Body.vue", () => {
           .classes()
       ).toContain("bg-red-500");
     });
+
+    it("highlights options gray for survey mode answers", async () => {
+      const submittedAnswer = 0;
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        isAnswerSubmitted: true,
+        isSurveyQuestion: true,
+      });
+
+      expect(
+        wrapper
+          .find(`[data-test="optionContainer-${submittedAnswer}"]`)
+          .classes()
+      ).toContain("bg-gray-200");
+    });
   });
 
   describe("checkbox", () => {
@@ -349,6 +364,22 @@ describe("Body.vue", () => {
       expect(
         wrapper.find('[data-test="optionContainer-2"]').classes()
       ).toContain("bg-red-500");
+    });
+
+    it("highlights options gray for survey mode answers", async () => {
+      const submittedAnswer = [1, 2];
+      await wrapper.setProps({
+        submittedAnswer: submittedAnswer,
+        isAnswerSubmitted: true,
+        isSurveyQuestion: true,
+      });
+
+      expect(
+        wrapper.find('[data-test="optionContainer-1"]').classes()
+      ).toContain("bg-gray-200");
+      expect(
+        wrapper.find('[data-test="optionContainer-2"]').classes()
+      ).toContain("bg-gray-200");
     });
   });
 });
