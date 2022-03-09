@@ -200,11 +200,10 @@ export default {
     },
     validationIcon() {
       // fetches and returns the icon object, depending on "isValid"
-      var icon = require("@/assets/images/times-solid.svg");
       if (this.isValid) {
-        icon = require("@/assets/images/check.svg");
+        return require("@/assets/images/check.svg");
       }
-      return icon;
+      return require("@/assets/images/times-solid.svg");
     },
     startIconName() {
       // gets the start icon name from the prop
@@ -263,7 +262,7 @@ export default {
     keyPress(event) {
       // invoked when a key is pressed
       // character key not accepted
-      if (!/^[0-9]+$/.test(event.key)){
+      if (!/^[0-9]+$/.test(event.key)) {
         event.preventDefault();
       }
       if (this.maxLength != null && this.localValue.toString().length == this.maxLength) {

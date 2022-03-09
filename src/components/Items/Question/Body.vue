@@ -116,6 +116,7 @@ export default {
       // set containing the question types in which options are present
       questionTypesSupportingOptions: new Set(["mcq", "checkbox"]),
       isImageLoading: false, // whether the image is loading
+      surveyAnswerClass: "bg-gray-200",
       correctOptionClass: "text-white bg-green-500",
       wrongOptionClass: "text-white bg-red-500",
     };
@@ -200,6 +201,10 @@ export default {
       default: false,
       type: Boolean,
     },
+    isSelectedItemSurveyQuestion: {
+      default: false,
+      type: Boolean,
+    },
   },
   components: { Textarea },
   methods: {
@@ -228,12 +233,18 @@ export default {
       // returns the background class for the option
       if (!this.isAnswerSubmitted) return {};
       if (this.isQuestionTypeMCQ) {
-        if (optionIndex == this.correctAnswer) return this.correctOptionClass;
-        if (optionIndex == this.submittedAnswer) return this.wrongOptionClass;
+        if (optionIndex == this.correctAnswer && !this.isSelectedItemSurveyQuestion) return this.correctOptionClass;
+        if (optionIndex == this.submittedAnswer) {
+            if (this.isSelectedItemSurveyQuestion) return this.surveyAnswerClass;
+            return this.wrongOptionClass;
+        }
       }
       if (this.isQuestionTypeCheckbox) {
-        if (this.correctAnswer.indexOf(optionIndex) != -1) return this.correctOptionClass;
-        if (this.submittedAnswer.indexOf(optionIndex) != -1) return this.wrongOptionClass;
+        if (this.correctAnswer.indexOf(optionIndex) != -1 && !this.isSelectedItemSurveyQuestion) return this.correctOptionClass;
+        if (this.submittedAnswer.indexOf(optionIndex) != -1) {
+            if (this.isSelectedItemSurveyQuestion) return this.surveyAnswerClass;
+            return this.wrongOptionClass;
+        }
       }
     },
     isOptionMarked(optionIndex) {

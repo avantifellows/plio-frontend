@@ -89,11 +89,11 @@ describe("Dashboard.vue", () => {
     });
 
     it("renders values for a published Plio", async () => {
-      let dummyVideoID = global.dummyPublishedPlio.data.video.url.split("=")[1];
-      expect(wrapper.vm.videoID).toBe(dummyVideoID);
+      let dummyVideoId = global.dummyPublishedPlio.data.video.url.split("=")[1];
+      expect(wrapper.vm.videoId).toBe(dummyVideoId);
       expect(wrapper.find('[data-test="thumbnail"]').exists()).toBe(true);
       expect(wrapper.vm.videoThumbnailURL).toBe(
-        `https://img.youtube.com/vi/${dummyVideoID}/sddefault.jpg`
+        `https://img.youtube.com/vi/${dummyVideoId}/sddefault.jpg`
       );
 
       expect(wrapper.find('[data-test="title"]').text()).toBe(
