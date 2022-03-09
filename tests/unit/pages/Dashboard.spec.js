@@ -122,6 +122,14 @@ describe("Dashboard.vue", () => {
       expect(wrapper.find('[data-test="surveyQuestionWarning"]').exists()).toBe(
         global.dummyPlioMetrics["has_survey_question"]
       );
+
+      global.dummyPlioMetrics["has_survey_question"] = false;
+
+      mountWrapper();
+
+      expect(wrapper.find('[data-test="surveyQuestionWarning"]').exists()).toBe(
+        global.dummyPlioMetrics["has_survey_question"]
+      );
     });
 
     it("renders default metric values when none available", async () => {
