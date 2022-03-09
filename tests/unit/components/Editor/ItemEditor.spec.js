@@ -190,14 +190,11 @@ describe("ItemEditor.vue", () => {
       expect(wrapper.emitted()).toHaveProperty("delete-option");
     });
 
-    it("enables the survey mode in mcq", async () => {
+    it("hides the button for selecting correct answer in survey mode", async () => {
       await wrapper
         .find('[data-test="surveyQuestionCheckbox"]')
         .trigger("click");
       expect(wrapper.find('[data-test="options"]').exists()).toBeTruthy();
-      expect(
-        wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
-      ).toBeFalsy();
       // survey mode options do not have start icon
       wrapper.findAll('[data-test="option"]').forEach((option) => {
         expect(option.find('[data-test="startIcon"]').exists()).toBeFalsy();
