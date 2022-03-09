@@ -14,15 +14,12 @@
   },
   "dependencies": {
     "@aacassandra/vue3-progressbar": "^1.0.3",
-    "@cypress/vue": "^3.0.5",
-    "@cypress/webpack-dev-server": "^1.7.0",
     "@sentry/browser": "^6.7.2",
     "@sentry/tracing": "^6.7.2",
     "@tailwindcss/forms": "^0.3.3",
     "axios": "^0.23.0",
     "canvas-confetti": "^1.4.0",
     "core-js": "^3.6.5",
-    "cypress": "^9.1.0",
     "dayjs": "^1.10.7",
     "debounce": "^1.2.1",
     "deep-eql": "^4.0.0",
@@ -46,7 +43,8 @@
     "vuex-persistedstate": "^4.0.0-beta.3"
   },
   "devDependencies": {
-    "@cypress/code-coverage": "^3.9.12",
+    "@browserstack/testcafe": "^1.8.6",
+    "@browserstack/testcafe-browser-provider-browserstack": "^1.13.3",
     "@tailwindcss/postcss7-compat": "^2.0.4",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
@@ -58,7 +56,6 @@
     "@vue/test-utils": "^2.0.0-0",
     "autoprefixer": "^9.8.6",
     "babel-eslint": "^10.1.0",
-    "babel-plugin-istanbul": "^6.1.1",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.0.0-0",
