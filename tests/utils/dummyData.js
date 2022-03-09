@@ -442,6 +442,7 @@ global.dummyPlioMetrics = {
   percent_completed: 40,
   accuracy: 30,
   percent_one_minute_retention: 50,
+  has_survey_question: true,
 };
 
 global.imageData = {
