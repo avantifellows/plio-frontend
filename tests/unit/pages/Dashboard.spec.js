@@ -132,6 +132,44 @@ describe("Dashboard.vue", () => {
       );
     });
 
+    it("renders values for a published Plio when no survey mode question in Plio", async () => {
+      let dummyVideoId = global.dummyPublishedPlio.data.video.url.split("=")[1];
+      expect(wrapper.vm.videoId).toBe(dummyVideoId);
+      expect(wrapper.find('[data-test="thumbnail"]').exists()).toBe(true);
+      expect(wrapper.vm.videoThumbnailURL).toBe(
+        `https://img.youtube.com/vi/${dummyVideoId}/sddefault.jpg`
+      );
+
+      expect(wrapper.find('[data-test="title"]').text()).toBe(
+        global.dummyPublishedPlio.data.name
+      );
+
+      expect(wrapper.find('[data-test="numViewers"]').text()).toBe(
+        String(global.dummyPlioMetricsNonSurvey["unique_viewers"])
+      );
+      expect(wrapper.find('[data-test="watchTime"]').text()).toBe(
+        "3 mins 22 secs"
+      );
+      expect(wrapper.find('[data-test="completion"]').text()).toBe(
+        String(global.dummyPlioMetricsNonSurvey["percent_completed"]) + "%"
+      );
+      expect(wrapper.find('[data-test="questionAnswered"]').text()).toBe(
+        String(global.dummyPlioMetricsNonSurvey["average_num_answered"])
+      );
+      expect(wrapper.find('[data-test="accuracy"]').text()).toBe(
+        String(global.dummyPlioMetricsNonSurvey["accuracy"]) + "%"
+      );
+      expect(wrapper.find('[data-test="retention"]').text()).toBe(
+        String(
+          global.dummyPlioMetricsNonSurvey["percent_one_minute_retention"]
+        ) + "%"
+      );
+
+      expect(wrapper.find('[data-test="surveyQuestionWarning"]').exists()).toBe(
+        global.dummyPlioMetricsNonSurvey["has_survey_question"]
+      );
+    });
+
     it("renders default metric values when none available", async () => {
       await mountWrapper();
       await resolveAPICall({});
