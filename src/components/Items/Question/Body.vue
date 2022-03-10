@@ -131,12 +131,18 @@ export default {
         // prevent answers more than the character limit from being entered via copy pasting or typing
         // this piece of code deletes the extra characters, when some text is copy pasted or typed
         if (this.subjectiveAnswerElement != null) {
-          this.subjectiveAnswerElement.quillEditor.deleteText(
-            this.subjectiveAnswerElement.quillEditor.getLength() -
-              1 -
-              Math.abs(this.charactersLeft),
-            Math.abs(this.charactersLeft)
-          );
+          // because of some bug in quill.js, somethings the deleteText method throws an error
+          // if we don't catch it, it stops the execution of the whole app.
+          try {
+            this.subjectiveAnswerElement.quillEditor.deleteText(
+              this.subjectiveAnswerElement.quillEditor.getLength() -
+                1 -
+                Math.abs(this.charactersLeft),
+              Math.abs(this.charactersLeft)
+            );
+          } catch (error) {
+            console.log(error);
+          }
         }
       }
       this.$emit("answer-updated", this.subjectiveAnswer);
