@@ -85,6 +85,7 @@
           :isPreviewMode="previewMode"
           :maxHeightLimit="subjectiveBoxHeightLimit"
           ref="textarea"
+          @keydown="handleExtraText"
           data-test="subjectiveAnswer"
         ></Textarea>
         <!-- character limit -->
@@ -119,6 +120,19 @@ export default {
       isImageLoading: false, // whether the image is loading
       correctOptionClass: "text-white bg-green-500",
       wrongOptionClass: "text-white bg-red-500",
+      // set containing the keys that are enabled when max char limit is reached.
+      enabledKeys: [
+        "Meta",
+        "Alt",
+        "Control",
+        "Alt",
+        "ArrowLeft",
+        "ArrowRight",
+        "ArrowUp",
+        "ArrowDown",
+        "Backspace",
+        "Shift",
+      ],
     };
   },
   watch: {
@@ -218,6 +232,22 @@ export default {
   },
   components: { Textarea },
   methods: {
+    /** handle any additional text that the user may enter after the character count reaches zero
+     * @param {object} event
+     */
+    handleExtraText(event) {
+      // checks if character limit is reached
+      // prevents the textarea from accepting keys other than enabled keys when maxcharlimit is reached
+      if (
+        this.charactersLeft == 0 &&
+        // checks whether ctrl key and meta key is pressed when the event occured
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !this.enabledKeys.includes(event.key)
+      ) {
+        event.preventDefault();
+      }
+    },
     startImageLoading() {
       // sets the image state as loading
       this.isImageLoading = true;
