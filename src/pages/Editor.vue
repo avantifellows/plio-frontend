@@ -199,6 +199,7 @@
           <div
             v-if="isQuestionTypeSubjective && !isSurveyQuestion"
             class="mt-6 sm:mt-10 w-full p-2 rounded-md border border-yellow-400 flex space-x-4"
+            data-test="subjectiveWarning"
           >
             <!-- icon -->
             <inline-svg
@@ -1303,8 +1304,8 @@ export default {
     publishButtonClass() {
       return [
         {
-          "opacity-50 cursor-not-allowed pointer-events-none":
-            !this.isPublishButtonEnabled,
+          "opacity-50 cursor-not-allowed pointer-events-none": !this
+            .isPublishButtonEnabled,
         },
         `rounded-md ring-green-500 bg-green-500 hover:bg-green-600 p-2 bp-420:px-4 bp-500:px-2 sm:px-4`,
       ];
@@ -1961,8 +1962,7 @@ export default {
      * checks if the video link is valid
      */
     isVideoLinkValid(link) {
-      let pattern =
-        /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+      let pattern = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
       let matches = link.match(pattern);
       if (matches) {
         return { valid: true, ID: matches[1] };
