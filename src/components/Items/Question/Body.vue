@@ -120,7 +120,7 @@ export default {
       isImageLoading: false, // whether the image is loading
       correctOptionClass: "text-white bg-green-500",
       wrongOptionClass: "text-white bg-red-500",
-      // set containing the keys that are enabled when max char limit is reached.
+      // the keys that need not be filtered when max char limit is reached in a subjective answer
       enabledKeys: [
         "Meta",
         "Alt",
