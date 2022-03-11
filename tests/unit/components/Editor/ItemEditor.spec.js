@@ -439,15 +439,11 @@ describe("ItemEditor.vue", () => {
       ).toBeTruthy();
     });
 
-    it("check for survey mode", async () => {
+    it("hides warning for survey mode", async () => {
       await wrapper
         .find('[data-test="surveyQuestionCheckbox"]')
         .setChecked("checked");
       await flushPromises();
-      expect(
-        wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
-      ).toBeTruthy();
-      expect(wrapper.find('[data-test="options"]').exists()).toBeFalsy();
       expect(wrapper.vm.isSelectedItemSurveyQuestion).toBe(true);
     });
 
