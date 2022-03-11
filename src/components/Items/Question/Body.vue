@@ -120,10 +120,9 @@ export default {
       isImageLoading: false, // whether the image is loading
       correctOptionClass: "text-white bg-green-500",
       wrongOptionClass: "text-white bg-red-500",
-      // set containing the keys that are enabled when max char limit is reached.
+      // the keys that need not be filtered when max char limit is reached in a subjective answer
       enabledKeys: [
         "Meta",
-        "Alt",
         "Control",
         "Alt",
         "ArrowLeft",
@@ -232,15 +231,15 @@ export default {
   },
   components: { Textarea },
   methods: {
-    /** handle any additional text that the user may enter after the character count reaches zero
-     * @param {object} event
+    /**
+     * handle any additional text that the user may enter after the character count reaches zero
+     * @param {object} event - keydown event containing details of the keys pressed
      */
     handleExtraText(event) {
-      // checks if character limit is reached
       // prevents the textarea from accepting keys other than enabled keys when maxcharlimit is reached
       if (
         this.charactersLeft == 0 &&
-        // checks whether ctrl key and meta key is pressed when the event occured
+        // account for shortcuts like ctrl + a / cmd + a
         !event.ctrlKey &&
         !event.metaKey &&
         !this.enabledKeys.includes(event.key)
