@@ -442,6 +442,17 @@ global.dummyPlioMetrics = {
   percent_completed: 40,
   accuracy: 30,
   percent_one_minute_retention: 50,
+  has_survey_question: true,
+};
+
+global.dummyPlioMetricsNonSurvey = {
+  unique_viewers: 2,
+  average_watch_time: 202,
+  average_num_answered: 5,
+  percent_completed: 40,
+  accuracy: 30,
+  percent_one_minute_retention: 50,
+  has_survey_question: false,
 };
 
 global.imageData = {

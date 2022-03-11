@@ -189,6 +189,18 @@ describe("ItemEditor.vue", () => {
         .trigger("click");
       expect(wrapper.emitted()).toHaveProperty("delete-option");
     });
+
+    it("hides the button for selecting correct answer in survey mode", async () => {
+      await wrapper
+        .find('[data-test="surveyQuestionCheckbox"]')
+        .trigger("click");
+      expect(wrapper.find('[data-test="options"]').exists()).toBeTruthy();
+      // survey mode options do not have start icon
+      wrapper.findAll('[data-test="option"]').forEach((option) => {
+        expect(option.find('[data-test="startIcon"]').exists()).toBeFalsy();
+      });
+      expect(wrapper.vm.isSelectedItemSurveyQuestion).toBe(true);
+    });
   });
 
   describe("checkbox questions", () => {
@@ -435,7 +447,7 @@ describe("ItemEditor.vue", () => {
       expect(
         wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
       ).toBeTruthy();
-      expect(wrapper.find('[data-test="surveyOptions"]').exists()).toBeFalsy();
+      expect(wrapper.find('[data-test="options"]').exists()).toBeFalsy();
       expect(wrapper.vm.isSelectedItemSurveyQuestion).toBe(true);
     });
 
