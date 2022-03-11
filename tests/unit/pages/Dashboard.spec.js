@@ -119,13 +119,17 @@ describe("Dashboard.vue", () => {
         String(global.dummyPlioMetrics["percent_one_minute_retention"]) + "%"
       );
 
-      expect(wrapper.find('[data-test="surveyQuestionWarning"]').exists()).toBeTruthy();
-
+      expect(
+        wrapper.find('[data-test="surveyQuestionWarning"]').exists()
+      ).toBeTruthy();
     });
 
     it("hides survey mode warning when no survey mode question", async () => {
-
-      expect(wrapper.find('[data-test="surveyQuestionWarning"]').exists()).toBeFalsy();
+      await mountWrapper();
+      await resolveAPICall({ metrics: global.dummyPlioMetricsNonSurvey });
+      expect(
+        wrapper.find('[data-test="surveyQuestionWarning"]').exists()
+      ).toBeFalsy();
     });
 
     it("renders default metric values when none available", async () => {
