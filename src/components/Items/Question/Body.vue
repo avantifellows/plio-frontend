@@ -81,9 +81,11 @@
           class="px-2 w-full"
           :boxStyling="subjectiveAnswerBoxStyling"
           :placeholder="subjectiveAnswerInputPlaceholder"
-          :isDisabled="isAnswerSubmitted || previewMode"
+          :isDisabled="isAnswerSubmitted"
+          :isPreviewMode="previewMode"
           :maxHeightLimit="subjectiveBoxHeightLimit"
-          @keypress="checkCharLimit"
+          ref="textarea"
+          @keydown="handleExtraText"
           data-test="subjectiveAnswer"
         ></Textarea>
         <!-- character limit -->
@@ -112,12 +114,24 @@ export default {
   data() {
     return {
       subjectiveAnswer: "", // holds the answer to the subjective question
-      subjectiveBoxHeightLimit: 250, // maximum allowed height of the subjective answer text box in px
+      subjectiveBoxHeightLimit: 200, // maximum allowed height of the subjective answer text box in px
       // set containing the question types in which options are present
       questionTypesSupportingOptions: new Set(["mcq", "checkbox"]),
       isImageLoading: false, // whether the image is loading
       correctOptionClass: "text-white bg-green-500",
       wrongOptionClass: "text-white bg-red-500",
+      // the keys that need not be filtered when max char limit is reached in a subjective answer
+      enabledKeys: [
+        "Meta",
+        "Control",
+        "Alt",
+        "ArrowLeft",
+        "ArrowRight",
+        "ArrowUp",
+        "ArrowDown",
+        "Backspace",
+        "Shift",
+      ],
     };
   },
   watch: {
@@ -125,10 +139,24 @@ export default {
       if (
         this.subjectiveAnswer != null &&
         this.hasCharLimit &&
-        this.subjectiveAnswer.length > this.maxCharLimit
+        this.isSubjectiveAnswerExceedsMaxLimit
       ) {
-        // prevent answers more than the character limit from being entered via copy pasting
-        this.subjectiveAnswer = this.subjectiveAnswer.substring(0, this.maxCharLimit);
+        // prevent answers more than the character limit from being entered via copy pasting or typing
+        // this piece of code deletes the extra characters, when some text is copy pasted or typed
+        if (this.subjectiveAnswerElement != null) {
+          // because of some bug in quill.js, somethings the deleteText method throws an error
+          // if we don't catch it, it stops the execution of the whole app.
+          try {
+            this.subjectiveAnswerElement.quillEditor.deleteText(
+              this.subjectiveAnswerElement.quillEditor.getLength() -
+                1 -
+                Math.abs(this.charactersLeft),
+              Math.abs(this.charactersLeft)
+            );
+          } catch (error) {
+            console.log(error);
+          }
+        }
       }
       this.$emit("answer-updated", this.subjectiveAnswer);
     },
@@ -203,6 +231,22 @@ export default {
   },
   components: { Textarea },
   methods: {
+    /**
+     * handle any additional text that the user may enter after the character count reaches zero
+     * @param {object} event - keydown event containing details of the keys pressed
+     */
+    handleExtraText(event) {
+      // prevents the textarea from accepting keys other than enabled keys when maxcharlimit is reached
+      if (
+        this.charactersLeft == 0 &&
+        // account for shortcuts like ctrl + a / cmd + a
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !this.enabledKeys.includes(event.key)
+      ) {
+        event.preventDefault();
+      }
+    },
     startImageLoading() {
       // sets the image state as loading
       this.isImageLoading = true;
@@ -211,12 +255,6 @@ export default {
       // stop the loading spinner when the image has been loaded
       this.isImageLoading = false;
     },
-    checkCharLimit(event) {
-      // checks if character limit is reached in case it is set
-      if (!this.hasCharLimit) return;
-      if (!this.charactersLeft) event.preventDefault();
-    },
-
     labelClass(optionText) {
       return [{ "h-4 sm:h-5": optionText == "" }, "flex content-center"];
     },
@@ -243,6 +281,17 @@ export default {
     },
   },
   computed: {
+    /** reference to the component which contains the subjective answer */
+    subjectiveAnswerElement() {
+      if ("textarea" in this.$refs) {
+        return this.$refs.textarea;
+      }
+      return null;
+    },
+    // check whether subjective answer exceeds the maximum char limit
+    isSubjectiveAnswerExceedsMaxLimit() {
+      return this.currentAnswerLength > this.maxCharLimit;
+    },
     optionInputType() {
       if (!this.areOptionsVisible) return null;
       if (this.isQuestionTypeMCQ) return "radio";
@@ -266,11 +315,9 @@ export default {
       // classes for the subjective answer box
       return [
         {
-          "bp-420:h-20 sm:h-28 md:h-36": !this.previewMode,
-          "bp-420:h-16 sm:h-20 md:h-16 text-xs bp-420:text-sm sm:text-base md:text-sm lg:text-base": this
-            .previewMode,
+          "text-xs bp-420:text-sm sm:text-base md:text-sm lg:text-base": this.previewMode,
         },
-        "px-4 placeholder-gray-400 focus:border-gray-200 focus:ring-transparent",
+        "placeholder-gray-400 focus:border-gray-200 focus:ring-transparent",
       ];
     },
     questionImageAreaClass() {
@@ -342,8 +389,9 @@ export default {
     },
     currentAnswerLength() {
       // length of the current answer (for subjective question)
-      if (this.subjectiveAnswer == null) return 0;
-      return this.subjectiveAnswer.length;
+      if (this.subjectiveAnswer == null || this.subjectiveAnswerElement == null) return 0;
+      // length of text in the itemModal
+      return this.subjectiveAnswerElement.quillEditor.getLength() - 1;
     },
     defaultAnswer() {
       // the default answer to be shown

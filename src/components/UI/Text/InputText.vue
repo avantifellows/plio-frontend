@@ -184,7 +184,8 @@ export default {
         {
           "cursor-not-allowed pointer-events-none opacity-50": this.isDisabled,
         },
-        "focus-within:border-2 focus-within:border-solid focus-within:border-primary rounded-md flex relative mt-1items-center",
+        "focus-within:border-2 border-2 focus-within:border-solid rounded-md flex relative mt-1items-center",
+        this.isFormattingEnabled ? this.boxStyling : "",
       ];
     },
     isEndIconDisabled() {
@@ -302,8 +303,7 @@ export default {
           "pr-12": this.isEndIconEnabled && !this.isFormattingEnabled,
           "p-2": !this.isFormattingEnabled,
         },
-        "border placeholder-blueGray-300 text-blueGray-600 bg-white rounded-md text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:ring-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200 text-md ",
-        !this.isFormattingEnabled ? this.boxStyling : "",
+        "border placeholder-blueGray-300 text-blueGray-600 bg-white rounded-md text-md border-blueGray-300 focus:outline-none focus:ring-primary focus:border-transparent focus:border-primary focus:shadow-outline w-full overflow-ellipsis border-gray-200 text-md ",
       ];
     },
   },

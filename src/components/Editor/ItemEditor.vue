@@ -93,7 +93,6 @@
           v-model:value="questionText"
           ref="questionText"
           class="p-2 w-full"
-          :boxStyling="'focus:ring-primary'"
           :maxHeightLimit="questionTextboxHeightLimit"
           data-test="questionText"
         ></Textarea>
@@ -454,9 +453,12 @@ export default {
     },
     /** returns the styling for the option box for the given index */
     getOptionBoxStyling(optionIndex) {
-      return {
-        "border-green-500": this.isOptionMarkedCorrect(optionIndex),
-      };
+      return [
+        "focus-within:border-primary",
+        {
+          "border-green-500": this.isOptionMarkedCorrect(optionIndex),
+        },
+      ];
     },
     /** updates the current item selected */
     updateSelectedItemIndex(index) {

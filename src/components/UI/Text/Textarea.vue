@@ -39,12 +39,9 @@
       <!-- input text area -->
       <div
         :class="inputAreaClass"
-        :disabled="isDisabled"
         ref="quillEditor"
-        @input="inputChange"
         name="quillEditorTextarea"
         autocomplete="off"
-        @keypress="keyPress"
         @keydown="keyDown"
         data-test="input"
       ></div>
@@ -55,6 +52,7 @@
 <script>
 // importing css file is necessary and icons wont appear properly without it
 import Quill from "quill";
+const MIN_HEIGHT = "43px";
 
 export default {
   props: {
@@ -99,7 +97,7 @@ export default {
     /** classes for the input boxes */
     boxStyling: {
       default: () => {
-        return "focus:ring-primary";
+        return "focus-within:border-primary";
       },
       type: [Object, String],
     },
@@ -114,20 +112,32 @@ export default {
       default: 0,
       type: Number,
     },
+    isPreviewMode: {
+      default: false,
+      type: Boolean,
+    },
   },
   data() {
     return {
-      quillEditor: null,
+      quillEditor: null, // contains the reference to the quill editor instance
+      // the 'input source' for the latest change in the quill editor. Read more on `source` here - https://quilljs.com/docs/api/#events
+      latestInputSource: null,
     };
   },
 
   computed: {
+    /** the HTML element the quill editor injects into the code */
+    quillEditorElement() {
+      if (this.quillEditor != null) return this.quillEditor.root;
+      return null;
+    },
     containerStyleClass() {
       return [
         {
-          "cursor-not-allowed pointer-events-none opacity-50": this.isDisabled,
+          "cursor-not-allowed opacity-50": this.isDisabled || this.isPreviewMode,
         },
-        "focus-within:border-2 focus-within:border-solid focus-within:border-primary rounded-md flex relative mt-1",
+        "focus-within:border-2 focus-within:border-solid rounded-md flex relative mt-1",
+        this.boxStyling,
       ];
     },
     localValue: {
@@ -173,7 +183,7 @@ export default {
       }
       return require("@/assets/images/times-solid.svg");
     },
-    Name() {
+    name() {
       // gets the start icon name from the prop
       return this.startIcon.name;
     },
@@ -206,66 +216,141 @@ export default {
         {
           "pl-10": this.isStartIconEnabled,
         },
-        "pt-4 h-32 pb-6 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200 boxStyling",
-        this.boxStyling,
+        "pt-4 pb-6 border placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-md border-blueGray-300 focus:outline-none focus:ring focus:border-transparent focus:shadow-outline w-full border-gray-200",
       ];
     },
   },
   methods: {
-    /** invoked on change in textarea and emits the current input value */
-    inputValue() {
-      this.$emit(
-        "update:value",
-        this.quillEditor.getText() ? this.quillEditor.root.innerHTML : "" // return formatted value
-      );
+    /** saves the HTML text inside the quill editor instance into a variable */
+    updateLocalValue() {
+      this.localValue = this.quillEditor.getText()
+        ? this.quillEditorElement.innerHTML
+        : "";
     },
-    inputChange() {
-      // invoked on input change
+    handleTextareaSizing() {
+      // invoked when someone types in the textbox
+
+      // reset the textarea height if it is empty
+      if (this.quillEditor.getLength() == 1 && this.quillEditor.getText() == "\n") {
+        this.quillEditorElement.style.height = MIN_HEIGHT;
+        return;
+      }
       // auto expand the textbox if a `maxHeightLimit` has been specified
       if (this.maxHeightLimit > 0) {
-        var textareaElement = event.srcElement;
-        textareaElement.style.height = "";
-        textareaElement.style.height =
-          Math.min(textareaElement.scrollHeight, this.maxHeightLimit) + "px";
+        this.quillEditorElement.style.height =
+          Math.min(this.quillEditorElement.scrollHeight, this.maxHeightLimit) + "px";
+
+        // scroll to the very end where the cursor is
+        this.quillEditorElement.scrollTop = this.quillEditorElement.scrollHeight;
       }
-    },
-    /** invoked when a key is pressed
-     * @param {object} event
-     */
-    keyPress(event) {
-      this.$emit("keypress", event);
     },
     /** invoked when a key is pressed
      * @param {object} event
      */
     keyDown(event) {
       // ensures that the quillEditor is not removed from textarea when the backspace key is pressed.
-      if (event.key == "Backspace" && this.quillEditor.root.innerText === "\n") {
+      if (event.key == "Backspace" && this.quillEditorElement.innerText === "\n") {
         event.preventDefault();
       }
       this.$emit("keydown", event);
+      this.handleTextareaSizing();
     },
     startIconSelected() {
       // invoked on start icon being selected
       this.$emit("start-icon-selected", this.value);
     },
+    initializeQuillEditor() {
+      this.quillEditor = new Quill(this.$refs.quillEditor, {
+        modules: {
+          toolbar: [["bold", "italic", "underline"]],
+        },
+        theme: "snow",
+        placeholder: this.placeholder,
+        formats: ["bold", "underline", "italic"], //formatting options for editor
+      });
+      this.setTextToQuillEditor(this.localValue);
+      if (this.isPreviewMode) this.setAsReadOnly();
+      if (this.isDisabled) {
+        this.setAsReadOnly();
+        this.unsetPlaceholder();
+        this.setToMaxHeight();
+      }
+
+      this.quillEditor.on("text-change", (_, __, source) => {
+        // save the source of the new change in a variable
+        // Read more on `source` here - https://quilljs.com/docs/api/#events
+        this.latestInputSource = source;
+        // update the local value with this new change
+        this.updateLocalValue();
+      });
+    },
+    setTextToQuillEditor(formattedText) {
+      if (this.quillEditor != null) this.quillEditorElement.innerHTML = formattedText;
+    },
+    setAsReadOnly() {
+      if (this.quillEditor != null)
+        this.quillEditorElement.setAttribute("contenteditable", "false");
+    },
+    unsetReadOnly() {
+      if (this.quillEditor != null)
+        this.quillEditorElement.setAttribute("contenteditable", "true");
+    },
+    setPlaceholder() {
+      if (this.quillEditor != null)
+        this.quillEditorElement.setAttribute("data-placeholder", this.placeholder);
+    },
+    unsetPlaceholder() {
+      if (this.quillEditor != null)
+        this.quillEditorElement.setAttribute("data-placeholder", "");
+    },
+    setToMaxHeight() {
+      if (this.quillEditor != null)
+        this.quillEditorElement.style.height = `${this.maxHeightLimit}px`;
+    },
   },
   emits: ["input", "keypress", "keydown", "update:value", "start-icon-selected"],
+  watch: {
+    /**
+     * listen to changes in the value prop. only proceed if the incoming change is by an 'API' and not an 'user'.
+     * set the quill editor's value with the incoming value and reset the cursor position
+     */
+    value(newValue, oldValue) {
+      if (this.latestInputSource == "user") return;
+      if (this.quillEditor != null && newValue != oldValue) {
+        // save the formatted incoming value so it shows up in the quill editor
+        this.quillEditorElement.innerHTML = newValue;
+        // reason for setTimeout - https://stackoverflow.com/questions/48678236/setting-the-cursor-position-after-setting-a-new-delta-in-quill
+        setTimeout(() => {
+          // set the user's cursor to the very end
+          this.quillEditor.setSelection(this.quillEditor.getLength() - 1, 0);
+        }, 0);
+      }
+    },
 
+    /**
+     * listen to the changes in isDisabled prop. this will be invoked when the textbox was
+     * editable, but is then requested to be read-only.
+     * we need to make certain adjustments to make sure that the user cannot enter anything
+     * but can still scroll if the answer doesn't fit within the maxHeightLimit
+     */
+    isDisabled(value) {
+      if (value) {
+        // remove the placeholder
+        // mark the textbox as read-only
+        // adjust the height such that the content is scrollable if needed
+        this.unsetPlaceholder();
+        this.setAsReadOnly();
+        this.setToMaxHeight();
+      } else {
+        // re-adjust things back to as they were
+        this.setPlaceholder();
+        this.unsetReadOnly();
+      }
+    },
+  },
   mounted() {
-    // new instance of quilljs is created
-    this.quillEditor = new Quill(this.$refs.quillEditor, {
-      modules: {
-        toolbar: [["bold", "italic", "underline"]],
-      },
-      theme: "snow",
-      placeholder: this.placeholder,
-      formats: ["bold", "underline", "italic"], //formatting options for editor
-    });
-
-    this.quillEditor.root.innerHTML = this.value;
-    //invoked on input change and emits the current value of textarea
-    this.quillEditor.on("text-change", () => this.inputValue());
+    // create an instance of quill
+    this.initializeQuillEditor();
   },
 };
 </script>
