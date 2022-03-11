@@ -232,8 +232,9 @@ export default {
   },
   components: { Textarea },
   methods: {
-    /** handle any additional text that the user may enter after the character count reaches zero
-     * @param {object} event
+    /** 
+     * handle any additional text that the user may enter after the character count reaches zero
+     * @param {object} event - keydown event containing details of the keys pressed
      */
     handleExtraText(event) {
       // checks if character limit is reached
