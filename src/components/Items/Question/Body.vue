@@ -241,7 +241,7 @@ export default {
       // prevents the textarea from accepting keys other than enabled keys when maxcharlimit is reached
       if (
         this.charactersLeft == 0 &&
-        // checks whether ctrl key and meta key is pressed when the event occured
+        // account for shortcuts like ctrl + a / cmd + a
         !event.ctrlKey &&
         !event.metaKey &&
         !this.enabledKeys.includes(event.key)
