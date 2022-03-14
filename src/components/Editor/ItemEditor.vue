@@ -72,13 +72,14 @@
       <!-- adding an enclosing span to show tooltip when disabled -->
       <span v-tooltip="deleteItemButtonTooltip" tabindex="0">
         <icon-button
-          class="rounded-xl bg-red-600 hover:bg-red-700 w-8 h-8 shadow-lg px-2"
+          class="rounded-xl bg-red-600 hover:bg-red-700 shadow-lg px-1"
           :iconConfig="deleteItemIconConfig"
           @click="deleteSelectedItem"
           :buttonClass="deleteItemButtonClass"
           :disabled="isInteractionDisabled"
           data-test="deleteItem"
           ariaLabel="delete item"
+          innerContainerClass="flex w-full justify-center text-base place-content-center cursor-pointer h-8 rounded-md"
         ></icon-button>
       </span>
     </div>
@@ -258,7 +259,7 @@ export default {
         // icon config for delete item button
         enabled: true,
         iconName: "delete",
-        iconClass: "text-white",
+        iconClass: "text-white w-7 h-7",
       },
       timeExceedsVideoDuration: false, //stores if the time entered by the user exceeds the total video duration
       itemInVicinity: false, // stores if another item is in the vicinity of the current selected item
@@ -456,7 +457,7 @@ export default {
       return [
         "focus-within:border-primary",
         {
-          "border-green-500": this.isOptionMarkedCorrect(optionIndex),
+          "border-green-500 border": this.isOptionMarkedCorrect(optionIndex),
         },
       ];
     },

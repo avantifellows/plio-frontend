@@ -1,7 +1,7 @@
 <template>
   <div class="overflow-y-auto flex flex-col">
     <!-- question text -->
-    <div class="px-4 md:px-6" :class="{ 'xl:px-10': !previewMode }">
+    <div class="px-4 md:px-6" :class="{ 'xl:px-10': !isPreviewMode }">
       <p :class="questionTextClass" data-test="questionText">
         <span v-html="questionText"></span>
       </p>
@@ -55,7 +55,7 @@
                   class="place-self-center text-primary focus:ring-0"
                   @click="selectOption(optionIndex)"
                   :checked="isOptionMarked(optionIndex)"
-                  :disabled="isAnswerSubmitted || previewMode"
+                  :disabled="isAnswerSubmitted || isPreviewMode"
                   :data-test="`optionSelector-${optionIndex}`"
                 />
                 <div
@@ -82,7 +82,7 @@
           :boxStyling="subjectiveAnswerBoxStyling"
           :placeholder="subjectiveAnswerInputPlaceholder"
           :isDisabled="isAnswerSubmitted"
-          :isPreviewMode="previewMode"
+          :isPreviewMode="isPreviewMode"
           :maxHeightLimit="subjectiveBoxHeightLimit"
           ref="textarea"
           @keydown="handleExtraText"
@@ -144,7 +144,7 @@ export default {
         // prevent answers more than the character limit from being entered via copy pasting or typing
         // this piece of code deletes the extra characters, when some text is copy pasted or typed
         if (this.subjectiveAnswerElement != null) {
-          // because of some bug in quill.js, somethings the deleteText method throws an error
+          // because of some bug in quill.js, sometimes the deleteText method throws an error
           // if we don't catch it, it stops the execution of the whole app.
           try {
             this.subjectiveAnswerElement.quillEditor.deleteText(
@@ -214,7 +214,7 @@ export default {
       type: Number,
     },
     /** whether the item body will be shown in editor's mini-preview mode */
-    previewMode: {
+    isPreviewMode: {
       default: false,
       type: Boolean,
     },
@@ -288,7 +288,7 @@ export default {
       }
       return null;
     },
-    // check whether subjective answer exceeds the maximum char limit
+    /** check whether subjective answer exceeds the maximum char limit */
     isSubjectiveAnswerExceedsMaxLimit() {
       return this.currentAnswerLength > this.maxCharLimit;
     },
@@ -307,7 +307,7 @@ export default {
         "w-1/2": !this.isPortrait && this.isQuestionImagePresent,
         "w-full":
           this.isPortrait ||
-          (this.previewMode && !this.isQuestionImagePresent) ||
+          (this.isPreviewMode && !this.isQuestionImagePresent) ||
           (!this.isPortrait && !this.isQuestionImagePresent),
       };
     },
@@ -315,7 +315,8 @@ export default {
       // classes for the subjective answer box
       return [
         {
-          "text-xs bp-420:text-sm sm:text-base md:text-sm lg:text-base": this.previewMode,
+          "text-xs bp-420:text-sm sm:text-base md:text-sm lg:text-base": this
+            .isPreviewMode,
         },
         "placeholder-gray-400 focus:border-gray-200 focus:ring-transparent",
       ];
@@ -323,11 +324,11 @@ export default {
     questionImageAreaClass() {
       // styling class for the question image and loading spinner containers
       return {
-        "h-56 mb-4": !this.previewMode && this.isPortrait,
+        "h-56 mb-4": !this.isPreviewMode && this.isPortrait,
         "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2":
-          !this.isPortrait && !this.previewMode,
+          !this.isPortrait && !this.isPreviewMode,
         "h-20 bp-360:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
-          .previewMode,
+          .isPreviewMode,
       };
     },
     questionImageContainerClass() {
@@ -347,10 +348,10 @@ export default {
           "content-center": this.isQuestionImagePresent && !this.isPortrait,
           "flex-col": this.isQuestionImagePresent && this.isPortrait,
           "space-x-2 md:space-x-4":
-            !this.previewMode && !this.isPortrait && this.isQuestionImagePresent,
-          "mx-6 md:mx-10 py-4": !this.previewMode,
-          "mx-4 md:mx-6 sm:py-4 md:py-0 lg:py-2": this.previewMode,
-          "space-x-1 md:space-x-2": this.previewMode && this.isQuestionImagePresent,
+            !this.isPreviewMode && !this.isPortrait && this.isQuestionImagePresent,
+          "mx-6 md:mx-10 py-4": !this.isPreviewMode,
+          "mx-4 md:mx-6 sm:py-4 md:py-0 lg:py-2": this.isPreviewMode,
+          "space-x-1 md:space-x-2": this.isPreviewMode && this.isQuestionImagePresent,
         },
         "flex",
       ];
@@ -362,8 +363,8 @@ export default {
     questionTextClass() {
       return [
         {
-          "text-lg md:text-xl lg:text-2xl mx-4": !this.previewMode,
-          "text-sm md:text-base lg:text-lg xl:text-xl": this.previewMode,
+          "text-lg md:text-xl lg:text-2xl mx-4": !this.isPreviewMode,
+          "text-sm md:text-base lg:text-lg xl:text-xl": this.isPreviewMode,
         },
         "m-2 font-bold leading-tight whitespace-pre-wrap",
       ];
@@ -371,8 +372,8 @@ export default {
     optionTextClass() {
       return [
         {
-          "p-2 text-lg md:text-xl lg:text-2xl": !this.previewMode,
-          "p-1 text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg": this.previewMode,
+          "p-2 text-lg md:text-xl lg:text-2xl": !this.isPreviewMode,
+          "p-1 text-xs sm:text-sm md:text-sm lg:text-base xl:text-lg": this.isPreviewMode,
         },
         "border rounded-md mx-2 whitespace-pre-wrap",
       ];
