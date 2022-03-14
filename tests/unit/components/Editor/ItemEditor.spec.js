@@ -14,6 +14,10 @@ describe("ItemEditor.vue", () => {
       type: "question",
       time: 20,
     },
+    {
+      type: "question",
+      time: 30,
+    },
   ];
   let itemDetailList = [
     {
@@ -26,6 +30,12 @@ describe("ItemEditor.vue", () => {
       type: "checkbox",
       options: ["", "", ""],
       correct_answer: [0, 1],
+    },
+    {
+      text: "test",
+      type: "mcq",
+      options: ["", ""],
+      survey: true,
     },
   ];
 
@@ -178,6 +188,18 @@ describe("ItemEditor.vue", () => {
         .find('[data-test="endIcon"]')
         .trigger("click");
       expect(wrapper.emitted()).toHaveProperty("delete-option");
+    });
+
+    it("hides the button for selecting correct answer in survey mode", async () => {
+      await wrapper
+        .find('[data-test="surveyQuestionCheckbox"]')
+        .trigger("click");
+      expect(wrapper.find('[data-test="options"]').exists()).toBeTruthy();
+      // survey mode options do not have start icon
+      wrapper.findAll('[data-test="option"]').forEach((option) => {
+        expect(option.find('[data-test="startIcon"]').exists()).toBeFalsy();
+      });
+      expect(wrapper.vm.isSelectedItemSurveyQuestion).toBe(true);
     });
   });
 
@@ -415,6 +437,14 @@ describe("ItemEditor.vue", () => {
       expect(
         wrapper.find('[data-test="subjectiveQuestionContainer"]').exists()
       ).toBeTruthy();
+    });
+
+    it("toggles survey mode on clicking survey mode checkbox", async () => {
+      await wrapper
+        .find('[data-test="surveyQuestionCheckbox"]')
+        .setChecked("checked");
+      await flushPromises();
+      expect(wrapper.vm.isSelectedItemSurveyQuestion).toBe(true);
     });
 
     it("enables/disables max char limit", async () => {

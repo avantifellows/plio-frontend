@@ -15,7 +15,6 @@ export default {
   },
 
   /**
-   * Patch a given question with the given data
    * @param {Number} questionId - id of the question to be updated
    * @param {Object} payload - data with which the question needs to be updated
    */

@@ -20,6 +20,7 @@
         :options="questionOptions"
         :correctAnswer="questionCorrectAnswer"
         :isAnswerSubmitted="isAnswerSubmitted"
+        :isSurveyQuestion="isSelectedItemSurveyQuestion"
         :draftAnswer="draftResponses[selectedItemIndex]"
         :submittedAnswer="currentItemResponseAnswer"
         :questionType="questionType"
@@ -42,6 +43,7 @@
         :isSubmitEnabled="isAttemptValid"
         :answerFeedbackText="answerFeedbackText"
         :answerFeedbackTextClass="answerFeedbackTextClass"
+        :isSurveyQuestion="isSelectedItemSurveyQuestion"
         @proceed-question="proceedQuestion"
         @revise-question="emitRevise"
         @submit-question="submitQuestion"
@@ -163,14 +165,19 @@ export default {
     currentItemImage() {
       return this.currentItemDetails.image;
     },
+    isSelectedItemSurveyQuestion() {
+      return this.currentItemDetails["survey"];
+    },
     /** text to be used as feedback once answer is submitted */
     answerFeedbackText() {
-      if (this.isQuestionTypeSubjective) return this.$t("generic.submitted");
+      if (this.isQuestionTypeSubjective || this.isSelectedItemSurveyQuestion)
+        return this.$t("generic.submitted");
       return "";
     },
     /** class for the text to be used as feedback once answer is submitted */
     answerFeedbackTextClass() {
-      if (this.isQuestionTypeSubjective) return "text-green-600";
+      if (this.isQuestionTypeSubjective || this.isSelectedItemSurveyQuestion)
+        return "text-green-600";
       return "";
     },
     /** whether the question has a character limit if the item is a question */

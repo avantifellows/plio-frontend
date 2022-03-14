@@ -287,10 +287,11 @@ describe("Plio.vue", () => {
             expect(wrapper.vm.itemResponses.length).toBe(
               global.dummyItemResponses.length
             );
-            expect(wrapper.vm.numCorrect).toBe(4);
+            expect(wrapper.vm.numCorrect).toBe(2);
             expect(wrapper.vm.numWrong).toBe(1);
             expect(wrapper.vm.numSkipped).toBe(0);
           });
+
           describe("event updates", () => {
             let watchingEventDBId = 1;
 

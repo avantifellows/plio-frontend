@@ -55,6 +55,7 @@ export default {
     },
     updated: "अपडेटेड ऐट",
     item_editor: {
+      survey_mode: "सर्वे मोड",
       question_input: {
         title: "सवाल",
         placeholder: "अपना सवाल यहाँ दर्ज करें",
@@ -418,6 +419,7 @@ export default {
           "एकाधिक सही उत्तरों वाला बहुविकल्पीय प्रश्न जोड़ने के लिए यहां क्लिक करें",
       },
       item_editor: {
+        survey_mode: "सर्वे मोड में प्रश्नों के कोई सही उत्तर नहीं होते हैं",
         buttons: {
           previous: "पिछले प्रश्न पर जाएं",
           next: "अगले सवाल पर जाएं",
@@ -555,6 +557,8 @@ export default {
       num_questions_answered: {
         title: "उत्तर किये गए प्रश्न",
       },
+      survey_mode_warning:
+        "सर्वे मोड के प्रश्न किसी भी आंकड़े की गणना में शामिल नहीं हैं",
     },
   },
   settings: {

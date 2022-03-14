@@ -22,6 +22,7 @@ global.dummyItemsWithItemDetails = [
       image: null,
       has_char_limit: false,
       max_char_limit: 100,
+      survey: true,
       created_at: "2021-07-03T15:24:58.094413Z",
       updated_at: "2021-07-03T15:25:03.189497Z",
     },
@@ -74,6 +75,7 @@ global.dummyItemsWithItemDetails = [
       image: null,
       has_char_limit: false,
       max_char_limit: 100,
+      survey: true,
       created_at: "2021-07-03T15:00:02.370171Z",
       updated_at: "2021-07-03T15:25:03.094042Z",
     },
@@ -150,6 +152,7 @@ global.dummyItemDetails = [
     image: null,
     has_char_limit: false,
     max_char_limit: 100,
+    survey: true,
     created_at: "2021-07-03T15:24:58.094413Z",
     updated_at: "2021-07-03T15:25:03.189497Z",
   },
@@ -176,6 +179,7 @@ global.dummyItemDetails = [
     image: null,
     has_char_limit: false,
     max_char_limit: 100,
+    survey: true,
     created_at: "2021-07-03T15:00:02.370171Z",
     updated_at: "2021-07-03T15:25:03.094042Z",
   },
@@ -438,6 +442,17 @@ global.dummyPlioMetrics = {
   percent_completed: 40,
   accuracy: 30,
   percent_one_minute_retention: 50,
+  has_survey_question: true,
+};
+
+global.dummyPlioMetricsNonSurvey = {
+  unique_viewers: 2,
+  average_watch_time: 202,
+  average_num_answered: 5,
+  percent_completed: 40,
+  accuracy: 30,
+  percent_one_minute_retention: 50,
+  has_survey_question: false,
 };
 
 global.imageData = {

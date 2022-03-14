@@ -1047,6 +1047,34 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemImage).toBe(imageURL);
   });
 
+  it("checks whether subjective warning is shown when survey question", async () => {
+    wrapper = mount(Editor);
+
+    await wrapper.setData({
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
+      currentItemIndex: 2,
+    });
+
+    expect(
+      wrapper.find('[data-test="subjectiveWarning"]').exists()
+    ).toBeFalsy();
+  });
+
+  it("checks whether subjective warning is shown when not a survey question", async () => {
+    wrapper = mount(Editor);
+
+    await wrapper.setData({
+      items: clonedeep(global.dummyItems),
+      itemDetails: clonedeep(global.dummyItemDetails),
+      currentItemIndex: 3,
+    });
+
+    expect(
+      wrapper.find('[data-test="subjectiveWarning"]').exists()
+    ).toBeTruthy();
+  });
+
   it("computes itemType correctly", async () => {
     wrapper = mount(Editor);
     await wrapper.setData({

@@ -2,11 +2,7 @@
   <div :id="plioContainerId">
     <!-- skeleton loading -->
     <video-skeleton v-if="!isPlioLoaded && !previewMode"></video-skeleton>
-    <div
-      v-if="isPlioLoaded"
-      class="flex relative shadow-lg"
-      :class="containerClass"
-    >
+    <div v-if="isPlioLoaded" class="flex relative shadow-lg" :class="containerClass">
       <!-- video player component -->
       <video-player
         :videoId="videoId"
@@ -49,7 +45,9 @@
           v-if="!isModalMinimized"
           :id="plioModalElementId"
           class="absolute z-10"
-          :class="{ hidden: !isItemModalShown }"
+          :class="{
+            hidden: !isItemModalShown,
+          }"
           :selectedItemIndex="currentItemIndex"
           :itemList="items"
           :itemDetailList="itemDetails"
@@ -73,7 +71,9 @@
       <Scorecard
         id="scorecardmodal"
         class="absolute z-10"
-        :class="{ hidden: !isScorecardShown }"
+        :class="{
+          hidden: !isScorecardShown,
+        }"
         :metrics="scorecardMetrics"
         :progressPercentage="scorecardProgress"
         :isShown="isScorecardShown"
@@ -290,7 +290,10 @@ export default {
               },
             });
             thirdPartyAuthPromiseResolve();
-          } else this.$router.replace({ name: "404" });
+          } else
+            this.$router.replace({
+              name: "404",
+            });
         });
     } else thirdPartyAuthPromiseResolve();
 
@@ -367,12 +370,10 @@ export default {
       return this.defaultConfiguration.get("skipEnabled").value;
     },
     defaultConfiguration() {
-      return globalDefaultSettings.get("player").children.get("configuration")
-        .children;
+      return globalDefaultSettings.get("player").children.get("configuration").children;
     },
     configuration() {
-      return this.plioSettings.get("player").children.get("configuration")
-        .children;
+      return this.plioSettings.get("player").children.get("configuration").children;
     },
     /**
      * whether player has the correct aspect ratio as desired
@@ -409,11 +410,21 @@ export default {
     plioModalElementId() {
       return `plioModal${this.plioId}`;
     },
+    numSurveyQuestions() {
+      let count = 0;
+      for (let itemDetail of this.itemDetails) {
+        if (itemDetail.survey) count += 1;
+      }
+      return count;
+    },
+    areAllQuestionsSurvey() {
+      return this.numSurveyQuestions == this.itemDetails.length;
+    },
     /**
      * whether the scorecard is enabled or not
      */
     isScorecardEnabled() {
-      return this.items != undefined && this.hasAnyItems;
+      return this.items != undefined && this.hasAnyItems && !this.areAllQuestionsSurvey;
     },
     /**
      * progress value (0-100) to be passed to the Scorecard component
@@ -551,8 +562,7 @@ export default {
     isItemResponseEmpty(itemIndex, answer) {
       if (answer == null) return true;
       if (this.itemDetails[itemIndex].type == "mcq") return isNaN(answer);
-      if (this.itemDetails[itemIndex].type == "checkbox")
-        return answer.length == 0;
+      if (this.itemDetails[itemIndex].type == "checkbox") return answer.length == 0;
       return false;
     },
     /**
@@ -567,8 +577,7 @@ export default {
      */
     setPlayerVolumeVisibility() {
       let plyrInstance = document.getElementById(this.plioContainerId);
-      let plyrVolumeElement =
-        plyrInstance.getElementsByClassName("plyr__volume")[0];
+      let plyrVolumeElement = plyrInstance.getElementsByClassName("plyr__volume")[0];
       if (plyrVolumeElement == undefined) return;
       if (plyrInstance.clientWidth < PLAYER_VOLUME_DISPLAY_WIDTH_THRESHOLD) {
         plyrVolumeElement.style.display = "none";
@@ -606,12 +615,12 @@ export default {
      * Show the scorecard on top of the player
      */
     popupScorecard() {
+      if (this.areAllQuestionsSurvey) return;
       if (!this.isMovingToTimestampAllowed(this.player.duration)) return;
       if (!this.isScorecardShown) {
         this.isScorecardShown = true;
         var scorecardModal = document.getElementById("scorecardmodal");
-        if (scorecardModal != undefined)
-          this.mountOnFullscreenPlyr(scorecardModal);
+        if (scorecardModal != undefined) this.mountOnFullscreenPlyr(scorecardModal);
       }
     },
     /**
@@ -633,11 +642,12 @@ export default {
      * @param  {String, Number, Object} userAnswer - User's answer to that item
      */
     updateNumCorrectWrongSkipped(itemIndex, userAnswer) {
+      if (this.itemDetails[itemIndex].survey) {
+        return;
+      }
       if (this.isItemMCQ(itemIndex) && !isNaN(userAnswer)) {
         const correctAnswer = this.itemDetails[itemIndex].correct_answer;
-        userAnswer == correctAnswer
-          ? (this.numCorrect += 1)
-          : (this.numWrong += 1);
+        userAnswer == correctAnswer ? (this.numCorrect += 1) : (this.numWrong += 1);
         // reduce numSkipped by 1 if numCorrect or numWrong increases
         this.numSkipped -= 1;
       } else if (
@@ -704,8 +714,7 @@ export default {
       // insert the button inside the plyr instance so that it shows up in fullscreen mode
       this.$nextTick(() => {
         let maximizeButton = document.getElementById("plioMaximizeButton");
-        if (maximizeButton != undefined)
-          this.mountOnFullscreenPlyr(maximizeButton);
+        if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
       });
     },
     /**
@@ -736,17 +745,14 @@ export default {
       if (
         this.isAnyItemActive &&
         this.player.currentTime < this.currentItem.time &&
-        this.player.currentTime >=
-          this.currentItem.time - POP_UP_CHECKING_FREQUENCY
+        this.player.currentTime >= this.currentItem.time - POP_UP_CHECKING_FREQUENCY
       )
         timeToInspect += POP_UP_CHECKING_FREQUENCY;
 
       if (this.isMovingToTimestampAllowed(timeToInspect)) return false;
 
       // move to first unanswered item
-      this.setPlayerTime(
-        this.firstUnansweredItem.time - POP_UP_CHECKING_FREQUENCY
-      );
+      this.setPlayerTime(this.firstUnansweredItem.time - POP_UP_CHECKING_FREQUENCY);
       this.showItemPopUpErrorToast = true;
       return true;
     },
@@ -770,8 +776,7 @@ export default {
       this.player.currentTime =
         this.currentItemIndex == 0
           ? 0
-          : this.itemTimestamps[this.currentItemIndex - 1] +
-            POP_UP_PRECISION_TIME / 1000;
+          : this.itemTimestamps[this.currentItemIndex - 1] + POP_UP_PRECISION_TIME / 1000;
       // create an event for the revise action
       this.createEvent("question_revised", {
         itemIndex: this.currentItemIndex,
@@ -803,10 +808,7 @@ export default {
       this.showItemMarkersOnSlider();
 
       // recalculate the scorecard metrics
-      this.calculateScorecardMetrics(
-        this.currentItemIndex,
-        itemResponse.answer
-      );
+      this.calculateScorecardMetrics(this.currentItemIndex, itemResponse.answer);
     },
     skipQuestion() {
       // invoked when the user skips the question
@@ -833,18 +835,18 @@ export default {
            * and the plio is not opened in preview mode
            */
           if (plioDetails.status != "published" && !this.previewMode)
-            this.$router.replace({ name: "404" });
+            this.$router.replace({
+              name: "404",
+            });
           this.items = plioDetails.items || [];
           this.itemDetails = plioDetails.itemDetails || [];
           // setting numSkipped to number of items. This value will keep reducing
           // as numCorrect and numWrong are calculated
-          this.numSkipped = this.numItems;
+          this.numSkipped = this.numItems - this.numSurveyQuestions;
           this.plioDBId = plioDetails.plioDBId;
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
           this.plioTitle = plioDetails.plioTitle;
-          this.plioSettings = SettingsUtilities.setPlioSettings(
-            plioDetails.config
-          );
+          this.plioSettings = SettingsUtilities.setPlioSettings(plioDetails.config);
         })
         .then(() => this.createSession())
         .then(() => this.logData());
@@ -994,8 +996,7 @@ export default {
     },
     getVideoIDfromURL(videoURL) {
       // gets the video Id from the YouTube URL
-      let linkValidation =
-        VideoFunctionalService.isYouTubeVideoLinkValid(videoURL);
+      let linkValidation = VideoFunctionalService.isYouTubeVideoLinkValid(videoURL);
       return linkValidation["ID"];
     },
     playerPlayed() {
@@ -1080,11 +1081,8 @@ export default {
      */
     showItemMarkersOnSlider() {
       this.items.forEach((item, index) => {
-        let existingMarker = document.getElementById(
-          `plioModalMarker-${index}`
-        );
-        if (existingMarker != undefined)
-          this.removeMarkerOnSlider(existingMarker);
+        let existingMarker = document.getElementById(`plioModalMarker-${index}`);
+        if (existingMarker != undefined) this.removeMarkerOnSlider(existingMarker);
 
         // add marker to player seek bar
         let newMarker = document.createElement("SPAN");
@@ -1129,18 +1127,14 @@ export default {
      * @param {Number} itemIndex - index of an item in the items array
      */
     isItemMCQ(itemIndex) {
-      return (
-        this.isItemQuestion(itemIndex) &&
-        this.itemDetails[itemIndex].type == "mcq"
-      );
+      return this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == "mcq";
     },
     /**
      * @param {Number} itemIndex - index of an item in the items array
      */
     isItemCheckboxQuestion(itemIndex) {
       return (
-        this.isItemQuestion(itemIndex) &&
-        this.itemDetails[itemIndex].type == "checkbox"
+        this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == "checkbox"
       );
     },
     /**
@@ -1148,8 +1142,7 @@ export default {
      */
     isItemSubjectiveQuestion(itemIndex) {
       return (
-        this.isItemQuestion(itemIndex) &&
-        this.itemDetails[itemIndex].type == "subjective"
+        this.isItemQuestion(itemIndex) && this.itemDetails[itemIndex].type == "subjective"
       );
     },
     /**
@@ -1180,10 +1173,7 @@ export default {
      * @param {Number} timestamp - The player's current timestamp in seconds
      */
     checkForPopups(timestamp) {
-      if (
-        Math.abs(timestamp - this.lastCheckTimestamp) <
-        POP_UP_CHECKING_FREQUENCY
-      )
+      if (Math.abs(timestamp - this.lastCheckTimestamp) < POP_UP_CHECKING_FREQUENCY)
         return;
       this.lastCheckTimestamp = timestamp;
       if (!this.isAspectRatioChecked) this.checkAndSetPlayerAspectRatio();
@@ -1202,7 +1192,9 @@ export default {
           this.showItemPopUpErrorToast = false;
         }
         this.markItemSelected();
-        this.createEvent("item_opened", { itemIndex: this.currentItemIndex });
+        this.createEvent("item_opened", {
+          itemIndex: this.currentItemIndex,
+        });
       } else {
         this.closeItemModal();
       }
@@ -1228,8 +1220,7 @@ export default {
       if (modal != undefined) this.mountOnFullscreenPlyr(modal);
 
       let maximizeButton = document.getElementById("plioMaximizeButton");
-      if (maximizeButton != undefined)
-        this.mountOnFullscreenPlyr(maximizeButton);
+      if (maximizeButton != undefined) this.mountOnFullscreenPlyr(maximizeButton);
     },
     enterPlayerFullscreen() {
       // sets the player to fullscreen
@@ -1253,13 +1244,11 @@ export default {
        * or the user is not authenticated or if the plio is opened
        * in preview mode
        */
-      if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode)
-        return;
+      if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode) return;
       let response = await EventAPIService.createEvent({
         type: eventType,
         details: eventDetails,
-        player_time:
-          this.player.currentTime != null ? this.player.currentTime : 0,
+        player_time: this.player.currentTime != null ? this.player.currentTime : 0,
         session: this.sessionDBId,
       });
       if (eventType == "watching") this.watchingEventDBId = response.id;
@@ -1274,8 +1263,7 @@ export default {
       EventAPIService.updateEvent(eventDBId, {
         type: eventType,
         details: eventDetails,
-        player_time:
-          this.player.currentTime != null ? this.player.currentTime : 0,
+        player_time: this.player.currentTime != null ? this.player.currentTime : 0,
         session: this.sessionDBId,
       });
     },
