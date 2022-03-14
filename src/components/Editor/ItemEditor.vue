@@ -101,7 +101,7 @@
         </label>
         <inline-svg
           :src="getImageSource('question-circle-regular.svg')"
-          class="w-5 h-5 pl-1 items-center place-self-center"
+          class="w-5 h-5 pl-1 items-center place-self-center hover:cursor-pointer"
           v-tooltip="{
             content: $t('tooltip.editor.item_editor.survey_mode'),
             placement: 'bottom',
