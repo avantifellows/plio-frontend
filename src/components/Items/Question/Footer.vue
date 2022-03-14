@@ -18,14 +18,14 @@
         <inline-svg
           :src="answerCorrectnessIcon"
           :class="answerCorrectnessIconClass"
-          v-if="isSelectedItemSurveyQuestion"
+          v-if="isSurveyQuestion"
           class="w-6 h-6 sm:w-10 sm:h-10 lg:w-12 lg:h-12 place-self-center ml-4"
           data-test="answerCorrectnessIcon"
         ></inline-svg>
         <p
           class="text-md sm:text-lg lg:text-2xl"
           :class="answerFeedbackTextClass"
-          v-if="hasAnyAnswerFeedback || isSelectedItemSurveyQuestion"
+          v-if="hasAnyAnswerFeedback || isSurveyQuestion"
           data-test="answerFeedbackText"
         >
           {{ answerFeedbackText }}
@@ -98,7 +98,7 @@ export default {
       default: "",
       type: String,
     },
-    isSelectedItemSurveyQuestion: {
+    isSurveyQuestion: {
       default: false,
       type: Boolean,
     },
@@ -178,7 +178,7 @@ export default {
     answerCorrectnessIcon() {
       // icon to show if the answer was correct or not
       var icon = require("@/assets/images/times-circle-solid.svg");
-      if (this.isAnswerCorrect || this.isSelectedItemSurveyQuestion) {
+      if (this.isAnswerCorrect || this.isSurveyQuestion) {
         icon = require("@/assets/images/check-circle-regular.svg");
       }
       return icon;
@@ -186,7 +186,7 @@ export default {
     answerCorrectnessIconClass() {
       // class for the icon to show if the answer was correct or not
       return {
-        "text-green-500": this.isAnswerCorrect || this.isSelectedItemSurveyQuestion,
+        "text-green-500": this.isAnswerCorrect || this.isSurveyQuestion,
         "text-red-500": !this.isAnswerCorrect,
       };
     },

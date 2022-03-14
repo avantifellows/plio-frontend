@@ -103,7 +103,7 @@
           :src="getImageSource('question-circle-regular.svg')"
           class="w-5 h-5 pl-1 items-center place-self-center"
           v-tooltip="{
-            content: surveyModeTooltip,
+            content: $t('tooltip.editor.item_editor.survey_mode'),
             placement: 'bottom',
           }"
         ></inline-svg>
@@ -540,9 +540,6 @@ export default {
   },
 
   computed: {
-    surveyModeTooltip() {
-      return this.$t("tooltip.editor.item_editor.survey_mode");
-    },
     correctOptionIcon() {
       if (this.isQuestionTypeMCQ) return "check-circle-regular";
       return "check-square-regular";

@@ -439,7 +439,7 @@ describe("ItemEditor.vue", () => {
       ).toBeTruthy();
     });
 
-    it("hides warning for survey mode", async () => {
+    it("toggles survey mode on clicking survey mode checkbox", async () => {
       await wrapper
         .find('[data-test="surveyQuestionCheckbox"]')
         .setChecked("checked");
