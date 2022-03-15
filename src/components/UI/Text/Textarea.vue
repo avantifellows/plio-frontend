@@ -305,10 +305,10 @@ export default {
     },
     setToMaxHeight() {
       if (this.quillEditor != null)
-        this.quillEditorElement.style.height = `${this.maxHeightLimit}px`;
+        this.quillEditorElement.style.height = `${this.maxFHeightLimit}px`;
     },
   },
-  emits: ["input", "keypress", "keydown", "update:value", "start-icon-selected"],
+  emits: ["input", "keydown", "update:value", "start-icon-selected"],
   watch: {
     /**
      * listen to changes in the value prop. only proceed if the incoming change is by an 'API' and not an 'user'.
