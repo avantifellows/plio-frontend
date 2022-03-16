@@ -305,7 +305,7 @@ export default {
     },
     setToMaxHeight() {
       if (this.quillEditor != null)
-        this.quillEditorElement.style.height = `${this.maxFHeightLimit}px`;
+        this.quillEditorElement.style.height = `${this.maxHeightLimit}px`;
     },
   },
   emits: ["input", "keydown", "update:value", "start-icon-selected"],
@@ -315,6 +315,7 @@ export default {
      * set the quill editor's value with the incoming value and reset the cursor position
      */
     value(newValue, oldValue) {
+      // Read more on `source` here - https://quilljs.com/docs/api/#text-change
       if (this.latestInputSource == "user") return;
       if (this.quillEditor != null && newValue != oldValue) {
         // save the formatted incoming value so it shows up in the quill editor

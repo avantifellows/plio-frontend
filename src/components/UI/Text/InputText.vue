@@ -82,7 +82,7 @@
 </template>
 
 <script>
-// importing css file is necessary and icons wont appear properly without it
+// importing css file is necessary and icons won't appear properly without it
 import Quill from "quill";
 export default {
   props: {
@@ -167,7 +167,8 @@ export default {
     },
     data() {
       return {
-        quillEditor: null, // an instance of the quill editor
+        quillEditor: null, // contains the reference to the quill editor instance
+        // the 'input source' for the latest change in the quill editor. Read more on `source` here - https://quilljs.com/docs/api/#events
         latestInputSource: null,
       };
     },
@@ -181,6 +182,7 @@ export default {
     },
   },
   computed: {
+    /** the HTML element the quill editor injects into the code */
     quillEditorElement() {
       if (this.quillEditor != null) return this.quillEditor.root;
       return null;
@@ -349,14 +351,13 @@ export default {
         },
         theme: "snow",
         placeholder: this.placeholder,
-        formats: ["bold", "underline", "italic"], //formatting options for editor
+        formats: ["bold", "underline", "italic"], // formatting options for editor
       });
-      // this.setTextToQuillEditor(this.localValue);
+      this.setTextToQuillEditor(this.localValue);
       if (this.isPreviewMode) this.setAsReadOnly();
       if (this.isDisabled) {
         this.setAsReadOnly();
         this.unsetPlaceholder();
-        this.setToMaxHeight();
       }
       this.quillEditor.on("text-change", (_, __, source) => {
         // save the source of the new change in a variable
@@ -366,9 +367,9 @@ export default {
         this.updateLocalValue();
       });
     },
-    // setTextToQuillEditor(formattedText) {
-    //   if (this.quillEditor != null) this.quillEditorElement.innerHTML = formattedText;
-    // },
+    setTextToQuillEditor(formattedText) {
+      if (this.quillEditor != null) this.quillEditorElement.innerHTML = formattedText;
+    },
     setAsReadOnly() {
       if (this.quillEditor != null)
         this.quillEditorElement.setAttribute("contenteditable", "false");
@@ -385,10 +386,6 @@ export default {
       if (this.quillEditor != null)
         this.quillEditorElement.setAttribute("data-placeholder", "");
     },
-    setToMaxHeight() {
-      if (this.quillEditor != null)
-        this.quillEditorElement.style.height = `${this.maxHeightLimit}px`;
-    },
   },
   emits: ["input", "update:value", "start-icon-selected", "end-icon-selected", "keydown"],
   watch: {
@@ -397,6 +394,7 @@ export default {
      * set the quill editor's value with the incoming value and reset the cursor position
      */
     value(newValue, oldValue) {
+      // Read more on `source` here - https://quilljs.com/docs/api/#text-change
       if (this.latestInputSource == "user") return;
       if (this.quillEditor != null && newValue != oldValue) {
         // save the formatted incoming value so it shows up in the quill editor
@@ -419,10 +417,8 @@ export default {
       if (value) {
         // remove the placeholder
         // mark the textbox as read-only
-        // adjust the height such that the content is scrollable if needed
         this.unsetPlaceholder();
         this.setAsReadOnly();
-        this.setToMaxHeight();
       } else {
         // re-adjust things back to as they were
         this.setPlaceholder();
