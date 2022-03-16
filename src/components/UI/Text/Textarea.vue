@@ -282,6 +282,8 @@ export default {
         this.latestInputSource = source;
         // update the local value with this new change
         this.updateLocalValue();
+        // update the textbox height even when user is not typing
+        this.handleTextareaSizing();
       });
     },
     setTextToQuillEditor(formattedText) {
