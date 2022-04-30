@@ -16,6 +16,7 @@
 
 <script>
 import Plio from "@/pages/Embeds/Plio";
+import { useHead } from "@vueuse/head";
 
 export default {
   components: {
@@ -42,6 +43,20 @@ export default {
     if (this.$route != undefined && this.$route.query.src) {
       this.source = this.$route.query.src;
     }
+
+    useHead({
+      title: `my beatiful wesbite ${this.plioId}`,
+      meta: [
+        {
+          property: `og:title`,
+          content: `short title of your website/webpage ${this.plioId}`,
+        },
+        {
+          property: `og:image`,
+          content: `https://via.placeholder.com/150`,
+        },
+      ],
+    });
   },
   props: {
     plioId: {

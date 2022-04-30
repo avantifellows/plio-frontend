@@ -11,6 +11,7 @@ import VueClickAway from "vue3-click-away";
 import mixpanel from "mixpanel-browser";
 import VueTooltip from "vue-tippy";
 import "offline-js";
+import { createHead } from '@vueuse/head'
 
 // sentry imports
 import * as Sentry from "@sentry/browser";
@@ -63,6 +64,7 @@ const filterBeforeCreate = (toast, toasts) => {
 window.__store__ = store;
 
 const app = createApp(App).use(store).use(router);
+const head = createHead()
 
 if (
   ["staging", "production"].includes(process.env.NODE_ENV) &&
@@ -88,6 +90,7 @@ if (
 }
 
 app.component("inline-svg", InlineSvg);
+app.use(head)
 app.use(i18n);
 app.use(VueTooltip, {
   // https://vue-tippy.netlify.app/installation
