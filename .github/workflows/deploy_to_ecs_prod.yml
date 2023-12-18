@@ -53,6 +53,7 @@ jobs:
           VUE_APP_MIXPANEL_PROJECT_TOKEN: ${{ secrets.VUE_APP_MIXPANEL_PROJECT_TOKEN }}
           VUE_APP_SENTRY_DSN: ${{ secrets.VUE_APP_SENTRY_DSN }}
           VUE_APP_GOOGLE_API_KEY: ${{ secrets.VUE_APP_GOOGLE_API_KEY }}
+          NODE_OPTIONS: --openssl-legacy-provider
         run: |
           # Build a docker container and push it to ECR
           docker build \
