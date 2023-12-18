@@ -153,7 +153,7 @@ export default {
         hideControls: false,
         clickToPlay: false,
 
-        invertTime: false,
+        invertTime: true,
       },
       videoId: "", // video Id for the Plio
       componentProperties: {}, // properties of the plio player
