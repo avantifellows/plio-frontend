@@ -1,4 +1,18 @@
 <template>
+  <div class="relative w-full">
+    <math-field-popup
+      v-if="showMathEditorPopup"
+      @mathSubmitted="(e) => {
+        questionText = e
+        showMathEditorPopup = false
+      }"
+      :showMathEditorPopup="showMathEditorPopup"
+      :isInteractionDisabled="isInteractionDisabled"
+      :questionText="questionText"
+      :questionTextareaSelectionStart="questionTextareaSelectionStart"
+      @closeSignal="showMathEditorPopup = false"
+    ></math-field-popup>
+
   <!-- big box -->
   <div
     class="flex flex-col w-full h-full rounded-md main-container relative"
@@ -121,22 +135,42 @@
           :maxHeightLimit="questionTextboxHeightLimit"
           data-test="questionText"
         ></Textarea>
-        <!-- add image to item button -->
-        <span
-          v-tooltip="{ content: addImageButtonTooltip, placement: 'left' }"
-          class="my-auto"
-        >
-          <icon-button
-            class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
-            orientation="vertical"
-            :iconConfig="addImageButtonIconConfig"
-            :titleConfig="addImageButtonTitleConfig"
-            :buttonClass="addImageButtonClass"
-            :isDisabled="isInteractionDisabled"
-            @click="showImageUploaderBox"
-            data-test="questionImage"
-          ></icon-button>
-        </span>
+
+        <!-- Buttons -->
+        <div class="flex flex-col justify-center">
+          <!-- add image to item button -->
+          <span
+            v-tooltip="{ content: addImageButtonTooltip, placement: 'left' }"
+            class="my-auto"
+          >
+            <icon-button
+              class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
+              orientation="vertical"
+              :iconConfig="addImageButtonIconConfig"
+              :titleConfig="addImageButtonTitleConfig"
+              :buttonClass="addImageButtonClass"
+              :isDisabled="isInteractionDisabled"
+              @click="showImageUploaderBox"
+              data-test="questionImage"
+            ></icon-button>
+          </span>
+          <!-- add math to item button  -->
+          <span
+            v-tooltip="{ content: addMathButtonTooltip, placement: 'left' }"
+            class="my-auto"
+          >
+            <icon-button
+              class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
+              orientation="vertical"
+              :iconConfig="addMathButtonIconConfig"
+              :titleConfig="addMathButtonTitleConfig"
+              :buttonClass="addMathButtonClass"
+              :isDisabled="isInteractionDisabled"
+              @click="openMathFieldPopup"
+              data-test="questionMath"
+            ></icon-button>
+          </span>
+        </div>
       </div>
 
       <!-- time input HH : MM : SS : mmm -->
@@ -224,6 +258,7 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
@@ -240,6 +275,7 @@ import {
   convertISOTimeToSeconds,
 } from "@/services/Functional/Utilities/Generic.js";
 import { useToast } from "vue-toastification";
+import MathFieldPopup from "@/components/Editor/MathFieldPopup.vue";
 
 export default {
   name: "ItemEditor",
@@ -324,9 +360,21 @@ export default {
         iconClass:
           "w-6 h-6 text-primary group-hover:text-white group-disabled:text-primary",
       },
+      addMathButtonClass: "bg-white hover:bg-primary disabled:bg-white focus:ring-primary",
+      addMathButtonIconConfig: {
+        // icon config for add math button
+        enabled: true,
+        iconName: "add-math",
+        iconClass:
+          "w-6 h-6 text-primary group-hover:text-white group-disabled:text-primary",
+      },
       // set containing the question types which support options
       questionTypesSupportingOptions: new Set(["mcq", "checkbox"]),
       toast: useToast(),
+
+      // whether to show the question text math editor or not. Math editor for 
+      // options is not yet present and will be controlled by different variable
+      showMathEditorPopup: false,
     };
   },
 
@@ -386,8 +434,12 @@ export default {
     TimeInput,
     Textarea,
     QuestionTypeDropdown,
+    MathFieldPopup
   },
   methods: {
+    openMathFieldPopup() {
+      this.showMathEditorPopup = true;
+    },
     getImageSource: GenericUtilities.getImageSource,
     showImageUploaderBox() {
       // to show or hide the image uploader dialog box
@@ -540,6 +592,10 @@ export default {
   },
 
   computed: {
+    questionTextareaSelectionStart() {
+      // returns the position of the cursor in the question textarea
+      return this.$refs.questionText.getSelectionStart();
+    },
     correctOptionIcon() {
       if (this.isQuestionTypeMCQ) return "check-circle-regular";
       return "check-square-regular";
@@ -557,6 +613,17 @@ export default {
       return this.isInteractionDisabled
         ? this.$t("tooltip.editor.item_editor.buttons.question_type_picker.disabled")
         : this.$t("tooltip.editor.item_editor.buttons.question_type_picker.enabled");
+    },
+    addMathButtonTooltip() {
+      return this.isInteractionDisabled
+        ? this.$t("tooltip.editor.item_editor.buttons.add_math.disabled")
+        : this.$t("tooltip.editor.item_editor.buttons.add_math.enabled");
+    },
+    addMathButtonTitleConfig() {
+      return {
+        value: this.$t("editor.item_editor.add_math"),
+        class: "text-xs group-hover:text-white group-disabled:text-black text-black font-normal",
+      }
     },
     addImageButtonTooltip() {
       if (!this.isQuestionImagePresent) {
