@@ -51,6 +51,7 @@
 </template>
 
 <script>
+// eslint-disable-next-line no-unused-vars
 import { MathField } from 'mathlive';
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 
@@ -58,9 +59,8 @@ export default {
   name: "MathFieldPopup",
 
   async created() {
-    if (mathVirtualKeyboard !== null) {
-      this.mathKeyboard = mathVirtualKeyboard;
-    }
+    // eslint-disable-next-line no-undef
+    if (mathVirtualKeyboard !== null) this.mathKeyboard = mathVirtualKeyboard;
   },
 
   props: {
@@ -149,11 +149,16 @@ export default {
       this.hideMathField();
     },
 
+    // eslint-disable-next-line no-unused-vars
     inputEventListenerMathField(ev) {
     },
+
+    // eslint-disable-next-line no-unused-vars
     focusinEventListenerMathField(ev) {
       window.mathVirtualKeyboard.show()
     },
+
+    // eslint-disable-next-line no-unused-vars
     focusoutEventListenerMathField(ev) {
       window.mathVirtualKeyboard.hide()
     },
