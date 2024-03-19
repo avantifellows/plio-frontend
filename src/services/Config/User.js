@@ -15,8 +15,11 @@ export default {
   setLocaleFromUserConfig() {
     // set the system locale from the user config
     let redirectId = setInterval(() => {
+      let activeWorkspace = store.state.auth.activeWorkspace;
       let userConfig = store.state.auth.config;
-      if (userConfig != null) {
+      if (activeWorkspace === "tap") {
+        i18n.global.locale = process.env.VUE_APP_I18N_LOCALE;
+      } else if (userConfig != null) {
         userConfig = JSON.parse(userConfig);
         i18n.global.locale =
           userConfig["locale"] || process.env.VUE_APP_I18N_LOCALE;
