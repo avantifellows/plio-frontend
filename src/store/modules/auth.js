@@ -240,29 +240,32 @@ export default {
 function getWorkspaceSettings(workspaceDetails = null) {
   if (
     workspaceDetails == null ||
-    !("config" in workspaceDetails) ||
-    !SettingsUtilities.hasValidSettings(workspaceDetails.config)
+    !("config" in workspaceDetails)
   ) {
-    let workspaceSettings = clonedeep(globalDefaultSettings);
-    for (let [headerName, headerDetails] of workspaceSettings) {
-      if (!SettingsUtilities.isSettingApplicableToWorkspace(headerDetails)) {
-        workspaceSettings.delete(headerName);
-        continue;
-      }
-      for (let [tabName, tabDetails] of headerDetails.children) {
-        if (!SettingsUtilities.isSettingApplicableToWorkspace(tabDetails)) {
-          headerDetails.children.delete(tabName);
+    const result = SettingsUtilities.patchInvalidIncompleteSettings(workspaceDetails.config)
+    if (result[0] == true) {
+      let workspaceSettings = result[1]
+      for (let [headerName, headerDetails] of workspaceSettings) {
+        if (!SettingsUtilities.isSettingApplicableToWorkspace(headerDetails)) {
+          workspaceSettings.delete(headerName);
           continue;
         }
-        for (let [leafName, leafDetails] of tabDetails.children) {
-          if (!SettingsUtilities.isSettingApplicableToWorkspace(leafDetails)) {
-            tabDetails.children.delete(leafName);
+        for (let [tabName, tabDetails] of headerDetails.children) {
+          if (!SettingsUtilities.isSettingApplicableToWorkspace(tabDetails)) {
+            headerDetails.children.delete(tabName);
             continue;
+          }
+          for (let [leafName, leafDetails] of tabDetails.children) {
+            if (!SettingsUtilities.isSettingApplicableToWorkspace(leafDetails)) {
+              tabDetails.children.delete(leafName);
+              continue;
+            }
           }
         }
       }
+
+      return workspaceSettings;
     }
-    return workspaceSettings;
   }
   return SettingsUtilities.decodeMapFromPayload(
     workspaceDetails.config.settings

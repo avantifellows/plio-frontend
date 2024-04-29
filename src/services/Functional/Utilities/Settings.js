@@ -50,23 +50,43 @@ export default {
   },
 
   /**
-   * checks if the provided object is a valid settings object
+   * checks if the provided object is a valid settings object and patches it if it is not
    * @param {Object} config - the object that needs to be checked for validity
-   * @param {Array} keysToCheck - these keys should exist for the object to be valid
-   * @returns {Boolean} - if the given config object contains valid settings
+   * @returns {Array<Boolean, null | Map>} - returns a boolean indicating if the object is valid and a Map object, null otherwise
    */
-  hasValidSettings(config, keysToCheck = ["player"]) {
+  patchInvalidIncompleteSettings(config) {
     // settings key should be present inside config object
     if (config == null || !("settings" in config) || config.settings == null)
-      return false;
+      return [false, null];
 
     // decoded settings object should be an instance of Map
     let decodedSettings = this.decodeMapFromPayload(clonedeep(config.settings));
-    if (!(decodedSettings instanceof Map)) return false;
+    if (!(decodedSettings instanceof Map)) return [false, null];
 
     // certain keys should be present in the settings Map
-    for (const key of keysToCheck) if (!decodedSettings.has(key)) return false;
-    return true;
+
+    const defaultSettings = clonedeep(globalDefaultSettings)
+    for (let [headerName, headerDetails] of defaultSettings) {
+      if (!decodedSettings.has(headerName)) {
+        decodedSettings.set(headerName, headerDetails)
+        continue
+      }
+
+      for (let [tabName, tabDetails] of headerDetails.children) {
+        if (!decodedSettings.get(headerName).children.has(tabName)) {
+          decodedSettings.get(headerName).children.set(tabName, tabDetails)
+          continue
+        }
+
+        for (let [leafName, leafDetails] of tabDetails.children) {
+          if (!decodedSettings.get(headerName).children.get(tabName).children.has(leafName)) {
+            decodedSettings.get(headerName).children.get(tabName).children.set(leafName, leafDetails)
+          }
+        }
+      }
+    }
+
+    return [true, decodedSettings]
   },
 
   /**
@@ -75,21 +95,9 @@ export default {
    * @param {Object} config - Config of a plio
    */
   setPlioSettings(config) {
-    let plioSettings = new Map();
-    if (!this.hasValidSettings(config)) {
-      // if the provided config is not valid, set plio's settings using the global defaults
-      plioSettings.set(
-        "player",
-        clonedeep(globalDefaultSettings.get("player"))
-      );
-    } else {
-      // if the provided config is valid, use it to set plio's settings
-      plioSettings.set(
-        "player",
-        this.decodeMapFromPayload(clonedeep(config.settings)).get("player")
-      );
-    }
-    return plioSettings;
+    const result = this.patchInvalidIncompleteSettings(config)
+    if (result[0] == true) return result[1]
+    return null
   },
 
   /**
