@@ -1,4 +1,5 @@
 const state = {
+  isFirstTimeLanguagePickerShownBySetting: true,
   isSharePlioDialogShown: false,
   isEmbedPlioDialogShown: false, // whether to show the dialog with info on embedding plio
   plioLinkToShare: null,
@@ -21,6 +22,9 @@ const getters = {
    */
   isTabScreen: (state) => {
     return state.windowInnerWidth < 640;
+  },
+  isFirstTimeLanguagePickerShownBySetting: (state) => {
+    return state.isFirstTimeLanguagePickerShownBySetting;
   },
 };
 const actions = {
@@ -59,6 +63,12 @@ const actions = {
   hideSpinner({ commit }) {
     commit("hideSpinner");
   },
+  setFirstTimeLanguagePickerShownBySetting({ commit }) {
+    commit("setFirstTimeLanguagePickerShownBySetting");
+  },
+  unsetFirstTimeLanguagePickerShownBySetting({ commit }) {
+    commit("unsetFirstTimeLanguagePickerShownBySetting");
+  },
 };
 
 const mutations = {
@@ -91,6 +101,12 @@ const mutations = {
   },
   hideSpinner(state) {
     state.isSpinnerShown = false;
+  },
+  setFirstTimeLanguagePickerShownBySetting(state) {
+    state.isFirstTimeLanguagePickerShownBySetting = true;
+  },
+  unsetFirstTimeLanguagePickerShownBySetting(state) {
+    state.isFirstTimeLanguagePickerShownBySetting = false;
   },
 };
 

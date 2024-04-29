@@ -22,7 +22,7 @@ export default {
           userConfig["locale"] || process.env.VUE_APP_I18N_LOCALE;
         clearInterval(redirectId);
       }
-    }, 10);
+    }, 50);
   },
 
   updateLocale() {

@@ -573,9 +573,14 @@ export default {
       title: {
         skipEnabled:
           "प्लायो का प्रयास करते समय दर्शक प्रश्नों को छोड़ सकते हैं",
+        // firstTimeLanguagePickerPopup: "Viewers will see the language picker on first login",
+        firstTimeLanguagePickerPopup:
+          "दर्शकों को पहली बार लॉगिन करते समय भाषा चुनने का विकल्प प्रदान करें",
       },
       description: {
         skipEnabled: "दर्शकों को प्रश्न छोड़ने का विकल्प प्रदान करें",
+        firstTimeLanguagePickerPopup:
+          "आपके दर्शक अपनी पहली लॉगिन पर भाषा चुनने का विकल्प देखेंगे। यह निर्धारित करता है कि वे प्लेटफ़ॉर्म को किस भाषा में देखेंगे। वर्तमान में केवल दो, अंग्रेजी और हिंदी, का समर्थन किया जाता है।",
       },
       info:
         "नई सेटिंग्स केवल भविष्य में बनाए जाने वाले प्लायो पर लागू होंगी, न कि पहले से बनाए गए प्लायो पर",
@@ -586,6 +591,7 @@ export default {
       },
       tab: {
         configuration: "विन्यास",
+        ui: "यूआई",
       },
     },
     badge: {
