@@ -484,6 +484,7 @@ export default {
       "setWindowInnerHeight",
       "showSpinner",
       "hideSpinner",
+      "unsetFirstTimeLanguagePickerShownBySetting"
     ]),
     ...mapActions("sync", ["stopLoading"]),
     ...mapActions("dialog", [
@@ -811,6 +812,7 @@ export default {
       this.$i18n.locale = locale;
       UserConfigService.updateLocale();
       this.showLanguagePickerDialog = false;
+      this.unsetFirstTimeLanguagePickerShownBySetting();
     },
     /**
      * triggered when any keyboard button is pressed

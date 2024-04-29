@@ -377,12 +377,26 @@ export default {
       return globalDefaultSettings.get("player").children.get("configuration").children;
     },
     configuration() {
+      if (
+        this.plioSettings == null ||
+        !(this.plioSettings instanceof Map) ||
+        !this.plioSettings.has("player") ||
+        !this.plioSettings.get("player").children.has("configuration")
+      ) return this.defaultConfiguration
+
       return this.plioSettings.get("player").children.get("configuration").children;
     },
     defaultUISettings() {
       return globalDefaultSettings.get("player").children.get("ui").children;
     },
     uiSettings() {
+      if (
+        this.plioSettings == null ||
+        !(this.plioSettings instanceof Map) ||
+        !this.plioSettings.has("player") ||
+        !this.plioSettings.get("player").children.has("ui")
+      ) return this.defaultUISettings
+
       return this.plioSettings.get("player").children.get("ui").children;
     },
     /**
