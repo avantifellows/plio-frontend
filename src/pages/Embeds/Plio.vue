@@ -349,7 +349,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("auth", ["isAuthenticated"]),
+    ...mapGetters("auth", ["isAuthenticated", "locale"]),
     ...mapState("generic", ["windowInnerWidth", "windowInnerHeight"]),
     firstUnansweredItem() {
       if (this.isSkipEnabled || this.lastAnsweredItemIndex == this.numItems - 1)
@@ -578,7 +578,12 @@ export default {
     },
   },
   methods: {
-    ...mapActions("generic", ["unsetFirstTimeLanguagePickerShownBySetting"]),
+    ...mapActions(
+      "generic", [
+        "unsetFirstTimeLanguagePickerShownBySetting", 
+        "setFirstTimeLanguagePickerShownBySetting"
+      ]
+    ),
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
     /**
      * @param {Number} itemIndex - the index of the item whose response is to be checked
@@ -877,6 +882,9 @@ export default {
           if (
             !this.shouldFirstTimeLanguagePickerBeShown
           ) this.unsetFirstTimeLanguagePickerShownBySetting();
+          else {
+            if (this.locale == null) this.setFirstTimeLanguagePickerShownBySetting()
+          }
         })
         .then(() => this.createSession())
         .then(() => this.logData());
