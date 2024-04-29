@@ -177,7 +177,11 @@
         // if user is not SSO user, everything works as defined in this file
         // if user is SSO user, we take up the setting provided by the org,
         // and if the setting is not to show language picker, it won't be shown
-        (checkIfIsSSOUser && isFirstTimeLanguagePickerShownBySetting) ||
+        (
+          checkIfIsSSOUser && 
+          isFirstTimeLanguagePickerShownBySetting !== null &&
+          isFirstTimeLanguagePickerShownBySetting == true
+        ) ||
         (!checkIfIsSSOUser && showLanguagePickerDialog)
       )"
     >
@@ -1190,7 +1194,11 @@ export default {
      */
     isBackgroundDisabled() {
       const output = (
-        (this.checkIfIsSSOUser && this.isFirstTimeLanguagePickerShownBySetting) ||
+        (
+          this.checkIfIsSSOUser && 
+          this.isFirstTimeLanguagePickerShownBySetting !== null &&
+          this.isFirstTimeLanguagePickerShownBySetting == true
+        ) ||
         (!this.checkIfIsSSOUser && this.showLanguagePickerDialog) ||
         this.isSharePlioDialogShown ||
         this.isEmbedPlioDialogShown ||

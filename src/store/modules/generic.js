@@ -1,5 +1,5 @@
 const state = {
-  isFirstTimeLanguagePickerShownBySetting: true,
+  isFirstTimeLanguagePickerShownBySetting: null,
   isSharePlioDialogShown: false,
   isEmbedPlioDialogShown: false, // whether to show the dialog with info on embedding plio
   plioLinkToShare: null,
