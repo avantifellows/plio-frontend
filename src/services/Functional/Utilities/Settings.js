@@ -57,11 +57,15 @@ export default {
   patchInvalidIncompleteSettings(config) {
     // settings key should be present inside config object
     if (config == null || !("settings" in config) || config.settings == null)
-      return [false, null];
+      // return [false, null];
+      return [true, clonedeep(globalDefaultSettings)]
 
     // decoded settings object should be an instance of Map
     let decodedSettings = this.decodeMapFromPayload(clonedeep(config.settings));
-    if (!(decodedSettings instanceof Map)) return [false, null];
+    if (!(decodedSettings instanceof Map)) return [
+      true, 
+      clonedeep(globalDefaultSettings)  
+    ];
 
     // certain keys should be present in the settings Map
 
