@@ -1478,7 +1478,7 @@ export default {
     constructSettingsMenu() {
       // keep a clone of the plio settings in a local variable
       this.settingsToRender = clonedeep(this.plioSettings);
-      SettingsUtilities.prepareSettingsToRender(this.settingsToRender, false);
+      SettingsUtilities.prepareSettingsToRender(this.settingsToRender, false, "Editor.vue");
     },
     closeSettingsMenu() {
       this.isSettingsMenuShown = false;

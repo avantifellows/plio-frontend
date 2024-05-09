@@ -180,6 +180,11 @@ export default {
             "यह तस्वीर 10 MB से ज़्यादा बड़ी ह। कृपया कोई छोटी तस्वीर अपलोड करें",
         },
       },
+      settings: {
+        webhook: {
+          url_input_placeholder: "https://your-webhook-url.com/your/path"
+        }
+      }
     },
   },
   home: {
@@ -573,14 +578,17 @@ export default {
       title: {
         skipEnabled:
           "प्लायो का प्रयास करते समय दर्शक प्रश्नों को छोड़ सकते हैं",
-        // firstTimeLanguagePickerPopup: "Viewers will see the language picker on first login",
         firstTimeLanguagePickerPopup:
           "दर्शकों को पहली बार लॉगिन करते समय भाषा चुनने का विकल्प प्रदान करें",
+        // customWebhook: "Configure a webhook for recieving events from plio",
+        customWebhook: "प्लायो से घटनाओं प्राप्त करने के लिए एक वेबहुक कॉन्फ़िगर करें",
       },
       description: {
         skipEnabled: "दर्शकों को प्रश्न छोड़ने का विकल्प प्रदान करें",
         firstTimeLanguagePickerPopup:
           "आपके दर्शक अपनी पहली लॉगिन पर भाषा चुनने का विकल्प देखेंगे। यह निर्धारित करता है कि वे प्लेटफ़ॉर्म को किस भाषा में देखेंगे। वर्तमान में केवल दो, अंग्रेजी और हिंदी, का समर्थन किया जाता है।",
+        customWebhook:
+          "प्लायो घटनाओं को अपने वेबहुक के माध्यम से प्राप्त करने के लिए एक वेबहुक कॉन्फ़िगर करें। यह अन्य सेवाओं के साथ प्लायो को एकीकृत करने के लिए उपयोग किया जा सकता है।",
       },
       info:
         "नई सेटिंग्स केवल भविष्य में बनाए जाने वाले प्लायो पर लागू होंगी, न कि पहले से बनाए गए प्लायो पर",
@@ -592,6 +600,7 @@ export default {
       tab: {
         configuration: "विन्यास",
         ui: "यूआई",
+        advanced: "एडवांस्ड"
       },
     },
     badge: {

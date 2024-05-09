@@ -5,6 +5,9 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
+      width: {
+        '99/100': '99%'
+      },
       colors: {
         primary: "#F78000",
         "primary-hover": "#db7506",

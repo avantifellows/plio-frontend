@@ -179,6 +179,11 @@ export default {
         },
       },
     },
+    settings: {
+      webhook: {
+        url_input_placeholder: "https://your-webhook-url.com/your/path",
+      }
+    }
   },
   home: {
     create_button: "Create",
@@ -530,7 +535,9 @@ export default {
           hasUnsavedChanges: "Save your changes",
           noUnsavedChanges: "Nothing to save",
         },
+        apply_webhook_configuration: "Save the webhook configuration and go back to settings",
         cancel: "",
+        discard_webhook_configuration: "Discard the configuration and go back to settings",
       },
     },
   },
@@ -573,11 +580,14 @@ export default {
         skipEnabled: "Viewers can skip questions while attempting plios",
         firstTimeLanguagePickerPopup:
           "Viewers will see the language picker on first login",
+        customWebhook: "Configure a webhook for recieving events from plio",
       },
       description: {
         skipEnabled: "Provide viewers the option to skip a question",
         firstTimeLanguagePickerPopup:
           "Your users will see the language picker on their first login. This sets what language they will see the platform in. Currently only two values, English and Hindi, are supported.",
+        customWebhook:
+          "Configure to recieve almost realtime events from plio. This can be used to integrate plio with other services",
       },
       info:
         "The new settings will only apply to plios created in the future and not the existing plios",
@@ -589,6 +599,7 @@ export default {
       tab: {
         configuration: "Configuration",
         ui: "UI",
+        advanced: "Advanced",
       },
     },
     badge: {

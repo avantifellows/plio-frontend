@@ -1,5 +1,7 @@
 /** default settings */
 let skipEnabled = true;
+let firstTimeLanguagePickerPopup = true;
+let customWebhookEnabled = false;
 
 /**
  * This object contains a mapping of a setting and its metadata.
@@ -21,7 +23,139 @@ export let settingsMetadata = {
     description: "settings.menu.description.firstTimeLanguagePickerPopup",
     type: "checkbox",
   },
+  customWebhook: {
+    title: "settings.menu.title.customWebhook",
+    description: "settings.menu.description.customWebhook",
+    type: "button",
+  },
 };
+
+export const webhookEvents = [
+  {
+    displayName: "User Authenticated",
+    code: "user_authenticated",
+    isSelected: false,
+    description: "This event is triggered when a user is authenticated by the system",
+    payloadExample: `
+{
+  "unique_user_id": "9999988888",
+  "plio_id": "aspokqwehn",
+  "timestamp": "2023-04-23T18:25:43.511Z",
+  "event_type": "user_authenticated",
+  "event_data": []
+}
+    `
+  },
+  {
+    displayName: "Plio Loaded",
+    code: "plio_loaded",
+    isSelected: false,
+    description: "This event is triggered when setting up of the Plio video is finished in the browser.",
+    payloadExample: `
+{
+  "unique_user_id": "9999988888",
+  "plio_id": "aspokqwehn",
+  "timestamp": "2023-04-23T18:25:43.511Z",
+  "event_type": "plio_loaded",
+  "event_data": []
+}
+    `
+  },
+  {
+    displayName: "Play Button Clicked",
+    code: "play_button_clicked",
+    isSelected: false,
+    description: "This event is triggered when the play button is clicked by the user",
+    extraData: [
+      {
+        code: "plio_seekbar_time",
+        displayName: "Seekbar Time",
+        type: "number",
+        description: "The time in seconds on the video seekbar when the user clicked the play button",
+      }
+    ],
+    payloadExample: `
+{
+  "unique_user_id": "9999988888",
+  "plio_id": "aspokqwehn",
+  "timestamp": "2023-04-23T18:25:43.511Z",
+  "event_type": "play_button_clicked",
+  "event_data": [
+    {
+      "code": "plio_seekbar_time",
+      "value": 120
+    }
+  ]
+}
+    `
+  },
+  {
+    displayName: "Pause Button Clicked",
+    code: "pause_button_clicked",
+    isSelected: false,
+    description: "This event is triggered when the pause button is clicked by the user",
+    extraData: [
+      {
+        code: "plio_seekbar_time",
+        displayName: "Seekbar Time",
+        type: "number",
+        description: "The time in seconds on the video seekbar when the user clicked the pause button",
+      }
+    ],
+    payloadExample: `
+{
+  "unique_user_id": "9999988888",
+  "plio_id": "aspokqwehn",
+  "timestamp": "2023-04-23T18:25:43.511Z",
+  "event_type": "pause_button_clicked",
+  "event_data": [
+    {
+      "code": "plio_seekbar_time",
+      "value": 120
+    }
+  ]
+}
+    `
+  },
+  {
+    displayName: "Item Opened",
+    code: "item_opened",
+    isSelected: false,
+    description: "This event is triggered when an item/question pops up on the screen",
+    extraData: [
+      {
+        code: "item_id",
+        displayName: "Item ID",
+        type: "number",
+        description: "The ID of the item that has been opened. This ID can be matched with the one on BigQuery tables.",
+      },
+      {
+        code: "item_index",
+        displayName: "Item Index",
+        type: "number",
+        description: "The index of the item in the items array, which has been opened.",
+      }
+    ],
+    payloadExample: `
+{
+  "unique_user_id": "9999988888",
+  "plio_id": "aspokqwehn",
+  "timestamp": "2023-04-23T18:25:43.511Z",
+  "event_type": "item_opened",
+  "event_data": [
+    {
+      "code": "item_id",
+      "value": 123
+    },
+    {
+      "code": "item_index",
+      "value": 2
+    }
+  ]
+}
+    `
+  }
+]
 
 /**
  * The below exported map is the global default settings object.
@@ -62,11 +196,26 @@ let globalDefaultSetings = new Map(
               Object.entries({
                 firstTimeLanguagePickerPopup: {
                   scope: ["org-admin", "super-admin"],
-                  value: true,
+                  value: firstTimeLanguagePickerPopup
                 },
               })
             ),
           },
+          advanced: {
+            scope: ["org-admin", "super-admin", "only-plio-setting", "no-personal-workspace"],
+            children: new Map(
+              Object.entries({
+                customWebhook: {
+                  scope: ["org-admin", "super-admin"],
+                  // value: customWebhookEnabled,
+                  value: {
+                    enabledEvents: ['play_button_clicked', 'user_authenticated'],
+                    webhookURL: "https://www.example.com",
+                  }
+                }
+              })
+            )
+          }
         })
       ),
     },

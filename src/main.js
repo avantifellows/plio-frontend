@@ -20,6 +20,7 @@ import { Integrations } from "@sentry/tracing";
 import GAuth from "vue3-google-oauth2";
 
 import "./index.css";
+import "./components/Editor/CodeHighlighter.css"
 import "vue-toastification/dist/index.css";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/animations/shift-toward.css";

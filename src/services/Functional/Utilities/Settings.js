@@ -110,8 +110,10 @@ export default {
    * For each of the leaf settings, we attach some metadata to it and pass it back to the parent.
    * @param {Map} settingsToRender - the object that needs to be prepared
    * @param {Boolean} checkUserScoping - if the user's scope has to be taken into account
+   * @param {Object} toRenderIn - the component which is the caller of this function. It will either be the App.vue (homepage) or Editor.vue.
+   *                              Some settings should only render in the homepage and some only in the editor. This is for that
    */
-  prepareSettingsToRender(settingsToRender, checkUserScoping = true) {
+  prepareSettingsToRender(settingsToRender, checkUserScoping = true, toRenderIn) {
     // Checks if the current user has access to a particular setting level. Only valid for non personal workspace
     let canUserAccess = (settingLevel) => {
       if (
@@ -125,8 +127,28 @@ export default {
       return true;
     };
 
+    const shouldSettingElementBeRendered = (settingElement) => {
+      if (
+        settingElement.scope.includes('no-personal-workspace') &&
+        store.getters["auth/isPersonalWorkspace"]
+      ) return false
+
+      if (settingElement.scope.includes('only-plio-setting')) {
+        if (toRenderIn == 'App.vue') return false
+        if (toRenderIn == 'Editor.vue') return true
+      } else if (settingElement.scope.includes('only-home-setting')) {
+        if (toRenderIn == 'App.vue') return true
+        if (toRenderIn == 'Editor.vue') return false
+      }
+
+      return true
+    }
+
     for (let [headerName, headerDetails] of settingsToRender) {
-      if (checkUserScoping && !canUserAccess(headerDetails)) {
+      if (
+        (checkUserScoping && !canUserAccess(headerDetails)) ||
+        !shouldSettingElementBeRendered(headerDetails)
+      ) {
         // in case of a workspace, we also need to check for scope. If the current user does not
         // have rights for a particular setting, we remove that key from settingsToRender
         settingsToRender.delete(headerName);
@@ -134,7 +156,10 @@ export default {
       }
       settingsToRender.set(headerName, clonedeep(headerDetails.children));
       for (let [tabName, tabDetails] of settingsToRender.get(headerName)) {
-        if (checkUserScoping && !canUserAccess(tabDetails)) {
+        if (
+          (checkUserScoping && !canUserAccess(tabDetails)) ||
+          !shouldSettingElementBeRendered(tabDetails)
+        ) {
           // in case of a workspace, we also need to check for scope. If the current user does not
           // have rights for a particular setting, we remove that key from settingsToRender
           settingsToRender.get(headerName).delete(tabName);
@@ -146,7 +171,10 @@ export default {
         for (let [leafName, leafDetails] of settingsToRender
           .get(headerName)
           .get(tabName)) {
-          if (checkUserScoping && !canUserAccess(leafDetails)) {
+          if (
+            (checkUserScoping && !canUserAccess(leafDetails)) ||
+            !shouldSettingElementBeRendered(leafDetails)
+          ) {
             // in case of a workspace, we also need to check for scope. If the current user does not
             // have rights for a particular setting, we remove that key from settingsToRender
             settingsToRender.get(headerName).get(tabName).delete(leafName);
@@ -161,6 +189,7 @@ export default {
             .get(tabName)
             .set(leafName, {
               ...settingsMetadata[leafName],
+              ...leafDetails.data,
               value: leafDetails.value,
               isWorkspaceSetting:
                 checkUserScoping &&

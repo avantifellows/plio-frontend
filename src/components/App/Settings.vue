@@ -141,6 +141,20 @@
             @change="updateCheckboxSetting($event.target.checked, leafDetails, leafName)"
             data-test="input"
           />
+
+          <!-- button to configure webhook settings  -->
+          <icon-button
+            v-if="leafDetails.type == 'button'"
+            :iconConfig="{
+              enabled: true,
+              iconName: 'settings',
+              iconClass: 'text-primary group-hover:text-white fill-current h-4 w-4 bp-500:h-6 bp-500:w-6',
+            }"
+            :buttonClass="'bg-gray-100 hover:bg-primary bp-500:p-2 p-1 bp-500:px-4 px-2 rounded-md border-b-outset mt-2 max-h-12'"
+            @click="openConfigureWebhookWindow"
+            data-test="configureWebhookButton"
+            id="buttonInSetting"
+          ></icon-button>
         </div>
         <div class="w-full flex flex-col mt-10 bp-500:mt-0">
           <!-- info for settings -->
@@ -195,13 +209,24 @@
       </div>
     </div>
   </div>
+
+  <!-- configure webhook window -->
+  <configure-webhook-window
+    v-if="iscConfigureWebhookWindowVisible"
+    :plioStatus="plioStatus"
+    :customWebhookSettings="webhookSettings"
+    @updated="updateChangedLeavesByWebhookSettings"
+    @close-signal="closeConfigureWebhookWindow"
+  ></configure-webhook-window>
 </template>
 
 <script>
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
+import ConfigureWebhookWindow from "./ConfigureWebhookWindow.vue";
 import { mapGetters } from "vuex";
+import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 
 let clonedeep = require("lodash.clonedeep");
 
@@ -209,6 +234,7 @@ export default {
   components: {
     IconButton,
     SimpleBadge,
+    ConfigureWebhookWindow
   },
   data() {
     return {
@@ -239,6 +265,7 @@ export default {
       changedLeaves: {}, // details about those leaf settings that have been changed by the user
       currentSelectedHeaderName: null, // name of the header of the current selected tab
       localSettings: null,
+      iscConfigureWebhookWindowVisible: false,
     };
   },
   props: {
@@ -281,6 +308,22 @@ export default {
   },
   computed: {
     ...mapGetters("generic", ["isMobileScreen"]),
+    ...mapGetters("auth", ["isPersonalWorkspace"]),
+    webhookSettings() {
+      if (!this.localSettings.has("player")) {
+        this.localSettings.set("player", clonedeep(globalDefaultSettings.player));
+      } else {
+        if (!this.localSettings.get("player").has("advanced")) {
+          this.localSettings.get("player").set("advanced", clonedeep(globalDefaultSettings.player.advanced));
+        } else {
+          if (!this.localSettings.get("player").get("advanced").has("customWebhook")) {
+            this.localSettings.get("player").get("advanced").set("customWebhook", clonedeep(globalDefaultSettings.player.advanced.customWebhook));
+          }
+        }
+      }
+
+      return this.localSettings.get("player").get("advanced").get("customWebhook");
+    },
     hasUnsavedChanges() {
       return !GenericUtilities.isObjectEmpty(this.changedLeaves);
     },
@@ -300,19 +343,38 @@ export default {
           "top-15/100 bottom-35/100 2xl:left-20/100 2xl:right-20/100 xl:left-15/100 xl:right-15/100 sm:left-10/100 sm:right-10/100 left-5/100 right-5/100": !this
             .isMobileScreen,
         },
-        "border-2 border-gray-200 shadow-lg rounded-lg bg-white m-auto flex flex-col",
+        "border-2 border-gray-200 shadow-lg rounded-lg bg-white m-auto flex flex-col  fixed z-30 justify-center mx-auto",
       ];
     },
     saveButtonTooltip() {
       return this.hasUnsavedChanges
-        ? ""
+        ? this.$t("tooltip.settings.buttons.save.hasUnsavedChanges")
         : this.$t("tooltip.settings.buttons.save.noUnsavedChanges");
     },
   },
   methods: {
+    openConfigureWebhookWindow() {
+      this.iscConfigureWebhookWindowVisible = true;
+    },
+    closeConfigureWebhookWindow() {
+      this.iscConfigureWebhookWindowVisible = false;
+    },
     getImageSource: GenericUtilities.getImageSource,
     createLocalSettings() {
       this.localSettings = this.settings == null ? null : clonedeep(this.settings);
+    },
+    updateChangedLeavesByWebhookSettings(data) {
+      const headerName = "player";
+      const tabName = "advanced";
+      const leafName = "customWebhook";
+      let keyName = `${headerName}_${tabName}_${leafName}`;
+      this.changedLeaves[keyName] = {
+        headerName,
+        tabName,
+        leafName,
+        newValue: data,
+        isWorkspaceSetting: this.localSettings.get(headerName).get(tabName).get(leafName).isWorkspaceSetting,
+      };
     },
     attachLeafWatchers() {
       for (let [headerName, headerDetails] of this.localSettings) {
