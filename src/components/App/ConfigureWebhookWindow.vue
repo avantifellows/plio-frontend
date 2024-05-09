@@ -396,7 +396,7 @@ export default {
      * Get style classes for how a tab looks on the sidebar region
      * @param {String} tabName - The name of the tab for which the style classes are required
      */
-    getTabStyleClasses(tabCodeName) {
+    getTabStyleClasses() {
       return "text-primary leading-relaxed pl-2 font-medium w-full capitalize whitespace-nowrap lg:text-base md:text-sm bp-500:text-xs text-xl text-left py-1"
     },
     clickTab(tabCodeName) {
@@ -419,11 +419,6 @@ export default {
   },
   computed: {
     ...mapGetters("generic", ["isMobileScreen"]),
-    saveButtonTooltip() {
-      return this.areThereUnsavedChanges
-        ? this.$t("tooltip.settings.buttons.save.hasUnsavedChanges")
-        : this.$t("tooltip.settings.buttons.save.noUnsavedChanges");
-    },
     areThereUnsavedChanges() {
       // check if url is valid and the new url is different from the old url
       if (!this.isUrlValid) return false;
@@ -443,7 +438,7 @@ export default {
     saveButtonTooltip() {
       return this.areThereUnsavedChanges
         ? this.$t("tooltip.settings.buttons.apply_webhook_configuration")
-        : this.$t("tooltip.settings.buttons.discard_webhook_configuration");
+        : this.$t("tooltip.settings.buttons.save.noUnsavedChanges");
     },
     isUrlValidationEnabled() {
       return this.url.trim() == "" ? false : true;

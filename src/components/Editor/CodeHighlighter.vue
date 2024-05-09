@@ -25,11 +25,17 @@ export default {
   },
 
   beforeUpdate() {
-    if (typeof this.$slots.default[0] === "string") {
-      const newText = this.$slots.default[0].replace(/^[\r\n\s]*|[\r\n\s]*$/g, "");
+    const defaultSlot = this.$scopedSlots.default && this.$scopedSlots.default();
+    if (defaultSlot && typeof defaultSlot[0] === "string") {
+      const newText = defaultSlot[0].replace(/^[\r\n\s]*|[\r\n\s]*$/g, "");
       this.$el.querySelector("code").textContent = newText;
       Prism.highlightAllUnder(this.$refs.codeBlock);
     }
+    // if (typeof this.$slots.default[0] === "string") {
+    //   const newText = this.$slots.default[0].replace(/^[\r\n\s]*|[\r\n\s]*$/g, "");
+    //   this.$el.querySelector("code").textContent = newText;
+    //   Prism.highlightAllUnder(this.$refs.codeBlock);
+    // }
   },
 };
 </script>

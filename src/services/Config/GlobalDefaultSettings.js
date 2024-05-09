@@ -1,7 +1,7 @@
 /** default settings */
 let skipEnabled = true;
 let firstTimeLanguagePickerPopup = true;
-let customWebhookEnabled = false;
+// let customWebhookEnabled = false;
 
 /**
  * This object contains a mapping of a setting and its metadata.
