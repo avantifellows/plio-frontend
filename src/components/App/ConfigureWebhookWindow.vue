@@ -236,7 +236,6 @@
 import InputText from "@/components/UI/Text/InputText.vue";
 import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import { mapGetters } from "vuex";
-import { component as VueCodeHighlight } from "vue-code-highlight";
 import CodeHighlighter from "@/components/Editor/CodeHighlighter.vue";
 import { webhookEvents } from "@/services/Config/GlobalDefaultSettings.js";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
@@ -247,7 +246,6 @@ export default {
   components: {
     IconButton,
     InputText,
-    VueCodeHighlight,
     CodeHighlighter,
   },
   props: {
