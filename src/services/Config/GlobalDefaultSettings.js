@@ -63,7 +63,7 @@ export const webhookEvents = [
   },
   {
     displayName: "Play Button Clicked",
-    code: "play_button_clicked",
+    code: "played",
     isSelected: false,
     description: "This event is triggered when the play button is clicked by the user",
     extraData: [
@@ -79,10 +79,10 @@ export const webhookEvents = [
   "unique_user_id": "9999988888",
   "plio_id": "aspokqwehn",
   "timestamp": "2023-04-23T18:25:43.511Z",
-  "event_type": "play_button_clicked",
+  "event_type": "played",
   "event_data": [
     {
-      "code": "plio_seekbar_time",
+      "key": "plio_seekbar_time",
       "value": 120
     }
   ]
@@ -91,7 +91,7 @@ export const webhookEvents = [
   },
   {
     displayName: "Pause Button Clicked",
-    code: "pause_button_clicked",
+    code: "paused",
     isSelected: false,
     description: "This event is triggered when the pause button is clicked by the user",
     extraData: [
@@ -107,10 +107,10 @@ export const webhookEvents = [
   "unique_user_id": "9999988888",
   "plio_id": "aspokqwehn",
   "timestamp": "2023-04-23T18:25:43.511Z",
-  "event_type": "pause_button_clicked",
+  "event_type": "paused",
   "event_data": [
     {
-      "code": "plio_seekbar_time",
+      "key": "plio_seekbar_time",
       "value": 120
     }
   ]
@@ -144,16 +144,64 @@ export const webhookEvents = [
   "event_type": "item_opened",
   "event_data": [
     {
-      "code": "item_id",
+      "key": "item_id",
       "value": 123
     },
     {
-      "code": "item_index",
+      "key": "item_index",
       "value": 2
     }
   ]
 }
     `
+  },
+  {
+    displayName: "Plio Finished / Scorecard Shown",
+    code: "plio_finished",
+    isSelected: false,
+    description: "This event is triggered when the user has finished watching the Plio and the scorecard is shown to the user with some calculated metrics.",
+    // three types of data -- numCorrect, numWrong, numSkipped
+    extraData: [
+      {
+        code: "num_correct",
+        displayName: "Number of Correct Answers",
+        type: "number",
+        description: "The number of questions the user has answered correctly",
+      },
+      {
+        code: "num_wrong",
+        displayName: "Number of Wrong Answers",
+        type: "number",
+        description: "The number of questions the user has answered incorrectly",
+      },
+      {
+        code: "num_skipped",
+        displayName: "Number of Skipped Questions",
+        type: "number",
+        description: "The number of questions the user has skipped",
+      }
+    ],
+    payloadExample: `
+{
+  "unique_user_id": "9999988888",
+  "plio_id": "aspokqwehn",
+  "timestamp": "2023-04-23T18:25:43.511Z",
+  "event_type": "plio_finished",
+  "event_data": [
+    {
+      "key": "num_correct",
+      "value": 5
+    },
+    {
+      "key": "num_wrong",
+      "value": 3
+    },
+    {
+      "key": "num_skipped",
+      "value": 2
+    }
+  ]
+}`
   }
 ]
 
@@ -209,8 +257,9 @@ let globalDefaultSetings = new Map(
                   scope: ["org-admin", "super-admin"],
                   // value: customWebhookEnabled,
                   value: {
-                    enabledEvents: ['play_button_clicked', 'user_authenticated'],
-                    webhookURL: "https://www.example.com",
+                    enabledEvents: [],
+                    // webhookURL: "http://localhost:3000/v1/temp/plioWebhook",
+                    webhookURL: "",
                   }
                 }
               })

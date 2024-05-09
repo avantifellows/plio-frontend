@@ -1,6 +1,6 @@
 <template>
   <div
-    class="top-15/100 bottom-20/100 2xl:left-20/100 2xl:right-20/100 xl:left-15/100 xl:right-15/100 sm:left-10/100 sm:right-10/100 left-5/100 right-5/100 border-2 border-gray-200 shadow-lg rounded-lg bg-white m-auto flex flex-col fixed z-30 justify-start mx-auto p-10 space-y-4"
+    class="top-10/100 bottom-10/100 2xl:left-20/100 2xl:right-20/100 xl:left-15/100 xl:right-15/100 sm:left-10/100 sm:right-10/100 left-5/100 right-5/100 border-2 border-gray-200 shadow-lg rounded-lg bg-white m-auto flex flex-col fixed z-30 justify-start mx-auto p-10 space-y-4"
   >
     <!-- title -->
     <div
