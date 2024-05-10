@@ -268,7 +268,7 @@ export default {
       saveButtonClass:
         "bp-500:px-8 bp-500:py-2 bp-360:px-16 px-10 py-2 transition ease-in duration-200 text-center font-semibold shadow-lg rounded-lg bg-primary border-b-outset border-primary",
       saveButtonTitleConfig: {
-        value: this.$t(`settings.buttons.save.${this.plioStatus}`),
+        value: this.$t(`settings.buttons.save.draft`),
         class: "text-white lg:text-base md:text-sm bp-500:text-xs text-lg font-bold",
       },
       cancelButtonTitleConfig: {
@@ -277,7 +277,7 @@ export default {
       },
       url: "",
       urlTooltip:
-        "Enter the URL of your webhook here. The URL should start with https:// and end with a trailing slash, and have a valid domain name.",
+        "Enter the URL of your webhook here. The URL should start with https:// and have a valid domain name.",
       currentSelectedEventTab: null,
       isTestingPanelOpen: false,
       currentlyTestingEventTab: null,

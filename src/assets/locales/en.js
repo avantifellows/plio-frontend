@@ -587,7 +587,7 @@ export default {
         firstTimeLanguagePickerPopup:
           "Your users will see the language picker on their first login. This sets what language they will see the platform in. Currently only two values, English and Hindi, are supported.",
         customWebhook:
-          "Configure to recieve almost realtime events from plio. This can be used to integrate plio with other services",
+          "Configure to recieve realtime events from plio. This can be used to integrate plio with other services",
       },
       info:
         "The new settings will only apply to plios created in the future and not the existing plios",
