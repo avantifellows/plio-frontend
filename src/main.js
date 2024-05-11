@@ -23,7 +23,15 @@ import "./index.css";
 import "vue-toastification/dist/index.css";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/animations/shift-toward.css";
-import "./mathlive-fonts.css";
+import "./mathlive-css/core.less"
+import "./mathlive-css/environment-popover.less"
+import "./mathlive-css/fonts.less"
+import "./mathlive-css/keystroke-caption.less"
+import "./mathlive-css/mathfield.less"
+import "./mathlive-css/mathlive-fonts.less"
+import "./mathlive-css/mathlive-static.less"
+import "./mathlive-css/suggestion-popover.less"
+import "./mathlive-css/virtual-keyboard.less"
 
 const gAuthOptions = {
   clientId: process.env.VUE_APP_GOOGLE_CLIENT_ID,
