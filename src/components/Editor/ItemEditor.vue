@@ -2,15 +2,16 @@
   <div class="relative w-full">
     <math-field-popup
       v-if="showMathEditorPopup"
-      @mathSubmitted="(e) => {
-        questionText = e
-        showMathEditorPopup = false
-      }"
+      @mathSubmitted="mathTextSubmitted"
       :showMathEditorPopup="showMathEditorPopup"
       :isInteractionDisabled="isInteractionDisabled"
-      :questionText="questionText"
-      :questionTextareaSelectionStart="questionTextareaSelectionStart"
-      @closeSignal="showMathEditorPopup = false"
+      :originText="textToSendToMathField"
+      :originTextSelectionStart="textAreaSelectionStartToSendToMathField"
+      @closeSignal="() => {
+        mathEditorTarget = null
+        mathEditorSelectedOptionIndex = null
+        showMathEditorPopup = false
+      }"
     ></math-field-popup>
 
   <!-- big box -->
@@ -166,7 +167,7 @@
               :titleConfig="addMathButtonTitleConfig"
               :buttonClass="addMathButtonClass"
               :isDisabled="isInteractionDisabled"
-              @click="openMathFieldPopup"
+              @click="() => openMathFieldPopup('questionText')"
               data-test="questionMath"
             ></icon-button>
           </span>
@@ -188,20 +189,42 @@
 
       <!-- input field for entering options  -->
       <div v-if="areOptionsVisible" data-test="options">
-        <input-text
+        <div
           v-for="(option, optionIndex) in options"
-          class="p-2"
-          v-model:value="options[optionIndex]"
-          :placeholder="$t('editor.item_editor.option_input.placeholder')"
-          :title="getOptionInputTitle(optionIndex)"
-          :key="optionIndex"
-          :startIcon="getCorrectOptionIconConfig(optionIndex)"
-          :endIcon="getDeleteOptionIconConfig"
-          :boxStyling="getOptionBoxStyling(optionIndex)"
-          @start-icon-selected="updateCorrectAnswer(optionIndex)"
-          @end-icon-selected="deleteOption(optionIndex)"
-          data-test="option"
-        ></input-text>
+          class="flex items-end flex-row w-full"
+        >
+          <input-text
+            class="p-2 w-full"
+            v-model:value="options[optionIndex]"
+            :placeholder="$t('editor.item_editor.option_input.placeholder')"
+            :title="getOptionInputTitle(optionIndex)"
+            :key="optionIndex"
+            :startIcon="getCorrectOptionIconConfig(optionIndex)"
+            :endIcon="getDeleteOptionIconConfig"
+            :boxStyling="getOptionBoxStyling(optionIndex)"
+            @start-icon-selected="updateCorrectAnswer(optionIndex)"
+            @end-icon-selected="deleteOption(optionIndex)"
+            data-test="option"
+            :ref="`optionText_index_${optionIndex}`"
+          ></input-text>
+          <!-- add math to option text button  -->
+          <span
+            v-tooltip="{ content: addMathButtonTooltip, placement: 'left' }"
+            class="p-2"
+          >
+            <icon-button
+              class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
+              orientation="vertical"
+              :iconConfig="addMathButtonIconConfig"
+              :titleConfig="addMathButtonTitleConfig"
+              :buttonClass="addMathButtonClass"
+              :isDisabled="isInteractionDisabled"
+              @click="() => openMathFieldPopup('optionText', optionIndex)"
+              data-test="questionMath"
+            ></icon-button>
+          </span>
+        </div>
+
       </div>
 
       <!-- add option button -->
@@ -375,6 +398,8 @@ export default {
       // whether to show the question text math editor or not. Math editor for 
       // options is not yet present and will be controlled by different variable
       showMathEditorPopup: false,
+      mathEditorTarget: null, // "questionText" or "optionText"
+      mathEditorSelectedOptionIndex: null, // the index of the option against whose math editor button was clicked
     };
   },
 
@@ -437,7 +462,37 @@ export default {
     MathFieldPopup
   },
   methods: {
-    openMathFieldPopup() {
+    mathTextSubmitted(e) {
+      if (
+        this.mathEditorTarget == null ||
+        (
+          this.mathEditorTarget == 'optionText' &&
+          this.mathEditorSelectedOptionIndex == null
+        )
+      ) {
+        console.error('Invalid math editor target or option index')
+        return
+      }
+
+      if (this.mathEditorTarget == 'questionText')
+        this.questionText = e
+      
+      else if (
+        this.mathEditorTarget == 'optionText' &&
+        this.mathEditorSelectedOptionIndex != null
+      )
+        this.options[this.mathEditorSelectedOptionIndex] = e
+      
+        this.mathEditorTarget = null
+        this.mathEditorSelectedOptionIndex = null
+        this.showMathEditorPopup = false
+    },
+    openMathFieldPopup(
+      target, // : "questionText" | "optionText"
+      optionIndex = null
+    ) {
+      this.mathEditorTarget = target;
+      this.mathEditorSelectedOptionIndex = optionIndex;
       this.showMathEditorPopup = true;
     },
     getImageSource: GenericUtilities.getImageSource,
@@ -592,9 +647,19 @@ export default {
   },
 
   computed: {
-    questionTextareaSelectionStart() {
-      // returns the position of the cursor in the question textarea
-      return this.$refs.questionText.getSelectionStart();
+    textToSendToMathField() {
+      // returns the text to be sent to the math field
+      if (this.mathEditorTarget == "questionText") return this.questionText;
+      if (this.mathEditorSelectedOptionIndex != null && this.mathEditorTarget == "optionText")
+        return this.options[this.mathEditorSelectedOptionIndex];
+      return "";
+    },
+    textAreaSelectionStartToSendToMathField() {
+      if (this.mathEditorTarget == "questionText") return this.$refs.questionText.getSelectionStart();
+
+      if (this.mathEditorSelectedOptionIndex != null && this.mathEditorTarget == "optionText") {
+        return this.$refs[`optionText_index_${this.mathEditorSelectedOptionIndex}`][0].getSelectionStart();
+      }
     },
     correctOptionIcon() {
       if (this.isQuestionTypeMCQ) return "check-circle-regular";

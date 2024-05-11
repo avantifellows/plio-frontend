@@ -1,6 +1,6 @@
 <template>
   <div
-    class="p-2 absolute top-0 left-0 w-full h-full bg-gray-400 bg-opacity-90 backdrop-blur-xl flex flex-col items-center justify-center z-50 border-2 rounded-md"
+    class="p-2 absolute top-0 left-0 w-full h-full bg-gray-400 bg-opacity-90 backdrop-blur-xl flex flex-col items-center justify-start z-50 border-2 rounded-md"
     v-if="showMathEditorPopup"
   > 
     <!-- close button -->
@@ -28,7 +28,7 @@
     </div>
 
     <!-- <textarea class="p-4 w-3/4 h-1/4"></textarea> -->
-    <math-field class="w-full h-full relative text-lg" ref="mathField">
+    <math-field class="w-full h-1/2 relative text-lg" ref="mathField">
       
     </math-field>
     <!-- <button class="mt-4 bg-blue-500 text-white p-2 rounded" @click="submitMathEntry">Submit</button> -->
@@ -72,11 +72,13 @@ export default {
       type: Boolean,
       default: false,
     },
-    questionText: {
+    // the text which was present in the textarea / input textbox from where the user opened the math editor
+    originText: {
       type: String,
       default: "",
     },
-    questionTextareaSelectionStart: {
+    // the position of the cursor in the textarea / input textbox from where the user opened the math editor
+    originTextSelectionStart: {
       type: Number,
       default: 0,
     },
@@ -140,10 +142,9 @@ export default {
       // insert `this.$refs.mathField.value` into the question text, and at that position of cursor where the user was typing
       const mf = this.$refs.mathField;
       if (mf !== null) {
-        // const cursorPosition = mf.selectionStart;
-        const cursorPosition = this.questionTextareaSelectionStart
-        const questionText = this.questionText;
-        const newQuestionTextWithLatexDelimiters = questionText.slice(0, cursorPosition) + "\\(" + mf.value + "\\)" + questionText.slice(cursorPosition);
+        const cursorPosition = this.originTextSelectionStart
+        const originText = this.originText;
+        const newQuestionTextWithLatexDelimiters = originText.slice(0, cursorPosition) + "\\(" + mf.value + "\\)" + originText.slice(cursorPosition);
         this.$emit("math-submitted", newQuestionTextWithLatexDelimiters);
       }
       this.hideMathField();

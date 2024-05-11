@@ -52,6 +52,7 @@
         :disabled="isDisabled"
         autocomplete="off"
         data-test="input"
+        ref="inputref"
       />
 
       <!-- end icon -->
@@ -289,6 +290,9 @@ export default {
     endIconSelected() {
       this.$emit("end-icon-selected", this.value);
     },
+    getSelectionStart() {
+      return this.$refs.inputref.selectionStart;
+    }
   },
   emits: [
     "input",

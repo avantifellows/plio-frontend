@@ -62,10 +62,11 @@
                   :data-test="`optionSelector-${optionIndex}`"
                 />
                 <div
-                  v-html="option"
                   class="ml-2 h-full place-self-center leading-tight"
                   :data-test="`option-${optionIndex}`"
-                ></div>
+                >
+                  <span v-html="latexFormattedOptionText[optionIndex]"></span>
+                </div>
               </label>
             </div>
           </li>
@@ -278,6 +279,27 @@ export default {
         });
       }
       return output;
+    },
+    latexFormattedOptionText() {
+      // we're getting a prop called "options". This is an array of strings which may contain latex code and 
+      // might look like this - ["\\(x\\)", "\\(y\\)", "\\(z\\)"].
+      // This contains sections which need to be formatted as latex and some sections which will be plain text.
+      // So format the incoming strings and return the formatted strings as an array of HTML strings which will be rendered as a v-html.
+
+      return this.options.map((option) => {
+        const latexSections = option.match(/\\\(.*?\\\)/g);
+        var output = option
+        if (latexSections) {
+          latexSections.forEach((latexSection) => {
+            const formattedLatex = katex.renderToString(latexSection.slice(2, -2), {
+              throwOnError: false,
+              output: "mathml",
+            });
+            output = output.replace(latexSection, formattedLatex);
+          });
+        }
+        return output;
+      });
     },
     optionInputType() {
       if (!this.areOptionsVisible) return null;
