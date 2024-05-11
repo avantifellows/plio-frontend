@@ -192,13 +192,13 @@
         <div
           v-for="(option, optionIndex) in options"
           class="flex items-end flex-row w-full"
+          :key="optionIndex"
         >
           <input-text
             class="p-2 w-full"
             v-model:value="options[optionIndex]"
             :placeholder="$t('editor.item_editor.option_input.placeholder')"
             :title="getOptionInputTitle(optionIndex)"
-            :key="optionIndex"
             :startIcon="getCorrectOptionIconConfig(optionIndex)"
             :endIcon="getDeleteOptionIconConfig"
             :boxStyling="getOptionBoxStyling(optionIndex)"
@@ -660,6 +660,8 @@ export default {
       if (this.mathEditorSelectedOptionIndex != null && this.mathEditorTarget == "optionText") {
         return this.$refs[`optionText_index_${this.mathEditorSelectedOptionIndex}`][0].getSelectionStart();
       }
+
+      return 0
     },
     correctOptionIcon() {
       if (this.isQuestionTypeMCQ) return "check-circle-regular";

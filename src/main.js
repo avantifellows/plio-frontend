@@ -32,6 +32,7 @@ import "./mathlive-css/mathlive-fonts.less"
 import "./mathlive-css/mathlive-static.less"
 import "./mathlive-css/suggestion-popover.less"
 import "./mathlive-css/virtual-keyboard.less"
+import "./mathlive-css/katex.min.css"
 
 const gAuthOptions = {
   clientId: process.env.VUE_APP_GOOGLE_CLIENT_ID,
