@@ -16,6 +16,11 @@ export let settingsMetadata = {
     description: "settings.menu.description.skipEnabled",
     type: "checkbox",
   },
+  firstTimeLanguagePickerPopup: {
+    title: "settings.menu.title.firstTimeLanguagePickerPopup",
+    description: "settings.menu.description.firstTimeLanguagePickerPopup",
+    type: "checkbox",
+  },
 };
 
 /**
@@ -47,6 +52,17 @@ let globalDefaultSetings = new Map(
                 skipEnabled: {
                   scope: ["org-admin", "super-admin"],
                   value: skipEnabled,
+                },
+              })
+            ),
+          },
+          ui: {
+            scope: ["org-admin", "super-admin"],
+            children: new Map(
+              Object.entries({
+                firstTimeLanguagePickerPopup: {
+                  scope: ["org-admin", "super-admin"],
+                  value: true,
                 },
               })
             ),

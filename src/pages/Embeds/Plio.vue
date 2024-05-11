@@ -281,6 +281,7 @@ export default {
 
           // if for some reason the API call didn't go through and there's no response
           // object, then redirect the user to a 404 page
+          console.log("error", error)
           if (error.response != undefined && error.response.status === 400) {
             this.$router.replace({
               name: "Player",
@@ -348,7 +349,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters("auth", ["isAuthenticated"]),
+    ...mapGetters("auth", ["isAuthenticated", "locale"]),
     ...mapState("generic", ["windowInnerWidth", "windowInnerHeight"]),
     firstUnansweredItem() {
       if (this.isSkipEnabled || this.lastAnsweredItemIndex == this.numItems - 1)
@@ -362,6 +363,9 @@ export default {
     numItems() {
       return this.items.length;
     },
+    shouldFirstTimeLanguagePickerBeShown() {
+      return this.uiSettings.get("firstTimeLanguagePickerPopup").value;
+    },
     isSkipEnabled() {
       // if a custom configuration is provided, then use that otherwise
       // use the global settings
@@ -373,7 +377,27 @@ export default {
       return globalDefaultSettings.get("player").children.get("configuration").children;
     },
     configuration() {
+      if (
+        this.plioSettings == null ||
+        !(this.plioSettings instanceof Map) ||
+        !this.plioSettings.has("player") ||
+        !this.plioSettings.get("player").children.has("configuration")
+      ) return this.defaultConfiguration
+
       return this.plioSettings.get("player").children.get("configuration").children;
+    },
+    defaultUISettings() {
+      return globalDefaultSettings.get("player").children.get("ui").children;
+    },
+    uiSettings() {
+      if (
+        this.plioSettings == null ||
+        !(this.plioSettings instanceof Map) ||
+        !this.plioSettings.has("player") ||
+        !this.plioSettings.get("player").children.has("ui")
+      ) return this.defaultUISettings
+
+      return this.plioSettings.get("player").children.get("ui").children;
     },
     /**
      * whether player has the correct aspect ratio as desired
@@ -554,6 +578,12 @@ export default {
     },
   },
   methods: {
+    ...mapActions(
+      "generic", [
+        "unsetFirstTimeLanguagePickerShownBySetting", 
+        "setFirstTimeLanguagePickerShownBySetting"
+      ]
+    ),
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
     /**
      * @param {Number} itemIndex - the index of the item whose response is to be checked
@@ -847,6 +877,14 @@ export default {
           this.videoId = this.getVideoIDfromURL(plioDetails.videoURL);
           this.plioTitle = plioDetails.plioTitle;
           this.plioSettings = SettingsUtilities.setPlioSettings(plioDetails.config);
+
+          // apply the setting of showing the first time language picker or not
+          if (
+            !this.shouldFirstTimeLanguagePickerBeShown
+          ) this.unsetFirstTimeLanguagePickerShownBySetting();
+          else {
+            if (this.locale == null) this.setFirstTimeLanguagePickerShownBySetting()
+          }
         })
         .then(() => this.createSession())
         .then(() => this.logData());

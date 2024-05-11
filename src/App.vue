@@ -173,7 +173,17 @@
     <!-- first-time language picker -->
     <div
       class="fixed w-full top-1/4 my-5 flex justify-center"
-      v-if="showLanguagePickerDialog"
+      v-if="(
+        // if user is not SSO user, everything works as defined in this file
+        // if user is SSO user, we take up the setting provided by the org,
+        // and if the setting is not to show language picker, it won't be shown
+        (
+          checkIfIsSSOUser && 
+          isFirstTimeLanguagePickerShownBySetting !== null &&
+          isFirstTimeLanguagePickerShownBySetting == true
+        ) ||
+        (!checkIfIsSSOUser && showLanguagePickerDialog)
+      )"
     >
       <div
         class="bg-white w-11/12 sm:w-9/12 lg:w-7/12 p-4 sm:p-10 rounded-lg border border-black"
@@ -266,6 +276,7 @@ import UserAPIService from "@/services/API/User.js";
 import OrganizationAPIService from "@/services/API/Organization.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
+import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 
 let clonedeep = require("lodash.clonedeep");
 
@@ -477,6 +488,7 @@ export default {
       "setWindowInnerHeight",
       "showSpinner",
       "hideSpinner",
+      "unsetFirstTimeLanguagePickerShownBySetting"
     ]),
     ...mapActions("sync", ["stopLoading"]),
     ...mapActions("dialog", [
@@ -511,18 +523,50 @@ export default {
         let setting = updatedSettings[key];
 
         if (setting.isWorkspaceSetting) {
-          if (newWorkspaceSettings == null)
-            newWorkspaceSettings = clonedeep(this.activeWorkspaceSettings);
-          newWorkspaceSettings
-            .get(setting.headerName)
-            .children.get(setting.tabName)
-            .children.get(setting.leafName).value = setting.newValue;
+          if (newWorkspaceSettings == null) newWorkspaceSettings = clonedeep(this.activeWorkspaceSettings);
+          if (newWorkspaceSettings.has(setting.headerName) == false) {
+            newWorkspaceSettings.set(setting.headerName, clonedeep(globalDefaultSettings.get(setting.headerName)));
+          }
+          const header = newWorkspaceSettings.get(setting.headerName);
+          if (header.children.has(setting.tabName) == false) {
+            header.children.set(
+              setting.tabName,
+              clonedeep(globalDefaultSettings.get(setting.headerName).children.get(setting.tabName))
+            );
+          }
+          const tab = header.children.get(setting.tabName);
+          if (tab.children.has(setting.leafName) == false) {
+            tab.children.set(
+              setting.leafName,
+              clonedeep(globalDefaultSettings.get(setting.headerName).children.get(setting.tabName).children.get(setting.leafName))
+            );
+          }
+          tab.children.get(setting.leafName).value = setting.newValue;
         } else {
           if (newUserSettings == null) newUserSettings = clonedeep(this.userSettings);
-          newUserSettings
-            .get(setting.headerName)
-            .children.get(setting.tabName)
-            .children.get(setting.leafName).value = setting.newValue;
+          // newUserSettings
+          //   .get(setting.headerName)
+          //   .children.get(setting.tabName)
+          //   .children.get(setting.leafName).value = setting.newValue;
+
+          if (newUserSettings.has(setting.headerName) == false) {
+            newUserSettings.set(setting.headerName, clonedeep(globalDefaultSettings.get(setting.headerName)));
+          }
+          const header = newUserSettings.get(setting.headerName);
+          if (header.children.has(setting.tabName) == false) {
+            header.children.set(
+              setting.tabName,
+              clonedeep(globalDefaultSettings.get(setting.headerName).children.get(setting.tabName))
+            );
+          }
+          const tab = header.children.get(setting.tabName);
+          if (tab.children.has(setting.leafName) == false) {
+            tab.children.set(
+              setting.leafName,
+              clonedeep(globalDefaultSettings.get(setting.headerName).children.get(setting.tabName).children.get(setting.leafName))
+            );
+          }
+          tab.children.get(setting.leafName).value = setting.newValue;
         }
       });
 
@@ -772,6 +816,7 @@ export default {
       this.$i18n.locale = locale;
       UserConfigService.updateLocale();
       this.showLanguagePickerDialog = false;
+      this.unsetFirstTimeLanguagePickerShownBySetting();
     },
     /**
      * triggered when any keyboard button is pressed
@@ -810,7 +855,7 @@ export default {
       "userRoleInActiveWorkspace",
       "activeWorkspaceId",
     ]),
-    ...mapGetters("generic", ["isMobileScreen"]),
+    ...mapGetters("generic", ["isMobileScreen", "isFirstTimeLanguagePickerShownBySetting"]),
     ...mapState("auth", ["config", "user", "activeWorkspace", "userId", "userSettings"]),
     ...mapState("generic", [
       "isSharePlioDialogShown",
@@ -1137,12 +1182,24 @@ export default {
     onLoginPage() {
       return this.$route.name == "Login";
     },
+    checkIfIsSSOUser() {
+      const output = (
+        "api_key" in this.$route.query &&
+        "unique_id" in this.$route.query
+      )
+      return output
+    },
     /**
      * whether the background should be disabled
      */
     isBackgroundDisabled() {
-      return (
-        this.showLanguagePickerDialog ||
+      const output = (
+        (
+          this.checkIfIsSSOUser && 
+          this.isFirstTimeLanguagePickerShownBySetting !== null &&
+          this.isFirstTimeLanguagePickerShownBySetting == true
+        ) ||
+        (!this.checkIfIsSSOUser && this.showLanguagePickerDialog) ||
         this.isSharePlioDialogShown ||
         this.isEmbedPlioDialogShown ||
         this.isDialogBoxShown ||
@@ -1150,6 +1207,7 @@ export default {
         this.isSettingsMenuShown ||
         this.isSingleSelectorShown
       );
+      return output
     },
     /**
      * list of shortcodes of all workspaces that the user is a part of

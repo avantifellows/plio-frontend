@@ -578,9 +578,13 @@ export default {
     menu: {
       title: {
         skipEnabled: "Viewers can skip questions while attempting plios",
+        firstTimeLanguagePickerPopup:
+          "Viewers will see the language picker on first login",
       },
       description: {
         skipEnabled: "Provide viewers the option to skip a question",
+        firstTimeLanguagePickerPopup:
+          "Your users will see the language picker on their first login. This sets what language they will see the platform in. Currently only two values, English and Hindi, are supported.",
       },
       info:
         "The new settings will only apply to plios created in the future and not the existing plios",
@@ -591,6 +595,7 @@ export default {
       },
       tab: {
         configuration: "Configuration",
+        ui: "UI",
       },
     },
     badge: {

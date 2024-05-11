@@ -138,12 +138,21 @@ const actions = {
       state.accessToken.access_token
     );
     if (response != undefined) {
-      // use the config of a user if it exists otherwise use the global defaults
-      if ("settings" in response.data.config)
-        dispatch(
-          "setUserSettings",
-          SettingsUtilities.decodeMapFromPayload(response.data.config.settings)
-        );
+      // use the config of a user (and patch for completeness) if it exists otherwise use the global defaults
+      if ("settings" in response.data.config) {
+        const result = SettingsUtilities.patchInvalidIncompleteSettings(response.data.config)
+        if (result[1] !== null) {
+          dispatch(
+            "setUserSettings",
+            result[1]
+          );
+        } else {
+          dispatch(
+            "setUserSettings",
+            SettingsUtilities.decodeMapFromPayload(response.data.config.settings)
+          );
+        }
+      }
       else dispatch("setUserSettings", clonedeep(globalDefaultSettings));
 
       // use the config of organization(s) if it exists otherwise use the global defaults
@@ -240,31 +249,40 @@ export default {
 function getWorkspaceSettings(workspaceDetails = null) {
   if (
     workspaceDetails == null ||
-    !("config" in workspaceDetails) ||
-    !SettingsUtilities.hasValidSettings(workspaceDetails.config)
+    !("config" in workspaceDetails)
   ) {
-    let workspaceSettings = clonedeep(globalDefaultSettings);
-    for (let [headerName, headerDetails] of workspaceSettings) {
-      if (!SettingsUtilities.isSettingApplicableToWorkspace(headerDetails)) {
-        workspaceSettings.delete(headerName);
-        continue;
-      }
-      for (let [tabName, tabDetails] of headerDetails.children) {
-        if (!SettingsUtilities.isSettingApplicableToWorkspace(tabDetails)) {
-          headerDetails.children.delete(tabName);
+    const result = SettingsUtilities.patchInvalidIncompleteSettings(workspaceDetails.config)
+    if (result[0] == true) {
+      let workspaceSettings = result[1]
+      for (let [headerName, headerDetails] of workspaceSettings) {
+        if (!SettingsUtilities.isSettingApplicableToWorkspace(headerDetails)) {
+          workspaceSettings.delete(headerName);
           continue;
         }
-        for (let [leafName, leafDetails] of tabDetails.children) {
-          if (!SettingsUtilities.isSettingApplicableToWorkspace(leafDetails)) {
-            tabDetails.children.delete(leafName);
+        for (let [tabName, tabDetails] of headerDetails.children) {
+          if (!SettingsUtilities.isSettingApplicableToWorkspace(tabDetails)) {
+            headerDetails.children.delete(tabName);
             continue;
+          }
+          for (let [leafName, leafDetails] of tabDetails.children) {
+            if (!SettingsUtilities.isSettingApplicableToWorkspace(leafDetails)) {
+              tabDetails.children.delete(leafName);
+              continue;
+            }
           }
         }
       }
+
+      return workspaceSettings;
     }
-    return workspaceSettings;
   }
-  return SettingsUtilities.decodeMapFromPayload(
-    workspaceDetails.config.settings
-  );
+
+  const result = SettingsUtilities.patchInvalidIncompleteSettings(workspaceDetails.config)
+  if (result[1] !== null) {
+    return result[1];
+  } else {
+    return SettingsUtilities.decodeMapFromPayload(
+      workspaceDetails.config.settings
+    );
+  }
 }

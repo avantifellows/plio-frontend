@@ -1,5 +1,6 @@
 # base stage
-FROM node:lts-alpine as base-stage
+# FROM node:lts-alpine as base-stage
+FROM node:16-alpine as base-stage
 WORKDIR /app
 COPY package.json ./
 # install dependencies for npm run test:unit
