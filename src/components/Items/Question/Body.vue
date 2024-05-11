@@ -273,7 +273,7 @@ export default {
         latexSections.forEach((latexSection) => {
           const formattedLatex = katex.renderToString(latexSection.slice(2, -2), {
             throwOnError: false,
-            output: "mathml",
+            output: "html",
           });
           output = output.replace(latexSection, formattedLatex);
         });
@@ -293,7 +293,7 @@ export default {
           latexSections.forEach((latexSection) => {
             const formattedLatex = katex.renderToString(latexSection.slice(2, -2), {
               throwOnError: false,
-              output: "mathml",
+              output: "html",
             });
             output = output.replace(latexSection, formattedLatex);
           });
