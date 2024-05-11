@@ -172,7 +172,6 @@ router.beforeEach((to, from) => {
   // are not explicitly specified in the requested URL. This will lead them to the workspace's home
   // where they left off the in the previous session
   const existingActiveWorkspace = store.state["auth"]["activeWorkspace"];
-  console.log(existingActiveWorkspace, to.params.workspace);
   if (
     existingActiveWorkspace != "" && (
       to.params.workspace == undefined ||
@@ -248,7 +247,6 @@ router.beforeEach((to, from) => {
 // set workspace in vuex state if the route workspace parameter is in vuex user organizations array
 router.beforeEach((to) => {
   if (store.getters["auth/isAuthenticated"]) {
-    console.log(to.params.workspace);
     if (to.params.workspace != "" && to.params.workspace != undefined)
       store.dispatch("auth/setActiveWorkspace", to.params.workspace);
     else store.dispatch("auth/unsetActiveWorkspace");
