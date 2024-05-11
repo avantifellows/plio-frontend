@@ -838,7 +838,15 @@ export default {
       })
         .then(() => {
           this.hideSpinner();
-          this.$router.push({ name: "Home", params: { workspace: selectedOptionValue } });
+          // this.$router.push({ name: "Home", params: { workspace: selectedOptionValue } });
+          // earlier this used to reload in place, but now we want to open in a new tab
+          // because if someone is copying multiple plios to another workspace, they shouldn't have to 
+          // go back and forth between the workspaces
+          const routeData = this.$router.resolve({
+            name: "Home",
+            params: { workspace: selectedOptionValue }
+          });
+          window.open(routeData.href, '_blank');
         })
         .catch(() => {
           this.hideSpinner();

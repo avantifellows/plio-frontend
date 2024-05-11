@@ -129,7 +129,7 @@ export default {
   },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
-    ...mapGetters("auth", ["isPersonalWorkspace", "hasWorkspaces", "workspaces"]),
+    ...mapGetters("auth", ["isPersonalWorkspace", "hasWorkspaces", "workspaces", "activeWorkspaceDetails"]),
     ...mapState("sync", ["pending"]),
     ...mapState("generic", ["selectedPlioId"]),
     ...mapGetters("generic", ["isTabScreen"]),
@@ -215,7 +215,9 @@ export default {
           icon: "delete2.svg",
         },
       ];
-      if (this.inPersonalWorkspaceWithOtherWorkspaces)
+
+      // now we allow people to copy plios from one workspace to another, given they are part of those workspaces
+      // if (this.inPersonalWorkspaceWithOtherWorkspaces)
         options.push({
           value: "copy",
           label: this.$t("home.table.plio_list_item.buttons.copy"),
@@ -406,10 +408,12 @@ export default {
         case "copy": {
           let selectorOptions = [];
           this.workspaces.forEach((workspace) => {
-            selectorOptions.push({
-              value: workspace.shortcode,
-              label: workspace.name,
-            });
+            if (workspace.shortcode != this.activeWorkspaceDetails.shortcode) {
+              selectorOptions.push({
+                value: workspace.shortcode,
+                label: workspace.name,
+              });
+            }
           });
           await this.setSelectedPlioId(this.plioId);
           this.showSelector({
