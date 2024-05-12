@@ -1,4 +1,19 @@
 <template>
+  <div class="relative w-full">
+    <math-field-popup
+      v-if="showMathEditorPopup"
+      @mathSubmitted="mathTextSubmitted"
+      :showMathEditorPopup="showMathEditorPopup"
+      :isInteractionDisabled="isInteractionDisabled"
+      :originText="textToSendToMathField"
+      :originTextSelectionStart="textAreaSelectionStartToSendToMathField"
+      @closeSignal="() => {
+        mathEditorTarget = null
+        mathEditorSelectedOptionIndex = null
+        showMathEditorPopup = false
+      }"
+    ></math-field-popup>
+
   <!-- big box -->
   <div
     class="flex flex-col w-full h-full rounded-md main-container relative"
@@ -121,22 +136,42 @@
           :maxHeightLimit="questionTextboxHeightLimit"
           data-test="questionText"
         ></Textarea>
-        <!-- add image to item button -->
-        <span
-          v-tooltip="{ content: addImageButtonTooltip, placement: 'left' }"
-          class="my-auto"
-        >
-          <icon-button
-            class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
-            orientation="vertical"
-            :iconConfig="addImageButtonIconConfig"
-            :titleConfig="addImageButtonTitleConfig"
-            :buttonClass="addImageButtonClass"
-            :isDisabled="isInteractionDisabled"
-            @click="showImageUploaderBox"
-            data-test="questionImage"
-          ></icon-button>
-        </span>
+
+        <!-- Buttons -->
+        <div class="flex flex-col justify-center">
+          <!-- add image to item button -->
+          <span
+            v-tooltip="{ content: addImageButtonTooltip, placement: 'left' }"
+            class="my-auto"
+          >
+            <icon-button
+              class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
+              orientation="vertical"
+              :iconConfig="addImageButtonIconConfig"
+              :titleConfig="addImageButtonTitleConfig"
+              :buttonClass="addImageButtonClass"
+              :isDisabled="isInteractionDisabled"
+              @click="showImageUploaderBox"
+              data-test="questionImage"
+            ></icon-button>
+          </span>
+          <!-- add math to item button  -->
+          <span
+            v-tooltip="{ content: addMathButtonTooltip, placement: 'left' }"
+            class="my-auto"
+          >
+            <icon-button
+              class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
+              orientation="vertical"
+              :iconConfig="addMathButtonIconConfig"
+              :titleConfig="addMathButtonTitleConfig"
+              :buttonClass="addMathButtonClass"
+              :isDisabled="isInteractionDisabled"
+              @click="() => openMathFieldPopup('questionText')"
+              data-test="questionMath"
+            ></icon-button>
+          </span>
+        </div>
       </div>
 
       <!-- time input HH : MM : SS : mmm -->
@@ -154,20 +189,42 @@
 
       <!-- input field for entering options  -->
       <div v-if="areOptionsVisible" data-test="options">
-        <input-text
+        <div
           v-for="(option, optionIndex) in options"
-          class="p-2"
-          v-model:value="options[optionIndex]"
-          :placeholder="$t('editor.item_editor.option_input.placeholder')"
-          :title="getOptionInputTitle(optionIndex)"
+          class="flex items-end flex-row w-full"
           :key="optionIndex"
-          :startIcon="getCorrectOptionIconConfig(optionIndex)"
-          :endIcon="getDeleteOptionIconConfig"
-          :boxStyling="getOptionBoxStyling(optionIndex)"
-          @start-icon-selected="updateCorrectAnswer(optionIndex)"
-          @end-icon-selected="deleteOption(optionIndex)"
-          data-test="option"
-        ></input-text>
+        >
+          <input-text
+            class="p-2 w-full"
+            v-model:value="options[optionIndex]"
+            :placeholder="$t('editor.item_editor.option_input.placeholder')"
+            :title="getOptionInputTitle(optionIndex)"
+            :startIcon="getCorrectOptionIconConfig(optionIndex)"
+            :endIcon="getDeleteOptionIconConfig"
+            :boxStyling="getOptionBoxStyling(optionIndex)"
+            @start-icon-selected="updateCorrectAnswer(optionIndex)"
+            @end-icon-selected="deleteOption(optionIndex)"
+            data-test="option"
+            :ref="`optionText_index_${optionIndex}`"
+          ></input-text>
+          <!-- add math to option text button  -->
+          <span
+            v-tooltip="{ content: addMathButtonTooltip, placement: 'left' }"
+            class="p-2"
+          >
+            <icon-button
+              class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
+              orientation="vertical"
+              :iconConfig="addMathButtonIconConfig"
+              :titleConfig="addMathButtonTitleConfig"
+              :buttonClass="addMathButtonClass"
+              :isDisabled="isInteractionDisabled"
+              @click="() => openMathFieldPopup('optionText', optionIndex)"
+              data-test="questionMath"
+            ></icon-button>
+          </span>
+        </div>
+
       </div>
 
       <!-- add option button -->
@@ -224,6 +281,7 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
@@ -240,6 +298,7 @@ import {
   convertISOTimeToSeconds,
 } from "@/services/Functional/Utilities/Generic.js";
 import { useToast } from "vue-toastification";
+import MathFieldPopup from "@/components/Editor/MathFieldPopup.vue";
 
 export default {
   name: "ItemEditor",
@@ -324,9 +383,23 @@ export default {
         iconClass:
           "w-6 h-6 text-primary group-hover:text-white group-disabled:text-primary",
       },
+      addMathButtonClass: "bg-white hover:bg-primary disabled:bg-white focus:ring-primary",
+      addMathButtonIconConfig: {
+        // icon config for add math button
+        enabled: true,
+        iconName: "add-math",
+        iconClass:
+          "w-6 h-6 text-primary group-hover:text-white group-disabled:text-primary",
+      },
       // set containing the question types which support options
       questionTypesSupportingOptions: new Set(["mcq", "checkbox"]),
       toast: useToast(),
+
+      // whether to show the question text math editor or not. Math editor for 
+      // options is not yet present and will be controlled by different variable
+      showMathEditorPopup: false,
+      mathEditorTarget: null, // "questionText" or "optionText"
+      mathEditorSelectedOptionIndex: null, // the index of the option against whose math editor button was clicked
     };
   },
 
@@ -386,8 +459,42 @@ export default {
     TimeInput,
     Textarea,
     QuestionTypeDropdown,
+    MathFieldPopup
   },
   methods: {
+    mathTextSubmitted(e) {
+      if (
+        this.mathEditorTarget == null ||
+        (
+          this.mathEditorTarget == 'optionText' &&
+          this.mathEditorSelectedOptionIndex == null
+        )
+      ) {
+        console.error('Invalid math editor target or option index')
+        return
+      }
+
+      if (this.mathEditorTarget == 'questionText')
+        this.questionText = e
+      
+      else if (
+        this.mathEditorTarget == 'optionText' &&
+        this.mathEditorSelectedOptionIndex != null
+      )
+        this.options[this.mathEditorSelectedOptionIndex] = e
+      
+        this.mathEditorTarget = null
+        this.mathEditorSelectedOptionIndex = null
+        this.showMathEditorPopup = false
+    },
+    openMathFieldPopup(
+      target, // : "questionText" | "optionText"
+      optionIndex = null
+    ) {
+      this.mathEditorTarget = target;
+      this.mathEditorSelectedOptionIndex = optionIndex;
+      this.showMathEditorPopup = true;
+    },
     getImageSource: GenericUtilities.getImageSource,
     showImageUploaderBox() {
       // to show or hide the image uploader dialog box
@@ -540,6 +647,22 @@ export default {
   },
 
   computed: {
+    textToSendToMathField() {
+      // returns the text to be sent to the math field
+      if (this.mathEditorTarget == "questionText") return this.questionText;
+      if (this.mathEditorSelectedOptionIndex != null && this.mathEditorTarget == "optionText")
+        return this.options[this.mathEditorSelectedOptionIndex];
+      return "";
+    },
+    textAreaSelectionStartToSendToMathField() {
+      if (this.mathEditorTarget == "questionText") return this.$refs.questionText.getSelectionStart();
+
+      if (this.mathEditorSelectedOptionIndex != null && this.mathEditorTarget == "optionText") {
+        return this.$refs[`optionText_index_${this.mathEditorSelectedOptionIndex}`][0].getSelectionStart();
+      }
+
+      return 0
+    },
     correctOptionIcon() {
       if (this.isQuestionTypeMCQ) return "check-circle-regular";
       return "check-square-regular";
@@ -557,6 +680,17 @@ export default {
       return this.isInteractionDisabled
         ? this.$t("tooltip.editor.item_editor.buttons.question_type_picker.disabled")
         : this.$t("tooltip.editor.item_editor.buttons.question_type_picker.enabled");
+    },
+    addMathButtonTooltip() {
+      return this.isInteractionDisabled
+        ? this.$t("tooltip.editor.item_editor.buttons.add_math.disabled")
+        : this.$t("tooltip.editor.item_editor.buttons.add_math.enabled");
+    },
+    addMathButtonTitleConfig() {
+      return {
+        value: this.$t("editor.item_editor.add_math"),
+        class: "text-xs group-hover:text-white group-disabled:text-black text-black font-normal",
+      }
     },
     addImageButtonTooltip() {
       if (!this.isQuestionImagePresent) {

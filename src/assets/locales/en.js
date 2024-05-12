@@ -68,6 +68,7 @@ export default {
       },
       buttons: {
         add_option: "Add option",
+        submit_math: "Add",
       },
       dropdown: {
         question: "Question",
@@ -84,6 +85,7 @@ export default {
         add_image: "Image",
         edit_image: "Edit",
       },
+      add_math: "Math"
     },
     dialog: {
       delete_option: {
@@ -456,6 +458,11 @@ export default {
             enabled: "Update or delete the image in this question",
             disabled: "Cannot update the image in a published plio",
           },
+          add_math: {
+            enabled: "Add a math equation to your question",
+            disabled: "Cannot add a math equation in a published plio",
+          },
+          close_math_editor: "Close the math editor",
           question_type_picker: {
             disabled:
               "Cannot change the question type once a plio is published",

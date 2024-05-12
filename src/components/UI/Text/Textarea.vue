@@ -50,6 +50,7 @@
         @keypress="keyPress"
         @keydown="keyDown"
         data-test="input"
+        ref="textarea"
       />
     </div>
   </div>
@@ -217,6 +218,9 @@ export default {
       // invoked on start icon being selected
       this.$emit("start-icon-selected", this.value);
     },
+    getSelectionStart() {
+      return this.$refs.textarea.selectionStart;
+    }
   },
   emits: ["input", "keypress", "keydown", "update:value", "start-icon-selected"],
 };

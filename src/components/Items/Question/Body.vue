@@ -3,7 +3,9 @@
     <!-- question text -->
     <div class="px-4 md:px-6" :class="{ 'xl:px-10': !previewMode }">
       <p :class="questionTextClass" data-test="questionText">
-        {{ questionText }}
+        <!-- {{ questionText }} -->
+        <span v-html="latexFormattedQuestionText"></span>
+
       </p>
     </div>
     <div :class="orientationClass">
@@ -60,10 +62,11 @@
                   :data-test="`optionSelector-${optionIndex}`"
                 />
                 <div
-                  v-html="option"
                   class="ml-2 h-full place-self-center leading-tight"
                   :data-test="`option-${optionIndex}`"
-                ></div>
+                >
+                  <span v-html="latexFormattedOptionText[optionIndex]"></span>
+                </div>
               </label>
             </div>
           </li>
@@ -108,6 +111,7 @@
 
 <script>
 import Textarea from "@/components/UI/Text/Textarea.vue";
+import katex from 'katex';
 
 export default {
   data() {
@@ -257,6 +261,46 @@ export default {
     },
   },
   computed: {
+    latexFormattedQuestionText() {
+      // we're getting a prop called "questionText". This is a string which may contain latex code and 
+      // might look like this - "What is the value of \\(x\\) in the equation \\(x^2 + 2x + 1 = 0\\)?".
+      // This contains sections which need to be formatted as latex and some sections which will be plain text.
+      // So format the incoming string and return the formatted string as a HTML which will be rendered as a v-html.
+
+      const latexSections = this.questionText.match(/\\\(.*?\\\)/g);
+      var output = this.questionText
+      if (latexSections) {
+        latexSections.forEach((latexSection) => {
+          const formattedLatex = katex.renderToString(latexSection.slice(2, -2), {
+            throwOnError: false,
+            output: "html",
+          });
+          output = output.replace(latexSection, formattedLatex);
+        });
+      }
+      return output;
+    },
+    latexFormattedOptionText() {
+      // we're getting a prop called "options". This is an array of strings which may contain latex code and 
+      // might look like this - ["\\(x\\)", "\\(y\\)", "\\(z\\)"].
+      // This contains sections which need to be formatted as latex and some sections which will be plain text.
+      // So format the incoming strings and return the formatted strings as an array of HTML strings which will be rendered as a v-html.
+
+      return this.options.map((option) => {
+        const latexSections = option.match(/\\\(.*?\\\)/g);
+        var output = option
+        if (latexSections) {
+          latexSections.forEach((latexSection) => {
+            const formattedLatex = katex.renderToString(latexSection.slice(2, -2), {
+              throwOnError: false,
+              output: "html",
+            });
+            output = output.replace(latexSection, formattedLatex);
+          });
+        }
+        return output;
+      });
+    },
     optionInputType() {
       if (!this.areOptionsVisible) return null;
       if (this.isQuestionTypeMCQ) return "radio";
