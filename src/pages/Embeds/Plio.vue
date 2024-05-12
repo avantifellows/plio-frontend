@@ -399,6 +399,44 @@ export default {
 
       return this.plioSettings.get("player").children.get("ui").children;
     },
+    defaultAdvancedSettings() {
+      return globalDefaultSettings.get("player").children.get("advanced").children;
+    },
+    defaultWebhookSettings() {
+      return this.defaultAdvancedSettings.get("customWebhook").value;
+    },
+    webhookSettings() {
+      if (
+        this.plioSettings == null ||
+        !(this.plioSettings instanceof Map) ||
+        !this.plioSettings.has("player") ||
+        !this.plioSettings.get("player").children.has("advanced") ||
+        !this.plioSettings.get("player").children.get("advanced").children.has("customWebhook")
+      ) return this.defaultWebhookSettings
+
+      return this.plioSettings.get("player").children.get("advanced").children.get("customWebhook").value;
+    },
+    isWebhookFunctionalityEnabled() {
+      if (
+        this.previewMode ||
+        !('enabledEvents' in this.webhookSettings) ||
+        this.webhookSettings.enabledEvents.length == 0 ||
+        !('webhookURL' in this.webhookSettings) ||
+        this.webhookSettings.webhookURL == "" ||
+        this.thirdPartyUniqueId == null ||
+        this.thirdPartyApiKey == null
+      ) return false;
+
+      return true;
+    },
+    webhookURL() {
+      if (this.isWebhookFunctionalityEnabled) return this.webhookSettings.webhookURL;
+      return null;
+    },
+    enabledEvents() {
+      if (this.isWebhookFunctionalityEnabled) return this.webhookSettings.enabledEvents;
+      return null;
+    },
     /**
      * whether player has the correct aspect ratio as desired
      */
@@ -585,6 +623,71 @@ export default {
       ]
     ),
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
+    checkAndSendEventToWebhook(eventName, eventData) {
+      if (!this.isWebhookFunctionalityEnabled) return;
+      
+      if (this.enabledEvents.includes(eventName)) {
+        let extraData = []
+
+        if (eventName == 'played' || eventName == 'paused') {
+          extraData = [
+            {
+              key: 'plio_seekbar_time',
+              value: this.player.currentTime
+            }
+          ]
+        } else if (eventName == 'item_opened') {
+          extraData = [
+            {
+              key: 'item_index',
+              value: eventData.itemIndex
+            },
+            {
+              key: 'item_id',
+              value: this.items[eventData.itemIndex].id
+            }
+          ]
+        } else if (eventName == 'plio_finished') {
+          extraData = [
+            {
+              key: 'num_correct',
+              value: this.numCorrect
+            },
+            {
+              key: 'num_wrong',
+              value: this.numWrong
+            },
+            {
+              key: 'num_skipped',
+              value: this.numSkipped
+            }
+          ]
+        }
+
+        let payload = {
+          unique_user_id: this.thirdPartyUniqueId,
+          plio_id: this.plioId,
+          timestamp: new Date().toISOString(),
+          event_type: eventName,
+          event_data: extraData,
+        }
+      
+        try {
+          fetch(
+            this.webhookURL,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload),
+            }
+          )
+        } catch (error) {
+          console.error("Error in sending event to webhook", error)
+        }
+      }
+    },
     /**
      * @param {Number} itemIndex - the index of the item whose response is to be checked
      * @param {Number} answer - the response to be checked
@@ -649,6 +752,11 @@ export default {
       if (!this.isMovingToTimestampAllowed(this.player.duration)) return;
       if (!this.isScorecardShown) {
         this.isScorecardShown = true;
+
+        this.checkAndSendEventToWebhook(
+          'plio_finished', {}
+        )
+
         var scorecardModal = document.getElementById("scorecardmodal");
         if (scorecardModal != undefined) this.mountOnFullscreenPlyr(scorecardModal);
       }
@@ -885,6 +993,10 @@ export default {
           else {
             if (this.locale == null) this.setFirstTimeLanguagePickerShownBySetting()
           }
+
+          this.checkAndSendEventToWebhook(
+            'plio_loaded', {}
+          )
         })
         .then(() => this.createSession())
         .then(() => this.logData());
@@ -1006,6 +1118,10 @@ export default {
         }
         // once itemResponses is full, calculate all the scorecard metrics
         this.calculateScorecardMetrics();
+
+        this.checkAndSendEventToWebhook(
+            'user_authenticated', {}
+        )
       });
     },
     /**
@@ -1283,6 +1399,9 @@ export default {
        * in preview mode
        */
       if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode) return;
+
+      this.checkAndSendEventToWebhook(eventType, eventDetails)
+
       let response = await EventAPIService.createEvent({
         type: eventType,
         details: eventDetails,

@@ -608,7 +608,8 @@ export default {
           clonedeep(this.activeWorkspaceSettings)
         );
 
-      SettingsUtilities.prepareSettingsToRender(this.settingsToRender);
+        // preparing settings to render but only for the App.vue component
+      SettingsUtilities.prepareSettingsToRender(this.settingsToRender, true, "App.vue");
     },
     closeSettingsMenu() {
       if (this.isMobileScreen) this.resetMenuState();
