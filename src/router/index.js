@@ -23,7 +23,11 @@ const routes = [
     path: "/:workspace?/home",
     name: "Home",
     component: () => import(/* webpackChunkName: "home" */ "@/pages/Home.vue"),
-    props: true,
+    props: (route) => {
+      return {
+        workspace: route.params.workspace,
+      }
+    },
     meta: {
       requiresAuth: true,
       title: "Home - Plio",
@@ -168,7 +172,12 @@ router.beforeEach((to, from) => {
   // are not explicitly specified in the requested URL. This will lead them to the workspace's home
   // where they left off the in the previous session
   const existingActiveWorkspace = store.state["auth"]["activeWorkspace"];
-  if (existingActiveWorkspace != "" && to.params.workspace != "")
+  if (
+    existingActiveWorkspace != "" && (
+      to.params.workspace == undefined ||
+      to.params.workspace == "" 
+    )
+  )
     to.params.workspace = existingActiveWorkspace;
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
