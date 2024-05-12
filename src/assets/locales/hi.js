@@ -69,6 +69,7 @@ export default {
       },
       buttons: {
         add_option: "विकल्प जोड़ें",
+        submit_math: "सबमिट",
       },
       dropdown: {
         question: "सवाल",
@@ -85,6 +86,7 @@ export default {
         add_image: "चित्र",
         edit_image: "बदलें",
       },
+      add_math: "गणित",
     },
     dialog: {
       delete_option: {
@@ -456,6 +458,11 @@ export default {
               "प्लायो के प्रकाशित होने के बाद चित्र को हटाना या बदलना मना है",
             enabled: "सवाल के चित्र को हटाने या बदलने के लिए क्लिक करें",
           },
+          add_math: {
+            enabled: "सवाल में गणित जोड़ने के लिए क्लिक करें",
+            disabled: "प्लायो के प्रकाशित होने के बाद आप सवाल में गणित नहीं जोड़ सकते",
+          },
+          close_math_editor: "गणित एडिटर बंद करें",
           question_type_picker: {
             disabled:
               "प्लायो के प्रकाशित होने के बाद आप किसी सवाल का प्रकार नहीं बदल सकते",
