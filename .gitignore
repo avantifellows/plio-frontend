@@ -25,7 +25,7 @@ pnpm-debug.log*
 *.env
 
 .env
-package-lock.json
+# package-lock.json
 
 # testing
 /coverage
