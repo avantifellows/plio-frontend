@@ -32,3 +32,6 @@ pnpm-debug.log*
 
 # codespaces
 workspace.code-workspace
+
+.git_backup/
+.git_corrupted/
