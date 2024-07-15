@@ -1886,13 +1886,36 @@ export default {
         this.isModalMinimized = false;
       } else this.markNoItemSelected();
     },
+
+    // format a number based timestamp like 24.32 to a string like 00:24:320
+    // or a number like 3600.32 to a string like 01:00:320
+    formatTimestamp(timestamp) {
+      const hours = Math.floor(timestamp / 3600);
+      const minutes = Math.floor((timestamp % 3600) / 60);
+      const seconds = Math.floor(timestamp % 60);
+      const milliseconds = Math.floor((timestamp % 1) * 1000);
+
+      const formattedHours = String(hours).padStart(2, '0');
+      const formattedMinutes = String(minutes).padStart(2, '0');
+      const formattedSeconds = String(seconds).padStart(2, '0');
+      const formattedMilliseconds = String(milliseconds).padStart(3, '0');
+
+      if (hours > 0) {
+        return `${formattedHours}:${formattedMinutes}:${formattedSeconds}:${formattedMilliseconds}`;
+      } else {
+        return `${formattedMinutes}:${formattedSeconds}:${formattedMilliseconds}`;
+      }
+    },
+
     /**
      * updates the player time to the given timestamp
      *
      * @param {Number} timestamp - the timestamp that the player should be set to
      */
     updatePlayerTimestamp(timestamp) {
+      // custom updation of time shown on the plyr embed
       this.player.currentTime = timestamp;
+      if (this.$refs.videoPlayer != null) this.$refs.videoPlayer.timeDiv.innerHTML = this.formatTimestamp(timestamp);
     },
     /**
      * invoked when the time slider is updated

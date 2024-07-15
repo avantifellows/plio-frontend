@@ -18,6 +18,12 @@ export default {
   data() {
     return {
       player: null,
+
+      // an interval which keeps trying to find a particular div which shows time on the plyr embed.
+      timeDivFindingInterval: null,
+
+      // the div which shows time on the plyr embed
+      timeDiv: null,
     };
   },
   props: {
@@ -42,6 +48,18 @@ export default {
         this.$emit("initiated");
       }
     });
+
+    // find the div with class `plyr__controls__item plyr__time--current plyr__time` and save it once found.
+    // keep trying in an interval and once found, store it in a variable and clear the interval
+    this.timeDivFindingInterval = setInterval(() => {
+      var timeDiv = document.querySelector(
+        ".plyr__controls__item.plyr__time--current.plyr__time"
+      );
+      if (timeDiv != null) {
+        this.timeDiv = timeDiv;
+        clearInterval(this.timeDivFindingInterval);
+      }
+    }, 500);
   },
   watch: {
     currentTime(newTime) {
