@@ -1014,6 +1014,7 @@ export default {
       if (this.imageUploaderMode == "question") return this.itemImage;
       if (this.imageUploaderMode == "option" && this.imageUploaderOptionIndex != -1)
         return this.currentOptionImage;
+      return null
     },
     /**
      * URL of the image present for the current item
