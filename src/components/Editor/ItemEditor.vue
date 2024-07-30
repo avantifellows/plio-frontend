@@ -151,7 +151,7 @@
               :titleConfig="addImageButtonTitleConfig"
               :buttonClass="addImageButtonClass"
               :isDisabled="isInteractionDisabled"
-              @click="showImageUploaderBox"
+              @click="showImageUploaderBoxForQuestion"
               data-test="questionImage"
             ></icon-button>
           </span>
@@ -207,6 +207,31 @@
             data-test="option"
             :ref="`optionText_index_${optionIndex}`"
           ></input-text>
+          
+          <!-- add image to option text button  -->
+          
+          <!-- change tooltip text depending on whether an image is present or not for that option -->
+          <span
+            v-tooltip="{ 
+              content: 
+                selectedItemOptionImagesMappedArray[optionIndex] === null 
+                ? addImageToOptionButtonTooltip 
+                : updateImageToOptionButtonTooltip, 
+              placement: 'left' 
+            }"
+            class="p-2"
+          >
+            <icon-button
+              class="rounded-md w-12 h-12 disabled:opacity-50 my-auto group border pt-1"
+              orientation="vertical"
+              :iconConfig="addImageButtonIconConfig"
+              :titleConfig="selectedItemOptionImagesMappedArray[optionIndex] === null ? addImageToOptionButtonTitleConfig : updateImageToOptionButtonTitleConfig"
+              :buttonClass="addImageButtonClass"
+              :isDisabled="isInteractionDisabled"
+              @click="showImageUploaderBoxForOption(optionIndex)"
+              data-test="optionImage"
+            ></icon-button>
+          </span>
           <!-- add math to option text button  -->
           <span
             v-tooltip="{ content: addMathButtonTooltip, placement: 'left' }"
@@ -496,9 +521,13 @@ export default {
       this.showMathEditorPopup = true;
     },
     getImageSource: GenericUtilities.getImageSource,
-    showImageUploaderBox() {
+    showImageUploaderBoxForQuestion() {
       // to show or hide the image uploader dialog box
-      this.$emit("show-image-uploader");
+      this.$emit("show-image-uploader", "question");
+    },
+    showImageUploaderBoxForOption(optionIndex) {
+      // to show or hide the image uploader dialog box
+      this.$emit("show-image-uploader", "option", optionIndex);
     },
     maxCharLimitInputKeypress(event) {
       // invoked when a key is pressed in the input area for setting max limit
@@ -647,6 +676,27 @@ export default {
   },
 
   computed: {
+
+    // this returns an array which tells us if an image is present for the option or not. Length
+    // of this array is equal to the number of options. If an image is present for an option, the
+    // value at that index is the image url, else it is null.
+    selectedItemOptionImagesMappedArray() {
+      // a new array of the size of the options array, filled with nulls by default
+      // then we check if that index of the option is present as a key in this.selectedItemDetail.option_images object.
+      // if it is, then we pickup the value of that key and put it in the new array at that index.
+      if (this.selectedItemDetail.option_images == null) {
+        return this.selectedItemDetail.options.map(() => null);
+      } else {
+        return this.selectedItemDetail.options.map((option, index) => {
+          if (index in this.selectedItemDetail.option_images) {
+            return this.selectedItemDetail.option_images[index];
+          } else {
+            return null;
+          }
+        });
+      }
+
+    },
     textToSendToMathField() {
       // returns the text to be sent to the math field
       if (this.mathEditorTarget == "questionText") return this.questionText;
@@ -702,6 +752,16 @@ export default {
         ? this.$t("tooltip.editor.item_editor.buttons.update_image.disabled")
         : this.$t("tooltip.editor.item_editor.buttons.update_image.enabled");
     },
+    addImageToOptionButtonTooltip() {
+      return this.isInteractionDisabled
+          ? this.$t("tooltip.editor.item_editor.buttons.add_image.disabled")
+          : this.$t("tooltip.editor.item_editor.buttons.add_image.enabled");
+    },
+    updateImageToOptionButtonTooltip() {
+      return this.isInteractionDisabled
+          ? this.$t("tooltip.editor.item_editor.buttons.update_image.disabled")
+          : this.$t("tooltip.editor.item_editor.buttons.update_image.enabled");
+    },
     addImageButtonTitleConfig() {
       // title config for the add image button
       return {
@@ -711,6 +771,18 @@ export default {
         class:
           "text-xs group-hover:text-white group-disabled:text-black text-black font-normal",
       };
+    },
+    addImageToOptionButtonTitleConfig() {
+      return {
+        value: this.$t("editor.item_editor.image_upload.add_image"),
+        class: "text-xs group-hover:text-white group-disabled:text-black text-black font-normal",
+      }
+    },
+    updateImageToOptionButtonTitleConfig() {
+      return {
+        value: this.$t("editor.item_editor.image_upload.edit_image"),
+        class: "text-xs group-hover:text-white group-disabled:text-black text-black font-normal",
+      }
     },
     isQuestionImagePresent() {
       // if the current selected item has an image present

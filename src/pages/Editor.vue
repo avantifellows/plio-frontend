@@ -421,7 +421,7 @@
     <!-- image uploader dialog box -->
     <ImageUploaderDialog
       v-if="isImageUploaderDialogShown"
-      :uploadedImage="itemImage"
+      :uploadedImage="imageToShowInImageUploaderBox"
       @close-dialog="toggleImageUploaderBox"
       @image-selected="uploadImage"
       @delete-image="deleteLinkedImage"
@@ -751,6 +751,8 @@ export default {
         iconClass: "text-white fill-current h-4 w-4",
       },
       isImageUploaderDialogShown: false, // whether to show the image uploader or not
+      imageUploaderMode: "question", // mode for the image uploader - "question" or "option"
+      imageUploaderOptionIndex: -1, // index of the option for which the image is being uploaded
       loadedPlioDetails: {}, // details of the plio fetched when the page was loaded
       isPlioPreviewShown: false, // whether to show a full preview of the plio (draft mode only)
       reRenderKey: 0, // key required to re-render the plio preview player
@@ -1008,6 +1010,11 @@ export default {
         "bg-white border-2 border-gray-400 rounded-lg": this.isPlioPreviewLoaded,
       };
     },
+    imageToShowInImageUploaderBox() {
+      if (this.imageUploaderMode == "question") return this.itemImage;
+      if (this.imageUploaderMode == "option" && this.imageUploaderOptionIndex != -1)
+        return this.currentOptionImage;
+    },
     /**
      * URL of the image present for the current item
      */
@@ -1015,6 +1022,14 @@ export default {
       if (this.currentItemIndex == null) return null;
       if (this.currentItemDetail.image == null) return null;
       return this.currentItemDetail.image.url;
+    },
+    currentOptionImage() {
+      if (this.imageUploaderMode != "option") return null;
+      if (this.imageUploaderOptionIndex == -1) return null;
+      if (this.currentItemDetail.option_images == null) return null;
+      if (!(this.imageUploaderOptionIndex in this.currentItemDetail.option_images))
+        return null;
+      return this.currentItemDetail.option_images[this.imageUploaderOptionIndex].url;
     },
     /**
      * whether the type of the question being created is a subjective question
@@ -1478,7 +1493,11 @@ export default {
     constructSettingsMenu() {
       // keep a clone of the plio settings in a local variable
       this.settingsToRender = clonedeep(this.plioSettings);
-      SettingsUtilities.prepareSettingsToRender(this.settingsToRender, false, "Editor.vue");
+      SettingsUtilities.prepareSettingsToRender(
+        this.settingsToRender,
+        false,
+        "Editor.vue"
+      );
     },
     closeSettingsMenu() {
       this.isSettingsMenuShown = false;
@@ -1717,9 +1736,23 @@ export default {
      * unlinks the image from the current question, and deletes it from S3
      */
     deleteLinkedImage() {
-      var imageIdToDelete = this.currentItemDetail.image.id;
+      let imageIdToDelete = null;
+      if (this.imageUploaderMode == "question") {
+        imageIdToDelete = this.currentItemDetail.image.id;
+      } else if (this.imageUploaderMode == "option") {
+        imageIdToDelete = this.currentItemDetail.option_images[
+          this.imageUploaderOptionIndex
+        ].id;
+      }
+
+      if (imageIdToDelete == null) return;
       ImageAPIService.deleteImage(imageIdToDelete);
-      this.currentItemDetail.image = null;
+
+      if (this.imageUploaderMode == "question") {
+        this.currentItemDetail.image = null;
+      } else if (this.imageUploaderMode == "option") {
+        delete this.currentItemDetail.option_images[this.imageUploaderOptionIndex];
+      }
     },
     /**
      * upload the image file to the server and update
@@ -1730,14 +1763,34 @@ export default {
     uploadImage(imageFile) {
       this.startLoading();
       ImageAPIService.uploadImage(imageFile).then((response) => {
-        this.currentItemDetail.image = response.data;
+        if (this.imageUploaderMode == "question") {
+          this.currentItemDetail.image = response.data;
+        } else if (this.imageUploaderMode == "option") {
+          if (this.currentItemDetail.option_images == null) {
+            this.currentItemDetail.option_images = {};
+          }
+          this.currentItemDetail.option_images[this.imageUploaderOptionIndex] =
+            response.data;
+        }
         this.stopLoading();
       });
     },
     /**
      * toggles the visibility of the image uploader dialog box
      */
-    toggleImageUploaderBox() {
+    toggleImageUploaderBox(mode = null, optionIndex = -1) {
+      if (this.isImageUploaderDialogShown) {
+        // pass
+      } else {
+        // dialog was hidden and now we wanna show it.
+        if (mode != null && mode == "question") {
+          this.imageUploaderMode = "question";
+          this.imageUploaderOptionIndex = -1;
+        } else if (mode != null && mode == "option") {
+          this.imageUploaderMode = "option";
+          this.imageUploaderOptionIndex = optionIndex;
+        }
+      }
       this.isImageUploaderDialogShown = !this.isImageUploaderDialogShown;
     },
     /**
@@ -1895,10 +1948,10 @@ export default {
       const seconds = Math.floor(timestamp % 60);
       const milliseconds = Math.floor((timestamp % 1) * 1000);
 
-      const formattedHours = String(hours).padStart(2, '0');
-      const formattedMinutes = String(minutes).padStart(2, '0');
-      const formattedSeconds = String(seconds).padStart(2, '0');
-      const formattedMilliseconds = String(milliseconds).padStart(3, '0');
+      const formattedHours = String(hours).padStart(2, "0");
+      const formattedMinutes = String(minutes).padStart(2, "0");
+      const formattedSeconds = String(seconds).padStart(2, "0");
+      const formattedMilliseconds = String(milliseconds).padStart(3, "0");
 
       if (hours > 0) {
         return `${formattedHours}:${formattedMinutes}:${formattedSeconds}:${formattedMilliseconds}`;
@@ -1915,7 +1968,8 @@ export default {
     updatePlayerTimestamp(timestamp) {
       // custom updation of time shown on the plyr embed
       this.player.currentTime = timestamp;
-      if (this.$refs.videoPlayer != null) this.$refs.videoPlayer.timeDiv.innerHTML = this.formatTimestamp(timestamp);
+      if (this.$refs.videoPlayer != null)
+        this.$refs.videoPlayer.timeDiv.innerHTML = this.formatTimestamp(timestamp);
     },
     /**
      * invoked when the time slider is updated
@@ -2144,6 +2198,16 @@ export default {
       if ("image" in payload && payload["image"] != undefined) {
         payloadClone["image"] = payload["image"]["id"];
       }
+      if (
+        "option_images" in payload &&
+        payload["option_images"] != null &&
+        Object.keys(payload["option_images"]).length > 0
+      ) {
+        payloadClone["option_images"] = {};
+        for (const [key, value] of Object.entries(payload["option_images"])) {
+          payloadClone["option_images"][key] = value["id"];
+        }
+      }
       await QuestionAPIService.updateQuestion(id, payloadClone);
     },
     /**
@@ -2231,12 +2295,30 @@ export default {
     deleteSelectedOption() {
       // delete the option
       this.currentItemDetail.options.splice(this.optionIndexToDelete, 1);
+      
+      // handle option image removal and re-indexing
+      if (
+        this.currentItemDetail.option_images != null &&
+        this.optionIndexToDelete in this.currentItemDetail.option_images
+      ) {
+        delete this.currentItemDetail.option_images[this.optionIndexToDelete];
+        Object.entries(this.currentItemDetail.option_images).forEach(
+          ([key, value]) => {
+            if (key > this.optionIndexToDelete) {
+              this.currentItemDetail.option_images[key - 1] = value;
+              delete this.currentItemDetail.option_images[key];
+            }
+          }
+        );
+      }
+
       if (this.isQuestionTypeMCQ) {
         if (this.optionIndexToDelete == this.correctAnswer) {
           // if the deleted option was the correct answer, reset the correct answer
           this.currentItemDetail.correct_answer = 0;
-        } else if (this.correctAnswer > this.optionIndexToDelete)
+        } else if (this.correctAnswer > this.optionIndexToDelete) {
           this.currentItemDetail.correct_answer -= 1;
+        }
       } else if (this.isQuestionTypeCheckbox) {
         if (this.correctAnswer.indexOf(this.optionIndexToDelete) != -1) {
           // remove the deleted option from the list of correct answers

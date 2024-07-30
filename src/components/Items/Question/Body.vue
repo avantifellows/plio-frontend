@@ -12,7 +12,6 @@
       <!-- loading spinner when question image is loading -->
       <div
         :class="questionImageAreaClass"
-        class="flex justify-center"
         v-if="isImageLoading"
       >
         <inline-svg
@@ -48,13 +47,13 @@
             >
               <!-- each option is defined here -->
               <!-- adding <label> so that touch input is just not limited to the radio/checkbox button -->
-              <label :class="labelClass(option)">
+              <label :class="labelClass(option, optionIndex)">
                 <!-- understand the meaning of the keys here:
                     https://www.w3schools.com/tags/att_input_type_radio.asp -->
                 <input
                   :type="optionInputType"
                   :value="option"
-                  class="place-self-center text-primary focus:ring-0"
+                  class="place-self-center text-primary focus:ring-0 mb-auto"
                   style="box-shadow: none"
                   @click="selectOption(optionIndex)"
                   :checked="isOptionMarked(optionIndex)"
@@ -62,10 +61,33 @@
                   :data-test="`optionSelector-${optionIndex}`"
                 />
                 <div
-                  class="ml-2 h-full place-self-center leading-tight"
+                  class="ml-2 h-full place-self-center leading-tight w-full"
                   :data-test="`option-${optionIndex}`"
                 >
                   <span v-html="latexFormattedOptionText[optionIndex]"></span>
+
+                  <!-- OPTION IMAGE AREA -->
+                    <!-- loading spinner when question image is loading -->
+                  <div
+                    :class="optionImageAreaClass"
+                    v-if="areOptionImagesLoading[optionIndex]"
+                  >
+                    <inline-svg
+                      :src="require('@/assets/images/spinner-solid.svg')"
+                      class="animate-spin h-4 object-scale-down"
+                    ></inline-svg>
+                  </div>
+                    <!-- option image container -->
+                  <div :class="optionImagesContainerClass[optionIndex]" v-if="optionImagesPresentList[optionIndex]" >
+                    <img
+                      :src="optionImages[optionIndex].url"
+                      class="object-contain h-full w-full"
+                      :alt="optionImages[optionIndex].alt_text"
+                      :ref="`optionImage_${optionIndex}`"
+                      :class="{ invisible: areOptionImagesLoading[optionIndex] }"
+                      @load="specificOptionImageLoaded(optionIndex)"
+                    />
+                  </div>
                 </div>
               </label>
             </div>
@@ -124,6 +146,7 @@ export default {
       surveyAnswerClass: "bg-gray-200",
       correctOptionClass: "text-white bg-green-500",
       wrongOptionClass: "text-white bg-red-500",
+      areOptionImagesLoading: new Array(this.options.length).fill(false), // an array mapped to number of options, tells us the loading state of each option image
     };
   },
   watch: {
@@ -149,6 +172,7 @@ export default {
   async created() {
     this.subjectiveAnswer = this.defaultAnswer;
     if (this.isQuestionImagePresent) this.startImageLoading();
+    if (this.optionImagesPresentList.includes(true)) this.startOptionImagesLoading();
   },
   props: {
     questionText: {
@@ -158,6 +182,10 @@ export default {
     options: {
       default: () => [],
       type: Array,
+    },
+    optionImages: {
+      default: null,
+      type: Object,
     },
     correctAnswer: {
       default: null,
@@ -221,14 +249,38 @@ export default {
       // stop the loading spinner when the image has been loaded
       this.isImageLoading = false;
     },
+    startOptionImagesLoading() {
+      this.optionImagesPresentList.forEach((option, index) => {
+        if (option) {
+          this.areOptionImagesLoading[index] = true;
+        }
+      });
+    },
+    specificOptionImageLoaded(optionIndex) {
+      this.areOptionImagesLoading[optionIndex] = false;
+    },
     checkCharLimit(event) {
       // checks if character limit is reached in case it is set
       if (!this.hasCharLimit) return;
       if (!this.charactersLeft) event.preventDefault();
     },
-
-    labelClass(optionText) {
-      return [{ "h-4 sm:h-5": optionText == "" }, "flex content-center"];
+    isImagePresentAtOptionIndex(optionIndex) {
+      if (this.optionImages == null) return false;
+      if (!(optionIndex in this.optionImages)) return false;
+      return this.optionImages[optionIndex] != null;
+    },
+    labelClass(
+      optionText, 
+      optionIndex
+  ) {
+      return [
+        { 
+          "h-4 sm:h-5": optionText == "" && !this.isImagePresentAtOptionIndex(optionIndex),
+          "h-4 sm:h-5": optionText != "" && !this.isImagePresentAtOptionIndex(optionIndex),
+          "h-full": this.isImagePresentAtOptionIndex(optionIndex),
+        }, 
+        "flex content-center"
+      ];
     },
     selectOption(optionIndex) {
       // invoked when an option is selected
@@ -261,6 +313,18 @@ export default {
     },
   },
   computed: {
+    // an array of booleans which tells us the loading state of each option image
+    optionImagesLoadingState() {
+      return this.options.map((option, index) => {
+        return this.isImagePresentAtOptionIndex(index);
+      });
+    },
+    // an array of booleans which tells us whether the image is present at each option index
+    optionImagesPresentList() {
+      return this.options.map((option, index) => {
+        return this.isImagePresentAtOptionIndex(index);
+      });
+    },
     latexFormattedQuestionText() {
       // we're getting a prop called "questionText". This is a string which may contain latex code and 
       // might look like this - "What is the value of \\(x\\) in the equation \\(x^2 + 2x + 1 = 0\\)?".
@@ -333,13 +397,29 @@ export default {
     },
     questionImageAreaClass() {
       // styling class for the question image and loading spinner containers
-      return {
+      return [
+        {
         "h-56 mb-4": !this.previewMode && this.isPortrait,
         "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80 w-1/2":
           !this.isPortrait && !this.previewMode,
         "h-20 bp-360:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40 w-1/2": this
           .previewMode,
-      };
+        },
+        "flex justify-center items-center"
+      ]
+    },
+    optionImageAreaClass() {
+      // styling class for the option image and loading spinner containers
+      return [
+        {
+        "h-56 mb-4": !this.previewMode && this.isPortrait,
+        "h-28 sm:h-36 md:h-48 lg:h-56 xl:h-80":
+          !this.isPortrait && !this.previewMode,
+        "h-20 bp-360:h-24 bp-420:h-28 bp-500:h-36 sm:h-48 md:h-24 lg:h-32 xl:h-40": this
+          .previewMode,
+        },
+        "flex justify-center items-center"
+      ]
     },
     questionImageContainerClass() {
       // styling class for the image container
@@ -350,6 +430,18 @@ export default {
         },
         "border rounded-md",
       ];
+    },
+    optionImagesContainerClass() {
+      // styling class for the image containers of all options
+      return this.options.map((option, index) => {
+        return [
+          this.questionImageAreaClass,
+          {
+            hidden: this.areOptionImagesLoading[index],
+          },
+          "rounded-md w-full",
+        ];
+      });
     },
     orientationClass() {
       // styling class to decide orientation of image + options depending on portrait/landscape orientation

@@ -18,6 +18,7 @@
       <item-question-body
         :questionText="questionText"
         :options="questionOptions"
+        :optionImages="questionOptionImages"
         :correctAnswer="questionCorrectAnswer"
         :isAnswerSubmitted="isAnswerSubmitted"
         :isSurveyQuestion="isSelectedItemSurveyQuestion"
@@ -268,6 +269,11 @@ export default {
     questionOptions() {
       if (this.currentItemDetails == undefined) return null;
       return this.currentItemDetails["options"];
+    },
+    questionOptionImages() {
+      if (this.currentItemDetails == undefined) return null;
+      if (Object.keys(this.currentItemDetails).length == 0) return null;
+      return this.currentItemDetails["option_images"];
     },
     /** correct answer for the question */
     questionCorrectAnswer() {
