@@ -276,8 +276,9 @@ export default {
       return [
         { 
           "h-4 sm:h-5": (optionText == "" && !this.isImagePresentAtOptionIndex(optionIndex)),
+          "h-full": (optionText != "" || this.isImagePresentAtOptionIndex(optionIndex))
         }, 
-        "h-full flex content-center"
+        "flex content-center"
       ];
     },
     selectOption(optionIndex) {
