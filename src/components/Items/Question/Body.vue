@@ -275,18 +275,9 @@ export default {
   ) {
       return [
         { 
-          "h-4 sm:h-5": (
-            (
-              optionText == "" && !this.isImagePresentAtOptionIndex(optionIndex)
-            ) 
-              || 
-            (
-              optionText != "" && !this.isImagePresentAtOptionIndex(optionIndex)
-            )
-          ),
-          "h-full": this.isImagePresentAtOptionIndex(optionIndex),
+          "h-4 sm:h-5": (optionText == "" && !this.isImagePresentAtOptionIndex(optionIndex)),
         }, 
-        "flex content-center"
+        "h-full flex content-center"
       ];
     },
     selectOption(optionIndex) {
