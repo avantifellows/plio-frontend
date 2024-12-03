@@ -777,7 +777,7 @@ export default {
           organization.shortcode == this.activeWorkspace || this.activeWorkspace == ""
         );
       });
-      if (!isUserInWorkspace) this.unsetAccessToken();
+      if (!isUserInWorkspace) this.unsetActiveWorkspace();
       let createPlioResponse = await PlioAPIService.createPlio();
       this.$Progress.finish();
       if (createPlioResponse.status == 201) {
