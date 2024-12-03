@@ -291,7 +291,7 @@ import QuestionTypeDropdown from "@/components/Editor/QuestionTypeDropdown.vue";
 import InputText from "@/components/UI/Text/InputText.vue";
 import TimeInput from "@/components/UI/Text/TimeInput.vue";
 import Textarea from "@/components/UI/Text/Textarea.vue";
-import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
+import GenericUtilities, { sendLogToDiscord } from "@/services/Functional/Utilities/Generic.js";
 import ItemFunctionalService from "@/services/Functional/Item.js";
 import {
   convertSecondsToISOTime,
@@ -299,6 +299,7 @@ import {
 } from "@/services/Functional/Utilities/Generic.js";
 import { useToast } from "vue-toastification";
 import MathFieldPopup from "@/components/Editor/MathFieldPopup.vue";
+import { mapState} from "vuex";
 
 export default {
   name: "ItemEditor",
@@ -571,6 +572,10 @@ export default {
     deleteOption(optionIndex) {
       // emit a request for option deletion, pass the optionIndex
       // as a payload -- will be listened to by Editor.vue
+      sendLogToDiscord(
+        `${this.userId} - is deleting the option ${optionIndex} of item ${this.itemDetailList[this.localSelectedItemIndex].id}`,
+        this.activeWorkspace
+      );
       this.$emit("delete-option", optionIndex);
     },
     getCorrectOptionTooltip(optionIndex) {
@@ -603,6 +608,10 @@ export default {
      * emits a request to delete the selected item
      */
     deleteSelectedItem() {
+      sendLogToDiscord(
+        `${this.userId} - is deleting the item ${this.itemDetailList[this.localSelectedItemIndex].id}`,
+        this.activeWorkspace
+      );
       this.$emit("delete-selected-item");
     },
     /**
@@ -647,6 +656,7 @@ export default {
   },
 
   computed: {
+    ...mapState("auth", ["activeWorkspace", "userId"]),
     textToSendToMathField() {
       // returns the text to be sent to the math field
       if (this.mathEditorTarget == "questionText") return this.questionText;

@@ -262,3 +262,26 @@ export async function getVideoDuration(videoId) {
     ErrorHandling.handleAPIErrors(error);
   }
 }
+
+export function sendLogToDiscord(message, workspaceId) {
+  console.log(workspaceId, message);
+  if (workspaceId !== "scertH") return;
+
+  const webhookPayload = {
+    webhook_url: "https://discord.com/api/webhooks/1308380999587205142/Hhl6KeKDisGiV39DL4J0wNpoy46fuy6OUKFIpkfdxjKh0u8NVhEF6sktMuLHovYN8jGG",
+    message: message
+  };
+
+  return axios.post(
+    "https://eoseqzluy7too2a6xhu4oe6yki0xnetl.lambda-url.ap-south-1.on.aws/",
+    webhookPayload
+  )
+  .then(() => {
+    console.log("Successfully sent logs to Discord");
+    return { success: true, error: null };
+  })
+  .catch((error) => {
+    console.error("Failed to send to Discord:", error);
+    return { success: false, error: `Failed to send to Discord: ${error.message}` };
+  });
+}
