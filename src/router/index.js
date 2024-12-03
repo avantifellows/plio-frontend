@@ -144,7 +144,7 @@ router.beforeEach((to, from) => {
   toast.clear();
 
   // if internet is down, show the internet lost toast
-  if (window.Offline.state == "down")
+  if (window.Offline.state == "down") {
     toast.error(i18n.global.t("error.internet_lost"), {
       id: "internetLostToast",
       position: "bottom-center",
@@ -153,9 +153,12 @@ router.beforeEach((to, from) => {
       draggable: false,
       closeButton: false,
     });
+  }
 
   // clear all confetti whenever the route changes
-  if (animationFrameRequest != null) resetConfetti();
+  if (animationFrameRequest != null) {
+    resetConfetti();
+  }
 
   // show auto logout toast
   if (
@@ -172,13 +175,15 @@ router.beforeEach((to, from) => {
   // are not explicitly specified in the requested URL. This will lead them to the workspace's home
   // where they left off the in the previous session
   const existingActiveWorkspace = store.state["auth"]["activeWorkspace"];
+  
   if (
     existingActiveWorkspace != "" && (
       to.params.workspace == undefined ||
       to.params.workspace == "" 
     )
-  )
+  ) {
     to.params.workspace = existingActiveWorkspace;
+  }
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     // app has to be authenticated using third party auth if all the query params
@@ -189,18 +194,22 @@ router.beforeEach((to, from) => {
       queryParams.every(
         (key) => to.query[key] != "" && to.query[key] != undefined
       );
+    
 
     if (isThirdPartyAuth) {
       // skip the login if authenticating via third party
       return;
     } else {
       // proceed to login if not authenticating via third party
-      if (store.getters["auth/isAuthenticated"]) return;
-      else
+      if (store.getters["auth/isAuthenticated"]) {
+        return;
+      }
+      else {
         return {
           name: "Login",
           params: { redirectTo: to.name, params: JSON.stringify(to.params) },
         };
+      }
     }
   }
 
@@ -248,7 +257,9 @@ router.beforeEach((to, from) => {
 router.beforeEach((to) => {
   if (store.getters["auth/isAuthenticated"]) {
     if (to.params.workspace != "" && to.params.workspace != undefined)
+    {
       store.dispatch("auth/setActiveWorkspace", to.params.workspace);
+    }
     else store.dispatch("auth/unsetActiveWorkspace");
   }
   return;

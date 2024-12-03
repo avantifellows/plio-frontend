@@ -38,6 +38,13 @@ client.interceptors.request.use(
         // and the call being made is NOT the refresh token call
         config.headers.Authorization = `Bearer ${store.state.auth.accessToken.access_token}`;
       }
+
+      // const isUserInWorkspace = store.state.auth.user.organizations.some((organization) => {
+      //   return (
+      //     organization.shortcode == store.state.auth.activeWorkspace || store.state.auth.activeWorkspace == ""
+      //   );
+      // });
+
       config.headers.Organization = store.state.auth.activeWorkspace;
     }
     return config;

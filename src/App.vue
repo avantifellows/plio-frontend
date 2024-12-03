@@ -488,7 +488,7 @@ export default {
       "setWindowInnerHeight",
       "showSpinner",
       "hideSpinner",
-      "unsetFirstTimeLanguagePickerShownBySetting"
+      "unsetFirstTimeLanguagePickerShownBySetting",
     ]),
     ...mapActions("sync", ["stopLoading"]),
     ...mapActions("dialog", [
@@ -523,22 +523,35 @@ export default {
         let setting = updatedSettings[key];
 
         if (setting.isWorkspaceSetting) {
-          if (newWorkspaceSettings == null) newWorkspaceSettings = clonedeep(this.activeWorkspaceSettings);
+          if (newWorkspaceSettings == null)
+            newWorkspaceSettings = clonedeep(this.activeWorkspaceSettings);
           if (newWorkspaceSettings.has(setting.headerName) == false) {
-            newWorkspaceSettings.set(setting.headerName, clonedeep(globalDefaultSettings.get(setting.headerName)));
+            newWorkspaceSettings.set(
+              setting.headerName,
+              clonedeep(globalDefaultSettings.get(setting.headerName))
+            );
           }
           const header = newWorkspaceSettings.get(setting.headerName);
           if (header.children.has(setting.tabName) == false) {
             header.children.set(
               setting.tabName,
-              clonedeep(globalDefaultSettings.get(setting.headerName).children.get(setting.tabName))
+              clonedeep(
+                globalDefaultSettings
+                  .get(setting.headerName)
+                  .children.get(setting.tabName)
+              )
             );
           }
           const tab = header.children.get(setting.tabName);
           if (tab.children.has(setting.leafName) == false) {
             tab.children.set(
               setting.leafName,
-              clonedeep(globalDefaultSettings.get(setting.headerName).children.get(setting.tabName).children.get(setting.leafName))
+              clonedeep(
+                globalDefaultSettings
+                  .get(setting.headerName)
+                  .children.get(setting.tabName)
+                  .children.get(setting.leafName)
+              )
             );
           }
           tab.children.get(setting.leafName).value = setting.newValue;
@@ -550,20 +563,32 @@ export default {
           //   .children.get(setting.leafName).value = setting.newValue;
 
           if (newUserSettings.has(setting.headerName) == false) {
-            newUserSettings.set(setting.headerName, clonedeep(globalDefaultSettings.get(setting.headerName)));
+            newUserSettings.set(
+              setting.headerName,
+              clonedeep(globalDefaultSettings.get(setting.headerName))
+            );
           }
           const header = newUserSettings.get(setting.headerName);
           if (header.children.has(setting.tabName) == false) {
             header.children.set(
               setting.tabName,
-              clonedeep(globalDefaultSettings.get(setting.headerName).children.get(setting.tabName))
+              clonedeep(
+                globalDefaultSettings
+                  .get(setting.headerName)
+                  .children.get(setting.tabName)
+              )
             );
           }
           const tab = header.children.get(setting.tabName);
           if (tab.children.has(setting.leafName) == false) {
             tab.children.set(
               setting.leafName,
-              clonedeep(globalDefaultSettings.get(setting.headerName).children.get(setting.tabName).children.get(setting.leafName))
+              clonedeep(
+                globalDefaultSettings
+                  .get(setting.headerName)
+                  .children.get(setting.tabName)
+                  .children.get(setting.leafName)
+              )
             );
           }
           tab.children.get(setting.leafName).value = setting.newValue;
@@ -608,7 +633,7 @@ export default {
           clonedeep(this.activeWorkspaceSettings)
         );
 
-        // preparing settings to render but only for the App.vue component
+      // preparing settings to render but only for the App.vue component
       SettingsUtilities.prepareSettingsToRender(this.settingsToRender, true, "App.vue");
     },
     closeSettingsMenu() {
@@ -745,6 +770,14 @@ export default {
       });
       this.$mixpanel.people.increment("Total Plios Created");
 
+      let isUserInWorkspace = this.user.organizations.some((organization) => {
+        // no need to redirect if the user belongs to the workspace
+        // or the user is in the personal workspace
+        return (
+          organization.shortcode == this.activeWorkspace || this.activeWorkspace == ""
+        );
+      });
+      if (!isUserInWorkspace) this.unsetAccessToken();
       let createPlioResponse = await PlioAPIService.createPlio();
       this.$Progress.finish();
       if (createPlioResponse.status == 201) {
@@ -840,13 +873,13 @@ export default {
           this.hideSpinner();
           // this.$router.push({ name: "Home", params: { workspace: selectedOptionValue } });
           // earlier this used to reload in place, but now we want to open in a new tab
-          // because if someone is copying multiple plios to another workspace, they shouldn't have to 
+          // because if someone is copying multiple plios to another workspace, they shouldn't have to
           // go back and forth between the workspaces
           const routeData = this.$router.resolve({
             name: "Home",
-            params: { workspace: selectedOptionValue }
+            params: { workspace: selectedOptionValue },
           });
-          window.open(routeData.href, '_blank');
+          window.open(routeData.href, "_blank");
         })
         .catch(() => {
           this.hideSpinner();
@@ -864,7 +897,10 @@ export default {
       "userRoleInActiveWorkspace",
       "activeWorkspaceId",
     ]),
-    ...mapGetters("generic", ["isMobileScreen", "isFirstTimeLanguagePickerShownBySetting"]),
+    ...mapGetters("generic", [
+      "isMobileScreen",
+      "isFirstTimeLanguagePickerShownBySetting",
+    ]),
     ...mapState("auth", ["config", "user", "activeWorkspace", "userId", "userSettings"]),
     ...mapState("generic", [
       "isSharePlioDialogShown",
@@ -1192,31 +1228,25 @@ export default {
       return this.$route.name == "Login";
     },
     checkIfIsSSOUser() {
-      const output = (
-        "api_key" in this.$route.query &&
-        "unique_id" in this.$route.query
-      )
-      return output
+      const output = "api_key" in this.$route.query && "unique_id" in this.$route.query;
+      return output;
     },
     /**
      * whether the background should be disabled
      */
     isBackgroundDisabled() {
-      const output = (
-        (
-          this.checkIfIsSSOUser && 
+      const output =
+        (this.checkIfIsSSOUser &&
           this.isFirstTimeLanguagePickerShownBySetting !== null &&
-          this.isFirstTimeLanguagePickerShownBySetting == true
-        ) ||
+          this.isFirstTimeLanguagePickerShownBySetting == true) ||
         (!this.checkIfIsSSOUser && this.showLanguagePickerDialog) ||
         this.isSharePlioDialogShown ||
         this.isEmbedPlioDialogShown ||
         this.isDialogBoxShown ||
         this.isSpinnerShown ||
         this.isSettingsMenuShown ||
-        this.isSingleSelectorShown
-      );
-      return output
+        this.isSingleSelectorShown;
+      return output;
     },
     /**
      * list of shortcodes of all workspaces that the user is a part of

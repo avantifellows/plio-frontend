@@ -118,9 +118,6 @@ export default {
     this.tableData = this.dummyTableData;
     await this.fetchPlios();
     this.$mixpanel.track("Visit Home");
-    if (this.workspace) {
-      this.setActiveWorkspace(this.workspace);
-    }
   },
   computed: {
     ...mapState("auth", ["activeWorkspace", "userSettings"]),
