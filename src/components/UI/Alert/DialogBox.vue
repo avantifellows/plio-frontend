@@ -82,11 +82,11 @@ export default {
       // config for the icon of the button to close the dialog box
       closeIconConfig: {
         enabled: true,
-        iconName: "times-circle-white",
+        iconName: "times-circle-solid",
         iconClass: "text-primary fill-current h-8 w-8",
       },
       // class for the button to close the dialog box
-      closeButtonClass: "w-10 h-10 -mr-4 -mt-6",
+      closeButtonClass: "bg-white w-10 h-10 p-2",
     };
   },
   props: {
