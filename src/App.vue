@@ -273,14 +273,15 @@ import OrganizationAPIService from "@/services/API/Organization.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
-import CreatePlioButton from './components/CreatePlioButton.vue';
+import CreatePlioButton from '@/components/CreatePlioButton.vue';
 
 let clonedeep = require("lodash.clonedeep");
 
 export default {
   components: {
+    CreatePlioButton, 
     LocaleSwitcher,
-    SharePlioDialog
+    SharePlioDialog,
     EmbedPlioDialog,
     WorkspaceSwitcher,
     IconButton,
