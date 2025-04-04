@@ -1,3 +1,5 @@
+import { useCreatePlio } from "src/component/useCreatePlio";
+
 <template>
   <div>
     <!-- table -->
@@ -60,6 +62,7 @@ import PlioAPIService from "@/services/API/Plio.js";
 import Paginator from "@/components/UI/Navigation/Paginator.vue";
 import { mapState, mapActions, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
+
 
 export default {
   name: "Home",
@@ -140,148 +143,11 @@ export default {
     },
   },
   methods: {
-    ...mapActions("sync", ["startLoading", "stopLoading"]),
-    ...mapActions("auth", ["setActiveWorkspace"]),
-    plioDeleted() {
-      // invoked when a plio is deleted
-
-      // handle the case when there is only one plio on the current page
-      // and the current page is not the first page
-      if (this.tableData.length == 1 && this.currentPageNumber != 1) {
-        this.currentPageNumber -= 1;
-      }
-      this.fetchPlios();
-    },
-    async sortPlios(sortByField) {
-      // invoked when the user clicks the sort icon next to a column
-      this.sortByField = sortByField;
-      await this.fetchPlios();
-    },
-    async resetSearchString() {
-      // reset the search string to ""
-      // fetch all the plios again
-      if (this.searchString != "") {
-        this.searchString = "";
-        await this.fetchPlios();
-      }
-    },
-
-    async fetchPlios(params = undefined) {
-      if (!this.pending) this.startLoading();
-
-      // if params contain a searchString or pageNumber, save it into a variable,
-      // else save the variable as undefined
-      let searchString =
-        params != undefined && "searchString" in params ? params.searchString : undefined;
-
-      let pageNumber =
-        params != undefined && "pageNumber" in params ? params.pageNumber : undefined;
-
-      // if the params contain a valid searchString, update the local searchString variable
-      if (searchString != undefined && searchString != "")
-        this.searchString = searchString;
-
-      // if the params contain a valid pageNumber, update the local currentPageNumber variable
-      if (pageNumber != undefined) this.currentPageNumber = pageNumber;
-
-      let response = await PlioAPIService.getAllPlios(
-        this.currentPageNumber,
-        this.searchString,
-        this.sortByField
-      );
-
-      if (params == undefined) {
-        // to distinguish the case when no plios have been created (hide the table)
-        // with the case when plios have been created but there are no plios matching the
-        // criteria specified by the params (based on search, for example)
-        if (response.data.raw_count == 0) {
-          this.isTableShown = false;
-          return;
-        } else this.isTableShown = true;
-      }
-      this.totalNumberOfPlios = response.data.count; // set total number of plios and show the paginator
-      this.numPliosPerPage = response.data.page_size; // set the page size
-      this.prepareTableData(response.data.results); // prepare the data for the table
-    },
-
-    async createNewPlio() {
-      // invoked when the user clicks on Create
-      // creates a new draft plio and redirects the user to the editor
-      this.$Progress.start();
-      this.$mixpanel.track("Click Create");
-      this.$mixpanel.people.set_once({
-        "First Plio Created": new Date().toISOString(),
-      });
-      this.$mixpanel.people.set({
-        "Last Plio Created": new Date().toISOString(),
-      });
-      this.$mixpanel.people.increment("Total Plios Created");
-
-      let createPlioResponse = await PlioAPIService.createPlio();
-      this.$Progress.finish();
-      if (createPlioResponse.status == 201) {
-        // once the plio is created, update its settings as well
-        let plioUuid = createPlioResponse.data.uuid;
-        let newPlioSettings = this.isPersonalWorkspace
-          ? this.userSettings.get("player")
-          : this.activeWorkspaceSettings.get("player");
-        let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
-          plioUuid,
-          new Map(
-            Object.entries({
-              player: newPlioSettings,
-            })
-          )
-        );
-        if (updatePlioSettingsResponse.status == 200) {
-          this.$router.push({
-            name: "Editor",
-            params: { plioId: plioUuid, workspace: this.activeWorkspace },
-          });
-        }
-      } else this.toast.error(this.$t("toast.error.create_plio"));
-    },
-
-    async prepareTableData(plioList) {
-      /**
-       * prepares the data for the plios to be fed into the table
-       */
-      if (!plioList.length) {
-        // no plios found
-        this.stopLoading();
-        this.tableData = [];
-        return;
-      }
-
-      // holds the data to be fed to the table
-      let tableData = [];
-
-      // fill in the data for each plio
-      for (let plioIndex = 0; plioIndex < plioList.length; plioIndex++) {
-        let tableRow = {};
-
-        for (let columnIndex = 0; columnIndex < this.tableColumns.length; columnIndex++) {
-          const column = this.tableColumns[columnIndex];
-          switch (column) {
-            case "name":
-              tableRow[column] = {
-                type: "component",
-                value: plioList[plioIndex],
-              };
-              break;
-
-            case "views":
-              tableRow[column] = plioList[plioIndex].unique_viewers;
-              break;
-          }
-        }
-
-        tableData.push(tableRow);
-      }
-
-      // update the table's data
-      this.tableData = tableData;
-    },
+  async createNewPlio() {
+    const { createNewPlio } = useCreatePlio();
+    await createNewPlio();
   },
+}
+  
 };
 </script>

@@ -19,14 +19,13 @@
         ></icon-button>
 
         <!-- create plio button - visible only in mobile screens -->
-        <icon-button
-          v-if="onHomePage"
-          :titleConfig="createButtonMenuTextConfig"
-          :buttonClass="createButtonClass"
-          class="bp-500:hidden"
-          @click="createNewPlio"
-          :isDisabled="pending"
-        ></icon-button>
+        <CreatePlioButton
+        :onMobile="onHomePage"
+        :titleConfig="createButtonMenuTextConfig"
+        :buttonClass="createButtonClass"
+         :isDisabled="pending"
+        :handleClick="createNewPlio"
+/>
 
         <div
           class="grid justify-items-end z-10"
@@ -55,14 +54,13 @@
             </div>
 
             <!-- create plio button - not visible in mobile screens -->
-            <icon-button
-              :titleConfig="createButtonMenuTextConfig"
-              :buttonClass="createButtonClass"
-              class="my-4 border-b-outset border-primary"
-              :class="{ 'hidden bp-500:inline': onHomePage }"
-              @click="createNewPlio"
-              :isDisabled="pending"
-            ></icon-button>
+            <CreatePlioButton
+  :onMobile="onHomePage"
+  :titleConfig="createButtonMenuTextConfig"
+  :buttonClass="createButtonClass"
+  :isDisabled="pending"
+  :handleClick="createNewPlio"
+/>
 
             <!-- home button -->
             <icon-button
@@ -174,9 +172,7 @@
     <div
       class="fixed w-full top-1/4 my-5 flex justify-center"
       v-if="(
-        // if user is not SSO user, everything works as defined in this file
-        // if user is SSO user, we take up the setting provided by the org,
-        // and if the setting is not to show language picker, it won't be shown
+
         (
           checkIfIsSSOUser && 
           isFirstTimeLanguagePickerShownBySetting !== null &&
@@ -277,11 +273,13 @@ import OrganizationAPIService from "@/services/API/Organization.js";
 import { mapActions, mapState, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
+import CreatePlioButton from '@/components/CreatePlioButton.vue';
 
 let clonedeep = require("lodash.clonedeep");
 
 export default {
   components: {
+    CreatePlioButton, 
     LocaleSwitcher,
     SharePlioDialog,
     EmbedPlioDialog,
@@ -293,77 +291,72 @@ export default {
   },
   data() {
     return {
-      showLanguagePickerDialog: false, // whether to show a language picker dialog box
+      showLanguagePickerDialog: false, 
       toast: useToast(),
-      userClickedLogout: false, // if the user has clicked the logout button
-      // class for the create button
+      userClickedLogout: false, 
+
       createButtonClass:
         "bg-primary hover:bg-primary-hover rounded-md shadow-lg w-full ring-primary p-2 sm:py-4",
-      isMenuButtonActive: false, // whether the menu button is active
-      menuButtonsClass: "rounded-lg ring-primary p-2 py-4 hover:bg-gray-200", // common classes for the menu buttons
-      menuButtonsInnerContainerClass: "w-full flex justify-start", // common classes for the inner container of the menu buttons
+      isMenuButtonActive: false, 
+      menuButtonsClass: "rounded-lg ring-primary p-2 py-4 hover:bg-gray-200", 
+      menuButtonsInnerContainerClass: "w-full flex justify-start", 
       menuButtonsIconClass:
-        "text-gray-500 group-hover:text-primary fill-current h-4 md:h-6 w-4 md:w-6", // common classes for the icon of the menu buttons
+        "text-gray-500 group-hover:text-primary fill-current h-4 md:h-6 w-4 md:w-6", 
       menuButtonsTextClass:
-        "text-xl bp-500:text-sm md:text-base lg:text-lg ml-4 text-gray-500 group-hover:text-primary", // common classes for the text of the menu buttons
-      menuSlideTransition: "", // transition name for menu sliding effect
+        "text-xl bp-500:text-sm md:text-base lg:text-lg ml-4 text-gray-500 group-hover:text-primary", 
+      menuSlideTransition: "", 
       isSettingsMenuShown: false,
-      settingsToRender: {}, // the settings object that will be rendered when settings menu is opened
-      settingsWatchers: [], // the unwatch callbacks to the watchers attached to individual settings
+      settingsToRender: {}, 
+      settingsWatchers: [], 
     };
   },
   async created() {
-    // whenever the app is set up (on a fresh page load)
-    // reset the reAuthenticationState. This is required because if in the
-    // previous run, if the user exited while the re-authentication was in process,
-    // the reAuthenticationState is set as `in-process` in the store and the next
-    // time user reloads, the value will remain the same
+
     this.setReAuthenticationState("not-started");
 
     this.resetAppState();
 
-    // place a listener for the event of closing of the browser
+
     window.addEventListener("beforeunload", this.onClose);
     if (this.isAuthenticated) {
       await this.fetchAndUpdateUser();
       this.constructSettingsMenu();
     }
-    // ask user to pick the language if they are visiting for the first time
+
     if (this.locale == null && this.user != null) {
       this.showLanguagePickerDialog = true;
     }
 
-    // add event listeners to track if network connection went up or down
+
     window.Offline.on("down", this.showInternetLostToast);
     window.Offline.on("up", this.showInternetRestoredToast);
 
-    // if user does not land on the home page, apply a transition
+
     if (!this.onHomePage) this.menuSlideTransition = "slide-fade";
 
     this.setWindowProperties();
     window.addEventListener("resize", this.setWindowProperties);
 
-    // prevent menu from getting hidden on hot reload + when new
-    // changes are fetched for the first time for a user
+
     if (!this.isMenuButtonActive && !this.isMobileScreen && this.onHomePage)
       this.isMenuButtonActive = true;
   },
   beforeUnmount() {
-    // remove the listener for the event of closing of the browser
+
     window.removeEventListener("beforeunload", this.onClose);
     window.removeEventListener("resize", this.setWindowProperties);
 
-    // remove the listeners set to track network connection
+
     window.Offline.off("down", this.showInternetLostToast);
     window.Offline.off("up", this.showInternetRestoredToast);
   },
   mounted() {
-    // remove hash from the url if it is present
+
     if (location.hash) {
       location.replace(location.hash.replace("#", ""));
     }
 
-    // set locale based on their config
+
     UserConfigService.setLocaleFromUserConfig();
   },
   watch: {
@@ -374,66 +367,60 @@ export default {
       this.constructSettingsMenu();
     },
     activeWorkspace() {
-      // close the side menu if in mobile mode and the workspace changes
+
       if (this.isMobileScreen) this.resetMenuState();
       this.constructSettingsMenu();
     },
     currentRoute() {
-      // when the page is being changed, reset the state variables
+
       this.resetState();
     },
     isAuthenticated(value) {
-      // if user was logged in before but has been logged out now
-      // show a popup telling the user that they're logged out
+
       if (!value && !this.userClickedLogout) {
-        // logout user when `isAuthenticated` value changes from true to false
-        // and if the logout action was not triggered by the user
+
         this.logoutUser();
       }
 
       if (value) {
-        // whenever the user logs in again,
-        // reset the value of `userClickedLogout`
+
         this.userClickedLogout = false;
         if (this.locale == null) this.showLanguagePickerDialog = true;
         this.constructSettingsMenu();
       }
     },
     onHomePage(value) {
-      // check if the current user actually belongs to the activeWorkspace
-      // set in the store. If not, then redirect to the personal workspace
+
       if (value) {
         this.menuSlideTransition = "";
         let isUserInWorkspace = this.user.organizations.some((organization) => {
-          // no need to redirect if the user belongs to the workspace
-          // or the user is in the personal workspace
+
           return (
             organization.shortcode == this.activeWorkspace || this.activeWorkspace == ""
           );
         });
 
         if (!isUserInWorkspace) {
-          // make sure to pass the query params as it is so they're not lost
-          // while redirecting
+
           this.$router.replace({
             name: "Home",
             query: this.$route.query,
           });
-          // make sure to unset the active workspace as well
+
           this.unsetActiveWorkspace();
         }
 
-        // if the user visits the home page on a non-mobile device, activate the menu button
+
         if (!this.isMobileScreen) this.isMenuButtonActive = true;
       } else {
-        // if the user moves away from the home page, hide the menu button
+
         this.resetMenuState();
         this.menuSlideTransition = "slide-fade";
       }
     },
     user: {
       handler() {
-        // identify on mixpanel if not already identified
+
         if (this.user == null) return;
         if (this.$mixpanel.get_distinct_id() != this.user.id.toString()) {
           this.$mixpanel.alias(this.user.id.toString());
@@ -457,7 +444,7 @@ export default {
           "User Status": this.user.status,
           "Current Workspace": this.activeWorkspace,
         });
-        // reconstruct the settings menu whenever the user gets updated
+
         this.constructSettingsMenu();
       },
       deep: true,
@@ -465,8 +452,7 @@ export default {
   },
   methods: {
     getImageSource: GenericUtilities.getImageSource,
-    // object spread operator
-    // https://vuex.vuejs.org/guide/state.html#object-spread-operator
+
     ...mapActions("auth", [
       "unsetAccessToken",
       "fetchAndUpdateUser",
@@ -475,9 +461,9 @@ export default {
       "setReAuthenticationState",
     ]),
     ...mapActions("auth", {
-      /** update the user settings stored in vuex */
+
       updateUserStoreSettings: "setUserSettings",
-      /** set the workspace settings stored in vuex */
+
       setWorkspaceStoreSettings: "setWorkspaceSettings",
     }),
     ...mapActions("generic", [
@@ -505,18 +491,9 @@ export default {
       "unsetDialogCloseButton",
     ]),
     ...mapActions("selectors", ["hideSelector"]),
-    /**
-     * Update the settings stored in the store and on the server as well
-     * @param {Object} updatedSettings - details about the leaf settings that the user has updated
-     */
+
     updateSettings(updatedSettings) {
-      // The updatedSettings object contains all the settings that have been updated.
-      // Each updated setting has the following keys:
-      // headerName - name of the header to which the updated setting belongs to
-      // tabName - name of the tab to which the updated setting belongs to
-      // leafName - name of the updated leaf setting
-      // newValue - the updated value
-      // isWorkspaceSetting - whether the updated setting is a workspace setting
+
       let newWorkspaceSettings = null;
       let newUserSettings = null;
       Object.keys(updatedSettings).forEach((key) => {
@@ -557,10 +534,7 @@ export default {
           tab.children.get(setting.leafName).value = setting.newValue;
         } else {
           if (newUserSettings == null) newUserSettings = clonedeep(this.userSettings);
-          // newUserSettings
-          //   .get(setting.headerName)
-          //   .children.get(setting.tabName)
-          //   .children.get(setting.leafName).value = setting.newValue;
+
 
           if (newUserSettings.has(setting.headerName) == false) {
             newUserSettings.set(
@@ -608,22 +582,14 @@ export default {
         UserAPIService.updateUserSettings(this.userId, newUserSettings);
       }
     },
-    /**
-     * This method constructs the settings menu that needs to be rendered when settings menu is open.
-     * We iterate through the different levels of a settings object.
-     * This settings object is the user's settings or the merger of users/workspace's settings depending on the active workspace.
-     * For each of the leaf settings, which are the last leaf of the object, we attach some metadata to it,
-     * and add a watcher which will trigger when the value for that setting has been changed.
-     */
+
     constructSettingsMenu() {
-      // by the time this method is invoked, if the userSettings store variable or activeWorkspaceSettings store variable
-      // hasn't been updated, don't proceed and return.
-      // userSettings / activeWorkspaceSettings should be Maps
+
       if (!(this.userSettings instanceof Map)) return;
       if (!this.isPersonalWorkspace && !(this.activeWorkspaceSettings instanceof Map))
         return;
 
-      // unwatch any attached watchers
+
       this.settingsWatchers.forEach((unwatch) => unwatch());
 
       if (this.isPersonalWorkspace) this.settingsToRender = clonedeep(this.userSettings);
@@ -633,7 +599,7 @@ export default {
           clonedeep(this.activeWorkspaceSettings)
         );
 
-      // preparing settings to render but only for the App.vue component
+
       SettingsUtilities.prepareSettingsToRender(this.settingsToRender, true, "App.vue");
     },
     closeSettingsMenu() {
@@ -643,32 +609,24 @@ export default {
     showSettingsMenu() {
       this.isSettingsMenuShown = true;
     },
-    /**
-     * resets various state variables when the app is created
-     */
+
     resetAppState() {
       if (this.pending) this.stopLoading();
       if (this.isSpinnerShown) this.hideSpinner();
       if (this.isDialogBoxShown) this.resetDialogBox();
       if (this.isSingleSelectorShown) this.hideSelector();
     },
-    /**
-     * invoked when the confirm button of the dialog box is clicked
-     */
+
     dialogConfirmed() {
       this.resetDialogBox();
       this.setConfirmClicked();
     },
-    /**
-     * invoked when the cancel button of the dialog box is clicked;
-     */
+
     dialogCancelled() {
       this.resetDialogBox();
       this.setCancelClicked();
     },
-    /**
-     * resets the config of the dialog box
-     */
+
     resetDialogBox() {
       this.hideDialogBox();
       this.unsetDialogTitle();
@@ -680,22 +638,20 @@ export default {
       this.unsetDialogBoxClass();
       this.unsetDialogCloseButton();
     },
-    /** resets the state of the menu button to inactive */
+
     resetMenuState() {
       this.isMenuButtonActive = false;
     },
-    /** sets various properties dependent on the window size */
+
     setWindowProperties() {
       this.setWindowInnerWidth(window.innerWidth);
       this.setWindowInnerHeight(window.innerHeight);
     },
-    /**
-     * Show a toast telling the user that the internet connection went down
-     */
+
     showInternetLostToast() {
-      // dismiss the internet restored toast if it exists
+
       this.toast.dismiss("internetRestoredToast");
-      // show a internet lost toast
+
       this.toast.error(this.$t("toast.error.internet_lost"), {
         id: "internetLostToast",
         position: "bottom-center",
@@ -705,30 +661,28 @@ export default {
         closeButton: false,
       });
     },
-    /**
-     * Show a toast telling the user that the internet connection is up now
-     */
+
     showInternetRestoredToast() {
-      // dismiss the internet lost toast if it exists
+
       this.toast.dismiss("internetLostToast");
-      // show an internet restored toast
+
       this.toast.success(this.$t("toast.success.internet_restored"), {
         id: "internetRestoredToast",
         position: "bottom-center",
       });
     },
-    /** sets that the user intentionally wants to log out and logs out the user */
+
     logoutButtonClicked() {
-      // set whether the logout action was triggered by the user
+
       this.userClickedLogout = true;
       this.logoutUser();
     },
-    /** redirects to the home page */
+
     redirectToHome() {
       if (this.isMobileScreen) this.resetMenuState();
       this.$router.push({ name: "Home", params: { workspace: this.activeWorkspace } });
     },
-    /** redirects to the What's New page */
+
     redirectToWhatsNew() {
       window.open(
         "https://avantifellows.notion.site/What-s-New-1dc885b3ccc74e0aaa9c6789ab319abf/",
@@ -736,15 +690,15 @@ export default {
         "noopener"
       );
     },
-    /** redirects to the Documentation page */
+
     redirectToDocs() {
       window.open("https://docs.plio.in/", "_blank", "noopener");
     },
-    /** redirects to the Plio for Teams page */
+
     redirectToTeamsPage() {
       window.open("https://docs.plio.in/plio-for-teams/", "_blank", "noopener");
     },
-    /** redirects to the playlist for the Product Guides */
+
     redirectToProductGuides() {
       window.open(
         "https://www.youtube.com/playlist?list=PL3U0Jqw-piJgw2hSpuAZym4K1_Tb0RTRV",
@@ -752,13 +706,11 @@ export default {
         "noopener"
       );
     },
-    /** toggles the state of the menu button between active/inactive */
+
     toggleMenuButton() {
       this.isMenuButtonActive = !this.isMenuButtonActive;
     },
-    /**
-     * creates a new draft plio and redirects the user to the editor
-     */
+
     async createNewPlio() {
       this.$Progress.start();
       this.$mixpanel.track("Click Create");
@@ -771,8 +723,7 @@ export default {
       this.$mixpanel.people.increment("Total Plios Created");
 
       let isUserInWorkspace = this.user.organizations.some((organization) => {
-        // no need to redirect if the user belongs to the workspace
-        // or the user is in the personal workspace
+
         return (
           organization.shortcode == this.activeWorkspace || this.activeWorkspace == ""
         );
@@ -781,7 +732,7 @@ export default {
       let createPlioResponse = await PlioAPIService.createPlio();
       this.$Progress.finish();
       if (createPlioResponse.status == 201) {
-        // once the plio is created, update its settings as well
+
         let plioUuid = createPlioResponse.data.uuid;
         let newPlioSettings = this.isPersonalWorkspace
           ? this.userSettings.get("player")
@@ -802,46 +753,37 @@ export default {
         }
       } else this.toast.error(this.$t("toast.error.create_plio"));
     },
-    /** logs out the user */
+
     logoutUser() {
       this.unsetAccessToken().then(() => {
         this.$router.replace({
           name: "Login",
           params: { userClickedLogout: this.userClickedLogout },
         });
-        // resets the distinct ID so that multiple users can use the same device
+
         this.$mixpanel.reset();
         this.$mixpanel.track("Logout");
 
-        // added here so that if someone clicks on logout while
-        // some activity is pending
         this.stopLoading();
 
-        // clear active workspace
         this.unsetActiveWorkspace();
       });
     },
     onClose(event) {
-      // invoked when trying to close the browser or changing pages
-      // only works on Editor page or the Player page
+
       if (this.onEditorPage || this.onPlayerPage) {
         event.preventDefault();
         event.returnValue = "";
       }
 
-      // when the page is being closed, reset the state variables
       this.resetState();
     },
-    /**
-     * resets various state variables in the store
-     */
+
     resetState() {
       if (this.isSharePlioDialogShown) this.unsetSharePlioDialog();
       if (this.isEmbedPlioDialogShown) this.unsetEmbedPlioDialog();
     },
-    /**
-     * sets the given locale as the locale for the user
-     */
+
     setLocale(locale) {
       this.$mixpanel.register({
         "Current Locale": locale,
@@ -852,17 +794,12 @@ export default {
       this.showLanguagePickerDialog = false;
       this.unsetFirstTimeLanguagePickerShownBySetting();
     },
-    /**
-     * triggered when any keyboard button is pressed
-     */
+
     keyboardPressed() {
-      // prevent keyboard buttons from working if the background is disabled
+
       if (this.isBackgroundDisabled) event.preventDefault();
     },
-    /**
-     * takes action based on the option selected in the list selector
-     * @param {String} selectedOptionValue - the value of the option selected
-     */
+
     selectOption(selectedOptionValue) {
       this.hideSelector();
       this.showSpinner();
@@ -871,10 +808,7 @@ export default {
       })
         .then(() => {
           this.hideSpinner();
-          // this.$router.push({ name: "Home", params: { workspace: selectedOptionValue } });
-          // earlier this used to reload in place, but now we want to open in a new tab
-          // because if someone is copying multiple plios to another workspace, they shouldn't have to
-          // go back and forth between the workspaces
+
           const routeData = this.$router.resolve({
             name: "Home",
             params: { workspace: selectedOptionValue },
@@ -929,21 +863,15 @@ export default {
     hasAnySettingsToRender() {
       return this.settingsToRender.size > 0;
     },
-    /**
-     * whether the router view is shown
-     */
+
     isRouterViewShown() {
       return !(this.isMenuShownInline && this.isMobileScreen);
     },
-    /**
-     * whether the menu button is shown
-     */
+
     isMenuButtonShown() {
       return !this.onHomePage || this.isMobileScreen;
     },
-    /**
-     * classes for the router view
-     */
+
     routerViewClass() {
       return [
         {
@@ -954,9 +882,7 @@ export default {
         },
       ];
     },
-    /**
-     * classes for the menu container
-     */
+
     menuContainerClass() {
       return [
         {
@@ -966,9 +892,7 @@ export default {
         `p-2 sm:p-4 border-r-2 flex flex-col col-span-3 bp-500:col-span-1 h-screen`,
       ];
     },
-    /**
-     * classes for the main grid
-     */
+
     gridContainerClass() {
       return {
         "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 h-screen":
@@ -976,9 +900,7 @@ export default {
         flex: this.isMenuShownOverlay,
       };
     },
-    /**
-     * config of the icon for the logout button
-     */
+
     logoutButtonIconConfig() {
       return {
         enabled: true,
@@ -986,9 +908,7 @@ export default {
         iconClass: this.menuButtonsIconClass,
       };
     },
-    /**
-     * config of the icon for the docs button
-     */
+
     docsButtonIconConfig() {
       return {
         enabled: true,
@@ -996,9 +916,7 @@ export default {
         iconClass: this.menuButtonsIconClass,
       };
     },
-    /**
-     * config of the icon for the plio for teams button
-     */
+
     teamsButtonIconConfig() {
       return {
         enabled: true,
@@ -1006,9 +924,7 @@ export default {
         iconClass: this.menuButtonsIconClass,
       };
     },
-    /**
-     * config of the icon for the product guides button
-     */
+
     productGuidesButtonIconConfig() {
       return {
         enabled: true,
@@ -1016,9 +932,7 @@ export default {
         iconClass: this.menuButtonsIconClass,
       };
     },
-    /**
-     * config of the icon for the home button
-     */
+
     homeButtonIconConfig() {
       return {
         enabled: true,
@@ -1026,9 +940,7 @@ export default {
         iconClass: this.menuButtonsIconClass,
       };
     },
-    /**
-     * config of the icon for the what's new button
-     */
+
     whatsNewButtonIconConfig() {
       return {
         enabled: true,
@@ -1036,9 +948,7 @@ export default {
         iconClass: this.menuButtonsIconClass,
       };
     },
-    /**
-     * classes for the menu button
-     */
+
     menuButtonClass() {
       return [
         {
@@ -1048,20 +958,16 @@ export default {
         `rounded-md border shadow-lg ring-primary h-12 w-12 p-2 self-center`,
       ];
     },
-    /**
-     * config of the icon for the menu button
-     */
+
     menuButtonIconConfig() {
-      // config for the icon of menu button
+
       return {
         enabled: true,
         iconName: "menu",
         iconClass: this.menuIconClass,
       };
     },
-    /**
-     * classes for the icon of the menu button
-     */
+
     menuIconClass() {
       return [
         {
@@ -1078,63 +984,47 @@ export default {
         iconClass: this.menuButtonsIconClass,
       };
     },
-    /**
-     * whether the menu has been shown
-     */
+
     isMenuShown() {
       return this.isMenuShownInline || this.isMenuShownOverlay;
     },
-    /**
-     * whether the menu has been shown in line with the router view
-     */
+
     isMenuShownInline() {
       return this.isAuthenticated && this.isMenuButtonActive && this.onHomePage;
     },
-    /**
-     * whether the menu has been shown as an overlay on top of the router view
-     */
+
     isMenuShownOverlay() {
       return this.isAuthenticated && this.isMenuButtonActive && !this.onHomePage;
     },
-    /**
-     * config for the text of the create button
-     */
+
     createButtonMenuTextConfig() {
       return {
         value: this.$t("home.create_button"),
         class: "text-xl bp-500:text-lg md:text-xl lg:text-2xl text-white",
       };
     },
-    /**
-     * config for the text of the logout button
-     */
+
     logoutButtonTextConfig() {
       return {
         value: this.$t("nav.logout"),
         class: this.menuButtonsTextClass,
       };
     },
-    /**
-     * config for the text of the what's new button
-     */
+
     whatsNewButtonTextConfig() {
       return {
         value: this.$t("nav.whats_new"),
         class: this.menuButtonsTextClass,
       };
     },
-    /**
-     * config for the text of the product guides button
-     */
+
     productGuidesButtonTextConfig() {
       return {
         value: this.$t("nav.product_guides"),
         class: this.menuButtonsTextClass,
       };
     },
-    /**
-     * config for the text of the home button
-     */
+
     homeButtonTextConfig() {
       return {
         value: this.$t("nav.home"),
@@ -1147,83 +1037,59 @@ export default {
         class: this.menuButtonsTextClass,
       };
     },
-    /**
-     * config for the text of the docs button
-     */
+
     docsButtonTextConfig() {
       return {
         value: this.$t("nav.docs"),
         class: this.menuButtonsTextClass,
       };
     },
-    /**
-     * config for the text of the teams button
-     */
+
     teamsButtonTextConfig() {
       return {
         value: this.$t("nav.teams"),
         class: this.menuButtonsTextClass,
       };
     },
-    /**
-     * whether to show workspace switcher
-     */
+
     showWorkspaceSwitcher() {
       return this.user.organizations != null && this.user.organizations.length > 0;
     },
-    /**
-     * dynamic classes for the nav bar
-     */
+
     navBarClass() {
       return {
         hidden: this.isNavBarHidden,
       };
     },
-    /**
-     * whether the nav bar is hidden
-     */
+
     isNavBarHidden() {
       return this.onPlioPage || this.onPlayerPage;
     },
-    /**
-     * the current route that the user is on
-     */
+
     currentRoute() {
       return this.$route.path;
     },
-    /**
-     * whether the current page is the home page
-     */
+
     onHomePage() {
       return this.$route.name == "Home";
     },
-    /**
-     * whether the page is still loading
-     */
+
     isPageLoading() {
       return this.$route.name == undefined;
     },
-    /**
-     * whether the current page is the plio embed page
-     */
+
     onPlioPage() {
       return this.$route.name == "Plio";
     },
-    /**
-     * whether the current page is the editor page
-     */
+
     onEditorPage() {
       return this.$route.name == "Editor";
     },
-    /**
-     * whether the current page is the player page
-     */
+
     onPlayerPage() {
       return this.$route.name == "Player";
     },
-    /**
-     * whether the current page is the login page
-     */
+
     onLoginPage() {
       return this.$route.name == "Login";
     },
@@ -1231,9 +1097,7 @@ export default {
       const output = "api_key" in this.$route.query && "unique_id" in this.$route.query;
       return output;
     },
-    /**
-     * whether the background should be disabled
-     */
+
     isBackgroundDisabled() {
       const output =
         (this.checkIfIsSSOUser &&
@@ -1248,9 +1112,7 @@ export default {
         this.isSingleSelectorShown;
       return output;
     },
-    /**
-     * list of shortcodes of all workspaces that the user is a part of
-     */
+
     allWorkspaces() {
       if (this.user == null) return [];
       var shortcodes = [];
@@ -1275,7 +1137,7 @@ export default {
   font-family: "Kruti Dev";
   src: local("Kruti Dev"), url("./assets/fonts/Kruti_Dev_10.TTF") format("truetype");
 }
-/* defines the transition that happens upon toggling the menu button */
+
 .slide-fade-enter-active {
   transition: all 0.3s ease-out;
 }

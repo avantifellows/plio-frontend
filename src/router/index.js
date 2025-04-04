@@ -123,6 +123,17 @@ const routes = [
       name: "404",
     },
   },
+  {
+    path: "/:workspace?/settings",
+    name: "Settings",
+    component: () =>
+      import(/* webpackChunkName: "settings" */ "@/components/App/Settings.vue"),
+    meta: {
+      requiresAuth: true,
+      title: "Settings - Plio",
+    },
+  },
+  
 ];
 
 const router = createRouter({
