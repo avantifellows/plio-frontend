@@ -804,6 +804,9 @@ export default {
     },
     /** logs out the user */
     logoutUser() {
+      // First clear the active workspace to prevent it from being used during redirect
+      this.unsetActiveWorkspace();
+      
       this.unsetAccessToken().then(() => {
         this.$router.replace({
           name: "Login",
@@ -816,9 +819,6 @@ export default {
         // added here so that if someone clicks on logout while
         // some activity is pending
         this.stopLoading();
-
-        // clear active workspace
-        this.unsetActiveWorkspace();
       });
     },
     onClose(event) {
