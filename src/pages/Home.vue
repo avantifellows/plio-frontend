@@ -57,6 +57,7 @@
 import Table from "@/components/Collections/Table/Table.vue";
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import PlioAPIService from "@/services/API/Plio.js";
+import PlioFunctionalService from "@/services/Functional/Plio.js";
 import Paginator from "@/components/UI/Navigation/Paginator.vue";
 import { mapState, mapActions, mapGetters } from "vuex";
 import { useToast } from "vue-toastification";
@@ -172,10 +173,14 @@ export default {
       // if params contain a searchString or pageNumber, save it into a variable,
       // else save the variable as undefined
       let searchString =
-        params != undefined && "searchString" in params ? params.searchString : undefined;
+        params != undefined && "searchString" in params
+          ? params.searchString
+          : undefined;
 
       let pageNumber =
-        params != undefined && "pageNumber" in params ? params.pageNumber : undefined;
+        params != undefined && "pageNumber" in params
+          ? params.pageNumber
+          : undefined;
 
       // if the params contain a valid searchString, update the local searchString variable
       if (searchString != undefined && searchString != "")
@@ -207,39 +212,7 @@ export default {
     async createNewPlio() {
       // invoked when the user clicks on Create
       // creates a new draft plio and redirects the user to the editor
-      this.$Progress.start();
-      this.$mixpanel.track("Click Create");
-      this.$mixpanel.people.set_once({
-        "First Plio Created": new Date().toISOString(),
-      });
-      this.$mixpanel.people.set({
-        "Last Plio Created": new Date().toISOString(),
-      });
-      this.$mixpanel.people.increment("Total Plios Created");
-
-      let createPlioResponse = await PlioAPIService.createPlio();
-      this.$Progress.finish();
-      if (createPlioResponse.status == 201) {
-        // once the plio is created, update its settings as well
-        let plioUuid = createPlioResponse.data.uuid;
-        let newPlioSettings = this.isPersonalWorkspace
-          ? this.userSettings.get("player")
-          : this.activeWorkspaceSettings.get("player");
-        let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
-          plioUuid,
-          new Map(
-            Object.entries({
-              player: newPlioSettings,
-            })
-          )
-        );
-        if (updatePlioSettingsResponse.status == 200) {
-          this.$router.push({
-            name: "Editor",
-            params: { plioId: plioUuid, workspace: this.activeWorkspace },
-          });
-        }
-      } else this.toast.error(this.$t("toast.error.create_plio"));
+      await PlioFunctionalService.createNewPlio(this);
     },
 
     async prepareTableData(plioList) {
@@ -260,7 +233,11 @@ export default {
       for (let plioIndex = 0; plioIndex < plioList.length; plioIndex++) {
         let tableRow = {};
 
-        for (let columnIndex = 0; columnIndex < this.tableColumns.length; columnIndex++) {
+        for (
+          let columnIndex = 0;
+          columnIndex < this.tableColumns.length;
+          columnIndex++
+        ) {
           const column = this.tableColumns[columnIndex];
           switch (column) {
             case "name":

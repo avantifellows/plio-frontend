@@ -38,7 +38,10 @@
           }"
         >
           <!-- locale switcher -->
-          <LocaleSwitcher id="locale" class="flex justify-center"></LocaleSwitcher>
+          <LocaleSwitcher
+            id="locale"
+            class="flex justify-center"
+          ></LocaleSwitcher>
         </div>
       </div>
       <!-- main container -->
@@ -173,29 +176,28 @@
     <!-- first-time language picker -->
     <div
       class="fixed w-full top-1/4 my-5 flex justify-center"
-      v-if="(
-        // if user is not SSO user, everything works as defined in this file
-        // if user is SSO user, we take up the setting provided by the org,
-        // and if the setting is not to show language picker, it won't be shown
-        (
-          checkIfIsSSOUser && 
+      v-if="
+        (checkIfIsSSOUser &&
           isFirstTimeLanguagePickerShownBySetting !== null &&
-          isFirstTimeLanguagePickerShownBySetting == true
-        ) ||
+          isFirstTimeLanguagePickerShownBySetting == true) ||
         (!checkIfIsSSOUser && showLanguagePickerDialog)
-      )"
+      "
     >
       <div
         class="bg-white w-11/12 sm:w-9/12 lg:w-7/12 p-4 sm:p-10 rounded-lg border border-black"
       >
-        <p class="text-center text-2xl sm:text-4xl py-4 sm:py-8">Select your language</p>
+        <p class="text-center text-2xl sm:text-4xl py-4 sm:py-8">
+          Select your language
+        </p>
         <div class="grid grid-cols-2 space-x-2">
           <div
             class="hover:bg-primary p-4 sm:p-8 rounded-lg border-4 group cursor-pointer"
             @click="setLocale('en')"
             data-test="languagePicker-en"
           >
-            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">
+            <p
+              class="text-xl sm:text-3xl text-black text-center group-hover:text-white"
+            >
               English
             </p>
           </div>
@@ -204,7 +206,9 @@
             @click="setLocale('hi')"
             data-test="languagePicker-hi"
           >
-            <p class="text-xl sm:text-3xl text-black text-center group-hover:text-white">
+            <p
+              class="text-xl sm:text-3xl text-black text-center group-hover:text-white"
+            >
               हिंदी
             </p>
           </div>
@@ -268,6 +272,7 @@ import SharePlioDialog from "@/components/App/SharePlioDialog.vue";
 import EmbedPlioDialog from "@/components/App/EmbedPlioDialog.vue";
 import ListSingleSelector from "@/components/UI/Selectors/ListSingleSelector.vue";
 import PlioAPIService from "@/services/API/Plio.js";
+import PlioFunctionalService from "@/services/Functional/Plio.js";
 import Settings from "@/components/App/Settings.vue";
 import DialogBox from "@/components/UI/Alert/DialogBox";
 import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
@@ -408,7 +413,8 @@ export default {
           // no need to redirect if the user belongs to the workspace
           // or the user is in the personal workspace
           return (
-            organization.shortcode == this.activeWorkspace || this.activeWorkspace == ""
+            organization.shortcode == this.activeWorkspace ||
+            this.activeWorkspace == ""
           );
         });
 
@@ -556,7 +562,8 @@ export default {
           }
           tab.children.get(setting.leafName).value = setting.newValue;
         } else {
-          if (newUserSettings == null) newUserSettings = clonedeep(this.userSettings);
+          if (newUserSettings == null)
+            newUserSettings = clonedeep(this.userSettings);
           // newUserSettings
           //   .get(setting.headerName)
           //   .children.get(setting.tabName)
@@ -620,13 +627,17 @@ export default {
       // hasn't been updated, don't proceed and return.
       // userSettings / activeWorkspaceSettings should be Maps
       if (!(this.userSettings instanceof Map)) return;
-      if (!this.isPersonalWorkspace && !(this.activeWorkspaceSettings instanceof Map))
+      if (
+        !this.isPersonalWorkspace &&
+        !(this.activeWorkspaceSettings instanceof Map)
+      )
         return;
 
       // unwatch any attached watchers
       this.settingsWatchers.forEach((unwatch) => unwatch());
 
-      if (this.isPersonalWorkspace) this.settingsToRender = clonedeep(this.userSettings);
+      if (this.isPersonalWorkspace)
+        this.settingsToRender = clonedeep(this.userSettings);
       else
         this.settingsToRender = SettingsUtilities.mergeSettings(
           clonedeep(this.userSettings),
@@ -634,7 +645,11 @@ export default {
         );
 
       // preparing settings to render but only for the App.vue component
-      SettingsUtilities.prepareSettingsToRender(this.settingsToRender, true, "App.vue");
+      SettingsUtilities.prepareSettingsToRender(
+        this.settingsToRender,
+        true,
+        "App.vue"
+      );
     },
     closeSettingsMenu() {
       if (this.isMobileScreen) this.resetMenuState();
@@ -726,7 +741,10 @@ export default {
     /** redirects to the home page */
     redirectToHome() {
       if (this.isMobileScreen) this.resetMenuState();
-      this.$router.push({ name: "Home", params: { workspace: this.activeWorkspace } });
+      this.$router.push({
+        name: "Home",
+        params: { workspace: this.activeWorkspace },
+      });
     },
     /** redirects to the What's New page */
     redirectToWhatsNew() {
@@ -760,47 +778,7 @@ export default {
      * creates a new draft plio and redirects the user to the editor
      */
     async createNewPlio() {
-      this.$Progress.start();
-      this.$mixpanel.track("Click Create");
-      this.$mixpanel.people.set_once({
-        "First Plio Created": new Date().toISOString(),
-      });
-      this.$mixpanel.people.set({
-        "Last Plio Created": new Date().toISOString(),
-      });
-      this.$mixpanel.people.increment("Total Plios Created");
-
-      let isUserInWorkspace = this.user.organizations.some((organization) => {
-        // no need to redirect if the user belongs to the workspace
-        // or the user is in the personal workspace
-        return (
-          organization.shortcode == this.activeWorkspace || this.activeWorkspace == ""
-        );
-      });
-      if (!isUserInWorkspace) this.unsetActiveWorkspace();
-      let createPlioResponse = await PlioAPIService.createPlio();
-      this.$Progress.finish();
-      if (createPlioResponse.status == 201) {
-        // once the plio is created, update its settings as well
-        let plioUuid = createPlioResponse.data.uuid;
-        let newPlioSettings = this.isPersonalWorkspace
-          ? this.userSettings.get("player")
-          : this.activeWorkspaceSettings.get("player");
-        let updatePlioSettingsResponse = await PlioAPIService.updatePlioSettings(
-          plioUuid,
-          new Map(
-            Object.entries({
-              player: newPlioSettings,
-            })
-          )
-        );
-        if (updatePlioSettingsResponse.status == 200) {
-          this.$router.push({
-            name: "Editor",
-            params: { plioId: plioUuid, workspace: this.activeWorkspace },
-          });
-        }
-      } else this.toast.error(this.$t("toast.error.create_plio"));
+      await PlioFunctionalService.createNewPlio(this);
     },
     /** logs out the user */
     logoutUser() {
@@ -901,7 +879,13 @@ export default {
       "isMobileScreen",
       "isFirstTimeLanguagePickerShownBySetting",
     ]),
-    ...mapState("auth", ["config", "user", "activeWorkspace", "userId", "userSettings"]),
+    ...mapState("auth", [
+      "config",
+      "user",
+      "activeWorkspace",
+      "userId",
+      "userSettings",
+    ]),
     ...mapState("generic", [
       "isSharePlioDialogShown",
       "isEmbedPlioDialogShown",
@@ -1094,7 +1078,9 @@ export default {
      * whether the menu has been shown as an overlay on top of the router view
      */
     isMenuShownOverlay() {
-      return this.isAuthenticated && this.isMenuButtonActive && !this.onHomePage;
+      return (
+        this.isAuthenticated && this.isMenuButtonActive && !this.onHomePage
+      );
     },
     /**
      * config for the text of the create button
@@ -1169,7 +1155,9 @@ export default {
      * whether to show workspace switcher
      */
     showWorkspaceSwitcher() {
-      return this.user.organizations != null && this.user.organizations.length > 0;
+      return (
+        this.user.organizations != null && this.user.organizations.length > 0
+      );
     },
     /**
      * dynamic classes for the nav bar
@@ -1228,7 +1216,8 @@ export default {
       return this.$route.name == "Login";
     },
     checkIfIsSSOUser() {
-      const output = "api_key" in this.$route.query && "unique_id" in this.$route.query;
+      const output =
+        "api_key" in this.$route.query && "unique_id" in this.$route.query;
       return output;
     },
     /**
@@ -1273,7 +1262,8 @@ export default {
 }
 @font-face {
   font-family: "Kruti Dev";
-  src: local("Kruti Dev"), url("./assets/fonts/Kruti_Dev_10.TTF") format("truetype");
+  src: local("Kruti Dev"),
+    url("./assets/fonts/Kruti_Dev_10.TTF") format("truetype");
 }
 /* defines the transition that happens upon toggling the menu button */
 .slide-fade-enter-active {
