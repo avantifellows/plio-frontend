@@ -24,11 +24,14 @@
 
     <div v-if="!isMobileScreen" class="flex flex-col min-h-0">
       <!-- Loading state -->
-      <div v-if="loading" class="flex justify-center items-center h-32">
-      <inline-svg
-        :src="getImageSource('spinner.svg')"
-        class="w-8 h-8 animate-spin text-primary"
-      />
+      <div v-if="loading" class="flex flex-col justify-center items-center h-32 space-y-3 text-center">
+        <inline-svg
+          :src="getImageSource('spinner.svg')"
+          class="w-8 h-8 animate-spin text-primary"
+        />
+        <p class="text-sm text-gray-500 px-4">
+          Please wait… this might take time if many users are part of the workspace.
+        </p>
       </div>
 
       <!-- Members table -->
@@ -37,12 +40,14 @@
           <table class="min-w-full divide-y divide-gray-200 table-fixed">
             <thead class="bg-gray-50 sticky top-0 z-10">
           <tr>
+            <!--
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
               {{ $t('settings.members.firstName') }}
             </th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
               {{ $t('settings.members.lastName') }}
             </th>
+            -->
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/5 truncate">
               {{ $t('settings.members.email') }}
             </th>
@@ -56,6 +61,7 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
           <tr v-for="member in members" :key="member.id" class="hover:bg-gray-50">
+            <!--
             <td class="px-4 py-3 whitespace-nowrap text-sm">
               <span v-if="member.user && member.user.first_name" class="font-medium text-gray-900">
                 {{ member.user.first_name }}
@@ -68,6 +74,7 @@
               </span>
               <span v-else class="italic text-gray-400">No Name</span>
             </td>
+            -->
             <td class="px-4 py-3 whitespace-nowrap text-sm truncate">
               <span v-if="member.user && member.user.email" class="text-gray-500">
                 {{ member.user.email }}
@@ -205,16 +212,37 @@ export default {
         const response = await UserAPIService.getOrganizationUsers(this.activeWorkspaceId);
         const rawMembers = response.data.results || response.data || [];
 
-        // cache user fetches to avoid duplicate requests
+        // Build list of missing user IDs if backend didn't embed details
         if (!this.userCache) this.userCache = {};
-        const normalized = [];
+        const missingIds = new Set();
+        for (const m of rawMembers) {
+          const raw = m.user_details || m.user;
+          if (!raw || typeof raw === 'number') {
+            const id = typeof raw === 'number' ? raw : m.user;
+            if (id && !this.userCache[id]) missingIds.add(id);
+          }
+        }
 
+        // Bulk fetch missing users in a single call
+        if (missingIds.size > 0) {
+          try {
+            const bulkResp = await UserAPIService.getUsersByIds(Array.from(missingIds));
+            const usersArray = bulkResp.data.results || bulkResp.data || [];
+            for (const u of usersArray) {
+              if (u && u.id) this.userCache[u.id] = u;
+            }
+          } catch (e) {
+            console.error('Bulk user fetch failed; will fallback per-user if needed', e);
+          }
+        }
+
+        const normalized = [];
         for (let m of rawMembers) {
-          // Prefer embedded user_details if provided by API
           let userObj = m.user_details || m.user;
           if (!userObj || typeof userObj === 'number') {
             const userId = typeof userObj === 'number' ? userObj : m.user;
             if (!this.userCache[userId]) {
+              // Fallback per-user fetch only if bulk failed to fill cache
               try {
                 const userResponse = await UserAPIService.getUserById(userId);
                 this.userCache[userId] = userResponse.data;

@@ -135,6 +135,23 @@ export default {
   },
 
   /**
+   * Bulk fetch users by IDs
+   * @param {Number[]|string} ids - array of ids or comma-separated string
+   */
+  getUsersByIds(ids = []) {
+    const params = { ids: Array.isArray(ids) ? ids.join(",") : ids };
+    return apiClient().get(usersEndpoint, { params });
+  },
+
+  /**
+   * Get all users that belong to a specific organization
+   * @param {Number} organizationId
+   */
+  getUsersForOrganization(organizationId) {
+    return apiClient().get(usersEndpoint, { params: { organization: organizationId } });
+  },
+
+  /**
    * Get all organization users for the current organization
    * @returns {Promise}
    */
