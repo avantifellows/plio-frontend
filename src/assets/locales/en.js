@@ -588,6 +588,7 @@ export default {
         firstTimeLanguagePickerPopup:
           "Viewers will see the language picker on first login",
         customWebhook: "Configure a webhook for recieving events from plio",
+        organizationMembers: "Manage organization members and their roles",
       },
       description: {
         skipEnabled: "Provide viewers the option to skip a question",
@@ -595,6 +596,8 @@ export default {
           "Your users will see the language picker on their first login. This sets what language they will see the platform in. Currently only two values, English and Hindi, are supported.",
         customWebhook:
           "Configure to recieve realtime events from plio. This can be used to integrate plio with other services",
+        organizationMembers:
+          "Add new members to your organization and assign them appropriate roles. You can also manage existing members.",
       },
       info:
         "The new settings will only apply to plios created in the future and not the existing plios",
@@ -607,10 +610,57 @@ export default {
         configuration: "Configuration",
         ui: "UI",
         advanced: "Advanced",
+        members: "Members",
       },
     },
     badge: {
       admin: "Admin",
+    },
+    members: {
+      title: "Organization Members",
+      addMember: "Add Member",
+      firstName: "First Name",
+      lastName: "Last Name",
+      email: "Email",
+      role: "Role",
+      actions: "Actions",
+      addMemberModal: {
+        title: "Add New Member",
+        cancel: "Cancel",
+        save: "Add Member",
+        fields: {
+          firstName: "First Name",
+          lastName: "Last Name", 
+          email: "Email Address",
+          role: "Role",
+        },
+        placeholders: {
+          firstName: "Enter first name",
+          lastName: "Enter last name",
+          email: "Enter email address",
+          role: "Select a role",
+        },
+        validation: {
+          firstNameRequired: "First name is required",
+          lastNameRequired: "Last name is required",
+          emailRequired: "Email is required",
+          emailInvalid: "Please enter a valid email address",
+          roleRequired: "Role is required",
+        },
+        success: "Member added successfully",
+        errors: {
+          userExists: "User with this email already exists in the organization",
+          userCreationFailed: "Failed to create user",
+          membershipFailed: "Failed to add user to organization",
+          general: "Failed to add member. Please try again.",
+        },
+      },
+      confirmDelete: {
+        title: "Remove Member",
+        message: "Are you sure you want to remove this member from the organization?",
+        confirm: "Remove",
+        cancel: "Cancel",
+      },
     },
   },
   toast: {

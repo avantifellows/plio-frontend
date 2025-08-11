@@ -9,6 +9,8 @@ import {
   refreshTokenEndpoint,
   externalAuthTokenEndpoint,
   settingsEndpoint,
+  organizationUsersEndpoint,
+  rolesEndpoint,
 } from "@/services/API/Endpoints.js";
 import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 import store from "@/store";
@@ -101,5 +103,81 @@ export default {
       usersEndpoint + userId + settingsEndpoint,
       payload
     );
+  },
+
+  /**
+   * Create a new user
+   * @param {Object} userData - user data (first_name, last_name, email, password, etc.)
+   * @returns {Promise}
+   */
+  createUser(userData) {
+    return apiClient().post(usersEndpoint, userData);
+  },
+
+  /**
+   * Get user by email
+   * @param {String} email - user email
+   * @returns {Promise}
+   */
+  getUserByEmail(email) {
+    return apiClient().get(usersEndpoint, {
+      params: { email }
+    });
+  },
+
+  /**
+   * Get user by ID
+   * @param {Number} userId - user ID
+   * @returns {Promise}
+   */
+  getUserById(userId) {
+    return apiClient().get(usersEndpoint + userId + "/");
+  },
+
+  /**
+   * Get all organization users for the current organization
+   * @returns {Promise}
+   */
+  getOrganizationUsers(organizationId) {
+    const config = organizationId
+      ? { params: { organization: organizationId } }
+      : undefined;
+    return apiClient().get(organizationUsersEndpoint, config);
+  },
+
+  /**
+   * Create organization user membership
+   * @param {Object} membershipData - { user, organization, role }
+   * @returns {Promise}
+   */
+  createOrganizationUser(membershipData) {
+    return apiClient().post(organizationUsersEndpoint, membershipData);
+  },
+
+  /**
+   * Update organization user membership
+   * @param {Number} membershipId - organization user id
+   * @param {Object} membershipData - updated data
+   * @returns {Promise}
+   */
+  updateOrganizationUser(membershipId, membershipData) {
+    return apiClient().patch(organizationUsersEndpoint + membershipId + "/", membershipData);
+  },
+
+  /**
+   * Delete organization user membership
+   * @param {Number} membershipId - organization user id
+   * @returns {Promise}
+   */
+  deleteOrganizationUser(membershipId) {
+    return apiClient().delete(organizationUsersEndpoint + membershipId + "/");
+  },
+
+  /**
+   * Get all available roles
+   * @returns {Promise}
+   */
+  getRoles() {
+    return apiClient().get(rolesEndpoint);
   },
 };

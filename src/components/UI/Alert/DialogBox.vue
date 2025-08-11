@@ -1,5 +1,84 @@
 <template>
+  <!-- Modal overlay version -->
+  <div v-if="isModal" class="fixed inset-0 z-50 flex items-center justify-center" @click.stop>
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+
+    <!-- Card -->
+    <div
+      class="relative border shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-800 w-80 m-auto"
+      :class="containerClass"
+    >
+      <div class="flex relative">
+        <div class="w-full h-full text-center">
+          <div class="flex h-full flex-col justify-between">
+            <!-- icon -->
+            <inline-svg
+              v-if="isIconEnabled"
+              :src="icon"
+              class="place-self-center"
+              :class="iconClass"
+              data-test="icon"
+            ></inline-svg>
+            <!-- title -->
+            <p
+              class="text-gray-800 dark:text-gray-200 text-xl font-bold mt-4"
+              v-if="showTitle"
+              data-test="title"
+            >
+              {{ title }}
+            </p>
+            <!-- description -->
+            <p
+              class="text-gray-600 dark:text-gray-400 text-sm py-2 px-6"
+              v-if="showDescription"
+              data-test="description"
+            >
+              {{ description }}
+            </p>
+            <div
+              v-if="isButtonVisible"
+              class="flex items-center justify-between space-x-4 w-full mt-2"
+            >
+              <button
+                v-if="isConfirmButtonEnabled"
+                type="button"
+                class="py-2 px-4 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg"
+                :class="confirmButtonClass"
+                @click.stop.prevent="confirmClicked"
+                data-test="confirmButton"
+              >
+                {{ confirmButtonText }}
+              </button>
+              <button
+                v-if="isCancelButtonEnabled"
+                type="button"
+                class="py-2 px-4 w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg"
+                :class="cancelButtonClass"
+                @click.stop.prevent="cancelClicked"
+                data-test="cancelButton"
+              >
+                {{ cancelButtonText }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- close button -->
+        <div class="w-full absolute flex justify-end" v-if="isCloseButtonShown">
+          <icon-button
+            :iconConfig="closeIconConfig"
+            :buttonClass="closeButtonClass"
+            @click.stop.prevent="close"
+            data-test="closeButton"
+          ></icon-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inline (non-modal) version -->
   <div
+    v-else
     class="border shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-800 w-64 m-auto"
     :class="containerClass"
   >
@@ -39,7 +118,7 @@
               type="button"
               class="py-2 px-4 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg"
               :class="confirmButtonClass"
-              @click="confirmClicked"
+            @click.stop.prevent="confirmClicked"
               data-test="confirmButton"
             >
               {{ confirmButtonText }}
@@ -49,7 +128,7 @@
               type="button"
               class="py-2 px-4 w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md rounded-lg"
               :class="cancelButtonClass"
-              @click="cancelClicked"
+            @click.stop.prevent="cancelClicked"
               data-test="cancelButton"
             >
               {{ cancelButtonText }}
@@ -58,11 +137,11 @@
         </div>
       </div>
       <!-- close button -->
-      <div class="w-full absolute flex justify-end" v-if="isCloseButtonShown">
+        <div class="w-full absolute flex justify-end" v-if="isCloseButtonShown">
         <icon-button
           :iconConfig="closeIconConfig"
           :buttonClass="closeButtonClass"
-          @click="close"
+            @click.stop.prevent="close"
           data-test="closeButton"
         ></icon-button>
       </div>
@@ -90,6 +169,10 @@ export default {
     };
   },
   props: {
+    isModal: {
+      default: true,
+      type: Boolean,
+    },
     iconConfig: {
       default: () => {
         return {
