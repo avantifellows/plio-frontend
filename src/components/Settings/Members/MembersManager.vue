@@ -210,7 +210,8 @@ export default {
         const normalized = [];
 
         for (let m of rawMembers) {
-          let userObj = m.user;
+          // Prefer embedded user_details if provided by API
+          let userObj = m.user_details || m.user;
           if (!userObj || typeof userObj === 'number') {
             const userId = typeof userObj === 'number' ? userObj : m.user;
             if (!this.userCache[userId]) {
