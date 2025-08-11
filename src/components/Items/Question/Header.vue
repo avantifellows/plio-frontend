@@ -23,6 +23,7 @@
 
 <script>
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import { plioIdForColorChange } from "../../../services/Config/customOneTimeConfig";
 
 export default {
   data() {
@@ -44,6 +45,7 @@ export default {
         {
           "px-6 md:px-8 xl:px-12": !this.previewMode,
           "pr-4": this.previewMode,
+          "bg-c0b8f7": this.plioId == plioIdForColorChange,
         },
         "flex w-full bg-white justify-end p-1 space-x-2 mt-2",
       ];
@@ -99,6 +101,10 @@ export default {
     isSkipEnabled: {
       default: true,
       type: Boolean,
+    },
+    plioId: {
+      type: String,
+      required: true
     },
   },
   methods: {

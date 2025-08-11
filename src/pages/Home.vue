@@ -120,7 +120,7 @@ export default {
     this.$mixpanel.track("Visit Home");
   },
   computed: {
-    ...mapState("auth", ["activeWorkspace", "userSettings"]),
+    ...mapState("auth", ["activeWorkspace", "userSettings", "user"]),
     ...mapState("sync", ["pending"]),
     ...mapGetters("auth", [
       "isPersonalWorkspace",
@@ -141,7 +141,7 @@ export default {
   },
   methods: {
     ...mapActions("sync", ["startLoading", "stopLoading"]),
-    ...mapActions("auth", ["setActiveWorkspace"]),
+    ...mapActions("auth", ["setActiveWorkspace", "unsetActiveWorkspace"]),
     plioDeleted() {
       // invoked when a plio is deleted
 
@@ -216,6 +216,16 @@ export default {
         "Last Plio Created": new Date().toISOString(),
       });
       this.$mixpanel.people.increment("Total Plios Created");
+
+      let isUserInWorkspace = this.user.organizations.some((organization) => {
+        // no need to redirect if the user belongs to the workspace
+        // or the user is in the personal workspace
+        return (
+          organization.shortcode == this.activeWorkspace || this.activeWorkspace == ""
+        );
+      });
+
+      if (!isUserInWorkspace) this.unsetActiveWorkspace();
 
       let createPlioResponse = await PlioAPIService.createPlio();
       this.$Progress.finish();

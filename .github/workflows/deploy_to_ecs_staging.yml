@@ -29,7 +29,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Set current timestamp for image tag
         id: timestamp
@@ -89,7 +89,7 @@ jobs:
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: plio-frontend-staging

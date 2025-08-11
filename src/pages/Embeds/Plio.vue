@@ -44,6 +44,7 @@
         <item-modal
           v-if="!isModalMinimized"
           :id="plioModalElementId"
+          :plioId="plioId"
           class="absolute z-10"
           :class="{
             hidden: !isItemModalShown,

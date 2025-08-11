@@ -65,6 +65,7 @@
 
 <script>
 import IconButton from "@/components/UI/Buttons/IconButton.vue";
+import { plioIdForColorChange } from "../../../services/Config/customOneTimeConfig";
 export default {
   components: { IconButton },
   props: {
@@ -102,15 +103,24 @@ export default {
       default: false,
       type: Boolean,
     },
+    plioId: {
+      type: String,
+      required: true
+    },
   },
   data() {
     return {
-      // main styling class for this component
-      containerClass:
-        "flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end mb-4",
     };
   },
   computed: {
+    containerClass() {
+      return [
+        {
+          "bg-c0b8f7": this.plioId == plioIdForColorChange,
+        },
+        "flex w-full bg-white p-1 py-2 md:p-3 justify-around place-self-end mb-4",
+      ];
+    },
     hasAnyAnswerFeedback() {
       // whether any text has been provided to be used as feedback once an answer has been submitted
       return this.answerFeedbackText != "";

@@ -16,6 +16,7 @@ module.exports = {
         "peach-hover": "#FFE0B2",
         brown: "#78350F",
         "dark-brown": "#4E342E",
+        'c0b8f7': '#c0b8f7',
       },
       backgroundImage: () => ({
         "selectbox-arrow": "url('assets/images/chevron-down-solid-white.svg')",

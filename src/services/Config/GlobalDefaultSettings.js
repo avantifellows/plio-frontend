@@ -28,6 +28,11 @@ export let settingsMetadata = {
     description: "settings.menu.description.customWebhook",
     type: "button",
   },
+  organizationMembers: {
+    title: "settings.menu.title.organizationMembers",
+    description: "settings.menu.description.organizationMembers",
+    type: "members",
+  },
 };
 
 export const webhookEvents = [
@@ -260,6 +265,19 @@ let globalDefaultSetings = new Map(
                     enabledEvents: [],
                     // webhookURL: "http://localhost:3000/v1/temp/plioWebhook",
                     webhookURL: "",
+                  }
+                }
+              })
+            )
+          },
+          members: {
+            scope: ["org-admin", "super-admin", "no-personal-workspace"],
+            children: new Map(
+              Object.entries({
+                organizationMembers: {
+                  scope: ["org-admin", "super-admin"],
+                  value: {
+                    members: []
                   }
                 }
               })

@@ -4,6 +4,7 @@
     <div v-if="isItemQuestion" :class="containerClass">
       <!-- header -->
       <item-question-header
+        :plioId="plioId"
         :isAnswerSubmitted="isAnswerSubmitted"
         :isModalMinimized="isModalMinimized"
         :isFullscreen="isFullscreen"
@@ -48,6 +49,7 @@
         @revise-question="emitRevise"
         @submit-question="submitQuestion"
         data-test="footer"
+        :plioId="plioId"
       ></item-question-footer>
     </div>
   </div>
@@ -59,6 +61,7 @@ import ItemQuestionBody from "@/components/Items/Question/Body";
 import ItemQuestionFooter from "@/components/Items/Question/Footer";
 import { isScreenPortrait } from "@/services/Functional/Utilities/Generic.js";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
+import { plioIdForColorChange } from "../../services/Config/customOneTimeConfig";
 
 var isEqual = require("deep-eql");
 
@@ -131,6 +134,10 @@ export default {
       default: null,
       type: Object,
     },
+    plioId: {
+      type: String,
+      required: true
+    },
   },
   components: {
     ItemQuestionHeader,
@@ -194,6 +201,7 @@ export default {
         {
           "justify-between": !this.previewMode,
           "justify-start": this.previewMode,
+          "bg-c0b8f7": this.plioId == plioIdForColorChange,
         },
         "h-full flex flex-col",
       ];

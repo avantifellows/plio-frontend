@@ -20,4 +20,6 @@ export const pliosEndpoint = "/plios/",
   refreshTokenEndpoint = "/token/",
   imagesEndpoint = "/images/",
   externalAuthTokenEndpoint = "/generate-external-auth-access-token/",
-  settingsEndpoint = "/setting";
+  settingsEndpoint = "/setting",
+  organizationUsersEndpoint = "/organization-users/",
+  rolesEndpoint = "/roles/";

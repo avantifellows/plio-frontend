@@ -1,5 +1,5 @@
 <template>
-  <div :class="mainContainerClass">
+  <div :class="mainContainerClass" :style="mainContainerStyle">
     <!-- header -->
     <div class="w-full h-12 border-b-2 flex space-x-4">
       <!-- close settings button -->
@@ -53,9 +53,9 @@
                 <div
                   v-for="[leafName, leafDetails] in currentSelectedTabDetails"
                   :key="leafName"
-                  :class="settingItemStyleClass"
+                  :class="[settingItemStyleClass, leafDetails.type === 'members' ? 'flex-col items-start hover:bg-transparent px-0' : '']"
                 >
-                  <div class="flex flex-col my-auto mr-4">
+                  <div :class="['flex flex-col mr-4', leafDetails.type === 'members' ? '' : 'my-auto']">
                     <p :class="settingTitleTextClass">{{ $t(leafDetails.title) }}</p>
                     <p
                       :class="settingDescriptionTextClass"
@@ -81,6 +81,10 @@
                     "
                     data-test="input"
                   />
+                  <!-- Render Members Manager in mobile too -->
+                  <div v-if="leafDetails.type === 'members'" class="w-full mt-2">
+                    <MembersManager />
+                  </div>
                 </div>
               </div>
             </div>
@@ -115,9 +119,9 @@
         <div
           v-for="[leafName, leafDetails] in currentSelectedTabDetails"
           :key="leafName"
-          :class="settingItemStyleClass"
+          :class="[settingItemStyleClass, leafDetails.type === 'members' ? 'flex-col items-start hover:bg-transparent px-0' : '']"
         >
-          <div class="flex flex-col my-auto mr-4">
+          <div :class="['flex flex-col mr-4', leafDetails.type === 'members' ? '' : 'my-auto']">
             <p :class="settingTitleTextClass">{{ $t(leafDetails.title) }}</p>
             <p
               :class="settingDescriptionTextClass"
@@ -155,12 +159,17 @@
             data-test="configureWebhookButton"
             id="buttonInSetting"
           ></icon-button>
+
+          <!-- members management component -->
+          <div v-if="leafDetails.type == 'members'" class="w-full mt-2">
+            <MembersManager />
+          </div>
         </div>
         <div class="w-full flex flex-col mt-10 bp-500:mt-0">
           <!-- info for settings -->
           <div
             class="mt-12 sm:mt-8 md:mt-8 w-full p-1 bp-500:p-2 rounded-md border border-yellow-400 flex space-x-4 mb-4"
-            v-if="isInfoMessageVisible"
+            v-if="isInfoMessageVisible && !isMembersTab"
             data-test="info-message"
           >
             <!-- icon -->
@@ -208,16 +217,15 @@
         </div>
       </div>
     </div>
+    <!-- configure webhook window -->
+    <configure-webhook-window
+      v-if="iscConfigureWebhookWindowVisible"
+      :plioStatus="plioStatus"
+      :customWebhookSettings="webhookSettings"
+      @updated="updateChangedLeavesByWebhookSettings"
+      @close-signal="closeConfigureWebhookWindow"
+    ></configure-webhook-window>
   </div>
-
-  <!-- configure webhook window -->
-  <configure-webhook-window
-    v-if="iscConfigureWebhookWindowVisible"
-    :plioStatus="plioStatus"
-    :customWebhookSettings="webhookSettings"
-    @updated="updateChangedLeavesByWebhookSettings"
-    @close-signal="closeConfigureWebhookWindow"
-  ></configure-webhook-window>
 </template>
 
 <script>
@@ -225,6 +233,7 @@ import IconButton from "@/components/UI/Buttons/IconButton.vue";
 import GenericUtilities from "@/services/Functional/Utilities/Generic.js";
 import SimpleBadge from "@/components/UI/Badges/SimpleBadge.vue";
 import ConfigureWebhookWindow from "./ConfigureWebhookWindow.vue";
+import MembersManager from "@/components/Settings/Members/MembersManager.vue";
 import { mapGetters } from "vuex";
 import globalDefaultSettings from "@/services/Config/GlobalDefaultSettings.js";
 
@@ -234,7 +243,8 @@ export default {
   components: {
     IconButton,
     SimpleBadge,
-    ConfigureWebhookWindow
+    ConfigureWebhookWindow,
+    MembersManager
   },
   data() {
     return {
@@ -257,7 +267,7 @@ export default {
       settingItemStyleClass:
         "flex flex-row hover:bg-gray-100 xl:p-4 lg:p-3 md:p-2 p-1 bp-500:mx-0 mx-8",
       contentRegionClass:
-        "h-full w-full flex flex-col 2xl:px-10 xl:px-8 lg:px-6 md:px-4 bp-500:px-3 px-6 2xl:pt-10 xl:pt-8 lg:pt-6 md:pt-4 bp-500:pt-2 pt-6 pb-5",
+        "h-full min-h-0 w-full flex flex-col 2xl:px-10 xl:px-8 lg:px-6 md:px-4 bp-500:px-3 px-6 2xl:pt-10 xl:pt-8 lg:pt-6 md:pt-4 bp-500:pt-2 pt-6 pb-5",
       adminBadgeClass:
         "rounded-md border text-black text-xs px-2 border-gray-500 bg-gray-200",
       currentSelectedTabName: null,
@@ -266,6 +276,7 @@ export default {
       currentSelectedHeaderName: null, // name of the header of the current selected tab
       localSettings: null,
       iscConfigureWebhookWindowVisible: false,
+      modalWidth: "1100px",
     };
   },
   props: {
@@ -330,7 +341,7 @@ export default {
     sidebarRegionClass() {
       return [
         {
-          "w-35/100 space-y-10": !this.isMobileScreen,
+          "w-28/100 space-y-10": !this.isMobileScreen,
           "w-full": this.isMobileScreen,
         },
         "h-full flex flex-col justify-start pt-4",
@@ -340,16 +351,33 @@ export default {
       return [
         {
           "left-0 right-0 top-0 bottom-0": this.isMobileScreen,
-          "top-15/100 bottom-35/100 2xl:left-20/100 2xl:right-20/100 xl:left-15/100 xl:right-15/100 sm:left-10/100 sm:right-10/100 left-5/100 right-5/100": !this
+          // fixed horizontal centering with explicit width via style; keep vertical offsets
+          "top-10/100 bottom-20/100 left-0 right-0": !this
             .isMobileScreen,
         },
-        "border-2 border-gray-200 shadow-lg rounded-lg bg-white m-auto flex flex-col  fixed z-30 justify-center mx-auto",
+        "border-2 border-gray-200 shadow-lg rounded-lg bg-white m-auto flex flex-col fixed z-30 justify-center mx-auto px-6",
       ];
+    },
+    mainContainerStyle() {
+      if (this.isMobileScreen) return {};
+      // fixed horizontal width with safe viewport cap and side padding applied via px-6
+      return { width: `min(${this.modalWidth}, calc(100vw - 96px))` };
     },
     saveButtonTooltip() {
       return this.hasUnsavedChanges
         ? this.$t("tooltip.settings.buttons.save.hasUnsavedChanges")
         : this.$t("tooltip.settings.buttons.save.noUnsavedChanges");
+    },
+    isMembersTab() {
+      if (!this.currentSelectedTabDetails) return false;
+      try {
+        for (let [, leafDetails] of this.currentSelectedTabDetails) {
+          if (leafDetails?.type === 'members') return true;
+        }
+      } catch (e) {
+        return false;
+      }
+      return false;
     },
   },
   methods: {
