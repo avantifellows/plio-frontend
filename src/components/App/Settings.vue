@@ -267,7 +267,7 @@ export default {
       settingItemStyleClass:
         "flex flex-row hover:bg-gray-100 xl:p-4 lg:p-3 md:p-2 p-1 bp-500:mx-0 mx-8",
       contentRegionClass:
-        "h-full w-full flex flex-col 2xl:px-10 xl:px-8 lg:px-6 md:px-4 bp-500:px-3 px-6 2xl:pt-10 xl:pt-8 lg:pt-6 md:pt-4 bp-500:pt-2 pt-6 pb-5",
+        "h-full min-h-0 w-full flex flex-col 2xl:px-10 xl:px-8 lg:px-6 md:px-4 bp-500:px-3 px-6 2xl:pt-10 xl:pt-8 lg:pt-6 md:pt-4 bp-500:pt-2 pt-6 pb-5",
       adminBadgeClass:
         "rounded-md border text-black text-xs px-2 border-gray-500 bg-gray-200",
       currentSelectedTabName: null,

@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full">
+  <div class="w-full h-full min-h-0">
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold text-gray-700">
@@ -22,7 +22,7 @@
       Please access this members menu from a desktop or laptop screen.
     </div>
 
-    <div v-if="!isMobileScreen">
+    <div v-if="!isMobileScreen" class="flex flex-col min-h-0">
       <!-- Loading state -->
       <div v-if="loading" class="flex justify-center items-center h-32">
       <inline-svg
@@ -32,8 +32,8 @@
       </div>
 
       <!-- Members table -->
-      <div v-else-if="members.length > 0" class="bg-white rounded-md border border-gray-200 overflow-hidden">
-        <div class="overflow-y-auto" style="max-height: 60vh;">
+      <div v-else-if="members.length > 0" class="bg-white rounded-md border border-gray-200 overflow-hidden flex-1 min-h-0">
+        <div class="overflow-y-auto" style="max-height: 40vh;">
           <table class="min-w-full divide-y divide-gray-200 table-fixed">
             <thead class="bg-gray-50 sticky top-0 z-10">
           <tr>
