@@ -154,22 +154,21 @@
       </div>
     </div>
     <!-- generic dialog box -->
-    <div class="w-full fixed top-1/3">
-      <dialog-box
-        v-if="isDialogBoxShown"
-        :class="dialogBoxClass"
-        :title="dialogTitle"
-        :description="dialogDescription"
-        :confirmButtonConfig="dialogConfirmButtonConfig"
-        :cancelButtonConfig="dialogCancelButtonConfig"
-        :isCloseButtonShown="isDialogCloseButtonShown"
-        @confirm="dialogConfirmed"
-        @cancel="dialogCancelled"
-        @close="resetDialogBox"
-        v-click-away="resetDialogBox"
-        data-test="dialogBox"
-      ></dialog-box>
-    </div>
+    <dialog-box
+      v-if="isDialogBoxShown"
+      :isModal="true"
+      :containerClass="dialogBoxClass"
+      :title="dialogTitle"
+      :description="dialogDescription"
+      :confirmButtonConfig="dialogConfirmButtonConfig"
+      :cancelButtonConfig="dialogCancelButtonConfig"
+      :isCloseButtonShown="isDialogCloseButtonShown"
+      @confirm="dialogConfirmed"
+      @cancel="dialogCancelled"
+      @close="resetDialogBox"
+      v-click-away="resetDialogBox"
+      data-test="dialogBox"
+    ></dialog-box>
     <!-- first-time language picker -->
     <div
       class="fixed w-full top-1/4 my-5 flex justify-center"

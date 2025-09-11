@@ -7,7 +7,7 @@
     <!-- Card -->
     <div
       class="relative border shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-800 w-80 m-auto"
-      :class="containerClass"
+      :class="containerClasses"
     >
       <div class="flex relative">
         <div class="w-full h-full text-center">
@@ -80,7 +80,7 @@
   <div
     v-else
     class="border shadow-lg rounded-2xl p-4 bg-white dark:bg-gray-800 w-64 m-auto"
-    :class="containerClass"
+    :class="containerClasses"
   >
     <div class="flex relative">
       <div class="w-full h-full text-center">
@@ -215,6 +215,10 @@ export default {
       default: false,
       type: Boolean,
     },
+    containerClass: {
+      default: "",
+      type: String,
+    },
   },
   computed: {
     /** whether to show the confirm button */
@@ -239,10 +243,13 @@ export default {
       );
     },
     /** classes for the container of the dialog box */
-    containerClass() {
-      return {
-        "pt-6": this.isCloseButtonShown,
-      };
+    containerClasses() {
+      return [
+        this.containerClass,
+        {
+          "pt-6": this.isCloseButtonShown,
+        }
+      ];
     },
     /** whether to show title */
     showTitle() {
