@@ -59,4 +59,4 @@ Follow the steps below to set up the repo for development
     **NOTE** - To install and set up the Plio Backend, follow the steps outlined [here](https://github.com/avantifellows/plio-backend#readme).
 
 ### Additional steps
-1. To enable Google sign-in support, visit the [Google OAuth2 guide](oauth/GOOGLE-OAUTH2.md).
+To enable Google sign-in support, follow the [Google OAuth2 guide](oauth/GOOGLE-OAUTH2.md) and configure the `VUE_APP_BACKEND_API_CLIENT_ID` in your `.env` file.
