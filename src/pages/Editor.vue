@@ -1381,9 +1381,9 @@ export default {
      */
     publishDialogTitle() {
       if (this.isPublished) {
-        return this.$t("editor.dialog.publish.published.title");
+        return "editor.dialog.publish.published.title";
       }
-      return this.$t("editor.dialog.publish.draft.title");
+      return "editor.dialog.publish.draft.title";
     },
     /**
      * description for the dialog box that appears when publishing a
@@ -1391,9 +1391,9 @@ export default {
      */
     publishDialogDescription() {
       if (this.isPublished) {
-        return this.$t("editor.dialog.publish.published.description");
+        return "editor.dialog.publish.published.description";
       }
-      return this.$t("editor.dialog.publish.draft.description");
+      return "editor.dialog.publish.draft.description";
     },
     /**
      * whether adding item is disabled
@@ -1506,17 +1506,17 @@ export default {
      */
     showVideoUpdateConfirmationDialogBox() {
       // set dialog properties
-      this.setDialogTitle(this.$t("editor.dialog.video_update.title"));
-      this.setDialogDescription(this.$t("editor.dialog.video_update.description"));
+      this.setDialogTitle("editor.dialog.video_update.title");
+      this.setDialogDescription("editor.dialog.video_update.description");
       this.setDialogCloseButton();
       this.setConfirmButtonConfig({
         enabled: true,
-        text: this.$t(`generic.yes`),
+        text: "generic.yes",
         class: "bg-primary hover:bg-primary-hover focus:outline-none focus:ring-0",
       });
       this.setCancelButtonConfig({
         enabled: true,
-        text: this.$t(`generic.no`),
+        text: "generic.no",
         class: "bg-white hover:bg-gray-100 focus:outline-none text-primary",
       });
       this.setDialogBoxClass("w-72");
@@ -2211,8 +2211,8 @@ export default {
      */
     showCannotAddItemDialog() {
       // set up the dialog properties
-      this.setDialogTitle(this.$t("editor.dialog.cannot_add_question.title"));
-      this.setDialogDescription(this.$t("editor.dialog.cannot_add_question.description"));
+      this.setDialogTitle("editor.dialog.cannot_add_question.title");
+      this.setDialogDescription("editor.dialog.cannot_add_question.description");
       this.setConfirmButtonConfig({
         enabled: true,
         text: this.$t("generic.got_it"),
@@ -2354,10 +2354,8 @@ export default {
      */
     showDeleteItemDialogBox() {
       // set dialog properties
-      this.setDialogTitle(this.$t(`editor.dialog.delete_item.${this.itemType}.title`));
-      this.setDialogDescription(
-        this.$t(`editor.dialog.delete_item.${this.itemType}.description`)
-      );
+      this.setDialogTitle(`editor.dialog.delete_item.${this.itemType}.title`);
+      this.setDialogDescription(`editor.dialog.delete_item.${this.itemType}.description`);
       this.setConfirmButtonConfig({
         enabled: true,
         text: this.$t("generic.yes"),
@@ -2395,7 +2393,7 @@ export default {
      */
     deleteOption(optionIndex) {
       // set dialog properties
-      this.setDialogTitle(this.$t("editor.dialog.delete_option.title"));
+      this.setDialogTitle("editor.dialog.delete_option.title");
       this.setConfirmButtonConfig({
         enabled: true,
         text: this.$t("generic.yes"),
