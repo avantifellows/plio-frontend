@@ -60,4 +60,4 @@ last_updated: 2026-07-11
 
 **Blank app / all requests 401 or CORS errors:** the backend isn't running or `VUE_APP_BACKEND` points to the wrong port — local backend serves at port 8001, not 8000.
 **Login loop after backend restart:** the persisted OAuth client credentials no longer match — verify `VUE_APP_BACKEND_API_CLIENT_ID/SECRET` against the backend's OAuth2 application and clear localStorage.
-**e2e specs in tests/integration fail immediately:** expected — they need BrowserStack + Google OAuth credentials; there is no locally runnable e2e suite on master.
+**e2e specs in tests/integration fail immediately:** expected — they need BrowserStack + Google OAuth credentials; there is no locally runnable e2e suite on main.

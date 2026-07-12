@@ -47,4 +47,4 @@ last_updated: 2026-07-11
 ## Version Constraints
 
 - Vue CLI toolchain pins webpack-era plugin versions; upgrading any `@vue/cli-*` package should happen together, not piecemeal
-- `@browserstack/testcafe` devDependencies remain on master for the legacy e2e suite in tests/integration
+- `@browserstack/testcafe` devDependencies remain on main for the legacy e2e suite in tests/integration

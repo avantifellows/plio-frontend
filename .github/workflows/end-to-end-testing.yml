@@ -3,7 +3,7 @@ name: Plio End-to-End Testing
 on:
   pull_request:
   push:
-    branches: [master]
+    branches: [main]
 
 env:
   BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}

@@ -1,1 +1,2 @@
 {"timestamp":"2026-07-11T17:00:52.698Z","kind":"decision","message":"mex scaffold created and populated (Claude + Codex configs; CLAUDE.md symlinks to AGENTS.md).","files":[],"cwd":"."}
+{"timestamp":"2026-07-12T09:43:30.000Z","kind":"decision","message":"Default branch renamed master -> main on GitHub (protection rules, open PRs auto-migrated). Workflow triggers, badges, docs and mex context updated to match.","files":[],"cwd":"."}

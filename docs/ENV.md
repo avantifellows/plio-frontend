@@ -16,7 +16,7 @@ Base URL to connect to any configured websocket listeners on the backend
 ### Plio Backend API
 Backend API credentials are used by frontend application to authorize that this server is allowed to make API calls to the backend server. If not present, the backend app won't allow auth tokens to be generated.
 
-To interact more with backend API, see the [REST API setup guide](https://github.com/avantifellows/plio-backend/blob/master/docs/REST-API.md) at backend repository.
+To interact more with backend API, see the [REST API setup guide](https://github.com/avantifellows/plio-backend/blob/main/docs/REST-API.md) at backend repository.
 
 #### `VUE_APP_BACKEND_API_CLIENT_ID`
 The client id for backend API application.
