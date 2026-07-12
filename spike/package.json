@@ -1,0 +1,13 @@
+{
+  "name": "plio-yt-playback-spike",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Throwaway spike for avantifellows/plio-backend#371: measure real YouTube playback reliability through Plyr in headless Chromium on GitHub Actions runners. Never merge.",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "plyr": "^3.6.3"
+  }
+}

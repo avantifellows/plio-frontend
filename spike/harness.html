@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Plio YT playback spike harness</title>
+    <!--
+      Throwaway harness for avantifellows/plio-backend#371.
+      Mirrors the app's player setup (src/components/UI/Player/VideoPlayer.vue):
+      a bare div with data-plyr-provider="youtube" handed to `new Plyr(...)`.
+    -->
+    <link rel="stylesheet" href="./node_modules/plyr/dist/plyr.css" />
+    <style>
+      body { margin: 0; padding: 16px; font-family: sans-serif; }
+      #player-wrapper { max-width: 720px; }
+    </style>
+  </head>
+  <body>
+    <div id="player-wrapper">
+      <!-- Same shape as VideoPlayer.vue's plyr mount point -->
+      <div
+        id="player"
+        data-plyr-provider="youtube"
+        data-plyr-embed-id="aqz-KE-bpKQ"
+      ></div>
+    </div>
+
+    <script src="./node_modules/plyr/dist/plyr.js"></script>
+    <script>
+      // Event log consumed by playback.spec.js. wallTime is performance.now(),
+      // i.e. milliseconds since navigation start of this page.
+      window.__events = [];
+
+      function record(event) {
+        var entry = {
+          type: event.type,
+          currentTime: null,
+          wallTime: performance.now(),
+        };
+        try {
+          if (window.player) {
+            entry.currentTime = Number(window.player.currentTime);
+            // duration exposes pre-roll ads: if YouTube briefly reports the
+            // ad's duration instead of the content's (~596s), we see it here.
+            entry.duration = Number(window.player.duration);
+          }
+        } catch (err) {
+          /* player not ready yet */
+        }
+        // Plyr forwards the raw YouTube state code on `statechange` — useful
+        // for diagnosing failure modes (buffering vs unstarted vs cued).
+        if (event.detail && typeof event.detail.code !== "undefined") {
+          entry.code = event.detail.code;
+        }
+        window.__events.push(entry);
+      }
+
+      // Capture page-level script errors too (e.g. YT iframe API failing to load).
+      window.addEventListener("error", function (e) {
+        window.__events.push({
+          type: "window-error",
+          message: String(e.message),
+          currentTime: null,
+          wallTime: performance.now(),
+        });
+      });
+
+      // Same instantiation as VideoPlayer.vue: `new Plyr("#player", config)`
+      // with the app's default (empty) config.
+      window.player = new Plyr("#player");
+
+      [
+        "ready",
+        "play",
+        "playing",
+        "pause",
+        "waiting",
+        "stalled",
+        "error",
+        "timeupdate",
+        "seeked",
+        "ended",
+        "statechange",
+        "durationchange",
+      ].forEach(function (type) {
+        window.player.on(type, record);
+      });
+    </script>
+  </body>
+</html>

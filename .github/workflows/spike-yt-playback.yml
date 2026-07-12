@@ -1,0 +1,53 @@
+# Throwaway spike for avantifellows/plio-backend#371. Never merge.
+# 10 attempts x 2 browsers = 20 samples of real YouTube playback on stock
+# ubuntu-latest runners:
+#   chromium — Playwright's bundled Chromium (no proprietary H.264/AAC)
+#   chrome   — Google Chrome stable, preinstalled on the runner (full codecs)
+# Each job uploads its RESULTS json (+ Playwright traces on failure).
+name: YT playback spike
+
+on:
+  push:
+    branches: [spike/yt-playback-ci]
+
+jobs:
+  playback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        attempt: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        browser: [chromium, chrome]
+    env:
+      SPIKE_BROWSER: ${{ matrix.browser }}
+    defaults:
+      run:
+        working-directory: spike
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Needed for the chromium leg; harmless for the chrome leg (which uses
+      # the preinstalled Google Chrome via channel: 'chrome').
+      - name: Install chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run playback test
+        run: npx playwright test
+
+      - name: Upload results and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yt-spike-${{ matrix.browser }}-${{ matrix.attempt }}
+          path: |
+            spike/out/
+            spike/test-results/
+          if-no-files-found: warn
