@@ -14,7 +14,7 @@ edges:
     condition: when setting up the dev environment or running the project for the first time
   - target: patterns/INDEX.md
     condition: when starting a task — check the pattern index for a matching pattern file
-last_updated: 2026-07-11
+last_updated: 2026-07-14
 ---
 
 # Session Bootstrap
@@ -30,13 +30,14 @@ Then read this file fully before doing anything else in this session.
 - Learner flow: Player page plays video, shows questions at timestamps, records sessions/answers/events
 - Auth: Google OAuth, OTP login, and third-party SSO (query params `unique_id` + `api_key`)
 - Multi-workspace support via `activeWorkspace` and the `Organization` request header
-- Jest unit tests (~40 spec files under tests/unit) and Dashboard analytics page
+- Dashboard analytics page; jest unit specs exist (~40 files under tests/unit) but see Known issues — the suite is red in CI
 
 **Not yet built:**
 - No locally runnable e2e suite: the committed TestCafe specs in tests/integration require BrowserStack + live Google OAuth credentials
 
 **Known issues:**
 - Vue CLI toolchain (webpack) is legacy; no migration to Vite is planned or started
+- Unit suite red in CI since Aug 2025 (poisoned jest-mock-axios 4.7.3 in lockfile kills collection); revival planned as plio-backend#379 sub-issues #393–#398 (pin 4.5.0, mixpanel stub, prism-es6 transform, 17 test repairs, Codecov v5, CI-enforced coverage floor)
 
 ## Routing Table
 
