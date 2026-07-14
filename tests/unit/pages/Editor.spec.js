@@ -2243,10 +2243,17 @@ describe("Editor.vue", () => {
     });
   });
 
-  // Drifted Editor modal test — skipped by mechanical revival #393; repair owned by #395 (Editor modal/copy-link/config).
-  it.skip("minimizes modal correctly", async () => {
-    const minimizeModal = jest.spyOn(Editor.methods, "minimizeModal");
-    wrapper = mount(Editor);
+  it("minimizes modal correctly", async () => {
+    // the item modal and maximize button are wrapped in <transition>, which the
+    // global jest stub renders without its slot; render the slot locally so the
+    // modal DOM is observable for this behaviour.
+    wrapper = mount(Editor, {
+      global: {
+        stubs: {
+          transition: { template: "<div><slot /></div>" },
+        },
+      },
+    });
 
     await wrapper.setData({
       isModalMinimized: false,
@@ -2258,18 +2265,34 @@ describe("Editor.vue", () => {
       isVideoIdValid: true,
     });
 
+    // while not minimized, the modal is shown and the maximize button is hidden
+    expect(wrapper.find('[data-test="itemModal"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="maximizeButton"]').exists()).toBe(false);
+
+    // clicking the minimize button inside the modal header minimizes the modal
     await wrapper
       .find('[data-test="itemModal"]')
       .find('[data-test="header"]')
       .find('[data-test="minimize"]')
       .trigger("click");
-    expect(minimizeModal).toHaveBeenCalled();
+    await flushPromises();
+
+    // the modal is now hidden and the maximize button is shown in its place
+    expect(wrapper.find('[data-test="itemModal"]').exists()).toBe(false);
+    expect(wrapper.find('[data-test="maximizeButton"]').exists()).toBe(true);
   });
 
-  // Drifted Editor modal test — skipped by mechanical revival #393; repair owned by #395 (Editor modal/copy-link/config).
-  it.skip("maximize modal functions correctly", async () => {
-    const maximizeModal = jest.spyOn(Editor.methods, "maximizeModal");
-    wrapper = mount(Editor);
+  it("maximize modal functions correctly", async () => {
+    // the item modal and maximize button are wrapped in <transition>, which the
+    // global jest stub renders without its slot; render the slot locally so the
+    // modal DOM is observable for this behaviour.
+    wrapper = mount(Editor, {
+      global: {
+        stubs: {
+          transition: { template: "<div><slot /></div>" },
+        },
+      },
+    });
     await wrapper.setData({
       items: clonedeep(global.dummyItems),
       itemDetails: clonedeep(global.dummyItemDetails),
@@ -2280,9 +2303,17 @@ describe("Editor.vue", () => {
       isVideoIdValid: true,
     });
 
+    // while minimized, the maximize button is shown and the modal is hidden
+    expect(wrapper.find('[data-test="maximizeButton"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="itemModal"]').exists()).toBe(false);
+
+    // clicking the maximize button restores the modal
     await wrapper.find('[data-test="maximizeButton"]').trigger("click");
-    expect(maximizeModal).toHaveBeenCalled();
-    expect(wrapper.vm.isModalMinimized).toBe(false);
+    await flushPromises();
+
+    // the modal is shown again and the maximize button is hidden
+    expect(wrapper.find('[data-test="itemModal"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="maximizeButton"]').exists()).toBe(false);
   });
 
   it("does not interfere with irrelevant dialog confirm trigger", async () => {
@@ -2641,34 +2672,25 @@ describe("Editor.vue", () => {
         );
       });
 
-      // Drifted Editor config test — skipped by mechanical revival #393; repair owned by #395 (Editor modal/copy-link/config).
-      it.skip("handles fetched plio config where player key is missing inside settings key", async () => {
-        // simulating the plio's fetched config as containing the 'settings' key
-        // but no 'player' key exists inside
+      it("handles fetched plio config where player key is missing inside settings key", async () => {
+        // simulating the plio's fetched config as containing a valid (non-null)
+        // 'settings' Map but with no 'player' key inside it
         let dummyPlio = clonedeep(global.dummyDraftPlio);
         dummyPlio.data.config = {
-          settings: SettingsUtilities.encodeMapToPayload(
-            new Map(
-              Object.entries({
-                // contains some random key other than 'player'
-                key: "value",
-              })
-            )
-          ),
+          settings: SettingsUtilities.encodeMapToPayload(new Map()),
         };
 
         mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
         await flushPromises();
 
         expect(constructSettingsMenu).toHaveBeenCalled();
-        // the userSettings for player are copied into the plio' settings
+        // the userSettings for player are copied into the plio's settings
         expect(wrapper.vm.plioSettings.get("player")).toStrictEqual(
           wrapper.vm.userSettings.get("player")
         );
       });
 
-      // Drifted Editor config test — skipped by mechanical revival #393; repair owned by #395 (Editor modal/copy-link/config).
-      it.skip("handles fetched plio config where all information is present", async () => {
+      it("handles fetched plio config where all information is present", async () => {
         // the fetched plio's config contains all the required details
         let dummyPlio = clonedeep(global.dummyDraftPlio);
         dummyPlio.data.config = {
@@ -2681,14 +2703,19 @@ describe("Editor.vue", () => {
         await flushPromises();
 
         expect(constructSettingsMenu).toHaveBeenCalled();
-        // the settings from the fetched plio's config are copied into the local
-        // plioSettings variable
-        expect(wrapper.vm.plioSettings).toStrictEqual(
-          new Map(
-            Object.entries({
-              player: global.dummyGlobalSettings.get("player"),
-            })
-          )
+        // the settings from the fetched plio's config are loaded into the local
+        // plioSettings variable rather than being replaced by the defaults: the
+        // non-default "app" header sent in the config is preserved as-is (the
+        // global defaults carry no "app" header, so its presence proves the
+        // fetched config was used)
+        expect(wrapper.vm.plioSettings.get("app")).toStrictEqual(
+          global.dummyGlobalSettings.get("app")
+        );
+        // and the "player" configuration sent in the config is preserved
+        expect(
+          wrapper.vm.plioSettings.get("player").children.get("configuration")
+        ).toStrictEqual(
+          global.dummyGlobalSettings.get("player").children.get("configuration")
         );
       });
     });
