@@ -2691,12 +2691,19 @@ describe("Editor.vue", () => {
       });
 
       it("handles fetched plio config where all information is present", async () => {
-        // the fetched plio's config contains all the required details
+        // the fetched plio's config contains all the required details, with a
+        // player value deliberately flipped away from the global default
+        // (skipEnabled false vs the default true) -- preservation of the
+        // fetched config is then distinguishable from an implementation that
+        // overwrites it with the defaults
+        let fetchedSettings = clonedeep(global.dummyGlobalSettings);
+        fetchedSettings
+          .get("player")
+          .children.get("configuration")
+          .children.get("skipEnabled").value = false;
         let dummyPlio = clonedeep(global.dummyDraftPlio);
         dummyPlio.data.config = {
-          settings: SettingsUtilities.encodeMapToPayload(
-            clonedeep(global.dummyGlobalSettings)
-          ),
+          settings: SettingsUtilities.encodeMapToPayload(fetchedSettings),
         };
 
         mockAxios.mockResponse(dummyPlio, mockAxios.queue()[0]);
@@ -2709,13 +2716,20 @@ describe("Editor.vue", () => {
         // global defaults carry no "app" header, so its presence proves the
         // fetched config was used)
         expect(wrapper.vm.plioSettings.get("app")).toStrictEqual(
-          global.dummyGlobalSettings.get("app")
+          fetchedSettings.get("app")
         );
-        // and the "player" configuration sent in the config is preserved
+        // and the "player" configuration keeps the fetched non-default value,
+        // not the global default
+        expect(
+          wrapper.vm.plioSettings
+            .get("player")
+            .children.get("configuration")
+            .children.get("skipEnabled").value
+        ).toBe(false);
         expect(
           wrapper.vm.plioSettings.get("player").children.get("configuration")
         ).toStrictEqual(
-          global.dummyGlobalSettings.get("player").children.get("configuration")
+          fetchedSettings.get("player").children.get("configuration")
         );
       });
     });

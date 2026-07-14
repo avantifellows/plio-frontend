@@ -1,6 +1,11 @@
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+
 const {
   evaluateFloor,
   readMeasuredLinePct,
+  main,
 } = require("../../../scripts/checkCoverageFloor");
 
 describe("evaluateFloor", () => {
@@ -48,5 +53,51 @@ describe("readMeasuredLinePct", () => {
       },
     };
     expect(readMeasuredLinePct(summary)).toBe(84.21);
+  });
+});
+
+describe("main fails closed on malformed inputs", () => {
+  const writeJson = (dir, name, content) => {
+    const filePath = path.join(dir, name);
+    fs.writeFileSync(filePath, JSON.stringify(content));
+    return filePath;
+  };
+  const tempDir = () => fs.mkdtempSync(path.join(os.tmpdir(), "floor-spec-"));
+
+  it("fails when the committed floor is null", () => {
+    const dir = tempDir();
+    const summaryPath = writeJson(dir, "summary.json", {
+      total: { lines: { pct: 90 } },
+    });
+    // valid JSON, but a null floor must not coerce to a passing 0
+    const floorPath = writeJson(dir, "floor.json", { lines: null });
+    expect(main({ summaryPath, floorPath, env: {} })).toBe(1);
+  });
+
+  it("fails when the measured percentage is not numeric", () => {
+    const dir = tempDir();
+    const summaryPath = writeJson(dir, "summary.json", {
+      total: { lines: { pct: "not-a-number" } },
+    });
+    const floorPath = writeJson(dir, "floor.json", { lines: 73.41 });
+    expect(main({ summaryPath, floorPath, env: {} })).toBe(1);
+  });
+
+  it("fails when the floor is negative", () => {
+    const dir = tempDir();
+    const summaryPath = writeJson(dir, "summary.json", {
+      total: { lines: { pct: 90 } },
+    });
+    const floorPath = writeJson(dir, "floor.json", { lines: -1 });
+    expect(main({ summaryPath, floorPath, env: {} })).toBe(1);
+  });
+
+  it("still passes on well-formed inputs above the floor", () => {
+    const dir = tempDir();
+    const summaryPath = writeJson(dir, "summary.json", {
+      total: { lines: { pct: 90 } },
+    });
+    const floorPath = writeJson(dir, "floor.json", { lines: 89.5 });
+    expect(main({ summaryPath, floorPath, env: {} })).toBe(0);
   });
 });

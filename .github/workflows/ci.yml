@@ -41,11 +41,19 @@ jobs:
       # Runs before the Codecov upload so the gate holds even if Codecov is
       # unreachable, and writes measured-vs-floor to the job summary.
       - name: Enforce coverage floor
+        id: coverage-floor
         run: node scripts/checkCoverageFloor.js
 
       - name: Upload coverage to Codecov
+        # upload even when the floor gate fails -- a regressing commit is
+        # exactly when the per-file report is needed. files + disable_search
+        # keep v5's auto-discovery from slurping coverage-floor.json as a
+        # coverage input and skewing the frontend-unit flag.
+        if: success() || steps.coverage-floor.outcome == 'failure'
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          disable_search: true
           flags: frontend-unit
           fail_ci_if_error: true

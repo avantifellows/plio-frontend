@@ -433,6 +433,12 @@ describe("Plio.vue", () => {
           expect(mockAxios.post).not.toHaveBeenCalled();
         });
         it("makes an API call in non-preview mode", async () => {
+          // spy at the createEvent method seam (the suite's established
+          // pattern -- plyr's currentTime getter cannot run in jsdom): a
+          // submitQuestion that stops recording the event fails here
+          const createEvent = jest
+            .spyOn(Plio.methods, "createEvent")
+            .mockResolvedValue();
           // re-mount now that the user is authenticated so the session-answer
           // save path is active
           await setupWrapper();
@@ -443,6 +449,12 @@ describe("Plio.vue", () => {
             "/session-answers/1",
             global.dummyItemResponses[0]
           );
+          // ...and the submit action itself records a question_answered event
+          // carrying the submitted answer
+          expect(createEvent).toHaveBeenCalledWith("question_answered", {
+            itemIndex: 0,
+            answer: global.dummyItemResponses[0].answer,
+          });
         });
         it("saves a checkbox answer as an array to the session-answer endpoint", async () => {
           const currentItemIndex = 4;

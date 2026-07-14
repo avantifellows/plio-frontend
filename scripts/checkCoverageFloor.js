@@ -65,6 +65,16 @@ function main({
 } = {}) {
   const measured = readMeasuredLinePct(readJson(summaryPath));
   const floor = readFloor(floorPath);
+  // fail closed on malformed inputs: a floor of null/undefined/NaN would
+  // otherwise coerce to a passing comparison and silently disable the gate
+  if (!Number.isFinite(measured) || !Number.isFinite(floor) || floor < 0) {
+    // eslint-disable-next-line no-console
+    console.error(
+      `Coverage floor check failed closed: measured (${measured}) and ` +
+        `floor (${floor}) must be finite numbers with a non-negative floor.`
+    );
+    return 1;
+  }
   const result = evaluateFloor({ measured, floor });
 
   const report = ["### Frontend unit coverage floor", "", result.summaryLine];
