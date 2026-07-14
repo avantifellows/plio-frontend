@@ -2,7 +2,7 @@
   <div
     class="p-2 absolute top-0 left-0 w-full h-full bg-gray-400 bg-opacity-90 backdrop-blur-xl flex flex-col items-center justify-start z-50 border-2 rounded-md"
     v-if="showMathEditorPopup"
-  > 
+  >
     <!-- close button -->
     <div
         class="p-2 bg-red-500 text-white rounded-full ml-auto absolute top-0 right-0 z-50"
@@ -29,7 +29,7 @@
 
     <!-- <textarea class="p-4 w-3/4 h-1/4"></textarea> -->
     <math-field class="w-full h-1/2 relative text-lg" ref="mathField">
-      
+
     </math-field>
     <!-- <button class="mt-4 bg-blue-500 text-white p-2 rounded" @click="submitMathEntry">Submit</button> -->
 

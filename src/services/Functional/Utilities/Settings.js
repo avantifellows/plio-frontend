@@ -58,39 +58,45 @@ export default {
     // settings key should be present inside config object
     if (config == null || !("settings" in config) || config.settings == null)
       // return [false, null];
-      return [true, clonedeep(globalDefaultSettings)]
+      return [true, clonedeep(globalDefaultSettings)];
 
     // decoded settings object should be an instance of Map
     let decodedSettings = this.decodeMapFromPayload(clonedeep(config.settings));
-    if (!(decodedSettings instanceof Map)) return [
-      true, 
-      clonedeep(globalDefaultSettings)  
-    ];
+    if (!(decodedSettings instanceof Map))
+      return [true, clonedeep(globalDefaultSettings)];
 
     // certain keys should be present in the settings Map
 
-    const defaultSettings = clonedeep(globalDefaultSettings)
+    const defaultSettings = clonedeep(globalDefaultSettings);
     for (let [headerName, headerDetails] of defaultSettings) {
       if (!decodedSettings.has(headerName)) {
-        decodedSettings.set(headerName, headerDetails)
-        continue
+        decodedSettings.set(headerName, headerDetails);
+        continue;
       }
 
       for (let [tabName, tabDetails] of headerDetails.children) {
         if (!decodedSettings.get(headerName).children.has(tabName)) {
-          decodedSettings.get(headerName).children.set(tabName, tabDetails)
-          continue
+          decodedSettings.get(headerName).children.set(tabName, tabDetails);
+          continue;
         }
 
         for (let [leafName, leafDetails] of tabDetails.children) {
-          if (!decodedSettings.get(headerName).children.get(tabName).children.has(leafName)) {
-            decodedSettings.get(headerName).children.get(tabName).children.set(leafName, leafDetails)
+          if (
+            !decodedSettings
+              .get(headerName)
+              .children.get(tabName)
+              .children.has(leafName)
+          ) {
+            decodedSettings
+              .get(headerName)
+              .children.get(tabName)
+              .children.set(leafName, leafDetails);
           }
         }
       }
     }
 
-    return [true, decodedSettings]
+    return [true, decodedSettings];
   },
 
   /**
@@ -99,9 +105,9 @@ export default {
    * @param {Object} config - Config of a plio
    */
   setPlioSettings(config) {
-    const result = this.patchInvalidIncompleteSettings(config)
-    if (result[0] == true) return result[1]
-    return null
+    const result = this.patchInvalidIncompleteSettings(config);
+    if (result[0] == true) return result[1];
+    return null;
   },
 
   /**
@@ -113,7 +119,11 @@ export default {
    * @param {Object} toRenderIn - the component which is the caller of this function. It will either be the App.vue (homepage) or Editor.vue.
    *                              Some settings should only render in the homepage and some only in the editor. This is for that
    */
-  prepareSettingsToRender(settingsToRender, checkUserScoping = true, toRenderIn) {
+  prepareSettingsToRender(
+    settingsToRender,
+    checkUserScoping = true,
+    toRenderIn
+  ) {
     // Checks if the current user has access to a particular setting level. Only valid for non personal workspace
     let canUserAccess = (settingLevel) => {
       if (
@@ -129,20 +139,21 @@ export default {
 
     const shouldSettingElementBeRendered = (settingElement) => {
       if (
-        settingElement.scope.includes('no-personal-workspace') &&
+        settingElement.scope.includes("no-personal-workspace") &&
         store.getters["auth/isPersonalWorkspace"]
-      ) return false
+      )
+        return false;
 
-      if (settingElement.scope.includes('only-plio-setting')) {
-        if (toRenderIn == 'App.vue') return false
-        if (toRenderIn == 'Editor.vue') return true
-      } else if (settingElement.scope.includes('only-home-setting')) {
-        if (toRenderIn == 'App.vue') return true
-        if (toRenderIn == 'Editor.vue') return false
+      if (settingElement.scope.includes("only-plio-setting")) {
+        if (toRenderIn == "App.vue") return false;
+        if (toRenderIn == "Editor.vue") return true;
+      } else if (settingElement.scope.includes("only-home-setting")) {
+        if (toRenderIn == "App.vue") return true;
+        if (toRenderIn == "Editor.vue") return false;
       }
 
-      return true
-    }
+      return true;
+    };
 
     for (let [headerName, headerDetails] of settingsToRender) {
       if (

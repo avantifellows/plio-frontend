@@ -619,14 +619,14 @@ export default {
   methods: {
     ...mapActions(
       "generic", [
-        "unsetFirstTimeLanguagePickerShownBySetting", 
+        "unsetFirstTimeLanguagePickerShownBySetting",
         "setFirstTimeLanguagePickerShownBySetting"
       ]
     ),
     ...mapActions("auth", ["setAccessToken", "setActiveWorkspace"]),
     checkAndSendEventToWebhook(eventName, eventData) {
       if (!this.isWebhookFunctionalityEnabled) return;
-      
+
       if (this.enabledEvents.includes(eventName)) {
         let extraData = []
 
@@ -672,7 +672,7 @@ export default {
           event_type: eventName,
           event_data: extraData,
         }
-      
+
         try {
           fetch(
             this.webhookURL,

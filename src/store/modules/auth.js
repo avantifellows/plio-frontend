@@ -140,20 +140,20 @@ const actions = {
     if (response != undefined) {
       // use the config of a user (and patch for completeness) if it exists otherwise use the global defaults
       if ("settings" in response.data.config) {
-        const result = SettingsUtilities.patchInvalidIncompleteSettings(response.data.config)
+        const result = SettingsUtilities.patchInvalidIncompleteSettings(
+          response.data.config
+        );
         if (result[1] !== null) {
-          dispatch(
-            "setUserSettings",
-            result[1]
-          );
+          dispatch("setUserSettings", result[1]);
         } else {
           dispatch(
             "setUserSettings",
-            SettingsUtilities.decodeMapFromPayload(response.data.config.settings)
+            SettingsUtilities.decodeMapFromPayload(
+              response.data.config.settings
+            )
           );
         }
-      }
-      else dispatch("setUserSettings", clonedeep(globalDefaultSettings));
+      } else dispatch("setUserSettings", clonedeep(globalDefaultSettings));
 
       // use the config of organization(s) if it exists otherwise use the global defaults
       if (response.data.organizations.length > 0) {
@@ -247,13 +247,12 @@ export default {
  * @returns A filtered version of the settings for a workspace
  */
 function getWorkspaceSettings(workspaceDetails = null) {
-  if (
-    workspaceDetails == null ||
-    !("config" in workspaceDetails)
-  ) {
-    const result = SettingsUtilities.patchInvalidIncompleteSettings(workspaceDetails.config)
+  if (workspaceDetails == null || !("config" in workspaceDetails)) {
+    const result = SettingsUtilities.patchInvalidIncompleteSettings(
+      workspaceDetails.config
+    );
     if (result[0] == true) {
-      let workspaceSettings = result[1]
+      let workspaceSettings = result[1];
       for (let [headerName, headerDetails] of workspaceSettings) {
         if (!SettingsUtilities.isSettingApplicableToWorkspace(headerDetails)) {
           workspaceSettings.delete(headerName);
@@ -265,7 +264,9 @@ function getWorkspaceSettings(workspaceDetails = null) {
             continue;
           }
           for (let [leafName, leafDetails] of tabDetails.children) {
-            if (!SettingsUtilities.isSettingApplicableToWorkspace(leafDetails)) {
+            if (
+              !SettingsUtilities.isSettingApplicableToWorkspace(leafDetails)
+            ) {
               tabDetails.children.delete(leafName);
               continue;
             }
@@ -277,7 +278,9 @@ function getWorkspaceSettings(workspaceDetails = null) {
     }
   }
 
-  const result = SettingsUtilities.patchInvalidIncompleteSettings(workspaceDetails.config)
+  const result = SettingsUtilities.patchInvalidIncompleteSettings(
+    workspaceDetails.config
+  );
   if (result[1] !== null) {
     return result[1];
   } else {

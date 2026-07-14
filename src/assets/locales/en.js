@@ -85,7 +85,7 @@ export default {
         add_image: "Image",
         edit_image: "Edit",
       },
-      add_math: "Math"
+      add_math: "Math",
     },
     dialog: {
       delete_option: {
@@ -184,8 +184,8 @@ export default {
     settings: {
       webhook: {
         url_input_placeholder: "https://your-webhook-url.com/your/path",
-      }
-    }
+      },
+    },
   },
   home: {
     create_button: "Create",
@@ -542,9 +542,11 @@ export default {
           hasUnsavedChanges: "Save your changes",
           noUnsavedChanges: "Nothing to save",
         },
-        apply_webhook_configuration: "Save the webhook configuration and go back to settings",
+        apply_webhook_configuration:
+          "Save the webhook configuration and go back to settings",
         cancel: "",
-        discard_webhook_configuration: "Discard the configuration and go back to settings",
+        discard_webhook_configuration:
+          "Discard the configuration and go back to settings",
       },
     },
   },
@@ -630,7 +632,7 @@ export default {
         save: "Add Member",
         fields: {
           firstName: "First Name",
-          lastName: "Last Name", 
+          lastName: "Last Name",
           email: "Email Address",
           role: "Role",
         },
@@ -657,7 +659,8 @@ export default {
       },
       confirmDelete: {
         title: "Remove Member",
-        message: "Are you sure you want to remove this member from the organization?",
+        message:
+          "Are you sure you want to remove this member from the organization?",
         confirm: "Remove",
         cancel: "Cancel",
       },

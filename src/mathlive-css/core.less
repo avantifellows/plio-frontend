@@ -12,7 +12,7 @@
     --_placeholder-opacity: var(--placeholder-opacity, 0.4);
     --_text-font-family: var(--text-font-family, @system);
   }
-  
+
 
 .ML__sr-only {
   position: absolute;
@@ -74,7 +74,7 @@
 
 .ML__mathit {
   font-family: KaTeX_Math;
-  /* The KaTeX_Math font is italic by default, so the font-style below is only 
+  /* The KaTeX_Math font is italic by default, so the font-style below is only
      useful when a fallback font is used
   */
   font-style: italic;
@@ -85,7 +85,7 @@
   font-weight: bold;
 }
 
-/* Lowercase greek symbols should stick to math font when \mathbf is applied 
+/* Lowercase greek symbols should stick to math font when \mathbf is applied
    to match TeX idiosyncratic behavior */
 .lcGreek.ML__mathbf {
   font-family: KaTeX_Math;
@@ -240,17 +240,17 @@
     /* Ensure the line is visible when printing even if "turn off background images" is on*/
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-    /* There's a bug since Chrome 62 where 
-      sub-pixel border lines don't draw at some zoom 
-      levels (110%, 90%). 
+    /* There's a bug since Chrome 62 where
+      sub-pixel border lines don't draw at some zoom
+      levels (110%, 90%).
       Setting the min-height used to work around it, but that workaround
       broke in Chrome 84 or so.
       Setting the background (and the min-height) seems to work for now.
       */
     background: currentColor;
-    box-sizing: content-box; /* Vuetify sets the box-sizing to inherit 
+    box-sizing: content-box; /* Vuetify sets the box-sizing to inherit
             causes the fraction line to not draw at all sizes (see #26) */
-    /* On some versions of Firefox on Windows, the line fails to 
+    /* On some versions of Firefox on Windows, the line fails to
             draw at some zoom levels, but setting the transform triggers
             the hardware accelerated path, which works */
     transform: translate(0, 0);
@@ -281,7 +281,7 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
     background: currentColor;
-    /* On some versions of Firefox on Windows, the line fails to 
+    /* On some versions of Firefox on Windows, the line fails to
             draw at some zoom levels, but setting the transform triggers
             the hardware accelerated path, which works */
     transform: translate(0, 0);
@@ -334,7 +334,7 @@
   left: 0.24em;
 }
 
-/** The markup for a LaTeX formula, either in an editable mathfield or 
+/** The markup for a LaTeX formula, either in an editable mathfield or
     in a static display.
 */
 .ML__latex {
@@ -380,7 +380,7 @@
   .ML__mfrac {
     display: inline-block;
   }
-  
+
   .ML__left-right {
     display: inline-block;
   }
@@ -524,8 +524,8 @@
 
     &:after {
       border-bottom-style: solid;
-      // Since Chrome 62 there are issues rendering sub-pixel borders at 
-      // certain zoom levels (90%, 110%). Forcing it to at least one pixels 
+      // Since Chrome 62 there are issues rendering sub-pixel borders at
+      // certain zoom levels (90%, 110%). Forcing it to at least one pixels
       // seems to work around the issue.
       border-bottom-width: ~"max(1px, 0.04em)";
       -webkit-print-color-adjust: exact;

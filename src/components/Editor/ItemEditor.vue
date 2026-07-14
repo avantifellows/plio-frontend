@@ -396,7 +396,7 @@ export default {
       questionTypesSupportingOptions: new Set(["mcq", "checkbox"]),
       toast: useToast(),
 
-      // whether to show the question text math editor or not. Math editor for 
+      // whether to show the question text math editor or not. Math editor for
       // options is not yet present and will be controlled by different variable
       showMathEditorPopup: false,
       mathEditorTarget: null, // "questionText" or "optionText"
@@ -477,13 +477,13 @@ export default {
 
       if (this.mathEditorTarget == 'questionText')
         this.questionText = e
-      
+
       else if (
         this.mathEditorTarget == 'optionText' &&
         this.mathEditorSelectedOptionIndex != null
       )
         this.options[this.mathEditorSelectedOptionIndex] = e
-      
+
         this.mathEditorTarget = null
         this.mathEditorSelectedOptionIndex = null
         this.showMathEditorPopup = false

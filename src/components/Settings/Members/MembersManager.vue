@@ -104,7 +104,7 @@
           </table>
         </div>
       </div>
-      
+
       <!-- Empty state -->
       <div v-else class="text-center py-12">
         <inline-svg

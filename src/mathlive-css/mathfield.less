@@ -42,7 +42,7 @@
   min-height: 39px; /* Need some room for the virtual keyboard toggle */
   width: 100%;
 
-  /* This attribute is necessary to work around a Firefox issue where 
+  /* This attribute is necessary to work around a Firefox issue where
   where clicking multiple times on the border leads to a focused mathfield that cannot be edited until focus is lost and regained (also fixes the multiple cursor issue on firefox that can occur with the same sequence of events).
   */
   pointer-events: auto;
@@ -119,7 +119,7 @@
   width: 100%;
 
   /* Encourage the browser to use the GPU to render the field.
-     Weirdly, this is required for prompts to be rendered correctly. 
+     Weirdly, this is required for prompts to be rendered correctly.
    */
   isolation: isolate;
 }
