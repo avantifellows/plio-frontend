@@ -12,8 +12,11 @@ module.exports = {
   collectCoverage: true,
   // json-summary emits coverage/coverage-summary.json, the machine-readable
   // total the CI floor-enforcement step consumes (scripts/checkCoverageFloor.js).
-  // The other reporters preserve the pre-existing outputs (Codecov lcov, etc.).
-  coverageReporters: ["json", "json-summary", "lcov", "clover", "text-summary"],
+  // The rest are jest's pre-existing default reporters (json/text/lcov/clover),
+  // added back verbatim since an explicit list replaces the default: lcov still
+  // feeds the Codecov upload, and text keeps the per-file table that helps
+  // diagnose which files eroded when the floor gate fails.
+  coverageReporters: ["json", "text", "lcov", "clover", "json-summary"],
   collectCoverageFrom: [
     "src/**/*.{js,vue}",
     "!src/main.js",
