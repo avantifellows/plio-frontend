@@ -16,6 +16,20 @@ That is the single documented command, and it must be green before you push. `pa
 
 All suites collect and run. A small set of tests is temporarily skipped with `it.skip` and a comment pointing at the repair sub-issue that owns each one (drifted tests being repaired under [#379](https://github.com/avantifellows/plio-backend/issues/379)). Skipped tests are expected; failures are not.
 
+## Repairing or writing a test
+
+Assert only external behavior at the mounted-component seam: rendered DOM, emitted events, and requests observed at the mocked axios transport (method, literal URL string, params). Take expected values from the shared `dummyData` fixtures and literal endpoint strings — never recompute them the way the component does. The Home page spec is the template.
+
+**The `<transition>` stub gotcha.** When a test that drives DOM inside a `<transition>` sees an empty wrapper, suspect the global stub, not the component. `jest.init.js` stubs `<transition>` with a slot-less `<div></div>`, so anything wrapped in `<transition>` (the App side menu, the Editor item modal and its maximize button, the Plio-embed item modal) never renders and its `$refs`/emits are unreachable. Render the slot locally for that test:
+
+```js
+mount(Component, {
+  global: { stubs: { transition: { template: "<div><slot /></div>" } } },
+});
+```
+
+Then assert the observable DOM transition (element present/absent) instead of spying on methods or reading `vm` internals. This wall recurred across the App, Editor, and Plio-embed repairs (#394/#395/#396).
+
 ## Coverage floor (the ratchet)
 
 Every unit CI run measures total line coverage and enforces it against a
