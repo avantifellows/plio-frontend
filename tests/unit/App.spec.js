@@ -61,6 +61,10 @@ describe("App.vue for authenticated user", () => {
     wrapper = mount(App, {
       global: {
         plugins: [router],
+        // The global jest.init.js stubs <transition> with a slot-less
+        // "<div></div>", which drops the side menu (wrapped in <transition>)
+        // from the rendered DOM. Render the slot so the menu buttons mount.
+        stubs: { transition: { template: "<div><slot/></div>" } },
       },
     });
 
@@ -219,29 +223,31 @@ describe("App.vue for authenticated user", () => {
       );
     });
 
-    // Drifted App settings test — skipped by mechanical revival #393; repair owned by #394 (App settings/sidebar).
-    it.skip("uses filtered global default settings for workspace when it is not available in DB", async () => {
-      // our currently logged in user has no settings present in its organization's configs
-      // hence, it should use global default settings
+    it("uses global default settings for workspace when it is not available in DB", async () => {
+      // none of the logged-in user's workspaces have settings in their DB config,
+      // so each workspace should fall back to the global default settings
+      // (every default setting is workspace-applicable, so the workspace-filtered
+      // view is identical to the full global defaults)
       let workspaces = clonedeep(global.dummyUser.organizations);
       workspaces.forEach((workspace) => {
         expect(
           store.state.auth.workspaceSettings[workspace.shortcode]
-        ).toStrictEqual(global.dummyGlobalSettingsFilteredForWorkspaces);
+        ).toStrictEqual(globalDefaultSettings);
       });
 
+      // switching to a workspace surfaces those same defaults through the getter
+      // and the component's mapped getter
       await store.dispatch("auth/setActiveWorkspace", activeWorkspace);
       expect(store.state.auth.activeWorkspace).toBe(activeWorkspace);
       expect(store.getters["auth/activeWorkspaceSettings"]).toStrictEqual(
-        global.dummyGlobalSettingsFilteredForWorkspaces
+        globalDefaultSettings
       );
       expect(wrapper.vm.activeWorkspaceSettings).toStrictEqual(
-        global.dummyGlobalSettingsFilteredForWorkspaces
+        globalDefaultSettings
       );
     });
 
-    // Drifted App settings test — skipped by mechanical revival #393; repair owned by #394 (App settings/sidebar).
-    it.skip("uses workspace's DB settings if it is available", async () => {
+    it("uses workspace's DB settings if it is available", async () => {
       // create a new user which has a setting stored in one of the workspaces (which came from the DB) different than the global setting
       let dummyUserClone = clonedeep(global.dummyUser);
       dummyUserClone.organizations[1].config = {
@@ -277,47 +283,31 @@ describe("App.vue for authenticated user", () => {
       await store.dispatch("auth/setActiveWorkspace", "o2");
       expect(store.state.auth.activeWorkspace).toBe("o2");
 
-      // the activeWorkspaceSettings should be set to what was pulled from the DB
-      expect(store.getters["auth/activeWorkspaceSettings"]).toStrictEqual(
-        SettingsUtilities.decodeMapFromPayload(
-          dummyUserClone.organizations[1].config.settings
-        )
-      );
-      expect(wrapper.vm.activeWorkspaceSettings).toStrictEqual(
-        SettingsUtilities.decodeMapFromPayload(
-          dummyUserClone.organizations[1].config.settings
-        )
-      );
+      // the workspace's DB value for skipEnabled (false) wins over the global
+      // default (true); the getter and the component's mapped getter agree
+      const skipEnabledPath = (settings) =>
+        settings
+          .get("player")
+          .children.get("configuration")
+          .children.get("skipEnabled").value;
+      expect(
+        skipEnabledPath(store.getters["auth/activeWorkspaceSettings"])
+      ).toBe(false);
+      expect(skipEnabledPath(wrapper.vm.activeWorkspaceSettings)).toBe(false);
     });
 
-    // Drifted App settings test — skipped by mechanical revival #393; repair owned by #394 (App settings/sidebar).
-    it.skip("constructs the settings to render menu properly in personal workspace", () => {
-      // the current user is using the global default settings
-      let detailsInGlobalSettings = {
-        headers: [],
-        tabs: [],
-        leafs: [],
-        leafValues: [],
-      };
+    it("constructs the settings to render menu properly in personal workspace", () => {
+      // the current user is on the personal workspace and using the global
+      // default settings. The home settings menu (App.vue) renders only the
+      // default settings that apply to it: the plio-only `advanced/customWebhook`
+      // and workspace-only `members/organizationMembers` settings are scoped out.
       let detailsInSettingsToRender = {
         headers: [],
         tabs: [],
         leafs: [],
         leafValues: [],
       };
-      // iterating both global default settings and the settingsToRender object,
-      // and filling up the details in respective objects
-      for (let [headerName, headerDetails] of globalDefaultSettings) {
-        detailsInGlobalSettings.headers.push(headerName);
-        for (let [tabName, tabDetails] of headerDetails.children) {
-          detailsInGlobalSettings.tabs.push(tabName);
-          for (let [leafName, leafDetails] of tabDetails.children) {
-            detailsInGlobalSettings.leafs.push(leafName);
-            detailsInGlobalSettings.leafValues.push(leafDetails.value);
-          }
-        }
-      }
-
+      // iterating the settingsToRender object and filling up the details
       for (let [headerName, headerDetails] of wrapper.vm.settingsToRender) {
         detailsInSettingsToRender.headers.push(headerName);
         for (let [tabName, tabDetails] of headerDetails) {
@@ -328,8 +318,13 @@ describe("App.vue for authenticated user", () => {
           }
         }
       }
-      // all the details should match
-      expect(detailsInSettingsToRender).toStrictEqual(detailsInGlobalSettings);
+      // the rendered menu should contain exactly the home-applicable defaults
+      expect(detailsInSettingsToRender).toStrictEqual({
+        headers: ["player"],
+        tabs: ["configuration", "ui"],
+        leafs: ["skipEnabled", "firstTimeLanguagePickerPopup"],
+        leafValues: [true, true],
+      });
     });
 
     it("shows all settings, even org level settings, if in personal workspace", async () => {
@@ -508,8 +503,7 @@ describe("App.vue for authenticated user", () => {
       mockWindowOpen.mockRestore();
     });
 
-    // Drifted App sidebar test — skipped by mechanical revival #393; repair owned by #394 (App settings/sidebar).
-    it.skip("clicking on plio for teams redirects to teams page", async () => {
+    it("clicking on plio for teams redirects to teams page", async () => {
       await wrapper.find('[data-test="teams"]').trigger("click");
       expect(mockWindowOpen).toHaveBeenCalledWith(
         "https://docs.plio.in/plio-for-teams/",
@@ -518,8 +512,7 @@ describe("App.vue for authenticated user", () => {
       );
     });
 
-    // Drifted App sidebar test — skipped by mechanical revival #393; repair owned by #394 (App settings/sidebar).
-    it.skip("clicking on documentation redirects to docs page", async () => {
+    it("clicking on documentation redirects to docs page", async () => {
       await wrapper.find('[data-test="docs"]').trigger("click");
       expect(mockWindowOpen).toHaveBeenCalledWith(
         "https://docs.plio.in/",
@@ -528,8 +521,7 @@ describe("App.vue for authenticated user", () => {
       );
     });
 
-    // Drifted App sidebar test — skipped by mechanical revival #393; repair owned by #394 (App settings/sidebar).
-    it.skip("clicking on whats new redirects to blog page", async () => {
+    it("clicking on whats new redirects to blog page", async () => {
       await wrapper.find('[data-test="whatsNew"]').trigger("click");
       expect(mockWindowOpen).toHaveBeenCalledWith(
         "https://avantifellows.notion.site/What-s-New-1dc885b3ccc74e0aaa9c6789ab319abf/",
@@ -538,8 +530,7 @@ describe("App.vue for authenticated user", () => {
       );
     });
 
-    // Drifted App sidebar test — skipped by mechanical revival #393; repair owned by #394 (App settings/sidebar).
-    it.skip("clicking on product guides redirects to youtube playlist", async () => {
+    it("clicking on product guides redirects to youtube playlist", async () => {
       await wrapper.find('[data-test="productGuides"]').trigger("click");
       expect(mockWindowOpen).toHaveBeenCalledWith(
         "https://www.youtube.com/playlist?list=PL3U0Jqw-piJgw2hSpuAZym4K1_Tb0RTRV",
