@@ -35,3 +35,7 @@ workspace.code-workspace
 
 .git_backup/
 .git_corrupted/
+
+# Ralph pipeline bundle (its own git repo, mirrors plio-backend convention)
+ralph/
+.ralph/
