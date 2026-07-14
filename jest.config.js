@@ -10,6 +10,10 @@ module.exports = {
   // ConfigureWebhookWindow -> CodeHighlighter) fails to collect.
   transformIgnorePatterns: ["/node_modules/(?!prism-es6)"],
   collectCoverage: true,
+  // json-summary emits coverage/coverage-summary.json, the machine-readable
+  // total the CI floor-enforcement step consumes (scripts/checkCoverageFloor.js).
+  // The other reporters preserve the pre-existing outputs (Codecov lcov, etc.).
+  coverageReporters: ["json", "json-summary", "lcov", "clover", "text-summary"],
   collectCoverageFrom: [
     "src/**/*.{js,vue}",
     "!src/main.js",

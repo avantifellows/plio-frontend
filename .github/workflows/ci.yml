@@ -29,6 +29,13 @@ jobs:
         # command to run tests and generate coverage metrics
         run: npm run test:unit
 
+      # In-repo coverage gate: compares the measured total line % against the
+      # committed floor (coverage-floor.json) and fails the job on erosion.
+      # Runs before the Codecov upload so the gate holds even if Codecov is
+      # unreachable, and writes measured-vs-floor to the job summary.
+      - name: Enforce coverage floor
+        run: node scripts/checkCoverageFloor.js
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
