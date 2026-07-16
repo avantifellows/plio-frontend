@@ -54,10 +54,13 @@ sso_user, _ = User.objects.update_or_create(
 )
 
 with tenant_context(primary):
-    video, _ = Video.objects.update_or_create(
-        url="https://www.youtube.com/watch?v=jNQXAC9IVRw",
-        defaults={"title": "E2E SSO Video", "duration": 19},
-    )
+    video_url = "https://www.youtube.com/watch?v=jNQXAC9IVRw"
+    video = Video.objects.filter(url=video_url).first()
+    if video is None:
+        video = Video.objects.create(url=video_url)
+    video.title = "E2E SSO Video"
+    video.duration = 19
+    video.save()
     Plio.objects.update_or_create(
         uuid="e2e-sso-plio",
         defaults={

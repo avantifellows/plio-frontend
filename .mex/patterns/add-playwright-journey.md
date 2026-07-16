@@ -26,6 +26,8 @@ Journey specs live in `tests/e2e/journeys` and test only browser-visible behavio
 - Local backend OAuth client credentials must match the frontend `.env` values.
 - After navigation, wait for a browser-visible loaded state before typing; the API response can arrive before Vue finishes hydrating reactive inputs.
 - When behavior depends on the latest session event, await the initial `watching` response before driving a later event so request ordering cannot overwrite the test state.
+- The locale and workspace controls both use `data-test="select"`; locate the workspace combobox by one of its visible options.
+- Published-plio helpers can create several videos with one URL; seed code must not assume that URL is unique.
 
 ## Verify
 - [ ] `npm run test:e2e -- <journey-name>` passes headless
