@@ -1,8 +1,8 @@
 const { defineConfig } = require("@playwright/test");
 require("dotenv").config({ quiet: true });
+const { authFile } = require("./tests/e2e/helpers/auth");
 
 const baseURL = process.env.VUE_APP_FRONTEND || "http://localhost:8080";
-const authFile = "playwright/.auth/user.json";
 
 module.exports = defineConfig({
   testDir: "./tests/e2e",
