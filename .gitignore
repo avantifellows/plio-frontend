@@ -29,6 +29,8 @@ pnpm-debug.log*
 
 # testing
 /coverage
+/playwright/.auth/
+/test-results/
 
 # codespaces
 workspace.code-workspace

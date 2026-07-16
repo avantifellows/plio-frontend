@@ -12,7 +12,7 @@ edges:
     condition: when the reasoning behind a tech choice is needed
   - target: context/conventions.md
     condition: when understanding how to use a technology in this codebase
-last_updated: 2026-07-11
+last_updated: 2026-07-16
 ---
 
 # Stack
@@ -34,6 +34,7 @@ last_updated: 2026-07-11
 - **mixpanel-browser** — product analytics events
 - **@sentry/browser** + **@sentry/tracing** — error monitoring in staging/production
 - **@vue/cli-plugin-unit-jest** + **@vue/test-utils** — Jest unit tests in tests/unit
+- **@playwright/test** — browser E2E journeys in `tests/e2e`, with authenticated state prepared by the setup project
 - **vue-toastification**, **vue-tippy** — toasts and tooltips
 - **mathlive** / **katex** — math input and rendering in questions
 

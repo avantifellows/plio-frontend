@@ -14,7 +14,7 @@ edges:
     condition: when setting up the dev environment or running the project for the first time
   - target: patterns/INDEX.md
     condition: when starting a task — check the pattern index for a matching pattern file
-last_updated: 2026-07-14
+last_updated: 2026-07-16
 ---
 
 # Session Bootstrap
@@ -31,9 +31,10 @@ Then read this file fully before doing anything else in this session.
 - Auth: Google OAuth, OTP login, and third-party SSO (query params `unique_id` + `api_key`)
 - Multi-workspace support via `activeWorkspace` and the `Organization` request header
 - Dashboard analytics page; jest unit specs exist (~40 files under tests/unit) but see Known issues — the suite is red in CI
+- Playwright scaffold and the `auth-google-login` E2E journey run locally with `npm run test:e2e`
 
 **Not yet built:**
-- No locally runnable e2e suite: the committed TestCafe specs in tests/integration require BrowserStack + live Google OAuth credentials
+- The other 8 inventoried Playwright E2E journeys and CI orchestration are not implemented yet
 
 **Known issues:**
 - Vue CLI toolchain (webpack) is legacy; no migration to Vite is planned or started

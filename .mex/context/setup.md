@@ -13,7 +13,7 @@ edges:
     condition: when specific technology versions or library details are needed
   - target: context/architecture.md
     condition: when understanding how components connect during setup
-last_updated: 2026-07-11
+last_updated: 2026-07-16
 ---
 
 # Setup
@@ -50,6 +50,7 @@ last_updated: 2026-07-11
 
 - `npm run serve` — dev server with hot reload on port 8080
 - `npm run test:unit` — Jest unit suite (tests/unit)
+- `npm run test:e2e` — Playwright E2E suite against the local frontend and backend stack
 - `npm run lint` — ESLint via vue-cli-service
 - `npm run build` — production build (`--modern`)
 - `npm run build-staging` — staging-mode build
@@ -60,4 +61,4 @@ last_updated: 2026-07-11
 
 **Blank app / all requests 401 or CORS errors:** the backend isn't running or `VUE_APP_BACKEND` points to the wrong port — local backend serves at port 8001, not 8000.
 **Login loop after backend restart:** the persisted OAuth client credentials no longer match — verify `VUE_APP_BACKEND_API_CLIENT_ID/SECRET` against the backend's OAuth2 application and clear localStorage.
-**e2e specs in tests/integration fail immediately:** expected — they need BrowserStack + Google OAuth credentials; there is no locally runnable e2e suite on main.
+**Playwright auth setup fails:** verify the three `GOOGLE_OAUTH2_*` refresh-token credentials and that the backend OAuth client matches `VUE_APP_BACKEND_API_CLIENT_ID/SECRET`.
