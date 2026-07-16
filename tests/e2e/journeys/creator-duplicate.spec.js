@@ -3,6 +3,20 @@ const {
   provisionPublishedPlio,
 } = require("../helpers/published-plio");
 
+async function expectEditorShowsQuestion(page, { videoUrl, title, questionText }) {
+  await page.locator('[data-test="videoLinkInfo"]').waitFor();
+  await expect(page.locator('[data-test="videoLinkInput"] input')).toHaveValue(
+    videoUrl
+  );
+  await expect(page.locator('[data-test="plioName"] input')).toHaveValue(title);
+  const itemMarker = page.locator('[data-test="marker-0"]');
+  await expect(itemMarker).toBeVisible();
+  await itemMarker.dispatchEvent("click");
+  await expect(page.locator('[data-test="questionText"] textarea')).toHaveValue(
+    questionText
+  );
+}
+
 test("creator duplicates a published plio without changing the original", async ({
   page,
   request,
@@ -42,20 +56,12 @@ test("creator duplicates a published plio without changing the original", async 
 
   expect(copy.uuid).not.toBe(source.uuid);
   await expect(page).toHaveURL(new RegExp(`/edit/${copy.uuid}$`));
-  await page.locator('[data-test="videoLinkInfo"]').waitFor();
-  await expect(
-    page.locator('[data-test="videoLinkInput"] input')
-  ).toHaveValue(input.videoUrl);
-  await expect(page.locator('[data-test="plioName"] input')).toHaveValue(
-    input.title
-  );
+  await expectEditorShowsQuestion(page, {
+    videoUrl: input.videoUrl,
+    title: input.title,
+    questionText: input.questions[0].text,
+  });
   await expect(page.getByText("Draft", { exact: true })).toBeVisible();
-  const copyItemMarker = page.locator('[data-test="marker-0"]');
-  await expect(copyItemMarker).toBeVisible();
-  await copyItemMarker.dispatchEvent("click");
-  await expect(
-    page.locator('[data-test="questionText"] textarea')
-  ).toHaveValue(input.questions[0].text);
   const options = page.locator('[data-test="option"] input');
   await expect(options.nth(0)).toHaveValue(input.questions[0].options[0]);
   await expect(options.nth(1)).toHaveValue(input.questions[0].options[1]);
@@ -75,17 +81,9 @@ test("creator duplicates a published plio without changing the original", async 
   expect((await copyQuestionResponse).ok()).toBe(true);
 
   await page.goto(`/edit/${source.uuid}`);
-  await page.locator('[data-test="videoLinkInfo"]').waitFor();
-  await expect(
-    page.locator('[data-test="videoLinkInput"] input')
-  ).toHaveValue(input.videoUrl);
-  await expect(page.locator('[data-test="plioName"] input')).toHaveValue(
-    input.title
-  );
-  const sourceItemMarker = page.locator('[data-test="marker-0"]');
-  await expect(sourceItemMarker).toBeVisible();
-  await sourceItemMarker.dispatchEvent("click");
-  await expect(
-    page.locator('[data-test="questionText"] textarea')
-  ).toHaveValue(input.questions[0].text);
+  await expectEditorShowsQuestion(page, {
+    videoUrl: input.videoUrl,
+    title: input.title,
+    questionText: input.questions[0].text,
+  });
 });
