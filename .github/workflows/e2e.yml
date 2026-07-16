@@ -162,6 +162,13 @@ jobs:
           VUE_APP_BACKEND_API_CLIENT_SECRET=$VUE_APP_BACKEND_API_CLIENT_SECRET
           EOF
 
+          cat > plio-frontend/docker-compose.e2e.yml <<EOF
+          services:
+            web:
+              volumes:
+                - ./node_modules:/app/node_modules
+          EOF
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -198,7 +205,7 @@ jobs:
 
       - name: Start frontend
         working-directory: plio-frontend
-        run: docker compose up -d --no-build
+        run: docker compose -f docker-compose.yml -f docker-compose.e2e.yml up -d --no-build
 
       - name: Wait for frontend
         run: curl --retry 60 --retry-delay 2 --retry-all-errors http://localhost:8080/ >/dev/null
