@@ -13,7 +13,7 @@ edges:
     condition: when specific technology versions or library details are needed
   - target: context/architecture.md
     condition: when understanding how components connect during setup
-last_updated: 2026-07-16
+last_updated: 2026-07-17
 ---
 
 # Setup
@@ -50,6 +50,7 @@ last_updated: 2026-07-16
 
 - `npm run serve` — dev server with hot reload on port 8080
 - `npm run test:unit` — Jest unit suite (tests/unit)
+- `npm run seed:e2e` — idempotently seed the running backend with Playwright workspaces, users, memberships, and the SSO plio
 - `npm run test:e2e` — Playwright E2E suite against the local frontend and backend stack
 - `npm run lint` — ESLint via vue-cli-service
 - `npm run build` — production build (`--modern`)

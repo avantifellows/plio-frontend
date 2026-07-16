@@ -1,3 +1,15 @@
+## Playwright (migration in progress)
+
+After the backend compose stack has booted, seed its database from the frontend
+repository root. The command is idempotent and is safe to re-run:
+
+```sh
+npm run seed:e2e
+```
+
+The seed creates the `e2e` and `e2e-alt` workspaces, the Google test creator's
+memberships, and the learner/plio required by `sso-learner-entry`.
+
 ## TestCafe
 This guide aims to share how TestCafe is being used in Plio for performing End-to-End (E2E) and integration tests.
 

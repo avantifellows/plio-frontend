@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --modern",
     "test:unit": "vue-cli-service test:unit",
+    "seed:e2e": "docker compose -f ../plio-backend/docker-compose.yml exec -T web python manage.py shell < tests/e2e/seed.py",
     "test:e2e": "playwright test",
     "lint": "vue-cli-service lint",
     "deploy": "vue-cli-service build && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend --delete --acl public-read",

@@ -15,8 +15,14 @@ module.exports = defineConfig({
     {
       name: "chromium",
       testMatch: /journeys\/.*\.spec\.js/,
+      testIgnore: /sso-learner-entry\.spec\.js/,
       use: { browserName: "chromium", storageState: authFile },
       dependencies: ["setup"],
+    },
+    {
+      name: "sso",
+      testMatch: /sso-learner-entry\.spec\.js/,
+      use: { browserName: "chromium" },
     },
   ],
   webServer: {
