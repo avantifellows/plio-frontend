@@ -207,6 +207,12 @@ jobs:
         working-directory: plio-frontend
         run: npx playwright test --project=chromium --project=sso --grep-invert @real-playback --shard=${{ matrix.shard }}/4
 
+      - name: Print stack logs on failure
+        if: failure()
+        run: |
+          docker compose -f plio-frontend/docker-compose.yml --project-directory plio-frontend logs --no-color
+          docker compose -f plio-backend/docker-compose.yml --project-directory plio-backend logs --no-color
+
       - name: Stop ephemeral stack
         if: always()
         run: |
