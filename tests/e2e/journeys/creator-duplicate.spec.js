@@ -1,6 +1,7 @@
 const { test, expect } = require("../fixtures/test");
 const {
   provisionPublishedPlio,
+  stubYouTubeDuration,
 } = require("../helpers/published-plio");
 
 async function expectEditorShowsQuestion(page, { videoUrl, title, questionText }) {
@@ -24,6 +25,7 @@ test("creator duplicates a published plio without changing the original", async 
   page,
   request,
 }) => {
+  await stubYouTubeDuration(page);
   const input = {
     title: `E2E Duplicate ${Date.now()}`,
     videoUrl: "https://www.youtube.com/watch?v=jNQXAC9IVRw",

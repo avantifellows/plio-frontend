@@ -1,12 +1,14 @@
 const { test, expect } = require("../fixtures/test");
 const {
   provisionPublishedPlio,
+  stubYouTubeDuration,
 } = require("../helpers/published-plio");
 
 test("creator creates a plio with a question and publishes it", async ({
   page,
   request,
 }) => {
+  await stubYouTubeDuration(page);
   const input = {
     title: `E2E Golden Path ${Date.now()}`,
     videoUrl: "https://www.youtube.com/watch?v=jNQXAC9IVRw",

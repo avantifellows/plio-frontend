@@ -122,8 +122,8 @@ describe("VideoPlayer.vue", () => {
 
     expect(mockPlayer.currentTime).toBe(0.75);
     expect(wrapper.emitted("update")).toEqual([[0.75]]);
-    expect(mockPlayer.play).toHaveBeenCalled();
-    expect(mockPlayer.pause).toHaveBeenCalled();
+    expect(wrapper.emitted("play")).toEqual([[]]);
+    expect(wrapper.emitted("pause")).toEqual([[]]);
     expect(wrapper.emitted("playback-ended")).toEqual([[]]);
   });
 

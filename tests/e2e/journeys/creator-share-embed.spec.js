@@ -1,12 +1,14 @@
 const { test, expect } = require("../fixtures/test");
 const {
   provisionPublishedPlio,
+  stubYouTubeDuration,
 } = require("../helpers/published-plio");
 
 test("creator share link and embed render the published plio Player", async ({
   page,
   request,
 }) => {
+  await stubYouTubeDuration(page);
   const publishedPlio = await provisionPublishedPlio({
     request,
     input: {

@@ -1,5 +1,16 @@
 const { getPlioAccessToken } = require("./auth");
 
+async function stubYouTubeDuration(page) {
+  await page.route("https://www.googleapis.com/youtube/v3/videos**", (route) =>
+    route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        items: [{ contentDetails: { duration: "PT19S" } }],
+      }),
+    })
+  );
+}
+
 async function readJson(response, action) {
   if (!response.ok()) {
     throw new Error(`${action} failed with ${response.status()}`);
@@ -93,7 +104,8 @@ async function provisionPublishedPlio({ page, request, input, via = "api" }) {
       response.request().method() === "POST"
   );
   await page
-    .locator('[data-test="create"]')
+    .getByRole("button", { name: "Create", exact: true })
+    .first()
     .click();
 
   const response = await createResponse;
@@ -203,4 +215,4 @@ async function provisionPublishedPlio({ page, request, input, via = "api" }) {
   return { uuid, ...input };
 }
 
-module.exports = { provisionPublishedPlio };
+module.exports = { provisionPublishedPlio, stubYouTubeDuration };

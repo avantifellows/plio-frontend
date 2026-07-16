@@ -88,8 +88,8 @@ export default {
         this.player.currentTime = detail.time;
         this.$emit("update:currentTime", detail.time);
         this.$emit("update", detail.time);
-      } else if (detail.action === "play") this.player.play();
-      else if (detail.action === "pause") this.player.pause();
+      } else if (detail.action === "play") this.$emit("play");
+      else if (detail.action === "pause") this.$emit("pause");
       else if (detail.action === "ended") this.$emit("playback-ended");
     },
     /**
