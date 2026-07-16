@@ -44,7 +44,7 @@ async function provisionViaApi(request, input) {
           plio: plio.id,
           type: "question",
           time: index + 1,
-          meta: { source: "default" },
+          meta: { source: { name: "default" } },
         },
       }),
       "Creating item"
