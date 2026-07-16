@@ -31,10 +31,10 @@ Then read this file fully before doing anything else in this session.
 - Auth: Google OAuth, OTP login, and third-party SSO (query params `unique_id` + `api_key`)
 - Multi-workspace support via `activeWorkspace` and the `Organization` request header
 - Dashboard analytics page; jest unit specs exist (~40 files under tests/unit) but see Known issues — the suite is red in CI
-- Playwright scaffold plus `auth-google-login`, `sso-learner-entry`, and `creator-golden-path` E2E journeys run locally with `npm run test:e2e`; `npm run seed:e2e` idempotently provisions their backend fixtures
+- Playwright scaffold plus `auth-google-login`, `sso-learner-entry`, `creator-golden-path`, and `creator-share-embed` E2E journeys run locally with `npm run test:e2e`; `npm run seed:e2e` idempotently provisions their backend fixtures
 
 **Not yet built:**
-- The other 6 inventoried Playwright E2E journeys and CI orchestration are not implemented yet
+- The other 5 inventoried Playwright E2E journeys and CI orchestration are not implemented yet
 
 **Known issues:**
 - Vue CLI toolchain (webpack) is legacy; no migration to Vite is planned or started
