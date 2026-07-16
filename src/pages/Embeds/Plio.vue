@@ -895,11 +895,12 @@ export default {
       this.showItemPopUpErrorToast = true;
       return true;
     },
-    videoSeeked() {
+    videoSeeked(playerTime) {
       // invoked when a seek operation ends
+      playerTime ??= this.player.currentTime;
       this.createEvent("video_seeked", {
-        currentTime: this.player.currentTime,
-      });
+        currentTime: playerTime,
+      }, playerTime);
     },
     optionSelected(optionIndex) {
       // invoked when an option of a question is selected
@@ -1393,7 +1394,11 @@ export default {
      * @param {String} eventType - The type of event that needs to be logged
      * @param {Object} eventDetails - details of the event
      */
-    async createEvent(eventType, eventDetails = {}) {
+    async createEvent(
+      eventType,
+      eventDetails = {},
+      playerTime
+    ) {
       /**
        * do not create an event if the session has not started
        * or the user is not authenticated or if the plio is opened
@@ -1401,12 +1406,14 @@ export default {
        */
       if (!this.hasSessionStarted || !this.isAuthenticated || this.previewMode) return;
 
+      playerTime ??= this.player.currentTime;
+
       this.checkAndSendEventToWebhook(eventType, eventDetails)
 
       let response = await EventAPIService.createEvent({
         type: eventType,
         details: eventDetails,
-        player_time: this.player.currentTime != null ? this.player.currentTime : 0,
+        player_time: playerTime != null ? playerTime : 0,
         session: this.sessionDBId,
       });
       if (eventType == "watching") this.watchingEventDBId = response.id;

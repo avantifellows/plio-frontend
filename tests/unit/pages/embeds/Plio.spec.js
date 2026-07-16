@@ -90,6 +90,21 @@ describe("Plio.vue", () => {
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}/play`);
   });
 
+  it("records the requested time for a seek driven through the test hook", async () => {
+    const createEvent = jest
+      .spyOn(Plio.methods, "createEvent")
+      .mockResolvedValue();
+    await mountWrapper();
+
+    wrapper.vm.videoSeeked(6);
+
+    expect(createEvent).toHaveBeenCalledWith(
+      "video_seeked",
+      { currentTime: 6 },
+      6
+    );
+  });
+
   describe("SAML SSO", () => {
     const apiKey = "apiKey";
     const uniqueId = "0000000000";
