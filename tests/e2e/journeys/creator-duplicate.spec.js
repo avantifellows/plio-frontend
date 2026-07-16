@@ -15,13 +15,19 @@ async function expectEditorShowsQuestion(
     title,
     { timeout: 30000 }
   );
+  await page
+    .locator('[data-test="videoPreview"] button[aria-label^="Play,"]')
+    .first()
+    .waitFor();
   const itemMarker = page.locator('[data-test="marker-0"]');
   await expect(itemMarker).toBeVisible();
+  const questionInput = page.locator('[data-test="questionText"] textarea');
   const { x, y, width } = await itemMarker.boundingBox();
-  await page.mouse.click(x + width / 2, y + 20);
-  await expect(
-    page.locator('[data-test="questionText"] textarea')
-  ).toHaveValue(questionText, { timeout: 30000 });
+  for (const offset of [12, 16, 20, 24, 28, 32]) {
+    await page.mouse.click(x + width / 2, y + offset);
+    if (await questionInput.count()) break;
+  }
+  await expect(questionInput).toHaveValue(questionText);
 }
 
 test("creator duplicates a published plio without changing the original", async ({
