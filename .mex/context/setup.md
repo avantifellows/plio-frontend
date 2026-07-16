@@ -58,6 +58,9 @@ last_updated: 2026-07-17
 - `npm run deploy` / `npm run deploy-staging` — build + S3 sync (needs the `plio-s3-bot` AWS profile)
 - `npm run i18n:report` — report missing/unused i18n keys
 
+The PR E2E workflow reports `@quarantine` failures without blocking merge. Its
+nightly schedule and manual dispatch run the same specs as blocking checks.
+
 ## Common Issues
 
 **Blank app / all requests 401 or CORS errors:** the backend isn't running or `VUE_APP_BACKEND` points to the wrong port — local backend serves at port 8001, not 8000.

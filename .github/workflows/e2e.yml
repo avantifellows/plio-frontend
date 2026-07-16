@@ -25,6 +25,11 @@ on:
         default: avantifellows/plio-backend
         required: false
         type: string
+      quarantine_blocking:
+        description: Treat @quarantine failures as blocking
+        default: false
+        required: false
+        type: boolean
     secrets:
       GOOGLE_OAUTH2_CLIENT_ID:
         required: true
@@ -210,7 +215,31 @@ jobs:
       - name: Wait for frontend
         run: curl --retry 60 --retry-delay 2 --retry-all-errors http://localhost:8080/ >/dev/null
 
-      - name: Run Playwright shard
+      - name: Run blocking Playwright shard
+        if: ${{ !inputs.quarantine_blocking }}
+        working-directory: plio-frontend
+        run: npx playwright test --project=chromium --project=sso --grep-invert '/@real-playback|@quarantine/' --retries=2 --workers=1 --shard=${{ matrix.shard }}/4
+
+      - name: Run quarantined Playwright specs
+        id: quarantine
+        if: ${{ !inputs.quarantine_blocking && !cancelled() }}
+        continue-on-error: true
+        working-directory: plio-frontend
+        run: npx playwright test --project=chromium --project=sso --grep @quarantine --grep-invert @real-playback --pass-with-no-tests --retries=2 --workers=1 --shard=${{ matrix.shard }}/4
+
+      - name: Summarize quarantined Playwright specs
+        if: ${{ !inputs.quarantine_blocking && always() }}
+        env:
+          QUARANTINE_OUTCOME: ${{ steps.quarantine.outcome }}
+        run: |
+          {
+            echo "## Quarantined Playwright specs"
+            echo
+            echo "Shard ${{ matrix.shard }}/4: **${QUARANTINE_OUTCOME}** (non-blocking)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run nightly Playwright shard
+        if: ${{ inputs.quarantine_blocking }}
         working-directory: plio-frontend
         run: npx playwright test --project=chromium --project=sso --grep-invert @real-playback --retries=2 --workers=1 --shard=${{ matrix.shard }}/4
 

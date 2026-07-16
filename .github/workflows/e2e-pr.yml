@@ -2,6 +2,9 @@ name: Playwright E2E
 
 on:
   pull_request:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -11,8 +14,9 @@ jobs:
     uses: ./.github/workflows/e2e.yml
     with:
       trigger_role: frontend
-      trigger_ref: ${{ github.event.pull_request.head.sha }}
-      branch_name: ${{ github.head_ref }}
+      trigger_ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      branch_name: ${{ github.head_ref || github.ref_name }}
+      quarantine_blocking: ${{ github.event_name != 'pull_request' }}
     secrets:
       GOOGLE_OAUTH2_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}
       GOOGLE_OAUTH2_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
