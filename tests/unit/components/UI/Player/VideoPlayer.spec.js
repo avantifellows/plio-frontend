@@ -99,4 +99,49 @@ describe("VideoPlayer.vue", () => {
       mockPlayer.eventListeners[1].element.removeEventListener
     ).not.toHaveBeenCalled();
   });
+
+  it("accepts seek, play, and pause commands through the test hook", async () => {
+    const mockPlayer = {
+      currentTime: 0,
+      eventListeners: [],
+      on: jest.fn(),
+      play: jest.fn(),
+      pause: jest.fn(),
+    };
+    jest.spyOn(VideoPlayer.methods, "createPlayer").mockReturnValue(mockPlayer);
+    const wrapper = mount(VideoPlayer, { props: { videoId: "4j4fYyWgl0w" } });
+    await nextTick();
+
+    const playerElement = wrapper.get('[data-test="player-wrapper"]');
+    await playerElement.trigger("plio-player-state", {
+      detail: { action: "seek", time: 0.75 },
+    });
+    await playerElement.trigger("plio-player-state", { detail: { action: "play" } });
+    await playerElement.trigger("plio-player-state", { detail: { action: "pause" } });
+
+    expect(mockPlayer.currentTime).toBe(0.75);
+    expect(wrapper.emitted("update")).toEqual([[0.75]]);
+    expect(mockPlayer.play).toHaveBeenCalled();
+    expect(mockPlayer.pause).toHaveBeenCalled();
+  });
+
+  it("emits the requested seek time when the video provider cannot advance", async () => {
+    const mockPlayer = {
+      get currentTime() {
+        return 0;
+      },
+      set currentTime(_) {},
+      eventListeners: [],
+      on: jest.fn(),
+    };
+    jest.spyOn(VideoPlayer.methods, "createPlayer").mockReturnValue(mockPlayer);
+    const wrapper = mount(VideoPlayer, { props: { videoId: "4j4fYyWgl0w" } });
+    await nextTick();
+
+    await wrapper.get('[data-test="player-wrapper"]').trigger("plio-player-state", {
+      detail: { action: "seek", time: 0.75 },
+    });
+
+    expect(wrapper.emitted("update")).toEqual([[0.75]]);
+  });
 });

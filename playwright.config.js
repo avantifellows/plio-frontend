@@ -6,7 +6,12 @@ const baseURL = process.env.VUE_APP_FRONTEND || "http://localhost:8080";
 
 module.exports = defineConfig({
   testDir: "./tests/e2e",
-  use: { baseURL, headless: true },
+  grepInvert: process.env.GITHUB_ACTIONS ? /@real-playback/ : undefined,
+  use: {
+    baseURL,
+    headless: true,
+    launchOptions: { args: ["--autoplay-policy=no-user-gesture-required"] },
+  },
   projects: [
     {
       name: "setup",

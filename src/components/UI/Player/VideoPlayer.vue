@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div data-test="player-wrapper" @plio-player-state="drivePlayerState">
     <!--- plyr instance -->
     <div
       id="player"
@@ -83,6 +83,14 @@ export default {
     },
   },
   methods: {
+    drivePlayerState({ detail }) {
+      if (detail.action === "seek") {
+        this.player.currentTime = detail.time;
+        this.$emit("update:currentTime", detail.time);
+        this.$emit("update", detail.time);
+      } else if (detail.action === "play") this.player.play();
+      else if (detail.action === "pause") this.player.pause();
+    },
     /**
      * creates a new instance of plyr and sets its properties
      */
