@@ -190,7 +190,7 @@ jobs:
         run: docker compose up -d --no-build
 
       - name: Wait for backend
-        run: curl --retry 60 --retry-delay 2 --retry-connrefused http://localhost:8001/ >/dev/null
+        run: curl --retry 60 --retry-delay 2 --retry-all-errors http://localhost:8001/ >/dev/null
 
       - name: Seed fresh database
         working-directory: plio-frontend
@@ -201,7 +201,7 @@ jobs:
         run: docker compose up -d --no-build
 
       - name: Wait for frontend
-        run: curl --retry 60 --retry-delay 2 --retry-connrefused http://localhost:8080/ >/dev/null
+        run: curl --retry 60 --retry-delay 2 --retry-all-errors http://localhost:8080/ >/dev/null
 
       - name: Run Playwright shard
         working-directory: plio-frontend
