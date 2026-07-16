@@ -7,7 +7,7 @@ triggers:
 edges:
   - target: "context/conventions.md"
     condition: "when writing or reviewing the journey"
-last_updated: 2026-07-16
+last_updated: 2026-07-17
 ---
 
 # Add Playwright Journey
@@ -25,6 +25,7 @@ Journey specs live in `tests/e2e/journeys` and test only browser-visible behavio
 - `auth.setup.js` must remain a dependency of authenticated Chromium journeys.
 - Local backend OAuth client credentials must match the frontend `.env` values.
 - After navigation, wait for a browser-visible loaded state before typing; the API response can arrive before Vue finishes hydrating reactive inputs.
+- When behavior depends on the latest session event, await the initial `watching` response before driving a later event so request ordering cannot overwrite the test state.
 
 ## Verify
 - [ ] `npm run test:e2e -- <journey-name>` passes headless
