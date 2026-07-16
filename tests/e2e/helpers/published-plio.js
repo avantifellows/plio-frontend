@@ -93,7 +93,7 @@ async function provisionPublishedPlio({ page, request, input, via = "api" }) {
       response.request().method() === "POST"
   );
   await page
-    .getByRole("button", { name: /^Create(?: a plio)?$/ })
+    .locator('[data-test="create"]')
     .click();
 
   const response = await createResponse;

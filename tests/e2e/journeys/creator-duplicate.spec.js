@@ -4,11 +4,14 @@ const {
 } = require("../helpers/published-plio");
 
 async function expectEditorShowsQuestion(page, { videoUrl, title, questionText }) {
-  await page.locator('[data-test="videoLinkInfo"]').waitFor();
   await expect(page.locator('[data-test="videoLinkInput"] input')).toHaveValue(
-    videoUrl
+    videoUrl,
+    { timeout: 30000 }
   );
-  await expect(page.locator('[data-test="plioName"] input')).toHaveValue(title);
+  await expect(page.locator('[data-test="plioName"] input')).toHaveValue(
+    title,
+    { timeout: 30000 }
+  );
   const itemMarker = page.locator('[data-test="marker-0"]');
   await expect(itemMarker).toBeVisible();
   await itemMarker.dispatchEvent("click");

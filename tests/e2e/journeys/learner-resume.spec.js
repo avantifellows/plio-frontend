@@ -21,7 +21,10 @@ async function openPlayer(page, uuid, waitForWatching = false) {
   const languagePicker = page.locator('[data-test="languagePicker-en"]');
   if (await languagePicker.isVisible()) await languagePicker.click();
   expect((await sessionResponse).ok()).toBe(true);
-  if (watchingResponse) expect((await watchingResponse).ok()).toBe(true);
+  if (watchingResponse) {
+    await drivePlayer(page, "play", 0);
+    expect((await watchingResponse).ok()).toBe(true);
+  }
 }
 
 async function drivePlayer(page, action, time) {

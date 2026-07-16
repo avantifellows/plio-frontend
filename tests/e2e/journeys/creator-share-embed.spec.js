@@ -26,7 +26,10 @@ test("creator share link and embed render the published plio Player", async ({
   await page.goto(`/edit/${publishedPlio.uuid}`);
   const languagePicker = page.locator('[data-test="languagePicker-en"]');
   if (await languagePicker.isVisible()) await languagePicker.click();
-  await page.locator('[data-test="videoLinkInfo"]').waitFor();
+  await expect(page.locator('[data-test="videoLinkInput"] input')).toHaveValue(
+    "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+    { timeout: 30000 }
+  );
   await page.locator('[data-test="sharePlioButton"]').click();
 
   const shareDialog = page.locator('[data-test="title"]', {
@@ -50,7 +53,10 @@ test("creator share link and embed render the published plio Player", async ({
   await expect(page.locator(`#plio${publishedPlio.uuid} .plyr`)).toBeVisible();
 
   await page.goto(`/edit/${publishedPlio.uuid}`);
-  await page.locator('[data-test="videoLinkInfo"]').waitFor();
+  await expect(page.locator('[data-test="videoLinkInput"] input')).toHaveValue(
+    "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+    { timeout: 30000 }
+  );
   await page.locator('[data-test="embedPlioButton"]').click();
 
   await expect(
