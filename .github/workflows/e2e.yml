@@ -212,7 +212,7 @@ jobs:
 
       - name: Run Playwright shard
         working-directory: plio-frontend
-        run: npx playwright test --project=chromium --project=sso --grep-invert @real-playback --retries=2 --workers=1 --shard=${{ matrix.shard }}/4
+        run: npx playwright test --project=chromium --project=sso --grep-invert @real-playback --workers=1 --shard=${{ matrix.shard }}/4
 
       - name: Print stack logs on failure
         if: failure()
