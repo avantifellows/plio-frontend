@@ -15,14 +15,21 @@ const journey = {
 };
 
 async function drivePlayer(page, action, time) {
-  await page.locator('[data-test="player-wrapper"]').evaluate(
-    (player, detail) =>
-      player.dispatchEvent(new CustomEvent("plio-player-state", { detail })),
-    { action, time }
-  );
+  await page
+    .locator('[data-test="player-wrapper"]')
+    .evaluate(
+      (player, detail) =>
+        player.dispatchEvent(new CustomEvent("plio-player-state", { detail })),
+      { action, time }
+    );
 }
 
-async function completeJourney(page, request, advanceToQuestion, finishPlayback) {
+async function completeJourney(
+  page,
+  request,
+  advanceToQuestion,
+  finishPlayback
+) {
   const plio = await provisionPublishedPlio({ page, request, input: journey });
 
   await page.goto(`/play/${plio.uuid}`);
@@ -48,9 +55,15 @@ async function completeJourney(page, request, advanceToQuestion, finishPlayback)
   await finishPlayback(page);
   const scorecard = page.locator("#scorecardmodal");
   await expect(scorecard).toBeVisible({ timeout: 30000 });
-  await expect(scorecard.getByText("Correct").locator("../..")).toContainText("1");
-  await expect(scorecard.getByText("Wrong").locator("../..")).toContainText("0");
-  await expect(scorecard.getByText("Skipped").locator("../..")).toContainText("0");
+  await expect(scorecard.getByText("Correct").locator("../..")).toContainText(
+    "1"
+  );
+  await expect(scorecard.getByText("Wrong").locator("../..")).toContainText(
+    "0"
+  );
+  await expect(scorecard.getByText("Skipped").locator("../..")).toContainText(
+    "0"
+  );
   await expect(scorecard).toContainText("100");
 }
 

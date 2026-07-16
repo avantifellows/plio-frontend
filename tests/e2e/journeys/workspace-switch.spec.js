@@ -1,7 +1,5 @@
 const { test, expect } = require("../fixtures/test");
-const {
-  provisionPublishedPlio,
-} = require("../helpers/published-plio");
+const { provisionPublishedPlio } = require("../helpers/published-plio");
 
 test("creator switches Home between workspace-specific plio lists", async ({
   page,
@@ -34,7 +32,9 @@ test("creator switches Home between workspace-specific plio lists", async ({
   const homeList = page.locator('[data-test="table"]');
 
   await expect(homeList.getByText(primaryTitle, { exact: true })).toBeVisible();
-  await expect(homeList.getByText(alternateTitle, { exact: true })).toBeHidden();
+  await expect(
+    homeList.getByText(alternateTitle, { exact: true })
+  ).toBeHidden();
 
   const alternatePliosResponse = page.waitForResponse(
     (response) =>
@@ -54,5 +54,7 @@ test("creator switches Home between workspace-specific plio lists", async ({
   expect((await alternatePliosResponse).ok()).toBe(true);
   await expect(page).toHaveURL(/\/e2e-alt\/home$/);
   await expect(homeList.getByText(primaryTitle, { exact: true })).toBeHidden();
-  await expect(homeList.getByText(alternateTitle, { exact: true })).toBeVisible();
+  await expect(
+    homeList.getByText(alternateTitle, { exact: true })
+  ).toBeVisible();
 });

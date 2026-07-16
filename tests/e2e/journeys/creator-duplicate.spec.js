@@ -4,11 +4,13 @@ const {
   stubYouTubeDuration,
 } = require("../helpers/published-plio");
 
-async function expectEditorShowsQuestion(page, { videoUrl, title, questionText }) {
-  await expect(page.locator('[data-test="videoLinkInput"] input')).toHaveValue(
-    videoUrl,
-    { timeout: 30000 }
-  );
+async function expectEditorShowsQuestion(
+  page,
+  { videoUrl, title, questionText }
+) {
+  await expect(
+    page.locator('[data-test="videoLinkInput"] input')
+  ).toHaveValue(videoUrl, { timeout: 30000 });
   await expect(page.locator('[data-test="plioName"] input')).toHaveValue(
     title,
     { timeout: 30000 }
@@ -17,10 +19,9 @@ async function expectEditorShowsQuestion(page, { videoUrl, title, questionText }
   await expect(itemMarker).toBeVisible();
   await itemMarker.click({ force: true });
   await itemMarker.dispatchEvent("click");
-  await expect(page.locator('[data-test="questionText"] textarea')).toHaveValue(
-    questionText,
-    { timeout: 30000 }
-  );
+  await expect(
+    page.locator('[data-test="questionText"] textarea')
+  ).toHaveValue(questionText, { timeout: 30000 });
 }
 
 test("creator duplicates a published plio without changing the original", async ({

@@ -1,8 +1,6 @@
 const { execFileSync } = require("child_process");
 const { test, expect } = require("../fixtures/test");
-const {
-  provisionPublishedPlio,
-} = require("../helpers/published-plio");
+const { provisionPublishedPlio } = require("../helpers/published-plio");
 
 test("creator downloads a well-formed report for a published plio with no learner sessions", async ({
   page,

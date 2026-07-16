@@ -29,16 +29,16 @@ test("creator creates a plio with a question and publishes it", async ({
   });
 
   await expect(page).toHaveURL(new RegExp(`/edit/${publishedPlio.uuid}$`));
-  await expect(
-    page.locator('[data-test="videoLinkInput"] input')
-  ).toHaveValue(input.videoUrl);
+  await expect(page.locator('[data-test="videoLinkInput"] input')).toHaveValue(
+    input.videoUrl
+  );
   await expect(page.locator('[data-test="videoPreview"]')).toBeVisible();
   await expect(page.locator('[data-test="plioName"] input')).toHaveValue(
     input.title
   );
-  await expect(
-    page.locator('[data-test="questionText"] textarea')
-  ).toHaveValue(input.questions[0].text);
+  await expect(page.locator('[data-test="questionText"] textarea')).toHaveValue(
+    input.questions[0].text
+  );
   const options = page.locator('[data-test="option"] input');
   await expect(options.nth(0)).toHaveValue(input.questions[0].options[0]);
   await expect(options.nth(1)).toHaveValue(input.questions[0].options[1]);

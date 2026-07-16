@@ -123,9 +123,7 @@ async function provisionPublishedPlio({ page, request, input, via = "api" }) {
   await editorResponse;
   await page.locator('[data-test="videoLinkInfo"]').waitFor();
 
-  await page
-    .locator('[data-test="videoLinkInput"] input')
-    .fill(input.videoUrl);
+  await page.locator('[data-test="videoLinkInput"] input').fill(input.videoUrl);
   await page
     .locator('[data-test="videoPreview"] button[aria-label^="Play,"]')
     .first()
@@ -175,9 +173,7 @@ async function provisionPublishedPlio({ page, request, input, via = "api" }) {
       body.options.join("|") === question.options.join("|")
     );
   });
-  await page
-    .locator('[data-test="questionText"] textarea')
-    .fill(question.text);
+  await page.locator('[data-test="questionText"] textarea').fill(question.text);
   const optionInputs = page.locator('[data-test="option"] input');
   for (const [index, option] of question.options.entries()) {
     await optionInputs.nth(index).fill(option);

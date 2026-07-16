@@ -28,19 +28,18 @@ test("creator share link and embed render the published plio Player", async ({
   await page.goto(`/edit/${publishedPlio.uuid}`);
   const languagePicker = page.locator('[data-test="languagePicker-en"]');
   if (await languagePicker.isVisible()) await languagePicker.click();
-  await expect(page.locator('[data-test="videoLinkInput"] input')).toHaveValue(
-    "https://www.youtube.com/watch?v=jNQXAC9IVRw",
-    { timeout: 30000 }
-  );
+  await expect(
+    page.locator('[data-test="videoLinkInput"] input')
+  ).toHaveValue("https://www.youtube.com/watch?v=jNQXAC9IVRw", {
+    timeout: 30000,
+  });
   await page.locator('[data-test="sharePlioButton"]').click();
 
   const shareDialog = page.locator('[data-test="title"]', {
     hasText: "Share this Plio",
   });
   await expect(shareDialog).toBeVisible();
-  const shareLink = page.getByText(
-    new RegExp(`/play/${publishedPlio.uuid}$`)
-  );
+  const shareLink = page.getByText(new RegExp(`/play/${publishedPlio.uuid}$`));
 
   const loadedPlayer = page.waitForResponse(
     (response) =>
@@ -55,10 +54,11 @@ test("creator share link and embed render the published plio Player", async ({
   await expect(page.locator(`#plio${publishedPlio.uuid} .plyr`)).toBeVisible();
 
   await page.goto(`/edit/${publishedPlio.uuid}`);
-  await expect(page.locator('[data-test="videoLinkInput"] input')).toHaveValue(
-    "https://www.youtube.com/watch?v=jNQXAC9IVRw",
-    { timeout: 30000 }
-  );
+  await expect(
+    page.locator('[data-test="videoLinkInput"] input')
+  ).toHaveValue("https://www.youtube.com/watch?v=jNQXAC9IVRw", {
+    timeout: 30000,
+  });
   await page.locator('[data-test="embedPlioButton"]').click();
 
   await expect(

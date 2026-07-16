@@ -23,11 +23,13 @@ async function openPlayer(page, uuid) {
 }
 
 async function drivePlayer(page, action, time) {
-  await page.locator('[data-test="player-wrapper"]').evaluate(
-    (player, detail) =>
-      player.dispatchEvent(new CustomEvent("plio-player-state", { detail })),
-    { action, time }
-  );
+  await page
+    .locator('[data-test="player-wrapper"]')
+    .evaluate(
+      (player, detail) =>
+        player.dispatchEvent(new CustomEvent("plio-player-state", { detail })),
+      { action, time }
+    );
 }
 
 function waitForEvent(page, type) {
