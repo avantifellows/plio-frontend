@@ -77,13 +77,14 @@ test("creator share link and embed render the published plio Player", async ({
   await page.setContent(embedCode);
 
   expect((await loadedEmbed).ok()).toBe(true);
-  await expect(page.locator("iframe")).toHaveAttribute(
+  const embed = page.locator(`iframe[src$="/plio/${publishedPlio.uuid}"]`);
+  await expect(embed).toHaveAttribute(
     "src",
     new RegExp(`/plio/${publishedPlio.uuid}$`)
   );
   await expect(
     page
-      .frameLocator("iframe")
+      .frameLocator(`iframe[src$="/plio/${publishedPlio.uuid}"]`)
       .locator(`#plio${publishedPlio.uuid} .plyr`)
   ).toBeVisible();
 });

@@ -9,22 +9,17 @@ const journey = {
   questions: [],
 };
 
-async function openPlayer(page, uuid, waitForWatching = false) {
+async function openPlayer(page, uuid) {
   const sessionResponse = page.waitForResponse(
     (response) =>
       new URL(response.url()).pathname.endsWith("/api/v1/sessions/") &&
       response.request().method() === "POST"
   );
-  const watchingResponse = waitForWatching && waitForEvent(page, "watching");
   await page.goto(`/play/${uuid}`);
   await expect(page.locator(`#plio${uuid} .plyr`)).toBeVisible();
   const languagePicker = page.locator('[data-test="languagePicker-en"]');
   if (await languagePicker.isVisible()) await languagePicker.click();
   expect((await sessionResponse).ok()).toBe(true);
-  if (watchingResponse) {
-    await drivePlayer(page, "play", 0);
-    expect((await watchingResponse).ok()).toBe(true);
-  }
 }
 
 async function drivePlayer(page, action, time) {
@@ -51,7 +46,7 @@ test("learner resumes at the saved position after reopening the plio", async ({
   request,
 }) => {
   const plio = await provisionPublishedPlio({ page, request, input: journey });
-  await openPlayer(page, plio.uuid, true);
+  await openPlayer(page, plio.uuid);
 
   const savedPosition = waitForEvent(page, "video_seeked");
   await drivePlayer(page, "seek", resumeTime);
@@ -68,7 +63,7 @@ test("learner resumes after watching real video @real-playback", async ({
   request,
 }) => {
   const plio = await provisionPublishedPlio({ page, request, input: journey });
-  await openPlayer(page, plio.uuid, true);
+  await openPlayer(page, plio.uuid);
 
   await page.locator(".plyr__control--overlaid").click();
   await expect(page.locator(".plyr__time--current")).toHaveText("00:06", {

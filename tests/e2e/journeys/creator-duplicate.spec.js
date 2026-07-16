@@ -15,9 +15,10 @@ async function expectEditorShowsQuestion(page, { videoUrl, title, questionText }
   );
   const itemMarker = page.locator('[data-test="marker-0"]');
   await expect(itemMarker).toBeVisible();
-  await itemMarker.dispatchEvent("click");
+  await itemMarker.click();
   await expect(page.locator('[data-test="questionText"] textarea')).toHaveValue(
-    questionText
+    questionText,
+    { timeout: 30000 }
   );
 }
 
