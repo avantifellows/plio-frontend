@@ -24,6 +24,7 @@ Journey specs live in `tests/e2e/journeys` and test only browser-visible behavio
 ## Gotchas
 - `auth.setup.js` must remain a dependency of authenticated Chromium journeys.
 - Local backend OAuth client credentials must match the frontend `.env` values.
+- After navigation, wait for a browser-visible loaded state before typing; the API response can arrive before Vue finishes hydrating reactive inputs.
 
 ## Verify
 - [ ] `npm run test:e2e -- <journey-name>` passes headless
