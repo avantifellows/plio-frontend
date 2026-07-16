@@ -1,3 +1,5 @@
+/* eslint-disable */
+// NOTE: legacy TestCafe spec — deleted by test-wall slice #435; lint-silenced until then
 import { Selector } from "testcafe";
 import { loginGoogleUserAndSetLocale } from "../helpers/loginByGoogle";
 

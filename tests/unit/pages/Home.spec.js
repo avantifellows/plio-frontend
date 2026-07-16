@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+// NOTE: pre-existing lint debt in this legacy spec, rule-scoped silence -- tracked for burn-down in plio-backend#436
 import { mount, flushPromises } from "@vue/test-utils";
 import Home from "@/pages/Home.vue";
 import store from "@/store";

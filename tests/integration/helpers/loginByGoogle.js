@@ -1,3 +1,5 @@
+/* eslint-disable */
+// NOTE: legacy TestCafe spec — deleted by test-wall slice #435; lint-silenced until then
 import { t as testcafe, ClientFunction, Role } from "testcafe";
 import { selectLocaleFromDialog } from "./selectLocale";
 

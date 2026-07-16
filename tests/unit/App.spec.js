@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+// NOTE: pre-existing lint debt in this legacy spec, rule-scoped silence -- tracked for burn-down in plio-backend#436
 import { mount, flushPromises } from "@vue/test-utils";
 import UserAPIService from "@/services/API/User.js";
 import OrganizationAPIService from "@/services/API/Organization.js";
