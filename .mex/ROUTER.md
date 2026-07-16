@@ -31,10 +31,10 @@ Then read this file fully before doing anything else in this session.
 - Auth: Google OAuth, OTP login, and third-party SSO (query params `unique_id` + `api_key`)
 - Multi-workspace support via `activeWorkspace` and the `Organization` request header
 - Dashboard analytics page; jest unit specs exist (~40 files under tests/unit) but see Known issues — the suite is red in CI
-- Playwright scaffold plus all 9 inventoried E2E journeys run locally with `npm run test:e2e`; `npm run seed:e2e` idempotently provisions their backend fixtures
+- Playwright scaffold plus all 9 inventoried E2E journeys run locally with `npm run test:e2e`; frontend PRs call the reusable sharded ephemeral-stack workflow; `npm run seed:e2e` idempotently provisions backend fixtures
 
 **Not yet built:**
-- Playwright CI orchestration is not implemented yet
+- Backend PR caller, journey-manifest enforcement, quarantine/nightly semantics, and final TestCafe migration cleanup remain in later #380 slices
 
 **Known issues:**
 - Vue CLI toolchain (webpack) is legacy; no migration to Vite is planned or started

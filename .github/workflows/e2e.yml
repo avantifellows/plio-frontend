@@ -1,0 +1,218 @@
+name: Reusable Playwright E2E
+
+on:
+  workflow_call:
+    inputs:
+      trigger_role:
+        description: Repository role that triggered the run (frontend or backend)
+        required: true
+        type: string
+      trigger_ref:
+        description: Exact ref or SHA from the triggering repository
+        required: true
+        type: string
+      branch_name:
+        description: Branch name to pair across repositories
+        required: true
+        type: string
+      frontend_repository:
+        description: Frontend repository to test
+        default: avantifellows/plio-frontend
+        required: false
+        type: string
+      backend_repository:
+        description: Backend repository to test
+        default: avantifellows/plio-backend
+        required: false
+        type: string
+    secrets:
+      GOOGLE_OAUTH2_CLIENT_ID:
+        required: true
+      GOOGLE_OAUTH2_CLIENT_SECRET:
+        required: true
+      GOOGLE_OAUTH2_REFRESH_TOKEN:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  pairing:
+    name: Resolve branch pairing
+    runs-on: ubuntu-latest
+    outputs:
+      frontend_ref: ${{ steps.resolve.outputs.frontend_ref }}
+      backend_ref: ${{ steps.resolve.outputs.backend_ref }}
+    steps:
+      - name: Resolve sibling branch
+        id: resolve
+        env:
+          BACKEND_REPOSITORY: ${{ inputs.backend_repository }}
+          BRANCH_NAME: ${{ inputs.branch_name }}
+          FRONTEND_REPOSITORY: ${{ inputs.frontend_repository }}
+          TRIGGER_REF: ${{ inputs.trigger_ref }}
+          TRIGGER_ROLE: ${{ inputs.trigger_role }}
+        run: |
+          set -euo pipefail
+
+          case "$TRIGGER_ROLE" in
+            frontend)
+              frontend_ref="$TRIGGER_REF"
+              frontend_label="$BRANCH_NAME"
+              if git ls-remote --exit-code --heads "https://github.com/${BACKEND_REPOSITORY}.git" "refs/heads/${BRANCH_NAME}" >/dev/null; then
+                backend_ref="$BRANCH_NAME"
+              else
+                backend_ref="main"
+              fi
+              backend_label="$backend_ref"
+              ;;
+            backend)
+              backend_ref="$TRIGGER_REF"
+              backend_label="$BRANCH_NAME"
+              if git ls-remote --exit-code --heads "https://github.com/${FRONTEND_REPOSITORY}.git" "refs/heads/${BRANCH_NAME}" >/dev/null; then
+                frontend_ref="$BRANCH_NAME"
+              else
+                frontend_ref="main"
+              fi
+              frontend_label="$frontend_ref"
+              ;;
+            *)
+              echo "trigger_role must be frontend or backend" >&2
+              exit 1
+              ;;
+          esac
+
+          echo "frontend_ref=$frontend_ref" >> "$GITHUB_OUTPUT"
+          echo "backend_ref=$backend_ref" >> "$GITHUB_OUTPUT"
+          {
+            echo "## E2E branch pairing"
+            echo
+            echo "${FRONTEND_REPOSITORY}@${frontend_label} x ${BACKEND_REPOSITORY}@${backend_label}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  e2e:
+    name: Playwright shard ${{ matrix.shard }}/4
+    needs: pairing
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    env:
+      CI: true
+      GOOGLE_OAUTH2_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}
+      GOOGLE_OAUTH2_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
+      GOOGLE_OAUTH2_REFRESH_TOKEN: ${{ secrets.GOOGLE_OAUTH2_REFRESH_TOKEN }}
+      VUE_APP_BACKEND_API_CLIENT_ID: plio-e2e-client
+      VUE_APP_BACKEND_API_CLIENT_SECRET: plio-e2e-secret
+      VUE_APP_BACKEND_AUTH_URL: http://localhost:8001/auth
+      VUE_APP_FRONTEND: http://localhost:8080
+    steps:
+      - name: Check out frontend
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.frontend_repository }}
+          ref: ${{ needs.pairing.outputs.frontend_ref }}
+          path: plio-frontend
+          persist-credentials: false
+
+      - name: Check out backend
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.backend_repository }}
+          ref: ${{ needs.pairing.outputs.backend_ref }}
+          path: plio-backend
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: plio-frontend/package-lock.json
+
+      - name: Install test dependencies
+        working-directory: plio-frontend
+        run: npm ci
+
+      - name: Install Chromium
+        working-directory: plio-frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Configure ephemeral stack
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
+        run: |
+          cp plio-backend/.env.example plio-backend/.env
+          cat >> plio-backend/.env <<EOF
+          SECRET_KEY=plio-e2e-django-secret
+          GOOGLE_OAUTH2_CLIENT_ID=$GOOGLE_CLIENT_ID
+          GOOGLE_OAUTH2_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+          DEFAULT_OAUTH2_CLIENT_SETUP=True
+          DEFAULT_OAUTH2_CLIENT_ID=$VUE_APP_BACKEND_API_CLIENT_ID
+          DEFAULT_OAUTH2_CLIENT_SECRET=$VUE_APP_BACKEND_API_CLIENT_SECRET
+          SMS_DRIVER=
+          EOF
+
+          cp plio-frontend/.env.example plio-frontend/.env
+          cat >> plio-frontend/.env <<EOF
+          VUE_APP_GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+          VUE_APP_BACKEND_API_CLIENT_ID=$VUE_APP_BACKEND_API_CLIENT_ID
+          VUE_APP_BACKEND_API_CLIENT_SECRET=$VUE_APP_BACKEND_API_CLIENT_SECRET
+          EOF
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v7
+        with:
+          context: plio-frontend
+          target: development-stage
+          load: true
+          tags: plio-frontend:latest
+          cache-from: type=gha,scope=e2e-frontend
+          cache-to: type=gha,mode=max,scope=e2e-frontend,ignore-error=true
+
+      - name: Build backend image
+        uses: docker/build-push-action@v7
+        with:
+          context: plio-backend
+          load: true
+          tags: plio-backend:latest
+          build-args: REQUIREMENTS_FILE=requirements-test.txt
+          cache-from: type=gha,scope=e2e-backend
+          cache-to: type=gha,mode=max,scope=e2e-backend,ignore-error=true
+
+      - name: Start backend
+        working-directory: plio-backend
+        run: docker compose up -d --no-build
+
+      - name: Wait for backend
+        run: curl --retry 60 --retry-delay 2 --retry-connrefused http://localhost:8001/ >/dev/null
+
+      - name: Seed fresh database
+        working-directory: plio-frontend
+        run: npm run seed:e2e
+
+      - name: Start frontend
+        working-directory: plio-frontend
+        run: docker compose up -d --no-build
+
+      - name: Wait for frontend
+        run: curl --retry 60 --retry-delay 2 --retry-connrefused http://localhost:8080/ >/dev/null
+
+      - name: Run Playwright shard
+        working-directory: plio-frontend
+        run: npx playwright test --project=chromium --project=sso --grep-invert @real-playback --shard=${{ matrix.shard }}/4
+
+      - name: Stop ephemeral stack
+        if: always()
+        run: |
+          if [ -f plio-frontend/docker-compose.yml ]; then
+            docker compose -f plio-frontend/docker-compose.yml --project-directory plio-frontend down -v --remove-orphans
+          fi
+          if [ -f plio-backend/docker-compose.yml ]; then
+            docker compose -f plio-backend/docker-compose.yml --project-directory plio-backend down -v --remove-orphans
+          fi
