@@ -62,7 +62,7 @@ test("learner answers a timed question and sees the expected score", async ({
     page,
     request,
     (playerPage) => drivePlayer(playerPage, "seek", 0.75),
-    (playerPage) => drivePlayer(playerPage, "seek", journey.videoDuration)
+    (playerPage) => drivePlayer(playerPage, "ended")
   );
 });
 

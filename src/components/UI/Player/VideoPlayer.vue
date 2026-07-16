@@ -90,6 +90,7 @@ export default {
         this.$emit("update", detail.time);
       } else if (detail.action === "play") this.player.play();
       else if (detail.action === "pause") this.player.pause();
+      else if (detail.action === "ended") this.$emit("playback-ended");
     },
     /**
      * creates a new instance of plyr and sets its properties

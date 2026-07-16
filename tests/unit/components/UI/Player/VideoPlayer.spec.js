@@ -100,7 +100,7 @@ describe("VideoPlayer.vue", () => {
     ).not.toHaveBeenCalled();
   });
 
-  it("accepts seek, play, and pause commands through the test hook", async () => {
+  it("accepts seek, play, pause, and ended commands through the test hook", async () => {
     const mockPlayer = {
       currentTime: 0,
       eventListeners: [],
@@ -118,11 +118,13 @@ describe("VideoPlayer.vue", () => {
     });
     await playerElement.trigger("plio-player-state", { detail: { action: "play" } });
     await playerElement.trigger("plio-player-state", { detail: { action: "pause" } });
+    await playerElement.trigger("plio-player-state", { detail: { action: "ended" } });
 
     expect(mockPlayer.currentTime).toBe(0.75);
     expect(wrapper.emitted("update")).toEqual([[0.75]]);
     expect(mockPlayer.play).toHaveBeenCalled();
     expect(mockPlayer.pause).toHaveBeenCalled();
+    expect(wrapper.emitted("playback-ended")).toEqual([[]]);
   });
 
   it("emits the requested seek time when the video provider cannot advance", async () => {
