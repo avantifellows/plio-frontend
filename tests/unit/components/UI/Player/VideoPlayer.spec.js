@@ -134,6 +134,40 @@ describe("VideoPlayer.vue", () => {
     expect(wrapper.emitted("playback-ended")).toEqual([[]]);
   });
 
+  it("ignores test-hook events in production builds", async () => {
+    const originalNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+    try {
+      const mockPlayer = {
+        currentTime: 0,
+        eventListeners: [],
+        on: jest.fn(),
+        play: jest.fn(),
+        pause: jest.fn(),
+      };
+      jest
+        .spyOn(VideoPlayer.methods, "createPlayer")
+        .mockReturnValue(mockPlayer);
+      const wrapper = mount(VideoPlayer, { props: { videoId: "4j4fYyWgl0w" } });
+      await nextTick();
+
+      const playerElement = wrapper.get('[data-test="player-wrapper"]');
+      await playerElement.trigger("plio-player-state", {
+        detail: { action: "seek", time: 0.75 },
+      });
+      await playerElement.trigger("plio-player-state", {
+        detail: { action: "ended" },
+      });
+
+      expect(mockPlayer.currentTime).toBe(0);
+      expect(wrapper.emitted("update")).toBeUndefined();
+      expect(wrapper.emitted("seeked")).toBeUndefined();
+      expect(wrapper.emitted("playback-ended")).toBeUndefined();
+    } finally {
+      process.env.NODE_ENV = originalNodeEnv;
+    }
+  });
+
   it("emits the requested seek time when the video provider cannot advance", async () => {
     const mockPlayer = {
       get currentTime() {

@@ -17,7 +17,9 @@ describe("e2e journey coverage", () => {
       "auth-google-login": "journeys/auth-google-login.spec.js",
     });
 
-    expect(main({ manifestPath, reportPaths: [], env: {} })).toBe(1);
+    expect(
+      main({ manifestPath, reportPaths: [], env: {}, requiredCount: 1 })
+    ).toBe(1);
   });
 
   it("fails when a manifested journey is skipped", () => {
@@ -34,7 +36,14 @@ describe("e2e journey coverage", () => {
       ],
     });
 
-    expect(main({ manifestPath, reportPaths: [reportPath], env: {} })).toBe(1);
+    expect(
+      main({
+        manifestPath,
+        reportPaths: [reportPath],
+        env: {},
+        requiredCount: 1,
+      })
+    ).toBe(1);
   });
 
   it("reports a quarantined journey separately without blocking a pull request", () => {
@@ -58,6 +67,7 @@ describe("e2e journey coverage", () => {
         reportPaths: [],
         quarantineReportPaths: [quarantineReportPath],
         env: { GITHUB_STEP_SUMMARY: summaryPath },
+        requiredCount: 1,
       })
     ).toBe(0);
     expect(fs.readFileSync(summaryPath, "utf8")).toContain(
@@ -89,10 +99,29 @@ describe("e2e journey coverage", () => {
           FRONTEND_PAIRING: "frontend@feature",
           BACKEND_PAIRING: "backend@main",
         },
+        requiredCount: 1,
       })
     ).toBe(0);
     expect(fs.readFileSync(summaryPath, "utf8")).toContain(
       "1/1 journeys\n\nfrontend@feature x backend@main"
     );
+  });
+
+  it("fails closed when the manifest shrinks below the decided inventory", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-journeys-"));
+    const manifestPath = writeJson(dir, "manifest.json", {
+      "auth-google-login": "journeys/auth-google-login.spec.js",
+    });
+    const reportPath = writeJson(dir, "report.json", {
+      suites: [
+        {
+          file: "journeys/auth-google-login.spec.js",
+          specs: [{ tests: [{ status: "expected" }] }],
+        },
+      ],
+    });
+
+    // every journey green, but the default required count (9) is not met
+    expect(main({ manifestPath, reportPaths: [reportPath], env: {} })).toBe(1);
   });
 });

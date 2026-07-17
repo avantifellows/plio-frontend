@@ -60,26 +60,36 @@ jobs:
         run: |
           set -euo pipefail
 
+          # Resolve the sibling to an immutable SHA once, so all four matrix
+          # shards (and any rerun) test the same revision even if the branch
+          # advances mid-run.
+          resolve_sha() {
+            local repository="$1" branch="$2"
+            git ls-remote --exit-code --heads \
+              "https://github.com/${repository}.git" "refs/heads/${branch}" \
+              | cut -f1
+          }
+
           case "$TRIGGER_ROLE" in
             frontend)
               frontend_ref="$TRIGGER_REF"
               frontend_label="$BRANCH_NAME"
-              if git ls-remote --exit-code --heads "https://github.com/${BACKEND_REPOSITORY}.git" "refs/heads/${BRANCH_NAME}" >/dev/null; then
-                backend_ref="$BRANCH_NAME"
+              if backend_ref=$(resolve_sha "$BACKEND_REPOSITORY" "$BRANCH_NAME"); then
+                backend_label="$BRANCH_NAME"
               else
-                backend_ref="main"
+                backend_ref=$(resolve_sha "$BACKEND_REPOSITORY" "main")
+                backend_label="main"
               fi
-              backend_label="$backend_ref"
               ;;
             backend)
               backend_ref="$TRIGGER_REF"
               backend_label="$BRANCH_NAME"
-              if git ls-remote --exit-code --heads "https://github.com/${FRONTEND_REPOSITORY}.git" "refs/heads/${BRANCH_NAME}" >/dev/null; then
-                frontend_ref="$BRANCH_NAME"
+              if frontend_ref=$(resolve_sha "$FRONTEND_REPOSITORY" "$BRANCH_NAME"); then
+                frontend_label="$BRANCH_NAME"
               else
-                frontend_ref="main"
+                frontend_ref=$(resolve_sha "$FRONTEND_REPOSITORY" "main")
+                frontend_label="main"
               fi
-              frontend_label="$frontend_ref"
               ;;
             *)
               echo "trigger_role must be frontend or backend" >&2
@@ -144,6 +154,31 @@ jobs:
         working-directory: plio-frontend
         run: npx playwright install --with-deps chromium
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v7
+        with:
+          context: plio-frontend
+          target: development-stage
+          load: true
+          tags: plio-frontend:latest
+          cache-from: type=gha,scope=e2e-frontend
+          cache-to: type=gha,mode=max,scope=e2e-frontend,ignore-error=true
+
+      - name: Build backend image
+        uses: docker/build-push-action@v7
+        with:
+          context: plio-backend
+          load: true
+          tags: plio-backend:latest
+          build-args: REQUIREMENTS_FILE=requirements-test.txt
+          cache-from: type=gha,scope=e2e-backend
+          cache-to: type=gha,mode=max,scope=e2e-backend,ignore-error=true
+
+      # Runs after the image builds so no secret-bearing .env can land
+      # in a docker layer that cache-to persists to the GHA cache.
       - name: Configure ephemeral stack
         env:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}
@@ -173,29 +208,6 @@ jobs:
               volumes:
                 - ./node_modules:/app/node_modules
           EOF
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build frontend image
-        uses: docker/build-push-action@v7
-        with:
-          context: plio-frontend
-          target: development-stage
-          load: true
-          tags: plio-frontend:latest
-          cache-from: type=gha,scope=e2e-frontend
-          cache-to: type=gha,mode=max,scope=e2e-frontend,ignore-error=true
-
-      - name: Build backend image
-        uses: docker/build-push-action@v7
-        with:
-          context: plio-backend
-          load: true
-          tags: plio-backend:latest
-          build-args: REQUIREMENTS_FILE=requirements-test.txt
-          cache-from: type=gha,scope=e2e-backend
-          cache-to: type=gha,mode=max,scope=e2e-backend,ignore-error=true
 
       - name: Start backend
         working-directory: plio-backend

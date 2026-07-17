@@ -1,5 +1,10 @@
 const fs = require("fs");
 
+// The decided journey inventory (plio-backend#369) — like coverage floors,
+// this number only grows. Shrinking the manifest must fail the gate, not
+// silently lower the denominator.
+const REQUIRED_JOURNEY_COUNT = 9;
+
 function statuses(suite) {
   return [
     ...(suite.specs || []).flatMap((spec) =>
@@ -38,8 +43,23 @@ function main({
   quarantineReportPaths = cliReportPaths(process.argv.slice(2))
     .quarantineReportPaths,
   env = process.env,
+  requiredCount = REQUIRED_JOURNEY_COUNT,
 } = {}) {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+  if (Object.keys(manifest).length < requiredCount) {
+    const shrunk = `journey manifest lists ${
+      Object.keys(manifest).length
+    } journeys, fewer than the required ${requiredCount} — the decided inventory only grows`;
+    if (env.GITHUB_STEP_SUMMARY) {
+      fs.appendFileSync(
+        env.GITHUB_STEP_SUMMARY,
+        `## E2E journey coverage\n\n${shrunk}\n`
+      );
+    }
+    // eslint-disable-next-line no-console
+    console.log(shrunk);
+    return 1;
+  }
   const results = readResults(reportPaths);
   const quarantineResults = readResults(quarantineReportPaths);
   const files = Object.values(manifest);
