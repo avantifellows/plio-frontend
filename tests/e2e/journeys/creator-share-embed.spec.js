@@ -1,4 +1,5 @@
 const { test, expect } = require("../fixtures/test");
+const { dismissLanguageDialog } = require("../helpers/language-dialog");
 const {
   provisionPublishedPlio,
   stubYouTubeDuration,
@@ -26,8 +27,7 @@ test("creator share link and embed render the published plio Player", async ({
   });
 
   await page.goto(`/edit/${publishedPlio.uuid}`);
-  const languagePicker = page.locator('[data-test="languagePicker-en"]');
-  if (await languagePicker.isVisible()) await languagePicker.click();
+  await dismissLanguageDialog(page);
   await expect(page.locator('[data-test="videoLinkInput"] input')).toHaveValue(
     "https://www.youtube.com/watch?v=jNQXAC9IVRw",
     {

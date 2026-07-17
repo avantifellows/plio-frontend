@@ -1,4 +1,5 @@
 const { getPlioAccessToken } = require("./auth");
+const { dismissLanguageDialog } = require("./language-dialog");
 
 async function stubYouTubeDuration(page) {
   await page.route("https://www.googleapis.com/youtube/v3/videos**", (route) =>
@@ -94,10 +95,7 @@ async function provisionPublishedPlio({ page, request, input, via = "api" }) {
   if (via !== "ui") throw new Error(`Unknown provisioning mode: ${via}`);
 
   await page.goto("/home");
-  const languagePicker = page.locator('[data-test="languagePicker-en"]');
-  if (await languagePicker.isVisible()) {
-    await languagePicker.click();
-  }
+  await dismissLanguageDialog(page);
   const createResponse = page.waitForResponse(
     (response) =>
       new URL(response.url()).pathname.endsWith("/api/v1/plios/") &&

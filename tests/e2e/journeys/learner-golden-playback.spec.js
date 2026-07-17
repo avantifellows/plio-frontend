@@ -1,5 +1,6 @@
 const { test, expect } = require("../fixtures/test");
 const { provisionPublishedPlio } = require("../helpers/published-plio");
+const { dismissLanguageDialog } = require("../helpers/language-dialog");
 
 const journey = {
   videoUrl: "https://www.youtube.com/watch?v=jNQXAC9IVRw",
@@ -43,8 +44,7 @@ async function completeJourney(
   await page.goto(`/play/${plio.uuid}`);
   await expect(page.locator(`#plio${plio.uuid} .plyr`)).toBeVisible();
   await sessionCreated;
-  const languagePicker = page.locator('[data-test="languagePicker-en"]');
-  if (await languagePicker.isVisible()) await languagePicker.click();
+  await dismissLanguageDialog(page);
 
   await advanceToQuestion(page);
 
