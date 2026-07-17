@@ -57,11 +57,11 @@ _Avoid_: external auth, api login
 ### Testing (decided vocabulary, map #362)
 
 **Unit suite**:
-The jest 26 + vue-test-utils suite under `tests/unit`, run with `yarn test:unit`. Deliberately kept on the frozen jest 26 toolchain — reviving it needs no build-tooling upgrade (decision #365).
+The jest 26 + vue-test-utils suite under `tests/unit`, run with `npm run test:unit`. Deliberately kept on the frozen jest 26 toolchain — reviving it needs no build-tooling upgrade (decision #365).
 _Avoid_: component tests (as a separate thing), spec suite
 
 **E2E journey**:
-A Playwright browser test driving one of the 9 inventoried user journeys through the full stack (workstream #380). The legacy `tests/integration/` TestCafe specs are e2e by the decided vocabulary and are deleted when Playwright lands.
+A Playwright browser test driving one of the 9 inventoried user journeys through the full stack (workstream #380).
 _Avoid_: integration test (this repo has no integration lane; that word belongs to the backend's API-journey suite)
 
 **Floor**:
@@ -87,6 +87,6 @@ _Avoid_: threshold, target
 ## Flagged ambiguities
 
 - **"plio"** names the product, both repos, and the entity — qualify when it matters ("a plio", "plio-frontend").
-- **"Integration tests"** — this repo's `tests/integration/` folder holds legacy TestCafe specs that are *e2e* by the decided vocabulary (map #362); backend "integration" means API-journey tests. Don't let the folder name mislead.
+- **"Integration tests"** — this frontend has no integration lane; backend "integration" means API-journey tests. Use **E2E journey** for browser tests.
 - **Home vs Dashboard** — both show analytics; Home is the workspace's plio list, Dashboard is one plio's detail view. Say which.
 - **Teacher/Student** appear in some old copy and analytics events; the decided terms are **creator/learner**.

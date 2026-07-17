@@ -1,0 +1,45 @@
+const { defineConfig } = require("@playwright/test");
+require("dotenv").config({ quiet: true });
+const { authFile } = require("./tests/e2e/helpers/auth");
+
+const baseURL = process.env.VUE_APP_FRONTEND || "http://localhost:8080";
+
+module.exports = defineConfig({
+  testDir: "./tests/e2e",
+  // Journeys share one e2e account and seeded workspaces — they are not
+  // parallel-safe. CI serializes with --workers=1 per shard; local runs
+  // must match.
+  workers: 1,
+  // Journeys provision via API, navigate, and (on slow CI runners) retry
+  // modal interactions — the 30s default cuts those budgets short.
+  timeout: 120000,
+  grepInvert: process.env.GITHUB_ACTIONS ? /@real-playback/ : undefined,
+  use: {
+    baseURL,
+    headless: true,
+    launchOptions: { args: ["--autoplay-policy=no-user-gesture-required"] },
+  },
+  projects: [
+    {
+      name: "setup",
+      testMatch: /auth\.setup\.js/,
+    },
+    {
+      name: "chromium",
+      testMatch: /journeys\/.*\.spec\.js/,
+      testIgnore: /sso-learner-entry\.spec\.js/,
+      use: { browserName: "chromium", storageState: authFile },
+      dependencies: ["setup"],
+    },
+    {
+      name: "sso",
+      testMatch: /sso-learner-entry\.spec\.js/,
+      use: { browserName: "chromium" },
+    },
+  ],
+  webServer: {
+    command: "npm run serve",
+    url: baseURL,
+    reuseExistingServer: true,
+  },
+});

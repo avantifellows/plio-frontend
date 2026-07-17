@@ -14,7 +14,7 @@ edges:
     condition: when setting up the dev environment or running the project for the first time
   - target: patterns/INDEX.md
     condition: when starting a task — check the pattern index for a matching pattern file
-last_updated: 2026-07-14
+last_updated: 2026-07-17
 ---
 
 # Session Bootstrap
@@ -26,16 +26,20 @@ Then read this file fully before doing anything else in this session.
 ## Current Project State
 
 **Working:**
+
 - Creator flow: login → create/edit plio in Editor → add items and questions → publish
 - Learner flow: Player page plays video, shows questions at timestamps, records sessions/answers/events
 - Auth: Google OAuth, OTP login, and third-party SSO (query params `unique_id` + `api_key`)
 - Multi-workspace support via `activeWorkspace` and the `Organization` request header
 - Dashboard analytics page; jest unit specs exist (~40 files under tests/unit) but see Known issues — the suite is red in CI
+- Playwright scaffold plus all 9 inventoried E2E journeys run locally with `npm run test:e2e`; frontend PRs call the reusable sharded ephemeral-stack workflow; a committed manifest gates actual shard results and reports N/9 beside branch pairing; evidence-based `@quarantine` failures are reported separately but non-blocking, while nightly/manual runs treat them as blocking; `npm run seed:e2e` idempotently provisions backend fixtures
 
 **Not yet built:**
-- No locally runnable e2e suite: the committed TestCafe specs in tests/integration require BrowserStack + live Google OAuth credentials
+
+- No #380 implementation slices remain; final review passed and only the PR step is pending
 
 **Known issues:**
+
 - Vue CLI toolchain (webpack) is legacy; no migration to Vite is planned or started
 - Unit suite red in CI since Aug 2025 (poisoned jest-mock-axios 4.7.3 in lockfile kills collection); revival planned as plio-backend#379 sub-issues #393–#398 (pin 4.5.0, mixpanel stub, prism-es6 transform, 17 test repairs, Codecov v5, CI-enforced coverage floor)
 
@@ -43,14 +47,14 @@ Then read this file fully before doing anything else in this session.
 
 Load the relevant file based on the current task. Always load `context/architecture.md` first if not already in context this session.
 
-| Task type | Load |
-|-----------|------|
-| Understanding how the system works | `context/architecture.md` |
-| Working with a specific technology | `context/stack.md` |
-| Writing or reviewing code | `context/conventions.md` |
-| Making a design decision | `context/decisions.md` |
-| Setting up or running the project | `context/setup.md` |
-| Any specific task | Check `patterns/INDEX.md` for a matching pattern |
+| Task type                          | Load                                             |
+| ---------------------------------- | ------------------------------------------------ |
+| Understanding how the system works | `context/architecture.md`                        |
+| Working with a specific technology | `context/stack.md`                               |
+| Writing or reviewing code          | `context/conventions.md`                         |
+| Making a design decision           | `context/decisions.md`                           |
+| Setting up or running the project  | `context/setup.md`                               |
+| Any specific task                  | Check `patterns/INDEX.md` for a matching pattern |
 
 ## Behavioural Contract
 

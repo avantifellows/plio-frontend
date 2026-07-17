@@ -1,7 +1,7 @@
 ---
 name: agents
 description: Always-loaded project anchor. Read this first. Contains project identity, non-negotiables, commands, and pointer to ROUTER.md for full context.
-last_updated: 2026-07-11
+last_updated: 2026-07-17
 ---
 
 # Plio Frontend
@@ -19,6 +19,8 @@ Vue 3 single-page app for Plio — a platform to create and watch interactive vi
 ## Commands
 - Dev server: `npm run serve` (port 8080)
 - Unit tests: `npm run test:unit`
+- Seed E2E fixtures: `npm run seed:e2e`
+- E2E journeys: `npm run test:e2e`
 - Lint: `npm run lint`
 - Build: `npm run build` (staging: `npm run build-staging`)
 

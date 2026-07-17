@@ -1,3 +1,5 @@
+/* eslint-disable no-unexpected-multiline */
+// NOTE: pre-existing lint debt in this legacy spec, rule-scoped silence -- tracked for burn-down in plio-backend#436
 import { mount, flushPromises } from "@vue/test-utils";
 import ItemEditor from "@/components/Editor/ItemEditor";
 let clonedeep = require("lodash.clonedeep");

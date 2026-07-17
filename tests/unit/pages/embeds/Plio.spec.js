@@ -90,6 +90,21 @@ describe("Plio.vue", () => {
     expect(mockAxios.get).toHaveBeenCalledWith(`/plios/${plioId}/play`);
   });
 
+  it("records the requested time for a seek driven through the test hook", async () => {
+    const createEvent = jest
+      .spyOn(Plio.methods, "createEvent")
+      .mockResolvedValue();
+    await mountWrapper();
+
+    wrapper.vm.videoSeeked(6);
+
+    expect(createEvent).toHaveBeenCalledWith(
+      "video_seeked",
+      { currentTime: 6 },
+      6
+    );
+  });
+
   describe("SAML SSO", () => {
     const apiKey = "apiKey";
     const uniqueId = "0000000000";
@@ -261,6 +276,27 @@ describe("Plio.vue", () => {
           expect(mockAxios.post).toHaveBeenCalledWith("/sessions/", {
             plio: global.dummyPublishedPlio.data.id,
           });
+        });
+
+        it("re-applies the resume position when the session resolves after the player is ready", async () => {
+          // spy must be installed before mount so the instance binds it
+          const setPlayerTime = jest
+            .spyOn(Plio.methods, "setPlayerTime")
+            .mockImplementation(() => {});
+          mockAxios.reset();
+          await mountWrapper({ loadPlio: true });
+          // the player became ready (and applied a stale 0) before the
+          // session response arrived — `player` is a computed over the
+          // child ref, so seed the child's instance
+          wrapper.vm.$refs.videoPlayer.player = { currentTime: 0 };
+
+          const sessionWithLastEvent = clonedeep(global.dummySession);
+          sessionWithLastEvent.data.last_event = { player_time: 6 };
+          mockAxios.mockResponse(sessionWithLastEvent, mockAxios.queue()[0]);
+          await flushPromises();
+
+          expect(wrapper.vm.currentTimestamp).toBe(6);
+          expect(setPlayerTime).toHaveBeenCalledWith(6);
         });
 
         it("does not create session if opened in preview mode", async () => {

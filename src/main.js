@@ -70,7 +70,7 @@ const filterBeforeCreate = (toast, toasts) => {
   return toast;
 };
 
-// using this for testcafe to access vue store
+// Playwright auth setup uses this to install the API-issued access token.
 window.__store__ = store;
 
 const app = createApp(App).use(store).use(router);
@@ -115,6 +115,11 @@ app.use(VueProgressBar, vueProgressBarOptions);
 app.use(VueClickAway);
 
 // add mixpanel as an instance property
-mixpanel.init(process.env.VUE_APP_MIXPANEL_PROJECT_TOKEN);
-app.config.globalProperties.$mixpanel = mixpanel;
+const mixpanelToken = process.env.VUE_APP_MIXPANEL_PROJECT_TOKEN;
+const noOp = () => {};
+const disabledMixpanel = new Proxy(noOp, { get: () => disabledMixpanel });
+if (mixpanelToken) mixpanel.init(mixpanelToken);
+app.config.globalProperties.$mixpanel = mixpanelToken
+  ? mixpanel
+  : disabledMixpanel;
 app.mount("#app");

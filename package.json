@@ -6,6 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build --modern",
     "test:unit": "vue-cli-service test:unit",
+    "seed:e2e": "docker compose -f ../plio-backend/docker-compose.yml exec -T web python manage.py shell < tests/e2e/seed.py",
+    "test:e2e": "playwright test",
     "lint": "vue-cli-service lint",
     "deploy": "vue-cli-service build && aws --profile plio-s3-bot --region ap-south-1 s3 sync ./dist s3://plio-frontend --delete --acl public-read",
     "build-staging": "vue-cli-service build --mode staging",
@@ -45,8 +47,7 @@
     "vuex-persistedstate": "^4.0.0-beta.3"
   },
   "devDependencies": {
-    "@browserstack/testcafe": "^1.8.6",
-    "@browserstack/testcafe-browser-provider-browserstack": "^1.13.3",
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss7-compat": "^2.0.4",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
@@ -59,6 +60,7 @@
     "autoprefixer": "^9.8.6",
     "babel-eslint": "^10.1.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
+    "dotenv": "^17.4.2",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.0.0-0",
     "jest-canvas-mock": "^2.3.1",
@@ -96,6 +98,20 @@
         ],
         "env": {
           "jest": true
+        }
+      },
+      {
+        "files": [
+          "tests/e2e/**/*.js"
+        ],
+        "rules": {
+          "no-restricted-syntax": [
+            "error",
+            {
+              "selector": "CallExpression[callee.property.name='waitForTimeout']",
+              "message": "Use Playwright auto-waiting or a response/state-based wait."
+            }
+          ]
         }
       }
     ]

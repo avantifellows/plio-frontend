@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div data-test="player-wrapper" @plio-player-state="drivePlayerState">
     <!--- plyr instance -->
     <div
       id="player"
@@ -83,6 +83,20 @@ export default {
     },
   },
   methods: {
+    drivePlayerState({ detail }) {
+      // e2e-only seam: synthetic player-state events may only drive the
+      // player in development and test builds — never in any deployed
+      // build (production, staging, or future modes)
+      if (!["development", "test"].includes(process.env.NODE_ENV)) return;
+      if (detail.action === "seek") {
+        this.player.currentTime = detail.time;
+        this.$emit("update:currentTime", detail.time);
+        this.$emit("update", detail.time);
+        this.$emit("seeked", detail.time);
+      } else if (detail.action === "play") this.$emit("play");
+      else if (detail.action === "pause") this.$emit("pause");
+      else if (detail.action === "ended") this.$emit("playback-ended");
+    },
     /**
      * creates a new instance of plyr and sets its properties
      */

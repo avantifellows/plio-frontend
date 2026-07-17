@@ -1,0 +1,357 @@
+name: Reusable Playwright E2E
+
+on:
+  workflow_call:
+    inputs:
+      trigger_role:
+        description: Repository role that triggered the run (frontend or backend)
+        required: true
+        type: string
+      trigger_ref:
+        description: Exact ref or SHA from the triggering repository
+        required: true
+        type: string
+      branch_name:
+        description: Branch name to pair across repositories
+        required: true
+        type: string
+      frontend_repository:
+        description: Frontend repository to test
+        default: avantifellows/plio-frontend
+        required: false
+        type: string
+      backend_repository:
+        description: Backend repository to test
+        default: avantifellows/plio-backend
+        required: false
+        type: string
+      quarantine_blocking:
+        description: Treat @quarantine failures as blocking
+        default: false
+        required: false
+        type: boolean
+    secrets:
+      GOOGLE_OAUTH2_CLIENT_ID:
+        required: true
+      GOOGLE_OAUTH2_CLIENT_SECRET:
+        required: true
+      GOOGLE_OAUTH2_REFRESH_TOKEN:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  pairing:
+    name: Resolve branch pairing
+    runs-on: ubuntu-latest
+    outputs:
+      frontend_ref: ${{ steps.resolve.outputs.frontend_ref }}
+      backend_ref: ${{ steps.resolve.outputs.backend_ref }}
+    steps:
+      - name: Resolve sibling branch
+        id: resolve
+        env:
+          BACKEND_REPOSITORY: ${{ inputs.backend_repository }}
+          BRANCH_NAME: ${{ inputs.branch_name }}
+          FRONTEND_REPOSITORY: ${{ inputs.frontend_repository }}
+          TRIGGER_REF: ${{ inputs.trigger_ref }}
+          TRIGGER_ROLE: ${{ inputs.trigger_role }}
+        run: |
+          set -euo pipefail
+
+          # Resolve the sibling to an immutable SHA once, so all four matrix
+          # shards (and any rerun) test the same revision even if the branch
+          # advances mid-run.
+          resolve_sha() {
+            local repository="$1" branch="$2"
+            git ls-remote --exit-code --heads \
+              "https://github.com/${repository}.git" "refs/heads/${branch}" \
+              | cut -f1
+          }
+
+          # Only "branch absent" (ls-remote exit 2) may fall back to main;
+          # transport/auth failures must fail the job rather than silently
+          # pairing against the wrong sibling revision.
+          lookup() {
+            local repository="$1" branch="$2" status=0
+            sha=$(resolve_sha "$repository" "$branch") || status=$?
+            if [ "$status" -eq 0 ]; then return 0; fi
+            if [ "$status" -eq 2 ]; then return 1; fi
+            echo "sibling lookup for ${repository}@${branch} failed (exit ${status})" >&2
+            exit 1
+          }
+
+          case "$TRIGGER_ROLE" in
+            frontend)
+              frontend_ref="$TRIGGER_REF"
+              frontend_label="$BRANCH_NAME"
+              if lookup "$BACKEND_REPOSITORY" "$BRANCH_NAME"; then
+                backend_ref="$sha"
+                backend_label="$BRANCH_NAME"
+              else
+                lookup "$BACKEND_REPOSITORY" "main"
+                backend_ref="$sha"
+                backend_label="main"
+              fi
+              ;;
+            backend)
+              backend_ref="$TRIGGER_REF"
+              backend_label="$BRANCH_NAME"
+              if lookup "$FRONTEND_REPOSITORY" "$BRANCH_NAME"; then
+                frontend_ref="$sha"
+                frontend_label="$BRANCH_NAME"
+              else
+                lookup "$FRONTEND_REPOSITORY" "main"
+                frontend_ref="$sha"
+                frontend_label="main"
+              fi
+              ;;
+            *)
+              echo "trigger_role must be frontend or backend" >&2
+              exit 1
+              ;;
+          esac
+
+          echo "frontend_ref=$frontend_ref" >> "$GITHUB_OUTPUT"
+          echo "backend_ref=$backend_ref" >> "$GITHUB_OUTPUT"
+          {
+            echo "## E2E branch pairing"
+            echo
+            echo "${FRONTEND_REPOSITORY}@${frontend_label} x ${BACKEND_REPOSITORY}@${backend_label}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  e2e:
+    name: Playwright shard ${{ matrix.shard }}/4
+    needs: pairing
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    env:
+      CI: true
+      VUE_APP_BACKEND_API_CLIENT_ID: plio-e2e-client
+      VUE_APP_BACKEND_API_CLIENT_SECRET: plio-e2e-secret
+      VUE_APP_BACKEND_AUTH_URL: http://localhost:8001/auth
+      VUE_APP_FRONTEND: http://localhost:8080
+    steps:
+      # First step, before any PR-controlled code exists on the runner:
+      # exchange the long-lived refresh token for a ~1h access token so
+      # only this step ever sees the durable credential. Later steps
+      # (npm ci, tests) get the short-lived token via GITHUB_ENV.
+      #
+      # Known boundary: for same-repo PRs this workflow definition itself
+      # comes from the PR merge ref, so a write-access author can edit
+      # this step — that matches GitHub's trust model (fork PRs get no
+      # secrets). Trusted-ref minting is tracked in plio-backend#438.
+      - name: Mint short-lived e2e Google token
+        env:
+          GOOGLE_OAUTH2_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}
+          GOOGLE_OAUTH2_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
+          GOOGLE_OAUTH2_REFRESH_TOKEN: ${{ secrets.GOOGLE_OAUTH2_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          access_token=$(curl -sf -X POST https://oauth2.googleapis.com/token \
+            -d client_id="$GOOGLE_OAUTH2_CLIENT_ID" \
+            -d client_secret="$GOOGLE_OAUTH2_CLIENT_SECRET" \
+            -d refresh_token="$GOOGLE_OAUTH2_REFRESH_TOKEN" \
+            -d grant_type=refresh_token | jq -r .access_token)
+          if [ -z "$access_token" ] || [ "$access_token" = "null" ]; then
+            echo "Google token mint failed" >&2
+            exit 1
+          fi
+          echo "::add-mask::$access_token"
+          echo "E2E_GOOGLE_ACCESS_TOKEN=$access_token" >> "$GITHUB_ENV"
+
+      - name: Check out frontend
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.frontend_repository }}
+          ref: ${{ needs.pairing.outputs.frontend_ref }}
+          path: plio-frontend
+          persist-credentials: false
+
+      - name: Check out backend
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.backend_repository }}
+          ref: ${{ needs.pairing.outputs.backend_ref }}
+          path: plio-backend
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: plio-frontend/package-lock.json
+
+      - name: Install test dependencies
+        working-directory: plio-frontend
+        run: npm ci
+
+      - name: Install Chromium
+        working-directory: plio-frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v7
+        with:
+          context: plio-frontend
+          target: development-stage
+          load: true
+          tags: plio-frontend:latest
+          cache-from: type=gha,scope=e2e-frontend
+          cache-to: type=gha,mode=max,scope=e2e-frontend,ignore-error=true
+
+      - name: Build backend image
+        uses: docker/build-push-action@v7
+        with:
+          context: plio-backend
+          load: true
+          tags: plio-backend:latest
+          build-args: REQUIREMENTS_FILE=requirements-test.txt
+          cache-from: type=gha,scope=e2e-backend
+          cache-to: type=gha,mode=max,scope=e2e-backend,ignore-error=true
+
+      # Runs after the image builds so no secret-bearing .env can land
+      # in a docker layer that cache-to persists to the GHA cache.
+      - name: Configure ephemeral stack
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
+        run: |
+          cp plio-backend/.env.example plio-backend/.env
+          cat >> plio-backend/.env <<EOF
+          SECRET_KEY=plio-e2e-django-secret
+          GOOGLE_OAUTH2_CLIENT_ID=$GOOGLE_CLIENT_ID
+          GOOGLE_OAUTH2_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET
+          DEFAULT_OAUTH2_CLIENT_SETUP=True
+          DEFAULT_OAUTH2_CLIENT_ID=$VUE_APP_BACKEND_API_CLIENT_ID
+          DEFAULT_OAUTH2_CLIENT_SECRET=$VUE_APP_BACKEND_API_CLIENT_SECRET
+          SMS_DRIVER=
+          EOF
+
+          cp plio-frontend/.env.example plio-frontend/.env
+          cat >> plio-frontend/.env <<EOF
+          VUE_APP_GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID
+          VUE_APP_BACKEND_API_CLIENT_ID=$VUE_APP_BACKEND_API_CLIENT_ID
+          VUE_APP_BACKEND_API_CLIENT_SECRET=$VUE_APP_BACKEND_API_CLIENT_SECRET
+          EOF
+
+          cat > plio-frontend/docker-compose.e2e.yml <<EOF
+          services:
+            web:
+              volumes:
+                - ./node_modules:/app/node_modules
+          EOF
+
+      - name: Start backend
+        working-directory: plio-backend
+        run: docker compose up -d --no-build
+
+      - name: Wait for backend
+        run: curl --retry 60 --retry-delay 2 --retry-all-errors http://localhost:8001/ >/dev/null
+
+      - name: Seed fresh database
+        working-directory: plio-frontend
+        run: npm run seed:e2e
+
+      - name: Start frontend
+        working-directory: plio-frontend
+        run: docker compose -f docker-compose.yml -f docker-compose.e2e.yml up -d --no-build
+
+      - name: Wait for frontend
+        run: curl --retry 60 --retry-delay 2 --retry-all-errors http://localhost:8080/ >/dev/null
+
+      - name: Run blocking Playwright shard
+        if: ${{ !inputs.quarantine_blocking }}
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-results/blocking-${{ matrix.shard }}.json
+        working-directory: plio-frontend
+        run: npx playwright test --reporter=line,json --project=chromium --project=sso --grep-invert '/@real-playback|@quarantine/' --retries=2 --workers=1 --shard=${{ matrix.shard }}/4
+
+      - name: Run quarantined Playwright specs
+        id: quarantine
+        if: ${{ !inputs.quarantine_blocking && !cancelled() }}
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-results/quarantine-${{ matrix.shard }}.json
+        working-directory: plio-frontend
+        run: npx playwright test --reporter=line,json --project=chromium --project=sso --grep @quarantine --grep-invert @real-playback --pass-with-no-tests --retries=2 --workers=1 --shard=${{ matrix.shard }}/4
+
+      - name: Summarize quarantined Playwright specs
+        if: ${{ !inputs.quarantine_blocking && always() }}
+        env:
+          QUARANTINE_OUTCOME: ${{ steps.quarantine.outcome }}
+        run: |
+          {
+            echo "## Quarantined Playwright specs"
+            echo
+            echo "Shard ${{ matrix.shard }}/4: **${QUARANTINE_OUTCOME}** (non-blocking)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run nightly Playwright shard
+        if: ${{ inputs.quarantine_blocking }}
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-results/blocking-${{ matrix.shard }}.json
+        working-directory: plio-frontend
+        run: npx playwright test --reporter=line,json --project=chromium --project=sso --grep-invert @real-playback --retries=2 --workers=1 --shard=${{ matrix.shard }}/4
+
+      - name: Upload Playwright results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results-${{ matrix.shard }}
+          path: plio-frontend/e2e-results/*.json
+          if-no-files-found: error
+
+      - name: Print stack logs on failure
+        if: failure()
+        run: |
+          docker compose -f plio-frontend/docker-compose.yml --project-directory plio-frontend logs --no-color
+          docker compose -f plio-backend/docker-compose.yml --project-directory plio-backend logs --no-color
+
+      - name: Stop ephemeral stack
+        if: always()
+        run: |
+          if [ -f plio-frontend/docker-compose.yml ]; then
+            docker compose -f plio-frontend/docker-compose.yml --project-directory plio-frontend down -v --remove-orphans
+          fi
+          if [ -f plio-backend/docker-compose.yml ]; then
+            docker compose -f plio-backend/docker-compose.yml --project-directory plio-backend down -v --remove-orphans
+          fi
+
+  journey-coverage:
+    name: Enforce 9/9 journey coverage
+    if: ${{ always() && !cancelled() }}
+    needs: [pairing, e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out frontend
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.frontend_repository }}
+          ref: ${{ needs.pairing.outputs.frontend_ref }}
+          persist-credentials: false
+
+      - name: Download Playwright results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: e2e-results-*
+          path: e2e-results
+          merge-multiple: true
+
+      - name: Enforce journey manifest
+        env:
+          FRONTEND_PAIRING: ${{ inputs.frontend_repository }}@${{ needs.pairing.outputs.frontend_ref }}
+          BACKEND_PAIRING: ${{ inputs.backend_repository }}@${{ needs.pairing.outputs.backend_ref }}
+        run: |
+          shopt -s nullglob
+          blocking=(e2e-results/blocking-*.json)
+          quarantine=(e2e-results/quarantine-*.json)
+          node scripts/checkE2EJourneys.js "${blocking[@]}" --quarantine "${quarantine[@]}"
