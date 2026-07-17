@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-// NOTE: pre-existing lint debt in this legacy spec, rule-scoped silence -- tracked for burn-down in plio-backend#436
 import SettingsUtilities from "@/services/Functional/Utilities/Settings.js";
 let clonedeep = require("lodash.clonedeep");
 
@@ -343,7 +341,7 @@ global.dummyDraftPlio = {
     },
     created_at: "2021-07-03T15:00:01.669764Z",
     updated_at: "2021-07-03T15:25:04.589996Z",
-    items: dummyItemsWithItemDetails,
+    items: global.dummyItemsWithItemDetails,
   },
 };
 
@@ -726,6 +724,6 @@ global.dummyPublishedPlio = {
     },
     created_at: "2021-07-03T15:00:01.669764Z",
     updated_at: "2021-07-03T15:25:04.589996Z",
-    items: dummyItemsWithItemDetails,
+    items: global.dummyItemsWithItemDetails,
   },
 };

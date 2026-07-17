@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-// NOTE: pre-existing lint debt in this legacy spec, rule-scoped silence -- tracked for burn-down in plio-backend#436
 import { mount, flushPromises } from "@vue/test-utils";
 import UserAPIService from "@/services/API/User.js";
 import OrganizationAPIService from "@/services/API/Organization.js";
@@ -67,6 +65,9 @@ describe("App.vue for authenticated user", () => {
         // "<div></div>", which drops the side menu (wrapped in <transition>)
         // from the rendered DOM. Render the slot so the menu buttons mount.
         stubs: { transition: { template: "<div><slot/></div>" } },
+        // caller-provided overrides (e.g. a mocked $router) — previously
+        // accepted and silently ignored
+        ...(params.global || {}),
       },
     });
 

@@ -21,6 +21,20 @@ jobs:
       - run: pip install pre-commit
       - run: pre-commit run --all-files --show-diff-on-failure
 
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: npm install
+
+      # --no-fix: report violations instead of rewriting files, so the
+      # eslint debt burned down in #436 cannot silently regrow
+      - name: Run eslint
+        run: npm run lint -- --no-fix
+
   unit-tests:
     name: Unit tests
     runs-on: ubuntu-latest

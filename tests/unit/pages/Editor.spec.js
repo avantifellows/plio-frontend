@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-// NOTE: pre-existing lint debt in this legacy spec, rule-scoped silence -- tracked for burn-down in plio-backend#436
 import { mount, flushPromises } from "@vue/test-utils";
 import mockAxios from "jest-mock-axios";
 
@@ -78,7 +76,7 @@ describe("Editor.vue", () => {
     expect(showPublishConfirmationDialogBox).toHaveBeenCalled();
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
+    await global.simulateConfirmClick();
     await flushPromises();
 
     expect(publishPlio).toHaveBeenCalled();
@@ -246,7 +244,7 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="publishButton"]').trigger("click");
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
+    await global.simulateConfirmClick();
 
     await flushPromises();
 
@@ -1204,7 +1202,7 @@ describe("Editor.vue", () => {
     });
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
+    await global.simulateConfirmClick();
 
     expect(publishPlio).toHaveBeenCalled();
     expect(updatePlioSettings).toHaveBeenCalled();
@@ -1275,7 +1273,7 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="publishButton"]').trigger("click");
 
     // simulate clicking the cancel button of the dialog box
-    await simulateCancelClick();
+    await global.simulateCancelClick();
 
     expect(togglePlioPreviewMode).toHaveBeenCalled();
   });
@@ -1297,7 +1295,7 @@ describe("Editor.vue", () => {
     await wrapper.find('[data-test="publishButton"]').trigger("click");
 
     // simulate clicking the cancel button of the dialog box
-    await simulateCancelClick();
+    await global.simulateCancelClick();
 
     expect(togglePlioPreviewMode).not.toHaveBeenCalled();
   });
@@ -1731,7 +1729,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.optionIndexToDelete).toBe(1);
 
     // simulate clicking the cancel button of the dialog box
-    await simulateCancelClick();
+    await global.simulateCancelClick();
 
     // the option index to delete must now be reset
     expect(wrapper.vm.optionIndexToDelete).toBe(-1);
@@ -1800,7 +1798,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.optionIndexToDelete).toBe(1);
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
+    await global.simulateConfirmClick();
 
     expect(deleteSelectedOption).toHaveBeenCalled();
     expect(wrapper.vm.optionIndexToDelete).toBe(-1);
@@ -1836,7 +1834,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.optionIndexToDelete).toBe(2);
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
+    await global.simulateConfirmClick();
 
     // the correct answer must now be reset
     expect(wrapper.vm.itemDetails[0].correct_answer).toBe(0);
@@ -1871,7 +1869,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.optionIndexToDelete).toBe(1);
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
+    await global.simulateConfirmClick();
 
     // the correct answer must now be reset
     expect(wrapper.vm.itemDetails[0].correct_answer).toBe(1);
@@ -1898,7 +1896,7 @@ describe("Editor.vue", () => {
 
     await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
+    await global.simulateConfirmClick();
     // correct answer should be updated and the index of the options with index
     // greater than the index of the deleted option should be decremented by 1
     expect(
@@ -1929,7 +1927,7 @@ describe("Editor.vue", () => {
 
     await inputTextWrapper.find('[data-test="endIcon"]').trigger("click");
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
+    await global.simulateConfirmClick();
     // correct answer should be reset to the first option
     expect(
       wrapper.vm.itemDetails[questionTypeIndex].correct_answer
@@ -2207,7 +2205,7 @@ describe("Editor.vue", () => {
     expect(wrapper.vm.itemUnwatchers[global.dummyItems[0].id]).toBeTruthy();
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
+    await global.simulateConfirmClick();
 
     expect(editorDeleteSelectedItem).toHaveBeenCalled();
     expect(clearItemAndItemDetailWatcher).toHaveBeenCalled();
@@ -2335,7 +2333,7 @@ describe("Editor.vue", () => {
     await store.dispatch("dialog/setDialogAction", newDialogAction);
 
     // simulate clicking the confirm button of the dialog box
-    await simulateConfirmClick();
+    await global.simulateConfirmClick();
 
     // the dialog action shouldn't have been affected and
     // the confirm click status should remain active
@@ -2363,7 +2361,7 @@ describe("Editor.vue", () => {
     await store.dispatch("dialog/setDialogAction", newDialogAction);
 
     // simulate clicking the cancel button of the dialog box
-    await simulateCancelClick();
+    await global.simulateCancelClick();
 
     // the dialog action shouldn't have been affected and
     // the cancel click status should remain active
