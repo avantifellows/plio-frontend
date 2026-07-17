@@ -6,6 +6,10 @@ const baseURL = process.env.VUE_APP_FRONTEND || "http://localhost:8080";
 
 module.exports = defineConfig({
   testDir: "./tests/e2e",
+  // Journeys share one e2e account and seeded workspaces — they are not
+  // parallel-safe. CI serializes with --workers=1 per shard; local runs
+  // must match.
+  workers: 1,
   grepInvert: process.env.GITHUB_ACTIONS ? /@real-playback/ : undefined,
   use: {
     baseURL,

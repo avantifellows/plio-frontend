@@ -34,9 +34,7 @@ describe("e2e journey coverage", () => {
       ],
     });
 
-    expect(
-      main({ manifestPath, reportPaths: [reportPath], env: {} })
-    ).toBe(1);
+    expect(main({ manifestPath, reportPaths: [reportPath], env: {} })).toBe(1);
   });
 
   it("reports a quarantined journey separately without blocking a pull request", () => {
