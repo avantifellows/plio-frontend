@@ -1,162 +1,91 @@
-## Playwright (migration in progress)
+# End-to-End Testing
 
-After the backend compose stack has booted, seed its database from the frontend
-repository root. The command is idempotent and is safe to re-run:
+The browser suite uses Playwright and covers the nine journeys declared in
+`tests/e2e/journeys.json`.
+
+## Run Locally
+
+Install dependencies, start the backend at `http://localhost:8001`, and provide
+the Google test-account credentials in the environment:
 
 ```sh
+export GOOGLE_OAUTH2_CLIENT_ID=...
+export GOOGLE_OAUTH2_CLIENT_SECRET=...
+export GOOGLE_OAUTH2_REFRESH_TOKEN="$(cat ~/.plio-e2e-refresh-token)"
 npm run seed:e2e
+npm run test:e2e
 ```
 
-The seed creates the `e2e` and `e2e-alt` workspaces, the Google test creator's
-memberships, and the learner/plio required by `sso-learner-entry`.
+`npm run seed:e2e` is idempotent. It creates the `e2e` and `e2e-alt`
+workspaces, creator memberships, and the learner/plio fixtures. The single test
+command starts the frontend on port 8080 or reuses an already-running frontend.
 
-### Quarantined specs
+Run one journey by passing its filename or title to Playwright:
 
-Add `@quarantine` to a spec's title only after flake evidence: the same commit
-failed and then passed unchanged, or CI shows intermittent failures. Pull
-requests still run quarantined specs and report their outcome, but their
-failures do not block merge. The scheduled and manually dispatched Playwright
-workflow runs the full suite with those failures blocking.
+```sh
+npm run test:e2e -- creator-golden-path
+```
 
-Remove the tag once the cause is fixed and the spec has passed unchanged in
-the nightly run. Do not quarantine a consistently failing spec; fix it.
+## Real Playback
 
-### Journey coverage
+CI drives the Player through the committed playback-state hook because hosted
+runners cannot reliably play YouTube video. Run the true video variants locally
+with the `@real-playback` tag:
 
-`tests/e2e/journeys.json` maps the nine required journeys to their Playwright
-specs. CI counts actual Playwright JSON results rather than file presence. A
-missing, skipped, or failed journey fails the coverage job.
+```sh
+npm run test:e2e -- --project=chromium --grep @real-playback
+```
 
-On pull requests, a quarantined journey is reported separately and excluded
-from the green count without blocking merge (for example, `8/9 journeys (1
-quarantined)`). Scheduled and manual runs include quarantined journeys in the
-blocking run, so only a passing result counts green. The job summary reports
-the count beside the frontend/backend branch pairing. E2E coverage is this
-journey contract; the suite does not collect Istanbul line coverage.
+The Playwright configuration enables autoplay for this local lane. These tests
+are excluded on GitHub Actions.
 
-## TestCafe
+## CI Topology
 
-This guide aims to share how TestCafe is being used in Plio for performing End-to-End (E2E) and integration tests.
+Frontend pull requests use `.github/workflows/e2e-pr.yml`; backend pull requests
+use a thin caller in `plio-backend`. Both call the reusable frontend workflow at
+`.github/workflows/e2e.yml`.
 
-#### End-to-End (E2E) Testing
+The workflow pairs the triggering branch with the same-named branch in the
+sibling repository, falling back to `main` when it does not exist. The resolved
+branch pairing is printed in the job summary. Four shards each boot an ephemeral
+frontend/backend stack with a fresh database, seed it, run Chromium, and tear it
+down. The manifest check fails unless every required journey has a green result
+and reports the count beside the pairing.
 
-End-to-End testing sits on top of integration testing. While integration testing is limited to check integration between two functional components, end-to-end testing is more focused on the whole application and integration of several components together in an end-to-end workflow.
-End-to-End testing generally mimics the user behavior on an actual browser and the actions they may take while using the application.
+## Quarantine Policy
 
-#### BrowserStack
+Add `@quarantine` to a spec title only after evidence that the same commit failed
+and later passed unchanged. Pull requests report quarantined results separately
+without blocking merge. Scheduled and manually dispatched runs treat the same
+tests as blocking.
 
-Plio uses BrowserStack to enable automated End-to-End cross-browser and cross-OS testing.
-[BrowserStack](https://www.browserstack.com/) is a cloud-based service that provides a virtual browser for testing web application. It is a free service that allows you to test your web application on a variety of devices and browsers.
-Plio's [Continuous Integration workflow](../.github/workflows/ci.yml) runs the E2E tests on the following operating systems and browsers using BrowserStack:
+Remove the tag after fixing the cause and observing a green unchanged nightly
+run. Do not quarantine a consistently failing spec. The workflow implementation
+is in [e2e.yml](../.github/workflows/e2e.yml).
 
-1. Chrome v96 (Windows 10, OSX Big Sur, OSX Catalina)
-2. Firefox v95 (Windows 10, OSX Big Sur, OSX Catalina)
-3. Edge v96 (Windows 10)
-4. Safari v14.1 (OSX Big Sur)
-5. Safari v13.1 (OSX Catalina)
+## Google Refresh Token
 
-### Pre-requisites
+The e2e secret set is only `GOOGLE_OAUTH2_CLIENT_ID`,
+`GOOGLE_OAUTH2_CLIENT_SECRET`, and `GOOGLE_OAUTH2_REFRESH_TOKEN`. Re-mint the
+refresh token after rotation or revocation; the procedure takes about five
+minutes:
 
-For login, Plio uses Google OAuth Playground Authentication to mimic the exact user behavior on Google Login functionality. Google OAuth credentials will be required to run the test cases that require login.
-
-Follow the links below one-by-one to retrieve required information from Google:
-
-1. [Google Project and Application Setup](https://docs.cypress.io/guides/testing-strategies/google-authentication#Google-Developer-Console-Setup)
-2. [Using the Google OAuth 2.0 Playground to Create Testing Credentials](https://docs.cypress.io/guides/testing-strategies/google-authentication#Using-the-Google-OAuth-2-0-Playground-to-Create-Testing-Credentials)
-
-### Installation
-
-1. Install TestCafe for BrowserStack globally:
-
-   ```sh
-   npm i -g testcafe testcafe-browser-provider-browserstack
-   ```
-
-2. Add the following env variables to your `~/.bash_profile` or `~/.zshrc` file:
-
-   ```sh
-   export BROWSERSTACK_BASE_URL="http://localhost:8080"
-   export BROWSERSTACK_USERNAME="" # Your BrowserStack username
-   export BROWSERSTACK_ACCESS_KEY="" # Your BrowserStack access key
-   export BROWSERSTACK_PROJECT_NAME="plio"
-   ```
-
-3. Once the env variables are added, restart your terminal or run one of the following command:
-   ```sh
-   source ~/.bash_profile
-   # or
-   source ~/.zshrc
-   ```
-
-### Getting started
-
-1. To run a test case locally, execute the following command from the project root folder:
+1. Open GCP project `plio-298804` ("Plio", project number `865363153324`) and
+   select the OAuth client beginning `865363153324-`. Its authorized redirect
+   URIs must include `https://developers.google.com/oauthplayground`.
+2. Confirm Google Auth Platform > Audience is **In production**.
+3. Sign into a browser as `plio.e2e.user@gmail.com`, open
+   [OAuth Playground](https://developers.google.com/oauthplayground), open the
+   settings gear, enable **Use your own OAuth credentials**, and enter the client
+   ID and secret from `plio-backend/.env`.
+4. Enter scopes
+   `https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile`,
+   authorize as the test account, exchange the authorization code, and copy the
+   refresh token.
+5. Update GitHub and the canonical local copy:
 
    ```sh
-   # syntax
-   testcafe browser ./path/to/test.spec.js
-
-   # example - run tests on a specific browser
-   testcafe chrome ./tests/integration/pages/login.spec.js
-
-   # example - run tests on multiple browsers
-   testcafe 'browserstack:chrome@96.0:OS X Big Sur','browserstack:firefox@95.0:OS X Big Sur','browserstack:safari@14.1:OS X Big Sur' ./tests/integration --skip-js-errors
+   gh secret set GOOGLE_OAUTH2_REFRESH_TOKEN -R avantifellows/plio-frontend
+   printf '%s' '<refresh-token>' > ~/.plio-e2e-refresh-token
+   chmod 600 ~/.plio-e2e-refresh-token
    ```
-
-2. To list all the browsers available, run the following command:
-
-   ```sh
-   # command to see local browsers
-   testcafe --list-browsers
-
-   # command to see BrowserStack browsers
-   testcafe -b browserstack
-   ```
-
-### Environment variables
-
-Setup the following environment variables in your `~/.bash_profile` or `~/.zshrc` file if you're trying to run testcafe locally with BrowserStack. Also, set them up on the Continuous Integration environment using GitHub secrets.
-
-#### `BROWSERSTACK_BASE_URL`
-
-The base url of the application registered with BrowserStack. Should be the frontend application URL.
-
-#### `BROWSERSTACK_USERNAME`
-
-Required to connect to your BrowserStack account. Get this information from your BrowserStack account settings.
-
-#### `BROWSERSTACK_ACCESS_KEY`
-
-Required to connect to your BrowserStack account. Get this information from your BrowserStack account settings.
-
-#### `BROWSERSTACK_PROJECT_NAME`
-
-Name of the BrowserStack project. Set to `plio`. It allows to name the build, which is useful for keeping track of test runs on the BrowserStack dashboard.
-
-#### `GOOGLE_OAUTH2_CLIENT_ID`
-
-Google refresh token retrieved in the pre-requisites.
-
-#### `GOOGLE_OAUTH2_CLIENT_SECRET`
-
-Google client ID retrieved in the pre-requisites.
-
-#### `GOOGLE_OAUTH2_REFRESH_TOKEN`
-
-Google client secret retrieved in the pre-requisites.
-
-#### `BACKEND_CONVERT_SOCIAL_AUTH_TOKEN_URL`
-
-The convert token URL in the Plio backend repo that converts the Social Auth Token and returns a valid Auth Token. By default, the value is http://0.0.0.0:8001/auth/convert-token.
-
-#### `BACKEND_DEFAULT_OAUTH2_CLIENT_ID`
-
-The client id for Plio backend application. More details in [Plio Backend ENV.md](https://github.com/avantifellows/plio-backend/blob/main/docs/ENV.md#default_oauth2_client_id).
-
-#### `BACKEND_DEFAULT_OAUTH2_CLIENT_SECRET`
-
-The client secret for Plio backend application. More details in [Plio Backend ENV.md](https://github.com/avantifellows/plio-backend/blob/main/docs/ENV.md#default_oauth2_client_secret).
-
-#### `BACKEND_SECRET_KEY`
-
-The secret key for the backend application. More details in [Plio Backend ENV.md](https://github.com/avantifellows/plio-backend/blob/main/docs/ENV.md#secret_key).

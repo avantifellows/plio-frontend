@@ -12,7 +12,7 @@ edges:
     condition: when the reasoning behind a tech choice is needed
   - target: context/conventions.md
     condition: when understanding how to use a technology in this codebase
-last_updated: 2026-07-16
+last_updated: 2026-07-17
 ---
 
 # Stack
@@ -48,4 +48,3 @@ last_updated: 2026-07-16
 ## Version Constraints
 
 - Vue CLI toolchain pins webpack-era plugin versions; upgrading any `@vue/cli-*` package should happen together, not piecemeal
-- `@browserstack/testcafe` devDependencies remain on main for the legacy e2e suite in tests/integration

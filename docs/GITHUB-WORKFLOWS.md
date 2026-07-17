@@ -21,14 +21,13 @@ The `test-cases` job inside the [CI GitHub Action](../.github/workflows/ci.yml) 
 
 
 ### End-to-End testing
-Plio uses TestCafe + BrowserStack to run end-to-end tests. Full details about how it works has been documented in [End-to-End Testing guide](./END-TO-END-TESTING.md).
+Plio uses Playwright for browser-level end-to-end journeys. Frontend pull requests,
+scheduled runs, and manual runs enter through
+[`e2e-pr.yml`](../.github/workflows/e2e-pr.yml), which calls the reusable
+[`e2e.yml`](../.github/workflows/e2e.yml) workflow. The backend repository calls
+the same reusable workflow for its pull requests.
 
-End-to-End testing requires the frontend and backend to be running and available at their respective localhost URLs. To set them up, we do the following:
-1. Clone the Plio Frontend and switch to the branch that triggered the workflow
-2. Configure environment variables using GitHub secrets
-3. Install it using `docker-compose`
-4. Repeat steps 1-3 for Plio Backend
-
-After the docker containers are up & running, the TestCafe BrowserStack plugin is installed, and then the end-to-end tests are run.
-
-For more details, see the job `End-to-End Tests` in [ci.yml](../.github/workflows/ci.yml).
+Each run resolves the matching sibling branch or falls back to `main`, starts a
+fresh frontend/backend stack, seeds it, runs four Playwright shards, and enforces
+the committed 9/9 journey manifest. See the
+[End-to-End Testing guide](./END-TO-END-TESTING.md) for local and CI usage.

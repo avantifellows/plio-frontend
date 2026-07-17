@@ -47,8 +47,6 @@
     "vuex-persistedstate": "^4.0.0-beta.3"
   },
   "devDependencies": {
-    "@browserstack/testcafe": "^1.8.6",
-    "@browserstack/testcafe-browser-provider-browserstack": "^1.13.3",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss7-compat": "^2.0.4",
     "@vue/cli-plugin-babel": "~4.5.0",

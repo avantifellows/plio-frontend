@@ -36,7 +36,7 @@ Then read this file fully before doing anything else in this session.
 
 **Not yet built:**
 
-- Backend PR caller and final TestCafe migration cleanup remain in later #380 slices
+- No #380 implementation slices remain; review and PR steps are pending
 
 **Known issues:**
 

@@ -70,7 +70,7 @@ const filterBeforeCreate = (toast, toasts) => {
   return toast;
 };
 
-// using this for testcafe to access vue store
+// Playwright auth setup uses this to install the API-issued access token.
 window.__store__ = store;
 
 const app = createApp(App).use(store).use(router);
