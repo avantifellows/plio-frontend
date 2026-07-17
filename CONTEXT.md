@@ -57,7 +57,7 @@ _Avoid_: external auth, api login
 ### Testing (decided vocabulary, map #362)
 
 **Unit suite**:
-The jest 26 + vue-test-utils suite under `tests/unit`, run with `yarn test:unit`. Deliberately kept on the frozen jest 26 toolchain — reviving it needs no build-tooling upgrade (decision #365).
+The jest 26 + vue-test-utils suite under `tests/unit`, run with `npm run test:unit`. Deliberately kept on the frozen jest 26 toolchain — reviving it needs no build-tooling upgrade (decision #365).
 _Avoid_: component tests (as a separate thing), spec suite
 
 **E2E journey**:

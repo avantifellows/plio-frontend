@@ -36,7 +36,7 @@ Then read this file fully before doing anything else in this session.
 
 **Not yet built:**
 
-- No #380 implementation slices remain; review and PR steps are pending
+- No #380 implementation slices remain; final review passed and only the PR step is pending
 
 **Known issues:**
 
