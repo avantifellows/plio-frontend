@@ -596,11 +596,18 @@ describe("App.vue for authenticated user", () => {
 
     describe("workspace selected", () => {
       let hideSelector;
+      let mockRouter;
+      let windowOpen;
       beforeEach(async () => {
         mockAxios.reset();
         hideSelector = jest.spyOn(App.methods, "hideSelector");
-        const mockRouter = {
+        windowOpen = jest.spyOn(window, "open").mockImplementation(() => null);
+        // the success path resolves a Home route and opens it in a new
+        // tab — the mock must support both, so the test exercises the
+        // real success handler instead of falling into .catch()
+        mockRouter = {
           push: jest.fn(),
+          resolve: jest.fn(() => ({ href: "/resolved-home-href" })),
         };
         await mountWrapper({
           global: {
@@ -633,6 +640,17 @@ describe("App.vue for authenticated user", () => {
 
         // the selector is closed once all requests are resolved
         expect(hideSelector).toHaveBeenCalled();
+
+        // the success handler resolves the destination workspace's Home
+        // route and opens it in a new tab
+        expect(mockRouter.resolve).toHaveBeenCalledWith({
+          name: "Home",
+          params: { workspace: selectorOptions[selectedOptionIndex].value },
+        });
+        expect(windowOpen).toHaveBeenCalledWith(
+          "/resolved-home-href",
+          "_blank"
+        );
       });
 
       it("stops spinner if error on copying plio to another workspace", async () => {
