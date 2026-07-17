@@ -47,19 +47,35 @@ async function completeJourney(
   if (await languagePicker.isVisible()) await languagePicker.click();
 
   await advanceToQuestion(page);
-  await expect(page.locator('[data-test="questionText"]')).toHaveText(
-    journey.questions[0].text
-  );
 
-  await page.locator('[data-test="optionSelector-1"]').click();
+  // late player-init timeupdates can close the item modal on slow runners
+  // (checkForPopups closes any modal outside an item window), detaching
+  // buttons mid-click. Re-driving the advance reopens the item —
+  // checkItemPopup is purely time-window based, answered or not — so each
+  // phase retries from a re-opened modal until its click lands.
+  const questionText = page.locator('[data-test="questionText"]');
+  const proceedButton = page.locator('[data-test="proceedButton"]');
   const answerResponse = page.waitForResponse(
     (response) =>
       new URL(response.url()).pathname.includes("/api/v1/session-answers/") &&
       response.request().method() === "PUT"
   );
-  await page.locator('[data-test="submitButton"]').click();
+  await expect(async () => {
+    if (await proceedButton.isVisible()) return; // answer already submitted
+    if (!(await questionText.isVisible())) await advanceToQuestion(page);
+    await expect(questionText).toHaveText(journey.questions[0].text, {
+      timeout: 2000,
+    });
+    await page
+      .locator('[data-test="optionSelector-1"]')
+      .click({ timeout: 2000 });
+    await page.locator('[data-test="submitButton"]').click({ timeout: 2000 });
+  }).toPass({ timeout: 45000 });
   expect((await answerResponse).ok()).toBe(true);
-  await page.locator('[data-test="proceedButton"]').click();
+  await expect(async () => {
+    if (!(await proceedButton.isVisible())) await advanceToQuestion(page);
+    await proceedButton.click({ timeout: 2000 });
+  }).toPass({ timeout: 30000 });
 
   await finishPlayback(page);
   const scorecard = page.locator("#scorecardmodal");

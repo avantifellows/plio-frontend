@@ -70,24 +70,40 @@ jobs:
               | cut -f1
           }
 
+          # Only "branch absent" (ls-remote exit 2) may fall back to main;
+          # transport/auth failures must fail the job rather than silently
+          # pairing against the wrong sibling revision.
+          lookup() {
+            local repository="$1" branch="$2" status=0
+            sha=$(resolve_sha "$repository" "$branch") || status=$?
+            if [ "$status" -eq 0 ]; then return 0; fi
+            if [ "$status" -eq 2 ]; then return 1; fi
+            echo "sibling lookup for ${repository}@${branch} failed (exit ${status})" >&2
+            exit 1
+          }
+
           case "$TRIGGER_ROLE" in
             frontend)
               frontend_ref="$TRIGGER_REF"
               frontend_label="$BRANCH_NAME"
-              if backend_ref=$(resolve_sha "$BACKEND_REPOSITORY" "$BRANCH_NAME"); then
+              if lookup "$BACKEND_REPOSITORY" "$BRANCH_NAME"; then
+                backend_ref="$sha"
                 backend_label="$BRANCH_NAME"
               else
-                backend_ref=$(resolve_sha "$BACKEND_REPOSITORY" "main")
+                lookup "$BACKEND_REPOSITORY" "main"
+                backend_ref="$sha"
                 backend_label="main"
               fi
               ;;
             backend)
               backend_ref="$TRIGGER_REF"
               backend_label="$BRANCH_NAME"
-              if frontend_ref=$(resolve_sha "$FRONTEND_REPOSITORY" "$BRANCH_NAME"); then
+              if lookup "$FRONTEND_REPOSITORY" "$BRANCH_NAME"; then
+                frontend_ref="$sha"
                 frontend_label="$BRANCH_NAME"
               else
-                frontend_ref=$(resolve_sha "$FRONTEND_REPOSITORY" "main")
+                lookup "$FRONTEND_REPOSITORY" "main"
+                frontend_ref="$sha"
                 frontend_label="main"
               fi
               ;;
