@@ -31,7 +31,11 @@ describe("e2e journey coverage", () => {
       suites: [
         {
           file: "journeys/auth-google-login.spec.js",
-          specs: [{ tests: [{ status: "skipped" }] }],
+          specs: [
+            {
+              tests: [{ status: "skipped", results: [] }],
+            },
+          ],
         },
       ],
     });
@@ -55,7 +59,13 @@ describe("e2e journey coverage", () => {
       suites: [
         {
           file: "journeys/auth-google-login.spec.js",
-          specs: [{ tests: [{ status: "unexpected" }] }],
+          specs: [
+            {
+              tests: [
+                { status: "unexpected", results: [{ status: "failed" }] },
+              ],
+            },
+          ],
         },
       ],
     });
@@ -84,7 +94,11 @@ describe("e2e journey coverage", () => {
       suites: [
         {
           file: "journeys/auth-google-login.spec.js",
-          specs: [{ tests: [{ status: "expected" }] }],
+          specs: [
+            {
+              tests: [{ status: "expected", results: [{ status: "passed" }] }],
+            },
+          ],
         },
       ],
     });
@@ -116,7 +130,11 @@ describe("e2e journey coverage", () => {
       suites: [
         {
           file: "journeys/auth-google-login.spec.js",
-          specs: [{ tests: [{ status: "expected" }] }],
+          specs: [
+            {
+              tests: [{ status: "expected", results: [{ status: "passed" }] }],
+            },
+          ],
         },
       ],
     });
@@ -134,7 +152,13 @@ describe("e2e journey coverage", () => {
       suites: [
         {
           file: "journeys/learner-resume.spec.js",
-          specs: [{ tests: [{ status: "unexpected" }] }],
+          specs: [
+            {
+              tests: [
+                { status: "unexpected", results: [{ status: "failed" }] },
+              ],
+            },
+          ],
         },
       ],
     });
@@ -142,7 +166,11 @@ describe("e2e journey coverage", () => {
       suites: [
         {
           file: "journeys/learner-resume.spec.js",
-          specs: [{ tests: [{ status: "expected" }] }],
+          specs: [
+            {
+              tests: [{ status: "expected", results: [{ status: "passed" }] }],
+            },
+          ],
         },
       ],
     });
@@ -168,7 +196,45 @@ describe("e2e journey coverage", () => {
       suites: [
         {
           file: "journeys/auth-google-login.spec.js",
-          specs: [{ tests: [{ status: "expected" }] }],
+          specs: [
+            {
+              tests: [{ status: "expected", results: [{ status: "passed" }] }],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(
+      main({
+        manifestPath,
+        reportPaths: [reportPath],
+        env: {},
+        requiredCount: 1,
+      })
+    ).toBe(1);
+  });
+
+  it("fails when a journey only passes as an expected failure (test.fail())", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-journeys-"));
+    const manifestPath = writeJson(dir, "manifest.json", {
+      "auth-google-login": "journeys/auth-google-login.spec.js",
+    });
+    const reportPath = writeJson(dir, "report.json", {
+      suites: [
+        {
+          file: "journeys/auth-google-login.spec.js",
+          specs: [
+            {
+              tests: [
+                {
+                  status: "expected",
+                  expectedStatus: "failed",
+                  results: [{ status: "failed" }],
+                },
+              ],
+            },
+          ],
         },
       ],
     });

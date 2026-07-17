@@ -8,7 +8,16 @@ const REQUIRED_JOURNEY_COUNT = 9;
 function statuses(suite) {
   return [
     ...(suite.specs || []).flatMap((spec) =>
-      spec.tests.map((test) => test.status)
+      spec.tests.map((test) => {
+        // test.fail() reports aggregate status "expected" while the actual
+        // run failed — only a genuinely passing final result counts green
+        const results = test.results || [];
+        const lastResult = results[results.length - 1];
+        return ["expected", "flaky"].includes(test.status) &&
+          lastResult?.status !== "passed"
+          ? "expected-but-not-passed"
+          : test.status;
+      })
     ),
     ...(suite.suites || []).flatMap(statuses),
   ];
