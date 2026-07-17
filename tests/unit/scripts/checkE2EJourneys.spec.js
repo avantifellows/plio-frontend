@@ -124,4 +124,62 @@ describe("e2e journey coverage", () => {
     // every journey green, but the default required count (9) is not met
     expect(main({ manifestPath, reportPaths: [reportPath], env: {} })).toBe(1);
   });
+
+  it("fails when a file's blocking tests fail even if it also has quarantined tests", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-journeys-"));
+    const manifestPath = writeJson(dir, "manifest.json", {
+      "learner-resume": "journeys/learner-resume.spec.js",
+    });
+    const reportPath = writeJson(dir, "report.json", {
+      suites: [
+        {
+          file: "journeys/learner-resume.spec.js",
+          specs: [{ tests: [{ status: "unexpected" }] }],
+        },
+      ],
+    });
+    const quarantineReportPath = writeJson(dir, "quarantine.json", {
+      suites: [
+        {
+          file: "journeys/learner-resume.spec.js",
+          specs: [{ tests: [{ status: "expected" }] }],
+        },
+      ],
+    });
+
+    expect(
+      main({
+        manifestPath,
+        reportPaths: [reportPath],
+        quarantineReportPaths: [quarantineReportPath],
+        env: {},
+        requiredCount: 1,
+      })
+    ).toBe(1);
+  });
+
+  it("rejects duplicate manifest targets that would inflate the count", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-journeys-"));
+    const manifestPath = writeJson(dir, "manifest.json", {
+      "auth-google-login": "journeys/auth-google-login.spec.js",
+      "learner-resume": "journeys/auth-google-login.spec.js",
+    });
+    const reportPath = writeJson(dir, "report.json", {
+      suites: [
+        {
+          file: "journeys/auth-google-login.spec.js",
+          specs: [{ tests: [{ status: "expected" }] }],
+        },
+      ],
+    });
+
+    expect(
+      main({
+        manifestPath,
+        reportPaths: [reportPath],
+        env: {},
+        requiredCount: 1,
+      })
+    ).toBe(1);
+  });
 });

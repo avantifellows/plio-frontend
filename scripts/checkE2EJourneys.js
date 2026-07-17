@@ -46,6 +46,19 @@ function main({
   requiredCount = REQUIRED_JOURNEY_COUNT,
 } = {}) {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+  const targets = Object.values(manifest);
+  if (new Set(targets).size !== targets.length) {
+    const duplicated = `journey manifest maps multiple keys to the same spec file — every journey needs its own spec, duplicates cannot inflate the count`;
+    if (env.GITHUB_STEP_SUMMARY) {
+      fs.appendFileSync(
+        env.GITHUB_STEP_SUMMARY,
+        `## E2E journey coverage\n\n${duplicated}\n`
+      );
+    }
+    // eslint-disable-next-line no-console
+    console.log(duplicated);
+    return 1;
+  }
   if (Object.keys(manifest).length < requiredCount) {
     const shrunk = `journey manifest lists ${
       Object.keys(manifest).length
@@ -63,10 +76,14 @@ function main({
   const results = readResults(reportPaths);
   const quarantineResults = readResults(quarantineReportPaths);
   const files = Object.values(manifest);
-  const quarantined = files.filter((file) => quarantineResults.has(file));
+  // a file counts as quarantined only when it has NO blocking results —
+  // if it also ran blocking tests, those must still pass
+  const quarantined = files.filter(
+    (file) => quarantineResults.has(file) && !results.has(file)
+  );
   const green = files.filter(
     (file) =>
-      !quarantineResults.has(file) &&
+      !quarantined.includes(file) &&
       results.get(file)?.length &&
       results
         .get(file)

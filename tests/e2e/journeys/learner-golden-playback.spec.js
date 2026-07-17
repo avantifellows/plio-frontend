@@ -32,8 +32,17 @@ async function completeJourney(
 ) {
   const plio = await provisionPublishedPlio({ page, request, input: journey });
 
+  // the app POSTs the learner session asynchronously after mount; driving
+  // playback before it resolves races session-answer submission
+  const sessionCreated = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname.includes("/api/v1/sessions/") &&
+      response.request().method() === "POST" &&
+      response.ok()
+  );
   await page.goto(`/play/${plio.uuid}`);
   await expect(page.locator(`#plio${plio.uuid} .plyr`)).toBeVisible();
+  await sessionCreated;
   const languagePicker = page.locator('[data-test="languagePicker-en"]');
   if (await languagePicker.isVisible()) await languagePicker.click();
 

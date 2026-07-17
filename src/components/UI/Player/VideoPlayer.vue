@@ -84,9 +84,10 @@ export default {
   },
   methods: {
     drivePlayerState({ detail }) {
-      // e2e-only seam: never allow synthetic player-state events to drive
-      // learner sessions in production builds
-      if (process.env.NODE_ENV === "production") return;
+      // e2e-only seam: synthetic player-state events may only drive the
+      // player in development and test builds — never in any deployed
+      // build (production, staging, or future modes)
+      if (!["development", "test"].includes(process.env.NODE_ENV)) return;
       if (detail.action === "seek") {
         this.player.currentTime = detail.time;
         this.$emit("update:currentTime", detail.time);
