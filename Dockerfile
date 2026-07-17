@@ -2,8 +2,11 @@
 # FROM node:lts-alpine as base-stage
 FROM node:16-alpine as base-stage
 WORKDIR /app
-COPY package.json ./
+COPY package.json package-lock.json ./
 # install dependencies for npm run test:unit
+# the lockfile must be present so npm resolves the pinned dependency tree —
+# a bare package.json resolve pulls latest in-range versions (e.g. plyr 3.8.x
+# is ESM-only and unresolvable by webpack 4, breaking npm run build)
 RUN apk --no-cache --virtual tmp add python3 make g++ && npm install && apk del tmp
 
 # development stage
