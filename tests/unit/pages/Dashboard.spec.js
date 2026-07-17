@@ -1,7 +1,4 @@
-/* eslint-disable no-unused-vars */
-// NOTE: pre-existing lint debt in this legacy spec, rule-scoped silence -- tracked for burn-down in plio-backend#436
 import { mount, flushPromises } from "@vue/test-utils";
-import PlioAPIService from "@/services/API/Plio.js";
 import mockAxios from "jest-mock-axios";
 
 import Dashboard from "@/pages/Dashboard.vue";

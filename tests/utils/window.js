@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-// NOTE: pre-existing lint debt in this legacy spec, rule-scoped silence -- tracked for burn-down in plio-backend#436
 global.setMatchMedia = (value) => {
   Object.defineProperty(window, "matchMedia", {
     writable: true,

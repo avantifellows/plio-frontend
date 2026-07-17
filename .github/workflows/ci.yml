@@ -21,6 +21,22 @@ jobs:
       - run: pip install pre-commit
       - run: pre-commit run --all-files --show-diff-on-failure
 
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: npm install
+
+      # --no-fix: report violations instead of rewriting files, so the
+      # eslint debt burned down in #436 cannot silently regrow. Paths are
+      # explicit because Vue CLI's default scan skips scripts/ and
+      # __mocks__/ despite both being tracked, linted JavaScript.
+      - name: Run eslint
+        run: npm run lint -- --no-fix src tests scripts __mocks__ ./*.js
+
   unit-tests:
     name: Unit tests
     runs-on: ubuntu-latest

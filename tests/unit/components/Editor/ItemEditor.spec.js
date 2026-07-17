@@ -1,5 +1,3 @@
-/* eslint-disable no-unexpected-multiline */
-// NOTE: pre-existing lint debt in this legacy spec, rule-scoped silence -- tracked for burn-down in plio-backend#436
 import { mount, flushPromises } from "@vue/test-utils";
 import ItemEditor from "@/components/Editor/ItemEditor";
 let clonedeep = require("lodash.clonedeep");
@@ -172,7 +170,8 @@ describe("ItemEditor.vue", () => {
       const correctOptionIndex = 1;
       await wrapper
         .findAll('[data-test="option"]')
-        [correctOptionIndex].find('[data-test="startIcon"]')
+        .at(correctOptionIndex)
+        .find('[data-test="startIcon"]')
         .trigger("click");
       expect(wrapper.vm.localItemDetailList[0].correct_answer).toBe(
         correctOptionIndex
@@ -329,7 +328,8 @@ describe("ItemEditor.vue", () => {
       const correctOptionIndex = 0;
       await wrapper
         .findAll('[data-test="option"]')
-        [correctOptionIndex].find('[data-test="startIcon"]')
+        .at(correctOptionIndex)
+        .find('[data-test="startIcon"]')
         .trigger("click");
       expect(wrapper.vm.localItemDetailList[0].correct_answer).toStrictEqual([
         correctOptionIndex,
@@ -339,7 +339,8 @@ describe("ItemEditor.vue", () => {
       const newCorrectOptionIndex = 1;
       await wrapper
         .findAll('[data-test="option"]')
-        [newCorrectOptionIndex].find('[data-test="startIcon"]')
+        .at(newCorrectOptionIndex)
+        .find('[data-test="startIcon"]')
         .trigger("click");
       expect(wrapper.vm.localItemDetailList[0].correct_answer).toStrictEqual([
         correctOptionIndex,
@@ -352,7 +353,8 @@ describe("ItemEditor.vue", () => {
       const correctOptionIndex = 0;
       await wrapper
         .findAll('[data-test="option"]')
-        [correctOptionIndex].find('[data-test="startIcon"]')
+        .at(correctOptionIndex)
+        .find('[data-test="startIcon"]')
         .trigger("click");
 
       await wrapper
@@ -363,7 +365,8 @@ describe("ItemEditor.vue", () => {
       // re-selecting first option should reset it
       await wrapper
         .findAll('[data-test="option"]')
-        [correctOptionIndex].find('[data-test="startIcon"]')
+        .at(correctOptionIndex)
+        .find('[data-test="startIcon"]')
         .trigger("click");
 
       expect(wrapper.vm.localItemDetailList[0].correct_answer).toStrictEqual([
@@ -376,13 +379,15 @@ describe("ItemEditor.vue", () => {
       const correctOptionIndex = 0;
       await wrapper
         .findAll('[data-test="option"]')
-        [correctOptionIndex].find('[data-test="startIcon"]')
+        .at(correctOptionIndex)
+        .find('[data-test="startIcon"]')
         .trigger("click");
 
       // re-selecting first option should reset it
       await wrapper
         .findAll('[data-test="option"]')
-        [correctOptionIndex].find('[data-test="startIcon"]')
+        .at(correctOptionIndex)
+        .find('[data-test="startIcon"]')
         .trigger("click");
 
       expect(wrapper.vm.localItemDetailList[0].correct_answer).toStrictEqual([
