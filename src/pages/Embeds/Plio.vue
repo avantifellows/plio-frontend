@@ -1072,12 +1072,6 @@ export default {
         // reset the user to where they left off if they are returning
         if (sessionDetails.last_event != null) {
           this.currentTimestamp = sessionDetails.last_event.player_time;
-          // the player can become ready before this response arrives
-          // (fast player, slow network) — playerReady has then already
-          // applied a stale 0; re-apply unless the learner moved on
-          if (this.player != null && this.player.currentTime < 1) {
-            this.setPlayerTime(this.currentTimestamp);
-          }
         }
 
         // if this is the first session for this plio-user combination
@@ -1123,6 +1117,17 @@ export default {
             this.currentTimestamp =
               this.firstUnansweredItem.time - POP_UP_CHECKING_FREQUENCY;
           }
+        }
+        // the player can become ready before this response arrives (fast
+        // player, slow network) — playerReady has then already applied a
+        // stale 0. Re-apply the resume position only now that the no-skip
+        // clamp has finalized it, and only if the learner hasn't moved on.
+        if (
+          sessionDetails.last_event != null &&
+          this.player != null &&
+          this.player.currentTime < 1
+        ) {
+          this.setPlayerTime(this.currentTimestamp);
         }
         // once itemResponses is full, calculate all the scorecard metrics
         this.calculateScorecardMetrics();

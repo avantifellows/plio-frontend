@@ -14,7 +14,10 @@ jobs:
     uses: ./.github/workflows/e2e.yml
     with:
       trigger_role: frontend
-      trigger_ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      # github.sha is the PR merge commit on pull_request events (so we
+      # test what would actually land) and the branch head on
+      # schedule/dispatch runs
+      trigger_ref: ${{ github.sha }}
       branch_name: ${{ github.head_ref || github.ref_name }}
       quarantine_blocking: ${{ github.event_name != 'pull_request' }}
     secrets:
