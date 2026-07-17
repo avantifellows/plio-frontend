@@ -131,14 +131,34 @@ jobs:
         shard: [1, 2, 3, 4]
     env:
       CI: true
-      GOOGLE_OAUTH2_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}
-      GOOGLE_OAUTH2_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
-      GOOGLE_OAUTH2_REFRESH_TOKEN: ${{ secrets.GOOGLE_OAUTH2_REFRESH_TOKEN }}
       VUE_APP_BACKEND_API_CLIENT_ID: plio-e2e-client
       VUE_APP_BACKEND_API_CLIENT_SECRET: plio-e2e-secret
       VUE_APP_BACKEND_AUTH_URL: http://localhost:8001/auth
       VUE_APP_FRONTEND: http://localhost:8080
     steps:
+      # First step, before any PR-controlled code exists on the runner:
+      # exchange the long-lived refresh token for a ~1h access token so
+      # only this step ever sees the durable credential. Later steps
+      # (npm ci, tests) get the short-lived token via GITHUB_ENV.
+      - name: Mint short-lived e2e Google token
+        env:
+          GOOGLE_OAUTH2_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}
+          GOOGLE_OAUTH2_CLIENT_SECRET: ${{ secrets.GOOGLE_OAUTH2_CLIENT_SECRET }}
+          GOOGLE_OAUTH2_REFRESH_TOKEN: ${{ secrets.GOOGLE_OAUTH2_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          access_token=$(curl -sf -X POST https://oauth2.googleapis.com/token \
+            -d client_id="$GOOGLE_OAUTH2_CLIENT_ID" \
+            -d client_secret="$GOOGLE_OAUTH2_CLIENT_SECRET" \
+            -d refresh_token="$GOOGLE_OAUTH2_REFRESH_TOKEN" \
+            -d grant_type=refresh_token | jq -r .access_token)
+          if [ -z "$access_token" ] || [ "$access_token" = "null" ]; then
+            echo "Google token mint failed" >&2
+            exit 1
+          fi
+          echo "::add-mask::$access_token"
+          echo "E2E_GOOGLE_ACCESS_TOKEN=$access_token" >> "$GITHUB_ENV"
+
       - name: Check out frontend
         uses: actions/checkout@v4
         with:

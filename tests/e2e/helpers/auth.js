@@ -2,14 +2,18 @@ const path = require("path");
 
 const authFile = path.resolve("playwright/.auth/user.json");
 
-async function getPlioAccessToken(request) {
+async function mintGoogleAccessToken(request) {
+  // In CI the workflow mints a short-lived access token in an isolated
+  // step so the long-lived refresh token is never exposed to PR-controlled
+  // code (npm scripts, tests). Locally we fall back to the refresh grant.
+  if (process.env.E2E_GOOGLE_ACCESS_TOKEN) {
+    return process.env.E2E_GOOGLE_ACCESS_TOKEN;
+  }
+
   const requiredEnv = [
     "GOOGLE_OAUTH2_CLIENT_ID",
     "GOOGLE_OAUTH2_CLIENT_SECRET",
     "GOOGLE_OAUTH2_REFRESH_TOKEN",
-    "VUE_APP_BACKEND_AUTH_URL",
-    "VUE_APP_BACKEND_API_CLIENT_ID",
-    "VUE_APP_BACKEND_API_CLIENT_SECRET",
   ];
   const missingEnv = requiredEnv.filter((name) => !process.env[name]);
   if (missingEnv.length) {
@@ -33,7 +37,24 @@ async function getPlioAccessToken(request) {
     throw new Error(`Google token mint failed with ${googleResponse.status()}`);
   }
 
-  const { access_token: googleAccessToken } = await googleResponse.json();
+  const { access_token: accessToken } = await googleResponse.json();
+  return accessToken;
+}
+
+async function getPlioAccessToken(request) {
+  const requiredEnv = [
+    "VUE_APP_BACKEND_AUTH_URL",
+    "VUE_APP_BACKEND_API_CLIENT_ID",
+    "VUE_APP_BACKEND_API_CLIENT_SECRET",
+  ];
+  const missingEnv = requiredEnv.filter((name) => !process.env[name]);
+  if (missingEnv.length) {
+    throw new Error(
+      `Missing e2e environment variables: ${missingEnv.join(", ")}`
+    );
+  }
+
+  const googleAccessToken = await mintGoogleAccessToken(request);
   const convertResponse = await request.post(
     `${process.env.VUE_APP_BACKEND_AUTH_URL}/convert-token/`,
     {
