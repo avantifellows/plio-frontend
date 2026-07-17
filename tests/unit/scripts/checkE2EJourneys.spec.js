@@ -277,4 +277,45 @@ describe("e2e journey coverage", () => {
       })
     ).toBe(1);
   });
+
+  it("fails when a mixed file's quarantined test is skipped even if blocking tests pass", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-journeys-"));
+    const manifestPath = writeJson(dir, "manifest.json", {
+      "creator-golden-path": "journeys/creator-golden-path.spec.js",
+    });
+    const reportPath = writeJson(dir, "report.json", {
+      suites: [
+        {
+          file: "journeys/creator-golden-path.spec.js",
+          specs: [
+            {
+              tests: [{ status: "expected", results: [{ status: "passed" }] }],
+            },
+          ],
+        },
+      ],
+    });
+    const quarantineReportPath = writeJson(dir, "quarantine.json", {
+      suites: [
+        {
+          file: "journeys/creator-golden-path.spec.js",
+          specs: [
+            {
+              tests: [{ status: "skipped", results: [] }],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(
+      main({
+        manifestPath,
+        reportPaths: [reportPath],
+        quarantineReportPaths: [quarantineReportPath],
+        env: {},
+        requiredCount: 1,
+      })
+    ).toBe(1);
+  });
 });

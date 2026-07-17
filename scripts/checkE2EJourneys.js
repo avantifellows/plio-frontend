@@ -97,14 +97,29 @@ function main({
       !results.has(file)
     );
   });
-  const green = files.filter(
-    (file) =>
-      !quarantined.includes(file) &&
-      results.get(file)?.length &&
-      results
-        .get(file)
-        .every((status) => ["expected", "flaky"].includes(status))
-  );
+  const green = files.filter((file) => {
+    if (quarantined.includes(file)) return false;
+    const blockingStatuses = results.get(file);
+    if (!blockingStatuses?.length) return false;
+    if (
+      !blockingStatuses.every((status) =>
+        ["expected", "flaky"].includes(status)
+      )
+    ) {
+      return false;
+    }
+    // a skipped/fixme-only quarantine result means a quarantined test in
+    // this file never executed — passing blocking tests alone don't make
+    // the journey fully covered
+    const quarantineStatuses = quarantineResults.get(file);
+    if (
+      quarantineStatuses?.length &&
+      quarantineStatuses.every((status) => status === "skipped")
+    ) {
+      return false;
+    }
+    return true;
+  });
   const missing = files.filter(
     (file) => !green.includes(file) && !quarantined.includes(file)
   );
