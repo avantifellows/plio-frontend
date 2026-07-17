@@ -296,7 +296,7 @@ export default {
       // check the customWebhookSettings object. It has a `enabledEvents` array. This contains strings which will match the `code` property of the webhookEvents object.
       // Go through all the enabledEvents elements and for each element, set the `isSelected` property of the corresponding localWebhookEvents object to true.
       if (
-        "value" in this.customWebhookSettings && 
+        "value" in this.customWebhookSettings &&
         "enabledEvents" in this.customWebhookSettings.value
       ) {
         this.customWebhookSettings.value.enabledEvents.forEach((eventCode) => {
@@ -402,7 +402,7 @@ export default {
     clickTab(tabCodeName) {
       if (this.currentSelectedEventTab === tabCodeName) {
         this.currentSelectedEventTab = null;
-        
+
       }
       else this.currentSelectedEventTab = tabCodeName;
     },

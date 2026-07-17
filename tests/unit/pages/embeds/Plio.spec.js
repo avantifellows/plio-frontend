@@ -35,6 +35,7 @@ const mountWrapper = async (
     data() {
       return params.data;
     },
+    ...(params.global != undefined ? { global: params.global } : {}),
   });
   await flushPromises();
 
@@ -376,8 +377,6 @@ describe("Plio.vue", () => {
       });
     });
     describe("submitting question", () => {
-      let createEvent;
-
       const setupWrapper = async (params = { currentItemIndex: 0 }) => {
         await mountWrapper({
           loadPlio: true,
@@ -385,18 +384,27 @@ describe("Plio.vue", () => {
             currentItemIndex: params.currentItemIndex,
             itemResponses: clonedeep(global.dummyItemResponses),
           },
+          // the item modal is wrapped in <transition>, which the global jest stub
+          // renders without its slot; render the slot locally so the modal (and its
+          // "submit-question" emit) is observable at this seam
+          global: {
+            stubs: {
+              transition: { template: "<div><slot /></div>" },
+            },
+          },
         });
       };
 
       beforeEach(async () => {
-        createEvent = jest.spyOn(Plio.methods, "createEvent");
         await setupWrapper();
       });
 
       it("does not make an API call if the user is not authenticated", async () => {
         wrapper.vm.$refs.plioModal.$emit("submit-question");
+        // unauthenticated: no session-answer is saved and no event is created,
+        // observed at the mocked transport
         expect(mockAxios.put).not.toHaveBeenCalled();
-        expect(createEvent).not.toHaveBeenCalled();
+        expect(mockAxios.post).not.toHaveBeenCalled();
       });
 
       it("does not make an API call if in preview mode", async () => {
@@ -404,8 +412,10 @@ describe("Plio.vue", () => {
           previewMode: true,
         });
         wrapper.vm.$refs.plioModal.$emit("submit-question");
+        // preview mode: no session-answer is saved and no event is created,
+        // observed at the mocked transport
         expect(mockAxios.put).not.toHaveBeenCalled();
-        expect(createEvent).not.toHaveBeenCalled();
+        expect(mockAxios.post).not.toHaveBeenCalled();
       });
 
       describe("for authenticated user", () => {
@@ -417,40 +427,47 @@ describe("Plio.vue", () => {
             previewMode: true,
           });
           wrapper.vm.$refs.plioModal.$emit("submit-question");
+          // authenticated but in preview mode: no session-answer is saved and no
+          // event is created, observed at the mocked transport
           expect(mockAxios.put).not.toHaveBeenCalled();
-          expect(createEvent).not.toHaveBeenCalled();
+          expect(mockAxios.post).not.toHaveBeenCalled();
         });
         it("makes an API call in non-preview mode", async () => {
-          const showItemMarkersOnSlider = jest.spyOn(
-            Plio.methods,
-            "showItemMarkersOnSlider"
-          );
-          const calculateScorecardMetrics = jest.spyOn(
-            Plio.methods,
-            "calculateScorecardMetrics"
-          );
+          // spy at the createEvent method seam (the suite's established
+          // pattern -- plyr's currentTime getter cannot run in jsdom): a
+          // submitQuestion that stops recording the event fails here
+          const createEvent = jest
+            .spyOn(Plio.methods, "createEvent")
+            .mockResolvedValue();
+          // re-mount now that the user is authenticated so the session-answer
+          // save path is active
           await setupWrapper();
           wrapper.vm.$refs.plioModal.$emit("submit-question");
-          expect(mockAxios.put).toHaveBeenCalled();
-          expect(createEvent).toHaveBeenCalled();
-          expect(showItemMarkersOnSlider).toHaveBeenCalled();
-          expect(calculateScorecardMetrics).toHaveBeenCalled();
+          // authenticated and not in preview: the current item's response is saved
+          // to the server (currentItemIndex 0 -> session-answer id 1 in the fixture)
+          expect(mockAxios.put).toHaveBeenCalledWith(
+            "/session-answers/1",
+            global.dummyItemResponses[0]
+          );
+          // ...and the submit action itself records a question_answered event
+          // carrying the submitted answer
+          expect(createEvent).toHaveBeenCalledWith("question_answered", {
+            itemIndex: 0,
+            answer: global.dummyItemResponses[0].answer,
+          });
         });
-        it("converts checkbox answers from set to array", async () => {
+        it("saves a checkbox answer as an array to the session-answer endpoint", async () => {
           const currentItemIndex = 4;
           await setupWrapper({
             currentItemIndex: currentItemIndex,
           });
           wrapper.vm.$refs.plioModal.$emit("submit-question");
-          let expectedItemResponse = clonedeep(
-            global.dummyItemResponses[currentItemIndex]
-          );
-          expectedItemResponse["answer"] = Array.from(
-            expectedItemResponse["answer"]
-          );
+          // checkbox answers are stored and sent as arrays (the set<->array
+          // conversion was removed in f53b6230); currentItemIndex 4 -> session-answer
+          // id 5 in the fixture, whose answer is already the array [0, 1]
           expect(mockAxios.put).toHaveBeenCalledWith(
             "/session-answers/5",
-            expectedItemResponse
+            global.dummyItemResponses[currentItemIndex]
           );
         });
       });

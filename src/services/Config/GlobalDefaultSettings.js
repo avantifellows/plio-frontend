@@ -40,7 +40,8 @@ export const webhookEvents = [
     displayName: "User Authenticated",
     code: "user_authenticated",
     isSelected: false,
-    description: "This event is triggered when a user is authenticated by the system",
+    description:
+      "This event is triggered when a user is authenticated by the system",
     payloadExample: `
 {
   "unique_user_id": "9999988888",
@@ -49,13 +50,14 @@ export const webhookEvents = [
   "event_type": "user_authenticated",
   "event_data": []
 }
-    `
+    `,
   },
   {
     displayName: "Plio Loaded",
     code: "plio_loaded",
     isSelected: false,
-    description: "This event is triggered when setting up of the Plio video is finished in the browser.",
+    description:
+      "This event is triggered when setting up of the Plio video is finished in the browser.",
     payloadExample: `
 {
   "unique_user_id": "9999988888",
@@ -64,20 +66,22 @@ export const webhookEvents = [
   "event_type": "plio_loaded",
   "event_data": []
 }
-    `
+    `,
   },
   {
     displayName: "Play Button Clicked",
     code: "played",
     isSelected: false,
-    description: "This event is triggered when the play button is clicked by the user",
+    description:
+      "This event is triggered when the play button is clicked by the user",
     extraData: [
       {
         code: "plio_seekbar_time",
         displayName: "Seekbar Time",
         type: "number",
-        description: "The time in seconds on the video seekbar when the user clicked the play button",
-      }
+        description:
+          "The time in seconds on the video seekbar when the user clicked the play button",
+      },
     ],
     payloadExample: `
 {
@@ -92,20 +96,22 @@ export const webhookEvents = [
     }
   ]
 }
-    `
+    `,
   },
   {
     displayName: "Pause Button Clicked",
     code: "paused",
     isSelected: false,
-    description: "This event is triggered when the pause button is clicked by the user",
+    description:
+      "This event is triggered when the pause button is clicked by the user",
     extraData: [
       {
         code: "plio_seekbar_time",
         displayName: "Seekbar Time",
         type: "number",
-        description: "The time in seconds on the video seekbar when the user clicked the pause button",
-      }
+        description:
+          "The time in seconds on the video seekbar when the user clicked the pause button",
+      },
     ],
     payloadExample: `
 {
@@ -120,26 +126,29 @@ export const webhookEvents = [
     }
   ]
 }
-    `
+    `,
   },
   {
     displayName: "Item Opened",
     code: "item_opened",
     isSelected: false,
-    description: "This event is triggered when an item/question pops up on the screen",
+    description:
+      "This event is triggered when an item/question pops up on the screen",
     extraData: [
       {
         code: "item_id",
         displayName: "Item ID",
         type: "number",
-        description: "The ID of the item that has been opened. This ID can be matched with the one on BigQuery tables.",
+        description:
+          "The ID of the item that has been opened. This ID can be matched with the one on BigQuery tables.",
       },
       {
         code: "item_index",
         displayName: "Item Index",
         type: "number",
-        description: "The index of the item in the items array, which has been opened.",
-      }
+        description:
+          "The index of the item in the items array, which has been opened.",
+      },
     ],
     payloadExample: `
 {
@@ -158,13 +167,14 @@ export const webhookEvents = [
     }
   ]
 }
-    `
+    `,
   },
   {
     displayName: "Plio Finished / Scorecard Shown",
     code: "plio_finished",
     isSelected: false,
-    description: "This event is triggered when the user has finished watching the Plio and the scorecard is shown to the user with some calculated metrics.",
+    description:
+      "This event is triggered when the user has finished watching the Plio and the scorecard is shown to the user with some calculated metrics.",
     // three types of data -- numCorrect, numWrong, numSkipped
     extraData: [
       {
@@ -177,14 +187,15 @@ export const webhookEvents = [
         code: "num_wrong",
         displayName: "Number of Wrong Answers",
         type: "number",
-        description: "The number of questions the user has answered incorrectly",
+        description:
+          "The number of questions the user has answered incorrectly",
       },
       {
         code: "num_skipped",
         displayName: "Number of Skipped Questions",
         type: "number",
         description: "The number of questions the user has skipped",
-      }
+      },
     ],
     payloadExample: `
 {
@@ -206,9 +217,9 @@ export const webhookEvents = [
       "value": 2
     }
   ]
-}`
-  }
-]
+}`,
+  },
+];
 
 /**
  * The below exported map is the global default settings object.
@@ -249,13 +260,18 @@ let globalDefaultSetings = new Map(
               Object.entries({
                 firstTimeLanguagePickerPopup: {
                   scope: ["org-admin", "super-admin"],
-                  value: firstTimeLanguagePickerPopup
+                  value: firstTimeLanguagePickerPopup,
                 },
               })
             ),
           },
           advanced: {
-            scope: ["org-admin", "super-admin", "only-plio-setting", "no-personal-workspace"],
+            scope: [
+              "org-admin",
+              "super-admin",
+              "only-plio-setting",
+              "no-personal-workspace",
+            ],
             children: new Map(
               Object.entries({
                 customWebhook: {
@@ -265,10 +281,10 @@ let globalDefaultSetings = new Map(
                     enabledEvents: [],
                     // webhookURL: "http://localhost:3000/v1/temp/plioWebhook",
                     webhookURL: "",
-                  }
-                }
+                  },
+                },
               })
-            )
+            ),
           },
           members: {
             scope: ["org-admin", "super-admin", "no-personal-workspace"],
@@ -277,12 +293,12 @@ let globalDefaultSetings = new Map(
                 organizationMembers: {
                   scope: ["org-admin", "super-admin"],
                   value: {
-                    members: []
-                  }
-                }
+                    members: [],
+                  },
+                },
               })
-            )
-          }
+            ),
+          },
         })
       ),
     },

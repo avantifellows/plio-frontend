@@ -1,0 +1,4 @@
+{
+  "_comment": "Committed line-coverage floor for the frontend-unit lane, enforced by CI (scripts/checkCoverageFloor.js). Only moves up; bump manually in the PR that adds the tests. See docs/UNIT-TESTING.md.",
+  "lines": 73.41
+}
