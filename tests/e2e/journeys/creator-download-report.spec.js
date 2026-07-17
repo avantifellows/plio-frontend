@@ -1,6 +1,7 @@
 const { execFileSync } = require("child_process");
 const { test, expect } = require("../fixtures/test");
 const { provisionPublishedPlio } = require("../helpers/published-plio");
+const { dismissLanguageDialog } = require("../helpers/language-dialog");
 
 test("creator downloads a well-formed report for a published plio with no learner sessions", async ({
   page,
@@ -21,8 +22,7 @@ test("creator downloads a well-formed report for a published plio with no learne
   const publishedPlio = await provisionPublishedPlio({ request, input });
 
   await page.goto("/home");
-  const languagePicker = page.locator('[data-test="languagePicker-en"]');
-  if (await languagePicker.isVisible()) await languagePicker.click();
+  await dismissLanguageDialog(page);
   const plioRow = page.locator('[data-test="row"]', { hasText: input.title });
   await plioRow.locator('[data-test="toggleButton"]').click();
 

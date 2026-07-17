@@ -1,5 +1,6 @@
 const { test, expect } = require("../fixtures/test");
 const { provisionPublishedPlio } = require("../helpers/published-plio");
+const { dismissLanguageDialog } = require("../helpers/language-dialog");
 
 const resumeTime = 6;
 const journey = {
@@ -17,8 +18,7 @@ async function openPlayer(page, uuid) {
   );
   await page.goto(`/play/${uuid}`);
   await expect(page.locator(`#plio${uuid} .plyr`)).toBeVisible();
-  const languagePicker = page.locator('[data-test="languagePicker-en"]');
-  if (await languagePicker.isVisible()) await languagePicker.click();
+  await dismissLanguageDialog(page);
   expect((await sessionResponse).ok()).toBe(true);
 }
 

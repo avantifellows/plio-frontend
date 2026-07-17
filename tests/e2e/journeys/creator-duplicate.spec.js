@@ -1,4 +1,5 @@
 const { test, expect } = require("../fixtures/test");
+const { dismissLanguageDialog } = require("../helpers/language-dialog");
 const {
   provisionPublishedPlio,
   stubYouTubeDuration,
@@ -48,8 +49,7 @@ test("creator duplicates a published plio without changing the original", async 
   const source = await provisionPublishedPlio({ request, input });
 
   await page.goto("/home");
-  const languagePicker = page.locator('[data-test="languagePicker-en"]');
-  if (await languagePicker.isVisible()) await languagePicker.click();
+  await dismissLanguageDialog(page);
   const sourceRow = page.locator('[data-test="row"]', {
     hasText: input.title,
   });
