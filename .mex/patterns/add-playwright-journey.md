@@ -17,7 +17,7 @@ Journey specs live in `tests/e2e/journeys` and test only browser-visible behavio
 
 ## Steps
 1. Import `test` and `expect` from `tests/e2e/fixtures/test.js` so analytics stays blocked.
-2. Name the spec after the journey inventory entry.
+2. Name the spec after the journey inventory entry and map it in `tests/e2e/journeys.json`.
 3. Anchor waits on Playwright locators or `waitForResponse`; never use elapsed time.
 4. Assert DOM, URL, downloads, or state re-observed through the UI. Do not read Vuex or component internals.
 
@@ -32,6 +32,7 @@ Journey specs live in `tests/e2e/journeys` and test only browser-visible behavio
 ## Verify
 - [ ] `npm run test:e2e -- <journey-name>` passes headless
 - [ ] `npm run lint` passes, including the scoped `waitForTimeout` ban
+- [ ] CI's manifest gate counts the journey green from its Playwright JSON result
 
 ## Update Scaffold
 - [ ] Update `.mex/ROUTER.md` if the implemented journey count changed

@@ -1,0 +1,11 @@
+{
+  "auth-google-login": "journeys/auth-google-login.spec.js",
+  "sso-learner-entry": "journeys/sso-learner-entry.spec.js",
+  "creator-golden-path": "journeys/creator-golden-path.spec.js",
+  "creator-download-report": "journeys/creator-download-report.spec.js",
+  "creator-share-embed": "journeys/creator-share-embed.spec.js",
+  "creator-duplicate": "journeys/creator-duplicate.spec.js",
+  "learner-golden-playback": "journeys/learner-golden-playback.spec.js",
+  "learner-resume": "journeys/learner-resume.spec.js",
+  "workspace-switch": "journeys/workspace-switch.spec.js"
+}

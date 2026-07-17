@@ -217,15 +217,19 @@ jobs:
 
       - name: Run blocking Playwright shard
         if: ${{ !inputs.quarantine_blocking }}
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-results/blocking-${{ matrix.shard }}.json
         working-directory: plio-frontend
-        run: npx playwright test --project=chromium --project=sso --grep-invert '/@real-playback|@quarantine/' --retries=2 --workers=1 --shard=${{ matrix.shard }}/4
+        run: npx playwright test --reporter=line,json --project=chromium --project=sso --grep-invert '/@real-playback|@quarantine/' --retries=2 --workers=1 --shard=${{ matrix.shard }}/4
 
       - name: Run quarantined Playwright specs
         id: quarantine
         if: ${{ !inputs.quarantine_blocking && !cancelled() }}
         continue-on-error: true
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-results/quarantine-${{ matrix.shard }}.json
         working-directory: plio-frontend
-        run: npx playwright test --project=chromium --project=sso --grep @quarantine --grep-invert @real-playback --pass-with-no-tests --retries=2 --workers=1 --shard=${{ matrix.shard }}/4
+        run: npx playwright test --reporter=line,json --project=chromium --project=sso --grep @quarantine --grep-invert @real-playback --pass-with-no-tests --retries=2 --workers=1 --shard=${{ matrix.shard }}/4
 
       - name: Summarize quarantined Playwright specs
         if: ${{ !inputs.quarantine_blocking && always() }}
@@ -240,8 +244,18 @@ jobs:
 
       - name: Run nightly Playwright shard
         if: ${{ inputs.quarantine_blocking }}
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-results/blocking-${{ matrix.shard }}.json
         working-directory: plio-frontend
-        run: npx playwright test --project=chromium --project=sso --grep-invert @real-playback --retries=2 --workers=1 --shard=${{ matrix.shard }}/4
+        run: npx playwright test --reporter=line,json --project=chromium --project=sso --grep-invert @real-playback --retries=2 --workers=1 --shard=${{ matrix.shard }}/4
+
+      - name: Upload Playwright results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-results-${{ matrix.shard }}
+          path: plio-frontend/e2e-results/*.json
+          if-no-files-found: error
 
       - name: Print stack logs on failure
         if: failure()
@@ -258,3 +272,33 @@ jobs:
           if [ -f plio-backend/docker-compose.yml ]; then
             docker compose -f plio-backend/docker-compose.yml --project-directory plio-backend down -v --remove-orphans
           fi
+
+  journey-coverage:
+    name: Enforce 9/9 journey coverage
+    if: ${{ always() && !cancelled() }}
+    needs: [pairing, e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out frontend
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.frontend_repository }}
+          ref: ${{ needs.pairing.outputs.frontend_ref }}
+          persist-credentials: false
+
+      - name: Download Playwright results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: e2e-results-*
+          path: e2e-results
+          merge-multiple: true
+
+      - name: Enforce journey manifest
+        env:
+          FRONTEND_PAIRING: ${{ inputs.frontend_repository }}@${{ needs.pairing.outputs.frontend_ref }}
+          BACKEND_PAIRING: ${{ inputs.backend_repository }}@${{ needs.pairing.outputs.backend_ref }}
+        run: |
+          shopt -s nullglob
+          blocking=(e2e-results/blocking-*.json)
+          quarantine=(e2e-results/quarantine-*.json)
+          node scripts/checkE2EJourneys.js "${blocking[@]}" --quarantine "${quarantine[@]}"

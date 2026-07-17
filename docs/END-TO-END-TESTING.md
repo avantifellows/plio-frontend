@@ -21,6 +21,19 @@ workflow runs the full suite with those failures blocking.
 Remove the tag once the cause is fixed and the spec has passed unchanged in
 the nightly run. Do not quarantine a consistently failing spec; fix it.
 
+### Journey coverage
+
+`tests/e2e/journeys.json` maps the nine required journeys to their Playwright
+specs. CI counts actual Playwright JSON results rather than file presence. A
+missing, skipped, or failed journey fails the coverage job.
+
+On pull requests, a quarantined journey is reported separately and excluded
+from the green count without blocking merge (for example, `8/9 journeys (1
+quarantined)`). Scheduled and manual runs include quarantined journeys in the
+blocking run, so only a passing result counts green. The job summary reports
+the count beside the frontend/backend branch pairing. E2E coverage is this
+journey contract; the suite does not collect Istanbul line coverage.
+
 ## TestCafe
 
 This guide aims to share how TestCafe is being used in Plio for performing End-to-End (E2E) and integration tests.

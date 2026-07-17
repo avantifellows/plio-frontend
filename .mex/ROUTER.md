@@ -32,11 +32,11 @@ Then read this file fully before doing anything else in this session.
 - Auth: Google OAuth, OTP login, and third-party SSO (query params `unique_id` + `api_key`)
 - Multi-workspace support via `activeWorkspace` and the `Organization` request header
 - Dashboard analytics page; jest unit specs exist (~40 files under tests/unit) but see Known issues — the suite is red in CI
-- Playwright scaffold plus all 9 inventoried E2E journeys run locally with `npm run test:e2e`; frontend PRs call the reusable sharded ephemeral-stack workflow, with evidence-based `@quarantine` failures reported but non-blocking; nightly/manual runs treat them as blocking; `npm run seed:e2e` idempotently provisions backend fixtures
+- Playwright scaffold plus all 9 inventoried E2E journeys run locally with `npm run test:e2e`; frontend PRs call the reusable sharded ephemeral-stack workflow; a committed manifest gates actual shard results and reports N/9 beside branch pairing; evidence-based `@quarantine` failures are reported separately but non-blocking, while nightly/manual runs treat them as blocking; `npm run seed:e2e` idempotently provisions backend fixtures
 
 **Not yet built:**
 
-- Backend PR caller, journey-manifest enforcement, and final TestCafe migration cleanup remain in later #380 slices
+- Backend PR caller and final TestCafe migration cleanup remain in later #380 slices
 
 **Known issues:**
 
