@@ -58,7 +58,10 @@ async function completeJourney(
   const answerResponse = page.waitForResponse(
     (response) =>
       new URL(response.url()).pathname.includes("/api/v1/session-answers/") &&
-      response.request().method() === "PUT"
+      response.request().method() === "PUT",
+    // must outlast the 45s answer-flow retry budget below, or it can
+    // reject before a later retry lands the submit
+    { timeout: 60000 }
   );
   await expect(async () => {
     if (await proceedButton.isVisible()) return; // answer already submitted

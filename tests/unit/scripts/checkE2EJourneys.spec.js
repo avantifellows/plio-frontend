@@ -248,4 +248,33 @@ describe("e2e journey coverage", () => {
       })
     ).toBe(1);
   });
+
+  it("fails when a quarantined journey never actually ran (skipped only)", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "e2e-journeys-"));
+    const manifestPath = writeJson(dir, "manifest.json", {
+      "auth-google-login": "journeys/auth-google-login.spec.js",
+    });
+    const quarantineReportPath = writeJson(dir, "quarantine.json", {
+      suites: [
+        {
+          file: "journeys/auth-google-login.spec.js",
+          specs: [
+            {
+              tests: [{ status: "skipped", results: [] }],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(
+      main({
+        manifestPath,
+        reportPaths: [],
+        quarantineReportPaths: [quarantineReportPath],
+        env: {},
+        requiredCount: 1,
+      })
+    ).toBe(1);
+  });
 });

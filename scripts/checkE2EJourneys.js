@@ -86,10 +86,17 @@ function main({
   const quarantineResults = readResults(quarantineReportPaths);
   const files = Object.values(manifest);
   // a file counts as quarantined only when it has NO blocking results —
-  // if it also ran blocking tests, those must still pass
-  const quarantined = files.filter(
-    (file) => quarantineResults.has(file) && !results.has(file)
-  );
+  // if it also ran blocking tests, those must still pass — and its
+  // quarantine run genuinely attempted something: a skipped/fixme-only
+  // quarantine result means the journey never executed at all
+  const quarantined = files.filter((file) => {
+    const quarantineStatuses = quarantineResults.get(file);
+    return (
+      quarantineStatuses?.length &&
+      quarantineStatuses.some((status) => status !== "skipped") &&
+      !results.has(file)
+    );
+  });
   const green = files.filter(
     (file) =>
       !quarantined.includes(file) &&

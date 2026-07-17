@@ -10,6 +10,9 @@ module.exports = defineConfig({
   // parallel-safe. CI serializes with --workers=1 per shard; local runs
   // must match.
   workers: 1,
+  // Journeys provision via API, navigate, and (on slow CI runners) retry
+  // modal interactions — the 30s default cuts those budgets short.
+  timeout: 120000,
   grepInvert: process.env.GITHUB_ACTIONS ? /@real-playback/ : undefined,
   use: {
     baseURL,
