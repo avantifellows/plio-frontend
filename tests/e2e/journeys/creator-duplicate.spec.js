@@ -17,11 +17,15 @@ async function expectEditorShowsQuestion(
   );
   const itemMarker = page.locator('[data-test="marker-0"]');
   await expect(itemMarker).toBeVisible();
-  await itemMarker.click({ force: true });
-  await itemMarker.dispatchEvent("click");
-  await expect(
-    page.locator('[data-test="questionText"] textarea')
-  ).toHaveValue(questionText, { timeout: 30000 });
+  // selecting a marker is idempotent, but a single click can land while
+  // the editor is still wiring item handlers and be silently ignored —
+  // retry the selection until the item editor actually opens
+  await expect(async () => {
+    await itemMarker.dispatchEvent("click");
+    await expect(
+      page.locator('[data-test="questionText"] textarea')
+    ).toHaveValue(questionText, { timeout: 3000 });
+  }).toPass({ timeout: 45000 });
 }
 
 test("creator duplicates a published plio without changing the original", async ({

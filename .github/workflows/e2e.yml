@@ -140,6 +140,11 @@ jobs:
       # exchange the long-lived refresh token for a ~1h access token so
       # only this step ever sees the durable credential. Later steps
       # (npm ci, tests) get the short-lived token via GITHUB_ENV.
+      #
+      # Known boundary: for same-repo PRs this workflow definition itself
+      # comes from the PR merge ref, so a write-access author can edit
+      # this step — that matches GitHub's trust model (fork PRs get no
+      # secrets). Trusted-ref minting is tracked in plio-backend#438.
       - name: Mint short-lived e2e Google token
         env:
           GOOGLE_OAUTH2_CLIENT_ID: ${{ secrets.GOOGLE_OAUTH2_CLIENT_ID }}
