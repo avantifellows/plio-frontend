@@ -13,13 +13,18 @@
     </div>
 
     <!-- body -->
-    <div class="h-48 bp-360:h-56 bp-420:h-72 bp-500:h-96 w-full bg-white px-10 relative">
+    <div
+      class="h-48 bp-360:h-56 bp-420:h-72 bp-500:h-96 w-full bg-white px-10 relative"
+    >
       <!-- image preview -->
       <img
         v-if="showImagePreview"
         :src="imageToPreview"
         :class="imagePreviewClass"
         alt="imagePreview"
+        decoding="async"
+        loading="eager"
+        fetchpriority="high"
       />
 
       <!-- upload box - drag here to upload message -->
@@ -147,7 +152,8 @@ export default {
     fileSizeInfoTextClass() {
       return [
         {
-          "text-red-500 font-semibold animate-bounce": this.isFileSizeLimitExceeded,
+          "text-red-500 font-semibold animate-bounce":
+            this.isFileSizeLimitExceeded,
           "text-black": !this.isFileSizeLimitExceeded,
         },
         "mx-auto mb-8 text-xs bp-360:text-sm bp-420:text-base sm:text-base md:text-lg px-2 text-center",
