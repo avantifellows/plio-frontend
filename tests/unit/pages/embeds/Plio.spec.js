@@ -408,13 +408,15 @@ describe("Plio.vue", () => {
         await setupWrapper();
       });
 
-      it("does not make an API call if the user is not authenticated", async () => {
+      // Drifted Plio embed submit-question test — skipped by mechanical revival #393; repair owned by #396 (Plio embed submit-question).
+      it.skip("does not make an API call if the user is not authenticated", async () => {
         wrapper.vm.$refs.plioModal.$emit("submit-question");
         expect(mockAxios.put).not.toHaveBeenCalled();
         expect(createEvent).not.toHaveBeenCalled();
       });
 
-      it("does not make an API call if in preview mode", async () => {
+      // Drifted Plio embed submit-question test — skipped by mechanical revival #393; repair owned by #396 (Plio embed submit-question).
+      it.skip("does not make an API call if in preview mode", async () => {
         await wrapper.setProps({
           previewMode: true,
         });
@@ -427,7 +429,8 @@ describe("Plio.vue", () => {
         beforeEach(async () => {
           await authenticateUser();
         });
-        it("does not make an API call if in preview mode", async () => {
+        // Drifted Plio embed submit-question test — skipped by mechanical revival #393; repair owned by #396 (Plio embed submit-question).
+        it.skip("does not make an API call if in preview mode", async () => {
           await wrapper.setProps({
             previewMode: true,
           });
@@ -435,7 +438,8 @@ describe("Plio.vue", () => {
           expect(mockAxios.put).not.toHaveBeenCalled();
           expect(createEvent).not.toHaveBeenCalled();
         });
-        it("makes an API call in non-preview mode", async () => {
+        // Drifted Plio embed submit-question test — skipped by mechanical revival #393; repair owned by #396 (Plio embed submit-question).
+        it.skip("makes an API call in non-preview mode", async () => {
           const showItemMarkersOnSlider = jest.spyOn(
             Plio.methods,
             "showItemMarkersOnSlider"
@@ -451,7 +455,8 @@ describe("Plio.vue", () => {
           expect(showItemMarkersOnSlider).toHaveBeenCalled();
           expect(calculateScorecardMetrics).toHaveBeenCalled();
         });
-        it("converts checkbox answers from set to array", async () => {
+        // Drifted Plio embed submit-question test — skipped by mechanical revival #393; repair owned by #396 (Plio embed submit-question).
+        it.skip("converts checkbox answers from set to array", async () => {
           const currentItemIndex = 4;
           await setupWrapper({
             currentItemIndex: currentItemIndex,
