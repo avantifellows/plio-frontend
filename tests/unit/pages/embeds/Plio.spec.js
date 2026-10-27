@@ -262,6 +262,21 @@ describe("Plio.vue", () => {
           });
         });
 
+        it("keeps the start position for a first session", async () => {
+          // the backend serializes a missing last event as all-null fields
+          const firstSession = clonedeep(global.dummySession);
+          firstSession.data.last_event = {
+            type: null,
+            player_time: null,
+            details: null,
+            session: null,
+          };
+          mockAxios.mockResponse(firstSession, mockAxios.queue()[0]);
+          await flushPromises();
+
+          expect(wrapper.vm.currentTimestamp).toBe(0);
+        });
+
         it("does not create session if opened in preview mode", async () => {
           mockAxios.reset();
           await mountWrapper();

@@ -99,4 +99,52 @@ describe("VideoPlayer.vue", () => {
       mockPlayer.eventListeners[1].element.removeEventListener
     ).not.toHaveBeenCalled();
   });
+
+  describe("restoring embed audio on play", () => {
+    async function mountAndPlay({ plyrMuted, embedMuted }) {
+      const handlers = {};
+      const mockPlayer = {
+        muted: plyrMuted,
+        embed: { isMuted: jest.fn(() => embedMuted), unMute: jest.fn() },
+        eventListeners: [],
+        on: jest.fn((event, handler) => (handlers[event] = handler)),
+      };
+      jest
+        .spyOn(VideoPlayer.methods, "createPlayer")
+        .mockReturnValue(mockPlayer);
+      const wrapper = mount(VideoPlayer, { props: { videoId: "4j4fYyWgl0w" } });
+      await nextTick();
+      handlers.play();
+      return { wrapper, mockPlayer };
+    }
+
+    it("unmutes the embed when it is muted but the player is not", async () => {
+      // a seek before the first play leaves the YouTube embed muted
+      const { wrapper, mockPlayer } = await mountAndPlay({
+        plyrMuted: false,
+        embedMuted: true,
+      });
+
+      expect(mockPlayer.embed.unMute).toHaveBeenCalledTimes(1);
+      expect(wrapper.emitted("play")).toEqual([[]]);
+    });
+
+    it("keeps the embed muted when the learner muted the player", async () => {
+      const { mockPlayer } = await mountAndPlay({
+        plyrMuted: true,
+        embedMuted: true,
+      });
+
+      expect(mockPlayer.embed.unMute).not.toHaveBeenCalled();
+    });
+
+    it("leaves an unmuted embed alone", async () => {
+      const { mockPlayer } = await mountAndPlay({
+        plyrMuted: false,
+        embedMuted: false,
+      });
+
+      expect(mockPlayer.embed.unMute).not.toHaveBeenCalled();
+    });
+  });
 });

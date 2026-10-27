@@ -146,7 +146,20 @@ export default {
     },
     playerPlayed() {
       // invoked when the player has been played
+      this.restoreEmbedAudio();
       this.$emit("play");
+    },
+    /**
+     * Plyr's YouTube plugin mutes the embed directly when seeking before the
+     * first play and only unmutes it when the embed next pauses. A second
+     * seek before the first play (e.g. applying the resume position) leaves
+     * the embed muted while Plyr reports unmuted, so playback starts silent.
+     * Re-sync the embed with Plyr's muted state whenever playback starts.
+     */
+    restoreEmbedAudio() {
+      const embed = this.player.embed;
+      if (this.player.muted || typeof embed?.isMuted !== "function") return;
+      if (embed.isMuted()) embed.unMute();
     },
     playerSeekEnded() {
       // invoked when a seek operation has ended
