@@ -182,7 +182,9 @@ describe("VideoPlayer.vue", () => {
         eventListeners: [],
         on: jest.fn((event, handler) => (handlers[event] = handler)),
       };
-      jest.spyOn(VideoPlayer.methods, "createPlayer").mockReturnValue(mockPlayer);
+      jest
+        .spyOn(VideoPlayer.methods, "createPlayer")
+        .mockReturnValue(mockPlayer);
       const wrapper = mount(VideoPlayer, { props: { videoId: "4j4fYyWgl0w" } });
       await nextTick();
       handlers.play();
