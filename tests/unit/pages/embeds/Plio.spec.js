@@ -299,6 +299,29 @@ describe("Plio.vue", () => {
           expect(setPlayerTime).toHaveBeenCalledWith(6);
         });
 
+        it("does not seek when a first session resolves after the player is ready", async () => {
+          const setPlayerTime = jest
+            .spyOn(Plio.methods, "setPlayerTime")
+            .mockImplementation(() => {});
+          mockAxios.reset();
+          await mountWrapper({ loadPlio: true });
+          wrapper.vm.$refs.videoPlayer.player = { currentTime: 0 };
+
+          // the backend serializes a missing last event as all-null fields
+          const firstSession = clonedeep(global.dummySession);
+          firstSession.data.last_event = {
+            type: null,
+            player_time: null,
+            details: null,
+            session: null,
+          };
+          mockAxios.mockResponse(firstSession, mockAxios.queue()[0]);
+          await flushPromises();
+
+          expect(wrapper.vm.currentTimestamp).toBe(0);
+          expect(setPlayerTime).not.toHaveBeenCalled();
+        });
+
         it("does not create session if opened in preview mode", async () => {
           mockAxios.reset();
           await mountWrapper();

@@ -1069,8 +1069,11 @@ export default {
 
       SessionAPIService.createSession(this.plioDBId).then((sessionDetails) => {
         this.sessionDBId = sessionDetails.id;
+        // the backend sends a last_event with all fields null for a
+        // first session, so only a player_time marks a resume position
+        const hasResumePosition = sessionDetails.last_event?.player_time != null;
         // reset the user to where they left off if they are returning
-        if (sessionDetails.last_event != null) {
+        if (hasResumePosition) {
           this.currentTimestamp = sessionDetails.last_event.player_time;
         }
 
@@ -1123,7 +1126,7 @@ export default {
         // stale 0. Re-apply the resume position only now that the no-skip
         // clamp has finalized it, and only if the learner hasn't moved on.
         if (
-          sessionDetails.last_event != null &&
+          hasResumePosition &&
           this.player != null &&
           this.player.currentTime < 1
         ) {
