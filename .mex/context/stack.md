@@ -12,7 +12,7 @@ edges:
     condition: when the reasoning behind a tech choice is needed
   - target: context/conventions.md
     condition: when understanding how to use a technology in this codebase
-last_updated: 2026-07-17
+last_updated: 2026-10-27
 ---
 
 # Stack
@@ -29,7 +29,7 @@ last_updated: 2026-07-17
 
 - **axios** — HTTP; always via the shared `apiClient()` in `src/services/API/RootClient.js`, never imported directly in components
 - **vue-i18n** — all user-facing copy; locale JSONs in `src/locales` (report: `npm run i18n:report`)
-- **plyr** — video player wrapped by the Player page components
+- **plyr** — video player wrapped by the Player page components. Its YouTube plugin mutes the embed directly on any seek before the first play and only unmutes on the next pause, so extra pre-play seeks can leave YouTube muted while Plyr reports unmuted; `VideoPlayer.vue` re-syncs the embed on `play` (#676)
 - **vue3-google-oauth2** — Google login flow
 - **mixpanel-browser** — product analytics events
 - **@sentry/browser** + **@sentry/tracing** — error monitoring in staging/production
