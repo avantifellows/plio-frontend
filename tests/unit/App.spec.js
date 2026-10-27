@@ -61,6 +61,10 @@ describe("App.vue for authenticated user", () => {
     wrapper = mount(App, {
       global: {
         plugins: [router],
+        // The global jest.init.js stubs <transition> with a slot-less
+        // "<div></div>", which drops the side menu (wrapped in <transition>)
+        // from the rendered DOM. Render the slot so the menu buttons mount.
+        stubs: { transition: { template: "<div><slot/></div>" } },
       },
     });
 
@@ -219,23 +223,27 @@ describe("App.vue for authenticated user", () => {
       );
     });
 
-    it("uses filtered global default settings for workspace when it is not available in DB", async () => {
-      // our currently logged in user has no settings present in its organization's configs
-      // hence, it should use global default settings
+    it("uses global default settings for workspace when it is not available in DB", async () => {
+      // none of the logged-in user's workspaces have settings in their DB config,
+      // so each workspace should fall back to the global default settings
+      // (every default setting is workspace-applicable, so the workspace-filtered
+      // view is identical to the full global defaults)
       let workspaces = clonedeep(global.dummyUser.organizations);
       workspaces.forEach((workspace) => {
         expect(
           store.state.auth.workspaceSettings[workspace.shortcode]
-        ).toStrictEqual(global.dummyGlobalSettingsFilteredForWorkspaces);
+        ).toStrictEqual(globalDefaultSettings);
       });
 
+      // switching to a workspace surfaces those same defaults through the getter
+      // and the component's mapped getter
       await store.dispatch("auth/setActiveWorkspace", activeWorkspace);
       expect(store.state.auth.activeWorkspace).toBe(activeWorkspace);
       expect(store.getters["auth/activeWorkspaceSettings"]).toStrictEqual(
-        global.dummyGlobalSettingsFilteredForWorkspaces
+        globalDefaultSettings
       );
       expect(wrapper.vm.activeWorkspaceSettings).toStrictEqual(
-        global.dummyGlobalSettingsFilteredForWorkspaces
+        globalDefaultSettings
       );
     });
 
@@ -275,46 +283,31 @@ describe("App.vue for authenticated user", () => {
       await store.dispatch("auth/setActiveWorkspace", "o2");
       expect(store.state.auth.activeWorkspace).toBe("o2");
 
-      // the activeWorkspaceSettings should be set to what was pulled from the DB
-      expect(store.getters["auth/activeWorkspaceSettings"]).toStrictEqual(
-        SettingsUtilities.decodeMapFromPayload(
-          dummyUserClone.organizations[1].config.settings
-        )
-      );
-      expect(wrapper.vm.activeWorkspaceSettings).toStrictEqual(
-        SettingsUtilities.decodeMapFromPayload(
-          dummyUserClone.organizations[1].config.settings
-        )
-      );
+      // the workspace's DB value for skipEnabled (false) wins over the global
+      // default (true); the getter and the component's mapped getter agree
+      const skipEnabledPath = (settings) =>
+        settings
+          .get("player")
+          .children.get("configuration")
+          .children.get("skipEnabled").value;
+      expect(
+        skipEnabledPath(store.getters["auth/activeWorkspaceSettings"])
+      ).toBe(false);
+      expect(skipEnabledPath(wrapper.vm.activeWorkspaceSettings)).toBe(false);
     });
 
     it("constructs the settings to render menu properly in personal workspace", () => {
-      // the current user is using the global default settings
-      let detailsInGlobalSettings = {
-        headers: [],
-        tabs: [],
-        leafs: [],
-        leafValues: [],
-      };
+      // the current user is on the personal workspace and using the global
+      // default settings. The home settings menu (App.vue) renders only the
+      // default settings that apply to it: the plio-only `advanced/customWebhook`
+      // and workspace-only `members/organizationMembers` settings are scoped out.
       let detailsInSettingsToRender = {
         headers: [],
         tabs: [],
         leafs: [],
         leafValues: [],
       };
-      // iterating both global default settings and the settingsToRender object,
-      // and filling up the details in respective objects
-      for (let [headerName, headerDetails] of globalDefaultSettings) {
-        detailsInGlobalSettings.headers.push(headerName);
-        for (let [tabName, tabDetails] of headerDetails.children) {
-          detailsInGlobalSettings.tabs.push(tabName);
-          for (let [leafName, leafDetails] of tabDetails.children) {
-            detailsInGlobalSettings.leafs.push(leafName);
-            detailsInGlobalSettings.leafValues.push(leafDetails.value);
-          }
-        }
-      }
-
+      // iterating the settingsToRender object and filling up the details
       for (let [headerName, headerDetails] of wrapper.vm.settingsToRender) {
         detailsInSettingsToRender.headers.push(headerName);
         for (let [tabName, tabDetails] of headerDetails) {
@@ -325,8 +318,13 @@ describe("App.vue for authenticated user", () => {
           }
         }
       }
-      // all the details should match
-      expect(detailsInSettingsToRender).toStrictEqual(detailsInGlobalSettings);
+      // the rendered menu should contain exactly the home-applicable defaults
+      expect(detailsInSettingsToRender).toStrictEqual({
+        headers: ["player"],
+        tabs: ["configuration", "ui"],
+        leafs: ["skipEnabled", "firstTimeLanguagePickerPopup"],
+        leafValues: [true, true],
+      });
     });
 
     it("shows all settings, even org level settings, if in personal workspace", async () => {

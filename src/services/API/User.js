@@ -121,7 +121,7 @@ export default {
    */
   getUserByEmail(email) {
     return apiClient().get(usersEndpoint, {
-      params: { email }
+      params: { email },
     });
   },
 
@@ -148,7 +148,9 @@ export default {
    * @param {Number} organizationId
    */
   getUsersForOrganization(organizationId) {
-    return apiClient().get(usersEndpoint, { params: { organization: organizationId } });
+    return apiClient().get(usersEndpoint, {
+      params: { organization: organizationId },
+    });
   },
 
   /**
@@ -178,7 +180,10 @@ export default {
    * @returns {Promise}
    */
   updateOrganizationUser(membershipId, membershipData) {
-    return apiClient().patch(organizationUsersEndpoint + membershipId + "/", membershipData);
+    return apiClient().patch(
+      organizationUsersEndpoint + membershipId + "/",
+      membershipData
+    );
   },
 
   /**

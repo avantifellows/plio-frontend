@@ -278,7 +278,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   pointer-events: none;
 }
 
-/* If a custom layout has a custom container/backdrop, make sure to 
+/* If a custom layout has a custom container/backdrop, make sure to
    allow pointer events on it. */
 .backdrop-is-transparent .MLK__layer > div > div {
   pointer-events: all;
@@ -371,7 +371,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
   gap: var(--_keycap-gap);
 
   /* If the styling include, e.g., some shadows, they will be
-  cut off by the overflow. In that case, set the padding to 
+  cut off by the overflow. In that case, set the padding to
   compensate. */
   padding-left: var(--_row-padding-left);
   padding-right: var(--_row-padding-right);
@@ -519,7 +519,7 @@ body > .ML__keyboard.is-visible.animate > .MLK__backdrop {
 
 
 /** A regular keycap
- * Use the :where() pseudo-class to give it a very low specifity, 
+ * Use the :where() pseudo-class to give it a very low specifity,
  * so that it can be overriden by custom style.
  */
 :where(.MLK__rows > .MLK__row  div) {

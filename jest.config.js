@@ -5,6 +5,10 @@ module.exports = {
   transform: {
     "^.+\\.vue$": "vue-jest",
   },
+  // prism-es6 ships untranspiled ESM that jest 26 cannot parse; without this
+  // exception the App.vue import chain (App -> Settings ->
+  // ConfigureWebhookWindow -> CodeHighlighter) fails to collect.
+  transformIgnorePatterns: ["/node_modules/(?!prism-es6)"],
   collectCoverage: true,
   collectCoverageFrom: [
     "src/**/*.{js,vue}",

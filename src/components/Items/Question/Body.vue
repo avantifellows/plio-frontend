@@ -262,7 +262,7 @@ export default {
   },
   computed: {
     latexFormattedQuestionText() {
-      // we're getting a prop called "questionText". This is a string which may contain latex code and 
+      // we're getting a prop called "questionText". This is a string which may contain latex code and
       // might look like this - "What is the value of \\(x\\) in the equation \\(x^2 + 2x + 1 = 0\\)?".
       // This contains sections which need to be formatted as latex and some sections which will be plain text.
       // So format the incoming string and return the formatted string as a HTML which will be rendered as a v-html.
@@ -281,7 +281,7 @@ export default {
       return output;
     },
     latexFormattedOptionText() {
-      // we're getting a prop called "options". This is an array of strings which may contain latex code and 
+      // we're getting a prop called "options". This is an array of strings which may contain latex code and
       // might look like this - ["\\(x\\)", "\\(y\\)", "\\(z\\)"].
       // This contains sections which need to be formatted as latex and some sections which will be plain text.
       // So format the incoming strings and return the formatted strings as an array of HTML strings which will be rendered as a v-html.
