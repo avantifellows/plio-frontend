@@ -293,7 +293,7 @@ export default {
         this.$emit("member-added");
       } catch (error) {
         console.error("Failed to add member:", error);
-        
+
         if (error.response && error.response.status === 400) {
           const errorData = error.response.data;
           if (errorData.non_field_errors && errorData.non_field_errors.includes("organization user with this User and Organization already exists.")) {

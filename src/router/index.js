@@ -26,7 +26,7 @@ const routes = [
     props: (route) => {
       return {
         workspace: route.params.workspace,
-      }
+      };
     },
     meta: {
       requiresAuth: true,
@@ -175,12 +175,10 @@ router.beforeEach((to, from) => {
   // are not explicitly specified in the requested URL. This will lead them to the workspace's home
   // where they left off the in the previous session
   const existingActiveWorkspace = store.state["auth"]["activeWorkspace"];
-  
+
   if (
-    existingActiveWorkspace != "" && (
-      to.params.workspace == undefined ||
-      to.params.workspace == "" 
-    )
+    existingActiveWorkspace != "" &&
+    (to.params.workspace == undefined || to.params.workspace == "")
   ) {
     to.params.workspace = existingActiveWorkspace;
   }
@@ -194,7 +192,6 @@ router.beforeEach((to, from) => {
       queryParams.every(
         (key) => to.query[key] != "" && to.query[key] != undefined
       );
-    
 
     if (isThirdPartyAuth) {
       // skip the login if authenticating via third party
@@ -203,8 +200,7 @@ router.beforeEach((to, from) => {
       // proceed to login if not authenticating via third party
       if (store.getters["auth/isAuthenticated"]) {
         return;
-      }
-      else {
+      } else {
         return {
           name: "Login",
           params: { redirectTo: to.name, params: JSON.stringify(to.params) },
@@ -256,11 +252,9 @@ router.beforeEach((to, from) => {
 // set workspace in vuex state if the route workspace parameter is in vuex user organizations array
 router.beforeEach((to) => {
   if (store.getters["auth/isAuthenticated"]) {
-    if (to.params.workspace != "" && to.params.workspace != undefined)
-    {
+    if (to.params.workspace != "" && to.params.workspace != undefined) {
       store.dispatch("auth/setActiveWorkspace", to.params.workspace);
-    }
-    else store.dispatch("auth/unsetActiveWorkspace");
+    } else store.dispatch("auth/unsetActiveWorkspace");
   }
   return;
 });

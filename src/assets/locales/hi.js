@@ -184,9 +184,9 @@ export default {
       },
       settings: {
         webhook: {
-          url_input_placeholder: "https://your-webhook-url.com/your/path"
-        }
-      }
+          url_input_placeholder: "https://your-webhook-url.com/your/path",
+        },
+      },
     },
   },
   home: {
@@ -465,7 +465,8 @@ export default {
           },
           add_math: {
             enabled: "सवाल में गणित जोड़ने के लिए क्लिक करें",
-            disabled: "प्लायो के प्रकाशित होने के बाद आप सवाल में गणित नहीं जोड़ सकते",
+            disabled:
+              "प्लायो के प्रकाशित होने के बाद आप सवाल में गणित नहीं जोड़ सकते",
           },
           close_math_editor: "गणित एडिटर बंद करें",
           question_type_picker: {
@@ -588,8 +589,10 @@ export default {
         firstTimeLanguagePickerPopup:
           "दर्शकों को पहली बार लॉगिन करते समय भाषा चुनने का विकल्प प्रदान करें",
         // customWebhook: "Configure a webhook for recieving events from plio",
-        customWebhook: "प्लायो से घटनाओं प्राप्त करने के लिए एक वेबहुक कॉन्फ़िगर करें",
-        organizationMembers: "संगठन के सदस्यों और उनकी भूमिकाओं का प्रबंधन करें",
+        customWebhook:
+          "प्लायो से घटनाओं प्राप्त करने के लिए एक वेबहुक कॉन्फ़िगर करें",
+        organizationMembers:
+          "संगठन के सदस्यों और उनकी भूमिकाओं का प्रबंधन करें",
       },
       description: {
         skipEnabled: "दर्शकों को प्रश्न छोड़ने का विकल्प प्रदान करें",

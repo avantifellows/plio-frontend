@@ -177,7 +177,7 @@
         // if user is SSO user, we take up the setting provided by the org,
         // and if the setting is not to show language picker, it won't be shown
         (
-          checkIfIsSSOUser && 
+          checkIfIsSSOUser &&
           isFirstTimeLanguagePickerShownBySetting !== null &&
           isFirstTimeLanguagePickerShownBySetting == true
         ) ||
