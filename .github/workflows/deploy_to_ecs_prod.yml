@@ -11,6 +11,11 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
 
+    # id-token lets the job log in to AWS as a role (OIDC) instead of using stored keys.
+    permissions:
+      contents: read
+      id-token: write
+
     environment:
       name: Production
       url: "https://app.plio.in"
@@ -20,11 +25,10 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: arn:aws:iam::111766607077:role/plio-frontend-prod-deploy
+          aws-region: ap-south-1
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -76,15 +80,11 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-      - name: Download task definition
-        run: |
-          aws ecs describe-task-definition --task-definition plio-frontend-production --query taskDefinition > task-definition.json
-
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: task-definition.json
+          task-definition: .aws/task-definition-production.json
           container-name: plio-frontend-production
           image: ${{ steps.build-image.outputs.image }}
 
