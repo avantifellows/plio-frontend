@@ -1,5 +1,11 @@
 <template>
-  <input :id="id" :class="className" type="file" @change="uploadFile" :accept="accept" />
+  <input
+    :id="id"
+    :class="className"
+    type="file"
+    @change="uploadFile"
+    :accept="accept"
+  />
 </template>
 
 <script>
@@ -55,7 +61,7 @@ export default {
      */
     maxWidth: {
       type: Number,
-      default: 1024,
+      default: 800,
     },
     /**
      * An integer in pixels for the maximum height allowed for uploaded images, selected images with a greater height than this value will be scaled down before upload.
@@ -64,7 +70,7 @@ export default {
      */
     maxHeight: {
       type: Number,
-      default: 1024,
+      default: 800,
     },
     /**
      * TODO: Does not make sens to me
@@ -74,7 +80,7 @@ export default {
      */
     maxSize: {
       type: Number,
-      default: null,
+      default: 2.0,
     },
     /**
      * A float between 0 and 1.00 for the image quality to use in the resulting image data, around 0.9 is recommended.
@@ -83,7 +89,7 @@ export default {
      */
     quality: {
       type: Number,
-      default: 1.0,
+      default: 0.85,
     },
     /**
      * Allows scaling down to a specified fraction of the original size. (Example: a value of 0.5 will reduce the size by half.) Accepts a decimal value between 0 and 1.
@@ -187,7 +193,8 @@ export default {
      */
     uploadFile(e) {
       this.$emit("uploading");
-      const file = e.target.files && e.target.files.length ? e.target.files[0] : null;
+      const file =
+        e.target.files && e.target.files.length ? e.target.files[0] : null;
       if (file) {
         this.emitLoad();
         this.handleFile(file);
@@ -219,9 +226,15 @@ export default {
       const mimetype = file.type.split("/"); // NB: Not supprted by Safari on iOS !??! @todo: TEST!
       const isImage = mimetype[0] === "image";
       const doNotResize =
-        typeof this.doNotResize === "string" ? [this.doNotResize] : this.doNotResize; // cast to array
+        typeof this.doNotResize === "string"
+          ? [this.doNotResize]
+          : this.doNotResize; // cast to array
       // Don't resize if not image or doNotResize is set
-      if (!isImage || doNotResize.includes("*") || doNotResize.includes(mimetype[1])) {
+      if (
+        !isImage ||
+        doNotResize.includes("*") ||
+        doNotResize.includes(mimetype[1])
+      ) {
         this.log("No Resize, return file directly");
         this.emitEvent(file); // does NOT respect the output format prop
         this.emitComplete();
@@ -255,7 +268,8 @@ export default {
       // Good explanation of EXIF orientation is here http://www.daveperrett.com/articles/2012/07/28/exif-orientation-handling-is-a-ghetto/
       if (this.autoRotate && orientation > 1) {
         this.log(
-          "ImageUploader: rotating image as per EXIF orientation tag = " + orientation
+          "ImageUploader: rotating image as per EXIF orientation tag = " +
+            orientation
         );
         const width = canvas.width;
         const styleWidth = canvas.style.width;
@@ -306,7 +320,10 @@ export default {
       let mWidth = Math.min(this.maxWidth, ratio * this.maxHeight);
       // suggested re-write by https://github.com/ryancramerdesign
       // https://github.com/rossturner/HTML5-ImageUploader/issues/13
-      if (this.maxSize > 0 && this.maxSize < (canvas.width * canvas.height) / 1000000) {
+      if (
+        this.maxSize > 0 &&
+        this.maxSize < (canvas.width * canvas.height) / 1000000
+      ) {
         const mSize = Math.floor(Math.sqrt(this.maxSize * ratio) * 1000);
         mWidth = mWidth > 0 ? Math.min(mWidth, mSize) : mSize;
       }
@@ -319,7 +336,10 @@ export default {
       this.dimensions.width = mWidth;
       this.dimensions.height = Math.floor(mWidth / ratio);
       this.log(
-        "ImageUploader: original image size = " + canvas.width + " X " + canvas.height
+        "ImageUploader: original image size = " +
+          canvas.width +
+          " X " +
+          canvas.height
       );
       this.log(
         "ImageUploader: scaled image size = " +
@@ -341,7 +361,8 @@ export default {
       }
       // suggested re-write by https://github.com/ryancramerdesign
       // https://github.com/rossturner/HTML5-ImageUploader/issues/13
-      const quality = this.currentFile.type === "image/jpeg" ? this.quality : 1.0;
+      const quality =
+        this.currentFile.type === "image/jpeg" ? this.quality : 1.0;
       const imageData = canvas.toDataURL(this.currentFile.type, quality);
       if (typeof this.onScale === "function") {
         this.onScale(imageData);
@@ -388,7 +409,9 @@ export default {
       function inner(f00, f10, f01, f11, x, y) {
         const un_x = 1.0 - x;
         const un_y = 1.0 - y;
-        return f00 * un_x * un_y + f10 * x * un_y + f01 * un_x * y + f11 * x * y;
+        return (
+          f00 * un_x * un_y + f10 * x * un_y + f01 * un_x * y + f11 * x * y
+        );
       }
       let i, j;
       let iyv, iy0, iy1, ixv, ix0, ix1;
@@ -496,7 +519,8 @@ export default {
         orgWidth: this.dimensions.orgWidth,
         orgHeight: this.dimensions.orgHeight,
         aspectRatio:
-          Math.round((this.dimensions.width / this.dimensions.height) * 100) / 100, //as Float
+          Math.round((this.dimensions.width / this.dimensions.height) * 100) /
+          100, //as Float
         modifiedTimestamp: this.currentFile.lastModified,
         modifiedDate: this.currentFile.lastModifiedDate,
       };
@@ -544,6 +568,13 @@ export default {
   created() {
     this.log("Initialised ImageUploader");
   },
-  emits: ["image-preview", "onUpload", "onComplete", "input", "change", "uploading"],
+  emits: [
+    "image-preview",
+    "onUpload",
+    "onComplete",
+    "input",
+    "change",
+    "uploading",
+  ],
 };
 </script>

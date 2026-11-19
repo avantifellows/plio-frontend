@@ -55,6 +55,9 @@
           class="rounded-md"
           alt="Video thumbnail"
           data-test="videoThumbnail"
+          loading="lazy"
+          decoding="async"
+          fetchpriority="low"
         />
 
         <!-- plio title -->
@@ -129,7 +132,12 @@ export default {
   },
   computed: {
     ...mapState("auth", ["activeWorkspace"]),
-    ...mapGetters("auth", ["isPersonalWorkspace", "hasWorkspaces", "workspaces", "activeWorkspaceDetails"]),
+    ...mapGetters("auth", [
+      "isPersonalWorkspace",
+      "hasWorkspaces",
+      "workspaces",
+      "activeWorkspaceDetails",
+    ]),
     ...mapState("sync", ["pending"]),
     ...mapState("generic", ["selectedPlioId"]),
     ...mapGetters("generic", ["isTabScreen"]),
@@ -218,11 +226,11 @@ export default {
 
       // now we allow people to copy plios from one workspace to another, given they are part of those workspaces
       // if (this.inPersonalWorkspaceWithOtherWorkspaces)
-        options.push({
-          value: "copy",
-          label: this.$t("home.table.plio_list_item.buttons.copy"),
-          icon: "move.svg",
-        });
+      options.push({
+        value: "copy",
+        label: this.$t("home.table.plio_list_item.buttons.copy"),
+        icon: "move.svg",
+      });
       return options;
     },
     statusBadge() {
@@ -261,7 +269,8 @@ export default {
     title() {
       if (this.plioDetails != undefined)
         return (
-          this.plioDetails.name || this.$t("generic.placeholders.empty_title_placeholder")
+          this.plioDetails.name ||
+          this.$t("generic.placeholders.empty_title_placeholder")
         );
       return "";
     },
@@ -273,7 +282,9 @@ export default {
     },
     /** whether the plio does not have a title */
     isUntitled() {
-      return this.title == this.$t("generic.placeholders.empty_title_placeholder");
+      return (
+        this.title == this.$t("generic.placeholders.empty_title_placeholder")
+      );
     },
   },
 
@@ -360,7 +371,8 @@ export default {
       if (this.isTabScreen) this.optionsOverflowMarginTop = -18;
       else this.optionsOverflowMarginTop = -16;
 
-      if (this.inPersonalWorkspaceWithOtherWorkspaces) this.optionsOverflowMarginTop -= 2;
+      if (this.inPersonalWorkspaceWithOtherWorkspaces)
+        this.optionsOverflowMarginTop -= 2;
     },
     async runAction(_, action) {
       // invoked when one of the action buttons is clicked
@@ -385,7 +397,9 @@ export default {
           break;
         case "delete":
           // configure the dialog box
-          this.setDialogTitle(this.$t("home.table.plio_list_item.dialog.delete.title"));
+          this.setDialogTitle(
+            this.$t("home.table.plio_list_item.dialog.delete.title")
+          );
           this.setDialogDescription(
             this.$t("home.table.plio_list_item.dialog.delete.description")
           );
@@ -398,7 +412,8 @@ export default {
           this.setCancelButtonConfig({
             enabled: true,
             text: this.$t("generic.no"),
-            class: "bg-primary hover:bg-primary-hover focus:outline-none text-white",
+            class:
+              "bg-primary hover:bg-primary-hover focus:outline-none text-white",
           });
           // show the dialog box
           this.showDialogBox();
@@ -419,8 +434,12 @@ export default {
           this.showSelector({
             type: "single",
             options: selectorOptions,
-            title: this.$t("home.table.plio_list_item.selectors.copy_to_workspace.title"),
-            info: this.$t("home.table.plio_list_item.selectors.copy_to_workspace.info"),
+            title: this.$t(
+              "home.table.plio_list_item.selectors.copy_to_workspace.title"
+            ),
+            info: this.$t(
+              "home.table.plio_list_item.selectors.copy_to_workspace.info"
+            ),
           });
           break;
         }
@@ -466,14 +485,18 @@ export default {
         .then(() => {
           this.hideSpinner();
           // notify of success
-          this.toast.success(this.$t("toast.home.table.plio_list_item.delete.success"));
+          this.toast.success(
+            this.$t("toast.home.table.plio_list_item.delete.success")
+          );
           this.$emit("deleted");
         })
         .catch(() => {
           // restore background
           this.hideSpinner();
           // notify of error
-          this.toast.error(this.$t("toast.home.table.plio_list_item.delete.error"));
+          this.toast.error(
+            this.$t("toast.home.table.plio_list_item.delete.error")
+          );
         });
     },
     /**
