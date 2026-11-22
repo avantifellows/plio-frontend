@@ -7,7 +7,7 @@ triggers:
   - "decision"
   - "alternative"
   - "we chose"
-last_updated: 2026-07-11
+last_updated: 2026-11-22
 ---
 
 # Decisions
@@ -35,3 +35,10 @@ last_updated: 2026-07-11
 **Decision:** Vuex state (tokens, user, workspace) survives reloads via `vuex-persistedstate`, encrypted in localStorage through `secure-ls`.
 **Reasoning:** SPA reloads shouldn't log users out; plain localStorage would expose tokens.
 **Consequences:** Auth-state shape changes are effectively migrations — stale persisted state in users' browsers must be handled.
+
+### Lock learner playback speed at 1x
+**Date:** 2026-11-22
+**Status:** Active
+**Decision:** The learner player (`src/pages/Embeds/Plio.vue` `plyrConfig`) leaves `speed` out of the Plyr settings menu and sets `speed: { selected: 1, options: [1] }`. For YouTube, Plyr limits the allowed speeds to `config.speed.options`, so any speed change is clamped to 1x.
+**Reasoning:** Watch time adds 0.05 s on every 50 ms Plyr `timeupdate` tick, so it counts real seconds spent watching. At 1.5x or 2x it came out well below how much of the video was covered. The owner chose to remove the speed control instead of changing how watch time is counted.
+**Consequences:** Learners can't rewatch faster. If speed control comes back, change watch time to count video seconds covered first, or sessions recorded at different speeds can't be compared.

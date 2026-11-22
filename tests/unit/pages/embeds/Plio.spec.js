@@ -82,6 +82,13 @@ describe("Plio.vue", () => {
     expect(wrapper.vm.isPlioLoaded).toBeFalsy();
   });
 
+  it("does not let learners change the playback speed", async () => {
+    await mountWrapper();
+    const plyrConfig = wrapper.vm.plyrConfig;
+    expect(plyrConfig.settings).not.toContain("speed");
+    expect(plyrConfig.speed).toEqual({ selected: 1, options: [1] });
+  });
+
   it("requests for plio when plio id is passed", async () => {
     await mountWrapper();
     // `getPlio` inside services/API/Plio.js should've been called
