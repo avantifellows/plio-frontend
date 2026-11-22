@@ -147,4 +147,48 @@ describe("VideoPlayer.vue", () => {
       expect(mockPlayer.embed.unMute).not.toHaveBeenCalled();
     });
   });
+
+  describe("speed changes outside the allowed speeds", () => {
+    async function mountAndChangeRate({ plyrConfig, newSpeed }) {
+      const handlers = {};
+      const mockPlayer = {
+        speed: newSpeed,
+        eventListeners: [],
+        on: jest.fn((event, handler) => (handlers[event] = handler)),
+      };
+      jest
+        .spyOn(VideoPlayer.methods, "createPlayer")
+        .mockReturnValue(mockPlayer);
+      mount(VideoPlayer, { props: { videoId: "4j4fYyWgl0w", plyrConfig } });
+      await nextTick();
+      handlers.ratechange();
+      return mockPlayer;
+    }
+
+    const limitedConfig = { speed: { selected: 1, options: [1, 1.25] } };
+
+    it("puts a speed set directly on the embed back to the selected speed", async () => {
+      const mockPlayer = await mountAndChangeRate({
+        plyrConfig: limitedConfig,
+        newSpeed: 2,
+      });
+      expect(mockPlayer.speed).toBe(1);
+    });
+
+    it("leaves an allowed speed alone", async () => {
+      const mockPlayer = await mountAndChangeRate({
+        plyrConfig: limitedConfig,
+        newSpeed: 1.25,
+      });
+      expect(mockPlayer.speed).toBe(1.25);
+    });
+
+    it("does nothing when the config doesn't limit speed", async () => {
+      const mockPlayer = await mountAndChangeRate({
+        plyrConfig: {},
+        newSpeed: 2,
+      });
+      expect(mockPlayer.speed).toBe(2);
+    });
+  });
 });
