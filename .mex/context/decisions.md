@@ -36,9 +36,9 @@ last_updated: 2026-11-22
 **Reasoning:** SPA reloads shouldn't log users out; plain localStorage would expose tokens.
 **Consequences:** Auth-state shape changes are effectively migrations — stale persisted state in users' browsers must be handled.
 
-### Lock learner playback speed at 1x
+### Limit learner playback speed to 1x and 1.25x
 **Date:** 2026-11-22
 **Status:** Active
-**Decision:** The learner player (`src/pages/Embeds/Plio.vue` `plyrConfig`) leaves `speed` out of the Plyr settings menu and sets `speed: { selected: 1, options: [1] }`. For YouTube, Plyr limits the allowed speeds to `config.speed.options`, so any speed change is clamped to 1x.
-**Reasoning:** Watch time adds 0.05 s on every 50 ms Plyr `timeupdate` tick, so it counts real seconds spent watching. At 1.5x or 2x it came out well below how much of the video was covered. The owner chose to remove the speed control instead of changing how watch time is counted.
-**Consequences:** Learners can't rewatch faster. If speed control comes back, change watch time to count video seconds covered first, or sessions recorded at different speeds can't be compared.
+**Decision:** The learner player (`src/pages/Embeds/Plio.vue` `plyrConfig`) sets `speed: { selected: 1, options: [1, 1.25] }`, so the Speed menu offers only Normal and 1.25x. For YouTube, Plyr limits the allowed speeds to `config.speed.options` and clamps any speed change made through Plyr. `VideoPlayer.vue` listens for `ratechange` and puts back any speed outside the configured options, which covers rates set directly on the YouTube embed (e.g. from devtools). The editor's full Preview renders `Plio.vue`, so creators see the same limits as learners.
+**Reasoning:** Watch time adds 0.05 s on every 50 ms Plyr `timeupdate` tick, so it counts real seconds spent watching. At 1.5x or 2x it came out well below how much of the video was covered. The team chose to allow 1.25x and nothing faster, rather than changing how watch time is counted.
+**Consequences:** At 1.25x, watch time reads about 80% of the video covered. If faster speeds come back, change watch time to count video seconds covered first, or sessions recorded at different speeds can't be compared.

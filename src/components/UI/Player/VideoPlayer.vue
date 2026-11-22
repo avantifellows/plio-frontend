@@ -123,6 +123,7 @@ export default {
       player.on("seeked", this.playerSeekEnded);
       player.on("ended", this.playbackEnded);
       player.on("progress", this.progressUpdated);
+      player.on("ratechange", this.playerRateChanged);
 
       /**
        * prevents entering into fullscreen by double clicking
@@ -174,6 +175,18 @@ export default {
       const embed = this.player.embed;
       if (this.player.muted || typeof embed?.isMuted !== "function") return;
       if (embed.isMuted()) embed.unMute();
+    },
+    /**
+     * Plyr only limits speed changes made through Plyr itself. A rate set
+     * directly on the YouTube embed (e.g. `embed.setPlaybackRate(2)` from
+     * devtools) gets through, so when the config lists the allowed speeds,
+     * put any other speed back to the configured one.
+     */
+    playerRateChanged() {
+      const speedConfig = this.plyrConfig?.speed;
+      if (!Array.isArray(speedConfig?.options)) return;
+      if (speedConfig.options.includes(this.player.speed)) return;
+      this.player.speed = speedConfig.selected;
     },
     playerSeekEnded() {
       // invoked when a seek operation has ended

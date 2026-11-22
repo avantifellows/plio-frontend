@@ -82,11 +82,11 @@ describe("Plio.vue", () => {
     expect(wrapper.vm.isPlioLoaded).toBeFalsy();
   });
 
-  it("does not let learners change the playback speed", async () => {
+  it("only lets learners pick 1x or 1.25x playback speed", async () => {
     await mountWrapper();
     const plyrConfig = wrapper.vm.plyrConfig;
-    expect(plyrConfig.settings).not.toContain("speed");
-    expect(plyrConfig.speed).toEqual({ selected: 1, options: [1] });
+    expect(plyrConfig.settings).toEqual(["captions", "quality", "speed"]);
+    expect(plyrConfig.speed).toEqual({ selected: 1, options: [1, 1.25] });
   });
 
   it("requests for plio when plio id is passed", async () => {
