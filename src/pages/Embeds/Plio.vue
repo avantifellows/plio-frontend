@@ -146,6 +146,12 @@ export default {
           "settings",
         ],
 
+        // learners can't change playback speed: speed is left out of the
+        // settings menu and 1x is the only allowed speed. Watch time counts
+        // real seconds spent watching, so a faster speed would lower it.
+        settings: ["captions", "quality"],
+        speed: { selected: 1, options: [1] },
+
         keyboard: {
           focused: false,
           global: false,
