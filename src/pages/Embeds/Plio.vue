@@ -146,11 +146,11 @@ export default {
           "settings",
         ],
 
-        // learners can't change playback speed: speed is left out of the
-        // settings menu and 1x is the only allowed speed. Watch time counts
-        // real seconds spent watching, so a faster speed would lower it.
-        settings: ["captions", "quality"],
-        speed: { selected: 1, options: [1] },
+        // learners can only pick 1x or 1.25x. Plyr limits speed changes to
+        // these options, and VideoPlayer puts any other speed back. Watch
+        // time counts real seconds spent watching, so a faster speed lowers it.
+        settings: ["captions", "quality", "speed"],
+        speed: { selected: 1, options: [1, 1.25] },
 
         keyboard: {
           focused: false,
